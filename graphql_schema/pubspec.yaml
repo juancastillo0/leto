@@ -10,4 +10,5 @@ dependencies:
   meta: ^1.0.0
   source_span: ^1.0.0
 dev_dependencies:
+  lint: ^1.0.0
   test: ">=0.12.0 <2.0.0"

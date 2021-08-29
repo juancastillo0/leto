@@ -12,7 +12,7 @@ class ValidationResult<Value> {
   /// A list of errors that caused validation to fail.
   final List<String> errors;
 
-  ValidationResult._(this.successful, this.value, this.errors);
+  // ValidationResult._(this.successful, this.value, this.errors);
 
   ValidationResult._ok(this.value)
       : errors = [],

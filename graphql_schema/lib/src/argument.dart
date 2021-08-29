@@ -1,6 +1,7 @@
 part of graphql_schema.src.schema;
 
-/// An input to a GraphQL field. This is analogous to a function parameter in Dart.
+/// An input to a GraphQL field. This is analogous
+/// to a function parameter in Dart.
 class GraphQLFieldInput<Value, Serialized> {
   /// The name of this field.
   final String name;
@@ -16,7 +17,8 @@ class GraphQLFieldInput<Value, Serialized> {
   /// This is useful when documenting your API for consumers like GraphiQL.
   final String description;
 
-  /// If [defaultValue] is `null`, and `null` is a valid value for this parameter, set this to `true`.
+  /// If [defaultValue] is `null`, and `null` is a valid value
+  /// for this parameter, set this to `true`.
   final bool defaultsToNull;
 
   static bool _isInputTypeOrScalar(GraphQLType type) {
@@ -35,14 +37,22 @@ class GraphQLFieldInput<Value, Serialized> {
     }
   }
 
-  GraphQLFieldInput(this.name, this.type,
-      {this.defaultValue, this.defaultsToNull: false, this.description}) {
-    assert(_isInputTypeOrScalar(type),
-        'All inputs to a GraphQL field must either be scalar types, or explicitly marked as INPUT_OBJECT. Call `GraphQLObjectType.asInputObject()` on any object types you are passing as inputs to a field.');
-  }
+  GraphQLFieldInput(
+    this.name,
+    this.type, {
+    this.defaultValue,
+    this.defaultsToNull = false,
+    this.description,
+  }) : assert(
+          _isInputTypeOrScalar(type),
+          'All inputs to a GraphQL field must either be scalar types'
+          ' or explicitly marked as INPUT_OBJECT. Call'
+          ' `GraphQLObjectType.asInputObject()` on any'
+          ' object types you are passing as inputs to a field.',
+        );
 
   @override
-  bool operator ==(other) =>
+  bool operator ==(Object other) =>
       other is GraphQLFieldInput &&
       other.name == name &&
       other.type == type &&

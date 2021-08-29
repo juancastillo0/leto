@@ -2,12 +2,12 @@ import 'package:graphql_schema/graphql_schema.dart';
 
 final GraphQLSchema todoSchema = new GraphQLSchema(
   queryType: objectType('Todo', fields: [
-    field(
+    field<Object, Object>(
       'text',
       graphQLString.nonNullable(),
       resolve: resolveToNull,
     ),
-    field(
+    field<Object, Object>(
       'created_at',
       graphQLDate,
       resolve: resolveToNull,
@@ -15,7 +15,7 @@ final GraphQLSchema todoSchema = new GraphQLSchema(
   ]),
 );
 
-main() {
+void main() {
   // Validation
   var validation = todoSchema.queryType.validate(
     '@root',
