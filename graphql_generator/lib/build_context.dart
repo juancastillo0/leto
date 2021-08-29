@@ -8,17 +8,17 @@ import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 class BuildContext {
-  ReCase _modelClassNameRecase;
-  TypeReference _modelClassType;
+  ReCase? _modelClassNameRecase;
+  TypeReference? _modelClassType;
 
   /// A map of fields that are absolutely required, and error messages for when they are absent.
   final Map<String, String> requiredFields = {};
 
   /// A map of field names to resolved names from `@Alias()` declarations.
-  final Map<String, String> aliases = {};
+  final Map<String, String?> aliases = {};
 
   /// A map of field names to their default values.
-  final Map<String, DartObject> defaults = {};
+  final Map<String, DartObject?> defaults = {};
 
   /// A map of fields to their related information.
   final Map<String, SerializableFieldMirror> fieldInfo = {};
@@ -30,7 +30,7 @@ class BuildContext {
   /// A map of "synthetic" fields, i.e. `id` and `created_at` injected automatically.
   final Map<String, bool> shimmed = {};
 
-  final bool autoIdAndDateFields, autoSnakeCaseNames;
+  final bool? autoIdAndDateFields, autoSnakeCaseNames;
 
   final String originalClassName, sourceFilename;
 
@@ -50,8 +50,8 @@ class BuildContext {
   String primaryKeyName = 'id';
 
   BuildContext(this.annotation, this.clazz,
-      {this.originalClassName,
-      this.sourceFilename,
+      {required this.originalClassName,
+      required this.sourceFilename,
       this.autoSnakeCaseNames,
       this.autoIdAndDateFields,
       this.includeAnnotations = const <DartObject>[]});
@@ -77,7 +77,7 @@ class BuildContext {
   }
 
   /// Get the aliased name (if one is defined) for a field.
-  String resolveFieldName(String name) =>
+  String? resolveFieldName(String name) =>
       aliases.containsKey(name) ? aliases[name] : name;
 
   /// Finds the type that the field [name] should serialize to.
@@ -88,12 +88,12 @@ class BuildContext {
 }
 
 class SerializableFieldMirror {
-  final String alias;
-  final DartObject defaultValue;
-  final Symbol serializer, deserializer;
-  final String errorMessage;
-  final bool isNullable, canDeserialize, canSerialize, exclude;
-  final DartType serializesTo;
+  final String? alias;
+  final DartObject? defaultValue;
+  final Symbol? serializer, deserializer;
+  final String? errorMessage;
+  final bool? isNullable, canDeserialize, canSerialize, exclude;
+  final DartType? serializesTo;
 
   SerializableFieldMirror(
       {this.alias,
@@ -111,7 +111,7 @@ class SerializableFieldMirror {
 final Map<String, BuildContext> _cache = {};
 
 /// Create a [BuildContext].
-Future<BuildContext> buildContext(
+Future<BuildContext?> buildContext(
   ClassElement clazz,
   ConstantReader annotation,
   BuildStep buildStep,
@@ -119,7 +119,7 @@ Future<BuildContext> buildContext(
   bool autoSnakeCaseNames, {
   bool heedExclude = true,
 }) async {
-  final id = clazz.location.components.join('-');
+  final id = clazz.location!.components.join('-');
   if (_cache.containsKey(id)) {
     return _cache[id];
   }
@@ -142,7 +142,7 @@ Future<BuildContext> buildContext(
   final fields = <FieldElement>[];
 
   // Crawl for classes from parent classes.
-  void crawlClass(InterfaceType t) {
+  void crawlClass(InterfaceType? t) {
     while (t != null) {
       fields.insertAll(0, t.element.fields);
       t.interfaces.forEach(crawlClass);
@@ -159,12 +159,13 @@ Future<BuildContext> buildContext(
     }
 
     if (field.getter != null &&
-        (field.setter != null || field.getter.isAbstract)) {
+        (field.setter != null || field.getter!.isAbstract)) {
       final el = field.setter == null ? field.getter : field;
       fieldNames.add(field.name);
 
       // Check for @SerializableField
-      final fieldAnn = null; // TODO: serializableFieldTypeChecker.firstAnnotationOf(el);
+      final dynamic fieldAnn =
+          null; // TODO: serializableFieldTypeChecker.firstAnnotationOf(el);
 
       void handleSerializableField(SerializableFieldMirror sField) {
         ctx.fieldInfo[field.name] = sField;
@@ -185,7 +186,7 @@ Future<BuildContext> buildContext(
           ctx.requiredFields[field.name] = reason;
         }
 
-        if (sField.exclude) {
+        if (sField.exclude!) {
           // ignore: deprecated_member_use
           // ctx.excluded[field.name] = Exclude(
           //   canSerialize: sField.canSerialize,
@@ -253,7 +254,7 @@ Future<BuildContext> buildContext(
   }
 
   // Get constructor params, if any
-  ctx.constructorParameters.addAll(clazz.unnamedConstructor.parameters);
+  ctx.constructorParameters.addAll(clazz.unnamedConstructor!.parameters);
 
   return ctx;
 }

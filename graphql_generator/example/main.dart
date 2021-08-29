@@ -3,10 +3,10 @@ part 'main.g.dart';
 
 @graphQLClass
 class TodoItem {
-  String text;
+  String? text;
 
   @GraphQLDocumentation(description: 'Whether this item is complete.')
-  bool isComplete;
+  bool? isComplete;
 }
 
 void main() {
