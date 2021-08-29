@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('single element', () async {
-    var todoType = objectType('todo', fields: [
+    final todoType = objectType('todo', fields: [
       field(
         'text',
         graphQLString,
@@ -17,7 +17,7 @@ void main() {
       ),
     ]);
 
-    var schema = graphQLSchema(
+    final schema = graphQLSchema(
       queryType: objectType('api', fields: [
         field(
           'todos',
@@ -32,8 +32,8 @@ void main() {
       ]),
     );
 
-    var graphql = GraphQL(schema);
-    var result = await graphql.parseAndExecute('{ todos { text } }');
+    final graphql = GraphQL(schema);
+    final result = await graphql.parseAndExecute('{ todos { text } }');
 
     print(result);
     expect(result, {

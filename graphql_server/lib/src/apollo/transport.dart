@@ -40,7 +40,7 @@ class OperationMessage {
   OperationMessage(this.type, {this.payload, this.id});
 
   factory OperationMessage.fromJson(Map map) {
-    var type = map['type'];
+    final type = map['type'];
     var payload = map['payload'];
     var id = map['id'];
 
@@ -63,7 +63,7 @@ class OperationMessage {
   }
 
   Map<String, dynamic> toJson() {
-    var out = <String, dynamic>{'type': type};
+    final out = <String, dynamic>{'type': type};
     if (id != null) out['id'] = id;
     if (payload != null) out['payload'] = payload;
     return out;

@@ -7,6 +7,9 @@ class RemoteClient extends StreamChannelMixin<OperationMessage> {
   final StreamChannelController<OperationMessage> _ctrl =
       StreamChannelController();
 
+  RemoteClient(StreamChannel<String> channel)
+      : this.withoutJson(jsonDocument.bind(channel).cast<Map>());
+
   RemoteClient.withoutJson(this.channel) {
     _ctrl.local.stream
         .map((m) => m.toJson())
@@ -17,8 +20,6 @@ class RemoteClient extends StreamChannelMixin<OperationMessage> {
     });
   }
 
-  RemoteClient(StreamChannel<String> channel)
-      : this.withoutJson(jsonDocument.bind(channel).cast<Map>());
   @override
   StreamSink<OperationMessage> get sink => _ctrl.foreign.sink;
 

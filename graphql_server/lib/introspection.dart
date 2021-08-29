@@ -1,18 +1,18 @@
 import 'package:gql/ast.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 
-/// Performs introspection over a GraphQL [schema], and returns a one, containing
-/// introspective information.
+/// Performs introspection over a GraphQL [schema], and returns a one,
+/// containing introspective information.
 ///
-/// [allTypes] should contain all types, not directly defined in the schema, that you
-/// would like to have introspection available for.
+/// [allTypes] should contain all types, not directly defined in the schema,
+/// that you would like to have introspection available for.
 GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
-  var typeType = _reflectSchemaTypes();
-  var directiveType = _reflectDirectiveType();
+  final typeType = _reflectSchemaTypes();
+  final directiveType = _reflectDirectiveType();
 
   Set<GraphQLType> allTypeSet;
 
-  var schemaType = objectType('__Schema', fields: [
+  final schemaType = objectType('__Schema', fields: [
     field(
       'types',
       listOf(typeType),
@@ -58,7 +58,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     _reflectEnumValueType(),
   ]);
 
-  var fields = <GraphQLObjectField>[
+  final fields = <GraphQLObjectField>[
     field(
       '__schema',
       schemaType,
@@ -69,10 +69,13 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
       typeType,
       inputs: [GraphQLFieldInput('name', graphQLString.nonNullable())],
       resolve: (_, args) {
-        var name = args['name'] as String;
-        return allTypes.firstWhere((t) => t.name == name,
-            orElse: () => throw GraphQLException.fromMessage(
-                'No type named "$name" exists.'));
+        final name = args['name'] as String;
+        return allTypes.firstWhere(
+          (t) => t.name == name,
+          orElse: () => throw GraphQLException.fromMessage(
+            'No type named "$name" exists.',
+          ),
+        );
       },
     ),
   ];
@@ -137,8 +140,8 @@ GraphQLObjectType _reflectSchemaTypes() {
       ),
     );
 
-    var fieldType = _reflectFields();
-    var inputValueType = _reflectInputValueType();
+    final fieldType = _reflectFields();
+    final inputValueType = _reflectInputValueType();
     var typeField = fieldType.fields
         .firstWhere((f) => f.name == 'type', orElse: () => null);
 
@@ -183,9 +186,9 @@ final GraphQLEnumType<String> _typeKindType =
 ]);
 
 GraphQLObjectType _createTypeType() {
-  var enumValueType = _reflectEnumValueType();
-  var fieldType = _reflectFields();
-  var inputValueType = _reflectInputValueType();
+  final enumValueType = _reflectEnumValueType();
+  final fieldType = _reflectFields();
+  final inputValueType = _reflectInputValueType();
 
   return objectType('__Type', fields: [
     field(
@@ -202,7 +205,7 @@ GraphQLObjectType _createTypeType() {
       'kind',
       _typeKindType,
       resolve: (type, _) {
-        var t = type as GraphQLType;
+        final t = type as GraphQLType;
 
         if (t is GraphQLEnumType) {
           return 'ENUM';
@@ -236,7 +239,8 @@ GraphQLObjectType _createTypeType() {
       resolve: (type, args) => type is GraphQLObjectType
           ? type.fields
               .where(
-                  (f) => !f.isDeprecated || args['includeDeprecated'] == true)
+                (f) => !f.isDeprecated || args['includeDeprecated'] == true,
+              )
               .toList()
           : null,
     ),
@@ -254,7 +258,8 @@ GraphQLObjectType _createTypeType() {
         if (obj is GraphQLEnumType) {
           return obj.values
               .where(
-                  (f) => !f.isDeprecated || args['includeDeprecated'] == true)
+                (f) => !f.isDeprecated || args['includeDeprecated'] == true,
+              )
               .toList();
         } else {
           return null;
@@ -278,15 +283,13 @@ GraphQLObjectType _createTypeType() {
 GraphQLObjectType _fieldType;
 
 GraphQLObjectType _reflectFields() {
-  if (_fieldType == null) {
-    _fieldType = _createFieldType();
-  }
+  _fieldType ??= _createFieldType();
 
   return _fieldType;
 }
 
 GraphQLObjectType _createFieldType() {
-  var inputValueType = _reflectInputValueType();
+  final inputValueType = _reflectInputValueType();
 
   return objectType('__Field', fields: [
     field(
@@ -319,8 +322,11 @@ GraphQLObjectType _createFieldType() {
 
 GraphQLObjectType _inputValueType;
 
-T _fetchFromInputValue<T>(x, T Function(GraphQLFieldInput) ifInput,
-    T Function(GraphQLInputObjectField) ifObjectField) {
+T _fetchFromInputValue<T>(
+  x,
+  T Function(GraphQLFieldInput) ifInput,
+  T Function(GraphQLInputObjectField) ifObjectField,
+) {
   if (x is GraphQLFieldInput) {
     return ifInput(x);
   } else if (x is GraphQLInputObjectField) {
@@ -347,8 +353,11 @@ GraphQLObjectType _reflectInputValueType() {
     field(
       'defaultValue',
       graphQLString,
-      resolve: (obj, _) => _fetchFromInputValue(obj,
-          (f) => f.defaultValue?.toString(), (f) => f.defaultValue?.toString()),
+      resolve: (obj, _) => _fetchFromInputValue(
+        obj,
+        (f) => f.defaultValue?.toString(),
+        (f) => f.defaultValue?.toString(),
+      ),
     ),
   ]);
 }
@@ -366,7 +375,7 @@ final GraphQLEnumType<String> _directiveLocationType =
 ]);
 
 GraphQLObjectType _reflectDirectiveType() {
-  var inputValueType = _reflectInputValueType();
+  final inputValueType = _reflectInputValueType();
 
   // TODO: What actually is this???
   return _directiveType ??= objectType('__Directive', fields: [
@@ -426,7 +435,7 @@ GraphQLObjectType _reflectEnumValueType() {
 
 List<GraphQLType> fetchAllTypes(
     GraphQLSchema schema, List<GraphQLType> specifiedTypes) {
-  var data = Set<GraphQLType>()
+  final data = <GraphQLType>{}
     ..add(schema.queryType)
     ..addAll(specifiedTypes);
 
@@ -442,7 +451,7 @@ List<GraphQLType> fetchAllTypes(
 }
 
 class CollectTypes {
-  Set<GraphQLType> traversedTypes = Set();
+  Set<GraphQLType> traversedTypes = {};
 
   Set<GraphQLType> get types => traversedTypes;
 
@@ -456,35 +465,35 @@ class CollectTypes {
 
   void _fetchAllTypesFromObject(GraphQLObjectType objectType) {
     if (traversedTypes.contains(objectType)) {
-      return null;
+      return;
     }
 
     traversedTypes.add(objectType);
 
-    for (var field in objectType.fields) {
+    for (final field in objectType.fields) {
       if (field.type is GraphQLObjectType) {
         _fetchAllTypesFromObject(field.type as GraphQLObjectType);
       } else if (field.type is GraphQLInputObjectType) {
-        for (var v in (field.type as GraphQLInputObjectType).inputFields) {
+        for (final v in (field.type as GraphQLInputObjectType).inputFields) {
           _fetchAllTypesFromType(v.type);
         }
       } else {
         _fetchAllTypesFromType(field.type);
       }
 
-      for (var input in field.inputs ?? <GraphQLFieldInput>[]) {
+      for (final input in field.inputs ?? <GraphQLFieldInput>[]) {
         _fetchAllTypesFromType(input.type);
       }
     }
 
-    for (var i in objectType.interfaces) {
+    for (final i in objectType.interfaces) {
       _fetchAllTypesFromObject(i);
     }
   }
 
   void _fetchAllTypesFromType(GraphQLType type) {
     if (traversedTypes.contains(type)) {
-      return null;
+      return;
     }
 
     /*
@@ -502,21 +511,21 @@ class CollectTypes {
      */
     if (type is GraphQLEnumType) {
       traversedTypes.add(type);
-      return null;
+      return;
     }
     if (type is GraphQLUnionType) {
       traversedTypes.add(type);
-      for (var t in type.possibleTypes) {
+      for (final t in type.possibleTypes) {
         _fetchAllTypesFromType(t);
       }
-      return null;
+      return;
     }
     if (type is GraphQLInputObjectType) {
       traversedTypes.add(type);
-      for (var v in type.inputFields) {
+      for (final v in type.inputFields) {
         _fetchAllTypesFromType(v.type);
       }
-      return null;
+      return;
     }
 
     /*
@@ -526,6 +535,6 @@ class CollectTypes {
       return _fetchAllTypesFromObject(type);
     }
 
-    return null;
+    return;
   }
 }

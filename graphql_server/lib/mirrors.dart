@@ -53,7 +53,7 @@ GraphQLType _objectTypeFromDartType(Type type, [List<Type> typeArguments]) {
     return graphQLDate;
   }
 
-  var mirror = reflectType(
+  final mirror = reflectType(
       type, typeArguments?.isNotEmpty == true ? typeArguments : null);
 
   if (mirror is! ClassMirror) {
@@ -61,11 +61,11 @@ GraphQLType _objectTypeFromDartType(Type type, [List<Type> typeArguments]) {
         '$type is not a class, and therefore cannot be converted into a GraphQL object type.');
   }
 
-  var clazz = mirror as ClassMirror;
+  final clazz = mirror as ClassMirror;
 
   if (clazz.isAssignableTo(reflectType(Iterable))) {
     if (clazz.typeArguments.isNotEmpty) {
-      var inner = convertDartType(clazz.typeArguments[0].reflectedType);
+      final inner = convertDartType(clazz.typeArguments[0].reflectedType);
       //if (inner == null) return null;
       return listOf(inner.nonNullable());
     }
@@ -87,15 +87,15 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
     return _cache[mirror.reflectedType] as GraphQLObjectType;
   } else {}
 
-  var fields = <GraphQLObjectField>[];
-  var ready = <Symbol, MethodMirror>{};
-  var forward = <Symbol, MethodMirror>{};
+  final fields = <GraphQLObjectField>[];
+  final ready = <Symbol, MethodMirror>{};
+  final forward = <Symbol, MethodMirror>{};
 
   void walkMap(Map<Symbol, MethodMirror> map) {
-    for (var name in map.keys) {
-      var methodMirror = map[name];
-      var exclude = _getExclude(name, methodMirror);
-      var canAdd = name != #hashCode &&
+    for (final name in map.keys) {
+      final methodMirror = map[name];
+      final exclude = _getExclude(name, methodMirror);
+      final canAdd = name != #hashCode &&
           name != #runtimeType &&
           !methodMirror.isPrivate &&
           exclude?.canSerialize != true;
@@ -126,7 +126,7 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
           name != #runtimeType &&
           name != #hashCode &&
           MirrorSystem.getName(name) != '_identityHashCode') {
-        var returnType = methodMirror.returnType;
+        final returnType = methodMirror.returnType;
 
         if (isReady(returnType)) {
           ready[name] = methodMirror;
@@ -142,7 +142,7 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
   walkMap(ready);
 
   if (mirror.isAbstract) {
-    var decls = <Symbol, MethodMirror>{};
+    final decls = <Symbol, MethodMirror>{};
 
     mirror.declarations.forEach((name, decl) {
       if (decl is MethodMirror) {
@@ -157,8 +157,8 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
     //walkMap(decls);
   }
 
-  var inheritsFrom = <GraphQLObjectType>[];
-  var primitiveTypes = const <Type>[
+  final inheritsFrom = <GraphQLObjectType>[];
+  const primitiveTypes = <Type>[
     String,
     bool,
     num,
@@ -174,7 +174,7 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
   void walk(ClassMirror parent) {
     if (!primitiveTypes.contains(parent.reflectedType)) {
       if (parent.isAbstract) {
-        var obj = convertDartType(parent.reflectedType);
+        final obj = convertDartType(parent.reflectedType);
 
         if (obj is GraphQLObjectType && !inheritsFrom.contains(obj)) {
           inheritsFrom.add(obj);
@@ -208,11 +208,11 @@ GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
 
 @deprecated
 GraphQLEnumType enumTypeFromClassMirror(ClassMirror mirror) {
-  var values = <GraphQLEnumValue>[];
+  final values = <GraphQLEnumValue>[];
 
-  for (var name in mirror.staticMembers.keys) {
+  for (final name in mirror.staticMembers.keys) {
     if (name != #values) {
-      var methodMirror = mirror.staticMembers[name];
+      final methodMirror = mirror.staticMembers[name];
       values.add(
         GraphQLEnumValue(
           MirrorSystem.getName(name),
@@ -235,10 +235,10 @@ GraphQLEnumType enumTypeFromClassMirror(ClassMirror mirror) {
 GraphQLObjectField fieldFromGetter(
     Symbol name, MethodMirror mirror, Exclude exclude, ClassMirror clazz) {
   var type = _getProvidedType(mirror.metadata);
-  var wasProvided = type != null;
+  final wasProvided = type != null;
 
   if (!wasProvided) {
-    var returnType = mirror.returnType;
+    final returnType = mirror.returnType;
 
     if (!clazz.isAssignableTo(returnType)) {
       type = convertDartType(returnType.reflectedType,
@@ -246,8 +246,8 @@ GraphQLObjectField fieldFromGetter(
     }
   }
 
-  var nameString = _getSerializedName(name, mirror, clazz);
-  var defaultValue = _getDefaultValue(mirror);
+  final nameString = _getSerializedName(name, mirror, clazz);
+  final defaultValue = _getDefaultValue(mirror);
 
   if (!wasProvided && (nameString == 'id' && _autoNames(clazz))) {
     type = graphQLId;
@@ -270,9 +270,9 @@ GraphQLObjectField fieldFromGetter(
 }
 
 Exclude _getExclude(Symbol name, MethodMirror mirror) {
-  for (var obj in mirror.metadata) {
+  for (final obj in mirror.metadata) {
     if (obj.reflectee is Exclude) {
-      var exclude = obj.reflectee as Exclude;
+      final exclude = obj.reflectee as Exclude;
       return exclude;
     }
   }
@@ -282,17 +282,17 @@ Exclude _getExclude(Symbol name, MethodMirror mirror) {
 
 String _getSerializedName(Symbol name, MethodMirror mirror, ClassMirror clazz) {
   // First search for an @Alias()
-  for (var obj in mirror.metadata) {
+  for (final obj in mirror.metadata) {
     if (obj.reflectee is SerializableField) {
-      var alias = obj.reflectee as SerializableField;
+      final alias = obj.reflectee as SerializableField;
       return alias.alias;
     }
   }
 
   // Next, search for a @Serializable()
-  for (var obj in clazz.metadata) {
+  for (final obj in clazz.metadata) {
     if (obj.reflectee is Serializable) {
-      var ann = obj.reflectee as Serializable;
+      final ann = obj.reflectee as Serializable;
 
       if (ann.autoSnakeCaseNames != false) {
         return ReCase(MirrorSystem.getName(name)).snakeCase;
@@ -305,9 +305,9 @@ String _getSerializedName(Symbol name, MethodMirror mirror, ClassMirror clazz) {
 
 dynamic _getDefaultValue(MethodMirror mirror) {
   // Search for a @DefaultValue
-  for (var obj in mirror.metadata) {
+  for (final obj in mirror.metadata) {
     if (obj.reflectee is SerializableField) {
-      var ann = obj.reflectee as SerializableField;
+      final ann = obj.reflectee as SerializableField;
       return ann.defaultValue;
     }
   }
@@ -317,7 +317,7 @@ dynamic _getDefaultValue(MethodMirror mirror) {
 
 bool _autoNames(ClassMirror clazz) {
   // Search for a @Serializable()
-  for (var obj in clazz.metadata) {
+  for (final obj in clazz.metadata) {
     if (obj.reflectee is Serializable) {
       return true;
       // var ann = obj.reflectee as Serializable;
@@ -329,9 +329,9 @@ bool _autoNames(ClassMirror clazz) {
 }
 
 String _getDeprecationReason(List<InstanceMirror> metadata) {
-  for (var obj in metadata) {
+  for (final obj in metadata) {
     if (obj.reflectee is Deprecated) {
-      var expires = (obj.reflectee as Deprecated).message;
+      final expires = (obj.reflectee as Deprecated).message;
 
       if (expires == deprecated.message) {
         return 'Expires after $expires';
@@ -347,7 +347,7 @@ String _getDeprecationReason(List<InstanceMirror> metadata) {
 }
 
 String _getDescription(List<InstanceMirror> metadata) {
-  for (var obj in metadata) {
+  for (final obj in metadata) {
     if (obj.reflectee is GraphQLDocumentation) {
       return (obj.reflectee as GraphQLDocumentation).description;
     }
@@ -357,7 +357,7 @@ String _getDescription(List<InstanceMirror> metadata) {
 }
 
 GraphQLType _getProvidedType(List<InstanceMirror> metadata) {
-  for (var obj in metadata) {
+  for (final obj in metadata) {
     if (obj.reflectee is GraphQLDocumentation) {
       return (obj.reflectee as GraphQLDocumentation).type();
     }

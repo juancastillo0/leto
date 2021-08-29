@@ -6,8 +6,8 @@ void main() {
   group('convertDartType', () {
     group('on enum', () {
       // ignore: deprecated_member_use_from_same_package
-      var type = convertDartType(RomanceLanguage);
-      var asEnumType = type as GraphQLEnumType;
+      final type = convertDartType(RomanceLanguage);
+      final asEnumType = type as GraphQLEnumType;
 
       test('produces enum type', () {
         expect(type is GraphQLEnumType, true);

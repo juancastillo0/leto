@@ -25,7 +25,7 @@ abstract class Server {
                     '${msg.type} payload must be a map (object).');
               }
 
-              var connect = await onConnect(client, connectionParams);
+              final connect = await onConnect(client, connectionParams);
               if (!connect) throw false;
               _init = true;
               client.sink
@@ -33,10 +33,12 @@ abstract class Server {
 
               if (keepAliveInterval != null) {
                 client.sink.add(
-                    OperationMessage(OperationMessage.gqlConnectionKeepAlive));
+                  OperationMessage(OperationMessage.gqlConnectionKeepAlive),
+                );
                 _timer ??= Timer.periodic(keepAliveInterval, (timer) {
-                  client.sink.add(OperationMessage(
-                      OperationMessage.gqlConnectionKeepAlive));
+                  client.sink.add(
+                    OperationMessage(OperationMessage.gqlConnectionKeepAlive),
+                  );
                 });
               }
             } catch (e) {
@@ -57,10 +59,10 @@ abstract class Server {
                 throw FormatException(
                     '${msg.type} payload must be a map (object).');
               }
-              var payload = msg.payload as Map;
-              var query = payload['query'];
-              var variables = payload['variables'];
-              var operationName = payload['operationName'];
+              final payload = msg.payload as Map;
+              final query = payload['query'];
+              final variables = payload['variables'];
+              final operationName = payload['operationName'];
               if (query == null || query is! String) {
                 throw FormatException(
                     '${msg.type} payload must contain a string named "query".');
@@ -73,11 +75,12 @@ abstract class Server {
                 throw FormatException(
                     '${msg.type} payload\'s "operationName" field must be a string.');
               }
-              var result = await onOperation(
-                  msg.id,
-                  query as String,
-                  (variables as Map)?.cast<String, dynamic>(),
-                  operationName as String);
+              final result = await onOperation(
+                msg.id,
+                query as String,
+                (variables as Map)?.cast<String, dynamic>(),
+                operationName as String,
+              );
               var data = result.data;
 
               if (result.errors.isNotEmpty) {
@@ -122,8 +125,12 @@ abstract class Server {
   }
 
   void _reportError(String message) {
-    client.sink.add(OperationMessage(OperationMessage.gqlConnectionError,
-        payload: {'message': message}));
+    client.sink.add(
+      OperationMessage(
+        OperationMessage.gqlConnectionError,
+        payload: {'message': message},
+      ),
+    );
   }
 
   FutureOr<bool> onConnect(RemoteClient client, [Map connectionParams]);
