@@ -91,7 +91,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
 
 GraphQLObjectType _typeType;
 
-GraphQLObjectType _reflectSchemaTypes() {
+GraphQLObjectType/*!*/ _reflectSchemaTypes() {
   if (_typeType == null) {
     _typeType = _createTypeType();
     _typeType.fields.add(
@@ -282,10 +282,8 @@ GraphQLObjectType _createTypeType() {
 
 GraphQLObjectType _fieldType;
 
-GraphQLObjectType _reflectFields() {
-  _fieldType ??= _createFieldType();
-
-  return _fieldType;
+GraphQLObjectType/*!*/ _reflectFields() {
+  return _fieldType ??= _createFieldType();
 }
 
 GraphQLObjectType _createFieldType() {

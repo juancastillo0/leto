@@ -6,7 +6,7 @@ abstract class Server {
   final RemoteClient client;
   final Duration keepAliveInterval;
   final Completer _done = Completer();
-  StreamSubscription<OperationMessage> _sub;
+  /*late final*/StreamSubscription<OperationMessage> _sub;
   bool _init = false;
   Timer _timer;
 

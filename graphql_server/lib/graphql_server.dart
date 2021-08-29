@@ -19,7 +19,7 @@ Map<String, dynamic> foldToStringDynamic(Map map) {
 /// A Dart implementation of a GraphQL server.
 class GraphQL {
   /// Any custom types to include in introspection information.
-  final List<GraphQLType> customTypes = [];
+  final List<GraphQLType /*!*/ > customTypes = [];
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s,
@@ -67,7 +67,7 @@ class GraphQL {
   ) =>
       node.accept(GraphQLValueComputer(targetType, values));
 
-  GraphQLType convertType(TypeNode node) {
+  GraphQLType /*!*/ convertType(TypeNode node) {
     if (node is ListTypeNode) {
       return GraphQLListType(convertType(node.type));
     } else if (node is NamedTypeNode) {
@@ -141,7 +141,7 @@ class GraphQL {
     String operationName,
     Map<String, dynamic> variableValues = const <String, dynamic>{},
     Object initialValue,
-    Map<String, dynamic> globalVariables = const <String, dynamic>{},
+    Map<String, dynamic> globalVariables,
   }) async {
     final operation = getOperation(document, operationName);
     final coercedVariableValues = coerceVariableValues(
@@ -413,7 +413,7 @@ class GraphQL {
     return resultMap;
   }
 
-  Future executeField(
+  Future<Object> executeField(
     DocumentNode document,
     String fieldName,
     GraphQLObjectType objectType,
@@ -549,7 +549,7 @@ class GraphQL {
     }
   }
 
-  Future completeValue(
+  Future<Object> completeValue(
     DocumentNode document,
     String fieldName,
     GraphQLType fieldType,
