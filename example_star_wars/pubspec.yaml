@@ -15,8 +15,6 @@ dev_dependencies:
   graphql_generator:
     path: ../graphql_generator
 dependency_overrides:
-  graphql_parser:
-    path: ../graphql_parser
   graphql_schema:
     path: ../graphql_schema
   graphql_server:
