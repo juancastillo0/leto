@@ -4,11 +4,11 @@ import 'transport.dart';
 
 abstract class Server {
   final RemoteClient client;
-  final Duration keepAliveInterval;
+  final Duration? keepAliveInterval;
   final Completer _done = Completer();
-  /*late final*/StreamSubscription<OperationMessage> _sub;
+  late final StreamSubscription<OperationMessage> _sub;
   bool _init = false;
-  Timer _timer;
+  Timer? _timer;
 
   Future get done => _done.future;
 
@@ -17,9 +17,9 @@ abstract class Server {
         (msg) async {
           if ((msg.type == OperationMessage.gqlConnectionInit) && !_init) {
             try {
-              Map connectionParams;
+              Map? connectionParams;
               if (msg.payload is Map) {
-                connectionParams = msg.payload as Map;
+                connectionParams = msg.payload as Map?;
               } else if (msg.payload != null) {
                 throw FormatException(
                     '${msg.type} payload must be a map (object).');
@@ -35,7 +35,7 @@ abstract class Server {
                 client.sink.add(
                   OperationMessage(OperationMessage.gqlConnectionKeepAlive),
                 );
-                _timer ??= Timer.periodic(keepAliveInterval, (timer) {
+                _timer ??= Timer.periodic(keepAliveInterval!, (timer) {
                   client.sink.add(
                     OperationMessage(OperationMessage.gqlConnectionKeepAlive),
                   );
@@ -77,9 +77,9 @@ abstract class Server {
               }
               final result = await onOperation(
                 msg.id,
-                query as String,
-                (variables as Map)?.cast<String, dynamic>(),
-                operationName as String,
+                query,
+                (variables as Map?)?.cast<String, dynamic>(),
+                operationName as String?,
               );
               var data = result.data;
 
@@ -113,7 +113,7 @@ abstract class Server {
               client.sink.add(
                   OperationMessage(OperationMessage.gqlComplete, id: msg.id));
             } else if (msg.type == OperationMessage.gqlConnectionTerminate) {
-              await _sub?.cancel();
+              await _sub.cancel();
             }
           }
         },
@@ -133,8 +133,8 @@ abstract class Server {
     );
   }
 
-  FutureOr<bool> onConnect(RemoteClient client, [Map connectionParams]);
+  FutureOr<bool> onConnect(RemoteClient client, [Map? connectionParams]);
 
-  FutureOr<GraphQLResult> onOperation(String id, String query,
-      [Map<String, dynamic> variables, String operationName]);
+  FutureOr<GraphQLResult> onOperation(String? id, String query,
+      [Map<String, dynamic>? variables, String? operationName]);
 }

@@ -4,9 +4,9 @@ author: Tobe O <thosakwe@gmail.com>
 description: Base package for implementing GraphQL servers. You might prefer `package:angel_graphql`, the fastest way to implement GraphQL backends in Dart.
 homepage: https://github.com/angel-dart/graphql
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 dependencies:
-  collection: ^1.0.0
+  collection: ^1.15.0-nullsafety.4
   gql: ^0.13.0
   graphql_schema: ^1.0.0
   meta: ^1.0.0

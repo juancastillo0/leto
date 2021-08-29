@@ -34,7 +34,7 @@ class OperationMessage {
   //     gqlError = 'GQL_ERROR',
   //     gqlComplete = 'GQL_COMPLETE';
   final dynamic payload;
-  final String id;
+  final String? id;
   final String type;
 
   OperationMessage(this.type, {this.payload, this.id});
@@ -59,7 +59,7 @@ class OperationMessage {
     if (map.containsKey('query') ||
         map.containsKey('operationName') ||
         map.containsKey('variables')) payload = Map.from(map);
-    return OperationMessage(type as String, id: id as String, payload: payload);
+    return OperationMessage(type, id: id as String?, payload: payload);
   }
 
   Map<String, dynamic> toJson() {
