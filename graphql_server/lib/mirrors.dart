@@ -1,367 +1,367 @@
-// ignore_for_file: deprecated_member_use_from_same_package
-import 'dart:mirrors';
-import 'package:angel_serialize/angel_serialize.dart';
-import 'package:graphql_schema/graphql_schema.dart';
-import 'package:recase/recase.dart';
+// // ignore_for_file: deprecated_member_use_from_same_package
+// import 'dart:mirrors';
+// import 'package:angel_serialize/angel_serialize.dart';
+// import 'package:graphql_schema/graphql_schema.dart';
+// import 'package:recase/recase.dart';
 
-/// Uses `dart:mirrors` to read field names from items. If they are Maps, performs a regular lookup.
-T mirrorsFieldResolver<T>(objectValue, String fieldName,
-    [Map<String, dynamic> objectValues]) {
-  if (objectValue is Map) {
-    return objectValue[fieldName] as T;
-  } else {
-    return reflect(objectValue).getField(Symbol(fieldName)).reflectee as T;
-  }
-}
+// /// Uses `dart:mirrors` to read field names from items. If they are Maps, performs a regular lookup.
+// T mirrorsFieldResolver<T>(objectValue, String fieldName,
+//     [Map<String, dynamic> objectValues]) {
+//   if (objectValue is Map) {
+//     return objectValue[fieldName] as T;
+//   } else {
+//     return reflect(objectValue).getField(Symbol(fieldName)).reflectee as T;
+//   }
+// }
 
-/// Reflects upon a given [type] and dynamically generates a [GraphQLType] that corresponds to it.
-///
-/// This function is aware of the annotations from `package:angel_serialize`, and works seamlessly
-/// with them.
-@deprecated
-GraphQLType convertDartType(Type type, [List<Type> typeArguments]) {
-  if (_cache[type] != null) {
-    return _cache[type];
-  } else {
-    return _objectTypeFromDartType(type, typeArguments);
-  }
-}
+// /// Reflects upon a given [type] and dynamically generates a [GraphQLType] that corresponds to it.
+// ///
+// /// This function is aware of the annotations from `package:angel_serialize`, and works seamlessly
+// /// with them.
+// @deprecated
+// GraphQLType convertDartType(Type type, [List<Type> typeArguments]) {
+//   if (_cache[type] != null) {
+//     return _cache[type];
+//   } else {
+//     return _objectTypeFromDartType(type, typeArguments);
+//   }
+// }
 
-/// Shorthand for [convertDartType], for when you know the result will be an object type.
-@deprecated
-GraphQLObjectType convertDartClass(Type type, [List<Type> typeArguments]) {
-  return convertDartType(type, typeArguments) as GraphQLObjectType;
-}
+// /// Shorthand for [convertDartType], for when you know the result will be an object type.
+// @deprecated
+// GraphQLObjectType convertDartClass(Type type, [List<Type> typeArguments]) {
+//   return convertDartType(type, typeArguments) as GraphQLObjectType;
+// }
 
-final Map<Type, GraphQLType> _cache = <Type, GraphQLType>{};
+// final Map<Type, GraphQLType> _cache = <Type, GraphQLType>{};
 
-GraphQLType _objectTypeFromDartType(Type type, [List<Type> typeArguments]) {
-  if (type == bool) {
-    return graphQLBoolean;
-  } else if (type == int) {
-    return graphQLInt;
-  } else if (type == double) {
-    return graphQLFloat;
-  } else if (type == num) {
-    throw UnsupportedError(
-        'Cannot convert `num` to a GraphQL type. Choose `int` or `float` instead.');
-  } else if (type == Null) {
-    throw UnsupportedError('Cannot convert `Null` to a GraphQL type.');
-  } else if (type == String) {
-    return graphQLString;
-  } else if (type == DateTime) {
-    return graphQLDate;
-  }
+// GraphQLType _objectTypeFromDartType(Type type, [List<Type> typeArguments]) {
+//   if (type == bool) {
+//     return graphQLBoolean;
+//   } else if (type == int) {
+//     return graphQLInt;
+//   } else if (type == double) {
+//     return graphQLFloat;
+//   } else if (type == num) {
+//     throw UnsupportedError(
+//         'Cannot convert `num` to a GraphQL type. Choose `int` or `float` instead.');
+//   } else if (type == Null) {
+//     throw UnsupportedError('Cannot convert `Null` to a GraphQL type.');
+//   } else if (type == String) {
+//     return graphQLString;
+//   } else if (type == DateTime) {
+//     return graphQLDate;
+//   }
 
-  final mirror = reflectType(
-      type, typeArguments?.isNotEmpty == true ? typeArguments : null);
+//   final mirror = reflectType(
+//       type, typeArguments?.isNotEmpty == true ? typeArguments : null);
 
-  if (mirror is! ClassMirror) {
-    throw StateError(
-        '$type is not a class, and therefore cannot be converted into a GraphQL object type.');
-  }
+//   if (mirror is! ClassMirror) {
+//     throw StateError(
+//         '$type is not a class, and therefore cannot be converted into a GraphQL object type.');
+//   }
 
-  final clazz = mirror as ClassMirror;
+//   final clazz = mirror as ClassMirror;
 
-  if (clazz.isAssignableTo(reflectType(Iterable))) {
-    if (clazz.typeArguments.isNotEmpty) {
-      final inner = convertDartType(clazz.typeArguments[0].reflectedType);
-      //if (inner == null) return null;
-      return listOf(inner.nonNullable());
-    }
+//   if (clazz.isAssignableTo(reflectType(Iterable))) {
+//     if (clazz.typeArguments.isNotEmpty) {
+//       final inner = convertDartType(clazz.typeArguments[0].reflectedType);
+//       //if (inner == null) return null;
+//       return listOf(inner.nonNullable());
+//     }
 
-    throw ArgumentError(
-        'Cannot convert ${clazz.reflectedType}, an iterable WITHOUT a type argument, into a GraphQL type.');
-  }
+//     throw ArgumentError(
+//         'Cannot convert ${clazz.reflectedType}, an iterable WITHOUT a type argument, into a GraphQL type.');
+//   }
 
-  if (clazz.isEnum) {
-    return enumTypeFromClassMirror(clazz);
-  }
+//   if (clazz.isEnum) {
+//     return enumTypeFromClassMirror(clazz);
+//   }
 
-  return objectTypeFromClassMirror(clazz);
-}
+//   return objectTypeFromClassMirror(clazz);
+// }
 
-@deprecated
-GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
-  if (_cache[mirror.reflectedType] != null) {
-    return _cache[mirror.reflectedType] as GraphQLObjectType;
-  } else {}
+// @deprecated
+// GraphQLObjectType objectTypeFromClassMirror(ClassMirror mirror) {
+//   if (_cache[mirror.reflectedType] != null) {
+//     return _cache[mirror.reflectedType] as GraphQLObjectType;
+//   } else {}
 
-  final fields = <GraphQLObjectField>[];
-  final ready = <Symbol, MethodMirror>{};
-  final forward = <Symbol, MethodMirror>{};
+//   final fields = <GraphQLObjectField>[];
+//   final ready = <Symbol, MethodMirror>{};
+//   final forward = <Symbol, MethodMirror>{};
 
-  void walkMap(Map<Symbol, MethodMirror> map) {
-    for (final name in map.keys) {
-      final methodMirror = map[name];
-      final exclude = _getExclude(name, methodMirror);
-      final canAdd = name != #hashCode &&
-          name != #runtimeType &&
-          !methodMirror.isPrivate &&
-          exclude?.canSerialize != true;
+//   void walkMap(Map<Symbol, MethodMirror> map) {
+//     for (final name in map.keys) {
+//       final methodMirror = map[name];
+//       final exclude = _getExclude(name, methodMirror);
+//       final canAdd = name != #hashCode &&
+//           name != #runtimeType &&
+//           !methodMirror.isPrivate &&
+//           exclude?.canSerialize != true;
 
-      if (methodMirror.isGetter && canAdd) {
-        fields.add(fieldFromGetter(name, methodMirror, exclude, mirror));
-      }
-    }
-  }
+//       if (methodMirror.isGetter && canAdd) {
+//         fields.add(fieldFromGetter(name, methodMirror, exclude, mirror));
+//       }
+//     }
+//   }
 
-  bool isReady(TypeMirror returnType) {
-    var canContinue = returnType.reflectedType != mirror.reflectedType;
+//   bool isReady(TypeMirror returnType) {
+//     var canContinue = returnType.reflectedType != mirror.reflectedType;
 
-    if (canContinue &&
-        returnType.isAssignableTo(reflectType(Iterable)) &&
-        returnType.typeArguments.isNotEmpty &&
-        !isReady(returnType.typeArguments[0])) {
-      canContinue = false;
-    }
+//     if (canContinue &&
+//         returnType.isAssignableTo(reflectType(Iterable)) &&
+//         returnType.typeArguments.isNotEmpty &&
+//         !isReady(returnType.typeArguments[0])) {
+//       canContinue = false;
+//     }
 
-    return canContinue;
-  }
+//     return canContinue;
+//   }
 
-  void prepReadyForward(Map<Symbol, MethodMirror> map) {
-    map.forEach((name, methodMirror) {
-      if (methodMirror.isGetter &&
-          name != #_identityHashCode &&
-          name != #runtimeType &&
-          name != #hashCode &&
-          MirrorSystem.getName(name) != '_identityHashCode') {
-        final returnType = methodMirror.returnType;
+//   void prepReadyForward(Map<Symbol, MethodMirror> map) {
+//     map.forEach((name, methodMirror) {
+//       if (methodMirror.isGetter &&
+//           name != #_identityHashCode &&
+//           name != #runtimeType &&
+//           name != #hashCode &&
+//           MirrorSystem.getName(name) != '_identityHashCode') {
+//         final returnType = methodMirror.returnType;
 
-        if (isReady(returnType)) {
-          ready[name] = methodMirror;
-        } else {
-          forward[name] = methodMirror;
-        }
-      }
-    });
-  }
+//         if (isReady(returnType)) {
+//           ready[name] = methodMirror;
+//         } else {
+//           forward[name] = methodMirror;
+//         }
+//       }
+//     });
+//   }
 
-  prepReadyForward(mirror.instanceMembers);
+//   prepReadyForward(mirror.instanceMembers);
 
-  walkMap(ready);
+//   walkMap(ready);
 
-  if (mirror.isAbstract) {
-    final decls = <Symbol, MethodMirror>{};
+//   if (mirror.isAbstract) {
+//     final decls = <Symbol, MethodMirror>{};
 
-    mirror.declarations.forEach((name, decl) {
-      if (decl is MethodMirror) {
-        decls[name] = decl;
-      }
-    });
+//     mirror.declarations.forEach((name, decl) {
+//       if (decl is MethodMirror) {
+//         decls[name] = decl;
+//       }
+//     });
 
-    ready.clear();
-    forward.clear();
-    prepReadyForward(decls);
-    walkMap(ready);
-    //walkMap(decls);
-  }
+//     ready.clear();
+//     forward.clear();
+//     prepReadyForward(decls);
+//     walkMap(ready);
+//     //walkMap(decls);
+//   }
 
-  final inheritsFrom = <GraphQLObjectType>[];
-  const primitiveTypes = <Type>[
-    String,
-    bool,
-    num,
-    int,
-    double,
-    Object,
-    dynamic,
-    Null,
-    Type,
-    Symbol
-  ];
+//   final inheritsFrom = <GraphQLObjectType>[];
+//   const primitiveTypes = <Type>[
+//     String,
+//     bool,
+//     num,
+//     int,
+//     double,
+//     Object,
+//     dynamic,
+//     Null,
+//     Type,
+//     Symbol
+//   ];
 
-  void walk(ClassMirror parent) {
-    if (!primitiveTypes.contains(parent.reflectedType)) {
-      if (parent.isAbstract) {
-        final obj = convertDartType(parent.reflectedType);
+//   void walk(ClassMirror parent) {
+//     if (!primitiveTypes.contains(parent.reflectedType)) {
+//       if (parent.isAbstract) {
+//         final obj = convertDartType(parent.reflectedType);
 
-        if (obj is GraphQLObjectType && !inheritsFrom.contains(obj)) {
-          inheritsFrom.add(obj);
-        }
-      }
+//         if (obj is GraphQLObjectType && !inheritsFrom.contains(obj)) {
+//           inheritsFrom.add(obj);
+//         }
+//       }
 
-      walk(parent.superclass);
-      parent.superinterfaces.forEach(walk);
-    }
-  }
+//       walk(parent.superclass);
+//       parent.superinterfaces.forEach(walk);
+//     }
+//   }
 
-  walk(mirror.superclass);
-  mirror.superinterfaces.forEach(walk);
+//   walk(mirror.superclass);
+//   mirror.superinterfaces.forEach(walk);
 
-  var result = _cache[mirror.reflectedType];
+//   var result = _cache[mirror.reflectedType];
 
-  if (result == null) {
-    result = objectType(
-      MirrorSystem.getName(mirror.simpleName),
-      fields: fields,
-      isInterface: mirror.isAbstract,
-      interfaces: inheritsFrom,
-      description: _getDescription(mirror.metadata),
-    );
-    _cache[mirror.reflectedType] = result;
-    walkMap(forward);
-  }
+//   if (result == null) {
+//     result = objectType(
+//       MirrorSystem.getName(mirror.simpleName),
+//       fields: fields,
+//       isInterface: mirror.isAbstract,
+//       interfaces: inheritsFrom,
+//       description: _getDescription(mirror.metadata),
+//     );
+//     _cache[mirror.reflectedType] = result;
+//     walkMap(forward);
+//   }
 
-  return result as GraphQLObjectType;
-}
+//   return result as GraphQLObjectType;
+// }
 
-@deprecated
-GraphQLEnumType enumTypeFromClassMirror(ClassMirror mirror) {
-  final values = <GraphQLEnumValue>[];
+// @deprecated
+// GraphQLEnumType enumTypeFromClassMirror(ClassMirror mirror) {
+//   final values = <GraphQLEnumValue>[];
 
-  for (final name in mirror.staticMembers.keys) {
-    if (name != #values) {
-      final methodMirror = mirror.staticMembers[name];
-      values.add(
-        GraphQLEnumValue(
-          MirrorSystem.getName(name),
-          mirror.getField(name).reflectee,
-          description: _getDescription(methodMirror.metadata),
-          deprecationReason: _getDeprecationReason(methodMirror.metadata),
-        ),
-      );
-    }
-  }
+//   for (final name in mirror.staticMembers.keys) {
+//     if (name != #values) {
+//       final methodMirror = mirror.staticMembers[name];
+//       values.add(
+//         GraphQLEnumValue(
+//           MirrorSystem.getName(name),
+//           mirror.getField(name).reflectee,
+//           description: _getDescription(methodMirror.metadata),
+//           deprecationReason: _getDeprecationReason(methodMirror.metadata),
+//         ),
+//       );
+//     }
+//   }
 
-  return GraphQLEnumType(
-    MirrorSystem.getName(mirror.simpleName),
-    values,
-    description: _getDescription(mirror.metadata),
-  );
-}
+//   return GraphQLEnumType(
+//     MirrorSystem.getName(mirror.simpleName),
+//     values,
+//     description: _getDescription(mirror.metadata),
+//   );
+// }
 
-@deprecated
-GraphQLObjectField fieldFromGetter(
-    Symbol name, MethodMirror mirror, Exclude exclude, ClassMirror clazz) {
-  var type = _getProvidedType(mirror.metadata);
-  final wasProvided = type != null;
+// @deprecated
+// GraphQLObjectField fieldFromGetter(
+//     Symbol name, MethodMirror mirror, Exclude exclude, ClassMirror clazz) {
+//   var type = _getProvidedType(mirror.metadata);
+//   final wasProvided = type != null;
 
-  if (!wasProvided) {
-    final returnType = mirror.returnType;
+//   if (!wasProvided) {
+//     final returnType = mirror.returnType;
 
-    if (!clazz.isAssignableTo(returnType)) {
-      type = convertDartType(returnType.reflectedType,
-          mirror.returnType.typeArguments.map((t) => t.reflectedType).toList());
-    }
-  }
+//     if (!clazz.isAssignableTo(returnType)) {
+//       type = convertDartType(returnType.reflectedType,
+//           mirror.returnType.typeArguments.map((t) => t.reflectedType).toList());
+//     }
+//   }
 
-  final nameString = _getSerializedName(name, mirror, clazz);
-  final defaultValue = _getDefaultValue(mirror);
+//   final nameString = _getSerializedName(name, mirror, clazz);
+//   final defaultValue = _getDefaultValue(mirror);
 
-  if (!wasProvided && (nameString == 'id' && _autoNames(clazz))) {
-    type = graphQLId;
-  }
+//   if (!wasProvided && (nameString == 'id' && _autoNames(clazz))) {
+//     type = graphQLId;
+//   }
 
-  return field(
-    nameString,
-    type,
-    deprecationReason: _getDeprecationReason(mirror.metadata),
-    resolve: (obj, _) {
-      if (obj is Map && exclude?.canSerialize != true) {
-        return obj[nameString];
-      } else if (obj != null && exclude?.canSerialize != true) {
-        return reflect(obj).getField(name);
-      } else {
-        return defaultValue;
-      }
-    },
-  );
-}
+//   return field(
+//     nameString,
+//     type,
+//     deprecationReason: _getDeprecationReason(mirror.metadata),
+//     resolve: (obj, _) {
+//       if (obj is Map && exclude?.canSerialize != true) {
+//         return obj[nameString];
+//       } else if (obj != null && exclude?.canSerialize != true) {
+//         return reflect(obj).getField(name);
+//       } else {
+//         return defaultValue;
+//       }
+//     },
+//   );
+// }
 
-Exclude _getExclude(Symbol name, MethodMirror mirror) {
-  for (final obj in mirror.metadata) {
-    if (obj.reflectee is Exclude) {
-      final exclude = obj.reflectee as Exclude;
-      return exclude;
-    }
-  }
+// Exclude _getExclude(Symbol name, MethodMirror mirror) {
+//   for (final obj in mirror.metadata) {
+//     if (obj.reflectee is Exclude) {
+//       final exclude = obj.reflectee as Exclude;
+//       return exclude;
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-String _getSerializedName(Symbol name, MethodMirror mirror, ClassMirror clazz) {
-  // First search for an @Alias()
-  for (final obj in mirror.metadata) {
-    if (obj.reflectee is SerializableField) {
-      final alias = obj.reflectee as SerializableField;
-      return alias.alias;
-    }
-  }
+// String _getSerializedName(Symbol name, MethodMirror mirror, ClassMirror clazz) {
+//   // First search for an @Alias()
+//   for (final obj in mirror.metadata) {
+//     if (obj.reflectee is SerializableField) {
+//       final alias = obj.reflectee as SerializableField;
+//       return alias.alias;
+//     }
+//   }
 
-  // Next, search for a @Serializable()
-  for (final obj in clazz.metadata) {
-    if (obj.reflectee is Serializable) {
-      final ann = obj.reflectee as Serializable;
+//   // Next, search for a @Serializable()
+//   for (final obj in clazz.metadata) {
+//     if (obj.reflectee is Serializable) {
+//       final ann = obj.reflectee as Serializable;
 
-      if (ann.autoSnakeCaseNames != false) {
-        return ReCase(MirrorSystem.getName(name)).snakeCase;
-      }
-    }
-  }
+//       if (ann.autoSnakeCaseNames != false) {
+//         return ReCase(MirrorSystem.getName(name)).snakeCase;
+//       }
+//     }
+//   }
 
-  return MirrorSystem.getName(name);
-}
+//   return MirrorSystem.getName(name);
+// }
 
-dynamic _getDefaultValue(MethodMirror mirror) {
-  // Search for a @DefaultValue
-  for (final obj in mirror.metadata) {
-    if (obj.reflectee is SerializableField) {
-      final ann = obj.reflectee as SerializableField;
-      return ann.defaultValue;
-    }
-  }
+// dynamic _getDefaultValue(MethodMirror mirror) {
+//   // Search for a @DefaultValue
+//   for (final obj in mirror.metadata) {
+//     if (obj.reflectee is SerializableField) {
+//       final ann = obj.reflectee as SerializableField;
+//       return ann.defaultValue;
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-bool _autoNames(ClassMirror clazz) {
-  // Search for a @Serializable()
-  for (final obj in clazz.metadata) {
-    if (obj.reflectee is Serializable) {
-      return true;
-      // var ann = obj.reflectee as Serializable;
-      // return ann.autoIdAndDateFields != false;
-    }
-  }
+// bool _autoNames(ClassMirror clazz) {
+//   // Search for a @Serializable()
+//   for (final obj in clazz.metadata) {
+//     if (obj.reflectee is Serializable) {
+//       return true;
+//       // var ann = obj.reflectee as Serializable;
+//       // return ann.autoIdAndDateFields != false;
+//     }
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
-String _getDeprecationReason(List<InstanceMirror> metadata) {
-  for (final obj in metadata) {
-    if (obj.reflectee is Deprecated) {
-      final expires = (obj.reflectee as Deprecated).message;
+// String _getDeprecationReason(List<InstanceMirror> metadata) {
+//   for (final obj in metadata) {
+//     if (obj.reflectee is Deprecated) {
+//       final expires = (obj.reflectee as Deprecated).message;
 
-      if (expires == deprecated.message) {
-        return 'Expires after $expires';
-      } else {
-        return deprecated.message;
-      }
-    } else if (obj.reflectee is GraphQLDocumentation) {
-      return (obj.reflectee as GraphQLDocumentation).deprecationReason;
-    }
-  }
+//       if (expires == deprecated.message) {
+//         return 'Expires after $expires';
+//       } else {
+//         return deprecated.message;
+//       }
+//     } else if (obj.reflectee is GraphQLDocumentation) {
+//       return (obj.reflectee as GraphQLDocumentation).deprecationReason;
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-String _getDescription(List<InstanceMirror> metadata) {
-  for (final obj in metadata) {
-    if (obj.reflectee is GraphQLDocumentation) {
-      return (obj.reflectee as GraphQLDocumentation).description;
-    }
-  }
+// String _getDescription(List<InstanceMirror> metadata) {
+//   for (final obj in metadata) {
+//     if (obj.reflectee is GraphQLDocumentation) {
+//       return (obj.reflectee as GraphQLDocumentation).description;
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-GraphQLType _getProvidedType(List<InstanceMirror> metadata) {
-  for (final obj in metadata) {
-    if (obj.reflectee is GraphQLDocumentation) {
-      return (obj.reflectee as GraphQLDocumentation).type();
-    }
-  }
+// GraphQLType _getProvidedType(List<InstanceMirror> metadata) {
+//   for (final obj in metadata) {
+//     if (obj.reflectee is GraphQLDocumentation) {
+//       return (obj.reflectee as GraphQLDocumentation).type();
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }

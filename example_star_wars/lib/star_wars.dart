@@ -95,7 +95,7 @@ Future configureServer(Angel app) async {
   // The `mirrorsFieldResolver` is unnecessary in this case, because we are using
   // `Map`s only, but if our services returned concrete Dart objects, we'd need
   // this to allow GraphQL to read field values.
-  var graphQL = GraphQL(schema, defaultFieldResolver: mirrorsFieldResolver);
+  var graphQL = GraphQL(schema);
 
   // Mount the GraphQL endpoint.
   app.all('/graphql', graphQLHttp(graphQL));
