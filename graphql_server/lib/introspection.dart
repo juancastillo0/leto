@@ -73,9 +73,9 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
         final name = args['name'] as String?;
         return allTypes.firstWhere(
           (t) => t.name == name,
-          orElse: (() => throw GraphQLException.fromMessage(
+          orElse: () => throw GraphQLException.fromMessage(
             'No type named "$name" exists.',
-          )) as GraphQLType<dynamic, dynamic> Function()?,
+          ),
         );
       },
     ),
@@ -143,8 +143,7 @@ GraphQLObjectType _reflectSchemaTypes() {
 
     final fieldType = _reflectFields();
     final inputValueType = _reflectInputValueType();
-    var typeField = fieldType.fields
-        .firstWhereOrNull((f) => f.name == 'type');
+    var typeField = fieldType.fields.firstWhereOrNull((f) => f.name == 'type');
 
     if (typeField == null) {
       fieldType.fields.add(
@@ -156,8 +155,7 @@ GraphQLObjectType _reflectSchemaTypes() {
       );
     }
 
-    typeField = inputValueType.fields
-        .firstWhereOrNull((f) => f.name == 'type');
+    typeField = inputValueType.fields.firstWhereOrNull((f) => f.name == 'type');
 
     if (typeField == null) {
       inputValueType.fields.add(
@@ -480,7 +478,7 @@ class CollectTypes {
         _fetchAllTypesFromType(field.type);
       }
 
-      for (final input in field.inputs ?? <GraphQLFieldInput>[]) {
+      for (final input in field.inputs) {
         _fetchAllTypesFromType(input.type);
       }
     }

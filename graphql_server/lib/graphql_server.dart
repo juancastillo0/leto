@@ -34,7 +34,7 @@ class GraphQL {
     this.defaultFieldResolver,
     List<GraphQLType> customTypes = const <GraphQLType>[],
   }) : _schema = schema {
-    if (customTypes?.isNotEmpty == true) {
+    if (customTypes.isNotEmpty) {
       this.customTypes.addAll(customTypes);
     }
 
@@ -87,9 +87,9 @@ class GraphQL {
         default:
           return customTypes.firstWhere(
             (t) => t.name == node.name.value,
-            orElse: (() => throw ArgumentError(
-                  'Unknown GraphQL type: "${node.name.value}"',
-                )) as GraphQLType<dynamic, dynamic> Function()?,
+            orElse: () => throw ArgumentError(
+              'Unknown GraphQL type: "${node.name.value}"',
+            ),
           );
       }
     } else {
@@ -143,13 +143,13 @@ class GraphQL {
     Map<String, dynamic>? globalVariables,
   }) async {
     final operation = getOperation(document, operationName);
-    final coercedVariableValues = coerceVariableValues(
-        schema, operation, variableValues ?? <String, dynamic>{});
+    final coercedVariableValues =
+        coerceVariableValues(schema, operation, variableValues);
     if (operation.type == OperationType.query) {
-      return await executeQuery(document, operation, schema,
-          coercedVariableValues, initialValue, globalVariables);
+      return executeQuery(document, operation, schema, coercedVariableValues,
+          initialValue, globalVariables);
     } else if (operation.type == OperationType.subscription) {
-      return await subscribe(document, operation, schema, coercedVariableValues,
+      return subscribe(document, operation, schema, coercedVariableValues,
           globalVariables, initialValue);
     } else {
       return executeMutation(document, operation, schema, coercedVariableValues,
@@ -184,7 +184,7 @@ class GraphQL {
     Map<String, dynamic> variableValues,
   ) {
     final coercedValues = <String, dynamic>{};
-    final variableDefinitions = operation.variableDefinitions ?? [];
+    final variableDefinitions = operation.variableDefinitions;
 
     for (final variableDefinition in variableDefinitions) {
       final variableName = variableDefinition.variable.name.value;
@@ -239,8 +239,8 @@ class GraphQL {
   ) async {
     final queryType = schema.queryType;
     final selectionSet = query.selectionSet;
-    return await executeSelectionSet(document, selectionSet, queryType,
-        initialValue, variableValues, globalVariables);
+    return executeSelectionSet(document, selectionSet, queryType, initialValue,
+        variableValues, globalVariables);
   }
 
   Future<Map<String, dynamic>> executeMutation(
@@ -259,7 +259,7 @@ class GraphQL {
     }
 
     final selectionSet = mutation.selectionSet;
-    return await executeSelectionSet(document, selectionSet, mutationType,
+    return executeSelectionSet(document, selectionSet, mutationType,
         initialValue, variableValues, globalVariables);
   }
 
@@ -437,7 +437,7 @@ class GraphQL {
         objectValue!,
         fieldName,
         Map<String, dynamic>.from(globalVariables ?? {})
-          ..addAll(argumentValues ?? {}));
+          ..addAll(argumentValues));
     return completeValue(document, fieldName, fieldType, fields, resolvedValue,
         variableValues, globalVariables);
   }
@@ -451,10 +451,10 @@ class GraphQL {
     final argumentValues = field.arguments;
     final fieldName = field.alias?.value ?? field.name.value;
     final desiredField = objectType.fields.firstWhere(
-        (f) => f.name == fieldName,
-        orElse: (() => throw FormatException(
-                '${objectType.name} has no field named "$fieldName".'))
-            as GraphQLObjectField<dynamic, dynamic> Function()?);
+      (f) => f.name == fieldName,
+      orElse: () => throw FormatException(
+          '${objectType.name} has no field named "$fieldName".'),
+    );
     final argumentDefinitions = desiredField.inputs;
 
     for (final argumentDefinition in argumentDefinitions) {
@@ -513,7 +513,8 @@ class GraphQL {
         } on TypeError catch (e) {
           throw GraphQLException(<GraphQLExceptionError>[
             GraphQLExceptionError(
-              'Type coercion error for value of argument "$argumentName" of field "$fieldName".',
+              'Type coercion error for value of argument '
+              '"$argumentName" of field "$fieldName".',
               locations: [
                 GraphExceptionErrorLocation.fromSourceLocation(
                     argumentValue.value.span!.start)
@@ -633,8 +634,8 @@ class GraphQL {
       }
 
       final subSelectionSet = mergeSelectionSets(fields);
-      return await executeSelectionSet(document, subSelectionSet, objectType,
-          result, variableValues, globalVariables);
+      return executeSelectionSet(document, subSelectionSet, objectType, result,
+          variableValues, globalVariables);
     }
 
     throw UnsupportedError('Unsupported type: $fieldType');
@@ -692,7 +693,7 @@ class GraphQL {
     for (final field in fields) {
       if (field is FieldNode && field.selectionSet != null) {
         selections.addAll(field.selectionSet!.selections);
-      } else if (field is InlineFragmentNode && field.selectionSet != null) {
+      } else if (field is InlineFragmentNode) {
         selections.addAll(field.selectionSet.selections);
       }
     }
@@ -844,8 +845,9 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
           enumType.values.firstWhereOrNull((v) => v.name == node.name.value);
       if (matchingValue == null) {
         throw GraphQLException.fromSourceSpan(
-            'The enum "${targetType!.name}" has no member named "${node.name.value}".',
-            node.span!);
+          'The enum "${targetType!.name}" has no member named "${node.name.value}".',
+          node.span!,
+        );
       } else {
         return matchingValue.value;
       }
