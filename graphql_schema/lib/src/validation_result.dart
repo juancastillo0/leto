@@ -7,7 +7,7 @@ class ValidationResult<Value> {
   final bool successful;
 
   /// The input value passed to whatever caller invoked validation.
-  final Value value;
+  final Value? value;
 
   /// A list of errors that caused validation to fail.
   final List<String> errors;

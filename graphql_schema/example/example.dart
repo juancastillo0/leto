@@ -17,7 +17,7 @@ final GraphQLSchema todoSchema = new GraphQLSchema(
 
 void main() {
   // Validation
-  var validation = todoSchema.queryType.validate(
+  var validation = todoSchema.queryType!.validate(
     '@root',
     {
       'foo': 'bar',
@@ -34,7 +34,7 @@ void main() {
   }
 
   // Serialization
-  print(todoSchema.queryType.serialize({
+  print(todoSchema.queryType!.serialize({
     'text': 'Clean your room!',
     'created_at': new DateTime.now().subtract(new Duration(days: 10))
   }));

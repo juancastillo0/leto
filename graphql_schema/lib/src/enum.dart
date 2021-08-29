@@ -2,8 +2,8 @@ part of graphql_schema.src.schema;
 
 /// Shorthand for building a [GraphQLEnumType].
 GraphQLEnumType enumType<Value>(String name, Map<String, Value> values,
-    {String description}) {
-  return GraphQLEnumType<Value >(
+    {String? description}) {
+  return GraphQLEnumType<Value>(
     name,
     values.entries.map((e) => GraphQLEnumValue(e.key, e.value)).toList(),
     description: description,
@@ -13,7 +13,7 @@ GraphQLEnumType enumType<Value>(String name, Map<String, Value> values,
 /// Shorthand for building a [GraphQLEnumType] where all the possible values
 /// are mapped to Dart strings.
 GraphQLEnumType<String> enumTypeFromStrings(String name, List<String> values,
-    {String description}) {
+    {String? description}) {
   return GraphQLEnumType<String>(
     name,
     values.map((s) => GraphQLEnumValue(s, s)).toList(),
@@ -38,13 +38,13 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
 
   /// A description of this enum type, for tools like GraphiQL.
   @override
-  final String description;
+  final String? description;
 
   GraphQLEnumType(this.name, this.values, {this.description});
 
   @override
   String serialize(Value value) {
-    if (value == null) return null;
+    // if (value == null) return null;
     return values.firstWhere((v) => v.value == value).name;
   }
 
@@ -90,11 +90,11 @@ class GraphQLEnumValue<Value> {
   final Value value;
 
   /// An optional description of this value; useful for tools like GraphiQL.
-  final String description;
+  final String? description;
 
   /// The reason, if any, that this value was deprecated,
   /// if it indeed is deprecated.
-  final String deprecationReason;
+  final String? deprecationReason;
 
   GraphQLEnumValue(
     this.name,

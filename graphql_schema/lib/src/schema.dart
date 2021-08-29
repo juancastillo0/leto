@@ -3,7 +3,6 @@ library graphql_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
@@ -27,10 +26,10 @@ part 'validation_result.dart';
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
-  final GraphQLObjectType queryType;
+  final GraphQLObjectType? queryType;
 
   /// The shape required for any query that changes the state of the backend.
-  final GraphQLObjectType mutationType;
+  final GraphQLObjectType? mutationType;
 
   /// A [GraphQLObjectType] describing the form of data sent to
   /// real-time subscribers.
@@ -39,20 +38,22 @@ class GraphQLSchema {
   /// subscriptions are not formalized in the GraphQL specification.
   /// Therefore, any GraphQL implementation can potentially implement
   /// subscriptions in its own way.
-  final GraphQLObjectType subscriptionType;
+  final GraphQLObjectType? subscriptionType;
 
   GraphQLSchema({this.queryType, this.mutationType, this.subscriptionType});
 }
 
 /// A shorthand for creating a [GraphQLSchema].
-GraphQLSchema graphQLSchema(
-        {@required GraphQLObjectType queryType,
-        GraphQLObjectType mutationType,
-        GraphQLObjectType subscriptionType}) =>
+GraphQLSchema graphQLSchema({
+  required GraphQLObjectType queryType,
+  GraphQLObjectType? mutationType,
+  GraphQLObjectType? subscriptionType,
+}) =>
     GraphQLSchema(
-        queryType: queryType,
-        mutationType: mutationType,
-        subscriptionType: subscriptionType);
+      queryType: queryType,
+      mutationType: mutationType,
+      subscriptionType: subscriptionType,
+    );
 
 /// A default resolver that always returns `null`.
 Null resolveToNull(Object _, Object __) => null;
@@ -111,7 +112,7 @@ class GraphQLExceptionError {
 
   Map<String, dynamic> toJson() {
     final out = <String, dynamic>{'message': message};
-    if (locations?.isNotEmpty == true) {
+    if (locations.isNotEmpty) {
       out['locations'] = locations.map((l) => l.toJson()).toList();
     }
     return out;
@@ -145,22 +146,26 @@ typedef GraphDocumentationTypeProvider = GraphQLType Function();
 class GraphQLDocumentation {
   /// The description of the annotated class, field, or enum value, to be
   /// displayed in tools like GraphiQL.
-  final String description;
+  final String? description;
 
   /// The reason the annotated field or enum value was deprecated, if any.
-  final String deprecationReason;
+  final String? deprecationReason;
 
   /// A constant callback that returns an explicit type for the annotated field
   /// , rather than having it be assumed
   /// via `dart:mirrors`.
-  final GraphDocumentationTypeProvider type;
+  final GraphDocumentationTypeProvider? type;
 
   /// The name of an explicit type for the annotated field, rather than
   /// having it be assumed.
-  final Symbol typeName;
+  final Symbol? typeName;
 
-  const GraphQLDocumentation(
-      {this.description, this.deprecationReason, this.type, this.typeName});
+  const GraphQLDocumentation({
+    this.description,
+    this.deprecationReason,
+    this.type,
+    this.typeName,
+  });
 }
 
 /// The canonical instance.
@@ -169,4 +174,21 @@ const GraphQLClass graphQLClass = GraphQLClass._();
 /// Signifies that a class should statically generate a [GraphQLSchema].
 class GraphQLClass {
   const GraphQLClass._();
+}
+
+extension GraphQLScalarTypeExt<V, S> on GraphQLScalarType<V, S> {
+  GraphQLObjectField<V, S> field(
+    String name, {
+    bool nullable = true,
+    String? deprecationReason,
+    String? description,
+  }) {
+    return GraphQLObjectField(
+      name,
+      nullable ? this : nonNullable(),
+      resolve: null,
+      description: description,
+      deprecationReason: deprecationReason,
+    );
+  }
 }

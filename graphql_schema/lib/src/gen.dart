@@ -3,15 +3,15 @@ part of graphql_schema.src.schema;
 /// Shorthand for generating a [GraphQLObjectType].
 GraphQLObjectType objectType(
   String name, {
-  String description,
+  String? description,
   bool isInterface = false,
   Iterable<GraphQLObjectField> fields = const [],
   Iterable<GraphQLObjectType> interfaces = const [],
 }) {
   final obj = GraphQLObjectType(name, description, isInterface: isInterface)
-    ..fields.addAll(fields ?? []);
+    ..fields.addAll(fields);
 
-  if (interfaces?.isNotEmpty == true) {
+  if (interfaces.isNotEmpty) {
     for (final i in interfaces) {
       obj.inheritFrom(i);
     }
@@ -25,9 +25,9 @@ GraphQLObjectField<T, Serialized> field<T, Serialized>(
   String name,
   GraphQLType<T, Serialized> type, {
   Iterable<GraphQLFieldInput<T, Serialized>> inputs = const [],
-  GraphQLFieldResolver<T, Serialized> resolve,
-  String deprecationReason,
-  String description,
+  GraphQLFieldResolver<T, Serialized>? resolve,
+  String? deprecationReason,
+  String? description,
 }) {
   return GraphQLObjectField<T, Serialized>(name, type,
       arguments: inputs,
@@ -39,7 +39,7 @@ GraphQLObjectField<T, Serialized> field<T, Serialized>(
 /// Shorthand for generating a [GraphQLInputObjectType].
 GraphQLInputObjectType inputObjectType(
   String name, {
-  String description,
+  String? description,
   Iterable<GraphQLInputObjectField> inputFields = const [],
 }) {
   return GraphQLInputObjectType(
@@ -53,8 +53,8 @@ GraphQLInputObjectType inputObjectType(
 GraphQLInputObjectField<T, Serialized> inputField<T, Serialized>(
   String name,
   GraphQLType<T, Serialized> type, {
-  String description,
-  T defaultValue,
+  String? description,
+  T? defaultValue,
 }) {
   return GraphQLInputObjectField(
     name,

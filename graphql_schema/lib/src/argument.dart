@@ -10,12 +10,12 @@ class GraphQLFieldInput<Value, Serialized> {
   final GraphQLType<Value, Serialized> type;
 
   /// An optional default value for this field.
-  final Value defaultValue;
+  final Value? defaultValue;
 
   /// An optional description for this field.
   ///
   /// This is useful when documenting your API for consumers like GraphiQL.
-  final String description;
+  final String? description;
 
   /// If [defaultValue] is `null`, and `null` is a valid value
   /// for this parameter, set this to `true`.
