@@ -1,5 +1,7 @@
 name: star_wars
 publish_to: none
+environment:
+  sdk: '>=2.10.0 <3.0.0'
 dependencies:
   #angel_file_service: ^1.0.0
   angel_graphql:
