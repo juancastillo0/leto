@@ -12,28 +12,32 @@ import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Generates GraphQL schemas, statically.
-Builder graphQLBuilder(_) {
+Builder graphQLBuilder(Object _) {
   return SharedPartBuilder([_GraphQLGenerator()], 'graphql_generator');
 }
 
-var _docComment = RegExp(r'^/// ', multiLine: true);
-var _graphQLDoc = TypeChecker.fromRuntime(GraphQLDocumentation);
-var _graphQLClassTypeChecker = TypeChecker.fromRuntime(GraphQLClass);
+final _docComment = RegExp(r'^/// ', multiLine: true);
+const _graphQLDoc = TypeChecker.fromRuntime(GraphQLDocumentation);
+const _graphQLClassTypeChecker = TypeChecker.fromRuntime(GraphQLClass);
 
 class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
   @override
   Future<String> generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) async {
+    Element element,
+    ConstantReader annotation,
+    BuildStep buildStep,
+  ) async {
     if (element is ClassElement) {
-      var ctx = element.isEnum
+      final ctx = element.isEnum
           ? null
           : await buildContext(
               element,
               annotation,
               buildStep,
               buildStep.resolver,
-              serializableTypeChecker.hasAnnotationOf(element));
-      var lib = buildSchemaLibrary(element, ctx, annotation);
+              serializableTypeChecker.hasAnnotationOf(element),
+            );
+      final lib = buildSchemaLibrary(element, ctx, annotation);
       return lib.accept(DartEmitter()).toString();
     } else {
       throw UnsupportedError('@GraphQLClass() is only supported on classes.');
@@ -45,7 +49,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
   }
 
   bool _isGraphQLClass(InterfaceType clazz) {
-    var search = clazz;
+    InterfaceType search = clazz;
 
     while (search != null) {
       if (_graphQLClassTypeChecker.hasAnnotationOf(search.element)) return true;
@@ -58,22 +62,22 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
   Expression _inferType(String className, String name, DartType type) {
     // Firstly, check if it's a GraphQL class.
     if (type is InterfaceType && _isGraphQLClass(type)) {
-      var c = type;
-      var name = serializableTypeChecker.hasAnnotationOf(c.element) &&
+      final c = type;
+      final name = serializableTypeChecker.hasAnnotationOf(c.element) &&
               c.name.startsWith('_')
           ? c.name.substring(1)
           : c.name;
-      var rc = ReCase(name);
+      final rc = ReCase(name);
       return refer('${rc.camelCase}GraphQLType');
     }
 
     // Next, check if this is the "id" field of a `Model`.
-    if (TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
+    if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
         name == 'id') {
       return refer('graphQLId');
     }
 
-    var primitive = {
+    final primitive = {
       String: 'graphQLString',
       int: 'graphQLInt',
       double: 'graphQLFloat',
@@ -82,7 +86,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
     };
 
     // Check to see if it's a primitive type.
-    for (var entry in primitive.entries) {
+    for (final entry in primitive.entries) {
       if (TypeChecker.fromRuntime(entry.key).isAssignableFromType(type)) {
         return refer(entry.value);
       }
@@ -91,14 +95,15 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
     // Next, check to see if it's a List.
     if (type is InterfaceType &&
         type.typeArguments.isNotEmpty &&
-        TypeChecker.fromRuntime(Iterable).isAssignableFromType(type)) {
-      var arg = type.typeArguments[0];
-      var inner = _inferType(className, name, arg);
+        const TypeChecker.fromRuntime(Iterable).isAssignableFromType(type)) {
+      final arg = type.typeArguments[0];
+      final inner = _inferType(className, name, arg);
       return refer('listOf').call([inner]);
     }
 
     // Nothing else is allowed.
-    throw 'Cannot infer the GraphQL type for field $className.$name (type=$type).';
+    throw 'Cannot infer the GraphQL type for '
+        'field $className.$name (type=$type).';
   }
 
   void _applyDescription(
@@ -106,8 +111,8 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
     String docString = docComment;
 
     if (docString == null && _graphQLDoc.hasAnnotationOf(element)) {
-      var ann = _graphQLDoc.firstAnnotationOf(element);
-      var cr = ConstantReader(ann);
+      final ann = _graphQLDoc.firstAnnotationOf(element);
+      final cr = ConstantReader(ann);
       docString = cr.peek('description')?.stringValue;
     }
 
@@ -125,15 +130,15 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
       if (clazz.isEnum) {
         b.body.add(Field((b) {
           // enumTypeFromStrings(String name, List<String> values, {String description}
-          var args = <Expression>[literalString(clazz.name)];
-          var values =
+          final args = <Expression>[literalString(clazz.name)];
+          final values =
               clazz.fields.where((f) => f.isEnumConstant).map((f) => f.name);
-          var named = <String, Expression>{};
+          final named = <String, Expression>{};
           _applyDescription(named, clazz, clazz.documentationComment);
           args.add(literalConstList(values.map(literalString).toList()));
 
           b
-            ..name = ReCase(clazz.name).camelCase + 'GraphQLType'
+            ..name = '${ReCase(clazz.name).camelCase}GraphQLType'
             ..docs.add('/// Auto-generated from [${clazz.name}].')
             ..type = TypeReference((b) => b
               ..symbol = 'GraphQLEnumType'
@@ -143,8 +148,8 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
         }));
       } else {
         b.body.add(Field((b) {
-          var args = <Expression>[literalString(ctx.modelClassName)];
-          var named = <String, Expression>{
+          final args = <Expression>[literalString(ctx.modelClassName)];
+          final named = <String, Expression>{
             'isInterface': literalBool(isInterface(clazz))
           };
 
@@ -152,24 +157,24 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
           _applyDescription(named, clazz, clazz.documentationComment);
 
           // Add interfaces
-          var interfaces = clazz.interfaces.where(_isGraphQLClass).map((c) {
-            var name = serializableTypeChecker.hasAnnotationOf(c.element) &&
+          final interfaces = clazz.interfaces.where(_isGraphQLClass).map((c) {
+            final name = serializableTypeChecker.hasAnnotationOf(c.element) &&
                     c.name.startsWith('_')
                 ? c.name.substring(1)
                 : c.name;
-            var rc = ReCase(name);
+            final rc = ReCase(name);
             return refer('${rc.camelCase}GraphQLType');
           });
           named['interfaces'] = literalList(interfaces);
 
           // Add fields
-          var ctxFields = ctx.fields.toList();
+          final ctxFields = ctx.fields.toList();
 
           // Also incorporate parent fields.
-          var search = clazz.type;
+          InterfaceType search = clazz.type;
           while (search != null &&
-              !TypeChecker.fromRuntime(Object).isExactlyType(search)) {
-            for (var field in search.element.fields) {
+              !const TypeChecker.fromRuntime(Object).isExactlyType(search)) {
+            for (final field in search.element.fields) {
               if (!ctxFields.any((f) => f.name == field.name)) {
                 ctxFields.add(field);
               }
@@ -178,19 +183,19 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
             search = search.superclass;
           }
 
-          var fields = <Expression>[];
-          for (var field in ctxFields) {
-            var named = <String, Expression>{};
-            var originalField = clazz.fields
+          final fields = <Expression>[];
+          for (final field in ctxFields) {
+            final named = <String, Expression>{};
+            final originalField = clazz.fields
                 .firstWhere((f) => f.name == field.name, orElse: () => null);
 
             // Check if it is deprecated.
-            var depEl = originalField?.getter ?? originalField ?? field;
-            var depAnn =
-                TypeChecker.fromRuntime(Deprecated).firstAnnotationOf(depEl);
+            final depEl = originalField?.getter ?? originalField ?? field;
+            final depAnn = const TypeChecker.fromRuntime(Deprecated)
+                .firstAnnotationOf(depEl);
             if (depAnn != null) {
-              var dep = ConstantReader(depAnn);
-              var reason = dep.peek('messages')?.stringValue ??
+              final dep = ConstantReader(depAnn);
+              final reason = dep.peek('messages')?.stringValue ??
                   dep.peek('expires')?.stringValue ??
                   'Expires: ${deprecated.message}.';
               named['deprecationReason'] = literalString(reason);
@@ -204,11 +209,11 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
                     originalField?.documentationComment);
 
             // Pick the type.
-            var doc = _graphQLDoc.firstAnnotationOf(depEl);
+            final doc = _graphQLDoc.firstAnnotationOf(depEl);
             Expression type;
             if (doc != null) {
-              var cr = ConstantReader(doc);
-              var typeName = cr.peek('typeName')?.symbolValue;
+              final cr = ConstantReader(doc);
+              final typeName = cr.peek('typeName')?.symbolValue;
               if (typeName != null)
                 type = refer(MirrorSystem.getName(typeName));
             }
@@ -221,7 +226,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
           named['fields'] = literalList(fields);
 
           b
-            ..name = ctx.modelClassNameRecase.camelCase + 'GraphQLType'
+            ..name = '${ctx.modelClassNameRecase.camelCase}GraphQLType'
             ..docs.add('/// Auto-generated from [${ctx.modelClassName}].')
             ..type = refer('GraphQLObjectType')
             ..modifier = FieldModifier.final$
