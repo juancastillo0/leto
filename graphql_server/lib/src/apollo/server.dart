@@ -5,7 +5,7 @@ import 'transport.dart';
 abstract class Server {
   final RemoteClient client;
   final Duration? keepAliveInterval;
-  final Completer _done = Completer();
+  final Completer _done = Completer<void>();
   late final StreamSubscription<OperationMessage> _sub;
   bool _init = false;
   Timer? _timer;
@@ -60,9 +60,9 @@ abstract class Server {
                     '${msg.type} payload must be a map (object).');
               }
               final payload = msg.payload as Map;
-              final query = payload['query'];
-              final variables = payload['variables'];
-              final operationName = payload['operationName'];
+              final Object? query = payload['query'];
+              final Object? variables = payload['variables'];
+              final Object? operationName = payload['operationName'];
               if (query == null || query is! String) {
                 throw FormatException(
                     '${msg.type} payload must contain a string named "query".');
@@ -81,7 +81,7 @@ abstract class Server {
                 (variables as Map?)?.cast<String, dynamic>(),
                 operationName as String?,
               );
-              var data = result.data;
+              Object? data = result.data;
 
               if (result.errors.isNotEmpty) {
                 client.sink.add(OperationMessage(OperationMessage.gqlData,
@@ -101,7 +101,7 @@ abstract class Server {
                       event = event['data'];
                     }
                     client.sink.add(OperationMessage(OperationMessage.gqlData,
-                        id: msg.id, payload: {'data': event}));
+                        id: msg.id, payload: <String, Object?>{'data': event}));
                   }
                 } else {
                   client.sink.add(OperationMessage(OperationMessage.gqlData,
@@ -135,6 +135,10 @@ abstract class Server {
 
   FutureOr<bool> onConnect(RemoteClient client, [Map? connectionParams]);
 
-  FutureOr<GraphQLResult> onOperation(String? id, String query,
-      [Map<String, dynamic>? variables, String? operationName]);
+  FutureOr<GraphQLResult> onOperation(
+    String? id,
+    String query, [
+    Map<String, dynamic>? variables,
+    String? operationName,
+  ]);
 }

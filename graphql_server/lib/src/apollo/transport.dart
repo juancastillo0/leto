@@ -40,9 +40,9 @@ class OperationMessage {
   OperationMessage(this.type, {this.payload, this.id});
 
   factory OperationMessage.fromJson(Map map) {
-    final type = map['type'];
-    var payload = map['payload'];
-    var id = map['id'];
+    final Object? type = map['type'];
+    Object? payload = map['payload'];
+    Object? id = map['id'];
 
     if (type == null) {
       throw ArgumentError.notNull('type');
@@ -58,7 +58,7 @@ class OperationMessage {
     // https://github.com/apollographql/subscriptions-transport-ws/issues/551
     if (map.containsKey('query') ||
         map.containsKey('operationName') ||
-        map.containsKey('variables')) payload = Map.from(map);
+        map.containsKey('variables')) payload = Map<Object?, Object?>.from(map);
     return OperationMessage(type, id: id as String?, payload: payload);
   }
 
