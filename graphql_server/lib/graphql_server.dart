@@ -11,7 +11,7 @@ import 'introspection.dart';
 Map<String, dynamic>? foldToStringDynamic(Map map) {
   return map.keys.fold<Map<String, dynamic>>(
     <String, dynamic>{},
-    (out, k) => out..[k.toString()] = map[k],
+    (out, Object? k) => out..[k.toString()] = map[k],
   );
 }
 
@@ -23,7 +23,7 @@ class GraphQL {
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s,
   /// when the related field has no resolver.
-  final FutureOr<T> Function<T>(T, String, Map<String, dynamic>)?
+  final FutureOr<T> Function<T, P>(P, String, Map<String, dynamic>)?
       defaultFieldResolver;
 
   GraphQLSchema _schema;
@@ -62,13 +62,13 @@ class GraphQL {
   Object? computeValue(
     GraphQLType? targetType,
     ValueNode node,
-    Map<String, dynamic> values,
+    Map<String, dynamic>? values,
   ) =>
       node.accept(GraphQLValueComputer(targetType, values));
 
   GraphQLType convertType(TypeNode node) {
     if (node is ListTypeNode) {
-      return GraphQLListType(convertType(node.type));
+      return GraphQLListType<Object?, Object?>(convertType(node.type));
     } else if (node is NamedTypeNode) {
       switch (node.name.value) {
         case 'Int':
@@ -102,7 +102,7 @@ class GraphQL {
     String? operationName,
     // [sourceUrl] may be either a [String], a [Uri], or `null`.
     dynamic sourceUrl,
-    Map<String, dynamic> variableValues = const {},
+    Map<String, Object?>? variableValues,
     Object? initialValue,
     Map<String, dynamic>? globalVariables,
   }) {
@@ -138,7 +138,7 @@ class GraphQL {
     GraphQLSchema schema,
     DocumentNode document, {
     String? operationName,
-    Map<String, dynamic> variableValues = const <String, dynamic>{},
+    Map<String, dynamic>? variableValues,
     Object? initialValue,
     Map<String, dynamic>? globalVariables,
   }) async {
@@ -181,7 +181,7 @@ class GraphQL {
   Map<String, dynamic> coerceVariableValues(
     GraphQLSchema schema,
     OperationDefinitionNode operation,
-    Map<String, dynamic> variableValues,
+    Map<String, dynamic>? variableValues,
   ) {
     final coercedValues = <String, dynamic>{};
     final variableDefinitions = operation.variableDefinitions;
@@ -190,7 +190,7 @@ class GraphQL {
       final variableName = variableDefinition.variable.name.value;
       final variableType = variableDefinition.type;
       final defaultValue = variableDefinition.defaultValue;
-      final value = variableValues[variableName];
+      final Object? value = variableValues?[variableName];
 
       if (value == null) {
         if (defaultValue != null) {
@@ -322,7 +322,7 @@ class GraphQL {
     }
   }
 
-  Future<Map<String, dynamic>> executeSubscriptionEvent(
+  Future<Map<String, Object?>> executeSubscriptionEvent(
     DocumentNode document,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
@@ -349,7 +349,7 @@ class GraphQL {
     }
   }
 
-  Future<Stream> resolveFieldEventStream(
+  Future<Stream<Object?>> resolveFieldEventStream(
     GraphQLObjectType subscriptionType,
     Object? rootValue,
     String fieldName,
@@ -363,7 +363,7 @@ class GraphQL {
       },
     );
     final resolver = field.resolve!;
-    final result = await resolver(rootValue, argumentValues);
+    final Object? result = await resolver(rootValue, argumentValues);
     if (result is Stream) {
       return result;
     } else {
@@ -371,11 +371,11 @@ class GraphQL {
     }
   }
 
-  Future<Map<String, dynamic>> executeSelectionSet(
+  Future<Map<String, dynamic>> executeSelectionSet<P>(
     DocumentNode document,
     SelectionSetNode selectionSet,
-    GraphQLObjectType? objectType,
-    Object? objectValue,
+    GraphQLObjectType<P>? objectType,
+    P objectValue,
     Map<String, dynamic> variableValues,
     Map<String, dynamic>? globalVariables,
   ) async {
@@ -398,7 +398,7 @@ class GraphQL {
               .firstWhereOrNull((f) => f.name == fieldName)
               ?.type;
           if (fieldType == null) continue;
-          futureResponseValue = executeField(
+          futureResponseValue = executeField<P>(
               document,
               fieldName,
               objectType,
@@ -419,11 +419,11 @@ class GraphQL {
     return resultMap;
   }
 
-  Future<Object?> executeField(
+  Future<Object?> executeField<P>(
     DocumentNode document,
     String fieldName,
-    GraphQLObjectType objectType,
-    Object? objectValue,
+    GraphQLObjectType<P> objectType,
+    P objectValue,
     List<FieldNode> fields,
     GraphQLType fieldType,
     Map<String, dynamic> variableValues,
@@ -432,12 +432,13 @@ class GraphQL {
     final field = fields[0];
     final argumentValues =
         coerceArgumentValues(objectType, field, variableValues);
-    final resolvedValue = await resolveFieldValue(
-        objectType,
-        objectValue!,
-        fieldName,
-        Map<String, dynamic>.from(globalVariables ?? {})
-          ..addAll(argumentValues));
+    final resolvedValue = await resolveFieldValue<Object?, P>(
+      objectType,
+      objectValue,
+      fieldName,
+      Map<String, dynamic>.from(globalVariables ?? <String, dynamic>{})
+        ..addAll(argumentValues),
+    );
     return completeValue(document, fieldName, fieldType, fields, resolvedValue,
         variableValues, globalVariables);
   }
@@ -460,7 +461,7 @@ class GraphQL {
     for (final argumentDefinition in argumentDefinitions) {
       final argumentName = argumentDefinition.name;
       final argumentType = argumentDefinition.type;
-      final defaultValue = argumentDefinition.defaultValue;
+      final Object? defaultValue = argumentDefinition.defaultValue;
 
       final argumentValue =
           argumentValues.firstWhereOrNull((a) => a.name.value == argumentName);
@@ -507,7 +508,7 @@ class GraphQL {
 
             throw GraphQLException(errors);
           } else {
-            final coercedValue = validation.value;
+            final Object? coercedValue = validation.value;
             coercedValues[argumentName] = coercedValue;
           }
         } on TypeError catch (e) {
@@ -535,9 +536,9 @@ class GraphQL {
     return coercedValues;
   }
 
-  Future<T?> resolveFieldValue<T>(
-    GraphQLObjectType objectType,
-    T objectValue,
+  Future<T?> resolveFieldValue<T, P>(
+    GraphQLObjectType<P> objectType,
+    P objectValue,
     String fieldName,
     Map<String, dynamic> argumentValues,
   ) async {
@@ -592,14 +593,14 @@ class GraphQL {
       }
 
       final innerType = fieldType.ofType;
-      final futureOut = [];
+      final futureOut = <Object?>[];
 
       for (final resultItem in result) {
         futureOut.add(completeValue(document, '(item in "$fieldName")',
             innerType, fields, resultItem, variableValues, globalVariables));
       }
 
-      final out = [];
+      final out = <Object?>[];
       for (final f in futureOut) {
         out.add(await f);
       }
@@ -634,8 +635,8 @@ class GraphQL {
       }
 
       final subSelectionSet = mergeSelectionSets(fields);
-      return executeSelectionSet(document, subSelectionSet, objectType, result,
-          variableValues, globalVariables);
+      return executeSelectionSet<dynamic>(document, subSelectionSet, objectType,
+          result, variableValues, globalVariables);
     }
 
     throw UnsupportedError('Unsupported type: $fieldType');
@@ -706,7 +707,7 @@ class GraphQL {
     GraphQLObjectType? objectType,
     SelectionSetNode selectionSet,
     Map<String, dynamic> variableValues, {
-    List? visitedFragments,
+    List<Object?>? visitedFragments,
   }) {
     final groupedFields = <String, List<FieldNode>>{};
     visitedFragments ??= [];
@@ -822,7 +823,7 @@ class GraphQL {
 
 class GraphQLValueComputer extends SimpleVisitor<Object> {
   final GraphQLType? targetType;
-  final Map<String, dynamic> variableValues;
+  final Map<String, dynamic>? variableValues;
 
   GraphQLValueComputer(this.targetType, this.variableValues);
 
@@ -880,5 +881,5 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
 
   @override
   Object? visitVariableNode(VariableNode node) =>
-      variableValues[node.name.value];
+      variableValues?[node.name.value];
 }

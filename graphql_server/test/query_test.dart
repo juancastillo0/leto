@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('single element', () async {
-    final todoType = objectType('todo', fields: [
+    final todoType = objectType<Todo>('todo', fields: [
       field(
         'text',
         graphQLString,

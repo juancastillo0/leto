@@ -15,11 +15,11 @@ void main() {
     };
   });
 
-  Stream<Map<String, dynamic>> resolveEpisodes(_, __) =>
+  Stream<Map<String, dynamic>> resolveEpisodes(Object? _, Object? __) =>
       Stream.fromIterable(episodes)
-          .map((ep) => {'prequels': ep, 'not_selected': 1337});
+          .map((ep) => <String, Object?>{'prequels': ep, 'not_selected': 1337});
 
-  final episodeType = objectType('Episode', fields: [
+  final episodeType = objectType<Object?>('Episode', fields: [
     field('name', graphQLString.nonNullable()),
     field('not_selected', graphQLInt),
   ]);
