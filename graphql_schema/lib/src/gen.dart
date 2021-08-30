@@ -1,14 +1,14 @@
 part of graphql_schema.src.schema;
 
 /// Shorthand for generating a [GraphQLObjectType].
-GraphQLObjectType objectType(
+GraphQLObjectType<P> objectType<P>(
   String name, {
   String? description,
   bool isInterface = false,
-  Iterable<GraphQLObjectField> fields = const [],
+  Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
   Iterable<GraphQLObjectType> interfaces = const [],
 }) {
-  final obj = GraphQLObjectType(name, description, isInterface: isInterface)
+  final obj = GraphQLObjectType<P>(name, description, isInterface: isInterface)
     ..fields.addAll(fields);
 
   if (interfaces.isNotEmpty) {
@@ -21,17 +21,17 @@ GraphQLObjectType objectType(
 }
 
 /// Shorthand for generating a [GraphQLObjectField].
-GraphQLObjectField<T, Serialized> field<T, Serialized>(
+GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
   String name,
   GraphQLType<T, Serialized> type, {
   Iterable<GraphQLFieldInput<T, Serialized>> inputs = const [],
-  GraphQLFieldResolver<T, Serialized>? resolve,
+  GraphQLFieldResolver<T, P>? resolve,
   String? deprecationReason,
   String? description,
 }) {
-  return GraphQLObjectField<T, Serialized>(name, type,
+  return GraphQLObjectField(name, type,
       arguments: inputs,
-      resolve: resolve,
+      resolve: resolve == null ? null : FieldResolver(resolve),
       description: description,
       deprecationReason: deprecationReason);
 }

@@ -26,10 +26,10 @@ part 'validation_result.dart';
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
-  final GraphQLObjectType? queryType;
+  final GraphQLObjectType<void>? queryType;
 
   /// The shape required for any query that changes the state of the backend.
-  final GraphQLObjectType? mutationType;
+  final GraphQLObjectType<void>? mutationType;
 
   /// A [GraphQLObjectType] describing the form of data sent to
   /// real-time subscribers.
@@ -38,16 +38,16 @@ class GraphQLSchema {
   /// subscriptions are not formalized in the GraphQL specification.
   /// Therefore, any GraphQL implementation can potentially implement
   /// subscriptions in its own way.
-  final GraphQLObjectType? subscriptionType;
+  final GraphQLObjectType<void>? subscriptionType;
 
   GraphQLSchema({this.queryType, this.mutationType, this.subscriptionType});
 }
 
 /// A shorthand for creating a [GraphQLSchema].
 GraphQLSchema graphQLSchema({
-  required GraphQLObjectType queryType,
-  GraphQLObjectType? mutationType,
-  GraphQLObjectType? subscriptionType,
+  required GraphQLObjectType<void> queryType,
+  GraphQLObjectType<void>? mutationType,
+  GraphQLObjectType<void>? subscriptionType,
 }) =>
     GraphQLSchema(
       queryType: queryType,
@@ -56,7 +56,7 @@ GraphQLSchema graphQLSchema({
     );
 
 /// A default resolver that always returns `null`.
-Null resolveToNull(Object _, Object __) => null;
+Null resolveToNull(Object? _, Object? __) => null;
 
 /// An exception that occurs during execution of a GraphQL query.
 class GraphQLException implements Exception {
@@ -177,7 +177,7 @@ class GraphQLClass {
 }
 
 extension GraphQLScalarTypeExt<V, S> on GraphQLScalarType<V, S> {
-  GraphQLObjectField<V, S> field(
+  GraphQLObjectField<V, S, P> field<P>(
     String name, {
     bool nullable = true,
     String? deprecationReason,

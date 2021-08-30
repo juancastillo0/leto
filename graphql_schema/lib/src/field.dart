@@ -2,14 +2,23 @@ part of graphql_schema.src.schema;
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 ///  whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, Serialized> = FutureOr<Value>? Function(
-    Serialized serialized, Map<String, dynamic> argumentValues);
+typedef GraphQLFieldResolver<Value, P> = FutureOr<Value>? Function(
+    P parent, Map<String, dynamic> argumentValues);
+
+class FieldResolver<Value, P> {
+  final GraphQLFieldResolver<Value, P> r;
+
+  const FieldResolver(this.r);
+
+  FutureOr<Value>? call(P parent, Map<String, dynamic> argumentValues) =>
+      r(parent, argumentValues);
+}
 
 /// A field on a [GraphQLObjectType].
 ///
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
-class GraphQLObjectField<Value, Serialized> {
+class GraphQLObjectField<Value, Serialized, P> {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 
@@ -18,7 +27,7 @@ class GraphQLObjectField<Value, Serialized> {
 
   /// A function used to evaluate the value of this field, with
   /// respect to an arbitrary Dart value.
-  final GraphQLFieldResolver<Value, Serialized>? resolve;
+  final FieldResolver<Value, P>? resolve;
 
   /// The [GraphQLType] associated with values that this
   /// field's [resolve] callback returns.
@@ -55,7 +64,8 @@ class GraphQLObjectField<Value, Serialized> {
     Serialized serialized, [
     Map<String, dynamic> argumentValues = const <String, dynamic>{},
   ]) {
-    if (resolve != null) return resolve!(serialized, argumentValues);
+    // TODO:
+    // if (resolve != null) return resolve!(serialized, argumentValues);
     return type.deserialize(serialized);
   }
 

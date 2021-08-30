@@ -2,7 +2,7 @@ part of graphql_schema.src.schema;
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType
+class GraphQLObjectType<P>
     extends GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
     with _NonNullableMixin<Map<String, dynamic>, Map<String, dynamic>> {
   /// The name of this type.
@@ -14,7 +14,7 @@ class GraphQLObjectType
   final String? description;
 
   /// The list of fields that an object of this type is expected to have.
-  final List<GraphQLObjectField> fields = [];
+  final List<GraphQLObjectField<Object?, Object?, P>> fields = [];
 
   /// `true` if this type should be treated as an *interface*,
   /// which child types can [inheritFrom].
@@ -38,8 +38,7 @@ class GraphQLObjectType
   GraphQLObjectType(this.name, this.description, {this.isInterface = false});
 
   @override
-  GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-      coerceToInputObject() {
+  GraphQLType<Map<String, dynamic>, Map<String, dynamic>> coerceToInputObject() {
     return toInputObject('${name}Input', description: description);
   }
 
@@ -134,8 +133,19 @@ class GraphQLObjectType
   }
 
   @override
-  Map<String, dynamic> serialize(Map<String, Object?> value) {
-    return value.keys.fold(<String, dynamic>{}, (out, k) {
+  Map<String, dynamic> serialize(Map<String, dynamic> value) {
+    Map<String, Object?> map;
+    // TODO:
+    if (value is Map) {
+      map = value.cast();
+    } else {
+      try {
+        map = (value as dynamic).toJson() as Map<String, Object?>;
+      } catch (_) {
+        map = (value as dynamic).toMap() as Map<String, Object?>;
+      }
+    }
+    return map.keys.fold(<String, dynamic>{}, (out, k) {
       final field = fields.firstWhereOrNull((f) => f.name == k);
       if (field == null)
         throw UnsupportedError(

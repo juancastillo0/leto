@@ -2,12 +2,12 @@ import 'package:graphql_schema/graphql_schema.dart';
 
 final GraphQLSchema todoSchema = new GraphQLSchema(
   queryType: objectType('Todo', fields: [
-    field<Object, Object>(
+    field(
       'text',
       graphQLString.nonNullable(),
       resolve: resolveToNull,
     ),
-    field<Object, Object>(
+    field(
       'created_at',
       graphQLDate,
       resolve: resolveToNull,
