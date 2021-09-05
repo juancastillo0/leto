@@ -33,7 +33,8 @@ void main() {
   });
 
   test('mismatched scalar type', () {
-    expect(() => pokemonType.validate('@root', {'name': 24}), throwsATypeError);
+    expect(pokemonType.validate('@root', {'name': 24}).errors.first,
+        contains('Expected "name" to be a string.'));
   });
 
   test('empty passed for non-nullable', () {

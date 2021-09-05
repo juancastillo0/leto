@@ -2,7 +2,7 @@ import 'package:graphql_schema/graphql_schema.dart';
 
 final GraphQLObjectType pokemonType = objectType('Pokemon', fields: [
   field('species', graphQLString),
-  field('catch_date', graphQLDate)
+  field('catch_date', graphQLDateValue)
 ]);
 
 final GraphQLObjectType trainerType =

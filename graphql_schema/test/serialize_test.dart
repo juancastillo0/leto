@@ -32,7 +32,7 @@ main() {
 
   test('date', () {
     var now = new DateTime.now();
-    expect(graphQLDate.serialize(now), now.toIso8601String());
+    expect(graphQLDateValue.serialize(now), now.toIso8601String());
   });
 
   test('list', () {
@@ -40,7 +40,7 @@ main() {
 
     var today = new DateTime.now();
     var tomorrow = today.add(new Duration(days: 1));
-    expect(listOf(graphQLDate).serialize([today, tomorrow]),
+    expect(listOf(graphQLDateValue).serialize([today, tomorrow]),
         [today.toIso8601String(), tomorrow.toIso8601String()]);
   });
 
