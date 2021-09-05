@@ -19,6 +19,7 @@ linter:
     use_named_constants: true
     avoid_renaming_method_parameters: true
     avoid_equals_and_hash_code_on_mutable_classes: true
+    require_trailing_commas: false
 
 analyzer:
   strong-mode:
@@ -33,3 +34,4 @@ analyzer:
     unrelated_type_equality_checks: error
     null_check_on_nullable_type_parameter: warning
     unnecessary_null_comparison: warning
+    todo: info
