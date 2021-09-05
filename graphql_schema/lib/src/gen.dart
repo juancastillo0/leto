@@ -24,7 +24,7 @@ GraphQLObjectType<P> objectType<P>(
 GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
   String name,
   GraphQLType<T, Serialized> type, {
-  Iterable<GraphQLFieldInput<T, Serialized>> inputs = const [],
+  Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
   GraphQLFieldResolver<T, P>? resolve,
   String? deprecationReason,
   String? description,

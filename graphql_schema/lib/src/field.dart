@@ -2,23 +2,23 @@ part of graphql_schema.src.schema;
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 ///  whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, P> = FutureOr<Value>? Function(
+typedef GraphQLFieldResolver<Value, P> = FutureOr<Value> Function(
     P parent, Map<String, dynamic> argumentValues);
 
 class FieldResolver<Value, P> {
-  final GraphQLFieldResolver<Value, P> r;
+  final GraphQLFieldResolver<Value, P> resolve;
 
-  const FieldResolver(this.r);
+  const FieldResolver(this.resolve);
 
-  FutureOr<Value>? call(P parent, Map<String, dynamic> argumentValues) =>
-      r(parent, argumentValues);
+  FutureOr<Value> call(P parent, Map<String, dynamic> argumentValues) =>
+      resolve(parent, argumentValues);
 }
 
 /// A field on a [GraphQLObjectType].
 ///
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
-class GraphQLObjectField<Value, Serialized, P> {
+class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 
@@ -61,12 +61,13 @@ class GraphQLObjectField<Value, Serialized, P> {
   }
 
   FutureOr<Value>? deserialize(
+    SerdeCtx serdeCtx,
     Serialized serialized, [
     Map<String, dynamic> argumentValues = const <String, dynamic>{},
   ]) {
     // TODO:
     // if (resolve != null) return resolve!(serialized, argumentValues);
-    return type.deserialize(serialized);
+    return type.deserialize(serdeCtx, serialized);
   }
 
   @override
