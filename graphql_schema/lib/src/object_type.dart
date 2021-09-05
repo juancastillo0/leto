@@ -2,9 +2,8 @@ part of graphql_schema.src.schema;
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType<P>
-    extends GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-    with _NonNullableMixin<Map<String, dynamic>, Map<String, dynamic>> {
+class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
+    with _NonNullableMixin<P, Map<String, dynamic>?> {
   /// The name of this type.
   @override
   final String name;
@@ -35,24 +34,29 @@ class GraphQLObjectType<P>
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
-  GraphQLObjectType(this.name, this.description, {this.isInterface = false});
+  GraphQLObjectType(
+    this.name,
+    this.description, {
+    this.isInterface = false,
+  });
 
   @override
-  GraphQLType<Map<String, dynamic>, Map<String, dynamic>> coerceToInputObject() {
+  GraphQLType<P, Map<String, dynamic>?> coerceToInputObject() {
     return toInputObject('${name}Input', description: description);
   }
 
   /// Converts [this] into a [GraphQLInputObjectType].
-  GraphQLInputObjectType toInputObject(String name, {String? description}) {
+  GraphQLInputObjectType<P> toInputObject(
+    String name, {
+    String? description,
+  }) {
     return GraphQLInputObjectType(
       name,
       description: description ?? this.description,
       inputFields: fields.map(
-        (f) => GraphQLInputObjectField<Map<String, dynamic>?,
-            Map<String, dynamic>?>(
+        (f) => GraphQLInputObjectField(
           f.name,
-          f.type.coerceToInputObject()
-              as GraphQLType<Map<String, dynamic>?, Map<String, dynamic>?>,
+          f.type.coerceToInputObject(),
           description: f.description,
         ),
       ),
@@ -72,12 +76,12 @@ class GraphQLObjectType<P>
   }
 
   @override
-  ValidationResult<Map<String, dynamic>> validate(
+  ValidationResult<Map<String, dynamic>?> validate(
     String key,
-    Map<String, Object?> input,
+    Object? input,
   ) {
-    if (input is! Map)
-      return ValidationResult._failure(['Expected "$key" to be a Map.']);
+    if (input is! Map<String, Object?>)
+      return ValidationResult.failure(['Expected "$key" to be a Map.']);
 
     if (isInterface) {
       final List<String> errors = [];
@@ -92,7 +96,7 @@ class GraphQLObjectType<P>
         }
       }
 
-      return ValidationResult<Map<String, dynamic>>._failure(errors);
+      return ValidationResult.failure(errors);
     }
 
     final out = <String, Object?>{};
@@ -127,42 +131,40 @@ class GraphQLObjectType<P>
     });
 
     if (errors.isNotEmpty) {
-      return ValidationResult._failure(errors);
+      return ValidationResult.failure(errors);
     } else
-      return ValidationResult._ok(_foldToStringDynamic(out));
+      return ValidationResult.ok(_foldToStringDynamic(out));
   }
 
   @override
-  Map<String, dynamic> serialize(Map<String, dynamic> value) {
-    Map<String, Object?> map;
-    // TODO:
-    if (value is Map) {
-      map = value.cast();
-    } else {
-      try {
-        map = (value as dynamic).toJson() as Map<String, Object?>;
-      } catch (_) {
-        map = (value as dynamic).toMap() as Map<String, Object?>;
-      }
+  Map<String, dynamic>? serialize(P value) {
+    if (value == null) {
+      return null;
     }
-    return map.keys.fold(<String, dynamic>{}, (out, k) {
-      final field = fields.firstWhereOrNull((f) => f.name == k);
-      if (field == null)
-        throw UnsupportedError(
-          'Cannot serialize field "$k", which was not defined in the schema.',
-        );
-      return out..[k.toString()] = field.serialize(value[k]);
-    });
+    final map = jsonFromValue(value);
+    return gqlFromJson(map, fields);
+    // return map.keys.fold(<String, dynamic>{}, (out, k) {
+    //   final field = fields.firstWhereOrNull((f) => f.name == k);
+    //   if (field == null)
+    //     throw UnsupportedError(
+    //       'Cannot serialize field "$k", which was not defined in the schema.',
+    //     );
+    //   return out..[k.toString()] = field.serialize(value[k]);
+    // });
   }
 
   @override
-  Map<String, dynamic> deserialize(Map<String, Object?> value) {
-    return value.keys.fold(<String, Object?>{}, (out, k) {
-      final field = fields.firstWhereOrNull((f) => f.name == k);
-      if (field == null)
-        throw UnsupportedError('Unexpected field "$k" encountered in map.');
-      return out..[k.toString()] = field.deserialize(value[k]);
-    });
+  P deserialize(SerdeCtx serdeCtx, Map<String, Object?>? value) {
+    if (value == null) {
+      return null as P;
+    }
+    return valueFromJson(serdeCtx, value, fields);
+    // return value.keys.fold(<String, Object?>{}, (out, k) {
+    //   final field = fields.firstWhereOrNull((f) => f.name == k);
+    //   if (field == null)
+    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
+    //   return out..[k.toString()] = field.deserialize(serdeCtx, value[k]);
+    // });
   }
 
   /// Returns `true` if this type, or any of its parents,
@@ -209,9 +211,9 @@ Map<String, Object?> _foldToStringDynamic(Map<Object, Object?> map) {
 /// and are overall more limiter in utility, because their only purpose is to
 /// reduce the number of parameters to a given field, and to potentially
 /// reuse an input structure across multiple fields in the hierarchy.
-class GraphQLInputObjectType
-    extends GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-    with _NonNullableMixin<Map<String, dynamic>, Map<String, dynamic>> {
+class GraphQLInputObjectType<Value>
+    extends GraphQLType<Value, Map<String, dynamic>?>
+    with _NonNullableMixin<Value, Map<String, dynamic>?> {
   /// The name of this type.
   @override
   final String name;
@@ -224,19 +226,24 @@ class GraphQLInputObjectType
   /// type is expected to have.
   final List<GraphQLInputObjectField> inputFields = [];
 
+  final Value Function(Map<String, Object?>)? customDeserialize;
+
   GraphQLInputObjectType(
     this.name, {
     this.description,
     Iterable<GraphQLInputObjectField> inputFields = const [],
+    this.customDeserialize,
   }) {
     this.inputFields.addAll(inputFields);
   }
 
   @override
-  ValidationResult<Map<String, dynamic>> validate(
-      String key, Map<String, Object?> input) {
-    if (input is! Map)
-      return ValidationResult._failure(['Expected "$key" to be a Map.']);
+  ValidationResult<Map<String, dynamic>?> validate(String key, Object? input) {
+    if (input == null) {
+      return const ValidationResult.ok(null);
+    }
+    if (input is! Map<String, Object?>)
+      return ValidationResult.failure(['Expected "$key" to be a Map.']);
 
     final out = <String, Object?>{};
     final List<String> errors = [];
@@ -269,31 +276,34 @@ class GraphQLInputObjectType
     });
 
     if (errors.isNotEmpty) {
-      return ValidationResult._failure(errors);
-    } else
-      return ValidationResult._ok(_foldToStringDynamic(out));
+      return ValidationResult.failure(errors);
+    } else {
+      return ValidationResult.ok(_foldToStringDynamic(out));
+    }
   }
 
   @override
-  Map<String, dynamic> serialize(Map<String, Object?> value) {
-    return value.keys.fold(<String, dynamic>{}, (out, k) {
-      final field = inputFields.firstWhereOrNull((f) => f.name == k);
-      if (field == null)
-        throw UnsupportedError(
-          'Cannot serialize field "$k", which was not defined in the schema.',
-        );
-      return out..[k.toString()] = field.type.serialize(value[k]);
-    });
+  Map<String, dynamic> serialize(Value value) {
+    final map = jsonFromValue(value!);
+    return gqlFromJson(map, inputFields);
   }
 
   @override
-  Map<String, dynamic> deserialize(Map<String, Object?> value) {
-    return value.keys.fold(<String, dynamic>{}, (out, k) {
-      final field = inputFields.firstWhereOrNull((f) => f.name == k);
-      if (field == null)
-        throw UnsupportedError('Unexpected field "$k" encountered in map.');
-      return out..[k.toString()] = field.type.deserialize(value[k]);
-    });
+  Value deserialize(SerdeCtx serdeCtx, Map<String, Object?>? value) {
+    if (value == null) {
+      return null as Value;
+    }
+    if (customDeserialize != null) {
+      return customDeserialize!(value);
+    } else {
+      return valueFromJson(serdeCtx, value, inputFields);
+    }
+    // return value.keys.fold(<String, dynamic>{}, (out, k) {
+    //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
+    //   if (field == null)
+    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
+    //   return out..[k.toString()] = field.type.deserialize(value[k]);
+    // });
   }
 
   @override
@@ -301,17 +311,17 @@ class GraphQLInputObjectType
     return other is GraphQLInputObjectType &&
         other.name == name &&
         other.description == description &&
+        other.customDeserialize == customDeserialize &&
         const ListEquality<GraphQLInputObjectField>()
             .equals(other.inputFields, inputFields);
   }
 
   @override
-  GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-      coerceToInputObject() => this;
+  GraphQLType<Value, Map<String, dynamic>?> coerceToInputObject() => this;
 }
 
 /// A field expected within a [GraphQLInputObjectType].
-class GraphQLInputObjectField<Value, Serialized> {
+class GraphQLInputObjectField<Value, Serialized> implements ObjectField {
   /// The name of this field.
   final String name;
 
@@ -338,4 +348,67 @@ class GraphQLInputObjectField<Value, Serialized> {
       other.type == type &&
       other.description == description &&
       other.defaultValue == defaultValue;
+}
+
+abstract class ObjectField {
+  String get name;
+
+  GraphQLType<Object?, Object?> get type;
+}
+
+Value valueFromJson<Value>(
+  SerdeCtx serdeCtx,
+  Map<String, Object?> map,
+  List<ObjectField> fields,
+) {
+  if (const <String, Object?>{} is! Value) {
+    return serdeCtx.fromJson(map);
+  } else {
+    final gql = map.map((k, value) {
+      final field = fields.firstWhere(
+        (f) => f.name == k,
+        orElse: () => throw UnsupportedError(
+          'Unexpected field "$k" encountered in map.',
+        ),
+      );
+      return MapEntry(k, field.type.deserialize(serdeCtx, value));
+    });
+    return serdeCtx.fromJson(gql);
+  }
+}
+
+Map<String, Object?> jsonFromValue(Object value) {
+  Map<String, Object?> map;
+  if (value is Map) {
+    map = value.cast();
+  } else {
+    try {
+      map = (value as dynamic).toJson() as Map<String, Object?>;
+    } catch (_) {
+      map = (value as dynamic).toMap() as Map<String, Object?>;
+    }
+  }
+  return map;
+}
+
+Map<String, Object?> gqlFromJson(
+  Map<String, Object?> map,
+  List<ObjectField> inputFields,
+) {
+  return map.map((key, value) {
+    final field = inputFields.firstWhereOrNull((f) => f.name == key);
+    if (field == null)
+      throw UnsupportedError(
+        'Cannot serialize field "$key", which was not defined in the schema.',
+      );
+    return MapEntry(key, field.type.serializeSafe(value));
+  });
+}
+
+extension SerdeGraphQLType<V, S> on GraphQLType<V, S> {
+  
+}
+
+extension SerdeGraphQLObjectField<T, V, S> on GraphQLObjectField<T, V, S> {
+  bool isValue(Object? value) => value is T;
 }
