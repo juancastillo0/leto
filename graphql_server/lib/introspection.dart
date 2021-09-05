@@ -515,6 +515,10 @@ class CollectTypes {
       traversedTypes.add(type);
       return;
     }
+    if (type is GraphQLScalarType) {
+      traversedTypes.add(type);
+      return;
+    }
     if (type is GraphQLUnionType) {
       traversedTypes.add(type);
       for (final t in type.possibleTypes) {
