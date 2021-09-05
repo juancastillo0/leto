@@ -24,11 +24,12 @@ class Todo implements Serializable {
   });
 
   @override
-  Map<String, Object?> toJson() {
+  Map<String, Object?> toJson({bool nested = false}) {
     return {
       if (text != null) 'text': text,
       if (completed != null) 'completed': completed,
-      if (users != null) 'users': users!.map((e) => e.toJson()).toList(),
+      if (users != null)
+        'users': nested ? users!.map((e) => e.toJson()).toList() : users,
       'time': time.toIso8601String(),
     };
   }
@@ -37,9 +38,7 @@ class Todo implements Serializable {
     return Todo(
       text: map['text'] as String?,
       completed: map['completed'] as bool?,
-      time: map['time'] is DateTime
-          ? map['time']! as DateTime
-          : DateTime.parse(map['time']! as String),
+      time: DateTime.parse(map['time']! as String),
       users: (map['users'] as List<Object?>?)
           ?.map((e) => User.fromJson(e! as Map<String, Object?>))
           .toList(),

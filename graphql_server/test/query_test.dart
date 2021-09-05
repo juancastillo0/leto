@@ -35,7 +35,7 @@ void main() {
           completed: false,
           time: t,
           users: const [User(name: 'Jus')],
-        ).toJson(),
+        ).toJson(nested: true),
       },
     );
 
