@@ -1,0 +1,33 @@
+include: package:lint/analysis_options.yaml
+
+linter:
+  rules:
+    avoid_print: true
+    type_annotate_public_apis: true
+    avoid_redundant_argument_values: false
+    # new
+    avoid_unused_constructor_parameters: true
+    prefer_const_constructors: true
+    lines_longer_than_80_chars: true
+    prefer_single_quotes: true
+
+    avoid_dynamic_calls: true
+    prefer_adjacent_string_concatenation: true
+    unawaited_futures: true
+    use_named_constants: true
+    avoid_renaming_method_parameters: true
+    avoid_equals_and_hash_code_on_mutable_classes: true
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  exclude:
+    - lib/**.g.dart
+    - lib/**.freezed.dart
+    - lib/generated/**/*
+  errors:
+    missing_return: error
+    unrelated_type_equality_checks: error
+    null_check_on_nullable_type_parameter: warning
+    todo: info
