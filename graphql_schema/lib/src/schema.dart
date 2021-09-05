@@ -3,6 +3,7 @@ library graphql_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
@@ -23,6 +24,8 @@ part 'union.dart';
 
 part 'validation_result.dart';
 
+part 'serde_ctx.dart';
+
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
@@ -40,7 +43,14 @@ class GraphQLSchema {
   /// subscriptions in its own way.
   final GraphQLObjectType<void>? subscriptionType;
 
-  GraphQLSchema({this.queryType, this.mutationType, this.subscriptionType});
+  final SerdeCtx serdeCtx;
+
+  GraphQLSchema({
+    this.queryType,
+    this.mutationType,
+    this.subscriptionType,
+    SerdeCtx? serdeCtx,
+  }) : serdeCtx = serdeCtx ?? SerdeCtx();
 }
 
 /// A shorthand for creating a [GraphQLSchema].
@@ -48,11 +58,13 @@ GraphQLSchema graphQLSchema({
   required GraphQLObjectType<void> queryType,
   GraphQLObjectType<void>? mutationType,
   GraphQLObjectType<void>? subscriptionType,
+  SerdeCtx? serdeCtx,
 }) =>
     GraphQLSchema(
       queryType: queryType,
       mutationType: mutationType,
       subscriptionType: subscriptionType,
+      serdeCtx: serdeCtx,
     );
 
 /// A default resolver that always returns `null`.
@@ -88,6 +100,11 @@ class GraphQLException implements Exception {
       'errors': errors.map((e) => e.toJson()).toList(),
     };
   }
+
+  @override
+  String toString() {
+    return 'GraphQLException(${toJson()})';
+  }
 }
 
 /// One of an arbitrary number of errors that may occur during the
@@ -108,14 +125,24 @@ class GraphQLExceptionError {
   /// triggered an error.
   final List<GraphExceptionErrorLocation> locations;
 
-  GraphQLExceptionError(this.message, {this.locations = const []});
+  final StackTrace stackTrace;
+
+  GraphQLExceptionError(this.message, {this.locations = const []})
+      // TODO: improve
+      : stackTrace = StackTrace.current;
 
   Map<String, dynamic> toJson() {
     final out = <String, dynamic>{'message': message};
-    if (locations.isNotEmpty) {
-      out['locations'] = locations.map((l) => l.toJson()).toList();
+    final locationsFiltered = locations.where((l) => l.line != null);
+    if (locationsFiltered.isNotEmpty) {
+      out['locations'] = locationsFiltered.map((l) => l.toJson()).toList();
     }
     return out;
+  }
+
+  @override
+  String toString() {
+    return 'GraphQLExceptionError(${toJson()})';
   }
 }
 
@@ -124,17 +151,24 @@ class GraphQLExceptionError {
 ///
 /// This is analogous to a [SourceLocation] from `package:source_span`.
 class GraphExceptionErrorLocation {
-  final int line;
-  final int column;
+  // TODO:
+  final int? line;
+  final int? column;
 
-  GraphExceptionErrorLocation(this.line, this.column);
+  const GraphExceptionErrorLocation(
+    this.line,
+    this.column,
+  );
 
   factory GraphExceptionErrorLocation.fromSourceLocation(
-      SourceLocation location) {
-    return GraphExceptionErrorLocation(location.line, location.column);
+      SourceLocation? location) {
+    return GraphExceptionErrorLocation(
+      location?.line,
+      location?.column,
+    );
   }
 
-  Map<String, int> toJson() {
+  Map<String, Object?> toJson() {
     return {'line': line, 'column': column};
   }
 }
