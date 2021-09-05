@@ -26,6 +26,7 @@ void main() {
             Todo(
               text: 'Clean your room!',
               completed: false,
+              time: DateTime.now(),
             )
           ],
         ),
@@ -44,9 +45,41 @@ void main() {
   });
 }
 
-class Todo {
+class Todo implements Serializable {
   final String? text;
   final bool? completed;
+  final DateTime time;
+  final List<Todo>? inner;
 
-  Todo({this.text, this.completed});
+  Todo({
+    this.text,
+    this.completed,
+    required this.time,
+    this.inner,
+  });
+
+  @override
+  Map<String, Object?> toJson() {
+    return {
+      'text': text,
+      'completed': completed,
+      'inner': inner?.map((e) => e.toJson()).toList(),
+      'time': time.toIso8601String(),
+    };
+  }
+
+  factory Todo.fromJson(Map<String, Object?> map) {
+    return Todo(
+      text: map['text'] as String?,
+      completed: map['completed'] as bool?,
+      time: DateTime.parse(map['time']! as String),
+      inner: (map['inner'] as List<Object?>?)
+          ?.map((e) => Todo.fromJson(e! as Map<String, Object?>))
+          .toList(),
+    );
+  }
+
+  static final serializer = SerializerFunc<Todo>(
+    fromJson: (j) => Todo.fromJson(j!),
+  );
 }
