@@ -2,6 +2,9 @@
 // import 'package:graphql_server/mirrors.dart';
 // import 'package:test/test.dart';
 
+void main() {
+  
+}
 // void main() {
 //   group('convertDartType', () {
 //     group('on enum', () {

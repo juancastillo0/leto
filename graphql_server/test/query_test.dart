@@ -1,38 +1,17 @@
-import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:test/test.dart';
+import 'common.dart';
+import 'todos_schema.dart';
 
 void main() {
+  late GraphQL graphql;
+
+  setUp(() {
+    final schema = todosSchema();
+    graphql = GraphQL(schema);
+  });
+
   test('single element', () async {
-    final todoType = objectType<Todo>('todo', fields: [
-      field(
-        'text',
-        graphQLString,
-        resolve: (obj, args) => obj.text,
-      ),
-      field(
-        'completed',
-        graphQLBoolean,
-        resolve: (obj, args) => obj.completed,
-      ),
-    ]);
-
-    final schema = graphQLSchema(
-      queryType: objectType('api', fields: [
-        field(
-          'todos',
-          listOf(todoType),
-          resolve: (_, __) => [
-            Todo(
-              text: 'Clean your room!',
-              completed: false,
-            )
-          ],
-        ),
-      ]),
-    );
-
-    final graphql = GraphQL(schema);
     final result = await graphql.parseAndExecute('{ todos { text } }');
 
     print(result);
@@ -42,11 +21,34 @@ void main() {
       ]
     });
   });
-}
 
-class Todo {
-  final String? text;
-  final bool? completed;
+  test('mutation', () async {
+    final t = DateTime.now();
 
-  Todo({this.text, this.completed});
+    final resultmut = await graphql.parseAndExecute(
+      'mutation mut1 (\$todoIn: Todo) { '
+      '  completeTodo(todoIn: \$todoIn) { text, time, completed, users {name}} '
+      '}',
+      variableValues: {
+        'todoIn': Todo(
+          text: 'Clean your room! mut',
+          completed: false,
+          time: t,
+          users: const [User(name: 'Jus')],
+        ).toJson(),
+      },
+    );
+
+    print(resultmut);
+    expect(resultmut, {
+      'completeTodo': {
+        'text': 'Clean your room! mut',
+        'completed': true,
+        'time': t.toIso8601String(),
+        'users': [
+          {'name': 'Jus'}
+        ]
+      }
+    });
+  });
 }
