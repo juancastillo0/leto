@@ -54,3 +54,6 @@ fabric.properties
 .idea/httpRequests
 
 .dart_tool
+.fvm/flutter_sdk
+.vscode/settings.json
+.vscode/launch.json
