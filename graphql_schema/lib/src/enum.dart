@@ -49,23 +49,24 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
   }
 
   @override
-  Value deserialize(String serialized) {
+  Value deserialize(SerdeCtx serdeCtx, String serialized) {
     return values.firstWhere((v) => v.name == serialized).value;
   }
 
   @override
-  ValidationResult<String> validate(String key, String input) {
-    if (!values.any((v) => v.name == input)) {
+  ValidationResult<String> validate(String key, Object? input) {
+    final value = values.firstWhereOrNull((v) => v.name == input);
+    if (value == null) {
       if (input == null) {
-        return ValidationResult<String>._failure(
+        return ValidationResult<String>.failure(
             ['The enum "$name" does not accept null values.']);
       }
 
-      return ValidationResult<String>._failure(
+      return ValidationResult<String>.failure(
           ['"$input" is not a valid value for the enum "$name".']);
     }
 
-    return ValidationResult<String>._ok(input);
+    return ValidationResult<String>.ok(value.name);
   }
 
   @override

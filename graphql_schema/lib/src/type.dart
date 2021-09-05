@@ -9,6 +9,8 @@ part of graphql_schema.src.schema;
 /// values of type [Serialized]; for example, a
 /// [GraphQLType] that serializes objects into `String`s.
 abstract class GraphQLType<Value, Serialized> {
+  const GraphQLType();
+
   /// The name of this type.
   String? get name;
 
@@ -20,14 +22,14 @@ abstract class GraphQLType<Value, Serialized> {
   Serialized serialize(Value value);
 
   /// Deserializes a serialized value.
-  Value deserialize(Serialized serialized);
+  Value deserialize(SerdeCtx serdeCtx, Serialized serialized);
 
   /// Attempts to cast a dynamic [value] into a [Serialized] instance.
-  Serialized convert(Object value) => value as Serialized;
+  Serialized convert(Object? value) => value as Serialized;
 
   /// Performs type coercion against an [input] value, and returns a
   /// list of errors if the validation was unsuccessful.
-  ValidationResult<Serialized> validate(String key, Serialized input);
+  ValidationResult<Serialized> validate(String key, Object? input);
 
   /// Creates a non-nullable type that represents this type, and enforces
   /// that a field of this type is present in input data.
@@ -36,6 +38,20 @@ abstract class GraphQLType<Value, Serialized> {
   /// Turns this type into one suitable for being provided as an input
   /// to a [GraphQLObjectField].
   GraphQLType<Value, Serialized> coerceToInputObject();
+
+  Serialized serializeSafe(Object? value) {
+    if (value is Serialized && value is! Map && value is! List) {
+      return value;
+    } else {
+      // final v = this;
+      // if (value is List && v is GraphQLListType) {
+      //   return value
+      //       .map((e) => (v as GraphQLListType).ofType.serialize(e))
+      //       .toList() as Serialized;
+      // }
+      return serialize(value as Value);
+    }
+  }
 
   @override
   String toString() => name!;
@@ -56,7 +72,7 @@ class GraphQLListType<Value, Serialized>
   GraphQLListType(this.ofType);
 
   @override
-  List<Serialized> convert(Object value) {
+  List<Serialized> convert(Object? value) {
     if (value is Iterable) {
       return value.cast<Serialized>().toList();
     } else {
@@ -72,10 +88,9 @@ class GraphQLListType<Value, Serialized>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  ValidationResult<List<Serialized>> validate(
-      String key, List<Serialized> input) {
+  ValidationResult<List<Serialized>> validate(String key, Object? input) {
     if (input is! List)
-      return ValidationResult._failure(['Expected "$key" to be a list.']);
+      return ValidationResult.failure(['Expected "$key" to be a list.']);
 
     final List<Serialized> out = [];
     final List<String> errors = [];
@@ -87,21 +102,23 @@ class GraphQLListType<Value, Serialized>
       if (!result.successful)
         errors.addAll(result.errors);
       else
-        out.add(v);
+        out.add(result.value as Serialized);
     }
 
-    if (errors.isNotEmpty) return ValidationResult._failure(errors);
-    return ValidationResult._ok(out);
+    if (errors.isNotEmpty) return ValidationResult.failure(errors);
+    return ValidationResult.ok(out);
   }
 
   @override
-  List<Value> deserialize(List<Serialized> serialized) {
-    return serialized.map<Value>(ofType.deserialize).toList();
+  List<Value> deserialize(SerdeCtx serdeCtx, List<Serialized> serialized) {
+    return serialized
+        .map<Value>((v) => ofType.deserialize(serdeCtx, v))
+        .toList();
   }
 
   @override
   List<Serialized> serialize(List<Value> value) {
-    return value.map<Serialized>(ofType.serialize).toList();
+    return value.map(ofType.serializeSafe).toList();
   }
 
   @override
@@ -119,13 +136,17 @@ class GraphQLListType<Value, Serialized>
       GraphQLListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
+class _Ref<T> {
+  T? inner;
+}
+
 abstract class _NonNullableMixin<Value, Serialized>
     implements GraphQLType<Value, Serialized> {
-  GraphQLType<Value, Serialized>? _nonNullableCache;
+  final _nonNullableCache = _Ref<GraphQLType<Value, Serialized>>();
 
   @override
-  GraphQLType<Value, Serialized> nonNullable() =>
-      _nonNullableCache ??= GraphQLNonNullableType<Value, Serialized>._(this);
+  GraphQLType<Value, Serialized> nonNullable() => _nonNullableCache.inner ??=
+      GraphQLNonNullableType<Value, Serialized>._(this);
 }
 
 /// A special [GraphQLType] that indicates that input values should both be
@@ -149,16 +170,17 @@ class GraphQLNonNullableType<Value, Serialized>
   }
 
   @override
-  ValidationResult<Serialized> validate(String key, Serialized input) {
+  ValidationResult<Serialized> validate(String key, Object? input) {
     if (input == null)
-      return ValidationResult._failure(
-          ['Expected "$key" to be a non-null value.']);
+      return ValidationResult.failure(
+        ['Expected "$key" to be a non-null value.'],
+      );
     return ofType.validate(key, input);
   }
 
   @override
-  Value deserialize(Serialized serialized) {
-    return ofType.deserialize(serialized);
+  Value deserialize(SerdeCtx serdeCtx, Serialized serialized) {
+    return ofType.deserialize(serdeCtx, serialized);
   }
 
   @override
