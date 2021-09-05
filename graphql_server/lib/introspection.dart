@@ -87,6 +87,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     queryType: objectType(schema.queryType!.name, fields: fields),
     mutationType: schema.mutationType,
     subscriptionType: schema.subscriptionType,
+    serdeCtx: schema.serdeCtx,
   );
 }
 
@@ -363,7 +364,7 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
   ]);
 }
 
-GraphQLObjectType? _directiveType;
+GraphQLObjectType<gql.DirectiveNode>? _directiveType;
 
 final GraphQLEnumType<String> _directiveLocationType =
     enumTypeFromStrings('__DirectiveLocation', [
@@ -375,12 +376,11 @@ final GraphQLEnumType<String> _directiveLocationType =
   'INLINE_FRAGMENT'
 ]);
 
-GraphQLObjectType _reflectDirectiveType() {
+GraphQLObjectType<gql.DirectiveNode> _reflectDirectiveType() {
   final inputValueType = _reflectInputValueType();
 
   // TODO: What actually is this???
-  return _directiveType ??=
-      objectType<gql.DirectiveNode>('__Directive', fields: [
+  return _directiveType ??= objectType('__Directive', fields: [
     field(
       'name',
       graphQLString.nonNullable(),
@@ -405,10 +405,10 @@ GraphQLObjectType _reflectDirectiveType() {
   ]);
 }
 
-GraphQLObjectType? _enumValueType;
+GraphQLObjectType<GraphQLEnumValue>? _enumValueType;
 
-GraphQLObjectType _reflectEnumValueType() {
-  return _enumValueType ??= objectType<GraphQLEnumValue>(
+GraphQLObjectType<GraphQLEnumValue> _reflectEnumValueType() {
+  return _enumValueType ??= objectType(
     '__EnumValue',
     fields: [
       field(
