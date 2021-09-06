@@ -33,3 +33,4 @@ analyzer:
     unrelated_type_equality_checks: error
     null_check_on_nullable_type_parameter: warning
     unnecessary_null_comparison: warning
+    todo: info
