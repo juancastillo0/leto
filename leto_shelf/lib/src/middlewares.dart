@@ -102,6 +102,10 @@ String paddedString(
   return rightPadded ? '$str$padding' : '$padding$str';
 }
 
+Response setEtag(Response response, String etag) {
+  return response.change(headers: {HttpHeaders.etagHeader: etag});
+}
+
 Middleware etag({
   StreamTransformer<List<int>, Digest> hasher = sha1,
 }) {
@@ -110,14 +114,19 @@ Middleware etag({
       if (request.method != 'GET' && request.method != 'HEAD') {
         return handler(request);
       }
-      final ifNoneMatch = request.headers[HttpHeaders.ifNoneMatchHeader];
       final response = await handler(request);
+      if (response.statusCode >= 300) {
+        return response;
+      }
 
-      // final responseBody = response.read();
-      // final data = await responseBody.expand((e) => e).toList();
-
-      // // final digest = responseBody.transform(sha1).single
-      // final digest = sha1.convert(data);
+      final ifNoneMatch = request.headers[HttpHeaders.ifNoneMatchHeader];
+      final _settedEtag = response.headers[HttpHeaders.etagHeader];
+      if (_settedEtag != null) {
+        if (ifNoneMatch == _settedEtag) {
+          return Response.notModified();
+        }
+        return response;
+      }
 
       final bodyCopy = <List<int>>[];
       final responseBody = response.read().map((buf) {
