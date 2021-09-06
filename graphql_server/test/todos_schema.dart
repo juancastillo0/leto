@@ -69,8 +69,8 @@ GraphQLSchema todosSchema() {
               todoType.coerceToInputObject(),
             ),
           ],
-          resolve: (obj, vars) {
-            final todo = vars['todoIn'] as Todo;
+          resolve: (obj, ctx) {
+            final todo = ctx.args['todoIn'] as Todo;
             return todo.copyWith(
               completed: true,
             );

@@ -69,8 +69,8 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
       '__type',
       typeType,
       inputs: [GraphQLFieldInput('name', graphQLString.nonNullable())],
-      resolve: (_, args) {
-        final name = args['name'] as String?;
+      resolve: (_, ctx) {
+        final name = ctx.args['name'] as String?;
         return allTypes.firstWhere(
           (t) => t.name == name,
           orElse: () => throw GraphQLException.fromMessage(
@@ -152,7 +152,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
         field(
           'type',
           _reflectSchemaTypes(),
-          resolve: (f, _) => (f as GraphQLObjectField).type,
+          resolve: (f, _) => f.type,
         ),
       );
     }
@@ -206,7 +206,7 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
       'kind',
       _typeKindType,
       resolve: (type, _) {
-        final t = type;
+        final t = type is GraphQLRefType ? type.innerType() : type;
 
         if (t is GraphQLEnumType) {
           return 'ENUM';
@@ -237,10 +237,10 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
           defaultValue: false,
         ),
       ],
-      resolve: (type, args) => type is GraphQLObjectType
+      resolve: (type, ctx) => type is GraphQLObjectType
           ? type.fields
               .where(
-                (f) => !f.isDeprecated || args['includeDeprecated'] == true,
+                (f) => !f.isDeprecated || ctx.args['includeDeprecated'] == true,
               )
               .toList()
           : null,
@@ -255,11 +255,11 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
           defaultValue: false,
         ),
       ],
-      resolve: (obj, args) {
+      resolve: (obj, ctx) {
         if (obj is GraphQLEnumType) {
           return obj.values
               .where(
-                (f) => !f.isDeprecated || args['includeDeprecated'] == true,
+                (f) => !f.isDeprecated || ctx.args['includeDeprecated'] == true,
               )
               .toList();
         } else {

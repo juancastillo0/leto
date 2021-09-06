@@ -1,17 +1,61 @@
 part of graphql_schema.src.schema;
 
+const responseHeadersCtxKey = '__response.headers';
+
+class ReqCtx<P> {
+  final Map<String, Object?> globals;
+  final Map<String, Object?> args;
+  final P object;
+  final ReqCtx<Object?>? parentCtx;
+
+  const ReqCtx({
+    required this.globals,
+    required this.args,
+    required this.object,
+    required this.parentCtx,
+  });
+
+  ReqCtx<T> cast<T>() {
+    if (this is ReqCtx<T>) {
+      return this as ReqCtx<T>;
+    }
+    return ReqCtx(
+      globals: globals,
+      args: args,
+      object: object as T,
+      parentCtx: parentCtx,
+    );
+  }
+
+  // TODO: headersAll Map<String, List<String>>
+  // TODO: should we leave it to the implementors?
+  Map<String, String> get headers {
+    Map<String, String>? headers =
+        globals[responseHeadersCtxKey] as Map<String, String>?;
+    if (headers == null) {
+      headers = {};
+      globals[responseHeadersCtxKey] = headers;
+    }
+    return headers;
+  }
+
+  static Map<String, String>? headersFromGlobals(
+    Map<String, Object?> globals,
+  ) =>
+      globals[responseHeadersCtxKey] as Map<String, String>?;
+}
+
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 ///  whether asynchronously or not.
 typedef GraphQLFieldResolver<Value, P> = FutureOr<Value> Function(
-    P parent, Map<String, dynamic> argumentValues);
+    P parent, ReqCtx<P> ctx);
 
 class FieldResolver<Value, P> {
   final GraphQLFieldResolver<Value, P> resolve;
 
   const FieldResolver(this.resolve);
 
-  FutureOr<Value> call(P parent, Map<String, dynamic> argumentValues) =>
-      resolve(parent, argumentValues);
+  FutureOr<Value> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
 }
 
 /// A field on a [GraphQLObjectType].
