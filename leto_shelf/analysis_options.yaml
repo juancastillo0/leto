@@ -23,9 +23,9 @@ analyzer:
     implicit-casts: false
     implicit-dynamic: false
   exclude:
-    - lib/**.g.dart
-    - lib/**.freezed.dart
-    - lib/generated/**/*
+    - /**.g.dart
+    - /**.freezed.dart
+    - /generated/**/*
   errors:
     missing_return: error
     unrelated_type_equality_checks: error
