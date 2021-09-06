@@ -14,7 +14,7 @@ class GraphQLUploadType
 
   @override
   String get description =>
-      'Represents a file that has been uploaded to the server.';
+      'Represents a file from a `multipart/form-data` request.';
 
   @override
   GraphQLType<UploadedFile?, UploadedFile?> coerceToInputObject() => this;
