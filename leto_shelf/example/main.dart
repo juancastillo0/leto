@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_plus/shelf_plus.dart';
 
-import 'schema/api_schema.dart' show makeApiSchema;
+import 'schema/api_schema.dart' show makeApiSchema, relativeToScriptPath;
+import 'schema/files.controller.dart';
 
 Future<void> main() async {
   await shelfRun(
@@ -33,8 +36,14 @@ Handler serverHandler() {
 }
 
 void setUpGraphQL(Router app) {
+  final filesController = FilesController();
+
+  app.get(
+    '/files/<filepath|.*>',
+    staticFilesWithController(filesController),
+  );
   final graphQL = GraphQL(
-    makeApiSchema(),
+    makeApiSchema(filesController),
     introspect: true,
   );
 
@@ -72,6 +81,27 @@ void setUpGraphQL(Router app) {
       ),
     ),
   );
+}
+
+Handler staticFilesWithController(FilesController filesController) {
+  final handler = createStaticHandler(
+    relativeToScriptPath(['/']),
+    listDirectories: true,
+    useHeaderBytesForContentType: true,
+  );
+
+  return (request) {
+    final etag = request.headers[HttpHeaders.ifNoneMatchHeader];
+    final filepath = request.routeParameter('filepath');
+    if (etag != null && filepath is String) {
+      final decodedFilePath = Uri.decodeComponent(filepath);
+      final file = filesController.allFiles[decodedFilePath];
+      if (file != null && etag == '"${file.sha1Hash}"') {
+        return Response.notModified();
+      }
+    }
+    return handler(request);
+  };
 }
 
 Response _echoHandler(Request request) {
