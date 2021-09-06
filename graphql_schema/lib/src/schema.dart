@@ -26,6 +26,8 @@ part 'validation_result.dart';
 
 part 'serde_ctx.dart';
 
+part 'ref_type.dart';
+
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
@@ -216,11 +218,12 @@ extension GraphQLScalarTypeExt<V, S> on GraphQLScalarType<V, S> {
     bool nullable = true,
     String? deprecationReason,
     String? description,
+    GraphQLFieldResolver<V, P>? resolve,
   }) {
     return GraphQLObjectField(
       name,
       nullable ? this : nonNullable(),
-      resolve: null,
+      resolve: resolve == null ? null : FieldResolver(resolve),
       description: description,
       deprecationReason: deprecationReason,
     );
