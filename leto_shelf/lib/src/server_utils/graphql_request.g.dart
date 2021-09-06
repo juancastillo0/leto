@@ -11,6 +11,7 @@ GraphqlRequest _$GraphqlRequestFromJson(Map<String, dynamic> json) =>
       query: json['query'] as String,
       operationName: json['operationName'] as String?,
       variables: json['variables'] as Map<String, dynamic>?,
+      extensions: json['extensions'] as Map<String, dynamic>?,
       child: json['child'] == null
           ? null
           : GraphqlRequest.fromJson(json['child'] as Map<String, dynamic>),
@@ -21,5 +22,6 @@ Map<String, dynamic> _$GraphqlRequestToJson(GraphqlRequest instance) =>
       'query': instance.query,
       'operationName': instance.operationName,
       'variables': instance.variables,
+      'extensions': instance.extensions,
       'child': instance.child,
     };
