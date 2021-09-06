@@ -1,41 +1,42 @@
 import 'dart:async';
-import 'dart:html';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/src/iterable_extensions.dart';
 import 'package:oxidized/oxidized.dart';
-import 'package:shelf_graphql/shelf_graphql.dart' show UploadedFile;
+import 'package:shelf_graphql/shelf_graphql.dart' show UploadedFileMeta;
 
-part 'files.controller.freezed.dart';
+import 'file_event.dart';
+export 'file_event.dart';
 
-@freezed
-class FileEvent with _$FileEvent {
-  const factory FileEvent.added(
-    UploadedFile fileUpload, {
-    @Default(true) bool replace,
-  }) = FileEventAdded;
-  const factory FileEvent.deleted(
-    String fileName,
-  ) = FileEventDeleted;
+typedef VoidCallback = void Function();
 
-  const factory FileEvent.many(
-    List<FileEvent> events,
-  ) = FileEventMany;
+class ValidatedEvent {
+  final FileEvent event;
+  final VoidCallback onSuccess;
+
+  const ValidatedEvent(this.event, this.onSuccess);
 }
 
 class FilesController {
-  final _allFiles = <String, UploadedFile>{};
-  Map<String, UploadedFile> get allFiles => Map.unmodifiable(_allFiles);
+  final _allFiles = <String, UploadedFileMeta>{};
+  Map<String, UploadedFileMeta> get allFiles => Map.unmodifiable(_allFiles);
 
   Stream<FileEvent> get events => _eventController.stream;
-  Stream<Map<String, UploadedFile>> get fileChanges =>
-      _eventController.stream.map((event) => _allFiles);
+  late final Stream<Map<String, UploadedFileMeta>> fileChanges =
+      events.map((event) => allFiles);
+  List<FileEvent> get history => List.unmodifiable(_history);
 
   final _eventController = StreamController<FileEvent>.broadcast();
+  final _history = <FileEvent>[];
 
-  List<FileEvent>? _transaction;
+  List<ValidatedEvent>? _transaction;
+
+  Map<String, UploadedFileMeta> stateAt(int eventNum) {
+    final _events = FileEvent.many(_history.sublist(0, eventNum));
+    return (FilesController()..consume(_events))._allFiles;
+  }
 
   Result<VoidCallback, String> consume(FileEvent event) {
-    bool initiated = _transaction == null;
+    final initiated = _transaction == null;
     if (initiated) {
       _transaction = [];
     }
@@ -44,14 +45,20 @@ class FilesController {
         added: _onFileAdded,
         deleted: _onFileDeleted,
         many: _onFileMany,
+        renamed: _onFileRenamed,
       );
       result.when(
         ok: (ok) {
-          return ok();
+          _transaction!.add(ValidatedEvent(event, ok));
+          if (initiated) {
+            _executeValidated(_transaction!);
+          }
         },
-        err: (err) => err,
+        err: (_) {},
       );
       return result;
+    } on String catch (e) {
+      return Err(e);
     } catch (e, s) {
       return Err('$e $s');
     } finally {
@@ -62,7 +69,7 @@ class FilesController {
   }
 
   Result<VoidCallback, String> _onFileAdded(FileEventAdded event) {
-    final filename = event.fileUpload.filename!;
+    final filename = event.fileUpload.filename;
     final previous = _allFiles[filename];
     if (previous != null) {
       if (event.replace) {
@@ -75,28 +82,62 @@ class FilesController {
     return Ok(() => _allFiles[filename] = event.fileUpload);
   }
 
-  Result<VoidCallback, String> _onFileDeleted(FileEventDeleted event) {
-    final contains = _allFiles.containsKey(event.fileName);
-    if (contains) {
-      return Err('Not found ${event.fileName}');
+  Result<VoidCallback, String> _onFileRenamed(FileEventRenamed event) {
+    final filename = event.filename;
+    final file = _allFiles[filename];
+    if (file == null) {
+      return Err('Not found $filename');
     }
-    return Ok(() => _allFiles.remove(event.fileName));
+    final toReplace = _allFiles[event.newFilename];
+    if (toReplace != null) {
+      if (event.replace) {
+        consume(FileEvent.deleted(event.newFilename)).unwrap();
+      } else {
+        return Err("Can't replace ${event.newFilename}");
+      }
+    }
+    consume(FileEvent.deleted(filename)).unwrap();
+
+    return Ok(() {
+      _allFiles[event.newFilename] = file;
+    });
+  }
+
+  Result<VoidCallback, String> _onFileDeleted(FileEventDeleted event) {
+    final contains = _allFiles.containsKey(event.filename);
+    if (contains) {
+      return Err('Not found ${event.filename}');
+    }
+    return Ok(() => _allFiles.remove(event.filename));
   }
 
   Result<VoidCallback, String> _onFileMany(FileEventMany many) {
     final _callbacks = <VoidCallback>[];
-    final firstErr = many.events.map(consume).firstWhereOrNull(
-      (element) {
-        return element.match(
-          (ok) {
-            _callbacks.add(ok);
-            return false;
-          },
-          (err) => true,
-        );
-      },
-    );
+    final firstErr = many.events.map(consume).firstWhereOrNull((result) {
+      return result.match(
+        (ok) {
+          _callbacks.add(ok);
+          return false;
+        },
+        (err) => true,
+      );
+    });
 
     return firstErr ?? Ok(() => _callbacks.map((e) => e()));
+  }
+
+  void _executeValidated(List<ValidatedEvent> _transaction) {
+    final events = _transaction.map((f) {
+      f.onSuccess();
+      return f.event;
+    });
+    final FileEvent event;
+    if (events.length == 1) {
+      event = events.first;
+    } else {
+      event = FileEvent.many(events.toList());
+    }
+    _history.add(event);
+    _eventController.add(event);
   }
 }
