@@ -1,3 +1,4 @@
+export 'package:graphql_schema/graphql_schema.dart';
 export 'package:graphql_server/graphql_server.dart';
 export 'package:shelf/shelf.dart';
 export 'package:shelf_graphql/src/graphql_http.dart';

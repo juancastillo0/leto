@@ -142,7 +142,7 @@ packages:
     source: hosted
     version: "1.0.3"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       url: "https://pub.dartlang.org"
@@ -214,14 +214,14 @@ packages:
   graphql_schema:
     dependency: "direct overridden"
     description:
-      path: "../graphql_angel/graphql_schema"
+      path: "../graphql_server/graphql_schema"
       relative: true
     source: path
     version: "1.0.4"
   graphql_server:
     dependency: "direct main"
     description:
-      path: "../graphql_angel/graphql_server"
+      path: "../graphql_server/graphql_server"
       relative: true
     source: path
     version: "2.0.0-beta"
@@ -618,4 +618,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.13.0 <3.0.0"
+  dart: ">=2.12.0 <3.0.0"
