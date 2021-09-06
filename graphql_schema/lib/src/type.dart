@@ -40,8 +40,16 @@ abstract class GraphQLType<Value, Serialized> {
   GraphQLType<Value, Serialized> coerceToInputObject();
 
   Serialized serializeSafe(Object? value) {
-    if (value is Serialized && value is! Map && value is! List) {
+    if (value is Serialized &&
+        (value is! Map && value is! List || value is! Value)) {
       return value;
+    } else if (value is! Value) {
+      throw GraphQLException([
+        GraphQLExceptionError(
+          'Cannot convert value $value of $Value to type $Serialized.'
+          ' In $name ($runtimeType)',
+        )
+      ]);
     } else {
       // final v = this;
       // if (value is List && v is GraphQLListType) {
@@ -49,7 +57,7 @@ abstract class GraphQLType<Value, Serialized> {
       //       .map((e) => (v as GraphQLListType).ofType.serialize(e))
       //       .toList() as Serialized;
       // }
-      return serialize(value as Value);
+      return serialize(value);
     }
   }
 
