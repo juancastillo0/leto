@@ -12,8 +12,11 @@ GraphQLEnumType enumType<Value>(String name, Map<String, Value> values,
 
 /// Shorthand for building a [GraphQLEnumType] where all the possible values
 /// are mapped to Dart strings.
-GraphQLEnumType<String> enumTypeFromStrings(String name, List<String> values,
-    {String? description}) {
+GraphQLEnumType<String> enumTypeFromStrings(
+  String name,
+  List<String> values, {
+  String? description,
+}) {
   return GraphQLEnumType<String>(
     name,
     values.map((s) => GraphQLEnumValue(s, s)).toList(),
