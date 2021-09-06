@@ -393,21 +393,23 @@ Map<String, Object?> jsonFromValue(Object value) {
 
 Map<String, Object?> gqlFromJson(
   Map<String, Object?> map,
-  List<ObjectField> inputFields,
+  List<ObjectField> fields,
 ) {
-  return map.map((key, value) {
-    final field = inputFields.firstWhereOrNull((f) => f.name == key);
-    if (field == null)
-      throw UnsupportedError(
-        'Cannot serialize field "$key", which was not defined in the schema.',
-      );
-    return MapEntry(key, field.type.serializeSafe(value));
-  });
+  return Map.fromEntries(map.entries.map((e) {
+    final field = fields.firstWhereOrNull((f) => f.name == e.key);
+    if (field == null) {
+      return null;
+      // TODO: serealized value can have multiple values in the map
+      // some of which are not in fields
+      // throw UnsupportedError(
+      //   'Cannot serialize field "$key", which was not defined in the schema.',
+      // );
+    }
+    return MapEntry(e.key, field.type.serializeSafe(e.value));
+  }).whereType());
 }
 
-extension SerdeGraphQLType<V, S> on GraphQLType<V, S> {
-  
-}
+extension SerdeGraphQLType<V, S> on GraphQLType<V, S> {}
 
 extension SerdeGraphQLObjectField<T, V, S> on GraphQLObjectField<T, V, S> {
   bool isValue(Object? value) => value is T;
