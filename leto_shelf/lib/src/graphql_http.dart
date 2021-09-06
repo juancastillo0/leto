@@ -8,12 +8,14 @@ import 'package:shelf_graphql/src/middlewares.dart';
 import 'package:shelf_graphql/src/multipart_shelf.dart';
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
 
-const _jsonHeader = {HttpHeaders.contentTypeHeader: 'application/json'};
-final graphQlContentType = ContentType('application', 'graphql');
 const requestCtxKey = '__request';
 
-Request extractRequest(Map<String, Object?> globalVariables) {
-  return globalVariables[requestCtxKey]! as Request;
+extension ReqCtxShelf on ReqCtx {
+  Request get request => extractRequest(this);
+}
+
+Request extractRequest(ReqCtx ctx) {
+  return ctx.globals[requestCtxKey]! as Request;
 }
 
 Handler graphqlHttp(GraphQL graphQL) {
@@ -62,13 +64,19 @@ Handler graphqlHttp(GraphQL graphQL) {
           operationName: gqlQuery.operationName,
           variableValues: gqlQuery.variables,
           globalVariables: globalVariables,
+          extensions: gqlQuery.extensions,
           sourceUrl: 'input',
         );
         responseBody = {'data': data};
       } on GraphQLException catch (e) {
         responseBody = e.toJson();
       }
-      return Response.ok(jsonEncode(responseBody), headers: _jsonHeader);
+      final headers = ReqCtx.headersFromGlobals(globalVariables);
+      final response = Response.ok(jsonEncode(responseBody), headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        if (headers != null) ...headers,
+      });
+      return response;
     } on Response catch (e) {
       return e;
     } catch (e, s) {

@@ -62,6 +62,7 @@ class _GraphQLWSServer extends stw.Server {
         globalVariables: <String, Object?>{
           requestCtxKey: request,
         },
+        // TODO: extensions? headers? auth?
         sourceUrl: 'input',
       );
       return stw.GraphQLResult(data);
