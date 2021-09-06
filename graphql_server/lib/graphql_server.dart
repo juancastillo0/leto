@@ -116,10 +116,15 @@ class GraphQL {
     /// [sourceUrl] may be either a [String], a [Uri], or `null`.
     dynamic sourceUrl,
     Map<String, Object?>? variableValues,
+    Map<String, Object?>? extensions,
     Object? initialValue,
     Map<String, Object?>? globalVariables,
   }) {
-    final document = getDocumentNode(text, sourceUrl);
+    final document = getDocumentNode(
+      text,
+      sourceUrl: sourceUrl,
+      extensions: extensions,
+    );
     return executeRequest(
       _schema,
       document,
@@ -130,7 +135,22 @@ class GraphQL {
     );
   }
 
-  DocumentNode getDocumentNode(String text, dynamic sourceUrl) {
+  DocumentNode getDocumentNode(
+    String text, {
+    dynamic sourceUrl,
+    Map<String, Object?>? extensions,
+  }) {
+    // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
+    final persistedQuery =
+        extensions == null ? null : extensions['persistedQuery'];
+
+    String? sha256Hash;
+    if (persistedQuery is Map<String, Object?>) {
+      final version = int.tryParse(persistedQuery['version'] as String? ?? '');
+      sha256Hash = persistedQuery['sha256Hash']! as String;
+      // TODO: PERSISTED_QUERY_NOT_FOUND
+    }
+
     final errors = <GraphQLExceptionError>[];
     late final DocumentNode document;
     if (persistedQueries.containsKey(text)) {
