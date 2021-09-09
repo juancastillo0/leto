@@ -254,7 +254,9 @@ Future<BuildContext?> buildContext(
   }
 
   // Get constructor params, if any
-  ctx.constructorParameters.addAll(clazz.unnamedConstructor!.parameters);
+  if (clazz.unnamedConstructor != null) {
+    ctx.constructorParameters.addAll(clazz.unnamedConstructor!.parameters);
+  }
 
   return ctx;
 }
