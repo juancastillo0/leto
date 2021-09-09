@@ -1,0 +1,152 @@
+import 'dart:async';
+
+import 'package:analyzer/dart/element/element.dart';
+import 'package:build/build.dart';
+import 'package:dart_style/dart_style.dart' show DartFormatter;
+import 'package:glob/glob.dart' show Glob;
+import 'package:graphql_generator/utils.dart';
+import 'package:graphql_schema/graphql_schema.dart';
+import 'package:path/path.dart' as p;
+import 'package:recase/recase.dart';
+import 'package:source_gen/source_gen.dart';
+
+// https://github.com/dart-lang/build/blob/master/docs/writing_an_aggregate_builder.md
+
+Builder graphQLApiSchemaBuilder(BuilderOptions options) =>
+    ValidatorsLibGenerator(options);
+
+class ValidatorsLibGenerator implements Builder {
+  final BuilderOptions options;
+
+  ValidatorsLibGenerator(this.options);
+
+  static String get basePath => 'lib';
+  // static List<String> get basePaths => ['lib', 'example'];
+
+  @override
+  Map<String, List<String>> get buildExtensions {
+    return {
+      r'$lib$': ['graphql_api.schema.dart']
+      // r'$package$': [
+      //   ...basePaths.map((basePath) => '$basePath/graphql_api.schema.dart')
+      // ]
+    };
+  }
+
+  static AssetId _allFileOutput(String basePath, BuildStep buildStep) {
+    return AssetId(
+      buildStep.inputId.package,
+      p.join(basePath, 'graphql_api.schema.dart'),
+    );
+  }
+
+  @override
+  Future<void> build(BuildStep buildStep) async {
+    // for (final basePath in basePaths) {
+    final allClasses = <ClassElement>[];
+    final allResolvers = <Type, List<Element>>{};
+    await for (final input in buildStep.findAssets(Glob('$basePath/**.dart'))) {
+      final LibraryReader reader;
+      try {
+        final library = await buildStep.resolver.libraryFor(input);
+        reader = LibraryReader(library);
+      } on NonLibraryAssetException catch (_) {
+        continue;
+      }
+
+      allResolvers.addEntries(
+        [Query, Mutation, Subscription].map((e) {
+          final typeChecker = TypeChecker.fromRuntime(e);
+          return MapEntry(
+            e,
+            reader.allElements
+                .where((w) => typeChecker.hasAnnotationOf(w))
+                .toList(),
+          );
+        }),
+      );
+      allClasses.addAll(
+        reader.classes.where(
+          (element) => const TypeChecker.fromRuntime(GraphQLClass)
+              .hasAnnotationOfExact(element),
+        ),
+      );
+    }
+
+    try {
+      final _serializers = allClasses
+          .map((e) {
+            final typeName =
+                e.thisType.getDisplayString(withNullability: false);
+            return '${ReCase(typeName).camelCase}$serializerSuffix,';
+          })
+          .toSet()
+          .join();
+
+      Iterable<String> _resolverStr(Type type) {
+        return allResolvers[type]!
+            .map((e) => '${e.name}$graphQLFieldSuffix,')
+            .toSet();
+      }
+
+      final queries = _resolverStr(Query);
+      final mutations = _resolverStr(Mutation);
+      final subscriptions = _resolverStr(Subscription);
+
+      String cleanImport(Uri uri) {
+        final str = uri.toString();
+        if (str.startsWith('asset')) {
+          return str.substring(
+            // + 1 for last '/'
+            str.indexOf(basePath) + basePath.length + 1,
+          );
+        } else {
+          return str;
+        }
+      }
+
+      String out = '''
+import 'package:graphql_schema/graphql_schema.dart';
+${allClasses.map((e) => "import '${cleanImport(e.source.uri)}';").toSet().join()}
+
+final graphqlApiSchema = graphQLSchema(
+  serdeCtx: SerdeCtx()..addAll([$_serializers]),
+  queryType: objectType(
+    'Queries',
+    fields: [${queries.join()}],
+  ),
+  mutationType: objectType(
+    'Mutations',
+    fields: [${mutations.join()}],
+  ),
+  subscriptionType: objectType(
+    'Subscriptions',
+    fields: [${subscriptions.join()}],
+  ),
+);
+
+''';
+      try {
+        out = DartFormatter().format(out);
+      } catch (_) {}
+
+      await buildStep.writeAsString(_allFileOutput(basePath, buildStep), out);
+    } catch (e, s) {
+      print('$e $s');
+    }
+    // }
+  }
+}
+
+// class _ElementVisitor extends SimpleElementVisitor<Object?> {
+//   final functions = <FunctionElement>[];
+
+//   @override
+//   Object? visitFunctionElement(FunctionElement element) {
+//     print(element.name);
+//     if (const TypeChecker.fromRuntime(Mutation).hasAnnotationOfExact(element)
+//     ) {
+//       functions.add(element);
+//     }
+//   }
+// }
