@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
+import 'package:meta/meta_meta.dart';
 import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
@@ -205,11 +206,33 @@ class GraphQLDocumentation {
 }
 
 /// The canonical instance.
-const GraphQLClass graphQLClass = GraphQLClass._();
+const GraphQLClass graphQLClass = GraphQLClass();
 
-/// Signifies that a class should statically generate a [GraphQLSchema].
+/// Signifies that a class should statically generate a [GraphQLType].
+@Target({TargetKind.classType, TargetKind.enumType})
 class GraphQLClass {
-  const GraphQLClass._();
+  const GraphQLClass();
+}
+
+/// The canonical instance.
+const GqlResolver graphQLResolver = GqlResolver._();
+
+/// Signifies that a function should statically generate a [GraphQLObjectField].
+@Target({TargetKind.function, TargetKind.method})
+class GqlResolver {
+  const GqlResolver._();
+}
+
+class Mutation extends GqlResolver {
+  const Mutation() : super._();
+}
+
+class Query extends GqlResolver {
+  const Query() : super._();
+}
+
+class Subscription extends GqlResolver {
+  const Subscription() : super._();
 }
 
 extension GraphQLScalarTypeExt<V, S> on GraphQLScalarType<V, S> {
