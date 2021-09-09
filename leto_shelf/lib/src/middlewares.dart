@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart' show Digest, sha1;
+import 'package:crypto/crypto.dart' show sha1;
 import 'package:shelf/shelf.dart';
 
 const extractJsonKey = 'jsonParse.body';
@@ -30,7 +30,9 @@ Middleware jsonParse() {
       Request request = __request;
       if (request.mimeType == 'application/json') {
         final str = await request.readAsString();
-        final updateContext = {extractJsonKey: jsonDecode(str) as Object};
+        final updateContext = <String, Object?>{
+          extractJsonKey: jsonDecode(str)
+        };
 
         request = request.change(context: updateContext);
         final response = await handler(request);
@@ -107,11 +109,12 @@ Response setEtag(Response response, String etag) {
 }
 
 Middleware etag({
-  StreamTransformer<List<int>, Digest> hasher = sha1,
+  Future<String> Function(Stream<List<int>>, Encoding?)? hasher,
 }) {
   return (handler) {
     return (request) async {
-      if (request.method != 'GET' && request.method != 'HEAD') {
+      if (request.method != 'GET' && request.method != 'HEAD' ||
+          request.headers[HttpHeaders.cacheControlHeader] == 'no-cache') {
         return handler(request);
       }
       final response = await handler(request);
@@ -129,19 +132,26 @@ Middleware etag({
       }
 
       final bodyCopy = <List<int>>[];
-      final responseBody = response.read().map((buf) {
+      final bodyStream = response.read().map((buf) {
         bodyCopy.add(buf);
         return buf;
       });
-      final digest = await responseBody.transform(hasher).single;
-      final digestHexHeader = '"${digest.toString()}"';
 
-      if (digestHexHeader == ifNoneMatch) {
+      final String bodyHash;
+      if (hasher != null) {
+        bodyHash = await hasher(bodyStream, response.encoding);
+      } else {
+        final digest = await bodyStream.transform(sha1).single;
+        // digest in Hex
+        bodyHash = '"${digest.toString()}"';
+      }
+
+      if (bodyHash == ifNoneMatch) {
         return Response.notModified();
       }
       return response.change(
         body: Stream.fromIterable(bodyCopy),
-        headers: {HttpHeaders.etagHeader: digestHexHeader},
+        headers: {HttpHeaders.etagHeader: bodyHash},
       );
     };
   };
