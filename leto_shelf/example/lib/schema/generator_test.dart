@@ -5,11 +5,10 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
+/// Custom doc
 @GraphQLClass()
 @JsonSerializable()
 @Validate()
-
-/// Custom doc
 class TestModel {
   @ValidateString(minLength: 1, maxLength: 64)
   final String name;
@@ -47,18 +46,20 @@ class TestModelFreezed with _$TestModelFreezed {
 @GraphQLClass()
 @freezed
 class EventUnion with _$EventUnion {
-  @JsonSerializable()
   const factory EventUnion.add({
     required String name,
     // Custom doc d
     String? description,
     List<DateTime>? dates,
-  }) = EventUnionAdd;
+  }) = _EventUnionAdd;
   const factory EventUnion.delete({
     String? name,
     List<DateTime>? dates,
   }) = EventUnionDelete;
   const EventUnion._();
+
+  factory EventUnion.fromJson(Map<String, Object?> json) =>
+      _$EventUnionFromJson(json);
 
   bool get hasDates => dates?.isNotEmpty ?? false;
 }

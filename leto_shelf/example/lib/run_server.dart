@@ -6,7 +6,7 @@ import 'package:shelf_plus/shelf_plus.dart';
 import 'schema/api_schema.dart' show makeApiSchema, relativeToScriptPath;
 import 'schema/files.controller.dart';
 
-Future<void> main() async {
+Future<void> runServer() async {
   await shelfRun(
     serverHandler,
     defaultBindPort: 8060,

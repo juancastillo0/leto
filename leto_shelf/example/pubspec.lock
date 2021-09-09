@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "24.0.0"
+    version: "25.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.2.0"
   args:
     dependency: transitive
     description:
@@ -70,7 +70,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   build_runner_core:
     dependency: transitive
     description:
@@ -84,7 +84,7 @@ packages:
       name: built_collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.0"
+    version: "5.1.1"
   built_value:
     dependency: transitive
     description:
@@ -142,7 +142,7 @@ packages:
     source: hosted
     version: "1.0.3"
   crypto:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: crypto
       url: "https://pub.dartlang.org"
@@ -154,7 +154,7 @@ packages:
       name: dart_style
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.3"
+    version: "2.1.0"
   equatable:
     dependency: transitive
     description:
@@ -177,9 +177,16 @@ packages:
     source: hosted
     version: "1.0.0"
   formgen:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      path: "../neural_graph/packages/formgen"
+      path: "../../neural_graph/packages/formgen"
+      relative: true
+    source: path
+    version: "0.0.1"
+  formgen_generation:
+    dependency: "direct dev"
+    description:
+      path: "../../neural_graph/packages/formgen_generation"
       relative: true
     source: path
     version: "0.0.1"
@@ -212,23 +219,30 @@ packages:
     source: hosted
     version: "2.0.1"
   gql:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: gql
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.13.0"
+  graphql_generator:
+    dependency: "direct dev"
+    description:
+      path: "../../graphql_server/graphql_generator"
+      relative: true
+    source: path
+    version: "1.0.0+1"
   graphql_schema:
     dependency: "direct overridden"
     description:
-      path: "../graphql_server/graphql_schema"
+      path: "../../graphql_server/graphql_schema"
       relative: true
     source: path
     version: "1.0.4"
   graphql_server:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      path: "../graphql_server/graphql_server"
+      path: "../../graphql_server/graphql_server"
       relative: true
     source: path
     version: "2.0.0-beta"
@@ -268,14 +282,14 @@ packages:
     source: hosted
     version: "3.0.1"
   http_parser:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http_parser
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
   http_server:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http_server
       url: "https://pub.dartlang.org"
@@ -315,7 +329,7 @@ packages:
       name: lint
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.3"
+    version: "1.7.2"
   logging:
     dependency: transitive
     description:
@@ -422,16 +436,16 @@ packages:
     source: hosted
     version: "4.0.0"
   shelf:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shelf
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
-  shelf_graphql_example:
-    dependency: "direct dev"
+  shelf_graphql:
+    dependency: "direct main"
     description:
-      path: example
+      path: ".."
       relative: true
     source: path
     version: "0.0.0"
@@ -450,28 +464,28 @@ packages:
     source: hosted
     version: "3.0.0"
   shelf_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shelf_plus
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.2"
   shelf_router:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shelf_router
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.1"
   shelf_static:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shelf_static
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
   shelf_web_socket:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
@@ -560,7 +574,7 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.17.11"
+    version: "1.17.12"
   test_api:
     dependency: transitive
     description:
@@ -574,7 +588,7 @@ packages:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.1"
+    version: "0.4.2"
   timing:
     dependency: transitive
     description:
@@ -639,4 +653,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
+  dart: ">=2.14.0-360.0.dev <3.0.0"

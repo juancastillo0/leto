@@ -98,18 +98,18 @@ final GraphQLObjectType<TestModel> testModelGraphQlType = objectType(
           resolve: (obj, ctx) => obj.hasDates)
     ]);
 
-const testModelFreezedSerializer = SerializerValue<TestModelFreezed>(
-  fromJson: _$$TestModelFreezedFromJson,
-  toJson: _$$TestModelFreezedToJson,
+const testModelFreezedSerializer = SerializerValue<_TestModelFreezed>(
+  fromJson: _$$_TestModelFreezedFromJson,
+  toJson: _$$_TestModelFreezedToJson,
 );
 
-/// Auto-generated from [TestModelFreezed].
-final GraphQLObjectType<TestModelFreezed> GraphQlType =
-    objectType('TestModelFreezed',
+/// Auto-generated from [_TestModelFreezed].
+final GraphQLObjectType<_TestModelFreezed> testModelFreezedGraphQlType =
+    objectType('_TestModelFreezed',
         fields: [
           field('name', graphQLString.nonNullable(),
               resolve: (obj, ctx) => obj.name,
-              description: '',
+              description: null,
               deprecationReason: null),
           field('description', graphQLString,
               resolve: (obj, ctx) => obj.description,
@@ -117,26 +117,25 @@ final GraphQLObjectType<TestModelFreezed> GraphQlType =
               deprecationReason: null),
           field('dates', listOf(graphQLDate.nonNullable()),
               resolve: (obj, ctx) => obj.dates,
-              description: '',
+              description: null,
               deprecationReason: null)
         ],
         isInterface: false,
         interfaces: [],
-        description: null,
-        deprecationReason: null);
+        description: null);
 
-const eventUnionAddSerializer = SerializerValue<EventUnionAdd>(
-  fromJson: _$$EventUnionAddFromJson,
-  toJson: _$$EventUnionAddToJson,
+const eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
+  fromJson: _$$_EventUnionAddFromJson,
+  toJson: _$$_EventUnionAddToJson,
 );
 
-/// Auto-generated from [EventUnionAdd].
-final GraphQLObjectType<EventUnionAdd> addGraphQlType =
-    objectType('EventUnionAdd',
+/// Auto-generated from [_EventUnionAdd].
+final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
+    objectType('_EventUnionAdd',
         fields: [
           field('name', graphQLString.nonNullable(),
               resolve: (obj, ctx) => obj.name,
-              description: '',
+              description: null,
               deprecationReason: null),
           field('description', graphQLString,
               resolve: (obj, ctx) => obj.description,
@@ -144,37 +143,45 @@ final GraphQLObjectType<EventUnionAdd> addGraphQlType =
               deprecationReason: null),
           field('dates', listOf(graphQLDate.nonNullable()),
               resolve: (obj, ctx) => obj.dates,
-              description: '',
+              description: null,
               deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant
         ],
         isInterface: false,
         interfaces: [],
-        description: null,
-        deprecationReason: null);
+        description: null);
+
 const eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
   fromJson: _$$EventUnionDeleteFromJson,
   toJson: _$$EventUnionDeleteToJson,
 );
 
 /// Auto-generated from [EventUnionDelete].
-final GraphQLObjectType<EventUnionDelete> deleteGraphQlType =
+final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
     objectType('EventUnionDelete',
         fields: [
           field('name', graphQLString,
               resolve: (obj, ctx) => obj.name,
-              description: '',
+              description: null,
               deprecationReason: null),
           field('dates', listOf(graphQLDate.nonNullable()),
               resolve: (obj, ctx) => obj.dates,
-              description: '',
+              description: null,
               deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant
         ],
         isInterface: false,
         interfaces: [],
-        description: null,
-        deprecationReason: null);
+        description: null);
+
+const eventUnionSerializer = SerializerValue<EventUnion>(
+  fromJson: _$EventUnionFromJson,
+  toJson: _$EventUnionToJson,
+);
+
+Map<String, Object?> _$EventUnionToJson(EventUnion instance) =>
+    instance.toJson();
+
 final eventUnionGraphQlTypeDiscriminant = field<String, String, EventUnion>(
   'runtimeType',
   enumTypeFromStrings('EventUnionType', ["add", "delete"]),
@@ -184,7 +191,7 @@ GraphQLUnionType<EventUnion>? _eventUnionGraphQlType;
 GraphQLUnionType<EventUnion> eventUnionGraphQlType() {
   return _eventUnionGraphQlType ??= GraphQLUnionType(
     'EventUnion',
-    [addGraphQlType, deleteGraphQlType],
+    [eventUnionAddGraphQlType, eventUnionDeleteGraphQlType],
   );
 }
 
@@ -222,8 +229,8 @@ Map<String, dynamic> _$$_TestModelFreezedToJson(_$_TestModelFreezed instance) =>
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
     };
 
-_$EventUnionAdd _$$EventUnionAddFromJson(Map<String, dynamic> json) =>
-    _$EventUnionAdd(
+_$_EventUnionAdd _$$_EventUnionAddFromJson(Map<String, dynamic> json) =>
+    _$_EventUnionAdd(
       name: json['name'] as String,
       description: json['description'] as String?,
       dates: (json['dates'] as List<dynamic>?)
@@ -231,10 +238,24 @@ _$EventUnionAdd _$$EventUnionAddFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$$EventUnionAddToJson(_$EventUnionAdd instance) =>
+Map<String, dynamic> _$$_EventUnionAddToJson(_$_EventUnionAdd instance) =>
     <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
+      'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
+    };
+
+_$EventUnionDelete _$$EventUnionDeleteFromJson(Map<String, dynamic> json) =>
+    _$EventUnionDelete(
+      name: json['name'] as String?,
+      dates: (json['dates'] as List<dynamic>?)
+          ?.map((e) => DateTime.parse(e as String))
+          .toList(),
+    );
+
+Map<String, dynamic> _$$EventUnionDeleteToJson(_$EventUnionDelete instance) =>
+    <String, dynamic>{
+      'name': instance.name,
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
     };
 

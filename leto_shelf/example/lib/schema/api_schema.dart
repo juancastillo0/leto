@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:graphql_schema/graphql_schema.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 
 import 'books.controller.dart';
