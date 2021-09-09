@@ -474,6 +474,7 @@ class GraphQL {
     for (final responseKey in groupedFieldSet.keys) {
       final fields = groupedFieldSet[responseKey]!;
       for (final field in fields) {
+        // TODO: is the iterateration necessary?
         final fieldNode = field;
         final fieldName = fieldNode.alias?.value ?? fieldNode.name.value;
         FutureOr<dynamic> futureResponseValue;
@@ -485,15 +486,21 @@ class GraphQL {
             (f) => f.name == fieldName,
           );
           if (objectField == null) continue;
-          futureResponseValue = executeField<Object?, Object?>(
-            document,
-            ResolveFieldCtx(
-              objectCtx: objectCtx,
-              objectField: objectField,
-              fieldName: fieldName,
-              field: field,
-            ),
-          );
+
+          futureResponseValue = (() async {
+            // improved debugging
+            // ignore: unnecessary_await_in_return
+            return await executeField<Object?, Object?>(
+              document,
+              fields,
+              ResolveFieldCtx(
+                objectCtx: objectCtx,
+                objectField: objectField,
+                fieldName: fieldName,
+                field: field,
+              ),
+            );
+          })();
         }
 
         futureResultMap[responseKey] = futureResponseValue;
@@ -507,6 +514,7 @@ class GraphQL {
 
   Future<T> executeField<T, P>(
     DocumentNode document,
+    List<FieldNode> fields,
     ResolveFieldCtx<T, P> ctx,
   ) async {
     final objectCtx = ctx.objectCtx;
@@ -530,7 +538,7 @@ class GraphQL {
       document,
       ctx.fieldName,
       ctx.objectField.type,
-      ctx.field,
+      fields,
       resolvedValue,
       objectCtx.variableValues,
       objectCtx.globalVariables,
@@ -671,6 +679,9 @@ class GraphQL {
       );
     } else if (objectValue is Map) {
       return objectValue[fieldName] as T;
+    } else if (field.type.objectIsValue(objectValue)) {
+      // TODO:
+      return objectValue as T;
     } else {
       final serealized = serealizedValue();
       if (serealized != null) {
@@ -690,7 +701,7 @@ class GraphQL {
     DocumentNode document,
     String fieldName,
     GraphQLType fieldType,
-    SelectionNode field,
+    List<SelectionNode> fields,
     Object? result,
     Map<String, dynamic> variableValues,
     Map<String, dynamic> globalVariables,
@@ -698,7 +709,7 @@ class GraphQL {
     if (fieldType is GraphQLNonNullableType) {
       final innerType = fieldType.ofType;
       final completedResult = await completeValue(serdeCtx, document, fieldName,
-          innerType, field, result, variableValues, globalVariables);
+          innerType, fields, result, variableValues, globalVariables);
 
       if (completedResult == null) {
         throw GraphQLException.fromMessage(
@@ -729,7 +740,7 @@ class GraphQL {
             document,
             '(item in "$fieldName")',
             innerType,
-            field,
+            fields,
             resultItem,
             variableValues,
             globalVariables));
@@ -769,7 +780,7 @@ class GraphQL {
         objectType = resolveAbstractType(fieldName, fieldType, result);
       }
 
-      final subSelectionSet = mergeSelectionSets(field);
+      final subSelectionSet = mergeSelectionSets(fields);
       return executeSelectionSet(serdeCtx, document, subSelectionSet,
           objectType, result, variableValues, globalVariables);
     }
@@ -780,7 +791,7 @@ class GraphQL {
   GraphQLObjectType resolveAbstractType(
     String fieldName,
     GraphQLType type,
-    Object result,
+    Object? result,
   ) {
     List<GraphQLObjectType> possibleTypes;
 
@@ -801,6 +812,7 @@ class GraphQL {
     for (final t in possibleTypes) {
       try {
         // TODO: should we serialize?
+        // this should/t serialize nested fields
         final serialized = t.serializeSafe(result);
         final validation = t.validate(
           fieldName,
@@ -822,16 +834,23 @@ class GraphQL {
       GraphQLExceptionError('Cannot convert value $result to type $type.'),
     );
 
-    throw GraphQLException(errors);
+    // TODO: check if there is only one type matching
+    // throw GraphQLException(errors);
+    return possibleTypes.firstWhere(
+      (t) => t.objectIsValue(result),
+      orElse: () => throw GraphQLException(errors),
+    );
   }
 
-  SelectionSetNode mergeSelectionSets(SelectionNode field) {
+  SelectionSetNode mergeSelectionSets(List<SelectionNode> fields) {
     final selections = <SelectionNode>[];
 
-    if (field is FieldNode && field.selectionSet != null) {
-      selections.addAll(field.selectionSet!.selections);
-    } else if (field is InlineFragmentNode) {
-      selections.addAll(field.selectionSet.selections);
+    for (final field in fields) {
+      if (field is FieldNode && field.selectionSet != null) {
+        selections.addAll(field.selectionSet!.selections);
+      } else if (field is InlineFragmentNode) {
+        selections.addAll(field.selectionSet.selections);
+      }
     }
 
     return SelectionSetNode(selections: selections);
@@ -1052,7 +1071,23 @@ class ResolveObjectCtx<P> {
     }
     if (_serializedObject == null) {
       try {
-        _serializedObject = Some(objectType.serializeSafe(objectValue)!);
+        try {
+          final serializer = serdeCtx.ofValue(objectType.valueType);
+          if (serializer != null) {
+            _serializedObject = Some(
+              serializer.toJson(objectValue)! as Map<String, dynamic>,
+            );
+          } else {
+            _serializedObject = Some(
+              serdeCtx.toJson(objectValue)! as Map<String, dynamic>,
+            );
+          }
+        } catch (e) {
+          _serializedObject = Some(objectType.serializeSafe(
+            objectValue,
+            nested: false,
+          )!);
+        }
       } catch (e, _) {
         _serializedObject = const None();
       }
