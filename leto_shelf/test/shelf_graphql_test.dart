@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
+import 'package:shelf_graphql_example/run_server.dart' show serverHandler;
 import 'package:test/test.dart';
-
-import '../example/main.dart' show serverHandler;
 
 Future<void> main() async {
   final handler = serverHandler();
