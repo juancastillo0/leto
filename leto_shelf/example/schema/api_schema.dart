@@ -100,9 +100,8 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
             final upload = ctx.args['file'] as UploadedFile;
             final replace = ctx.args['replace'] as bool;
             final extra = ctx.args['extra'] as Json?;
-            // TODO:
-            final meta = await upload.meta(
-                extra: extra?.toJson() as Map<String, Object?>?);
+
+            final meta = await upload.meta(extra: extra?.toJson());
             final result = filesController.consume(
               FileEvent.added(meta, replace: replace),
             );
@@ -226,12 +225,11 @@ GraphQLObjectType<UploadedFileMeta> fileUploadType() {
         nullable: false,
       ),
       graphQLJson.field('extra'),
-      // TODO:
-      // graphQLString.field(
-      //   'url',
-      //   nullable: false,
-      //   resolve: (file, ctx) => 'http://localhost:8060/files/${file.filename}',
-      // ),
+      graphQLString.field(
+        'url',
+        nullable: false,
+        resolve: (file, ctx) => 'http://localhost:8060/files/${file.filename}',
+      ),
     ],
   );
 }
