@@ -136,7 +136,7 @@ Future configureServer(Angel app) async {
 
 GraphQLFieldResolver randomHeroResolver(
     Service droidService, Service humansService, Random rnd) {
-  return (_, args) async {
+  return (_, ctx) async {
     var allHeroes = [];
     var allDroids = await droidService.index();
     var allHumans = await humansService.index();
@@ -145,8 +145,8 @@ GraphQLFieldResolver randomHeroResolver(
     // Ignore the annoying cast here, hopefully Dart 2 fixes cases like this
     allHeroes = allHeroes
         .where((m) =>
-            !args.containsKey('ep') ||
-            (m['appears_in'].contains(args['ep']) as bool))
+            !ctx.args.containsKey('ep') ||
+            (m['appears_in'].contains(ctx.args['ep']) as bool))
         .toList();
 
     return allHeroes.isEmpty ? null : allHeroes[rnd.nextInt(allHeroes.length)];

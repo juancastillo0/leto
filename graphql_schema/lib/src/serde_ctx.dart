@@ -99,6 +99,10 @@ class SerdeCtx {
     _map[serializer.type] = serializer;
   }
 
+  Serializer<Object?>? ofValue(Type T) {
+    return _map[T];
+  }
+
   Serializer<T>? of<T>() {
     final v = _map[T] as Serializer<T>?;
     if (v != null) return v;
@@ -214,4 +218,22 @@ extension GenIterable<V> on Iterable<V> {
   List<Object?> toJsonList(SerdeCtx serdeCtx) {
     return serdeCtx.toJsonList(this);
   }
+}
+
+class SerializerValue<T> extends Serializer<T> {
+  const SerializerValue({
+    required T Function(Map<String, dynamic> json) fromJson,
+    required Map<String, dynamic> Function(T value) toJson,
+  })  : _fromJson = fromJson,
+        _toJson = toJson,
+        super();
+
+  final T Function(Map<String, dynamic> json) _fromJson;
+  final Map<String, dynamic> Function(T value) _toJson;
+
+  @override
+  T fromJson(Object? json) =>
+      json is T ? json : _fromJson(json! as Map<String, dynamic>);
+  @override
+  Map<String, dynamic> toJson(T instance) => _toJson(instance);
 }

@@ -408,9 +408,3 @@ Map<String, Object?> gqlFromJson(
     return MapEntry(e.key, field.type.serializeSafe(e.value));
   }).whereType());
 }
-
-extension SerdeGraphQLType<V, S> on GraphQLType<V, S> {}
-
-extension SerdeGraphQLObjectField<T, V, S> on GraphQLObjectField<T, V, S> {
-  bool isValue(Object? value) => value is T;
-}

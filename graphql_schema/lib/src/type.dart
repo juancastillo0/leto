@@ -39,9 +39,9 @@ abstract class GraphQLType<Value, Serialized> {
   /// to a [GraphQLObjectField].
   GraphQLType<Value, Serialized> coerceToInputObject();
 
-  Serialized serializeSafe(Object? value) {
+  Serialized serializeSafe(Object? value, {bool nested = true}) {
     if (value is Serialized &&
-        (value is! Map && value is! List || value is! Value)) {
+        (!nested || value is! Map && value is! List || value is! Value)) {
       return value;
     } else if (value is! Value) {
       throw GraphQLException([
@@ -60,6 +60,10 @@ abstract class GraphQLType<Value, Serialized> {
       return serialize(value);
     }
   }
+
+  bool objectIsValue(Object? value) => value is Value;
+
+  Type get valueType => Value;
 
   @override
   String toString() => name!;
