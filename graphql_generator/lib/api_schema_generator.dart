@@ -93,21 +93,10 @@ class ValidatorsLibGenerator implements Builder {
       final mutations = _resolverStr(Mutation);
       final subscriptions = _resolverStr(Subscription);
 
-      String cleanImport(Uri uri) {
-        final str = uri.toString();
-        if (str.startsWith('asset')) {
-          return str.substring(
-            // + 1 for last '/'
-            str.indexOf(basePath) + basePath.length + 1,
-          );
-        } else {
-          return str;
-        }
-      }
-
       String out = '''
+// ignore: depend_on_referenced_packages
 import 'package:graphql_schema/graphql_schema.dart';
-${allClasses.map((e) => "import '${cleanImport(e.source.uri)}';").toSet().join()}
+${allClasses.map((e) => "import '${cleanImport(basePath, e.source.uri)}';").toSet().join()}
 
 final graphqlApiSchema = graphQLSchema(
   serdeCtx: SerdeCtx()..addAll([$_serializers]),
@@ -135,6 +124,18 @@ final graphqlApiSchema = graphQLSchema(
       print('$e $s');
     }
     // }
+  }
+}
+
+String cleanImport(String basePath, Uri uri) {
+  final str = uri.toString();
+  if (str.startsWith('asset')) {
+    return str.substring(
+      // + 1 for last '/'
+      str.indexOf(basePath) + basePath.length + 1,
+    );
+  } else {
+    return str;
   }
 }
 
