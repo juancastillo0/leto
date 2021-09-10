@@ -13,13 +13,16 @@ Future<List<UnionVarianInfo>> freezedFields(
 }) async {
   final className = ReCase(clazz.name).pascalCase;
   return Future.wait(
-      clazz.constructors.where((con) => con.name != '_').map((con) async {
+      clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
     return UnionVarianInfo(
       isInterface: isInterface(clazz),
       hasFrezzed: true,
       isUnion: isUnion,
       interfaces: getGraphqlInterfaces(clazz),
-      name: con.name,
+      typeName: con.redirectedConstructor?.returnType
+              .getDisplayString(withNullability: false) ??
+          con.name,
+      constructorName: con.name,
       unionName: className,
       description: getDescription(con),
       deprecationReason: getDeprecationReason(con),
@@ -31,6 +34,9 @@ Future<List<UnionVarianInfo>> freezedFields(
     );
   }));
 }
+
+bool isFreezedVariantConstructor(ConstructorElement con) =>
+    con.name != '_' && con.name != 'fromJson';
 
 Future<FieldInfo> fieldFromParam(
   ParameterElement param,
@@ -47,6 +53,7 @@ Future<FieldInfo> fieldFromParam(
 
 String serializerDefinitionCode(String typeName, {required bool hasFrezzed}) {
   return '''
+
 const ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
   fromJson: ${hasFrezzed ? '_\$' : '_'}\$${typeName}FromJson,
   toJson: ${hasFrezzed ? '_\$' : '_'}\$${typeName}ToJson,
@@ -55,7 +62,8 @@ const ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName
 }
 
 class UnionVarianInfo {
-  final String name;
+  final String typeName;
+  final String constructorName;
   final String unionName;
   final String? description;
   final String? deprecationReason;
@@ -66,7 +74,8 @@ class UnionVarianInfo {
   final bool isUnion;
 
   const UnionVarianInfo({
-    required this.name,
+    required this.typeName,
+    required this.constructorName,
     required this.unionName,
     required this.fields,
     required this.description,
@@ -81,8 +90,8 @@ class UnionVarianInfo {
     return Code(serializerDefinitionCode(typeName, hasFrezzed: hasFrezzed));
   }
 
-  String get typeName => '$unionName${ReCase(name).pascalCase}';
-  String get fieldName => '${ReCase(name).camelCase}$graphqlTypeSuffix';
+  // String get typeName => name;
+  String get fieldName => '${ReCase(typeName).camelCase}$graphqlTypeSuffix';
 
   Field field() {
     return Field(
@@ -112,9 +121,9 @@ class UnionVarianInfo {
         'description': description == null || description!.isEmpty
             ? literalNull
             : literalString(description!),
-        'deprecationReason': deprecationReason == null
-            ? literalNull
-            : literalString(deprecationReason!)
+        // 'deprecationReason': deprecationReason == null
+        //     ? literalNull
+        //     : literalString(deprecationReason!)
       },
     );
   }
@@ -151,8 +160,9 @@ class FieldInfo {
             ..body = Code('obj.$name')
             ..lambda = true,
         ).genericClosure,
-        'description':
-            description == null ? literalNull : literalString(description!),
+        'description': description == null || description!.isEmpty
+            ? literalNull
+            : literalString(description!),
         'deprecationReason': deprecationReason == null
             ? literalNull
             : literalString(deprecationReason!)

@@ -201,7 +201,8 @@ Future<Library> generateFromFreezed(
   BuildStep buildStep,
 ) async {
   // TODO:
-  final isUnion = clazz.constructors.where((con) => con.name != '_').length > 1;
+  final isUnion =
+      clazz.constructors.where(isFreezedVariantConstructor).length > 1;
   final _fields = await freezedFields(
     clazz,
     buildStep,
@@ -221,10 +222,14 @@ Future<Library> generateFromFreezed(
     final typeName = clazz.name;
 
     l.body.add(Code('''
+${serializerDefinitionCode(typeName, hasFrezzed: false)}
+
+Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
+
 final $fieldName$unionKeySuffix = field<String, String, $typeName>(
   'runtimeType',
   enumTypeFromStrings('${typeName}Type', [
-    ${_fields.map((e) => '"${e.name}"').join(',')}
+    ${_fields.map((e) => '"${e.constructorName}"').join(',')}
   ]),
 );
 
