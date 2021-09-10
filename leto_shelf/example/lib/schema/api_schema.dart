@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 
 import 'books.controller.dart';
 import 'files.controller.dart';
@@ -33,6 +34,10 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     queryType: objectType(
       'Queries',
       fields: [
+        graphqlFieldFromJson(
+          fieldName: 'json',
+          jsonString: jsonPayload,
+        ),
         field(
           'books',
           listOf(_bookType),

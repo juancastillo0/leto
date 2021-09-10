@@ -14,12 +14,15 @@ class Json with _$Json {
   const factory Json.str(String value) = JsonStr;
   const factory Json.none() = JsonNone;
 
-  Object? toJson({bool nested = true}) {
+  Object? toJson({bool shallow = false}) {
     final v = this;
     if (v is JsonNone) {
       return null;
     }
-    if (nested) {
+    if (shallow) {
+      // ignore: avoid_dynamic_calls
+      return (v as dynamic).value;
+    } else {
       return when(
         map: (map) => map.map(
           (key, value) => MapEntry(key, value.toJson()),
@@ -29,14 +32,11 @@ class Json with _$Json {
         str: (str) => str,
         none: () => null,
       );
-    } else {
-      // ignore: avoid_dynamic_calls
-      return (v as dynamic).value;
     }
   }
 
   Object? toJsonShallow() {
-    return toJson(nested: false);
+    return toJson(shallow: true);
   }
 
   static Json fromJson(Object? value) {

@@ -6,6 +6,10 @@ import 'package:shelf_plus/shelf_plus.dart';
 import 'schema/api_schema.dart' show makeApiSchema, relativeToScriptPath;
 import 'schema/files.controller.dart';
 
+void main() {
+  runServer();
+}
+
 Future<void> runServer() async {
   await shelfRun(
     serverHandler,
