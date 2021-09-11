@@ -50,7 +50,7 @@ Future<void> main() async {
   test('file upload', () async {
     final operations = const GraphqlRequest(
         query: 'mutation addFile(\$fileVar: Upload!) { '
-            ' addFileCommand (file: \$fileVar){ name mimeType sizeInBytes }'
+            ' addFile (file: \$fileVar){ filename mimeType sizeInBytes }'
             ' }',
         variables: {
           'fileVar': null,
@@ -73,7 +73,8 @@ Future<void> main() async {
       ..fields['map'] = jsonEncode(<String, Object?>{
         'filename1Field': ['variables.fileVar'],
       })
-      ..files.add(fileToUpload);
+      ..files.add(fileToUpload)
+      ..headers['shelf-test'] = 'true';
 
     final response = await request.send();
     expect(response.statusCode, 200);
@@ -82,8 +83,8 @@ Future<void> main() async {
     final body = jsonDecode(bodyStr) as Map<String, Object?>;
     expect(body, {
       'data': {
-        'addFileCommand': {
-          'name': fileToUpload.filename,
+        'addFile': {
+          'filename': fileToUpload.filename,
           'sizeInBytes': fileToUpload.length,
           'mimeType': fileToUpload.contentType.mimeType,
         }

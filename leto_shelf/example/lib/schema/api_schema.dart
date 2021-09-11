@@ -101,6 +101,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
             [fileUploadType(), simpleError],
           ),
           resolve: (obj, ctx) async {
+            final isTesting = ctx.request.headers['shelf-test'] == 'true';
             final upload = ctx.args['file'] as UploadedFile;
             final replace = ctx.args['replace'] as bool;
             final extra = ctx.args['extra'] as Json?;
@@ -111,11 +112,13 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
             );
             return result.match(
               (_) async {
-                final bytes = await upload.readAsBytes();
-                final file = File(
-                  relativeToScriptPath(['files', meta.filename]),
-                );
-                await file.writeAsBytes(bytes);
+                if (!isTesting) {
+                  final bytes = await upload.readAsBytes();
+                  final file = File(
+                    relativeToScriptPath(['files', meta.filename]),
+                  );
+                  await file.writeAsBytes(bytes);
+                }
                 return meta;
               },
               (err) => {
