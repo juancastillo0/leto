@@ -192,15 +192,17 @@ class GraphQL {
     final operation = getOperation(document, operationName);
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
-    if (operation.type == OperationType.query) {
-      return executeQuery(document, operation, schema, coercedVariableValues,
-          initialValue, _globalVariables);
-    } else if (operation.type == OperationType.subscription) {
-      return subscribe(document, operation, schema, coercedVariableValues,
-          _globalVariables, initialValue);
-    } else {
-      return executeMutation(document, operation, schema, coercedVariableValues,
-          initialValue, _globalVariables);
+
+    switch (operation.type) {
+      case OperationType.query:
+        return executeQuery(document, operation, schema, coercedVariableValues,
+            initialValue, _globalVariables);
+      case OperationType.subscription:
+        return subscribe(document, operation, schema, coercedVariableValues,
+            initialValue, _globalVariables);
+      case OperationType.mutation:
+        return executeMutation(document, operation, schema,
+            coercedVariableValues, initialValue, _globalVariables);
     }
   }
 
@@ -210,11 +212,14 @@ class GraphQL {
   ) {
     final ops = document.definitions.whereType<OperationDefinitionNode>();
 
-    if (operationName == null) {
+    if (ops.isEmpty) {
+      throw GraphQLException.fromMessage(
+          'This document does not define any operations.');
+    } else if (operationName == null) {
       return ops.length == 1
           ? ops.first
           : throw GraphQLException.fromMessage(
-              'This document does not define any operations.');
+              'Multiple operations found, please provide an operation name.');
     } else {
       return ops.firstWhere(
         (d) => d.name!.value == operationName,
@@ -236,6 +241,7 @@ class GraphQL {
     for (final variableDefinition in variableDefinitions) {
       final variableName = variableDefinition.variable.name.value;
       final variableType = variableDefinition.type;
+      // TODO: Assert: IsInputType(variableType) must be true.
       final defaultValue = variableDefinition.defaultValue;
       final Object? value = variableValues?[variableName];
 
@@ -250,6 +256,7 @@ class GraphQL {
         }
       } else {
         final type = convertType(variableType);
+        // TODO: should we just deserialize with a result?
         final validation = type.validate(variableName, value);
 
         if (!validation.successful) {
@@ -295,7 +302,8 @@ class GraphQL {
           'The schema does not define a query type.');
     }
     return executeSelectionSet(schema.serdeCtx, document, selectionSet,
-        queryType, initialValue, variableValues, globalVariables);
+        queryType, initialValue, variableValues, globalVariables,
+        serial: false);
   }
 
   Future<Map<String, dynamic>> executeMutation(
@@ -315,7 +323,8 @@ class GraphQL {
 
     final selectionSet = mutation.selectionSet;
     return executeSelectionSet(schema.serdeCtx, document, selectionSet,
-        mutationType, initialValue, variableValues, globalVariables);
+        mutationType, initialValue, variableValues, globalVariables,
+        serial: true);
   }
 
   Future<Stream<Map<String, dynamic>>> subscribe(
@@ -323,13 +332,13 @@ class GraphQL {
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Map<String, dynamic> variableValues,
-    Map<String, dynamic> globalVariables,
     Object? initialValue,
+    Map<String, dynamic> globalVariables,
   ) async {
     final sourceStream = await createSourceEventStream(document, subscription,
-        schema, variableValues, globalVariables, initialValue);
+        schema, variableValues, initialValue, globalVariables);
     return mapSourceToResponseEvent(sourceStream, subscription, schema,
-        document, initialValue, variableValues, globalVariables);
+        document, variableValues, initialValue, globalVariables);
   }
 
   Future<MapEntry<String, Stream<Object?>>> createSourceEventStream(
@@ -337,8 +346,8 @@ class GraphQL {
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Map<String, dynamic> variableValues,
-    Map<String, dynamic>? globalVariables,
     Object? initialValue,
+    Map<String, dynamic> globalVariables,
   ) async {
     final selectionSet = subscription.selectionSet;
     final subscriptionType = schema.subscriptionType;
@@ -375,11 +384,12 @@ class GraphQL {
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     DocumentNode document,
-    Object? initialValue,
     Map<String, dynamic> variableValues,
+    Object? initialValue,
     Map<String, dynamic> globalVariables,
   ) async* {
     await for (final event in sourceStream.value) {
+      // TODO: extract ExecuteSubscriptionEvent
       try {
         final selectionSet = subscription.selectionSet;
         final subscriptionType = schema.subscriptionType;
@@ -393,6 +403,7 @@ class GraphQL {
           _SubscriptionEvent({sourceStream.key: event}),
           variableValues,
           globalVariables,
+          serial: false,
         );
 
         // completeValue(
@@ -420,7 +431,7 @@ class GraphQL {
     Object? rootValue,
     String fieldName,
     Map<String, dynamic> argumentValues,
-    Map<String, dynamic>? globalVariables,
+    Map<String, dynamic> globalVariables,
   ) async {
     final field = subscriptionType.fields.firstWhere(
       (f) => f.name == fieldName,
@@ -433,7 +444,7 @@ class GraphQL {
     final reqCtx = ReqCtx(
       args: argumentValues,
       object: rootValue,
-      globals: globalVariables ?? {},
+      globals: globalVariables,
       // TODO:
       parentCtx: null,
     );
@@ -452,8 +463,9 @@ class GraphQL {
     GraphQLObjectType<Object?> objectType,
     Object? objectValue,
     Map<String, dynamic> variableValues,
-    Map<String, dynamic> globalVariables,
-  ) async {
+    Map<String, dynamic> globalVariables, {
+    required bool serial,
+  }) async {
     final groupedFieldSet =
         collectFields(document, objectType, selectionSet, variableValues);
     final resultMap = <String, dynamic>{};
@@ -463,51 +475,52 @@ class GraphQL {
       serdeCtx: serdeCtx,
       objectType: objectType,
       objectValue: objectValue,
-      // TODO:
-      // variableValues:
-      //     Map<String, dynamic>.from(globalVariables ?? <String, dynamic>{})
-      //       ..addAll(variableValues),
       variableValues: variableValues,
       globalVariables: globalVariables,
     );
 
-    for (final responseKey in groupedFieldSet.keys) {
-      final fields = groupedFieldSet[responseKey]!;
-      for (final field in fields) {
-        // TODO: is the iterateration necessary?
-        final fieldNode = field;
-        final fieldName = fieldNode.alias?.value ?? fieldNode.name.value;
-        FutureOr<dynamic> futureResponseValue;
+    // If during ExecuteSelectionSet() a field with a non‐null fieldType throws
+    // a field error then that error must propagate to this entire selection set,
+    // either resolving to null if allowed or further propagated to a parent field.
+    // TODO: try {}
+    for (final groupEntry in groupedFieldSet.entries) {
+      final responseKey = groupEntry.key;
+      final fields = groupEntry.value;
+      // for (final field in fields) {
+      // TODO: is the iterateration necessary?
+      final field = fields.first;
+      // TODO: test alias?
+      final fieldName = field.alias?.value ?? field.name.value;
+      FutureOr<dynamic> futureResponseValue;
 
-        if (fieldName == '__typename') {
-          futureResponseValue = objectType.name;
-        } else {
-          final objectField = objectType.fields.firstWhereOrNull(
-            (f) => f.name == fieldName,
+      if (fieldName == '__typename') {
+        futureResponseValue = objectType.name;
+      } else {
+        final objectField = objectType.fields.firstWhereOrNull(
+          (f) => f.name == fieldName,
+        );
+        if (objectField == null) continue;
+
+        futureResponseValue = (() async {
+          // improved debugging
+          // ignore: unnecessary_await_in_return
+          return await executeField(
+            document,
+            fields,
+            objectCtx,
+            objectField,
           );
-          if (objectField == null) continue;
-
-          futureResponseValue = (() async {
-            // improved debugging
-            // ignore: unnecessary_await_in_return
-            return await executeField<Object?, Object?>(
-              document,
-              fields,
-              ResolveFieldCtx(
-                objectCtx: objectCtx,
-                objectField: objectField,
-                fieldName: fieldName,
-                field: field,
-              ),
-            );
-          })();
-        }
-
-        futureResultMap[responseKey] = futureResponseValue;
+        })();
       }
+      if (serial) {
+        await futureResponseValue;
+      }
+
+      futureResultMap[responseKey] = futureResponseValue;
+      // }
     }
-    for (final f in futureResultMap.keys) {
-      resultMap[f] = await futureResultMap[f];
+    for (final entry in futureResultMap.entries) {
+      resultMap[entry.key] = await entry.value;
     }
     return resultMap;
   }
@@ -515,33 +528,35 @@ class GraphQL {
   Future<T> executeField<T, P>(
     DocumentNode document,
     List<FieldNode> fields,
-    ResolveFieldCtx<T, P> ctx,
+    ResolveObjectCtx<P> ctx,
+    GraphQLObjectField<T, Object?, P> objectField,
   ) async {
-    final objectCtx = ctx.objectCtx;
+    final field = fields.first;
+    final fieldName = field.name.value;
     final argumentValues = coerceArgumentValues(
-      objectCtx.serdeCtx,
-      objectCtx.objectType,
-      ctx.field,
-      objectCtx.variableValues,
+      ctx.serdeCtx,
+      ctx.objectType,
+      field,
+      ctx.variableValues,
     );
     final resolvedValue = await resolveFieldValue<T, P>(
-      objectCtx.serdeCtx,
-      ctx.objectField,
-      objectCtx.objectValue,
-      objectCtx.serializedObject,
-      ctx.fieldName,
+      ctx.serdeCtx,
+      objectField,
+      ctx.objectValue,
+      ctx.serializedObject,
+      fieldName,
       argumentValues,
-      objectCtx.globalVariables,
+      ctx.globalVariables,
     );
     return await completeValue(
-      objectCtx.serdeCtx,
+      ctx.serdeCtx,
       document,
-      ctx.fieldName,
-      ctx.objectField.type,
+      fieldName,
+      objectField.type,
       fields,
       resolvedValue,
-      objectCtx.variableValues,
-      objectCtx.globalVariables,
+      ctx.variableValues,
+      ctx.globalVariables,
     ) as T;
   }
 
@@ -553,7 +568,7 @@ class GraphQL {
   ) {
     final coercedValues = <String, dynamic>{};
     final argumentValues = field.arguments;
-    final fieldName = field.alias?.value ?? field.name.value;
+    final fieldName = field.name.value;
     final desiredField = objectType.fields.firstWhere(
       (f) => f.name == fieldName,
       orElse: () => throw FormatException(
@@ -572,6 +587,7 @@ class GraphQL {
       if (argumentValue == null) {
         if (defaultValue != null || argumentDefinition.defaultsToNull) {
           coercedValues[argumentName] = defaultValue;
+          // TODO: check inner RefType
         } else if (argumentType is GraphQLNonNullableType) {
           throw GraphQLException.fromMessage(
             'Missing value for argument "$argumentName" of field "$fieldName".',
@@ -582,12 +598,19 @@ class GraphQL {
       } else {
         try {
           // TODO: verify
+          // TODO: check subscriptions
           final node = argumentValue.value;
-          if (node is VariableNode &&
-              variableValues.containsKey(node.name.value)) {
+          if (node is VariableNode) {
             /// variable values where already validated and
             /// coerced in coerceVariableValues
-            coercedValues[argumentName] = variableValues[node.name.value];
+            final variableName = node.name.value;
+            final Object? value = variableValues[variableName];
+            coercedValues[argumentName] = value;
+            if (value == null && argumentType is GraphQLNonNullableType) {
+              throw GraphQLException.fromMessage(
+                'Missing value for argument "$argumentName" of field "$fieldName".',
+              );
+            }
             continue;
           }
           final value = computeValue(
@@ -627,8 +650,10 @@ class GraphQL {
             throw GraphQLException(errors);
           } else {
             final Object? coercedValue = validation.value;
+            // TODO: should we deserialize?
             coercedValues[argumentName] = coercedValue;
           }
+          // TODO: remove try catch
         } on TypeError catch (e) {
           throw GraphQLException(<GraphQLExceptionError>[
             GraphQLExceptionError(
@@ -756,6 +781,7 @@ class GraphQL {
 
     if (fieldType is GraphQLScalarType) {
       try {
+        // TODO: should we serialize?
         final validation = fieldType.validate(fieldName, result);
 
         if (!validation.successful) {
@@ -782,7 +808,8 @@ class GraphQL {
 
       final subSelectionSet = mergeSelectionSets(fields);
       return executeSelectionSet(serdeCtx, document, subSelectionSet,
-          objectType, result, variableValues, globalVariables);
+          objectType, result, variableValues, globalVariables,
+          serial: false);
     }
 
     throw UnsupportedError('Unsupported type: $fieldType');
@@ -858,7 +885,7 @@ class GraphQL {
 
   Map<String, List<FieldNode>> collectFields(
     DocumentNode document,
-    GraphQLObjectType? objectType,
+    GraphQLObjectType objectType,
     SelectionSetNode selectionSet,
     Map<String, dynamic> variableValues, {
     List<Object?>? visitedFragments,
@@ -870,6 +897,7 @@ class GraphQL {
       if (getDirectiveValue('skip', 'if', selection, variableValues) == true) {
         continue;
       }
+      // TODO: test
       if (getDirectiveValue('include', 'if', selection, variableValues) ==
           false) {
         continue;
@@ -893,10 +921,12 @@ class GraphQL {
         if (!doesFragmentTypeApply(objectType, fragmentType)) continue;
         final fragmentSelectionSet = fragment.selectionSet;
         final fragmentGroupFieldSet = collectFields(
-            document, objectType, fragmentSelectionSet, variableValues);
+            document, objectType, fragmentSelectionSet, variableValues,
+            visitedFragments: visitedFragments);
 
-        for (final responseKey in fragmentGroupFieldSet.keys) {
-          final fragmentGroup = fragmentGroupFieldSet[responseKey]!;
+        for (final groupEntry in fragmentGroupFieldSet.entries) {
+          final responseKey = groupEntry.key;
+          final fragmentGroup = groupEntry.value;
           final groupForResponseKey =
               groupedFields.putIfAbsent(responseKey, () => []);
           groupForResponseKey.addAll(fragmentGroup);
@@ -907,10 +937,12 @@ class GraphQL {
             !doesFragmentTypeApply(objectType, fragmentType)) continue;
         final fragmentSelectionSet = selection.selectionSet;
         final fragmentGroupFieldSet = collectFields(
-            document, objectType, fragmentSelectionSet, variableValues);
+            document, objectType, fragmentSelectionSet, variableValues,
+            visitedFragments: visitedFragments);
 
-        for (final responseKey in fragmentGroupFieldSet.keys) {
-          final fragmentGroup = fragmentGroupFieldSet[responseKey]!;
+        for (final groupEntry in fragmentGroupFieldSet.entries) {
+          final responseKey = groupEntry.key;
+          final fragmentGroup = groupEntry.value;
           final groupForResponseKey =
               groupedFields.putIfAbsent(responseKey, () => []);
           groupForResponseKey.addAll(fragmentGroup);
@@ -954,7 +986,7 @@ class GraphQL {
   }
 
   bool doesFragmentTypeApply(
-    GraphQLObjectType? objectType,
+    GraphQLObjectType objectType,
     TypeConditionNode fragmentType,
   ) {
     final typeNode = NamedTypeNode(
@@ -963,15 +995,18 @@ class GraphQL {
         isNonNull: fragmentType.on.isNonNull);
     final type = convertType(typeNode);
     if (type is GraphQLObjectType && !type.isInterface) {
+      // TODO: if objectType and fragmentType are the same type,
+      // return true, otherwise return false.
+      // return type == objectType; should work
       for (final field in type.fields) {
-        if (!objectType!.fields.any((f) => f.name == field.name)) return false;
+        if (!objectType.fields.any((f) => f.name == field.name)) return false;
       }
       return true;
     } else if (type is GraphQLObjectType && type.isInterface) {
-      return objectType!.isImplementationOf(type);
+      return objectType.isImplementationOf(type);
     } else if (type is GraphQLUnionType) {
       return type.possibleTypes
-          .any((t) => objectType!.isImplementationOf(t as GraphQLObjectType));
+          .any((t) => objectType.isImplementationOf(t as GraphQLObjectType));
     }
 
     return false;
@@ -1075,7 +1110,7 @@ class ResolveObjectCtx<P> {
           final serializer = serdeCtx.ofValue(objectType.valueType);
           if (serializer != null) {
             _serializedObject = Some(
-              serializer.toJson(objectValue)! as Map<String, dynamic>,
+              serializer.toJson(objectValue!)! as Map<String, dynamic>,
             );
           } else {
             _serializedObject = Some(
