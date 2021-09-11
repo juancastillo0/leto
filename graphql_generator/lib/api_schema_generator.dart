@@ -44,7 +44,11 @@ class ValidatorsLibGenerator implements Builder {
   Future<void> build(BuildStep buildStep) async {
     // for (final basePath in basePaths) {
     final allClasses = <ClassElement>[];
-    final allResolvers = <Type, List<Element>>{};
+    final allResolvers = <Type, List<Element>>{
+      Query: [],
+      Mutation: [],
+      Subscription: [],
+    };
     await for (final input in buildStep.findAssets(Glob('$basePath/**.dart'))) {
       final LibraryReader reader;
       try {
@@ -54,17 +58,12 @@ class ValidatorsLibGenerator implements Builder {
         continue;
       }
 
-      allResolvers.addEntries(
-        [Query, Mutation, Subscription].map((e) {
-          final typeChecker = TypeChecker.fromRuntime(e);
-          return MapEntry(
-            e,
-            reader.allElements
-                .where((w) => typeChecker.hasAnnotationOf(w))
-                .toList(),
-          );
-        }),
-      );
+      for (final e in [Query, Mutation, Subscription]) {
+        final typeChecker = TypeChecker.fromRuntime(e);
+        allResolvers[e]!.addAll(
+          reader.allElements.where((w) => typeChecker.hasAnnotationOfExact(w)),
+        );
+      }
       allClasses.addAll(
         reader.classes.where(
           (element) => const TypeChecker.fromRuntime(GraphQLClass)
