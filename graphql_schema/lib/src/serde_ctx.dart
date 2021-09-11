@@ -3,16 +3,18 @@ part of graphql_schema.src.schema;
 class SerdeCtx {
   SerdeCtx();
 
-  final Map<Type, Serializer<Object?>> _map = {
+  final Map<Type, Serializer<Object>> _map = {
     int: const _SerializerIdentity<int>(),
     double: const _SerializerIdentity<double>(),
     num: const _SerializerIdentity<num>(),
     String: const _SerializerIdentity<String>(),
     bool: const _SerializerIdentity<bool>(),
     // ignore: prefer_void_to_null
-    Null: const _SerializerIdentity<Null>(),
+    // Null: const _SerializerIdentity<Null>(),
     DateTime: const _SerializerDateTime(),
   };
+
+  Map<Type, Serializer<Object>> get map => _map;
 
   T fromJson<T>(Object? json, [T Function()? _itemFactory]) {
     if (json is T) {
@@ -91,15 +93,15 @@ class SerdeCtx {
     }
   }
 
-  void addAll(Iterable<Serializer<dynamic>> serializers) {
+  void addAll(Iterable<Serializer<Object>> serializers) {
     serializers.forEach(add);
   }
 
-  void add(Serializer serializer) {
+  void add(Serializer<Object> serializer) {
     _map[serializer.type] = serializer;
   }
 
-  Serializer<Object?>? ofValue(Type T) {
+  Serializer<Object>? ofValue(Type T) {
     return _map[T];
   }
 
@@ -139,6 +141,8 @@ abstract class Serializer<T> {
   Object? toJson(T instance);
 
   Type get type => T;
+
+  bool isValueOfType(Object? value) => value is T;
 
   bool isType<O>() => O is T;
   bool isOtherType<O>() => T is O;
@@ -208,18 +212,6 @@ class SerializerFunc<T extends Serializable> extends Serializer<T> {
   Map<String, dynamic> toJson(T instance) => instance.toJson();
 }
 
-extension GenMap<K, V> on Map<K, V> {
-  Map<String, Object?> toJsonMap(SerdeCtx serdeCtx) {
-    return serdeCtx.toJsonMap(this);
-  }
-}
-
-extension GenIterable<V> on Iterable<V> {
-  List<Object?> toJsonList(SerdeCtx serdeCtx) {
-    return serdeCtx.toJsonList(this);
-  }
-}
-
 class SerializerValue<T> extends Serializer<T> {
   const SerializerValue({
     required T Function(Map<String, dynamic> json) fromJson,
@@ -236,4 +228,16 @@ class SerializerValue<T> extends Serializer<T> {
       json is T ? json : _fromJson(json! as Map<String, dynamic>);
   @override
   Map<String, dynamic> toJson(T instance) => _toJson(instance);
+}
+
+extension GenMap<K, V> on Map<K, V> {
+  Map<String, Object?> toJsonMap(SerdeCtx serdeCtx) {
+    return serdeCtx.toJsonMap(this);
+  }
+}
+
+extension GenIterable<V> on Iterable<V> {
+  List<Object?> toJsonList(SerdeCtx serdeCtx) {
+    return serdeCtx.toJsonList(this);
+  }
 }
