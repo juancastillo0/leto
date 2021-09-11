@@ -56,14 +56,14 @@ GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
     map: (map) => throw UnimplementedError(),
     // TODO:
     function: () => throw UnimplementedError(),
-    nested: (nested) => objectType(
+    nested: (nested) => objectType<Map<String, Object?>>(
       key,
       fields: [
         ...nested.props.entries.map(
           (e) => field(
             e.key,
             graphQLTypeFromSerde('$key${e.key}', e.value),
-            resolve: (obj, ctx) => (obj as Map?)?[e.key],
+            resolve: (obj, ctx) => obj[e.key],
           ),
         )
       ],

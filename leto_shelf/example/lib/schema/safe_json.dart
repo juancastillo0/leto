@@ -14,6 +14,8 @@ class Json with _$Json {
   const factory Json.str(String value) = JsonStr;
   const factory Json.none() = JsonNone;
 
+  static const null$ = JsonNone();
+
   Object? toJson({bool shallow = false}) {
     final v = this;
     if (v is JsonNone) {

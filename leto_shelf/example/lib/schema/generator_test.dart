@@ -98,7 +98,7 @@ List<TestModel> testModels(
 }
 
 /// optional nullability based on annotations (not only on type system)
-///   every where: return types, class fields, parameters
+///   everywhere: return types, class fields, parameters
 /// deprecationReason in params
 /// default in frezzed an other annotations (union key)
 /// nested Resolvers in classes (potentially empty classes)

@@ -11,11 +11,15 @@ final graphqlApiSchema = graphQLSchema(
     ]),
   queryType: objectType(
     'Queries',
-    fields: [],
+    fields: [
+      testModelsGraphQLField,
+    ],
   ),
   mutationType: objectType(
     'Mutations',
-    fields: [],
+    fields: [
+      addTestModelGraphQLField,
+    ],
   ),
   subscriptionType: objectType(
     'Subscriptions',
