@@ -33,7 +33,7 @@ class SerdeCtx {
       // }
       final serializer = of<T>();
       if (serializer == null) {
-        throw Exception('No serializer for type $T');
+        throw Exception('No serializer found for type $T.');
       }
       return serializer.fromJson(json);
     }
@@ -71,25 +71,43 @@ class SerdeCtx {
   }
 
   Object? toJson<T>(T instance) {
-    try {
-      final serializer = of<T>();
-      return serializer!.toJson(instance);
-    } catch (_) {
-      if (instance is Map) {
-        return instance.toJsonMap(this);
-      } else if (instance is List || instance is Set) {
-        return (instance as Iterable).toJsonList(this);
-      } else if (instance == null && null is T) {
-        return null;
-      } else {
-        try {
-          // ignore: avoid_dynamic_calls
-          return (instance as dynamic).toJson();
-        } catch (_) {
-          // ignore: avoid_dynamic_calls
-          return (instance as dynamic).toMap();
-        }
+    final serializer = of<T>();
+    if (serializer != null) {
+      return serializer.toJson(instance);
+    }
+    if (instance is Map) {
+      return instance.toJsonMap(this);
+    } else if (instance is List || instance is Set) {
+      return (instance as Iterable).toJsonList(this);
+    } else if (instance == null) {
+      return null;
+    } else {
+      try {
+        // ignore: avoid_dynamic_calls
+        return (instance as dynamic).toJson();
+      } catch (_) {}
+      try {
+        // ignore: avoid_dynamic_calls
+        return (instance as dynamic).toMap();
+      } catch (_) {}
+
+      final value = map.values
+          .map((s) {
+            if (s.generic.isValueOfType(instance)) {
+              try {
+                return _V(s.toJson(instance));
+              } catch (_) {}
+            }
+            return null;
+          })
+          .whereType<_V>()
+          .firstOrNull;
+      if (value == null) {
+        throw Exception(
+          'Could not find a serializer of type $T for $instance.',
+        );
       }
+      return value.inner;
     }
   }
 
@@ -98,7 +116,7 @@ class SerdeCtx {
   }
 
   void add(Serializer<Object> serializer) {
-    _map[serializer.type] = serializer;
+    _map[serializer.generic.type] = serializer;
   }
 
   Serializer<Object>? ofValue(Type T) {
@@ -108,8 +126,9 @@ class SerdeCtx {
   Serializer<T>? of<T>() {
     final v = _map[T] as Serializer<T>?;
     if (v != null) return v;
-    return _map.values.firstWhereOrNull((serde) => serde.isEqualType<T>())
-        as Serializer<T>?;
+    return _map.values.firstWhereOrNull(
+      (serde) => serde.generic.isEqualToType<T>(),
+    ) as Serializer<T>?;
   }
 
   List<Serializer<T>> manyOf<T>() {
@@ -122,6 +141,12 @@ class SerdeCtx {
   }
 }
 
+class _V<T> {
+  final T inner;
+
+  _V(this.inner);
+}
+
 abstract class SerializableGeneric<S> {
   S toJson();
 }
@@ -132,7 +157,7 @@ abstract class Serializable
   Map<String, dynamic> toJson();
 }
 
-abstract class Serializer<T> {
+abstract class Serializer<T> implements GenericHelpSingle<T> {
   const Serializer(); // {
   //   Serializers.add(this);
   // }
@@ -140,13 +165,43 @@ abstract class Serializer<T> {
   T fromJson(Object? json);
   Object? toJson(T instance);
 
-  Type get type => T;
+  @override
+  GenericHelp<T> get generic => GenericHelp<T>();
 
-  bool isValueOfType(Object? value) => value is T;
-
+  // TODO: test
   bool isType<O>() => O is T;
   bool isOtherType<O>() => T is O;
-  bool isEqualType<O>() => O == T;
+}
+
+class GenericHelpSingle<T> {
+  /// Helper utilities for working with the generic type argument [T].
+  final generic = GenericHelp<T>();
+}
+
+/// Helper utilities for working with the generic type argument [T].
+@immutable
+class GenericHelp<T> implements GenericHelpSingle<T> {
+  /// [T] as a [Type] object.
+  Type get type => T;
+
+  /// Returns true if [value] is of type [T], false otherwise.
+  bool isValueOfType(Object? value) => value is T;
+
+  /// Returns true if [O] is equal to [T], false otherwise.
+  bool isEqualToType<O>() => O == T;
+
+  /// Executes a generic callback with the generic type parameter as [T].
+  /// Returns the object returned by the callback.
+  O callWithType<O>(O Function<P>() callback) => callback<T>();
+
+  @override
+  GenericHelp<T> get generic => this;
+
+  @override
+  bool operator ==(Object? other) => other is GenericHelp && other.type == T;
+
+  @override
+  int get hashCode => T.hashCode;
 }
 
 class _SerializerIdentity<T> extends Serializer<T> {

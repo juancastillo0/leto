@@ -704,7 +704,7 @@ class GraphQL {
       );
     } else if (objectValue is Map) {
       return objectValue[fieldName] as T;
-    } else if (field.type.objectIsValue(objectValue)) {
+    } else if (field.type.generic.isValueOfType(objectValue)) {
       // TODO:
       return objectValue as T;
     } else {
@@ -864,7 +864,7 @@ class GraphQL {
     // TODO: check if there is only one type matching
     // throw GraphQLException(errors);
     return possibleTypes.firstWhere(
-      (t) => t.objectIsValue(result),
+      (t) => t.generic.isValueOfType(result),
       orElse: () => throw GraphQLException(errors),
     );
   }
@@ -1107,7 +1107,7 @@ class ResolveObjectCtx<P> {
     if (_serializedObject == null) {
       try {
         try {
-          final serializer = serdeCtx.ofValue(objectType.valueType);
+          final serializer = serdeCtx.ofValue(objectType.generic.type);
           if (serializer != null) {
             _serializedObject = Some(
               serializer.toJson(objectValue!)! as Map<String, dynamic>,

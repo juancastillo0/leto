@@ -61,9 +61,7 @@ abstract class GraphQLType<Value, Serialized> {
     }
   }
 
-  bool objectIsValue(Object? value) => value is Value;
-
-  Type get valueType => Value;
+  GenericHelp<Value> get generic => GenericHelp<Value>();
 
   @override
   String toString() => name!;
