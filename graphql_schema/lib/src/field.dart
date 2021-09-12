@@ -62,6 +62,7 @@ class FieldResolver<Value, P> {
 ///
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
+@immutable
 class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
@@ -117,9 +118,16 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   @override
   bool operator ==(Object other) =>
       other is GraphQLObjectField &&
+      other.runtimeType == runtimeType &&
       other.name == name &&
       other.deprecationReason == deprecationReason &&
       other.type == type &&
       other.resolve == resolve &&
       const ListEquality<GraphQLFieldInput>().equals(other.inputs, inputs);
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality()
+          .hash([name, deprecationReason, type, resolve, inputs]);
 }

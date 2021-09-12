@@ -746,7 +746,7 @@ class GraphQL {
       } on TypeError {
         throw GraphQLException.fromMessage(
           'Value of field "$fieldName" must be '
-          '${fieldType.valueType}, got $result instead.',
+          '${fieldType.generic.type}, got $result instead.',
         );
       }
     }

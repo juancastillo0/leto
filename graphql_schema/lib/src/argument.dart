@@ -2,6 +2,7 @@ part of graphql_schema.src.schema;
 
 /// An input to a GraphQL field. This is analogous
 /// to a function parameter in Dart.
+@immutable
 class GraphQLFieldInput<Value, Serialized> {
   /// The name of this field.
   final String name;
@@ -50,9 +51,19 @@ class GraphQLFieldInput<Value, Serialized> {
   @override
   bool operator ==(Object other) =>
       other is GraphQLFieldInput &&
+      other.runtimeType == runtimeType &&
       other.name == name &&
       other.type == type &&
       other.defaultValue == other.defaultValue &&
       other.defaultsToNull == defaultsToNull &&
       other.description == description;
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      name.hashCode ^
+      type.hashCode ^
+      defaultValue.hashCode ^
+      defaultsToNull.hashCode ^
+      description.hashCode;
 }

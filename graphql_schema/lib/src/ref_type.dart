@@ -6,39 +6,46 @@ GraphQLType<T, S> refType<T, S>(GraphQLType<T, S> Function() ref) {
 
 class GraphQLRefType<T, S> extends GraphQLType<T, S> {
   final GraphQLType<T, S> Function() ref;
-  const GraphQLRefType(this.ref);
+  GraphQLRefType(this.ref);
 
+  GraphQLType<T, S>? _innerType;
   GraphQLType<T, S> innerType() {
-    GraphQLType<T, S> type = ref();
-    while (type is GraphQLRefType<T, S>) {
-      type = type.ref();
+    if (_innerType != null) {
+      return _innerType!;
     }
-    return type;
+    _innerType = ref();
+    while (_innerType is GraphQLRefType<T, S>) {
+      _innerType = (_innerType! as GraphQLRefType<T, S>).ref();
+    }
+    return _innerType!;
   }
 
   @override
-  String? get name => ref().name;
+  String? get name => innerType().name;
 
   @override
-  String? get description => ref().description;
+  String? get description => innerType().description;
 
   @override
-  GraphQLType<T, S> coerceToInputObject() => ref().coerceToInputObject();
+  GraphQLType<T, S> coerceToInputObject() => innerType().coerceToInputObject();
 
   @override
   T deserialize(SerdeCtx serdeCtx, S serialized) =>
-      ref().deserialize(serdeCtx, serialized);
+      innerType().deserialize(serdeCtx, serialized);
 
   @override
-  S serialize(T value) => ref().serialize(value);
+  S serialize(T value) => innerType().serialize(value);
 
   @override
   ValidationResult<S> validate(String key, Object? input) {
-    return ref().validate(key, input);
+    return innerType().validate(key, input);
   }
 
   @override
   GraphQLType<T, S> nonNullable() {
-    return ref().nonNullable();
+    return innerType().nonNullable();
   }
+
+  @override
+  Iterable<Object?> get props => [ref];
 }

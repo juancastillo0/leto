@@ -25,7 +25,7 @@ final GraphQLScalarType<String?, String?> graphQLDate =
 
 /// A Date [String], serialized as an UNIX timestamp.
 // final GraphQLScalarType<DateTime?, int?> graphQLTimestamp =
-//     _GraphQLIdentityType('Timestamp', 'An UNIX timestamp.', validateDateString);
+//  _GraphQLIdentityType('Timestamp', 'An UNIX timestamp.', validateDateString);
 
 /// A signed 32‐bit integer.
 final GraphQLScalarType<int?, int?> graphQLInt = _GraphQLNumType(
@@ -47,10 +47,7 @@ abstract class GraphQLScalarType<Value, Serialized>
     extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
   // const GraphQLScalarType();
-  Type get valueType => Value;
 }
-
-typedef _NumVerifier = bool Function(Object x);
 
 class _GraphQLBoolType extends GraphQLScalarType<bool?, bool?> {
   // const _GraphQLBoolType();
@@ -79,6 +76,9 @@ class _GraphQLBoolType extends GraphQLScalarType<bool?, bool?> {
 
   @override
   GraphQLType<bool?, bool?> coerceToInputObject() => this;
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 class _GraphQLNumType<T extends num?> extends GraphQLScalarType<T, T> {
@@ -86,7 +86,7 @@ class _GraphQLNumType<T extends num?> extends GraphQLScalarType<T, T> {
   final String name;
   @override
   final String description;
-  final _NumVerifier verifier;
+  final bool Function(Object x) verifier;
   final String expected;
 
   _GraphQLNumType(this.name, this.description, this.verifier, this.expected);
@@ -111,6 +111,9 @@ class _GraphQLNumType<T extends num?> extends GraphQLScalarType<T, T> {
 
   @override
   GraphQLType<T, T> coerceToInputObject() => this;
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 class _GraphQLStringType extends GraphQLScalarType<String?, String?> {
@@ -136,6 +139,9 @@ class _GraphQLStringType extends GraphQLScalarType<String?, String?> {
 
   @override
   GraphQLType<String?, String?> coerceToInputObject() => this;
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 class _GraphQLDateType extends GraphQLScalarType<DateTime?, String?>
@@ -162,6 +168,9 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime?, String?>
 
   @override
   GraphQLType<DateTime?, String?> coerceToInputObject() => this;
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 ValidationResult<String?> validateDateString(String key, Object? input) {
@@ -208,4 +217,7 @@ class _GraphQLIdentityType<T> extends GraphQLScalarType<T, T>
 
   @override
   GraphQLType<T, T> coerceToInputObject() => this;
+
+  @override
+  Iterable<Object?> get props => [name, description, _validate];
 }

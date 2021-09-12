@@ -1,8 +1,11 @@
 part of graphql_schema.src.schema;
 
 /// Shorthand for building a [GraphQLEnumType].
-GraphQLEnumType enumType<Value>(String name, Map<String, Value> values,
-    {String? description}) {
+GraphQLEnumType enumType<Value>(
+  String name,
+  Map<String, Value> values, {
+  String? description,
+}) {
   return GraphQLEnumType<Value>(
     name,
     values.entries.map((e) => GraphQLEnumValue(e.key, e.value)).toList(),
@@ -73,11 +76,7 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
   }
 
   @override
-  bool operator ==(Object other) =>
-      other is GraphQLEnumType &&
-      other.name == name &&
-      other.description == description &&
-      const ListEquality<GraphQLEnumValue>().equals(other.values, values);
+  Iterable<Object?> get props => [name, description, values];
 
   @override
   GraphQLType<Value, String> coerceToInputObject() => this;
@@ -86,6 +85,7 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
 /// A known value of a [GraphQLEnumType].
 ///
 /// In practice, you might not directly call this constructor very often.
+@immutable
 class GraphQLEnumValue<Value> {
   /// The name of this value.
   final String name;
@@ -100,7 +100,7 @@ class GraphQLEnumValue<Value> {
   /// if it indeed is deprecated.
   final String? deprecationReason;
 
-  GraphQLEnumValue(
+  const GraphQLEnumValue(
     this.name,
     this.value, {
     this.description,
@@ -113,8 +113,17 @@ class GraphQLEnumValue<Value> {
   @override
   bool operator ==(Object other) =>
       other is GraphQLEnumValue &&
+      other.runtimeType == runtimeType &&
       other.name == name &&
       other.value == value &&
       other.description == description &&
       other.deprecationReason == deprecationReason;
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      name.hashCode ^
+      value.hashCode ^
+      description.hashCode ^
+      deprecationReason.hashCode;
 }

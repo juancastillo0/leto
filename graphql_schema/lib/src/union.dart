@@ -91,10 +91,5 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  bool operator ==(Object other) =>
-      other is GraphQLUnionType &&
-      other.name == name &&
-      other.description == description &&
-      const ListEquality<GraphQLType>()
-          .equals(other.possibleTypes, possibleTypes);
+  Iterable<Object?> get props => [name, possibleTypes];
 }

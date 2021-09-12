@@ -61,6 +61,21 @@ abstract class GraphQLType<Value, Serialized> {
     }
   }
 
+  Iterable<Object?> get props;
+
+  @override
+  bool operator ==(Object? other) {
+    return identical(this, other) ||
+        other is GraphQLType &&
+            runtimeType == other.runtimeType &&
+            const DeepCollectionEquality().equals(other.props, props);
+  }
+
+  // int? _hashCode;
+  // @override
+  // int get hashCode => _hashCode ??=
+  //     runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+
   @override
   String toString() => name!;
 
@@ -223,28 +238,19 @@ class GraphQLListType<Value, Serialized>
   String toString() => '[$ofType]';
 
   @override
-  bool operator ==(Object other) =>
-      other is GraphQLListType && other.ofType == ofType;
-
-  @override
-  int get hashCode => ofType.hashCode;
+  Iterable<Object?> get props => [ofType];
 
   @override
   GraphQLType<List<Value>, List<Serialized>> coerceToInputObject() =>
       GraphQLListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
-class _Ref<T> {
-  T? inner;
-}
-
-abstract class _NonNullableMixin<Value, Serialized>
-    implements GraphQLType<Value, Serialized> {
-  final _nonNullableCache = _Ref<GraphQLType<Value, Serialized>>();
+mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
+  GraphQLType<Value, Serialized>? _nonNullableCache;
 
   @override
-  GraphQLType<Value, Serialized> nonNullable() => _nonNullableCache.inner ??=
-      GraphQLNonNullableType<Value, Serialized>._(this);
+  GraphQLType<Value, Serialized> nonNullable() =>
+      _nonNullableCache ??= GraphQLNonNullableType<Value, Serialized>._(this);
 }
 
 /// A special [GraphQLType] that indicates that input values should both be
@@ -253,7 +259,7 @@ class GraphQLNonNullableType<Value, Serialized>
     extends GraphQLType<Value, Serialized> {
   final GraphQLType<Value, Serialized> ofType;
 
-  GraphQLNonNullableType._(this.ofType);
+  const GraphQLNonNullableType._(this.ofType);
 
   @override
   String? get name => null; //innerType.name;
@@ -290,11 +296,7 @@ class GraphQLNonNullableType<Value, Serialized>
   }
 
   @override
-  bool operator ==(Object other) =>
-      other is GraphQLNonNullableType && other.ofType == ofType;
-
-  @override
-  int get hashCode => ofType.hashCode;
+  Iterable<Object?> get props => [ofType];
 
   @override
   GraphQLType<Value, Serialized> coerceToInputObject() {

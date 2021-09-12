@@ -71,7 +71,7 @@ GraphQLSchema graphQLSchema({
     );
 
 /// A default resolver that always returns `null`.
-Null resolveToNull(Object? _, Object? __) => null;
+Object? resolveToNull(Object? _, Object? __) => null;
 
 /// An exception that occurs during execution of a GraphQL query.
 class GraphQLException implements Exception {
@@ -79,7 +79,7 @@ class GraphQLException implements Exception {
   /// that caused this exception.
   final List<GraphQLExceptionError> errors;
 
-  GraphQLException(this.errors);
+  const GraphQLException(this.errors);
 
   factory GraphQLException.fromMessage(String message) {
     return GraphQLException([

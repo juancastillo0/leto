@@ -182,18 +182,8 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  bool operator ==(Object other) {
-    return other is GraphQLObjectType &&
-        other.name == name &&
-        other.description == description &&
-        other.isInterface == isInterface &&
-        const ListEquality<GraphQLObjectField>().equals(other.fields, fields) &&
-//     Removed, as it causes a stack overflow :(
-//        const ListEquality<GraphQLObjectType>()
-//            .equals(other.interfaces, interfaces) &&
-        const ListEquality<GraphQLObjectType>()
-            .equals(other.possibleTypes, possibleTypes);
-  }
+  Iterable<Object?> get props =>
+      [name, description, isInterface, fields, interfaces, possibleTypes];
 }
 
 Map<String, Object?> _foldToStringDynamic(Map<Object, Object?> map) {
@@ -307,20 +297,15 @@ class GraphQLInputObjectType<Value>
   }
 
   @override
-  bool operator ==(Object other) {
-    return other is GraphQLInputObjectType &&
-        other.name == name &&
-        other.description == description &&
-        other.customDeserialize == customDeserialize &&
-        const ListEquality<GraphQLInputObjectField>()
-            .equals(other.inputFields, inputFields);
-  }
+  Iterable<Object?> get props =>
+      [name, description, customDeserialize, inputFields];
 
   @override
   GraphQLType<Value, Map<String, dynamic>?> coerceToInputObject() => this;
 }
 
 /// A field expected within a [GraphQLInputObjectType].
+@immutable
 class GraphQLInputObjectField<Value, Serialized> implements ObjectField {
   /// The name of this field.
   final String name;
@@ -344,10 +329,17 @@ class GraphQLInputObjectField<Value, Serialized> implements ObjectField {
   @override
   bool operator ==(Object other) =>
       other is GraphQLInputObjectField &&
+      other.runtimeType == runtimeType &&
       other.name == name &&
       other.type == type &&
       other.description == description &&
       other.defaultValue == defaultValue;
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality()
+          .hash([name, type, description, defaultValue]);
 }
 
 abstract class ObjectField {

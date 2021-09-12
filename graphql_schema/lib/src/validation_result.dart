@@ -24,14 +24,6 @@ class ValidationResult<Value> {
       : value = null,
         successful = false;
 
-  @override
-  bool operator ==(Object? other) {
-    return other is ValidationResult<Value> &&
-        other.successful == successful &&
-        other.value == value &&
-        const ListEquality<String>().equals(other.errors, errors);
-  }
-
   ValidationResult<T> mapValue<T>(T Function(Value) mapper) {
     if (successful) {
       return ValidationResult.ok(mapper(value as Value));
@@ -41,11 +33,20 @@ class ValidationResult<Value> {
   }
 
   @override
-  // TODO: Object.hash support
-  int get hashCode => Object.hash(successful, value, errors);
+  bool operator ==(Object? other) {
+    return other is ValidationResult<Value> &&
+        other.runtimeType == runtimeType &&
+        other.successful == successful &&
+        other.value == value &&
+        const ListEquality<String>().equals(other.errors, errors);
+  }
 
   @override
-  String toString() {
-    return 'ValidationResult(${successful ? 'value: $value' : 'errors: $errors'})';
-  }
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash([successful, value, errors]);
+
+  @override
+  String toString() =>
+      'ValidationResult(${successful ? 'value: $value' : 'errors: $errors'})';
 }
