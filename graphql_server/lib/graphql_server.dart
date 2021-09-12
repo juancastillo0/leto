@@ -1,13 +1,15 @@
 // ignore_for_file: avoid_catching_errors
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart';
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:source_span/source_span.dart';
-import 'package:crypto/crypto.dart' show sha256;
+
 import 'introspection.dart';
 
 /// Transforms any [Map] into `Map<String, dynamic>`.
@@ -275,10 +277,7 @@ class GraphQL {
                 .toList(),
           );
         } else {
-          final coercedValue = type.deserialize(
-            schema.serdeCtx,
-            value,
-          ) as Object?;
+          final coercedValue = type.deserialize(schema.serdeCtx, value);
           coercedValues[variableName] = coercedValue;
         }
       }
@@ -486,8 +485,6 @@ class GraphQL {
     for (final groupEntry in groupedFieldSet.entries) {
       final responseKey = groupEntry.key;
       final fields = groupEntry.value;
-      // for (final field in fields) {
-      // TODO: is the iterateration necessary?
       final field = fields.first;
       // TODO: test alias?
       final fieldName = field.alias?.value ?? field.name.value;
@@ -517,7 +514,6 @@ class GraphQL {
       }
 
       futureResultMap[responseKey] = futureResponseValue;
-      // }
     }
     for (final entry in futureResultMap.entries) {
       resultMap[entry.key] = await entry.value;
@@ -623,7 +619,6 @@ class GraphQL {
             if (argumentDefinition.type.isNullable) {
               coercedValue = null;
             } else {
-              // TODO: improve message
               throw GraphQLException.fromMessage(
                 'Missing value for argument "$argumentName" of field "$fieldName".',
               );
@@ -703,7 +698,6 @@ class GraphQL {
     Map<String, dynamic> argumentValues,
     Map<String, dynamic> globalVariables,
   ) async {
-    // TODO: put field.resolve first
     if (objectValue is _SubscriptionEvent) {
       return objectValue.event[fieldName] as T?;
     } else if (field.resolve != null) {
@@ -1062,7 +1056,7 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
           'An enum value was given, but the type "${targetType!.name}" is not an enum.',
           node.span!);
     } else {
-      final enumType = targetType as GraphQLEnumType;
+      final enumType = targetType! as GraphQLEnumType;
       final matchingValue =
           enumType.values.firstWhereOrNull((v) => v.name == node.name.value);
       if (matchingValue == null) {

@@ -59,11 +59,8 @@ class GraphQLUnionType<P extends Object>
   @override
   P deserialize(
     SerdeCtx serdeCtx,
-    Map<String, dynamic>? serialized,
+    Map<String, dynamic> serialized,
   ) {
-    if (serialized == null) {
-      return null as P;
-    }
     for (final type in possibleTypes) {
       try {
         return type.deserialize(serdeCtx, serialized);

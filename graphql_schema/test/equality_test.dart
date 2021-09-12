@@ -1,7 +1,8 @@
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:test/test.dart';
 
-/// Note: this doesn't test for scalar types, which are final, and therefore use built-in equality.
+/// Note: this doesn't test for scalar types, which are final,
+/// and therefore use built-in equality.
 void main() {
   group('equality', () {
     test('enums', () {
