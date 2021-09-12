@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/graphql_api.schema.dart';
+import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 
 import 'books.controller.dart';
@@ -29,7 +31,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     ],
   );
 
-  return graphQLSchema(
+  final base = graphQLSchema(
     serdeCtx: SerdeCtx()..addAll([UploadedFileMeta.serializer]),
     queryType: objectType(
       'Queries',
@@ -157,14 +159,14 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
           'books',
           listOf(_bookType),
           resolve: (obj, args) {
-            return mappedBooksStream;
+            return books.stream;
           },
         ),
         field(
           'bookAdded',
           bookAddedType(_bookType),
           resolve: (obj, args) {
-            return bookAddedStream;
+            return books.bookAddedStream;
           },
         ),
         field(
@@ -184,6 +186,8 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
       ],
     ),
   );
+
+  return mergeGraphQLSchemas(base, graphqlApiSchema);
 }
 
 GraphQLObjectType<Book> bookType() {
@@ -250,7 +254,7 @@ GraphQLObjectType<BookAdded> bookAddedType(GraphQLObjectType book) {
         book,
         resolve: (obj, args) {
           print(' BookAdded obj $obj ${obj.runtimeType} $args');
-          return obj.book.toJson();
+          return obj.book;
         },
       ),
     ],
