@@ -202,21 +202,26 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  ValidationResult<List<Serialized>> validate(String key, Object? input) {
+  ValidationResult<List<Serialized?>> validate(String key, Object? input) {
     if (input is! List)
       return ValidationResult.failure(['Expected "$key" to be a list.']);
 
-    final List<Serialized> out = [];
+    final out = ofType.isNullable ? <Serialized?>[] : <Serialized>[];
     final List<String> errors = [];
 
     for (int i = 0; i < input.length; i++) {
       final k = '"$key" at index $i';
       final v = input[i];
       final result = ofType.validate(k, v);
-      if (!result.successful)
-        errors.addAll(result.errors);
-      else
-        out.add(result.value as Serialized);
+      if (!result.successful) {
+        if (v == null && ofType.isNullable) {
+          out.add(null);
+        } else {
+          errors.addAll(result.errors);
+        }
+      } else {
+        out.add(result.value);
+      }
     }
 
     if (errors.isNotEmpty) return ValidationResult.failure(errors);
@@ -227,7 +232,7 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
   List<Value?> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
     if (ofType.isNonNullable) {
       return serialized
-          .map<Value>((v) => ofType.deserialize(serdeCtx, v as Serialized))
+          .map<Value>((v) => ofType.deserialize(serdeCtx, v!))
           .toList();
     }
     return serialized

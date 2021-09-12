@@ -29,7 +29,6 @@ final GraphQLScalarType<DateTime, String> graphQLDate = graphQLDateValue;
 final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
   'Int',
   'A signed 64-bit integer.',
-  (x) => x is int?,
   'an integer',
 );
 
@@ -37,7 +36,6 @@ final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
 final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
   'Float',
   'A signed double-precision floating-point value.',
-  (x) => x is double?,
   'a float',
 );
 
@@ -84,17 +82,15 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   final String name;
   @override
   final String description;
-  final bool Function(Object x) verifier;
   final String expected;
 
-  _GraphQLNumType(this.name, this.description, this.verifier, this.expected);
+  _GraphQLNumType(this.name, this.description, this.expected);
 
   @override
   ValidationResult<T> validate(String key, Object? input) {
-    if (input != null && !verifier(input))
-      return ValidationResult.failure(['Expected "$key" to be $expected.']);
+    if (input is T) return ValidationResult.ok(input);
 
-    return ValidationResult.ok(input as T);
+    return ValidationResult.failure(['Expected "$key" to be $expected.']);
   }
 
   @override

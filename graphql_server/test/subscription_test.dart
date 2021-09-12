@@ -19,7 +19,7 @@ void main() {
       Stream.fromIterable(episodes)
           .map((ep) => <String, Object?>{...ep, 'not_selected': 1337});
 
-  final episodeType = objectType<Object?>('Episode', fields: [
+  final episodeType = objectType<Object>('Episode', fields: [
     field('name', graphQLString.nonNullable()),
     field('not_selected', graphQLInt),
   ]);
