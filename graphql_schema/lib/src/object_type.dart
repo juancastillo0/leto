@@ -103,7 +103,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
     final List<String> errors = [];
 
     for (final field in fields) {
-      if (field.type is GraphQLNonNullableType) {
+      if (field.type.isNonNullable) {
         if (!input.containsKey(field.name) || input[field.name] == null) {
           errors.add(
             'Field "${field.name}, of type ${field.type} cannot be null."',
@@ -249,7 +249,7 @@ class GraphQLInputObjectType<Value>
     final List<String> errors = [];
 
     for (final field in inputFields) {
-      if (field.type is GraphQLNonNullableType) {
+      if (field.type.isNonNullable) {
         if (!input.containsKey(field.name) || input[field.name] == null) {
           errors.add(
               'Field "${field.name}, of type ${field.type} cannot be null."');

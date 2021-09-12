@@ -61,10 +61,98 @@ abstract class GraphQLType<Value, Serialized> {
     }
   }
 
-  GenericHelp<Value> get generic => GenericHelp<Value>();
-
   @override
   String toString() => name!;
+
+  GenericHelp<Value> get generic => GenericHelp<Value>();
+
+  GraphQLType<Value, Serialized> get realType {
+    GraphQLType<Value, Serialized> type = this;
+    if (type is GraphQLRefType<Value, Serialized>) {
+      type = type.innerType();
+    }
+    return type;
+  }
+
+  bool get isNonNullable => realType is GraphQLNonNullableType;
+  bool get isNullable => !isNonNullable;
+
+  O when<O>({
+    required O Function(GraphQLEnumType<Value>) enum_,
+    required O Function(GraphQLScalarType<Value, Serialized>) scalar,
+    required O Function(GraphQLObjectType<Value>) object,
+    required O Function(GraphQLInputObjectType<Value>) input,
+    required O Function(GraphQLUnionType<Value>) union,
+    required O Function(GraphQLListType) list,
+    required O Function(GraphQLNonNullableType<Value, Serialized>) nonNullable,
+  }) {
+    final GraphQLType type = realType;
+
+    if (type is GraphQLEnumType<Value>) {
+      return enum_(type);
+    } else if (type is GraphQLScalarType<Value, Serialized>) {
+      return scalar(type);
+    } else if (type is GraphQLObjectType<Value>) {
+      return object(type);
+    } else if (type is GraphQLInputObjectType<Value>) {
+      return input(type);
+    } else if (type is GraphQLUnionType<Value>) {
+      return union(type);
+    } else if (type is GraphQLListType) {
+      return list(type);
+    } else if (type is GraphQLNonNullableType<Value, Serialized>) {
+      return nonNullable(type);
+    } else {
+      throw Exception(
+        'Could not cast $this ($runtimeType) as a typical GraphQLType.',
+      );
+    }
+  }
+
+  O whenMaybe<O>({
+    O Function(GraphQLEnumType<Value>)? enum_,
+    O Function(GraphQLScalarType<Value, Serialized>)? scalar,
+    O Function(GraphQLObjectType<Value>)? object,
+    O Function(GraphQLInputObjectType<Value>)? input,
+    O Function(GraphQLUnionType<Value>)? union,
+    O Function(GraphQLListType)? list,
+    O Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
+    required O Function(GraphQLType) orElse,
+  }) {
+    return when(
+      scalar: scalar ?? orElse,
+      object: object ?? orElse,
+      input: input ?? orElse,
+      list: list ?? orElse,
+      nonNullable: nonNullable ?? orElse,
+      enum_: enum_ ?? orElse,
+      union: union ?? orElse,
+    );
+  }
+
+  O? whenOrNull<O>({
+    O? Function(GraphQLEnumType<Value>)? enum_,
+    O? Function(GraphQLScalarType<Value, Serialized>)? scalar,
+    O? Function(GraphQLObjectType<Value>)? object,
+    O? Function(GraphQLInputObjectType<Value>)? input,
+    O? Function(GraphQLUnionType<Value>)? union,
+    O? Function(GraphQLListType)? list,
+    O? Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
+  }) {
+    O? orElse(GraphQLType _) {
+      return null;
+    }
+
+    return when(
+      scalar: scalar ?? orElse,
+      object: object ?? orElse,
+      input: input ?? orElse,
+      list: list ?? orElse,
+      nonNullable: nonNullable ?? orElse,
+      enum_: enum_ ?? orElse,
+      union: union ?? orElse,
+    );
+  }
 }
 
 /// Shorthand to create a [GraphQLListType].
@@ -175,9 +263,7 @@ class GraphQLNonNullableType<Value, Serialized>
       'A non-nullable binding to ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  GraphQLType<Value, Serialized> nonNullable() {
-    throw UnsupportedError('Cannot call nonNullable() on a non-nullable type.');
-  }
+  GraphQLType<Value, Serialized> nonNullable() => this;
 
   @override
   ValidationResult<Serialized> validate(String key, Object? input) {

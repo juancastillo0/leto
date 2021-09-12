@@ -22,19 +22,15 @@ class GraphQLFieldInput<Value, Serialized> {
   final bool defaultsToNull;
 
   static bool _isInputTypeOrScalar(GraphQLType type) {
-    if (type is GraphQLInputObjectType) {
-      return true;
-    } else if (type is GraphQLUnionType) {
-      return type.possibleTypes.every(_isInputTypeOrScalar);
-    } else if (type is GraphQLObjectType) {
-      return false;
-    } else if (type is GraphQLNonNullableType) {
-      return _isInputTypeOrScalar(type.ofType);
-    } else if (type is GraphQLListType) {
-      return _isInputTypeOrScalar(type.ofType);
-    } else {
-      return true;
-    }
+    return type.when(
+      enum_: (type) => true,
+      scalar: (type) => true,
+      input: (type) => true,
+      object: (type) => false,
+      union: (type) => type.possibleTypes.every(_isInputTypeOrScalar),
+      list: (type) => _isInputTypeOrScalar(type.ofType),
+      nonNullable: (type) => _isInputTypeOrScalar(type.ofType),
+    );
   }
 
   GraphQLFieldInput(

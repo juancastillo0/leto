@@ -587,8 +587,7 @@ class GraphQL {
       if (argumentValue == null) {
         if (defaultValue != null || argumentDefinition.defaultsToNull) {
           coercedValues[argumentName] = defaultValue;
-          // TODO: check inner RefType
-        } else if (argumentType is GraphQLNonNullableType) {
+        } else if (argumentType.isNonNullable) {
           throw GraphQLException.fromMessage(
             'Missing value for argument "$argumentName" of field "$fieldName".',
           );
@@ -606,7 +605,7 @@ class GraphQL {
             final variableName = node.name.value;
             final Object? value = variableValues[variableName];
             coercedValues[argumentName] = value;
-            if (value == null && argumentType is GraphQLNonNullableType) {
+            if (value == null && argumentType.isNonNullable) {
               throw GraphQLException.fromMessage(
                 'Missing value for argument "$argumentName" of field "$fieldName".',
               );
@@ -731,55 +730,10 @@ class GraphQL {
     Map<String, dynamic> variableValues,
     Map<String, dynamic> globalVariables,
   ) async {
-    if (fieldType is GraphQLNonNullableType) {
-      final innerType = fieldType.ofType;
-      final completedResult = await completeValue(serdeCtx, document, fieldName,
-          innerType, fields, result, variableValues, globalVariables);
-
-      if (completedResult == null) {
-        throw GraphQLException.fromMessage(
-            'Null value provided for non-nullable field "$fieldName".');
-      } else {
-        return completedResult;
-      }
-    }
-
-    if (result == null) {
+    if (fieldType.isNullable && result == null) {
       return null;
     }
-
-    if (fieldType is GraphQLListType) {
-      if (result is! Iterable) {
-        throw GraphQLException.fromMessage(
-          'Value of field "$fieldName" must be a list '
-          'or iterable, got $result instead.',
-        );
-      }
-
-      final innerType = fieldType.ofType;
-      final futureOut = <Future<Object?>>[];
-
-      for (final resultItem in result) {
-        futureOut.add(completeValue(
-            serdeCtx,
-            document,
-            '(item in "$fieldName")',
-            innerType,
-            fields,
-            resultItem,
-            variableValues,
-            globalVariables));
-      }
-
-      final out = <Object?>[];
-      for (final f in futureOut) {
-        out.add(await f);
-      }
-
-      return out;
-    }
-
-    if (fieldType is GraphQLScalarType) {
+    Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
       try {
         // TODO: should we serialize?
         final validation = fieldType.validate(fieldName, result);
@@ -797,7 +751,7 @@ class GraphQL {
       }
     }
 
-    if (fieldType is GraphQLObjectType || fieldType is GraphQLUnionType) {
+    Future<Object?> _completeObjectOrUnion(GraphQLType fieldType) async {
       GraphQLObjectType objectType;
 
       if (fieldType is GraphQLObjectType && !fieldType.isInterface) {
@@ -812,7 +766,62 @@ class GraphQL {
           serial: false);
     }
 
-    throw UnsupportedError('Unsupported type: $fieldType');
+    return fieldType.when(
+      enum_: _completeScalar,
+      scalar: _completeScalar,
+      input: (_) => throw UnsupportedError('Unsupported type: $fieldType'),
+      object: _completeObjectOrUnion,
+      union: _completeObjectOrUnion,
+      nonNullable: (fieldType) async {
+        final innerType = fieldType.ofType;
+        final completedResult = await completeValue(
+            serdeCtx,
+            document,
+            fieldName,
+            innerType,
+            fields,
+            result,
+            variableValues,
+            globalVariables);
+
+        if (completedResult == null) {
+          throw GraphQLException.fromMessage(
+              'Null value provided for non-nullable field "$fieldName".');
+        } else {
+          return completedResult;
+        }
+      },
+      list: (fieldType) async {
+        if (result is! Iterable) {
+          throw GraphQLException.fromMessage(
+            'Value of field "$fieldName" must be a list '
+            'or iterable, got $result instead.',
+          );
+        }
+
+        final innerType = fieldType.ofType;
+        final futureOut = <Future<Object?>>[];
+
+        for (final resultItem in result) {
+          futureOut.add(completeValue(
+              serdeCtx,
+              document,
+              '(item in "$fieldName")',
+              innerType,
+              fields,
+              resultItem,
+              variableValues,
+              globalVariables));
+        }
+
+        final out = <Object?>[];
+        for (final f in futureOut) {
+          out.add(await f);
+        }
+
+        return out;
+      },
+    );
   }
 
   GraphQLObjectType resolveAbstractType(
@@ -994,22 +1003,26 @@ class GraphQL {
         span: fragmentType.on.span,
         isNonNull: fragmentType.on.isNonNull);
     final type = convertType(typeNode);
-    if (type is GraphQLObjectType && !type.isInterface) {
-      // TODO: if objectType and fragmentType are the same type,
-      // return true, otherwise return false.
-      // return type == objectType; should work
-      for (final field in type.fields) {
-        if (!objectType.fields.any((f) => f.name == field.name)) return false;
-      }
-      return true;
-    } else if (type is GraphQLObjectType && type.isInterface) {
-      return objectType.isImplementationOf(type);
-    } else if (type is GraphQLUnionType) {
-      return type.possibleTypes
-          .any((t) => objectType.isImplementationOf(t as GraphQLObjectType));
-    }
 
-    return false;
+    return type.whenMaybe(
+      object: (type) {
+        if (!type.isInterface) {
+          // TODO: if objectType and fragmentType are the same type,
+          // return true, otherwise return false.
+          // return type == objectType; should work
+          for (final field in type.fields) {
+            if (!objectType.fields.any((f) => f.name == field.name))
+              return false;
+          }
+          return true;
+        } else {
+          return objectType.isImplementationOf(type);
+        }
+      },
+      union: (type) => type.possibleTypes
+          .any((t) => objectType.isImplementationOf(t as GraphQLObjectType)),
+      orElse: (_) => false,
+    );
   }
 }
 

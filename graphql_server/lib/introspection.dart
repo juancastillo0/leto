@@ -101,13 +101,10 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
         'ofType',
         _reflectSchemaTypes(),
         resolve: (type, _) {
-          if (type is GraphQLListType) {
-            return type.ofType;
-          } else if (type is GraphQLNonNullableType) {
-            return type.ofType;
-          } else {
-            return null;
-          }
+          return type.whenOrNull(
+            list: (type) => type.ofType,
+            nonNullable: (type) => type.ofType,
+          );
         },
       ),
     );
@@ -116,13 +113,10 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
       field(
         'interfaces',
         listOf(_reflectSchemaTypes().nonNullable()),
-        resolve: (type, _) {
-          if (type is GraphQLObjectType) {
-            return type.interfaces;
-          } else {
-            return <GraphQLType>[];
-          }
-        },
+        resolve: (type, _) => type.whenMaybe(
+          object: (type) => type.interfaces,
+          orElse: (_) => <GraphQLType>[],
+        ),
       ),
     );
 
@@ -130,15 +124,10 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
       field(
         'possibleTypes',
         listOf(_reflectSchemaTypes().nonNullable()),
-        resolve: (type, _) {
-          if (type is GraphQLObjectType && type.isInterface) {
-            return type.possibleTypes;
-          } else if (type is GraphQLUnionType) {
-            return type.possibleTypes;
-          } else {
-            return null;
-          }
-        },
+        resolve: (type, _) => type.whenOrNull(
+          object: (type) => type.isInterface ? type.possibleTypes : null,
+          union: (type) => type.possibleTypes,
+        ),
       ),
     );
 
@@ -205,27 +194,15 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
     field(
       'kind',
       _typeKindType,
-      resolve: (type, _) {
-        final t = type is GraphQLRefType ? type.innerType() : type;
-
-        if (t is GraphQLEnumType) {
-          return 'ENUM';
-        } else if (t is GraphQLScalarType) {
-          return 'SCALAR';
-        } else if (t is GraphQLInputObjectType) {
-          return 'INPUT_OBJECT';
-        } else if (t is GraphQLObjectType) {
-          return t.isInterface ? 'INTERFACE' : 'OBJECT';
-        } else if (t is GraphQLListType) {
-          return 'LIST';
-        } else if (t is GraphQLNonNullableType) {
-          return 'NON_NULL';
-        } else if (t is GraphQLUnionType) {
-          return 'UNION';
-        } else {
-          throw UnsupportedError('Cannot get the kind of $t.');
-        }
-      },
+      resolve: (t, _) => t.when(
+        enum_: (type) => 'ENUM',
+        scalar: (type) => 'SCALAR',
+        object: (type) => type.isInterface ? 'INTERFACE' : 'OBJECT',
+        input: (type) => 'INPUT_OBJECT',
+        union: (type) => 'UNION',
+        list: (type) => 'LIST',
+        nonNullable: (type) => 'NON_NULL',
+      ),
     ),
     field(
       'fields',
@@ -237,13 +214,14 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
           defaultValue: false,
         ),
       ],
-      resolve: (type, ctx) => type is GraphQLObjectType
-          ? type.fields
-              .where(
-                (f) => !f.isDeprecated || ctx.args['includeDeprecated'] == true,
-              )
-              .toList()
-          : null,
+      resolve: (type, ctx) => type.whenOrNull(
+        object: (type) {
+          return type.fields
+              .where((f) =>
+                  !f.isDeprecated || ctx.args['includeDeprecated'] == true)
+              .toList();
+        },
+      ),
     ),
     field(
       'enumValues',
@@ -255,28 +233,20 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
           defaultValue: false,
         ),
       ],
-      resolve: (obj, ctx) {
-        if (obj is GraphQLEnumType) {
-          return obj.values
+      resolve: (type, ctx) => type.whenOrNull(
+        enum_: (type) {
+          return type.values
               .where(
                 (f) => !f.isDeprecated || ctx.args['includeDeprecated'] == true,
               )
               .toList();
-        } else {
-          return null;
-        }
-      },
+        },
+      ),
     ),
     field(
       'inputFields',
       listOf(inputValueType.nonNullable()),
-      resolve: (obj, _) {
-        if (obj is GraphQLInputObjectType) {
-          return obj.inputFields;
-        }
-
-        return null;
-      },
+      resolve: (obj, _) => obj.whenOrNull(input: (type) => type.inputFields),
     ),
   ]);
 }
@@ -437,17 +407,11 @@ GraphQLObjectType<GraphQLEnumValue> _reflectEnumValueType() {
 
 List<GraphQLType> fetchAllTypes(
     GraphQLSchema schema, List<GraphQLType> specifiedTypes) {
-  final data = <GraphQLType?>{}
-    ..add(schema.queryType)
-    ..addAll(specifiedTypes);
-
-  if (schema.mutationType != null) {
-    data.add(schema.mutationType);
-  }
-
-  if (schema.subscriptionType != null) {
-    data.add(schema.subscriptionType);
-  }
+  final data = <GraphQLType>{
+    if (schema.queryType != null) schema.queryType!,
+    if (schema.mutationType != null) schema.mutationType!,
+    if (schema.subscriptionType != null) schema.subscriptionType!,
+  }..addAll(specifiedTypes);
 
   return CollectTypes(data).types.toList();
 }
@@ -457,7 +421,7 @@ class CollectTypes {
 
   Set<GraphQLType> get types => traversedTypes;
 
-  CollectTypes(Iterable<GraphQLType?> types) {
+  CollectTypes(Iterable<GraphQLType> types) {
     types.forEach(_fetchAllTypesFromType);
   }
 
@@ -473,14 +437,15 @@ class CollectTypes {
     traversedTypes.add(objectType);
 
     for (final field in objectType.fields) {
-      if (field.type is GraphQLObjectType) {
-        _fetchAllTypesFromObject(field.type as GraphQLObjectType);
-      } else if (field.type is GraphQLInputObjectType) {
-        for (final v in (field.type as GraphQLInputObjectType).inputFields) {
+      final type = field.type.realType;
+      if (type is GraphQLObjectType) {
+        _fetchAllTypesFromObject(type);
+      } else if (type is GraphQLInputObjectType) {
+        for (final v in type.inputFields) {
           _fetchAllTypesFromType(v.type);
         }
       } else {
-        _fetchAllTypesFromType(field.type);
+        _fetchAllTypesFromType(type);
       }
 
       for (final input in field.inputs) {
@@ -493,54 +458,30 @@ class CollectTypes {
     }
   }
 
-  void _fetchAllTypesFromType(GraphQLType? type) {
+  void _fetchAllTypesFromType(GraphQLType _type) {
+    final type = _type.realType;
     if (traversedTypes.contains(type)) {
       return;
     }
 
-    /*
-     * Unwrap generics
-     */
-    if (type is GraphQLNonNullableType) {
-      return _fetchAllTypesFromType(type.ofType);
-    }
-    if (type is GraphQLListType) {
-      return _fetchAllTypesFromType(type.ofType);
-    }
-
-    /*
-     * Handle simple types
-     */
-    if (type is GraphQLEnumType) {
-      traversedTypes.add(type);
-      return;
-    }
-    if (type is GraphQLScalarType) {
-      traversedTypes.add(type);
-      return;
-    }
-    if (type is GraphQLUnionType) {
-      traversedTypes.add(type);
-      for (final t in type.possibleTypes) {
-        _fetchAllTypesFromType(t);
-      }
-      return;
-    }
-    if (type is GraphQLInputObjectType) {
-      traversedTypes.add(type);
-      for (final v in type.inputFields) {
-        _fetchAllTypesFromType(v.type);
-      }
-      return;
-    }
-
-    /*
-     * defer to object type traverser
-     */
-    if (type is GraphQLObjectType) {
-      return _fetchAllTypesFromObject(type);
-    }
-
-    return;
+    type.when(
+      enum_: (type) => traversedTypes.add(type),
+      scalar: (type) => traversedTypes.add(type),
+      object: _fetchAllTypesFromObject,
+      list: (type) => _fetchAllTypesFromType(type.ofType),
+      nonNullable: (type) => _fetchAllTypesFromType(type.ofType),
+      input: (type) {
+        traversedTypes.add(type);
+        for (final v in type.inputFields) {
+          _fetchAllTypesFromType(v.type);
+        }
+      },
+      union: (type) {
+        traversedTypes.add(type);
+        for (final t in type.possibleTypes) {
+          _fetchAllTypesFromType(t);
+        }
+      },
+    );
   }
 }
