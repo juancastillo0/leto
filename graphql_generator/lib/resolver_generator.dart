@@ -81,15 +81,15 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
         }
 
         final resultName = '${e.name}ValidationResult';
-        // TODO: reuse from params
-        final type = e.type.getDisplayString(withNullability: true);
         final typeName = e.type.getDisplayString(withNullability: false);
-        final value = 'args["${e.name}"] as $type';
+        final value = 'args["${e.name}"]';
 
         return '''
-          final $resultName = validate$typeName($value);
-          if ($resultName.hasErrors) {
-            throw $resultName;
+          if ($value != null) {
+            final $resultName = validate$typeName($value as $typeName);
+            if ($resultName.hasErrors) {
+              throw $resultName;
+            }
           }
           ''';
       }).whereType<String>();
@@ -104,12 +104,18 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                 return e.getField('message')!.toStringValue();
               }).join('.\n')}"';
 
-        final returnType =
+        String returnType =
             element.returnType.getDisplayString(withNullability: false);
         final returnGqlType =
             inferType(element.name, element.name, element.returnType)
                 .accept(_dartEmitter)
                 .toString();
+
+        if (element.returnType.isDartCoreList && returnType.endsWith('>')) {
+          // TODO: probably not the best way of getting a list with its 
+          // type param nullable
+          returnType = '${returnType.substring(0, returnType.length - 1)}?>';
+        }
 
         b.body.add(
           Field(
@@ -132,7 +138,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
               )
               ..name = '${element.name}$graphQLFieldSuffix'
               ..type = refer(
-                'GraphQLObjectField<$returnType, Object?, void>',
+                'GraphQLObjectField<$returnType, Object, Object>',
               )
               ..modifier = FieldModifier.final$,
           ),

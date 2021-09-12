@@ -52,11 +52,12 @@ Future<FieldInfo> fieldFromParam(
 }
 
 String serializerDefinitionCode(String typeName, {required bool hasFrezzed}) {
+  final prefix = hasFrezzed ? '_\$' : '_';
   return '''
 
-const ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
-  fromJson: ${hasFrezzed ? '_\$' : '_'}\$${typeName}FromJson,
-  toJson: ${hasFrezzed ? '_\$' : '_'}\$${typeName}ToJson,
+final ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
+  fromJson: $prefix\$${typeName}FromJson,
+  toJson: (m) => $prefix\$${typeName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$typeName),
 );
 ''';
 }
@@ -105,7 +106,7 @@ class UnionVarianInfo {
   }
 
   String get unionKeyName =>
-      '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix';
+      '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
 
   Expression expression() {
     return refer('objectType').call(

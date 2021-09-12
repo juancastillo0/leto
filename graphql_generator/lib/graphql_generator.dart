@@ -226,7 +226,8 @@ ${serializerDefinitionCode(typeName, hasFrezzed: false)}
 
 Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
 
-final $fieldName$unionKeySuffix = field<String, String, $typeName>(
+GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeName>()
+   => field(
   'runtimeType',
   enumTypeFromStrings('${typeName}Type', [
     ${_fields.map((e) => '"${e.constructorName}"').join(',')}
@@ -234,7 +235,7 @@ final $fieldName$unionKeySuffix = field<String, String, $typeName>(
 );
 
 GraphQLUnionType<$typeName>? _$fieldName;
-GraphQLUnionType<$typeName> $fieldName() {
+GraphQLUnionType<$typeName> get $fieldName {
   return _$fieldName ??= GraphQLUnionType(
     '$typeName',
     [
