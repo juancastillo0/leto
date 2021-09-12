@@ -7,8 +7,7 @@ final GraphQLUploadType graphQLUpload = GraphQLUploadType();
 
 /// A [GraphQLScalarType] that is used to read uploaded files from
 /// `multipart/form-data` requests.
-class GraphQLUploadType
-    extends GraphQLScalarType<UploadedFile?, UploadedFile?> {
+class GraphQLUploadType extends GraphQLScalarType<UploadedFile, UploadedFile> {
   @override
   String get name => 'Upload';
 
@@ -17,20 +16,23 @@ class GraphQLUploadType
       'Represents a file from a `multipart/form-data` request.';
 
   @override
-  GraphQLType<UploadedFile?, UploadedFile?> coerceToInputObject() => this;
+  GraphQLType<UploadedFile, UploadedFile> coerceToInputObject() => this;
 
   @override
-  UploadedFile? deserialize(SerdeCtx serdeCtx, UploadedFile? serialized) =>
+  UploadedFile deserialize(SerdeCtx serdeCtx, UploadedFile serialized) =>
       serialized;
 
   @override
-  UploadedFile? serialize(UploadedFile? value) => value;
+  UploadedFile serialize(UploadedFile value) => value;
 
   @override
-  ValidationResult<UploadedFile?> validate(String key, Object? input) {
-    if (input is UploadedFile?) {
+  ValidationResult<UploadedFile> validate(String key, Object? input) {
+    if (input is UploadedFile) {
       return ValidationResult.ok(input);
     }
     return ValidationResult.failure(['Expected "$key" to be an Upload.']);
   }
+
+  @override
+  Iterable<Object?> get props => [];
 }

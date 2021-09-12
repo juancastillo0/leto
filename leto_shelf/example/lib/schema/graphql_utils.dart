@@ -52,7 +52,7 @@ GraphQLSchema mergeGraphQLSchemas(
   );
 }
 
-GraphQLObjectType<T>? mergeObjectNullable<T>(
+GraphQLObjectType<T>? mergeObjectNullable<T extends Object>(
   GraphQLObjectType<T>? a,
   GraphQLObjectType<T>? b, {
   String? name,
@@ -65,7 +65,7 @@ GraphQLObjectType<T>? mergeObjectNullable<T>(
   }
 }
 
-GraphQLObjectType<T> mergeObject<T>(
+GraphQLObjectType<T> mergeObject<T extends Object>(
   GraphQLObjectType<T> a,
   GraphQLObjectType<T> b, {
   String? name,
@@ -80,9 +80,9 @@ GraphQLObjectType<T> mergeObject<T>(
   );
 }
 
-Map<String, GraphQLObjectField<Object?, Object?, T>> mergeObjectFields<T>(
-  List<GraphQLObjectField<Object?, Object?, T>>? aFields,
-  List<GraphQLObjectField<Object?, Object?, T>>? bFields,
+Map<String, GraphQLObjectField<Object, Object, T>> mergeObjectFields<T>(
+  List<GraphQLObjectField<Object, Object, T>>? aFields,
+  List<GraphQLObjectField<Object, Object, T>>? bFields,
 ) {
   final aFieldsMap = Map.fromEntries(
     (aFields ?? []).map((e) => MapEntry(e.name, e)),
@@ -104,7 +104,7 @@ Map<String, GraphQLObjectField<Object?, Object?, T>> mergeObjectFields<T>(
       return MapEntry(
         e,
         _a.type.generic.callWithType(
-          <V>() => field<Object?, Object?, T>(
+          <V extends Object>() => field<Object, Object, T>(
             e,
             mergeObject<V>(
               _a.type as GraphQLObjectType<V>,

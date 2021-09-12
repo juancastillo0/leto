@@ -24,7 +24,7 @@ GraphQLSchema schemaFromJson() {
   );
 }
 
-GraphQLObjectField<Object?, Object?, Object?> graphqlFieldFromJson({
+GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
   required String fieldName,
   required String jsonString,
   String typeName = 'Root',
@@ -41,7 +41,7 @@ GraphQLObjectField<Object?, Object?, Object?> graphqlFieldFromJson({
   );
 }
 
-GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
+GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
   return type.when(
     // TODO: nonNullable()
     bool: () => graphQLBoolean,

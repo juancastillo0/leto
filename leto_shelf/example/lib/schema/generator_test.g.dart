@@ -6,17 +6,19 @@ part of 'generator_test.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<TestModel, Object?, void> addTestModelGraphQLField =
+final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     field(
   'addTestModel',
   testModelGraphQlType,
   description: r"the function uses [value] to do stuff",
   resolve: (obj, ctx) {
     final args = ctx.args;
-    final previousValidationResult =
-        validateTestModel(args["previous"] as TestModel?);
-    if (previousValidationResult.hasErrors) {
-      throw previousValidationResult;
+    if (args["previous"] != null) {
+      final previousValidationResult =
+          validateTestModel(args["previous"] as TestModel);
+      if (previousValidationResult.hasErrors) {
+        throw previousValidationResult;
+      }
     }
 
     return addTestModel(ctx, args["realName"] as String,
@@ -45,7 +47,7 @@ final GraphQLObjectField<TestModel, Object?, void> addTestModelGraphQLField =
   deprecationReason: null,
 );
 
-final GraphQLObjectField<List<TestModel>, Object?, void>
+final GraphQLObjectField<List<TestModel?>, Object, Object>
     testModelsGraphQLField = field(
   'testModels',
   listOf(testModelGraphQlType.nonNullable()).nonNullable(),
@@ -76,9 +78,9 @@ final GraphQLObjectField<List<TestModel>, Object?, void>
 // _GraphQLGenerator
 // **************************************************************************
 
-const testModelSerializer = SerializerValue<TestModel>(
+final testModelSerializer = SerializerValue<TestModel>(
   fromJson: _$TestModelFromJson,
-  toJson: _$TestModelToJson,
+  toJson: (m) => _$TestModelToJson(m as TestModel),
 );
 
 /// Auto-generated from [TestModel].
@@ -98,9 +100,9 @@ final GraphQLObjectType<TestModel> testModelGraphQlType = objectType(
           resolve: (obj, ctx) => obj.hasDates)
     ]);
 
-const testModelFreezedSerializer = SerializerValue<_TestModelFreezed>(
+final testModelFreezedSerializer = SerializerValue<_TestModelFreezed>(
   fromJson: _$$_TestModelFreezedFromJson,
-  toJson: _$$_TestModelFreezedToJson,
+  toJson: (m) => _$$_TestModelFreezedToJson(m as _$_TestModelFreezed),
 );
 
 /// Auto-generated from [_TestModelFreezed].
@@ -124,9 +126,9 @@ final GraphQLObjectType<_TestModelFreezed> testModelFreezedGraphQlType =
         interfaces: [],
         description: null);
 
-const eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
+final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
   fromJson: _$$_EventUnionAddFromJson,
-  toJson: _$$_EventUnionAddToJson,
+  toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
 );
 
 /// Auto-generated from [_EventUnionAdd].
@@ -146,14 +148,15 @@ final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
               description: null,
               deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant
+              as GraphQLObjectField<String, String, _EventUnionAdd>
         ],
         isInterface: false,
         interfaces: [],
         description: null);
 
-const eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
+final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
   fromJson: _$$EventUnionDeleteFromJson,
-  toJson: _$$EventUnionDeleteToJson,
+  toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
 );
 
 /// Auto-generated from [EventUnionDelete].
@@ -169,14 +172,15 @@ final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
               description: null,
               deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant
+              as GraphQLObjectField<String, String, EventUnionDelete>
         ],
         isInterface: false,
         interfaces: [],
         description: null);
 
-const eventUnionSerializer = SerializerValue<EventUnion>(
+final eventUnionSerializer = SerializerValue<EventUnion>(
   fromJson: _$EventUnionFromJson,
-  toJson: _$EventUnionToJson,
+  toJson: (m) => _$EventUnionToJson(m as EventUnion),
 );
 
 Map<String, Object?> _$EventUnionToJson(EventUnion instance) =>
