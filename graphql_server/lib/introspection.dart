@@ -289,7 +289,7 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
   ]);
 }
 
-GraphQLObjectType<GraphQLFieldInput>? _inputValueType;
+GraphQLObjectType<Object>? _inputValueType;
 
 T? _fetchFromInputValue<T>(
   Object? x,
@@ -305,9 +305,8 @@ T? _fetchFromInputValue<T>(
   }
 }
 
-GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
-  return _inputValueType ??=
-      objectType<GraphQLFieldInput>('__InputValue', fields: [
+GraphQLObjectType<Object> _reflectInputValueType() {
+  return _inputValueType ??= objectType('__InputValue', fields: [
     field(
       'name',
       graphQLString.nonNullable(),
@@ -317,19 +316,17 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
     field(
       'description',
       graphQLString,
-      resolve: (obj, _) => _fetchFromInputValue<Object?>(
+      resolve: (obj, _) => _fetchFromInputValue<String?>(
           obj, (f) => f.description, (f) => f.description),
     ),
     field(
       'defaultValue',
       graphQLString,
-      resolve: (obj, _) {
-        return _fetchFromInputValue<Object?>(
-          obj,
-          (f) => f.defaultValue?.toString(),
-          (f) => f.defaultValue?.toString(),
-        );
-      },
+      resolve: (obj, _) => _fetchFromInputValue<String?>(
+        obj,
+        (f) => f.defaultValue?.toString(),
+        (f) => f.defaultValue?.toString(),
+      ),
     ),
   ]);
 }
