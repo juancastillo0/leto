@@ -617,41 +617,56 @@ class GraphQL {
             node,
             variableValues,
           );
-          final validation = argumentType.validate(
-            argumentName,
-            value,
-          );
-
-          if (!validation.successful) {
-            final errors = <GraphQLExceptionError>[
-              GraphQLExceptionError(
-                'Type coercion error for value of argument'
-                ' "$argumentName" of field "$fieldName".',
-                locations: [
-                  GraphExceptionErrorLocation.fromSourceLocation(
-                      argumentValue.value.span?.start)
-                ],
-              )
-            ];
-
-            for (final error in validation.errors) {
-              errors.add(
+          final Object? coercedValue;
+          if (value == null) {
+            if (argumentDefinition.type.isNullable) {
+              coercedValue = null;
+            } else {
+              // TODO: improve message
+              throw GraphQLException.fromMessage(
+                'Missing value for argument "$argumentName" of field "$fieldName".',
+              );
+            }
+          } else {
+            final validation = argumentType.validate(
+              argumentName,
+              value,
+            );
+            if (!validation.successful) {
+              final errors = <GraphQLExceptionError>[
                 GraphQLExceptionError(
-                  error,
+                  'Type coercion error for value of argument'
+                  ' "$argumentName" of field "$fieldName".',
                   locations: [
                     GraphExceptionErrorLocation.fromSourceLocation(
                         argumentValue.value.span?.start)
                   ],
-                ),
+                )
+              ];
+
+              for (final error in validation.errors) {
+                errors.add(
+                  GraphQLExceptionError(
+                    error,
+                    locations: [
+                      GraphExceptionErrorLocation.fromSourceLocation(
+                          argumentValue.value.span?.start)
+                    ],
+                  ),
+                );
+              }
+
+              throw GraphQLException(errors);
+            } else {
+              final serialized = validation.value!;
+              coercedValue = argumentDefinition.type.deserialize(
+                serdeCtx,
+                serialized,
               );
             }
-
-            throw GraphQLException(errors);
-          } else {
-            final Object? coercedValue = validation.value;
-            // TODO: should we deserialize?
             coercedValues[argumentName] = coercedValue;
           }
+
           // TODO: remove try catch
         } on TypeError catch (e) {
           throw GraphQLException(<GraphQLExceptionError>[
@@ -1061,10 +1076,10 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
   }
 
   @override
-  Object visitFloatValueNode(FloatValueNode node) => node.value;
+  Object visitFloatValueNode(FloatValueNode node) => double.parse(node.value);
 
   @override
-  Object visitIntValueNode(IntValueNode node) => node.value;
+  Object visitIntValueNode(IntValueNode node) => int.parse(node.value);
 
   @override
   Object visitListValueNode(ListValueNode node) {
