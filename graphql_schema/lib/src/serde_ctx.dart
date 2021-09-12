@@ -192,7 +192,7 @@ class GenericHelp<T> implements GenericHelpSingle<T> {
 
   /// Executes a generic callback with the generic type parameter as [T].
   /// Returns the object returned by the callback.
-  O callWithType<O>(O Function<P>() callback) => callback<T>();
+  O callWithType<O>(O Function<P extends T>() callback) => callback<T>();
 
   @override
   GenericHelp<T> get generic => this;
