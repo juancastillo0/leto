@@ -3,7 +3,7 @@ part of graphql_schema.src.schema;
 /// An input to a GraphQL field. This is analogous
 /// to a function parameter in Dart.
 @immutable
-class GraphQLFieldInput<Value, Serialized> {
+class GraphQLFieldInput<Value extends Object, Serialized extends Object> {
   /// The name of this field.
   final String name;
 

@@ -2,13 +2,13 @@ import 'package:graphql_schema/graphql_schema.dart';
 import 'package:test/test.dart';
 
 void main() {
-  var typeType = enumTypeFromStrings('Type', [
+  final typeType = enumTypeFromStrings('Type', [
     'FIRE',
     'WATER',
     'GRASS',
   ]);
 
-  var pokemonType = objectType('Pokémon', fields: [
+  final pokemonType = objectType<Object>('Pokémon', fields: [
     field(
       'name',
       graphQLString.nonNullable(),
@@ -19,12 +19,12 @@ void main() {
     ),
   ]);
 
-  var isValidPokemon = predicate(
+  final isValidPokemon = predicate(
       (dynamic x) =>
           pokemonType.validate('@root', x as Map<String, dynamic>).successful,
       'is a valid Pokémon');
 
-  var throwsATypeError = throwsA(predicate(
+  final throwsATypeError = throwsA(predicate(
       (dynamic x) => x is TypeError || x is CastError,
       'is a type or cast error'));
 
@@ -58,14 +58,14 @@ void main() {
   });
 
   group('union type', () {
-    var digimonType = objectType(
+    final digimonType = objectType<Object>(
       'Digimon',
       fields: [
         field('size', graphQLFloat.nonNullable()),
       ],
     );
 
-    var u = new GraphQLUnionType('Monster', [pokemonType, digimonType]);
+    final u = GraphQLUnionType('Monster', [pokemonType, digimonType]);
 
     test('any of its types returns valid', () {
       expect(u.validate('@root', {'size': 32.0}).successful, true);
@@ -77,7 +77,7 @@ void main() {
   });
 
   group('input object', () {
-    var type = inputObjectType(
+    final type = inputObjectType(
       'Foo',
       inputFields: [
         inputField('bar', graphQLString.nonNullable()),

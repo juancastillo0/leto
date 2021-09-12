@@ -47,7 +47,7 @@ class ReqCtx<P> {
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 ///  whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, P> = FutureOr<Value> Function(
+typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
     P parent, ReqCtx<P> ctx);
 
 class FieldResolver<Value, P> {
@@ -55,7 +55,7 @@ class FieldResolver<Value, P> {
 
   const FieldResolver(this.resolve);
 
-  FutureOr<Value> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
+  FutureOr<Value?> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
 }
 
 /// A field on a [GraphQLObjectType].
@@ -63,7 +63,8 @@ class FieldResolver<Value, P> {
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
 @immutable
-class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
+class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
+    implements ObjectField {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 
@@ -101,7 +102,7 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// Returns `true` if this field has a [deprecationReason].
   bool get isDeprecated => deprecationReason?.isNotEmpty == true;
 
-  FutureOr<Serialized> serialize(Value value) {
+  Serialized? serialize(Value value) {
     return type.serialize(value);
   }
 

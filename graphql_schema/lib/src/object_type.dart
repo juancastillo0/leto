@@ -2,8 +2,9 @@ part of graphql_schema.src.schema;
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
-    with _NonNullableMixin<P, Map<String, dynamic>?> {
+class GraphQLObjectType<P extends Object>
+    extends GraphQLType<P, Map<String, dynamic>>
+    with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
   final String name;
@@ -13,7 +14,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
   final String? description;
 
   /// The list of fields that an object of this type is expected to have.
-  final List<GraphQLObjectField<Object?, Object?, P>> fields = [];
+  final List<GraphQLObjectField<Object, Object, P>> fields = [];
 
   /// `true` if this type should be treated as an *interface*,
   /// which child types can [inheritFrom].
@@ -41,7 +42,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
   });
 
   @override
-  GraphQLType<P, Map<String, dynamic>?> coerceToInputObject() {
+  GraphQLType<P, Map<String, dynamic>> coerceToInputObject() {
     return toInputObject('${name}Input', description: description);
   }
 
@@ -76,7 +77,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  ValidationResult<Map<String, dynamic>?> validate(
+  ValidationResult<Map<String, dynamic>> validate(
     String key,
     Object? input,
   ) {
@@ -137,10 +138,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  Map<String, dynamic>? serialize(P value) {
-    if (value == null) {
-      return null;
-    }
+  Map<String, dynamic> serialize(P value) {
     final map = jsonFromValue(value);
     return gqlFromJson(map, fields);
     // return map.keys.fold(<String, dynamic>{}, (out, k) {
@@ -201,9 +199,9 @@ Map<String, Object?> _foldToStringDynamic(Map<Object, Object?> map) {
 /// and are overall more limiter in utility, because their only purpose is to
 /// reduce the number of parameters to a given field, and to potentially
 /// reuse an input structure across multiple fields in the hierarchy.
-class GraphQLInputObjectType<Value>
-    extends GraphQLType<Value, Map<String, dynamic>?>
-    with _NonNullableMixin<Value, Map<String, dynamic>?> {
+class GraphQLInputObjectType<Value extends Object>
+    extends GraphQLType<Value, Map<String, dynamic>>
+    with _NonNullableMixin<Value, Map<String, dynamic>> {
   /// The name of this type.
   @override
   final String name;
@@ -228,10 +226,7 @@ class GraphQLInputObjectType<Value>
   }
 
   @override
-  ValidationResult<Map<String, dynamic>?> validate(String key, Object? input) {
-    if (input == null) {
-      return const ValidationResult.ok(null);
-    }
+  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
     if (input is! Map<String, Object?>)
       return ValidationResult.failure(['Expected "$key" to be a Map.']);
 
@@ -301,12 +296,13 @@ class GraphQLInputObjectType<Value>
       [name, description, customDeserialize, inputFields];
 
   @override
-  GraphQLType<Value, Map<String, dynamic>?> coerceToInputObject() => this;
+  GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;
 }
 
 /// A field expected within a [GraphQLInputObjectType].
 @immutable
-class GraphQLInputObjectField<Value, Serialized> implements ObjectField {
+class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
+    implements ObjectField {
   /// The name of this field.
   final String name;
 

@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 import 'common.dart';
 
-main() {
+void main() {
   test('int', () {
     expect(graphQLInt.serialize(23), 23);
   });
@@ -21,31 +21,31 @@ main() {
   });
 
   test('enum', () {
-    var response = enumTypeFromStrings('Response', ['YES', 'NO']);
+    final response = enumTypeFromStrings('Response', ['YES', 'NO']);
     expect(response.serialize('YES'), 'YES');
   });
 
   test('enum only serializes correct values', () {
-    var response = enumTypeFromStrings('Response', ['YES', 'NO']);
+    final response = enumTypeFromStrings('Response', ['YES', 'NO']);
     expect(() => response.serialize('MAYBE'), throwsStateError);
   });
 
   test('date', () {
-    var now = new DateTime.now();
+    final now = DateTime.now();
     expect(graphQLDateValue.serialize(now), now.toIso8601String());
   });
 
   test('list', () {
     expect(listOf(graphQLString).serialize(['foo', 'bar']), ['foo', 'bar']);
 
-    var today = new DateTime.now();
-    var tomorrow = today.add(new Duration(days: 1));
+    final today = DateTime.now();
+    final tomorrow = today.add(const Duration(days: 1));
     expect(listOf(graphQLDateValue).serialize([today, tomorrow]),
         [today.toIso8601String(), tomorrow.toIso8601String()]);
   });
 
   group('input object', () {
-    var type = inputObjectType(
+    final type = inputObjectType(
       'Foo',
       inputFields: [
         inputField('bar', graphQLString.nonNullable()),
@@ -60,22 +60,22 @@ main() {
   });
 
   test('object', () {
-    var catchDate = new DateTime.now();
+    final catchDate = DateTime.now();
 
-    var pikachu = {'species': 'Pikachu', 'catch_date': catchDate};
+    final pikachu = {'species': 'Pikachu', 'catch_date': catchDate};
 
     expect(pokemonType.serialize(pikachu),
         {'species': 'Pikachu', 'catch_date': catchDate.toIso8601String()});
   });
 
   test('union type lets any of its types serialize', () {
-    var typeType = enumTypeFromStrings('Type', [
+    final typeType = enumTypeFromStrings('Type', [
       'FIRE',
       'WATER',
       'GRASS',
     ]);
 
-    var pokemonType = objectType('Pokémon', fields: [
+    final pokemonType = objectType<Object>('Pokémon', fields: [
       field(
         'name',
         graphQLString.nonNullable(),
@@ -86,14 +86,14 @@ main() {
       ),
     ]);
 
-    var digimonType = objectType(
+    final digimonType = objectType<Object>(
       'Digimon',
       fields: [
         field('size', graphQLFloat.nonNullable()),
       ],
     );
 
-    var u = new GraphQLUnionType('Monster', [pokemonType, digimonType]);
+    final u = GraphQLUnionType('Monster', [pokemonType, digimonType]);
 
     expect(u.serialize({'size': 10.0}), {'size': 10.0});
     expect(u.serialize({'name': 'Charmander', 'type': 'FIRE'}),
@@ -101,15 +101,15 @@ main() {
   });
 
   test('nested object', () {
-    var pikachuDate = new DateTime.now(),
-        charizardDate = pikachuDate.subtract(new Duration(days: 10));
+    final pikachuDate = DateTime.now(),
+        charizardDate = pikachuDate.subtract(const Duration(days: 10));
 
-    var pikachu = {'species': 'Pikachu', 'catch_date': pikachuDate};
-    var charizard = {'species': 'Charizard', 'catch_date': charizardDate};
+    final pikachu = {'species': 'Pikachu', 'catch_date': pikachuDate};
+    final charizard = {'species': 'Charizard', 'catch_date': charizardDate};
 
-    var trainer = {'name': 'Tobe O'};
+    final trainer = {'name': 'Tobe O'};
 
-    var region = pokemonRegionType.serialize({
+    final region = pokemonRegionType.serialize({
       'trainer': trainer,
       'pokemon_species': [pikachu, charizard]
     });

@@ -13,7 +13,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
 
   Set<GraphQLType>? allTypeSet;
 
-  final schemaType = objectType('__Schema', fields: [
+  final schemaType = objectType<Object>('__Schema', fields: [
     field(
       'types',
       listOf(typeType),
@@ -59,7 +59,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     _reflectEnumValueType(),
   ]);
 
-  final fields = <GraphQLObjectField<Object?, Object?, void>>[
+  final fields = <GraphQLObjectField<Object, Object, Object>>[
     field(
       '__schema',
       schemaType,

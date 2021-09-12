@@ -32,10 +32,10 @@ part 'ref_type.dart';
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
-  final GraphQLObjectType<void>? queryType;
+  final GraphQLObjectType<Object>? queryType;
 
   /// The shape required for any query that changes the state of the backend.
-  final GraphQLObjectType<void>? mutationType;
+  final GraphQLObjectType<Object>? mutationType;
 
   /// A [GraphQLObjectType] describing the form of data sent to
   /// real-time subscribers.
@@ -44,7 +44,7 @@ class GraphQLSchema {
   /// subscriptions are not formalized in the GraphQL specification.
   /// Therefore, any GraphQL implementation can potentially implement
   /// subscriptions in its own way.
-  final GraphQLObjectType<void>? subscriptionType;
+  final GraphQLObjectType<Object>? subscriptionType;
 
   final SerdeCtx serdeCtx;
 
@@ -58,9 +58,9 @@ class GraphQLSchema {
 
 /// A shorthand for creating a [GraphQLSchema].
 GraphQLSchema graphQLSchema({
-  required GraphQLObjectType<void> queryType,
-  GraphQLObjectType<void>? mutationType,
-  GraphQLObjectType<void>? subscriptionType,
+  required GraphQLObjectType<Object> queryType,
+  GraphQLObjectType<Object>? mutationType,
+  GraphQLObjectType<Object>? subscriptionType,
   SerdeCtx? serdeCtx,
 }) =>
     GraphQLSchema(
@@ -235,7 +235,8 @@ class Subscription extends GqlResolver {
   const Subscription() : super._();
 }
 
-extension GraphQLScalarTypeExt<V, S> on GraphQLScalarType<V, S> {
+extension GraphQLScalarTypeExt<V extends Object, S extends Object>
+    on GraphQLScalarType<V, S> {
   GraphQLObjectField<V, S, P> field<P>(
     String name, {
     bool nullable = true,

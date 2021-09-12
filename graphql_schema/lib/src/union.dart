@@ -4,18 +4,19 @@ part of graphql_schema.src.schema;
 /// be valid against one or more [possibleTypes].
 ///
 /// All provided types must be [GraphQLObjectType]s.
-class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>?>
-    with _NonNullableMixin<P, Map<String, dynamic>?> {
+class GraphQLUnionType<P extends Object>
+    extends GraphQLType<P, Map<String, dynamic>>
+    with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
   final String name;
 
   /// A list of all types that conform to this union.
-  final List<GraphQLType<P, Map<String, dynamic>?>> possibleTypes = [];
+  final List<GraphQLType<P, Map<String, dynamic>>> possibleTypes = [];
 
   GraphQLUnionType(
     this.name,
-    Iterable<GraphQLType<P, Map<String, dynamic>?>> possibleTypes,
+    Iterable<GraphQLType<P, Map<String, dynamic>>> possibleTypes,
   )   : assert(
             possibleTypes.every((t) => t.realType is GraphQLObjectType),
             'The member types of a Union type must all be Object base types; '
@@ -33,7 +34,7 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>?>
   String get description => possibleTypes.map((t) => t.name).join(' | ');
 
   @override
-  GraphQLType<P, Map<String, dynamic>?> coerceToInputObject() {
+  GraphQLType<P, Map<String, dynamic>> coerceToInputObject() {
     return GraphQLUnionType(
       '${name}Input',
       possibleTypes.map((t) => t.coerceToInputObject()),
@@ -41,14 +42,11 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  Map<String, dynamic>? serialize(Object? value) {
-    if (value == null) {
-      return null;
-    }
+  Map<String, dynamic> serialize(P value) {
     for (final type in possibleTypes) {
       try {
         if (type.validate('@root', value).successful) {
-          return type.serialize(value as P);
+          return type.serialize(value);
         }
       } catch (_) {}
     }
@@ -74,7 +72,7 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>?>
   }
 
   @override
-  ValidationResult<Map<String, dynamic>?> validate(String key, Object? input) {
+  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
     final List<String> errors = [];
 
     for (final type in possibleTypes) {

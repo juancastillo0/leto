@@ -8,7 +8,7 @@ part of graphql_schema.src.schema;
 /// A [GraphQLType] represents values of type [Value] as
 /// values of type [Serialized]; for example, a
 /// [GraphQLType] that serializes objects into `String`s.
-abstract class GraphQLType<Value, Serialized> {
+abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   const GraphQLType();
 
   /// The name of this type.
@@ -24,8 +24,8 @@ abstract class GraphQLType<Value, Serialized> {
   /// Deserializes a serialized value.
   Value deserialize(SerdeCtx serdeCtx, Serialized serialized);
 
-  /// Attempts to cast a dynamic [value] into a [Serialized] instance.
-  Serialized convert(Object? value) => value as Serialized;
+  // /// Attempts to cast a dynamic [value] into a [Serialized] instance.
+  // Serialized convert(Object? value) => value as Serialized;
 
   /// Performs type coercion against an [input] value, and returns a
   /// list of errors if the validation was unsuccessful.
@@ -39,7 +39,7 @@ abstract class GraphQLType<Value, Serialized> {
   /// to a [GraphQLObjectField].
   GraphQLType<Value, Serialized> coerceToInputObject();
 
-  Serialized serializeSafe(Object? value, {bool nested = true}) {
+  Serialized? serializeSafe(Object? value, {bool nested = true}) {
     if (value is Serialized &&
         (!nested || value is! Map && value is! List || value is! Value)) {
       return value;
@@ -145,17 +145,17 @@ abstract class GraphQLType<Value, Serialized> {
     );
   }
 
-  O? whenOrNull<O>({
-    O? Function(GraphQLEnumType<Value>)? enum_,
-    O? Function(GraphQLScalarType<Value, Serialized>)? scalar,
-    O? Function(GraphQLObjectType<Value>)? object,
-    O? Function(GraphQLInputObjectType<Value>)? input,
-    O? Function(GraphQLUnionType<Value>)? union,
-    O? Function(GraphQLListType)? list,
-    O? Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
+  O whenOrNull<O extends Object?>({
+    O Function(GraphQLEnumType<Value>)? enum_,
+    O Function(GraphQLScalarType<Value, Serialized>)? scalar,
+    O Function(GraphQLObjectType<Value>)? object,
+    O Function(GraphQLInputObjectType<Value>)? input,
+    O Function(GraphQLUnionType<Value>)? union,
+    O Function(GraphQLListType)? list,
+    O Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
   }) {
-    O? orElse(GraphQLType _) {
-      return null;
+    O orElse(GraphQLType _) {
+      return null as O;
     }
 
     return when(
@@ -171,27 +171,28 @@ abstract class GraphQLType<Value, Serialized> {
 }
 
 /// Shorthand to create a [GraphQLListType].
-GraphQLListType<Value, Serialized> listOf<Value, Serialized>(
-        GraphQLType<Value, Serialized> innerType) =>
-    GraphQLListType<Value, Serialized>(innerType);
+GraphQLListType<Value, Serialized>
+    listOf<Value extends Object, Serialized extends Object>(
+            GraphQLType<Value, Serialized> innerType) =>
+        GraphQLListType<Value, Serialized>(innerType);
 
 /// A special [GraphQLType] that indicates that input vales should
 /// be a list of another type, [ofType].
-class GraphQLListType<Value, Serialized>
-    extends GraphQLType<List<Value>, List<Serialized>>
-    with _NonNullableMixin<List<Value>, List<Serialized>> {
+class GraphQLListType<Value extends Object, Serialized extends Object>
+    extends GraphQLType<List<Value?>, List<Serialized?>>
+    with _NonNullableMixin<List<Value?>, List<Serialized?>> {
   final GraphQLType<Value, Serialized> ofType;
 
   GraphQLListType(this.ofType);
 
-  @override
-  List<Serialized> convert(Object? value) {
-    if (value is Iterable) {
-      return value.cast<Serialized>().toList();
-    } else {
-      return super.convert(value);
-    }
-  }
+  // @override
+  // List<Serialized> convert(Object? value) {
+  //   if (value is Iterable) {
+  //     return value.cast<Serialized>().toList();
+  //   } else {
+  //     return super.convert(value);
+  //   }
+  // }
 
   @override
   String? get name => null;
@@ -223,14 +224,19 @@ class GraphQLListType<Value, Serialized>
   }
 
   @override
-  List<Value> deserialize(SerdeCtx serdeCtx, List<Serialized> serialized) {
+  List<Value?> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
+    if (ofType.isNonNullable) {
+      return serialized
+          .map<Value>((v) => ofType.deserialize(serdeCtx, v as Serialized))
+          .toList();
+    }
     return serialized
-        .map<Value>((v) => ofType.deserialize(serdeCtx, v))
+        .map<Value?>((v) => v == null ? null : ofType.deserialize(serdeCtx, v))
         .toList();
   }
 
   @override
-  List<Serialized> serialize(List<Value> value) {
+  List<Serialized?> serialize(List<Value?> value) {
     return value.map(ofType.serializeSafe).toList();
   }
 
@@ -241,11 +247,12 @@ class GraphQLListType<Value, Serialized>
   Iterable<Object?> get props => [ofType];
 
   @override
-  GraphQLType<List<Value>, List<Serialized>> coerceToInputObject() =>
+  GraphQLType<List<Value?>, List<Serialized?>> coerceToInputObject() =>
       GraphQLListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
-mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
+mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
+    on GraphQLType<Value, Serialized> {
   GraphQLType<Value, Serialized>? _nonNullableCache;
 
   @override
@@ -255,7 +262,7 @@ mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
 
 /// A special [GraphQLType] that indicates that input values should both be
 /// non-null, and be valid when asserted against another type, named [ofType].
-class GraphQLNonNullableType<Value, Serialized>
+class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
     extends GraphQLType<Value, Serialized> {
   final GraphQLType<Value, Serialized> ofType;
 

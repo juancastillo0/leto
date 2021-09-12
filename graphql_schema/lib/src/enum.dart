@@ -1,7 +1,7 @@
 part of graphql_schema.src.schema;
 
 /// Shorthand for building a [GraphQLEnumType].
-GraphQLEnumType enumType<Value>(
+GraphQLEnumType enumType<Value extends Object>(
   String name,
   Map<String, Value> values, {
   String? description,
@@ -31,7 +31,8 @@ GraphQLEnumType<String> enumTypeFromStrings(
 ///
 /// Though these are serialized as strings, they carry
 /// special meaning with a type system.
-class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
+class GraphQLEnumType<Value extends Object>
+    extends GraphQLScalarType<Value, String>
     with _NonNullableMixin<Value, String> {
   /// The name of this enum type.
   @override

@@ -1,10 +1,12 @@
 part of graphql_schema.src.schema;
 
-GraphQLType<T, S> refType<T, S>(GraphQLType<T, S> Function() ref) {
+GraphQLType<T, S> refType<T extends Object, S extends Object>(
+    GraphQLType<T, S> Function() ref) {
   return GraphQLRefType(ref);
 }
 
-class GraphQLRefType<T, S> extends GraphQLType<T, S> {
+class GraphQLRefType<T extends Object, S extends Object>
+    extends GraphQLType<T, S> {
   final GraphQLType<T, S> Function() ref;
   GraphQLRefType(this.ref);
 

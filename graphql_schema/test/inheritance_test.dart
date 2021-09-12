@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('interface', () {
-    var a = objectType(
+    final a = objectType<Object>(
       'A',
       isInterface: true,
       fields: [
@@ -11,7 +11,7 @@ void main() {
       ],
     );
 
-    var b = objectType(
+    final b = objectType<Object>(
       'B',
       isInterface: true,
       interfaces: [a],
@@ -20,7 +20,7 @@ void main() {
       ],
     );
 
-    var c = objectType(
+    final c = objectType<Object>(
       'C',
       isInterface: true,
       interfaces: [b],
