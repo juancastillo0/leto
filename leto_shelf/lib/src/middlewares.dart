@@ -126,7 +126,7 @@ Middleware etag({
       final _settedEtag = response.headers[HttpHeaders.etagHeader];
       if (_settedEtag != null) {
         if (ifNoneMatch == _settedEtag) {
-          return Response.notModified();
+          return Response.notModified(headers: response.headersAll);
         }
         return response;
       }
@@ -147,7 +147,7 @@ Middleware etag({
       }
 
       if (bodyHash == ifNoneMatch) {
-        return Response.notModified();
+        return Response.notModified(headers: response.headersAll);
       }
       return response.change(
         body: Stream.fromIterable(bodyCopy),
