@@ -1,322 +1,584 @@
 // https://github.com/graphql/graphql-js/blob/2d48fbbeb8718e4a0152d458145a9fe2111c0f8d/src/utilities/printSchema.js
-import { inspect } from '../jsutils/inspect';
-import { invariant } from '../jsutils/invariant';
+// import { inspect } from '../jsutils/inspect';
+// import { invariant } from '../jsutils/invariant';
 
-import { print } from '../language/printer';
-import { printBlockString } from '../language/blockString';
+// import { print } from '../language/printer';
+// import { printBlockString } from '../language/blockString';
 
-import type { GraphQLSchema } from '../type/schema';
-import type { GraphQLDirective } from '../type/directives';
-import type {
-  GraphQLNamedType,
-  GraphQLArgument,
-  GraphQLInputField,
-  GraphQLScalarType,
-  GraphQLEnumType,
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-  GraphQLUnionType,
-  GraphQLInputObjectType,
-} from '../type/definition';
-import { isIntrospectionType } from '../type/introspection';
-import { GraphQLString, isSpecifiedScalarType } from '../type/scalars';
-import {
-  DEFAULT_DEPRECATION_REASON,
-  isSpecifiedDirective,
-} from '../type/directives';
-import {
-  isScalarType,
-  isObjectType,
-  isInterfaceType,
-  isUnionType,
-  isEnumType,
-  isInputObjectType,
-} from '../type/definition';
+// import type { GraphQLSchema } from '../type/schema';
+// import type { GraphQLDirective } from '../type/directives';
+// import type {
+//   GraphQLNamedType,
+//   GraphQLArgument,
+//   GraphQLInputField,
+//   GraphQLScalarType,
+//   GraphQLEnumType,
+//   GraphQLObjectType,
+//   GraphQLInterfaceType,
+//   GraphQLUnionType,
+//   GraphQLInputObjectType,
+// } from '../type/definition';
+// import { isIntrospectionType } from '../type/introspection';
+// import { GraphQLString, isSpecifiedScalarType } from '../type/scalars';
+// import {
+//   DEFAULT_DEPRECATION_REASON,
+//   isSpecifiedDirective,
+// } from '../type/directives';
+// import {
+//   isScalarType,
+//   isObjectType,
+//   isInterfaceType,
+//   isUnionType,
+//   isEnumType,
+//   isInputObjectType,
+// } from '../type/definition';
 
-import { astFromValue } from './astFromValue';
+// import { astFromValue } from './astFromValue';
 
-export function printSchema(schema: GraphQLSchema): string {
-  return printFilteredSchema(
+// ignore_for_file: constant_identifier_names, prefer_interpolation_to_compose_strings
+
+part of graphql_schema.src.schema;
+
+const DEFAULT_DEPRECATION_REASON = 'No longer supported';
+
+bool isSpecifiedDirective(GraphQLDirective directive) {
+  return const [
+    'GraphQLIncludeDirective',
+    'GraphQLSkipDirective',
+    'GraphQLDeprecatedDirective',
+    'GraphQLSpecifiedByDirective',
+  ].contains(directive.name);
+}
+
+bool isIntrospectionType(GraphQLType type) {
+  return const [
+    '__Schema',
+    '__Directive',
+    '__DirectiveLocation',
+    '__Type',
+    '__Field',
+    '__InputValue',
+    '__EnumValue',
+    '__TypeKind',
+  ].contains(type.name);
+}
+
+bool isSpecifiedScalarType(GraphQLType type) {
+  return const [
+    'String',
+    'Int',
+    'Float',
+    'Boolean',
+    'ID',
+  ].contains(type.name);
+}
+
+String printSchema(
+  GraphQLSchema schema, {
+  SchemaPrinter printer = const SchemaPrinter(),
+}) {
+  return printer.printFilteredSchema(
     schema,
     (n) => !isSpecifiedDirective(n),
     isDefinedType,
   );
 }
 
-export function printIntrospectionSchema(schema: GraphQLSchema): string {
-  return printFilteredSchema(schema, isSpecifiedDirective, isIntrospectionType);
+String printIntrospectionSchema(
+  GraphQLSchema schema, {
+  SchemaPrinter printer = const SchemaPrinter(),
+}) {
+  return printer.printFilteredSchema(
+    schema,
+    isSpecifiedDirective,
+    isIntrospectionType,
+  );
 }
 
-function isDefinedType(type: GraphQLNamedType): boolean {
+// TODO: GraphQLNamedType
+bool isDefinedType(GraphQLType type) {
   return !isSpecifiedScalarType(type) && !isIntrospectionType(type);
 }
 
-function printFilteredSchema(
-  schema: GraphQLSchema,
-  directiveFilter: (type: GraphQLDirective) => boolean,
-  typeFilter: (type: GraphQLNamedType) => boolean,
-): string {
-  const directives = schema.getDirectives().filter(directiveFilter);
-  const types = Object.values(schema.getTypeMap()).filter(typeFilter);
+class SchemaPrinter {
+  const SchemaPrinter({
+    this.printTypeName = defPrintTypeName,
+    this.printTypeReference = defPrintTypeReference,
+  });
+  final String Function(GraphQLType) printTypeName;
+  final String Function(GraphQLType) printTypeReference;
 
-  return [
-    printSchemaDefinition(schema),
-    ...directives.map((directive) => printDirective(directive)),
-    ...types.map((type) => printType(type)),
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-}
+  static String defPrintTypeName(GraphQLType type) => type.toString();
+  static String defPrintTypeReference(GraphQLType type) => type.toString();
 
-function printSchemaDefinition(schema: GraphQLSchema): ?string {
-  if (schema.description == null && isSchemaOfCommonNames(schema)) {
-    return;
+  String printFilteredSchema(
+    GraphQLSchema schema,
+    bool Function(GraphQLDirective) directiveFilter,
+    bool Function(GraphQLType) typeFilter,
+  ) {
+    final directives = schema.directives.where(directiveFilter);
+    final types = fetchAllTypes(schema, []).where(typeFilter);
+
+    return [
+      printSchemaDefinition(schema),
+      ...directives.map((directive) => printDirective(directive)),
+      ...types.map((type) => printType(type)),
+    ].whereType<Object>().join('\n\n');
   }
 
-  const operationTypes = [];
+  String? printSchemaDefinition(GraphQLSchema schema) {
+    if (schema.description == null && isSchemaOfCommonNames(schema)) {
+      return null;
+    }
 
-  const queryType = schema.getQueryType();
-  if (queryType) {
-    operationTypes.push(`  query: ${queryType.name}`);
+    final operationTypes = <String>[];
+
+    final queryType = schema.queryType;
+    if (queryType != null) {
+      operationTypes.add('  query: ${printTypeReference(queryType)}');
+    }
+
+    final mutationType = schema.mutationType;
+    if (mutationType != null) {
+      operationTypes.add('  mutation: ${printTypeReference(mutationType)}');
+    }
+
+    final subscriptionType = schema.subscriptionType;
+    if (subscriptionType != null) {
+      operationTypes
+          .add('  subscription: ${printTypeReference(subscriptionType)}');
+    }
+
+    return printDescription(schema.description) +
+        'schema {\n${operationTypes.join('\n')}\n}';
   }
 
-  const mutationType = schema.getMutationType();
-  if (mutationType) {
-    operationTypes.push(`  mutation: ${mutationType.name}`);
+  /// GraphQL schema define root types for each type of operation. These types are
+  /// the same as any other type and can be named in any manner, however there is
+  /// a common naming convention:
+  ///
+  ///   schema {
+  ///     query: Query
+  ///     mutation: Mutation
+  ///     subscription: Subscription
+  ///   }
+  ///
+  /// When using this naming convention, the schema description can be omitted.
+  bool isSchemaOfCommonNames(GraphQLSchema schema) {
+    final queryType = schema.queryType;
+    if (queryType != null && queryType.name != 'Query') {
+      return false;
+    }
+
+    final mutationType = schema.mutationType;
+    if (mutationType != null && mutationType.name != 'Mutation') {
+      return false;
+    }
+
+    final subscriptionType = schema.subscriptionType;
+    if (subscriptionType != null && subscriptionType.name != 'Subscription') {
+      return false;
+    }
+
+    return true;
   }
 
-  const subscriptionType = schema.getSubscriptionType();
-  if (subscriptionType) {
-    operationTypes.push(`  subscription: ${subscriptionType.name}`);
+// TODO: GraphQLNamedType
+  String printType(GraphQLType type) {
+    return type.when(
+      enum_: printEnum,
+      scalar: printScalar,
+      object: printObject,
+      input: printInputObject,
+      union: printUnion,
+      list: (_) => throw Exception('Unexpected type: $type'),
+      nonNullable: (_) => throw Exception('Unexpected type: $type'),
+    );
   }
 
-  return printDescription(schema) + `schema {\n${operationTypes.join('\n')}\n}`;
-}
-
-/**
- * GraphQL schema define root types for each type of operation. These types are
- * the same as any other type and can be named in any manner, however there is
- * a common naming convention:
- *
- *   schema {
- *     query: Query
- *     mutation: Mutation
- *     subscription: Subscription
- *   }
- *
- * When using this naming convention, the schema description can be omitted.
- */
-function isSchemaOfCommonNames(schema: GraphQLSchema): boolean {
-  const queryType = schema.getQueryType();
-  if (queryType && queryType.name !== 'Query') {
-    return false;
+  String printScalar(GraphQLScalarType type) {
+    return printDescription(type.description) +
+        'scalar ${printTypeName(type)}' +
+        printSpecifiedByURL(type);
   }
 
-  const mutationType = schema.getMutationType();
-  if (mutationType && mutationType.name !== 'Mutation') {
-    return false;
+  String printImplementedInterfaces(
+    GraphQLObjectType type,
+  ) {
+    final interfaces = type.interfaces;
+    return interfaces.isNotEmpty
+        ? ' implements ' +
+            interfaces.map((i) => printTypeReference(i)).join(' & ')
+        : '';
   }
 
-  const subscriptionType = schema.getSubscriptionType();
-  if (subscriptionType && subscriptionType.name !== 'Subscription') {
-    return false;
+  String printObject(GraphQLObjectType type) {
+    return printDescription(type.description) +
+        'type ${printTypeName(type)}' +
+        printImplementedInterfaces(type) +
+        printFields(type);
   }
 
-  return true;
-}
+// TODO: GraphQLInterfaceType
+// String printInterface(GraphQLObjectType type) {
+//   return printDescription(type.description) +
+//       'interface ${type.name}' +
+//       printImplementedInterfaces(type) +
+//       printFields(type);
+// }
 
-export function printType(type: GraphQLNamedType): string {
-  if (isScalarType(type)) {
-    return printScalar(type);
-  }
-  if (isObjectType(type)) {
-    return printObject(type);
-  }
-  if (isInterfaceType(type)) {
-    return printInterface(type);
-  }
-  if (isUnionType(type)) {
-    return printUnion(type);
-  }
-  if (isEnumType(type)) {
-    return printEnum(type);
-  }
-  // istanbul ignore else (See: 'https://github.com/graphql/graphql-js/issues/2618')
-  if (isInputObjectType(type)) {
-    return printInputObject(type);
+  String printUnion(GraphQLUnionType type) {
+    final types = type.possibleTypes;
+    final possibleTypes = types.isNotEmpty ? ' = ' + types.join(' | ') : '';
+    return printDescription(type.description) +
+        'union ' +
+        printTypeName(type) +
+        possibleTypes;
   }
 
-  // istanbul ignore next (Not reachable. All possible types have been considered)
-  invariant(false, 'Unexpected type: ' + inspect((type: empty)));
-}
-
-function printScalar(type: GraphQLScalarType): string {
-  return (
-    printDescription(type) + `scalar ${type.name}` + printSpecifiedByURL(type)
-  );
-}
-
-function printImplementedInterfaces(
-  type: GraphQLObjectType | GraphQLInterfaceType,
-): string {
-  const interfaces = type.getInterfaces();
-  return interfaces.length
-    ? ' implements ' + interfaces.map((i) => i.name).join(' & ')
-    : '';
-}
-
-function printObject(type: GraphQLObjectType): string {
-  return (
-    printDescription(type) +
-    `type ${type.name}` +
-    printImplementedInterfaces(type) +
-    printFields(type)
-  );
-}
-
-function printInterface(type: GraphQLInterfaceType): string {
-  return (
-    printDescription(type) +
-    `interface ${type.name}` +
-    printImplementedInterfaces(type) +
-    printFields(type)
-  );
-}
-
-function printUnion(type: GraphQLUnionType): string {
-  const types = type.getTypes();
-  const possibleTypes = types.length ? ' = ' + types.join(' | ') : '';
-  return printDescription(type) + 'union ' + type.name + possibleTypes;
-}
-
-function printEnum(type: GraphQLEnumType): string {
-  const values = type
-    .getValues()
-    .map(
-      (value, i) =>
-        printDescription(value, '  ', !i) +
-        '  ' +
-        value.name +
-        printDeprecated(value.deprecationReason),
+  String printEnum(GraphQLEnumType type) {
+    final values = type.values.mapIndexed(
+      (i, value) =>
+          printDescription(value.description, '  ', i == 0) +
+          '  ' +
+          value.name +
+          printDeprecated(value.deprecationReason),
     );
 
-  return printDescription(type) + `enum ${type.name}` + printBlock(values);
-}
-
-function printInputObject(type: GraphQLInputObjectType): string {
-  const fields = Object.values(type.getFields()).map(
-    (f, i) => printDescription(f, '  ', !i) + '  ' + printInputValue(f),
-  );
-  return printDescription(type) + `input ${type.name}` + printBlock(fields);
-}
-
-function printFields(type: GraphQLObjectType | GraphQLInterfaceType): string {
-  const fields = Object.values(type.getFields()).map(
-    (f, i) =>
-      printDescription(f, '  ', !i) +
-      '  ' +
-      f.name +
-      printArgs(f.args, '  ') +
-      ': ' +
-      String(f.type) +
-      printDeprecated(f.deprecationReason),
-  );
-  return printBlock(fields);
-}
-
-function printBlock(items: $ReadOnlyArray<string>): string {
-  return items.length !== 0 ? ' {\n' + items.join('\n') + '\n}' : '';
-}
-
-function printArgs(
-  args: Array<GraphQLArgument>,
-  indentation: string = '',
-): string {
-  if (args.length === 0) {
-    return '';
+    return printDescription(type.description) +
+        'enum ${printTypeName(type)}' +
+        printBlock(values);
   }
 
-  // If every arg does not have a description, print them on one line.
-  if (args.every((arg) => !arg.description)) {
-    return '(' + args.map(printInputValue).join(', ') + ')';
-  }
-
-  return (
-    '(\n' +
-    args
-      .map(
-        (arg, i) =>
-          printDescription(arg, '  ' + indentation, !i) +
+  String printInputObject(GraphQLInputObjectType type) {
+    final fields = type.inputFields.mapIndexed(
+      (i, f) =>
+          printDescription(f.description, '  ', i == 0) +
           '  ' +
-          indentation +
-          printInputValue(arg),
-      )
-      .join('\n') +
-    '\n' +
-    indentation +
-    ')'
-  );
-}
-
-function printInputValue(arg: GraphQLInputField): string {
-  const defaultAST = astFromValue(arg.defaultValue, arg.type);
-  let argDecl = arg.name + ': ' + String(arg.type);
-  if (defaultAST) {
-    argDecl += ` = ${print(defaultAST)}`;
-  }
-  return argDecl + printDeprecated(arg.deprecationReason);
-}
-
-function printDirective(directive: GraphQLDirective): string {
-  return (
-    printDescription(directive) +
-    'directive @' +
-    directive.name +
-    printArgs(directive.args) +
-    (directive.isRepeatable ? ' repeatable' : '') +
-    ' on ' +
-    directive.locations.join(' | ')
-  );
-}
-
-function printDeprecated(reason: ?string): string {
-  if (reason == null) {
-    return '';
-  }
-  const reasonAST = astFromValue(reason, GraphQLString);
-  if (reasonAST && reason !== DEFAULT_DEPRECATION_REASON) {
-    return ' @deprecated(reason: ' + print(reasonAST) + ')';
-  }
-  return ' @deprecated';
-}
-
-function printSpecifiedByURL(scalar: GraphQLScalarType): string {
-  if (scalar.specifiedByURL == null) {
-    return '';
-  }
-  const url = scalar.specifiedByURL;
-  const urlAST = astFromValue(url, GraphQLString);
-  invariant(
-    urlAST,
-    'Unexpected null value returned from `astFromValue` for specifiedByURL',
-  );
-  return ' @specifiedBy(url: ' + print(urlAST) + ')';
-}
-
-function printDescription(
-  def: { +description: ?string, ... },
-  indentation: string = '',
-  firstInBlock: boolean = true,
-): string {
-  const { description } = def;
-  if (description == null) {
-    return '';
+          printInputValue(f),
+    );
+    return printDescription(type.description) +
+        'input ${printTypeName(type)}' +
+        printBlock(fields);
   }
 
-  const preferMultipleLines = description.length > 70;
-  const blockString = printBlockString(description, preferMultipleLines);
-  const prefix =
-    indentation && !firstInBlock ? '\n' + indentation : indentation;
+  String printFields(GraphQLObjectType type) {
+    final fields = type.fields.mapIndexed(
+      (i, f) =>
+          printDescription(f.description, '  ', i == 0) +
+          '  ' +
+          f.name +
+          printArgs(f.inputs, '  ') +
+          ': ' +
+          printTypeReference(f.type) +
+          printDeprecated(f.deprecationReason),
+    );
+    return printBlock(fields);
+  }
 
-  return prefix + blockString.replace(/\n/g, '\n' + indentation) + '\n';
+  String printBlock(Iterable<String> items) {
+    return items.isNotEmpty ? ' {\n${items.join('\n')}\n}' : '';
+  }
+
+  String printArgs(
+    List<GraphQLInputField> args, [
+    String indentation = '',
+  ]) {
+    if (args.isEmpty) {
+      return '';
+    }
+
+    // If every arg does not have a description, print them on one line.
+    if (args.every((arg) => arg.description == null)) {
+      return '(' + args.map(printInputValue).join(', ') + ')';
+    }
+
+    return '(\n' +
+        args
+            .mapIndexed(
+              (i, arg) =>
+                  printDescription(
+                      arg.description, '  ' + indentation, i == 0) +
+                  '  ' +
+                  indentation +
+                  printInputValue(arg),
+            )
+            .join('\n') +
+        '\n' +
+        indentation +
+        ')';
+  }
+
+// GraphQLInputField => GraphQLInputObjectField, GraphQLArgument
+  String printInputValue(GraphQLInputField arg) {
+    var argDecl = arg.name + ': ' + printTypeReference(arg.type);
+    final defaultValue = arg is GraphQLArgument
+        ? arg.defaultValue
+        : arg is GraphQLInputObjectField
+            ? arg.defaultValue
+            : null;
+    if (defaultValue != null) {
+      final defaultAST = astFromValue(defaultValue, arg.type);
+      if (defaultAST != null) {
+        argDecl += ' = ${printAST(defaultAST)}';
+      }
+    }
+    return argDecl + printDeprecated(arg.deprecationReason);
+  }
+
+  String printDirective(GraphQLDirective directive) {
+    return printDescription(directive.description) +
+        'directive @' +
+        directive.name +
+        printArgs(directive.args) +
+        (directive.isRepeatable ? ' repeatable' : '') +
+        ' on ' +
+        directive.locations.join(' | ');
+  }
+
+  String printDeprecated(String? reason) {
+    if (reason == null) {
+      return '';
+    }
+    final reasonAST = astFromValue(reason, graphQLString);
+    if (reasonAST != null && reason != DEFAULT_DEPRECATION_REASON) {
+      return ' @deprecated(reason: ' + printAST(reasonAST) + ')';
+    }
+    return ' @deprecated';
+  }
+
+  String printSpecifiedByURL(GraphQLScalarType scalar) {
+    if (scalar.specifiedByURL == null) {
+      return '';
+    }
+    final url = scalar.specifiedByURL;
+    final urlAST = astFromValue(url, graphQLString);
+    if (urlAST == null)
+      throw Exception(
+        'Unexpected null value returned from `astFromValue` for specifiedByURL',
+      );
+    return ' @specifiedBy(url: ' + printAST(urlAST) + ')';
+  }
+
+  String printDescription(
+    String? description, [
+    String indentation = '',
+    bool firstInBlock = true,
+  ]) {
+    if (description == null) {
+      return '';
+    }
+
+    final preferMultipleLines = description.length > 70;
+    final blockString = printBlockString(description, preferMultipleLines);
+    final prefix = indentation.isNotEmpty && !firstInBlock
+        ? '\n' + indentation
+        : indentation;
+
+    return prefix +
+        blockString.replaceAll(RegExp('\n'), '\n' + indentation) +
+        '\n';
+  }
+}
+
+String printAST(String t) => t;
+
+String? astFromValue(Object? value, GraphQLType type) => value?.toString();
+
+class GraphQLDirective {
+  final String name;
+  final String? description;
+  final List<DirectiveLocationEnum> locations;
+  final List<GraphQLArgument> args;
+  final bool isRepeatable;
+  final Map<String, Object?>? extensions;
+  // ?DirectiveDefinitionNode astNode;
+
+  const GraphQLDirective({
+    required this.name,
+    this.description,
+    required this.locations,
+    required this.args,
+    required this.isRepeatable,
+    this.extensions,
+  });
+}
+
+abstract class GraphQLInputField {
+  String get name;
+  String? get description;
+  GraphQLType get type; // GraphQLInputType
+  String? get deprecationReason;
+  Object? get defaultValue;
+}
+
+class GraphQLArgument implements GraphQLInputField {
+  @override
+  final String name;
+  @override
+  final String? description;
+  @override
+  final GraphQLType type; // GraphQLInputType
+  @override
+  final Object? defaultValue;
+  @override
+  final String? deprecationReason;
+  final Map<String, Object?>? extensions;
+  // final InputValueDefinitionNode? astNode;
+
+  const GraphQLArgument({
+    required this.name,
+    this.description,
+    required this.type,
+    this.defaultValue,
+    this.deprecationReason,
+    this.extensions,
+  });
+}
+
+// export type GraphQLInputType =
+//   | GraphQLScalarType
+//   | GraphQLEnumType
+//   | GraphQLInputObjectType
+//   | GraphQLList<any>
+//   | GraphQLNonNull<
+//       | GraphQLScalarType
+//       | GraphQLEnumType
+//       | GraphQLInputObjectType
+//       | GraphQLList<any>
+//     >;
+
+enum DirectiveLocationEnum {
+  QUERY,
+  MUTATION,
+  SUBSCRIPTION,
+  FIELD,
+  FRAGMENT_DEFINITION,
+  FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  VARIABLE_DEFINITION,
+  // Type System Definitions
+  SCHEMA,
+  SCALAR,
+  OBJECT,
+  FIELD_DEFINITION,
+  ARGUMENT_DEFINITION,
+  INTERFACE,
+  UNION,
+  ENUM,
+  ENUM_VALUE,
+  INPUT_OBJECT,
+  INPUT_FIELD_DEFINITION,
+}
+
+/// Print a block string in the indented block form by adding a leading and
+/// trailing blank line. However, if a block string starts with whitespace and is
+/// a single-line, adding a leading blank line would strip that whitespace.
+///
+/// @internal
+String printBlockString(
+  String value, [
+  bool preferMultipleLines = false,
+]) {
+  final isSingleLine = !value.contains('\n');
+  final hasLeadingSpace = value[0] == ' ' || value[0] == '\t';
+  final hasTrailingQuote = value[value.length - 1] == '"';
+  final hasTrailingSlash = value[value.length - 1] == '\\';
+  final printAsMultipleLines = !isSingleLine ||
+      hasTrailingQuote ||
+      hasTrailingSlash ||
+      preferMultipleLines;
+
+  var result = '';
+  // Format a multi-line block quote to account for leading space.
+  if (printAsMultipleLines && !(isSingleLine && hasLeadingSpace)) {
+    result += '\n';
+  }
+  result += value;
+  if (printAsMultipleLines) {
+    result += '\n';
+  }
+
+  return '"""' + result.replaceAll(RegExp('"""'), '\\"""') + '"""';
+}
+
+List<GraphQLType> fetchAllTypes(
+    GraphQLSchema schema, List<GraphQLType> specifiedTypes) {
+  final data = <GraphQLType>{
+    if (schema.queryType != null) schema.queryType!,
+    if (schema.mutationType != null) schema.mutationType!,
+    if (schema.subscriptionType != null) schema.subscriptionType!,
+  }..addAll(specifiedTypes);
+
+  return CollectTypes(data).types.toList();
+}
+
+class CollectTypes {
+  Set<GraphQLType> traversedTypes = {};
+
+  Set<GraphQLType> get types => traversedTypes;
+
+  CollectTypes(Iterable<GraphQLType> types) {
+    types.forEach(_fetchAllTypesFromType);
+  }
+
+  CollectTypes.fromRootObject(GraphQLObjectType type) {
+    _fetchAllTypesFromObject(type);
+  }
+
+  void _fetchAllTypesFromObject(GraphQLObjectType objectType) {
+    if (traversedTypes.contains(objectType)) {
+      return;
+    }
+
+    traversedTypes.add(objectType);
+
+    for (final field in objectType.fields) {
+      final type = field.type.realType;
+      if (type is GraphQLObjectType) {
+        _fetchAllTypesFromObject(type);
+      } else if (type is GraphQLInputObjectType) {
+        for (final v in type.inputFields) {
+          _fetchAllTypesFromType(v.type);
+        }
+      } else {
+        _fetchAllTypesFromType(type);
+      }
+
+      for (final input in field.inputs) {
+        _fetchAllTypesFromType(input.type);
+      }
+    }
+
+    for (final i in objectType.interfaces) {
+      _fetchAllTypesFromObject(i);
+    }
+  }
+
+  void _fetchAllTypesFromType(GraphQLType _type) {
+    final type = _type.realType;
+    if (traversedTypes.contains(type)) {
+      return;
+    }
+
+    type.when(
+      enum_: (type) => traversedTypes.add(type),
+      scalar: (type) => traversedTypes.add(type),
+      object: _fetchAllTypesFromObject,
+      list: (type) => _fetchAllTypesFromType(type.ofType),
+      nonNullable: (type) => _fetchAllTypesFromType(type.ofType),
+      input: (type) {
+        traversedTypes.add(type);
+        for (final v in type.inputFields) {
+          _fetchAllTypesFromType(v.type);
+        }
+      },
+      union: (type) {
+        traversedTypes.add(type);
+        for (final t in type.possibleTypes) {
+          _fetchAllTypesFromType(t);
+        }
+      },
+    );
+  }
 }
