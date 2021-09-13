@@ -46,8 +46,9 @@ void setUpGraphQL(Router app, {Map<String, Object?>? globalVariables}) {
     '/files/<filepath|.*>',
     staticFilesWithController(filesController),
   );
+  final schema = makeApiSchema(filesController);
   final graphQL = GraphQL(
-    makeApiSchema(filesController),
+    schema,
     introspect: true,
     globalVariables: globalVariables,
   );
@@ -58,6 +59,39 @@ void setUpGraphQL(Router app, {Map<String, Object?>? globalVariables}) {
 
   app.all(httpPath, graphqlHttp(graphQL, globalVariables: globalVariables));
   app.get(wsPath, graphqlWebSocket(graphQL, globalVariables: globalVariables));
+
+  final schemaFileText = printSchema(schema);
+  const downloadSchemaOnOpen = true;
+  const schemaFilename = 'api-schema.graphql';
+
+  app.get('/graphql-schema', (Request request) {
+    return Response.ok(
+      schemaFileText,
+      headers: {
+        HttpHeaders.contentTypeHeader: 'text/plain',
+        'content-disposition': downloadSchemaOnOpen
+            ? 'attachment; filename="$schemaFilename"'
+            : 'inline',
+      },
+    );
+  });
+
+  // TODO: there are probably better options
+  final schemaFileHtml = printSchema(
+    schema,
+    printer: SchemaPrinter(
+      printTypeName: (type) => '<span id="$type">$type</span>',
+      printTypeReference: (type) => '<a href="#$type">$type</a>',
+    ),
+  );
+
+  app.get('/graphql-schema-interactive', (Request request) {
+    return Response.ok(
+      '<html><body><a href="/graphql-schema" padding="10px">DOWNLOAD</a>'
+      ' <pre>$schemaFileHtml</pre></body></html>',
+      headers: {HttpHeaders.contentTypeHeader: 'text/html'},
+    );
+  });
 
   app.get(
     '/playground',
