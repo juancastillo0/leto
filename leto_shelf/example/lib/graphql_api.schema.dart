@@ -13,6 +13,7 @@ final graphqlApiSchema = graphQLSchema(
     'Queries',
     fields: [
       testModelsGraphQLField,
+      testUnionModelsGraphQLField,
     ],
   ),
   mutationType: objectType(
