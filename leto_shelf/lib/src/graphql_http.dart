@@ -18,10 +18,11 @@ Request extractRequest(ReqCtx ctx) {
   return ctx.globals[requestCtxKey]! as Request;
 }
 
-Handler graphqlHttp(GraphQL graphQL) {
+Handler graphqlHttp(GraphQL graphQL, {Map<String, Object?>? globalVariables}) {
   return (request) async {
-    final globalVariables = <String, Object?>{
+    final _globalVariables = <String, Object?>{
       requestCtxKey: request,
+      if (globalVariables != null) ...globalVariables,
     };
 
     try {
@@ -63,7 +64,7 @@ Handler graphqlHttp(GraphQL graphQL) {
           gqlQuery.query,
           operationName: gqlQuery.operationName,
           variableValues: gqlQuery.variables,
-          globalVariables: globalVariables,
+          globalVariables: _globalVariables,
           extensions: gqlQuery.extensions,
           sourceUrl: 'input',
         );
@@ -71,7 +72,7 @@ Handler graphqlHttp(GraphQL graphQL) {
       } on GraphQLException catch (e) {
         responseBody = e.toJson();
       }
-      final headers = ReqCtx.headersFromGlobals(globalVariables);
+      final headers = ReqCtx.headersFromGlobals(_globalVariables);
       final response = Response.ok(jsonEncode(responseBody), headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
         if (headers != null) ...headers,

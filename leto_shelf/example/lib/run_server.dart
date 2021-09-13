@@ -19,11 +19,11 @@ Future<void> runServer() async {
   );
 }
 
-Handler serverHandler() {
+Handler serverHandler({Map<String, Object?>? globalVariables}) {
   final app = Router();
   app.get('/echo', _echoHandler);
 
-  setUpGraphQL(app);
+  setUpGraphQL(app, globalVariables: globalVariables);
 
   final _logMiddleware = customLog(log: (msg) {
     if (!msg.contains('IntrospectionQuery')) {
@@ -39,7 +39,7 @@ Handler serverHandler() {
       .addHandler(app);
 }
 
-void setUpGraphQL(Router app) {
+void setUpGraphQL(Router app, {Map<String, Object?>? globalVariables}) {
   final filesController = FilesController();
 
   app.get(
@@ -49,14 +49,15 @@ void setUpGraphQL(Router app) {
   final graphQL = GraphQL(
     makeApiSchema(filesController),
     introspect: true,
+    globalVariables: globalVariables,
   );
 
   const port = 8060;
   const httpPath = '/graphql';
   const wsPath = '/graphql-subscription';
 
-  app.all(httpPath, graphqlHttp(graphQL));
-  app.get(wsPath, graphqlWebSocket(graphQL));
+  app.all(httpPath, graphqlHttp(graphQL, globalVariables: globalVariables));
+  app.get(wsPath, graphqlWebSocket(graphQL, globalVariables: globalVariables));
 
   app.get(
     '/playground',

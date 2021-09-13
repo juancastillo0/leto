@@ -18,13 +18,17 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 ///
 /// See:
 /// * https://github.com/apollographql/subscriptions-transport-ws
-Handler graphqlWebSocket(GraphQL graphQL, {Duration? keepAliveInterval}) {
+Handler graphqlWebSocket(
+  GraphQL graphQL, {
+  Duration? keepAliveInterval,
+  Map<String, Object?>? globalVariables,
+}) {
   return (request) {
     final handler = webSocketHandler(
       (WebSocketChannel channel) async {
         final client = stw.RemoteClient(channel.cast<String>());
-        final server =
-            _GraphQLWSServer(client, graphQL, request, keepAliveInterval);
+        final server = _GraphQLWSServer(
+            client, graphQL, request, keepAliveInterval, globalVariables);
         await server.done;
       },
       protocols: ['graphql-ws'],
@@ -36,12 +40,14 @@ Handler graphqlWebSocket(GraphQL graphQL, {Duration? keepAliveInterval}) {
 class _GraphQLWSServer extends stw.Server {
   final GraphQL graphQL;
   final Request request;
+  final Map<String, Object?>? globalVariables;
 
   _GraphQLWSServer(
     stw.RemoteClient client,
     this.graphQL,
     this.request,
     Duration? keepAliveInterval,
+    this.globalVariables,
   ) : super(client, keepAliveInterval: keepAliveInterval);
 
   @override
@@ -55,13 +61,15 @@ class _GraphQLWSServer extends stw.Server {
     String? operationName,
   ]) async {
     try {
+      final _globalVariables = <String, Object?>{
+        requestCtxKey: request,
+        if (globalVariables != null) ...globalVariables!
+      };
       final data = await graphQL.parseAndExecute(
         query,
         operationName: operationName,
-        variableValues: variables ?? <String, Object>{},
-        globalVariables: <String, Object?>{
-          requestCtxKey: request,
-        },
+        variableValues: variables,
+        globalVariables: _globalVariables,
         // TODO: extensions? headers? auth?
         sourceUrl: 'input',
       );
