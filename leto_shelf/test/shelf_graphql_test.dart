@@ -1,26 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart' show sha256;
+import 'package:graphql_server/graphql_server.dart';
 import 'package:http/http.dart' as http;
-import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-import 'package:shelf_graphql_example/run_server.dart' show serverHandler;
+import 'package:shelf_graphql_example/schema/generator_test.dart';
 import 'package:test/test.dart';
 
-Future<void> main() async {
-  final handler = serverHandler();
-  final server = await io.serve(
-    handler,
-    '0.0.0.0',
-    0,
-  );
-  // Enable content compression
-  server.autoCompress = true;
+import 'common.dart';
 
-  final url = Uri.http(
-    '${server.address.host}:${server.port}',
-    '/graphql',
-  );
+Future<void> main() async {
+  final _testUnionModels = [
+    null,
+    const EventUnion.add(
+      name: 'da',
+      models: [
+        null,
+        TestModel(name: 'da test', description: 'dda'),
+      ],
+    ),
+    EventUnion.delete(
+      name: 'da',
+      cost: 24,
+      dates: [DateTime(2021, 2, 4)],
+    ),
+  ];
+
+  final globalVariables = {
+    testUnionModelsTestKey: _testUnionModels,
+  };
+
+  final url = await testServer(globalVariables);
 
   test('query ui html', () async {
     final client = http.Client();
@@ -28,16 +39,7 @@ Future<void> main() async {
     Future<void> _validateResponse(http.Response response) async {
       expect(response.statusCode, 200);
       expect(response.headers[HttpHeaders.contentTypeHeader], 'text/html');
-
-      final etag = response.headers[HttpHeaders.etagHeader];
-      expect(etag, isNotNull);
-
-      final responseCached = await client.get(
-        response.request!.url,
-        headers: {HttpHeaders.ifNoneMatchHeader: etag!},
-      );
-
-      expect(responseCached.statusCode, 304);
+      await checkEtag(client, response);
     }
 
     await Future.wait(
@@ -90,5 +92,107 @@ Future<void> main() async {
         }
       }
     });
+  });
+
+  test('generated union', () async {
+    final client = http.Client();
+
+    // TODO: check name alias
+    const _query = '''
+query unions {
+  testUnionModels(positions: [null, 1]) {
+    ... on _EventUnionAdd {
+      name
+      description
+      runtimeType
+      models {
+        name
+        description
+      }
+    }
+    ... on EventUnionDelete {
+      name
+      cost
+      dates
+      runtimeType
+    }
+  }
+}
+''';
+
+    final expectedBody = {
+      'data': {
+        'testUnionModels': _testUnionModels.map((e) {
+          if (e == null) {
+            return null;
+          }
+          return e.map(
+            add: (e) => {
+              'name': e.name,
+              'description': e.description,
+              'runtimeType': 'add',
+              'models': e.models
+                  .map((e) => e == null
+                      ? null
+                      : {
+                          'name': e.name,
+                          'description': e.description,
+                        })
+                  .toList()
+            },
+            delete: (e) => {
+              'name': e.name,
+              'cost': e.cost,
+              'dates': e.dates?.map((e) => e.toIso8601String()).toList(),
+              'runtimeType': 'delete',
+            },
+          );
+        }).toList(),
+      }
+    };
+    final sha256Hash = sha256.convert(utf8.encode(_query)).toString();
+
+    /// GET without query text (using persistedQueryExtension)
+    /// returns error since
+    final reqErr = GraphqlRequest(
+      query: '',
+      operationName: 'unions',
+      extensions: persistedQueryExtension(sha256Hash),
+    );
+    final responseErr = await client.get(
+      url.replace(queryParameters: reqErr.toQueryParameters()),
+    );
+    expect(responseErr.statusCode, 200);
+    expect(jsonDecode(responseErr.body), {
+      'errors': [
+        {'message': GraphQLErrors.PERSISTED_QUERY_NOT_FOUND}
+      ]
+    });
+
+    /// GET with query text (using persistedQueryExtension)
+    final req = GraphqlRequest(
+      query: _query,
+      operationName: 'unions',
+      extensions: persistedQueryExtension(sha256Hash),
+    );
+    final response = await client.get(
+      url.replace(queryParameters: req.toQueryParameters()),
+    );
+    expect(response.statusCode, 200);
+    expect(jsonDecode(response.body), expectedBody);
+
+    /// POST without query text (using persistedQueryExtension)
+    final req2 = GraphqlRequest(
+      query: '',
+      operationName: 'unions',
+      extensions: persistedQueryExtension(sha256Hash),
+    );
+    final response2 = await client.post(
+      url,
+      body: jsonEncode(req2.toJson()),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(response2.statusCode, 200);
+    expect(jsonDecode(response2.body), expectedBody);
   });
 }
