@@ -768,8 +768,11 @@ class GraphQL {
     }
     Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
       try {
-        // TODO: should we serialize?
-        final validation = fieldType.validate(fieldName, result);
+        Object? _result = result;
+        if (fieldType.generic.isValueOfType(_result)) {
+          _result = fieldType.serialize(_result!);
+        }
+        final validation = fieldType.validate(fieldName, _result);
 
         if (!validation.successful) {
           return null;
