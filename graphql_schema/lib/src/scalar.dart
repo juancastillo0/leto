@@ -43,6 +43,8 @@ abstract class GraphQLScalarType<Value extends Object,
         Serialized extends Object> extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
   // const GraphQLScalarType();
+
+  String? get specifiedByURL => null;
 }
 
 class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {

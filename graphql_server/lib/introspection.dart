@@ -88,6 +88,8 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     mutationType: schema.mutationType,
     subscriptionType: schema.subscriptionType,
     serdeCtx: schema.serdeCtx,
+    description: schema.description,
+    directives: schema.directives,
   );
 }
 
@@ -133,7 +135,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
 
     final fieldType = _reflectFields();
     final inputValueType = _reflectInputValueType();
-    GraphQLObjectField<Object?, Object?, Object?>? typeField =
+    GraphQLObjectField<Object, Object, Object>? typeField =
         fieldType.fields.firstWhereOrNull((f) => f.name == 'type');
 
     if (typeField == null) {
@@ -252,7 +254,6 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
 }
 
 GraphQLObjectType<GraphQLObjectField>? _fieldType;
-
 GraphQLObjectType<GraphQLObjectField> _reflectFields() {
   return _fieldType ??= _createFieldType();
 }
@@ -289,8 +290,7 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
   ]);
 }
 
-GraphQLObjectType<Object>? _inputValueType;
-
+// TODO: remove
 T? _fetchFromInputValue<T>(
   Object? x,
   T Function(GraphQLFieldInput) ifInput,
@@ -305,7 +305,8 @@ T? _fetchFromInputValue<T>(
   }
 }
 
-GraphQLObjectType<Object> _reflectInputValueType() {
+GraphQLObjectType<GraphQLInputField>? _inputValueType;
+GraphQLObjectType<GraphQLInputField> _reflectInputValueType() {
   return _inputValueType ??= objectType('__InputValue', fields: [
     field(
       'name',
@@ -331,8 +332,6 @@ GraphQLObjectType<Object> _reflectInputValueType() {
   ]);
 }
 
-GraphQLObjectType<gql.DirectiveNode>? _directiveType;
-
 final GraphQLEnumType<String> _directiveLocationType =
     enumTypeFromStrings('__DirectiveLocation', [
   'QUERY',
@@ -343,6 +342,7 @@ final GraphQLEnumType<String> _directiveLocationType =
   'INLINE_FRAGMENT'
 ]);
 
+GraphQLObjectType<gql.DirectiveNode>? _directiveType;
 GraphQLObjectType<gql.DirectiveNode> _reflectDirectiveType() {
   final inputValueType = _reflectInputValueType();
 
@@ -373,7 +373,6 @@ GraphQLObjectType<gql.DirectiveNode> _reflectDirectiveType() {
 }
 
 GraphQLObjectType<GraphQLEnumValue>? _enumValueType;
-
 GraphQLObjectType<GraphQLEnumValue> _reflectEnumValueType() {
   return _enumValueType ??= objectType(
     '__EnumValue',
@@ -400,85 +399,4 @@ GraphQLObjectType<GraphQLEnumValue> _reflectEnumValueType() {
       ),
     ],
   );
-}
-
-List<GraphQLType> fetchAllTypes(
-    GraphQLSchema schema, List<GraphQLType> specifiedTypes) {
-  final data = <GraphQLType>{
-    if (schema.queryType != null) schema.queryType!,
-    if (schema.mutationType != null) schema.mutationType!,
-    if (schema.subscriptionType != null) schema.subscriptionType!,
-  }..addAll(specifiedTypes);
-
-  return CollectTypes(data).types.toList();
-}
-
-class CollectTypes {
-  Set<GraphQLType> traversedTypes = {};
-
-  Set<GraphQLType> get types => traversedTypes;
-
-  CollectTypes(Iterable<GraphQLType> types) {
-    types.forEach(_fetchAllTypesFromType);
-  }
-
-  CollectTypes.fromRootObject(GraphQLObjectType type) {
-    _fetchAllTypesFromObject(type);
-  }
-
-  void _fetchAllTypesFromObject(GraphQLObjectType objectType) {
-    if (traversedTypes.contains(objectType)) {
-      return;
-    }
-
-    traversedTypes.add(objectType);
-
-    for (final field in objectType.fields) {
-      final type = field.type.realType;
-      if (type is GraphQLObjectType) {
-        _fetchAllTypesFromObject(type);
-      } else if (type is GraphQLInputObjectType) {
-        for (final v in type.inputFields) {
-          _fetchAllTypesFromType(v.type);
-        }
-      } else {
-        _fetchAllTypesFromType(type);
-      }
-
-      for (final input in field.inputs) {
-        _fetchAllTypesFromType(input.type);
-      }
-    }
-
-    for (final i in objectType.interfaces) {
-      _fetchAllTypesFromObject(i);
-    }
-  }
-
-  void _fetchAllTypesFromType(GraphQLType _type) {
-    final type = _type.realType;
-    if (traversedTypes.contains(type)) {
-      return;
-    }
-
-    type.when(
-      enum_: (type) => traversedTypes.add(type),
-      scalar: (type) => traversedTypes.add(type),
-      object: _fetchAllTypesFromObject,
-      list: (type) => _fetchAllTypesFromType(type.ofType),
-      nonNullable: (type) => _fetchAllTypesFromType(type.ofType),
-      input: (type) {
-        traversedTypes.add(type);
-        for (final v in type.inputFields) {
-          _fetchAllTypesFromType(v.type);
-        }
-      },
-      union: (type) {
-        traversedTypes.add(type);
-        for (final t in type.possibleTypes) {
-          _fetchAllTypesFromType(t);
-        }
-      },
-    );
-  }
 }

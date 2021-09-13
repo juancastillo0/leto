@@ -2,8 +2,10 @@ part of graphql_schema.src.schema;
 
 /// An input to a GraphQL field. This is analogous
 /// to a function parameter in Dart.
+// TODO: GraphQLArgument
 @immutable
-class GraphQLFieldInput<Value extends Object, Serialized extends Object> {
+class GraphQLFieldInput<Value extends Object, Serialized extends Object>
+    implements GraphQLInputField {
   /// The name of this field.
   final String name;
 
@@ -21,6 +23,8 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object> {
   /// If [defaultValue] is `null`, and `null` is a valid value
   /// for this parameter, set this to `true`.
   final bool defaultsToNull;
+
+  final String? deprecationReason;
 
   static bool _isInputTypeOrScalar(GraphQLType type) {
     return type.when(
@@ -40,6 +44,7 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object> {
     this.defaultValue,
     this.defaultsToNull = false,
     this.description,
+    this.deprecationReason,
   }) : assert(
           _isInputTypeOrScalar(type),
           'All inputs to a GraphQL field must either be scalar types'

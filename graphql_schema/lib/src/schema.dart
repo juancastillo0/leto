@@ -29,6 +29,8 @@ part 'serde_ctx.dart';
 
 part 'ref_type.dart';
 
+part 'print_schema.dart';
+
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
@@ -46,12 +48,18 @@ class GraphQLSchema {
   /// subscriptions in its own way.
   final GraphQLObjectType<Object>? subscriptionType;
 
+  final String? description;
+
+  final List<GraphQLDirective> directives;
+
   final SerdeCtx serdeCtx;
 
   GraphQLSchema({
     this.queryType,
     this.mutationType,
     this.subscriptionType,
+    this.description,
+    this.directives = const [],
     SerdeCtx? serdeCtx,
   }) : serdeCtx = serdeCtx ?? SerdeCtx();
 }

@@ -302,7 +302,7 @@ class GraphQLInputObjectType<Value extends Object>
 /// A field expected within a [GraphQLInputObjectType].
 @immutable
 class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
-    implements ObjectField {
+    implements ObjectField, GraphQLInputField {
   /// The name of this field.
   final String name;
 
@@ -315,11 +315,14 @@ class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
   /// An optional default value for this field in an input object.
   final Value? defaultValue;
 
+  final String? deprecationReason;
+
   const GraphQLInputObjectField(
     this.name,
     this.type, {
     this.description,
     this.defaultValue,
+    this.deprecationReason,
   });
 
   @override
