@@ -20,6 +20,11 @@ Map<String, dynamic>? foldToStringDynamic(Map map) {
   );
 }
 
+class GraphQLErrors {
+  // ignore: constant_identifier_names
+  static const PERSISTED_QUERY_NOT_FOUND = 'PERSISTED_QUERY_NOT_FOUND';
+}
+
 /// A Dart implementation of a GraphQL server.
 class GraphQL {
   /// Any custom types to include in introspection information.
@@ -32,6 +37,7 @@ class GraphQL {
       defaultFieldResolver;
 
   GraphQLSchema _schema;
+  final Map<String, Object?> initialGlobalVariables;
 
   // TODO: https://www.apollographql.com/docs/apollo-server/performance/apq/
   final Map<String, DocumentNode> persistedQueries = {};
@@ -41,7 +47,9 @@ class GraphQL {
     bool introspect = true,
     this.defaultFieldResolver,
     List<GraphQLType> customTypes = const <GraphQLType>[],
-  }) : _schema = schema {
+    Map<String, Object?>? globalVariables,
+  })  : initialGlobalVariables = globalVariables ?? const {},
+        _schema = schema {
     if (customTypes.isNotEmpty) {
       this.customTypes.addAll(customTypes);
     }
@@ -131,7 +139,7 @@ class GraphQL {
       _schema,
       document,
       operationName: operationName,
-      initialValue: initialValue ?? globalVariables ?? <String, Object>{},
+      initialValue: initialValue ?? globalVariables ?? initialGlobalVariables,
       variableValues: variableValues,
       globalVariables: globalVariables,
     );
@@ -148,9 +156,20 @@ class GraphQL {
 
     String? sha256Hash;
     if (persistedQuery is Map<String, Object?>) {
-      final version = int.tryParse(persistedQuery['version'] as String? ?? '');
-      sha256Hash = persistedQuery['sha256Hash']! as String;
-      // TODO: PERSISTED_QUERY_NOT_FOUND
+      final _version = persistedQuery['version'];
+      final version =
+          _version is int ? _version : int.tryParse(_version as String? ?? '');
+
+      if (version == 1) {
+        sha256Hash = persistedQuery['sha256Hash']! as String;
+        if (persistedQueries.containsKey(sha256Hash)) {
+          return persistedQueries[sha256Hash]!;
+        }
+      }
+      if (text.isEmpty) {
+        throw GraphQLException.fromMessage(
+            GraphQLErrors.PERSISTED_QUERY_NOT_FOUND);
+      }
     }
 
     final errors = <GraphQLExceptionError>[];
@@ -191,6 +210,10 @@ class GraphQL {
     Map<String, dynamic>? globalVariables,
   }) async {
     final _globalVariables = globalVariables ?? <String, dynamic>{};
+    for (final e in initialGlobalVariables.entries) {
+      _globalVariables.putIfAbsent(e.key, () => e.value);
+    }
+
     final operation = getOperation(document, operationName);
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
