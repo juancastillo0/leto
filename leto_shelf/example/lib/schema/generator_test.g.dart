@@ -74,6 +74,28 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
   deprecationReason: null,
 );
 
+final GraphQLObjectField<List<EventUnion?>, Object, Object>
+    testUnionModelsGraphQLField = field(
+  'testUnionModels',
+  listOf(eventUnionGraphQlType).nonNullable(),
+  description:
+      r"testUnionModels documentation generated\n[position] is the pad",
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return testUnionModels(ctx, positions: args["positions"] as List<int?>);
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "positions",
+      listOf(graphQLInt).nonNullable().coerceToInputObject(),
+      defaultValue: const [],
+      description: r"pagination",
+    )
+  ],
+  deprecationReason: null,
+);
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
@@ -147,8 +169,11 @@ final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
               resolve: (obj, ctx) => obj.dates,
               description: null,
               deprecationReason: null),
-          eventUnionGraphQlTypeDiscriminant
-              as GraphQLObjectField<String, String, _EventUnionAdd>
+          field('models', listOf(testModelGraphQlType).nonNullable(),
+              resolve: (obj, ctx) => obj.models,
+              description: null,
+              deprecationReason: null),
+          eventUnionGraphQlTypeDiscriminant()
         ],
         isInterface: false,
         interfaces: [],
@@ -167,12 +192,15 @@ final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
               resolve: (obj, ctx) => obj.name,
               description: null,
               deprecationReason: null),
+          field('cost', graphQLInt.nonNullable(),
+              resolve: (obj, ctx) => obj.cost,
+              description: null,
+              deprecationReason: null),
           field('dates', listOf(graphQLDate.nonNullable()),
               resolve: (obj, ctx) => obj.dates,
               description: null,
               deprecationReason: null),
-          eventUnionGraphQlTypeDiscriminant
-              as GraphQLObjectField<String, String, EventUnionDelete>
+          eventUnionGraphQlTypeDiscriminant()
         ],
         isInterface: false,
         interfaces: [],
@@ -186,13 +214,14 @@ final eventUnionSerializer = SerializerValue<EventUnion>(
 Map<String, Object?> _$EventUnionToJson(EventUnion instance) =>
     instance.toJson();
 
-final eventUnionGraphQlTypeDiscriminant = field<String, String, EventUnion>(
-  'runtimeType',
-  enumTypeFromStrings('EventUnionType', ["add", "delete"]),
-);
+GraphQLObjectField<String, String, P>
+    eventUnionGraphQlTypeDiscriminant<P extends EventUnion>() => field(
+          'runtimeType',
+          enumTypeFromStrings('EventUnionType', ["add", "delete"]),
+        );
 
 GraphQLUnionType<EventUnion>? _eventUnionGraphQlType;
-GraphQLUnionType<EventUnion> eventUnionGraphQlType() {
+GraphQLUnionType<EventUnion> get eventUnionGraphQlType {
   return _eventUnionGraphQlType ??= GraphQLUnionType(
     'EventUnion',
     [eventUnionAddGraphQlType, eventUnionDeleteGraphQlType],
@@ -240,6 +269,9 @@ _$_EventUnionAdd _$$_EventUnionAddFromJson(Map<String, dynamic> json) =>
       dates: (json['dates'] as List<dynamic>?)
           ?.map((e) => DateTime.parse(e as String))
           .toList(),
+      models: (json['models'] as List<dynamic>)
+          .map((e) => TestModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$_EventUnionAddToJson(_$_EventUnionAdd instance) =>
@@ -247,11 +279,13 @@ Map<String, dynamic> _$$_EventUnionAddToJson(_$_EventUnionAdd instance) =>
       'name': instance.name,
       'description': instance.description,
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
+      'models': instance.models,
     };
 
 _$EventUnionDelete _$$EventUnionDeleteFromJson(Map<String, dynamic> json) =>
     _$EventUnionDelete(
       name: json['name'] as String?,
+      cost: json['cost'] as int,
       dates: (json['dates'] as List<dynamic>?)
           ?.map((e) => DateTime.parse(e as String))
           .toList(),
@@ -260,6 +294,7 @@ _$EventUnionDelete _$$EventUnionDeleteFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$EventUnionDeleteToJson(_$EventUnionDelete instance) =>
     <String, dynamic>{
       'name': instance.name,
+      'cost': instance.cost,
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
     };
 

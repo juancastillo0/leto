@@ -213,17 +213,23 @@ class _$EventUnionTearOff {
   const _$EventUnionTearOff();
 
   _EventUnionAdd add(
-      {required String name, String? description, List<DateTime>? dates}) {
+      {required String name,
+      String? description,
+      List<DateTime>? dates,
+      required List<TestModel?> models}) {
     return _EventUnionAdd(
       name: name,
       description: description,
       dates: dates,
+      models: models,
     );
   }
 
-  EventUnionDelete delete({String? name, List<DateTime>? dates}) {
+  EventUnionDelete delete(
+      {String? name, required int cost, List<DateTime>? dates}) {
     return EventUnionDelete(
       name: name,
+      cost: cost,
       dates: dates,
     );
   }
@@ -242,24 +248,27 @@ mixin _$EventUnion {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            String name, String? description, List<DateTime>? dates)
+    required TResult Function(String name, String? description,
+            List<DateTime>? dates, List<TestModel?> models)
         add,
-    required TResult Function(String? name, List<DateTime>? dates) delete,
+    required TResult Function(String? name, int cost, List<DateTime>? dates)
+        delete,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -324,7 +333,11 @@ abstract class _$EventUnionAddCopyWith<$Res>
           _EventUnionAdd value, $Res Function(_EventUnionAdd) then) =
       __$EventUnionAddCopyWithImpl<$Res>;
   @override
-  $Res call({String name, String? description, List<DateTime>? dates});
+  $Res call(
+      {String name,
+      String? description,
+      List<DateTime>? dates,
+      List<TestModel?> models});
 }
 
 /// @nodoc
@@ -342,6 +355,7 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
     Object? name = freezed,
     Object? description = freezed,
     Object? dates = freezed,
+    Object? models = freezed,
   }) {
     return _then(_EventUnionAdd(
       name: name == freezed
@@ -356,6 +370,10 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
           ? _value.dates
           : dates // ignore: cast_nullable_to_non_nullable
               as List<DateTime>?,
+      models: models == freezed
+          ? _value.models
+          : models // ignore: cast_nullable_to_non_nullable
+              as List<TestModel?>,
     ));
   }
 }
@@ -363,7 +381,8 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_EventUnionAdd extends _EventUnionAdd {
-  const _$_EventUnionAdd({required this.name, this.description, this.dates})
+  const _$_EventUnionAdd(
+      {required this.name, this.description, this.dates, required this.models})
       : super._();
 
   factory _$_EventUnionAdd.fromJson(Map<String, dynamic> json) =>
@@ -375,10 +394,12 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   final String? description;
   @override
   final List<DateTime>? dates;
+  @override
+  final List<TestModel?> models;
 
   @override
   String toString() {
-    return 'EventUnion.add(name: $name, description: $description, dates: $dates)';
+    return 'EventUnion.add(name: $name, description: $description, dates: $dates, models: $models)';
   }
 
   @override
@@ -391,7 +412,9 @@ class _$_EventUnionAdd extends _EventUnionAdd {
                 const DeepCollectionEquality()
                     .equals(other.description, description)) &&
             (identical(other.dates, dates) ||
-                const DeepCollectionEquality().equals(other.dates, dates)));
+                const DeepCollectionEquality().equals(other.dates, dates)) &&
+            (identical(other.models, models) ||
+                const DeepCollectionEquality().equals(other.models, models)));
   }
 
   @override
@@ -399,7 +422,8 @@ class _$_EventUnionAdd extends _EventUnionAdd {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(name) ^
       const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(dates);
+      const DeepCollectionEquality().hash(dates) ^
+      const DeepCollectionEquality().hash(models);
 
   @JsonKey(ignore: true)
   @override
@@ -409,34 +433,37 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            String name, String? description, List<DateTime>? dates)
+    required TResult Function(String name, String? description,
+            List<DateTime>? dates, List<TestModel?> models)
         add,
-    required TResult Function(String? name, List<DateTime>? dates) delete,
+    required TResult Function(String? name, int cost, List<DateTime>? dates)
+        delete,
   }) {
-    return add(name, description, dates);
+    return add(name, description, dates, models);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
   }) {
-    return add?.call(name, description, dates);
+    return add?.call(name, description, dates, models);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
     required TResult orElse(),
   }) {
     if (add != null) {
-      return add(name, description, dates);
+      return add(name, description, dates, models);
     }
     return orElse();
   }
@@ -482,7 +509,8 @@ abstract class _EventUnionAdd extends EventUnion {
   const factory _EventUnionAdd(
       {required String name,
       String? description,
-      List<DateTime>? dates}) = _$_EventUnionAdd;
+      List<DateTime>? dates,
+      required List<TestModel?> models}) = _$_EventUnionAdd;
   const _EventUnionAdd._() : super._();
 
   factory _EventUnionAdd.fromJson(Map<String, dynamic> json) =
@@ -492,6 +520,7 @@ abstract class _EventUnionAdd extends EventUnion {
   String? get description => throw _privateConstructorUsedError;
   @override
   List<DateTime>? get dates => throw _privateConstructorUsedError;
+  List<TestModel?> get models => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$EventUnionAddCopyWith<_EventUnionAdd> get copyWith =>
@@ -505,7 +534,7 @@ abstract class $EventUnionDeleteCopyWith<$Res>
           EventUnionDelete value, $Res Function(EventUnionDelete) then) =
       _$EventUnionDeleteCopyWithImpl<$Res>;
   @override
-  $Res call({String? name, List<DateTime>? dates});
+  $Res call({String? name, int cost, List<DateTime>? dates});
 }
 
 /// @nodoc
@@ -522,6 +551,7 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
   @override
   $Res call({
     Object? name = freezed,
+    Object? cost = freezed,
     Object? dates = freezed,
   }) {
     return _then(EventUnionDelete(
@@ -529,6 +559,10 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String?,
+      cost: cost == freezed
+          ? _value.cost
+          : cost // ignore: cast_nullable_to_non_nullable
+              as int,
       dates: dates == freezed
           ? _value.dates
           : dates // ignore: cast_nullable_to_non_nullable
@@ -540,7 +574,8 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$EventUnionDelete extends EventUnionDelete {
-  const _$EventUnionDelete({this.name, this.dates}) : super._();
+  const _$EventUnionDelete({this.name, required this.cost, this.dates})
+      : super._();
 
   factory _$EventUnionDelete.fromJson(Map<String, dynamic> json) =>
       _$$EventUnionDeleteFromJson(json);
@@ -548,11 +583,13 @@ class _$EventUnionDelete extends EventUnionDelete {
   @override
   final String? name;
   @override
+  final int cost;
+  @override
   final List<DateTime>? dates;
 
   @override
   String toString() {
-    return 'EventUnion.delete(name: $name, dates: $dates)';
+    return 'EventUnion.delete(name: $name, cost: $cost, dates: $dates)';
   }
 
   @override
@@ -561,6 +598,8 @@ class _$EventUnionDelete extends EventUnionDelete {
         (other is EventUnionDelete &&
             (identical(other.name, name) ||
                 const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.cost, cost) ||
+                const DeepCollectionEquality().equals(other.cost, cost)) &&
             (identical(other.dates, dates) ||
                 const DeepCollectionEquality().equals(other.dates, dates)));
   }
@@ -569,6 +608,7 @@ class _$EventUnionDelete extends EventUnionDelete {
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(name) ^
+      const DeepCollectionEquality().hash(cost) ^
       const DeepCollectionEquality().hash(dates);
 
   @JsonKey(ignore: true)
@@ -579,34 +619,37 @@ class _$EventUnionDelete extends EventUnionDelete {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(
-            String name, String? description, List<DateTime>? dates)
+    required TResult Function(String name, String? description,
+            List<DateTime>? dates, List<TestModel?> models)
         add,
-    required TResult Function(String? name, List<DateTime>? dates) delete,
+    required TResult Function(String? name, int cost, List<DateTime>? dates)
+        delete,
   }) {
-    return delete(name, dates);
+    return delete(name, cost, dates);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
   }) {
-    return delete?.call(name, dates);
+    return delete?.call(name, cost, dates);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name, String? description, List<DateTime>? dates)?
+    TResult Function(String name, String? description, List<DateTime>? dates,
+            List<TestModel?> models)?
         add,
-    TResult Function(String? name, List<DateTime>? dates)? delete,
+    TResult Function(String? name, int cost, List<DateTime>? dates)? delete,
     required TResult orElse(),
   }) {
     if (delete != null) {
-      return delete(name, dates);
+      return delete(name, cost, dates);
     }
     return orElse();
   }
@@ -649,14 +692,17 @@ class _$EventUnionDelete extends EventUnionDelete {
 }
 
 abstract class EventUnionDelete extends EventUnion {
-  const factory EventUnionDelete({String? name, List<DateTime>? dates}) =
-      _$EventUnionDelete;
+  const factory EventUnionDelete(
+      {String? name,
+      required int cost,
+      List<DateTime>? dates}) = _$EventUnionDelete;
   const EventUnionDelete._() : super._();
 
   factory EventUnionDelete.fromJson(Map<String, dynamic> json) =
       _$EventUnionDelete.fromJson;
 
   String? get name => throw _privateConstructorUsedError;
+  int get cost => throw _privateConstructorUsedError;
   @override
   List<DateTime>? get dates => throw _privateConstructorUsedError;
   @override

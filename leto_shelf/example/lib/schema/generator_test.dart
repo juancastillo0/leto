@@ -5,6 +5,9 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
+@visibleForTesting
+const testUnionModelsTestKey = 'testUnionModels';
+
 /// Custom doc
 @GraphQLClass()
 @JsonSerializable()
@@ -24,6 +27,9 @@ class TestModel {
     this.description,
     this.dates,
   });
+
+  factory TestModel.fromJson(Map<String, Object?> json) =>
+      _$TestModelFromJson(json);
 }
 
 /// Custom doc
@@ -51,9 +57,11 @@ class EventUnion with _$EventUnion {
     // Custom doc d
     String? description,
     List<DateTime>? dates,
+    required List<TestModel?> models,
   }) = _EventUnionAdd;
   const factory EventUnion.delete({
     String? name,
+    required int cost,
     List<DateTime>? dates,
   }) = EventUnionDelete;
   const EventUnion._();
@@ -94,6 +102,35 @@ List<TestModel> testModels(
       name: 'Out',
       description: 'default',
     )
+  ];
+}
+
+/// testUnionModels documentation generated
+/// [position] is the pad
+@Query()
+List<EventUnion?> testUnionModels(
+  ReqCtx ctx, {
+  // pagination
+  List<int?> positions = const [],
+}) {
+  final response = ctx.globals[testUnionModelsTestKey];
+  if (response is List<EventUnion?>) {
+    return response;
+  }
+  return [
+    null,
+    EventUnion.add(
+      name: 'da',
+      models: [
+        null,
+        TestModel(name: 'da test', description: 'dda'),
+      ],
+    ),
+    EventUnion.delete(
+      name: 'da',
+      cost: 24,
+      dates: [DateTime(2021, 2, 4)],
+    ),
   ];
 }
 
