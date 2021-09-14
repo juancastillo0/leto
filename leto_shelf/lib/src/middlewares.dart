@@ -113,8 +113,7 @@ Middleware etag({
 }) {
   return (handler) {
     return (request) async {
-      if (request.method != 'GET' && request.method != 'HEAD' ||
-          request.headers[HttpHeaders.cacheControlHeader] == 'no-cache') {
+      if (request.headers[HttpHeaders.cacheControlHeader] == 'no-cache') {
         return handler(request);
       }
       final response = await handler(request);
