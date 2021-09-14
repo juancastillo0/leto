@@ -21,7 +21,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 Handler graphqlWebSocket(
   GraphQL graphQL, {
   Duration? keepAliveInterval,
-  Map<String, Object?>? globalVariables,
+  Map<Object, Object?>? globalVariables,
 }) {
   return (request) {
     final handler = webSocketHandler(
@@ -40,7 +40,7 @@ Handler graphqlWebSocket(
 class _GraphQLWSServer extends stw.Server {
   final GraphQL graphQL;
   final Request request;
-  final Map<String, Object?>? globalVariables;
+  final Map<Object, Object?>? globalVariables;
 
   _GraphQLWSServer(
     stw.RemoteClient client,
@@ -61,7 +61,7 @@ class _GraphQLWSServer extends stw.Server {
     String? operationName,
   ]) async {
     try {
-      final _globalVariables = <String, Object?>{
+      final _globalVariables = <Object, Object?>{
         requestCtxKey: request,
         if (globalVariables != null) ...globalVariables!
       };

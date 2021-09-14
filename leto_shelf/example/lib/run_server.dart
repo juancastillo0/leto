@@ -39,7 +39,7 @@ Handler serverHandler({Map<String, Object?>? globalVariables}) {
       .addHandler(app);
 }
 
-void setUpGraphQL(Router app, {Map<String, Object?>? globalVariables}) {
+void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
   final filesController = FilesController();
 
   app.get(

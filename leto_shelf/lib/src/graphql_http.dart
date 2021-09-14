@@ -8,7 +8,7 @@ import 'package:shelf_graphql/src/middlewares.dart';
 import 'package:shelf_graphql/src/multipart_shelf.dart';
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
 
-const requestCtxKey = '__request';
+final requestCtxKey = GlobalRef('__request');
 
 extension ReqCtxShelf on ReqCtx {
   Request get request => extractRequest(this);
@@ -18,9 +18,9 @@ Request extractRequest(ReqCtx ctx) {
   return ctx.globals[requestCtxKey]! as Request;
 }
 
-Handler graphqlHttp(GraphQL graphQL, {Map<String, Object?>? globalVariables}) {
+Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
   return (request) async {
-    final _globalVariables = <String, Object?>{
+    final _globalVariables = <Object, Object?>{
       requestCtxKey: request,
       if (globalVariables != null) ...globalVariables,
     };
