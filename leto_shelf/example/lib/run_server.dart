@@ -76,19 +76,37 @@ void setUpGraphQL(Router app, {Map<String, Object?>? globalVariables}) {
     );
   });
 
+  String printTypeReference(GraphQLType type) => type.whenMaybe(
+        list: (type) => '[${printTypeReference(type.ofType)}]',
+        nonNullable: (type) => '${printTypeReference(type.ofType)}!',
+        orElse: (_) => '<a href="#$type">$type</a>',
+      );
+
   // TODO: there are probably better options
-  final schemaFileHtml = printSchema(
+  final schemaWithTypeTags = printSchema(
     schema,
     printer: SchemaPrinter(
       printTypeName: (type) => '<span id="$type">$type</span>',
-      printTypeReference: (type) => '<a href="#$type">$type</a>',
+      printTypeReference: printTypeReference,
     ),
   );
 
+  final schemaFileHtml = '''
+<html>
+<head>
+<style>
+  .disable-select {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
+</style>
+</head>
+<body style="display: flex;flex-direction: column;padding: 0 6px 16px;">
+  <a href="/graphql-schema" class="disable-select" style="padding:12px;">DOWNLOAD</a>
+  <pre>$schemaWithTypeTags</pre>
+</body>
+</html>''';
+
   app.get('/graphql-schema-interactive', (Request request) {
     return Response.ok(
-      '<html><body><a href="/graphql-schema" padding="10px">DOWNLOAD</a>'
-      ' <pre>$schemaFileHtml</pre></body></html>',
+      schemaFileHtml,
       headers: {HttpHeaders.contentTypeHeader: 'text/html'},
     );
   });
