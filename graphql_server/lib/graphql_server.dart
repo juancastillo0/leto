@@ -399,8 +399,8 @@ class GraphQL {
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Object? initialValue,
-  ) async* {
-    await for (final event in sourceStream.value) {
+  ) {
+    return sourceStream.value.asyncMap((event) async {
       // TODO: extract ExecuteSubscriptionEvent
       try {
         final selectionSet = subscription.selectionSet;
@@ -425,14 +425,14 @@ class GraphQL {
         //   variableValues,
         //   globalVariables,
         // )
-        yield {'data': data};
+        return {'data': data};
       } on GraphQLException catch (e) {
-        yield {
+        return {
           'data': null,
           'errors': [e.errors.map((e) => e.toJson()).toList()]
         };
       }
-    }
+    });
   }
 
   Future<Stream<Object?>> resolveFieldEventStream(

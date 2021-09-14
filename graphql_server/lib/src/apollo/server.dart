@@ -7,12 +7,24 @@ abstract class Server {
   final Duration? keepAliveInterval;
   final Completer _done = Completer<void>();
   late final StreamSubscription<OperationMessage> _sub;
+
+  final Set<StreamSubscription<Object?>> _allSubs = {};
   bool _init = false;
   Timer? _timer;
 
   Future<void> get done => _done.future;
 
+  Future<void> _onDone() async {
+    if (!_done.isCompleted) {
+      _done.complete();
+    }
+    _timer?.cancel();
+    await Future.wait(_allSubs.map((e) => e.cancel()));
+  }
+
   Server(this.client, {this.keepAliveInterval}) {
+    done.onError((Object e, StackTrace s) => _onDone());
+
     _sub = client.stream.listen(
       (msg) async {
         if (msg.type == OperationMessage.gqlConnectionInit && !_init) {
@@ -94,8 +106,7 @@ abstract class Server {
               }
 
               if (data is Stream) {
-                // TODO: check stream subscription cancellation on _done.complete()
-                await for (var event in data) {
+                final sub = data.listen((Object? event) {
                   if (event is Map &&
                       event.keys.length == 1 &&
                       event.containsKey('data')) {
@@ -103,7 +114,10 @@ abstract class Server {
                   }
                   client.sink.add(OperationMessage(OperationMessage.gqlData,
                       id: msg.id, payload: <String, Object?>{'data': event}));
-                }
+                });
+                _allSubs.add(sub);
+                await sub.asFuture<Object?>();
+                _allSubs.remove(sub);
               } else {
                 client.sink.add(OperationMessage(OperationMessage.gqlData,
                     id: msg.id, payload: {'data': data}));
@@ -119,10 +133,8 @@ abstract class Server {
         }
       },
       onError: _done.completeError,
-      onDone: () {
-        _done.complete();
-        _timer?.cancel();
-      },
+      onDone: _onDone,
+      cancelOnError: true,
     );
   }
 
