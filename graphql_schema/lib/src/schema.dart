@@ -243,6 +243,12 @@ class Subscription extends GqlResolver {
   const Subscription() : super._();
 }
 
+class GlobalRef {
+  final String name;
+
+  GlobalRef(this.name);
+}
+
 extension GraphQLScalarTypeExt<V extends Object, S extends Object>
     on GraphQLScalarType<V, S> {
   GraphQLObjectField<V, S, P> field<P>(

@@ -1,9 +1,9 @@
 part of graphql_schema.src.schema;
 
-const responseHeadersCtxKey = '__response.headers';
+final _responseHeadersCtxKey = GlobalRef('response.headers');
 
 class ReqCtx<P> {
-  final Map<String, Object?> globals;
+  final Map<Object, Object?> globals;
   final Map<String, Object?> args;
   final P object;
   final ReqCtx<Object?>? parentCtx;
@@ -29,20 +29,17 @@ class ReqCtx<P> {
 
   // TODO: headersAll Map<String, List<String>>
   // TODO: should we leave it to the implementors?
-  Map<String, String> get headers {
-    Map<String, String>? headers =
-        globals[responseHeadersCtxKey] as Map<String, String>?;
-    if (headers == null) {
-      headers = {};
-      globals[responseHeadersCtxKey] = headers;
-    }
-    return headers;
+  Map<String, String> get responseHeaders {
+    return globals.putIfAbsent(
+      _responseHeadersCtxKey,
+      () => <String, String>{},
+    )! as Map<String, String>;
   }
 
   static Map<String, String>? headersFromGlobals(
-    Map<String, Object?> globals,
+    Map<Object, Object?> globals,
   ) =>
-      globals[responseHeadersCtxKey] as Map<String, String>?;
+      globals[_responseHeadersCtxKey] as Map<String, String>?;
 }
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
