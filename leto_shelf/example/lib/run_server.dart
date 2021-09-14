@@ -19,7 +19,7 @@ Future<void> runServer() async {
   );
 }
 
-Handler serverHandler({Map<String, Object?>? globalVariables}) {
+Handler serverHandler({Map<Object, Object?>? globalVariables}) {
   final app = Router();
   app.get('/echo', _echoHandler);
 

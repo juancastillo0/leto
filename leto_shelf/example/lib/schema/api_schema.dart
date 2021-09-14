@@ -2,27 +2,15 @@ import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/graphql_api.schema.dart';
+import 'package:shelf_graphql_example/schema/books.schema.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 
-import 'books.controller.dart';
 import 'files.controller.dart';
 import 'safe_json.dart';
 import 'safe_json_graphql.dart';
 
 GraphQLSchema makeApiSchema(FilesController filesController) {
-  final books = BooksController();
-
-  final _bookType = bookType();
-
-  final mappedBooksStream = books.stream.map(booksToJson);
-  final bookAddedStream = books.bookAddedStream.map(
-    (event) => event.toJson(),
-  );
-  bookAddedStream.listen((d) {
-    print('bookAddedStream $d');
-  });
-
   final simpleError = objectType<Map<String, String>>(
     'SimpleError',
     fields: [
@@ -39,13 +27,6 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
         graphqlFieldFromJson(
           fieldName: 'json',
           jsonString: jsonPayload,
-        ),
-        field(
-          'books',
-          listOf(_bookType),
-          resolve: (obj, args) {
-            return booksToJson(books.allBooks);
-          },
         ),
         field(
           'files',
@@ -77,25 +58,6 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     mutationType: objectType(
       'Mutations',
       fields: [
-        field(
-          'createBook',
-          _bookType,
-          resolve: (obj, ctx) {
-            final book = Book(
-              name: ctx.args['name'] as String,
-              publicationDate: DateTime.now(),
-              isFavourite: false,
-            );
-            books.add(book);
-            return book.toJson();
-          },
-          inputs: [
-            GraphQLFieldInput(
-              'name',
-              graphQLString.nonNullable(),
-            ),
-          ],
-        ),
         field(
           'addFile',
           GraphQLUnionType(
@@ -156,20 +118,6 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
       'Subscriptions',
       fields: [
         field(
-          'books',
-          listOf(_bookType),
-          resolve: (obj, args) {
-            return books.stream;
-          },
-        ),
-        field(
-          'bookAdded',
-          bookAddedType(_bookType),
-          resolve: (obj, args) {
-            return books.bookAddedStream;
-          },
-        ),
-        field(
           'files',
           listOf(fileUploadType()),
           resolve: (obj, args) {
@@ -187,26 +135,9 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     ),
   );
 
-  return mergeGraphQLSchemas(base, graphqlApiSchema);
-}
-
-GraphQLObjectType<Book> bookType() {
-  return objectType(
-    'Book',
-    fields: [
-      graphQLString.field(
-        'name',
-        nullable: false,
-      ),
-      graphQLDate.field(
-        'publicationDate',
-        nullable: false,
-      ),
-      graphQLBoolean.field(
-        'isFavourite',
-        nullable: false,
-      ),
-    ],
+  return mergeGraphQLSchemas(
+    mergeGraphQLSchemas(base, graphqlApiSchema),
+    makeBooksSchema(),
   );
 }
 
@@ -240,22 +171,6 @@ GraphQLObjectType<UploadedFileMeta> fileUploadType() {
         'url',
         nullable: false,
         resolve: (file, ctx) => 'http://localhost:8060/files/${file.filename}',
-      ),
-    ],
-  );
-}
-
-GraphQLObjectType<BookAdded> bookAddedType(GraphQLObjectType book) {
-  return objectType(
-    'BookAdded',
-    fields: [
-      field(
-        'book',
-        book,
-        resolve: (obj, args) {
-          print(' BookAdded obj $obj ${obj.runtimeType} $args');
-          return obj.book;
-        },
       ),
     ],
   );

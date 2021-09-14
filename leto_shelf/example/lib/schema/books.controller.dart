@@ -1,9 +1,20 @@
 import 'dart:async';
 
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
+
 import 'book.model.dart';
 export 'book.model.dart';
 
 class BooksController {
+  BooksController({
+    this.bookChangesCallbacks,
+    this.bookAddedCallbacks,
+  });
+
+  final StreamCallbacks? bookChangesCallbacks;
+  final StreamCallbacks? bookAddedCallbacks;
+
   List<Book> allBooks = [
     Book(
       name: 'fesf',
@@ -19,9 +30,15 @@ class BooksController {
     ),
   ];
 
-  final _bookChangesController = StreamController<List<Book>>.broadcast();
+  late final _bookChangesController = StreamController<List<Book>>.broadcast(
+    onListen: bookChangesCallbacks?.onListen,
+    onCancel: bookChangesCallbacks?.onCancel,
+  );
   Stream<List<Book>> get stream => _bookChangesController.stream;
-  final _bookAddedController = StreamController<BookAdded>.broadcast();
+  late final _bookAddedController = StreamController<BookAdded>.broadcast(
+    onListen: bookAddedCallbacks?.onListen,
+    onCancel: bookAddedCallbacks?.onCancel,
+  );
   Stream<BookAdded> get bookAddedStream => _bookAddedController.stream;
 
   void add(Book book) {
@@ -40,3 +57,15 @@ class BooksController {
 List<Map<String, Object?>> booksToJson(List<Book> books) {
   return books.map((e) => e.toJson()).toList();
 }
+
+final _booksControllerKey = GlobalRef('BooksController');
+
+BooksController? setBooksController(
+  Map<Object, Object?> globals,
+  BooksController controller,
+) =>
+    globals[_booksControllerKey] = controller;
+
+BooksController getBooksController(ReqCtx<Object> ctx) =>
+    ctx.globals.putIfAbsent(_booksControllerKey, () => BooksController())!
+        as BooksController;
