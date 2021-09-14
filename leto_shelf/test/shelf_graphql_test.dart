@@ -31,7 +31,9 @@ Future<void> main() async {
     testUnionModelsTestKey: _testUnionModels,
   };
 
-  final url = await testServer(globalVariables);
+  final _server = await testServer(globalVariables);
+  final url = _server.url;
+
 
   test('query ui html', () async {
     final client = http.Client();

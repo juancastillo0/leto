@@ -5,7 +5,19 @@ import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_graphql_example/run_server.dart' show serverHandler;
 import 'package:test/test.dart';
 
-Future<Uri> testServer(Map<String, Object?> globalVariables) async {
+class TestGqlServer {
+  final Uri url;
+  final Uri subscriptionsUrl;
+  final HttpServer server;
+
+  const TestGqlServer({
+    required this.url,
+    required this.subscriptionsUrl,
+    required this.server,
+  });
+}
+
+Future<TestGqlServer> testServer(Map<Object, Object?> globalVariables) async {
   final handler = serverHandler(globalVariables: globalVariables);
   final server = await io.serve(
     handler,
@@ -19,7 +31,17 @@ Future<Uri> testServer(Map<String, Object?> globalVariables) async {
     '${server.address.host}:${server.port}',
     '/graphql',
   );
-  return url;
+  final subscriptionsUrl = Uri(
+    scheme: 'ws',
+    host: server.address.host,
+    port: server.port,
+    path: '/graphql-subscription',
+  );
+  return TestGqlServer(
+    server: server,
+    url: url,
+    subscriptionsUrl: subscriptionsUrl,
+  );
 }
 
 Future<void> checkEtag(http.Client client, http.Response response) async {
