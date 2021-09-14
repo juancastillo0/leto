@@ -79,7 +79,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
                 if (!isTesting) {
                   final bytes = await upload.readAsBytes();
                   final file = File(
-                    relativeToScriptPath(['files', meta.filename]),
+                    pathRelativeToScript(['files', meta.filename]),
                   );
                   await file.writeAsBytes(bytes);
                 }
@@ -176,7 +176,7 @@ GraphQLObjectType<UploadedFileMeta> fileUploadType() {
   );
 }
 
-String relativeToScriptPath(List<String> pathSegments) {
+String pathRelativeToScript(List<String> pathSegments) {
   return [
     '/',
     ...Platform.script.pathSegments

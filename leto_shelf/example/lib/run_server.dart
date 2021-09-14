@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_plus/shelf_plus.dart';
 
-import 'schema/api_schema.dart' show makeApiSchema, relativeToScriptPath;
+import 'schema/api_schema.dart' show makeApiSchema, pathRelativeToScript;
 import 'schema/files.controller.dart';
 
 void main() {
@@ -60,9 +60,21 @@ void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
   app.all(httpPath, graphqlHttp(graphQL, globalVariables: globalVariables));
   app.get(wsPath, graphqlWebSocket(graphQL, globalVariables: globalVariables));
 
+  setUpGraphQLSchemaDefinition(app, schema);
+  setUpGraphQLUi(
+    app,
+    url: 'http://localhost:$port$httpPath',
+    subscriptionUrl: 'ws://localhost:$port$wsPath',
+  );
+}
+
+void setUpGraphQLSchemaDefinition(
+  Router app,
+  GraphQLSchema schema, {
+  bool downloadSchemaOnOpen = true,
+  String schemaFilename = 'api_schema.graphql',
+}) {
   final schemaFileText = printSchema(schema);
-  const downloadSchemaOnOpen = true;
-  const schemaFilename = 'api-schema.graphql';
 
   app.get('/graphql-schema', (Request request) {
     return Response.ok(
@@ -110,31 +122,37 @@ void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
       headers: {HttpHeaders.contentTypeHeader: 'text/html'},
     );
   });
+}
 
+void setUpGraphQLUi(
+  Router app, {
+  required String url,
+  required String subscriptionUrl,
+}) {
   app.get(
     '/playground',
     playgroundHandler(
-      config: const PlaygroundConfig(
-        endpoint: 'http://localhost:$port$httpPath',
-        subscriptionEndpoint: 'ws://localhost:$port$wsPath',
+      config: PlaygroundConfig(
+        endpoint: url,
+        subscriptionEndpoint: subscriptionUrl,
       ),
     ),
   );
   app.get(
     '/graphiql',
     graphiqlHandler(
-      fetcher: const GraphiqlFetcher(
-        url: 'http://localhost:$port$httpPath',
-        subscriptionUrl: 'ws://localhost:$port$wsPath',
+      fetcher: GraphiqlFetcher(
+        url: url,
+        subscriptionUrl: subscriptionUrl,
       ),
     ),
   );
   app.get(
     '/altair',
     altairHandler(
-      config: const AltairConfig(
-        endpointURL: 'http://localhost:$port$httpPath',
-        subscriptionsEndpoint: 'ws://localhost:$port$wsPath',
+      config: AltairConfig(
+        endpointURL: url,
+        subscriptionsEndpoint: subscriptionUrl,
       ),
     ),
   );
@@ -142,7 +160,7 @@ void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
 
 Handler staticFilesWithController(FilesController filesController) {
   final handler = createStaticHandler(
-    relativeToScriptPath(['/']),
+    pathRelativeToScript(['/']),
     listDirectories: true,
     useHeaderBytesForContentType: true,
   );
