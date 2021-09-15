@@ -30,11 +30,14 @@ GraphQLObjectField<T, Serialized, P>
   String? deprecationReason,
   String? description,
 }) {
-  return GraphQLObjectField(name, type,
-      arguments: inputs,
-      resolve: resolve == null ? null : FieldResolver(resolve),
-      description: description,
-      deprecationReason: deprecationReason);
+  return GraphQLObjectField(
+    name,
+    type,
+    arguments: inputs,
+    resolve: resolve == null ? null : FieldResolver(resolve),
+    description: description,
+    deprecationReason: deprecationReason,
+  );
 }
 
 /// Shorthand for generating a [GraphQLInputObjectType].
@@ -57,11 +60,13 @@ GraphQLInputObjectField<T, Serialized>
   GraphQLType<T, Serialized> type, {
   String? description,
   T? defaultValue,
+  String? deprecationReason,
 }) {
   return GraphQLInputObjectField(
     name,
     type,
     description: description,
     defaultValue: defaultValue,
+    deprecationReason: deprecationReason,
   );
 }

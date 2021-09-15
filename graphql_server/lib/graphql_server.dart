@@ -190,6 +190,8 @@ class GraphQL {
               GraphExceptionErrorLocation.fromSourceLocation(e.span?.start),
             ],
           ));
+        } catch (e) {
+          throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
         }
 
         if (errors.isNotEmpty) {
@@ -449,7 +451,6 @@ class GraphQL {
             'No subscription field named "$fieldName" is defined.');
       },
     );
-    final resolver = field.resolve!;
     final reqCtx = ReqCtx(
       args: argumentValues,
       object: rootValue,
@@ -457,7 +458,14 @@ class GraphQL {
       // TODO:
       parentCtx: null,
     );
-    final Object? result = await resolver(rootValue, reqCtx);
+
+    final Object? result;
+    if (field.subscribe != null) {
+      result = await field.subscribe!(rootValue, reqCtx);
+    } else {
+      result = await field.resolve!(rootValue, reqCtx);
+    }
+
     if (result is Stream) {
       return result;
     } else {

@@ -43,16 +43,31 @@ class ReqCtx<P> {
 }
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
-///  whether asynchronously or not.
+/// whether asynchronously or not.
 typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
     P parent, ReqCtx<P> ctx);
+typedef GraphQLSubscriptionFieldResolver<Value, P> = FutureOr<Stream<Value?>>
+    Function(P parent, ReqCtx<P> ctx);
 
+/// Wrapper class for [GraphQLFieldResolver]
+/// necessary for type casting.
 class FieldResolver<Value, P> {
   final GraphQLFieldResolver<Value, P> resolve;
 
   const FieldResolver(this.resolve);
 
   FutureOr<Value?> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
+}
+
+/// Wrapper class for [GraphQLSubscriptionFieldResolver]
+/// necessary for type casting.
+class FieldSubscriptionResolver<Value, P> {
+  final GraphQLSubscriptionFieldResolver<Value, P> subscribe;
+
+  const FieldSubscriptionResolver(this.subscribe);
+
+  FutureOr<Stream<Value?>> call(P parent, ReqCtx ctx) =>
+      subscribe(parent, ctx.cast());
 }
 
 /// A field on a [GraphQLObjectType].
@@ -68,9 +83,13 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
   /// The name of this field in serialized input.
   final String name;
 
-  /// A function used to evaluate the value of this field, with
-  /// respect to an arbitrary Dart value.
+  /// A function used to evaluate the [Value] of this field, with
+  /// respect to the parent (root) value [P] and context [ReqCtx].
   final FieldResolver<Value, P>? resolve;
+
+  /// A function used to evaluate the [Stream] of [Value]s of this field, with
+  /// respect to the parent (root) value [P] and context [ReqCtx].
+  final FieldSubscriptionResolver<Value, P>? subscribe;
 
   /// The [GraphQLType] associated with values that this
   /// field's [resolve] callback returns.
@@ -86,7 +105,8 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
     this.name,
     this.type, {
     Iterable<GraphQLFieldInput> arguments = const <GraphQLFieldInput>[],
-    required this.resolve,
+    this.resolve,
+    this.subscribe,
     this.deprecationReason,
     this.description,
   }) {
