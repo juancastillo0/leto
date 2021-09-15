@@ -29,7 +29,7 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
   inputs: [
     GraphQLFieldInput(
       "realName",
-      graphQLString.nonNullable().coerceToInputObject(),
+      graphQLString.nonNull().coerceToInputObject(),
     ),
     GraphQLFieldInput(
       "previous",
@@ -37,11 +37,11 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     ),
     GraphQLFieldInput(
       "name",
-      graphQLString.nonNullable().coerceToInputObject(),
+      graphQLString.nonNull().coerceToInputObject(),
     ),
     GraphQLFieldInput(
       "value",
-      listOf(graphQLInt.nonNullable()).nonNullable().coerceToInputObject(),
+      listOf(graphQLInt.nonNull()).nonNull().coerceToInputObject(),
     )
   ],
   deprecationReason: null,
@@ -50,7 +50,7 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
 final GraphQLObjectField<List<TestModel?>, Object, Object>
     testModelsGraphQLField = field(
   'testModels',
-  listOf(testModelGraphQlType.nonNullable()).nonNullable(),
+  listOf(testModelGraphQlType.nonNull()).nonNull(),
   description: r"Automatic documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -61,12 +61,12 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
   inputs: [
     GraphQLFieldInput(
       "lessThan",
-      graphQLDate.nonNullable().coerceToInputObject(),
+      graphQLDate.nonNull().coerceToInputObject(),
       description: r"pagination less than",
     ),
     GraphQLFieldInput(
       "position",
-      graphQLInt.nonNullable().coerceToInputObject(),
+      graphQLInt.nonNull().coerceToInputObject(),
       defaultValue: 0,
       description: r"pagination",
     )
@@ -77,7 +77,7 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
 final GraphQLObjectField<List<EventUnion?>, Object, Object>
     testUnionModelsGraphQLField = field(
   'testUnionModels',
-  listOf(eventUnionGraphQlType).nonNullable(),
+  listOf(eventUnionGraphQlType).nonNull(),
   description:
       r"testUnionModels documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
@@ -88,7 +88,7 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
   inputs: [
     GraphQLFieldInput(
       "positions",
-      listOf(graphQLInt).nonNullable().coerceToInputObject(),
+      listOf(graphQLInt).nonNull().coerceToInputObject(),
       defaultValue: const [],
       description: r"pagination",
     )
@@ -112,26 +112,25 @@ final GraphQLObjectType<TestModel> testModelGraphQlType = objectType(
     description: 'Custom doc',
     interfaces: [],
     fields: [
-      field('name', graphQLString.nonNullable(),
-          resolve: (obj, ctx) => obj.name),
+      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
           description: 'Custom doc d', resolve: (obj, ctx) => obj.description),
-      field('dates', listOf(graphQLDate.nonNullable()),
+      field('dates', listOf(graphQLDate.nonNull()),
           resolve: (obj, ctx) => obj.dates),
-      field('hasDates', graphQLBoolean.nonNullable(),
+      field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates)
     ]);
 
-final testModelFreezedSerializer = SerializerValue<_TestModelFreezed>(
+final testModelFreezedSerializer = SerializerValue<TestModelFreezed>(
   fromJson: _$$_TestModelFreezedFromJson,
   toJson: (m) => _$$_TestModelFreezedToJson(m as _$_TestModelFreezed),
 );
 
-/// Auto-generated from [_TestModelFreezed].
-final GraphQLObjectType<_TestModelFreezed> testModelFreezedGraphQlType =
-    objectType('_TestModelFreezed',
+/// Auto-generated from [TestModelFreezed].
+final GraphQLObjectType<TestModelFreezed> testModelFreezedGraphQlType =
+    objectType('TestModelFreezed',
         fields: [
-          field('name', graphQLString.nonNullable(),
+          field('name', graphQLString.nonNull(),
               resolve: (obj, ctx) => obj.name,
               description: null,
               deprecationReason: null),
@@ -139,7 +138,7 @@ final GraphQLObjectType<_TestModelFreezed> testModelFreezedGraphQlType =
               resolve: (obj, ctx) => obj.description,
               description: 'Custom doc d',
               deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNullable()),
+          field('dates', listOf(graphQLDate.nonNull()),
               resolve: (obj, ctx) => obj.dates,
               description: null,
               deprecationReason: null)
@@ -157,7 +156,7 @@ final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
 final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
     objectType('_EventUnionAdd',
         fields: [
-          field('name', graphQLString.nonNullable(),
+          field('name', graphQLString.nonNull(),
               resolve: (obj, ctx) => obj.name,
               description: null,
               deprecationReason: null),
@@ -165,11 +164,11 @@ final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
               resolve: (obj, ctx) => obj.description,
               description: 'Custom doc d',
               deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNullable()),
+          field('dates', listOf(graphQLDate.nonNull()),
               resolve: (obj, ctx) => obj.dates,
               description: null,
               deprecationReason: null),
-          field('models', listOf(testModelGraphQlType).nonNullable(),
+          field('models', listOf(testModelGraphQlType).nonNull(),
               resolve: (obj, ctx) => obj.models,
               description: null,
               deprecationReason: null),
@@ -192,11 +191,11 @@ final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
               resolve: (obj, ctx) => obj.name,
               description: null,
               deprecationReason: null),
-          field('cost', graphQLInt.nonNullable(),
+          field('cost', graphQLInt.nonNull(),
               resolve: (obj, ctx) => obj.cost,
               description: null,
               deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNullable()),
+          field('dates', listOf(graphQLDate.nonNull()),
               resolve: (obj, ctx) => obj.dates,
               description: null,
               deprecationReason: null),
