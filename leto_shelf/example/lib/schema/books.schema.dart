@@ -19,7 +19,7 @@ GraphQLSchema makeBooksSchema() {
     queryType: objectType(
       'Queries',
       fields: [
-        listOf(_bookType).nonNullable().field(
+        listOf(_bookType).nonNull().field(
           'books',
           resolve: (obj, ctx) {
             return books(ctx).allBooks;
@@ -45,7 +45,7 @@ GraphQLSchema makeBooksSchema() {
           inputs: [
             GraphQLFieldInput(
               'name',
-              graphQLString.nonNullable(),
+              graphQLString.nonNull(),
             ),
           ],
         ),
@@ -58,7 +58,7 @@ GraphQLSchema makeBooksSchema() {
           'books',
           subscribe: (obj, ctx) => books(ctx).stream,
         ),
-        bookAddedType(_bookType).nonNullable().field(
+        bookAddedType(_bookType).nonNull().field(
           'bookAdded',
           subscribe: (obj, ctx) {
             return books(ctx).bookAddedStream;
@@ -73,9 +73,9 @@ GraphQLObjectType<Book> bookType() {
   return objectType(
     'Book',
     fields: [
-      graphQLString.nonNullable().field('name'),
-      graphQLDate.nonNullable().field('publicationDate'),
-      graphQLBoolean.nonNullable().field('isFavourite'),
+      graphQLString.nonNull().field('name'),
+      graphQLDate.nonNull().field('publicationDate'),
+      graphQLBoolean.nonNull().field('isFavourite'),
     ],
   );
 }

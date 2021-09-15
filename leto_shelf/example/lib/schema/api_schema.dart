@@ -14,8 +14,8 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
   final simpleError = objectType<Map<String, String>>(
     'SimpleError',
     fields: [
-      graphQLString.nonNullable().field('code'),
-      graphQLString.nonNullable().field('message'),
+      graphQLString.nonNull().field('code'),
+      graphQLString.nonNull().field('message'),
     ],
   );
 
@@ -99,7 +99,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
           inputs: [
             GraphQLFieldInput(
               'file',
-              graphQLUpload.nonNullable(),
+              graphQLUpload.nonNull(),
             ),
             GraphQLFieldInput(
               'replace',
@@ -146,13 +146,13 @@ GraphQLObjectType<UploadedFileMeta> fileUploadType() {
   return _fileUploadType ??= objectType(
     'FileUpload',
     fields: [
-      graphQLString.nonNullable().field('filename'),
-      graphQLInt.nonNullable().field('sizeInBytes'),
-      graphQLString.nonNullable().field('mimeType'),
-      graphQLDate.nonNullable().field('createdAt'),
-      graphQLString.nonNullable().field('sha1Hash'),
+      graphQLString.nonNull().field('filename'),
+      graphQLInt.nonNull().field('sizeInBytes'),
+      graphQLString.nonNull().field('mimeType'),
+      graphQLDate.nonNull().field('createdAt'),
+      graphQLString.nonNull().field('sha1Hash'),
       graphQLJson.field('extra'),
-      graphQLString.nonNullable().field(
+      graphQLString.nonNull().field(
         'url',
         resolve: (file, ctx) {
           return 'http://localhost:8060/files/${file.filename}';

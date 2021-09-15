@@ -11,13 +11,13 @@ final pageInfoGraphQLType = objectType<PageInfo>(
   'PageInfo',
   description: 'GraphQL pagination',
   fields: [
-    graphQLBoolean.nonNullable().field(
+    graphQLBoolean.nonNull().field(
       'hasNextPage',
       resolve: (pageInfo, _) {
         return pageInfo.hasNextPage;
       },
     ),
-    graphQLBoolean.nonNullable().field(
+    graphQLBoolean.nonNull().field(
       'hasPreviousPage',
       resolve: (pageInfo, _) {
         return pageInfo.hasPreviousPage;

@@ -64,7 +64,7 @@ GraphQLUnionType<FileEvent> fileEventType() {
           typeDiscriminator,
           field(
             'fileUpload',
-            fileUploadType().nonNullable(),
+            fileUploadType().nonNull(),
           ),
         ],
       ),
@@ -72,15 +72,15 @@ GraphQLUnionType<FileEvent> fileEventType() {
         'FileEventRenamed',
         fields: [
           typeDiscriminator,
-          graphQLString.nonNullable().field('filename'),
-          graphQLString.nonNullable().field('newFilename'),
+          graphQLString.nonNull().field('filename'),
+          graphQLString.nonNull().field('newFilename'),
         ],
       ),
       objectType(
         'FileEventDeleted',
         fields: [
           typeDiscriminator,
-          graphQLString.nonNullable().field('filename'),
+          graphQLString.nonNull().field('filename'),
         ],
       ),
       objectType(
@@ -93,7 +93,7 @@ GraphQLUnionType<FileEvent> fileEventType() {
           ),
           field(
             'size',
-            graphQLInt.nonNullable(),
+            graphQLInt.nonNull(),
             resolve: (event, ctx) {
               return (event as FileEventMany).events.length;
             },
