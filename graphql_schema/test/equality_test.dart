@@ -15,37 +15,37 @@ void main() {
     test('objects', () {
       expect(
         objectType<Object>('B', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ]),
         objectType<Object>('B', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ]),
       );
 
       expect(
         objectType<Object>('B', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ]),
         isNot(objectType<Object>('BD', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ])),
       );
 
       expect(
         objectType<Object>('B', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ]),
         isNot(objectType<Object>('B', fields: [
-          field('ba', graphQLString.nonNullable()),
+          field('ba', graphQLString.nonNull()),
         ])),
       );
 
       expect(
         objectType<Object>('B', fields: [
-          field('b', graphQLString.nonNullable()),
+          field('b', graphQLString.nonNull()),
         ]),
         isNot(objectType<Object>('B', fields: [
-          field('a', graphQLFloat.nonNullable()),
+          field('a', graphQLFloat.nonNull()),
         ])),
       );
     });
@@ -56,18 +56,18 @@ void main() {
       expect(
         GraphQLUnionType<Object>('A', [
           objectType('B', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ]),
         GraphQLUnionType<Object>('A', [
           objectType('B', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ]),
       );
@@ -75,18 +75,18 @@ void main() {
       expect(
         GraphQLUnionType<Object>('A', [
           objectType('B', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ]),
         isNot(GraphQLUnionType<Object>('AA', [
           objectType('B', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ])),
       );
@@ -94,18 +94,18 @@ void main() {
       expect(
         GraphQLUnionType<Object>('A', [
           objectType('BB', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ]),
         isNot(GraphQLUnionType<Object>('AA', [
           objectType('BDD', fields: [
-            field('b', graphQLString.nonNullable()),
+            field('b', graphQLString.nonNull()),
           ]),
           objectType('C', fields: [
-            field('c', graphQLString.nonNullable()),
+            field('c', graphQLString.nonNull()),
           ]),
         ])),
       );

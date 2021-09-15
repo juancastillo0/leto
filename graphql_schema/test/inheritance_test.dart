@@ -7,7 +7,7 @@ void main() {
       'A',
       isInterface: true,
       fields: [
-        field('text', graphQLString.nonNullable()),
+        field('text', graphQLString.nonNull()),
       ],
     );
 
@@ -16,7 +16,7 @@ void main() {
       isInterface: true,
       interfaces: [a],
       fields: [
-        field('text', graphQLString.nonNullable()),
+        field('text', graphQLString.nonNull()),
       ],
     );
 
@@ -25,7 +25,7 @@ void main() {
       isInterface: true,
       interfaces: [b],
       fields: [
-        field('text', graphQLString.nonNullable()),
+        field('text', graphQLString.nonNull()),
       ],
     );
 

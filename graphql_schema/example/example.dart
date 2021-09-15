@@ -4,7 +4,7 @@ final GraphQLSchema todoSchema = new GraphQLSchema(
   queryType: objectType('Todo', fields: [
     field(
       'text',
-      graphQLString.nonNullable(),
+      graphQLString.nonNull(),
       resolve: resolveToNull,
     ),
     field(

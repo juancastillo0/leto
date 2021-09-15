@@ -50,7 +50,7 @@ Expression inferType(String className, String name, DartType type) {
 
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
   Expression _wrapNullability(Expression exp) =>
-      nonNullable ? exp.property('nonNullable').call([]) : exp;
+      nonNullable ? exp.property('nonNull').call([]) : exp;
 
   const primitive = {
     String: 'graphQLString',

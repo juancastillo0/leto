@@ -6,7 +6,7 @@ GraphQLSchema todosSchema() {
   final userType = objectType<User>('User', fields: [
     field(
       'name',
-      graphQLString.nonNullable(),
+      graphQLString.nonNull(),
     ),
     field(
       'age',
@@ -25,7 +25,7 @@ GraphQLSchema todosSchema() {
       graphQLBoolean,
       resolve: (obj, args) => obj.completed,
     ),
-    graphQLDate.nonNullable().field('time'),
+    graphQLDate.nonNull().field('time'),
     field(
       'users',
       listOf(userType),

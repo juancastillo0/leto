@@ -33,7 +33,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
 
   /// Creates a non-nullable type that represents this type, and enforces
   /// that a field of this type is present in input data.
-  GraphQLNonNullableType<Value, Serialized> nonNullable();
+  GraphQLNonNullType<Value, Serialized> nonNull();
 
   /// Turns this type into one suitable for being provided as an input
   /// to a [GraphQLObjectField].
@@ -89,7 +89,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     return type;
   }
 
-  bool get isNonNullable => realType is GraphQLNonNullableType;
+  bool get isNonNullable => realType is GraphQLNonNullType;
   bool get isNullable => !isNonNullable;
 
   O when<O>({
@@ -99,7 +99,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     required O Function(GraphQLInputObjectType<Value>) input,
     required O Function(GraphQLUnionType<Value>) union,
     required O Function(GraphQLListType) list,
-    required O Function(GraphQLNonNullableType<Value, Serialized>) nonNullable,
+    required O Function(GraphQLNonNullType<Value, Serialized>) nonNullable,
   }) {
     final GraphQLType type = realType;
 
@@ -115,7 +115,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
       return union(type);
     } else if (type is GraphQLListType) {
       return list(type);
-    } else if (type is GraphQLNonNullableType<Value, Serialized>) {
+    } else if (type is GraphQLNonNullType<Value, Serialized>) {
       return nonNullable(type);
     } else {
       throw Exception(
@@ -131,7 +131,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     O Function(GraphQLInputObjectType<Value>)? input,
     O Function(GraphQLUnionType<Value>)? union,
     O Function(GraphQLListType)? list,
-    O Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
+    O Function(GraphQLNonNullType<Value, Serialized>)? nonNullable,
     required O Function(GraphQLType) orElse,
   }) {
     return when(
@@ -152,7 +152,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     O Function(GraphQLInputObjectType<Value>)? input,
     O Function(GraphQLUnionType<Value>)? union,
     O Function(GraphQLListType)? list,
-    O Function(GraphQLNonNullableType<Value, Serialized>)? nonNullable,
+    O Function(GraphQLNonNullType<Value, Serialized>)? nonNullable,
   }) {
     O orElse(GraphQLType _) {
       return null as O;
@@ -258,20 +258,20 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
 
 mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
     on GraphQLType<Value, Serialized> {
-  GraphQLNonNullableType<Value, Serialized>? _nonNullableCache;
+  GraphQLNonNullType<Value, Serialized>? _nonNullableCache;
 
   @override
-  GraphQLNonNullableType<Value, Serialized> nonNullable() =>
-      _nonNullableCache ??= GraphQLNonNullableType<Value, Serialized>._(this);
+  GraphQLNonNullType<Value, Serialized> nonNull() =>
+      _nonNullableCache ??= GraphQLNonNullType<Value, Serialized>._(this);
 }
 
 /// A special [GraphQLType] that indicates that input values should both be
 /// non-null, and be valid when asserted against another type, named [ofType].
-class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
+class GraphQLNonNullType<Value extends Object, Serialized extends Object>
     extends GraphQLType<Value, Serialized> {
   final GraphQLType<Value, Serialized> ofType;
 
-  const GraphQLNonNullableType._(this.ofType);
+  const GraphQLNonNullType._(this.ofType);
 
   @override
   String? get name => null; //innerType.name;
@@ -281,7 +281,7 @@ class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
       'A non-nullable binding to ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  GraphQLNonNullableType<Value, Serialized> nonNullable() => this;
+  GraphQLNonNullType<Value, Serialized> nonNull() => this;
 
   @override
   ValidationResult<Serialized> validate(String key, Object? input) {
@@ -312,7 +312,7 @@ class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
 
   @override
   GraphQLType<Value, Serialized> coerceToInputObject() {
-    return ofType.coerceToInputObject().nonNullable();
+    return ofType.coerceToInputObject().nonNull();
   }
 
   GraphQLObjectField<Value, Serialized, P> field<P>(

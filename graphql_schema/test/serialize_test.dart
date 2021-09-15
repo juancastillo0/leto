@@ -48,8 +48,8 @@ void main() {
     final type = inputObjectType(
       'Foo',
       inputFields: [
-        inputField('bar', graphQLString.nonNullable()),
-        inputField('baz', graphQLFloat.nonNullable()),
+        inputField('bar', graphQLString.nonNull()),
+        inputField('baz', graphQLFloat.nonNull()),
       ],
     );
 
@@ -78,7 +78,7 @@ void main() {
     final pokemonType = objectType<Object>('Pokémon', fields: [
       field(
         'name',
-        graphQLString.nonNullable(),
+        graphQLString.nonNull(),
       ),
       field(
         'type',
@@ -89,7 +89,7 @@ void main() {
     final digimonType = objectType<Object>(
       'Digimon',
       fields: [
-        field('size', graphQLFloat.nonNullable()),
+        field('size', graphQLFloat.nonNull()),
       ],
     );
 

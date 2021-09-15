@@ -44,8 +44,8 @@ class GraphQLRefType<T extends Object, S extends Object>
   }
 
   @override
-  GraphQLNonNullableType<T, S> nonNullable() {
-    return innerType().nonNullable();
+  GraphQLNonNullType<T, S> nonNull() {
+    return innerType().nonNull();
   }
 
   @override
