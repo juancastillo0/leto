@@ -3,7 +3,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'books.controller.dart';
 
 GraphQLSchema makeBooksSchema() {
-  BooksController books(ReqCtx<Object> ctx) => getBooksController(ctx);
+  BooksController books(ReqCtx<Object> ctx) => booksControllerRef.get(ctx);
 
   final _bookType = bookType();
 
@@ -19,11 +19,10 @@ GraphQLSchema makeBooksSchema() {
     queryType: objectType(
       'Queries',
       fields: [
-        field(
+        listOf(_bookType).nonNullable().field(
           'books',
-          listOf(_bookType),
           resolve: (obj, ctx) {
-            return booksToJson(books(ctx).allBooks);
+            return books(ctx).allBooks;
           },
         ),
       ],
@@ -55,15 +54,15 @@ GraphQLSchema makeBooksSchema() {
     subscriptionType: objectType(
       'Subscriptions',
       fields: [
-        field(
+        listOf(_bookType).field(
           'books',
-          listOf(_bookType),
-          resolve: (obj, ctx) => books(ctx).stream,
+          subscribe: (obj, ctx) => books(ctx).stream,
         ),
-        field(
+        bookAddedType(_bookType).nonNullable().field(
           'bookAdded',
-          bookAddedType(_bookType),
-          resolve: (obj, ctx) => books(ctx).bookAddedStream,
+          subscribe: (obj, ctx) {
+            return books(ctx).bookAddedStream;
+          },
         ),
       ],
     ),
@@ -74,18 +73,9 @@ GraphQLObjectType<Book> bookType() {
   return objectType(
     'Book',
     fields: [
-      graphQLString.field(
-        'name',
-        nullable: false,
-      ),
-      graphQLDate.field(
-        'publicationDate',
-        nullable: false,
-      ),
-      graphQLBoolean.field(
-        'isFavourite',
-        nullable: false,
-      ),
+      graphQLString.nonNullable().field('name'),
+      graphQLDate.nonNullable().field('publicationDate'),
+      graphQLBoolean.nonNullable().field('isFavourite'),
     ],
   );
 }
