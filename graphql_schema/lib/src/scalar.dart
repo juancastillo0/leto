@@ -14,16 +14,11 @@ final GraphQLScalarType<String, String> graphQLString = _GraphQLStringType._();
 final GraphQLScalarType<String, String> graphQLId = _GraphQLStringType._('ID');
 
 /// A [DateTime], serialized as an ISO-8601 string.
-final GraphQLScalarType<DateTime, String> graphQLDateValue =
-    _GraphQLDateType._();
+final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
 
-/// A Date [String], serialized as an ISO-8601 string.
-final GraphQLScalarType<DateTime, String> graphQLDate = graphQLDateValue;
-// _GraphQLIdentityType('Date', 'An ISO-8601 Date.', validateDateString);
-
-/// A Date [String], serialized as an UNIX timestamp.
-// final GraphQLScalarType<DateTime?, int?> graphQLTimestamp =
-//  _GraphQLIdentityType('Timestamp', 'An UNIX timestamp.', validateDateString);
+/// A [DateTime], serialized as an UNIX timestamp.
+final GraphQLScalarType<DateTime, int> graphQLTimestamp =
+    _GraphQLTimestampType._();
 
 /// A signed 32‐bit integer.
 final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
@@ -45,6 +40,9 @@ abstract class GraphQLScalarType<Value extends Object,
   // const GraphQLScalarType();
 
   String? get specifiedByURL => null;
+
+  @override
+  GraphQLType<Value, Serialized> coerceToInputObject() => this;
 }
 
 class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
@@ -71,9 +69,6 @@ class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
   bool deserialize(SerdeCtx serdeCtx, bool serialized) {
     return serialized;
   }
-
-  @override
-  GraphQLType<bool, bool> coerceToInputObject() => this;
 
   @override
   Iterable<Object?> get props => [];
@@ -106,9 +101,6 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   }
 
   @override
-  GraphQLType<T, T> coerceToInputObject() => this;
-
-  @override
   Iterable<Object?> get props => [name];
 }
 
@@ -132,9 +124,6 @@ class _GraphQLStringType extends GraphQLScalarType<String, String> {
       input is String
           ? ValidationResult.ok(input)
           : ValidationResult.failure(['Expected "$key" to be a string.']);
-
-  @override
-  GraphQLType<String, String> coerceToInputObject() => this;
 
   @override
   Iterable<Object?> get props => [];
@@ -163,9 +152,6 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
   }
 
   @override
-  GraphQLType<DateTime, String> coerceToInputObject() => this;
-
-  @override
   Iterable<Object?> get props => [];
 }
 
@@ -181,6 +167,46 @@ ValidationResult<String> validateDateString(String key, Object? input) {
     return ValidationResult.failure(
         ['$key must be an ISO 8601-formatted date string.']);
   }
+}
+
+class _GraphQLTimestampType extends GraphQLScalarType<DateTime, int>
+    with _NonNullableMixin<DateTime, int> {
+  _GraphQLTimestampType._();
+
+  @override
+  String get name => 'Timestamp';
+
+  @override
+  String get description => 'An UNIX timestamp.';
+
+  @override
+  int serialize(DateTime value) => value.millisecondsSinceEpoch;
+
+  @override
+  DateTime deserialize(SerdeCtx serdeCtx, int serialized) =>
+      DateTime.fromMillisecondsSinceEpoch(serialized);
+
+  @override
+  ValidationResult<int> validate(String key, Object? input) {
+    Object? value = input;
+    if (value is String) {
+      value = int.tryParse(value);
+    }
+    final err =
+        ValidationResult<int>.failure(['$key must be an UNIX timestamp.']);
+    if (value is! int) {
+      return err;
+    }
+    try {
+      DateTime.fromMillisecondsSinceEpoch(value);
+      return ValidationResult.ok(value);
+    } catch (_) {
+      return err;
+    }
+  }
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 class _GraphQLIdentityType<T extends Object> extends GraphQLScalarType<T, T>
@@ -209,9 +235,6 @@ class _GraphQLIdentityType<T extends Object> extends GraphQLScalarType<T, T>
   ValidationResult<T> validate(String key, Object? input) {
     return _validate(key, input);
   }
-
-  @override
-  GraphQLType<T, T> coerceToInputObject() => this;
 
   @override
   Iterable<Object?> get props => [name, description, _validate];

@@ -14,10 +14,14 @@ class GraphQLUnionType<P extends Object>
   /// A list of all types that conform to this union.
   final List<GraphQLType<P, Map<String, dynamic>>> possibleTypes = [];
 
+  @override
+  final String? description;
+
   GraphQLUnionType(
     this.name,
-    Iterable<GraphQLType<P, Map<String, dynamic>>> possibleTypes,
-  )   : assert(
+    Iterable<GraphQLType<P, Map<String, dynamic>>> possibleTypes, {
+    this.description,
+  })  : assert(
             possibleTypes.every(
                 (t) => t.whenMaybe(object: (_) => true, orElse: (_) => false)),
             'The member types of a Union type must all be Object base types; '
@@ -32,15 +36,8 @@ class GraphQLUnionType<P extends Object>
   }
 
   @override
-  String get description => possibleTypes.map((t) => t.name).join(' | ');
-
-  @override
   GraphQLType<P, Map<String, dynamic>> coerceToInputObject() {
     throw Exception('Unions are never valid inputs.');
-    // return GraphQLUnionType(
-    //   '${name}Input',
-    //   possibleTypes.map((t) => t.coerceToInputObject()),
-    // );
   }
 
   @override
@@ -88,5 +85,5 @@ class GraphQLUnionType<P extends Object>
   }
 
   @override
-  Iterable<Object?> get props => [name, possibleTypes];
+  Iterable<Object?> get props => [name, description, possibleTypes];
 }
