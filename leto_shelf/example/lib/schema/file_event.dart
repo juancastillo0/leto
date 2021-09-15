@@ -72,24 +72,15 @@ GraphQLUnionType<FileEvent> fileEventType() {
         'FileEventRenamed',
         fields: [
           typeDiscriminator,
-          graphQLString.field(
-            'filename',
-            nullable: false,
-          ),
-          graphQLString.field(
-            'newFilename',
-            nullable: false,
-          ),
+          graphQLString.nonNullable().field('filename'),
+          graphQLString.nonNullable().field('newFilename'),
         ],
       ),
       objectType(
         'FileEventDeleted',
         fields: [
           typeDiscriminator,
-          graphQLString.field(
-            'filename',
-            nullable: false,
-          ),
+          graphQLString.nonNullable().field('filename'),
         ],
       ),
       objectType(
