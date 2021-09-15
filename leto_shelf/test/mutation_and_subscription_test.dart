@@ -12,8 +12,10 @@ Future<void> main() async {
   final globals = <Object, Object?>{};
   final _streamCallbacks = StreamCallbacks();
 
-  final booksController = BooksController(bookAddedCallbacks: _streamCallbacks);
-  setBooksController(globals, booksController);
+  booksControllerRef.set(
+    globals,
+    BooksController(bookAddedCallbacks: _streamCallbacks),
+  );
 
   final _server = await testServer(globals);
 

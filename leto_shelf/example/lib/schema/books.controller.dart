@@ -58,14 +58,45 @@ List<Map<String, Object?>> booksToJson(List<Book> books) {
   return books.map((e) => e.toJson()).toList();
 }
 
-final _booksControllerKey = GlobalRef('BooksController');
+final booksControllerRef = RefWithDefault(
+  'BooksController',
+  (_) => BooksController(),
+);
 
-BooksController? setBooksController(
-  Map<Object, Object?> globals,
-  BooksController controller,
-) =>
-    globals[_booksControllerKey] = controller;
+class RefWithDefault<T> {
+  final GlobalRef ref;
+  final T Function(Map<Object, Object?> globals) create;
 
-BooksController getBooksController(ReqCtx<Object> ctx) =>
-    ctx.globals.putIfAbsent(_booksControllerKey, () => BooksController())!
-        as BooksController;
+  RefWithDefault(String name, this.create) : ref = GlobalRef(name);
+
+  T set(
+    Map<Object, Object?> globals,
+    T controller,
+  ) {
+    return globals[ref] = controller;
+  }
+
+  T getFromGlobals(Map<Object, Object?> globals) {
+    return globals.putIfAbsent(ref, () => create(globals))! as T;
+  }
+
+  T get(ReqCtx<Object> ctx) {
+    return getFromGlobals(ctx.globals);
+  }
+}
+
+abstract class GlobalsHolder {
+  GlobalsHolder();
+
+  Map<Object, Object?> get globals;
+
+  factory GlobalsHolder.fromMap(Map<Object, Object?> map) = GlobalsHolderValue;
+  factory GlobalsHolder.empty() => GlobalsHolderValue({});
+}
+
+class GlobalsHolderValue extends GlobalsHolder {
+  @override
+  final Map<Object, Object?> globals;
+
+  GlobalsHolderValue(this.globals);
+}

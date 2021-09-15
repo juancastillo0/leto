@@ -6,7 +6,7 @@ part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
 @visibleForTesting
-const testUnionModelsTestKey = 'testUnionModels';
+final testUnionModelsTestKey = GlobalRef('testUnionModels');
 
 /// Custom doc
 @GraphQLClass()
