@@ -25,10 +25,7 @@ GraphQLSchema todosSchema() {
       graphQLBoolean,
       resolve: (obj, args) => obj.completed,
     ),
-    graphQLDate.field(
-      'time',
-      nullable: false,
-    ),
+    graphQLDate.nonNullable().field('time'),
     field(
       'users',
       listOf(userType),

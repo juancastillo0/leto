@@ -31,6 +31,10 @@ part 'ref_type.dart';
 
 part 'print_schema.dart';
 
+part 'decorators.dart';
+
+part 'req_ctx.dart';
+
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the backend must take.
@@ -61,7 +65,12 @@ class GraphQLSchema {
     this.description,
     this.directives = const [],
     SerdeCtx? serdeCtx,
-  }) : serdeCtx = serdeCtx ?? SerdeCtx();
+  })  : serdeCtx = serdeCtx ?? SerdeCtx(),
+        assert(
+          subscriptionType == null ||
+              subscriptionType.fields
+                  .every((f) => f.subscribe != null || f.resolve != null),
+        );
 }
 
 /// A shorthand for creating a [GraphQLSchema].
@@ -181,89 +190,5 @@ class GraphExceptionErrorLocation {
 
   Map<String, Object?> toJson() {
     return {'line': line, 'column': column};
-  }
-}
-
-typedef GraphDocumentationTypeProvider = GraphQLType Function();
-
-/// A metadata annotation used to provide documentation to
-/// `package:graphql_server`.
-class GraphQLDocumentation {
-  /// The description of the annotated class, field, or enum value, to be
-  /// displayed in tools like GraphiQL.
-  final String? description;
-
-  /// The reason the annotated field or enum value was deprecated, if any.
-  final String? deprecationReason;
-
-  /// A constant callback that returns an explicit type for the annotated field
-  /// , rather than having it be assumed
-  /// via `dart:mirrors`.
-  final GraphDocumentationTypeProvider? type;
-
-  /// The name of an explicit type for the annotated field, rather than
-  /// having it be assumed.
-  final Symbol? typeName;
-
-  const GraphQLDocumentation({
-    this.description,
-    this.deprecationReason,
-    this.type,
-    this.typeName,
-  });
-}
-
-/// The canonical instance.
-const GraphQLClass graphQLClass = GraphQLClass();
-
-/// Signifies that a class should statically generate a [GraphQLType].
-@Target({TargetKind.classType, TargetKind.enumType})
-class GraphQLClass {
-  const GraphQLClass();
-}
-
-/// The canonical instance.
-const GqlResolver graphQLResolver = GqlResolver._();
-
-/// Signifies that a function should statically generate a [GraphQLObjectField].
-@Target({TargetKind.function, TargetKind.method})
-class GqlResolver {
-  const GqlResolver._();
-}
-
-class Mutation extends GqlResolver {
-  const Mutation() : super._();
-}
-
-class Query extends GqlResolver {
-  const Query() : super._();
-}
-
-class Subscription extends GqlResolver {
-  const Subscription() : super._();
-}
-
-class GlobalRef {
-  final String name;
-
-  GlobalRef(this.name);
-}
-
-extension GraphQLScalarTypeExt<V extends Object, S extends Object>
-    on GraphQLScalarType<V, S> {
-  GraphQLObjectField<V, S, P> field<P>(
-    String name, {
-    bool nullable = true,
-    String? deprecationReason,
-    String? description,
-    GraphQLFieldResolver<V, P>? resolve,
-  }) {
-    return GraphQLObjectField(
-      name,
-      nullable ? this : nonNullable(),
-      resolve: resolve == null ? null : FieldResolver(resolve),
-      description: description,
-      deprecationReason: deprecationReason,
-    );
   }
 }

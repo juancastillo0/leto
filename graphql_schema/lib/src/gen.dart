@@ -70,3 +70,26 @@ GraphQLInputObjectField<T, Serialized>
     deprecationReason: deprecationReason,
   );
 }
+
+extension GraphQLFieldTypeExt<V extends Object, S extends Object>
+    on GraphQLType<V, S> {
+  GraphQLObjectField<V, S, P> field<P>(
+    String name, {
+    String? deprecationReason,
+    String? description,
+    GraphQLFieldResolver<V, P>? resolve,
+    GraphQLSubscriptionFieldResolver<V, P>? subscribe,
+    Iterable<GraphQLFieldInput<Object, Object>> arguments = const [],
+  }) {
+    return GraphQLObjectField(
+      name,
+      this,
+      resolve: resolve == null ? null : FieldResolver(resolve),
+      subscribe:
+          subscribe == null ? null : FieldSubscriptionResolver(subscribe),
+      description: description,
+      deprecationReason: deprecationReason,
+      arguments: arguments,
+    );
+  }
+}
