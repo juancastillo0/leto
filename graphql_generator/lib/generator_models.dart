@@ -19,10 +19,16 @@ Future<List<UnionVarianInfo>> freezedFields(
       hasFrezzed: true,
       isUnion: isUnion,
       interfaces: getGraphqlInterfaces(clazz),
-      typeName: con.redirectedConstructor?.returnType
-              .getDisplayString(withNullability: false) ??
-          con.name,
-      constructorName: con.name,
+      typeName: isUnion
+          ? con.redirectedConstructor?.returnType
+                  .getDisplayString(withNullability: false) ??
+              con.name
+          : className,
+      constructorName: isUnion
+          ? con.name
+          : con.redirectedConstructor?.returnType
+                  .getDisplayString(withNullability: false) ??
+              con.name,
       unionName: className,
       description: getDescription(con),
       deprecationReason: getDeprecationReason(con),
@@ -51,13 +57,18 @@ Future<FieldInfo> fieldFromParam(
   );
 }
 
-String serializerDefinitionCode(String typeName, {required bool hasFrezzed}) {
+String serializerDefinitionCode(
+  String typeName, {
+  required bool hasFrezzed,
+  String? constructorName,
+}) {
+  final _constructorName = constructorName ?? typeName;
   final prefix = hasFrezzed ? '_\$' : '_';
   return '''
 
 final ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
-  fromJson: $prefix\$${typeName}FromJson,
-  toJson: (m) => $prefix\$${typeName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$typeName),
+  fromJson: $prefix\$${_constructorName}FromJson,
+  toJson: (m) => $prefix\$${_constructorName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$_constructorName),
 );
 ''';
 }
@@ -88,7 +99,11 @@ class UnionVarianInfo {
   });
 
   Code serializer() {
-    return Code(serializerDefinitionCode(typeName, hasFrezzed: hasFrezzed));
+    return Code(serializerDefinitionCode(
+      typeName,
+      hasFrezzed: hasFrezzed,
+      constructorName: isUnion ? null : constructorName,
+    ));
   }
 
   // String get typeName => name;
