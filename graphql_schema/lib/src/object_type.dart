@@ -59,6 +59,7 @@ class GraphQLObjectType<P extends Object>
           f.name,
           f.type.coerceToInputObject(),
           description: f.description,
+          deprecationReason: f.deprecationReason,
         ),
       ),
     );
@@ -103,15 +104,11 @@ class GraphQLObjectType<P extends Object>
     final out = <String, Object?>{};
     final List<String> errors = [];
 
-    for (final field in fields) {
-      if (field.type.isNonNullable) {
-        if (!input.containsKey(field.name) || input[field.name] == null) {
-          errors.add(
-            'Field "${field.name}, of type ${field.type} cannot be null."',
-          );
-        }
-      }
-    }
+    errors.addAll(
+      fields.where((f) => f.type.isNonNullable && input[f.name] == null).map(
+          (field) =>
+              'Field "${field.name}, of type ${field.type} cannot be null."'),
+    );
 
     input.forEach((k, v) {
       final field = fields.firstWhereOrNull((f) => f.name == k);
@@ -133,14 +130,15 @@ class GraphQLObjectType<P extends Object>
 
     if (errors.isNotEmpty) {
       return ValidationResult.failure(errors);
-    } else
+    } else {
       return ValidationResult.ok(_foldToStringDynamic(out));
+    }
   }
 
   @override
   Map<String, dynamic> serialize(P value) {
-    final map = jsonFromValue(value);
-    return gqlFromJson(map, fields);
+    final map = _jsonFromValue(value);
+    return _gqlFromJson(map, fields);
     // return map.keys.fold(<String, dynamic>{}, (out, k) {
     //   final field = fields.firstWhereOrNull((f) => f.name == k);
     //   if (field == null)
@@ -152,11 +150,8 @@ class GraphQLObjectType<P extends Object>
   }
 
   @override
-  P deserialize(SerdeCtx serdeCtx, Map<String, Object?>? value) {
-    if (value == null) {
-      return null as P;
-    }
-    return valueFromJson(serdeCtx, value, fields);
+  P deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
+    return _valueFromJson(serdeCtx, serialized, fields);
     // return value.keys.fold(<String, Object?>{}, (out, k) {
     //   final field = fields.firstWhereOrNull((f) => f.name == k);
     //   if (field == null)
@@ -233,14 +228,12 @@ class GraphQLInputObjectType<Value extends Object>
     final out = <String, Object?>{};
     final List<String> errors = [];
 
-    for (final field in inputFields) {
-      if (field.type.isNonNullable) {
-        if (!input.containsKey(field.name) || input[field.name] == null) {
-          errors.add(
-              'Field "${field.name}, of type ${field.type} cannot be null."');
-        }
-      }
-    }
+    errors.addAll(
+      inputFields
+          .where((f) => f.type.isNonNullable && input[f.name] == null)
+          .map((field) =>
+              'Field "${field.name}, of type ${field.type} cannot be null."'),
+    );
 
     input.forEach((k, v) {
       final field = inputFields.firstWhereOrNull((f) => f.name == k);
@@ -269,19 +262,16 @@ class GraphQLInputObjectType<Value extends Object>
 
   @override
   Map<String, dynamic> serialize(Value value) {
-    final map = jsonFromValue(value!);
-    return gqlFromJson(map, inputFields);
+    final map = _jsonFromValue(value);
+    return _gqlFromJson(map, inputFields);
   }
 
   @override
-  Value deserialize(SerdeCtx serdeCtx, Map<String, Object?>? value) {
-    if (value == null) {
-      return null as Value;
-    }
+  Value deserialize(SerdeCtx serdeCtx, Map<String, Object?> value) {
     if (customDeserialize != null) {
       return customDeserialize!(value);
     } else {
-      return valueFromJson(serdeCtx, value, inputFields);
+      return _valueFromJson(serdeCtx, value, inputFields);
     }
     // return value.keys.fold(<String, dynamic>{}, (out, k) {
     //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
@@ -347,7 +337,7 @@ abstract class ObjectField {
   GraphQLType<Object?, Object?> get type;
 }
 
-Value valueFromJson<Value>(
+Value _valueFromJson<Value>(
   SerdeCtx serdeCtx,
   Map<String, Object?> map,
   List<ObjectField> fields,
@@ -355,7 +345,7 @@ Value valueFromJson<Value>(
   if (const <String, Object?>{} is! Value) {
     return serdeCtx.fromJson(map);
   } else {
-    final gql = map.map((k, value) {
+    return map.map((k, value) {
       final field = fields.firstWhere(
         (f) => f.name == k,
         orElse: () => throw UnsupportedError(
@@ -363,12 +353,11 @@ Value valueFromJson<Value>(
         ),
       );
       return MapEntry(k, field.type.deserialize(serdeCtx, value));
-    });
-    return serdeCtx.fromJson(gql);
+    }) as Value;
   }
 }
 
-Map<String, Object?> jsonFromValue(Object value) {
+Map<String, Object?> _jsonFromValue(Object value) {
   Map<String, Object?> map;
   if (value is Map) {
     map = value.cast();
@@ -382,7 +371,7 @@ Map<String, Object?> jsonFromValue(Object value) {
   return map;
 }
 
-Map<String, Object?> gqlFromJson(
+Map<String, Object?> _gqlFromJson(
   Map<String, Object?> map,
   List<ObjectField> fields,
 ) {
