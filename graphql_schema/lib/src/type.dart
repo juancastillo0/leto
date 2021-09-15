@@ -33,7 +33,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
 
   /// Creates a non-nullable type that represents this type, and enforces
   /// that a field of this type is present in input data.
-  GraphQLType<Value, Serialized> nonNullable();
+  GraphQLNonNullableType<Value, Serialized> nonNullable();
 
   /// Turns this type into one suitable for being provided as an input
   /// to a [GraphQLObjectField].
@@ -258,10 +258,10 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
 
 mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
     on GraphQLType<Value, Serialized> {
-  GraphQLType<Value, Serialized>? _nonNullableCache;
+  GraphQLNonNullableType<Value, Serialized>? _nonNullableCache;
 
   @override
-  GraphQLType<Value, Serialized> nonNullable() =>
+  GraphQLNonNullableType<Value, Serialized> nonNullable() =>
       _nonNullableCache ??= GraphQLNonNullableType<Value, Serialized>._(this);
 }
 
@@ -281,7 +281,7 @@ class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
       'A non-nullable binding to ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  GraphQLType<Value, Serialized> nonNullable() => this;
+  GraphQLNonNullableType<Value, Serialized> nonNullable() => this;
 
   @override
   ValidationResult<Serialized> validate(String key, Object? input) {
@@ -313,5 +313,25 @@ class GraphQLNonNullableType<Value extends Object, Serialized extends Object>
   @override
   GraphQLType<Value, Serialized> coerceToInputObject() {
     return ofType.coerceToInputObject().nonNullable();
+  }
+
+  GraphQLObjectField<Value, Serialized, P> field<P>(
+    String name, {
+    String? deprecationReason,
+    String? description,
+    FutureOr<Value> Function(P parent, ReqCtx<P> ctx)? resolve,
+    FutureOr<Stream<Value>> Function(P parent, ReqCtx<P> ctx)? subscribe,
+    Iterable<GraphQLFieldInput> arguments = const [],
+  }) {
+    return GraphQLObjectField(
+      name,
+      this,
+      resolve: resolve == null ? null : FieldResolver(resolve),
+      subscribe:
+          subscribe == null ? null : FieldSubscriptionResolver(subscribe),
+      description: description,
+      deprecationReason: deprecationReason,
+      arguments: arguments,
+    );
   }
 }
