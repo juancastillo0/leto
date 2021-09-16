@@ -141,6 +141,10 @@ final GraphQLObjectType<TestModelFreezed> testModelFreezedGraphQlType =
           field('dates', listOf(graphQLDate.nonNull()),
               resolve: (obj, ctx) => obj.dates,
               description: null,
+              deprecationReason: null),
+          field('hasDates', graphQLBoolean.nonNull(),
+              resolve: (obj, ctx) => obj.hasDates,
+              description: null,
               deprecationReason: null)
         ],
         isInterface: false,
@@ -172,6 +176,10 @@ final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
               resolve: (obj, ctx) => obj.models,
               description: null,
               deprecationReason: null),
+          field('hasDates', graphQLBoolean.nonNull(),
+              resolve: (obj, ctx) => obj.hasDates,
+              description: null,
+              deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant()
         ],
         isInterface: false,
@@ -197,6 +205,10 @@ final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
               deprecationReason: null),
           field('dates', listOf(graphQLDate.nonNull()),
               resolve: (obj, ctx) => obj.dates,
+              description: null,
+              deprecationReason: null),
+          field('hasDates', graphQLBoolean.nonNull(),
+              resolve: (obj, ctx) => obj.hasDates,
               description: null,
               deprecationReason: null),
           eventUnionGraphQlTypeDiscriminant()

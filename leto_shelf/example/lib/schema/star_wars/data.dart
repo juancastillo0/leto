@@ -120,7 +120,7 @@ List<Future<Character?>> getFriends(Character character) {
 }
 
 /// Allows us to fetch the undisputed hero of the Star Wars trilogy, R2-D2.
-Character getHero(int episode) {
+Character getHero(int? episode) {
   if (episode == 5) {
     // Luke is the hero of Episode V.
     return luke;

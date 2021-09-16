@@ -23,9 +23,12 @@ class _$HumanTearOff {
 
   _Human call(
       {required String id,
-      required String name,
-      required List<int> appearsIn,
-      required List<String> friends,
+      @GraphQLField(nullable: true)
+          required String name,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required List<int> appearsIn,
+      @GraphQLField(omit: true)
+          required List<String> friends,
       String? homePlanet}) {
     return _Human(
       id: id,
@@ -48,10 +51,13 @@ const $Human = _$HumanTearOff();
 mixin _$Human {
 // The id of the human.
   String get id => throw _privateConstructorUsedError; // The name of the human.
+  @GraphQLField(nullable: true)
   String get name =>
       throw _privateConstructorUsedError; // Which movies they appear in.
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   List<int> get appearsIn =>
       throw _privateConstructorUsedError; // The friends of the human, or an empty list if they have none.
+  @GraphQLField(omit: true)
   List<String> get friends =>
       throw _privateConstructorUsedError; // The home planet of the human, or null if unknown.
   String? get homePlanet => throw _privateConstructorUsedError;
@@ -67,9 +73,9 @@ abstract class $HumanCopyWith<$Res> {
       _$HumanCopyWithImpl<$Res>;
   $Res call(
       {String id,
-      String name,
-      List<int> appearsIn,
-      List<String> friends,
+      @GraphQLField(nullable: true) String name,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())') List<int> appearsIn,
+      @GraphQLField(omit: true) List<String> friends,
       String? homePlanet});
 }
 
@@ -121,9 +127,9 @@ abstract class _$HumanCopyWith<$Res> implements $HumanCopyWith<$Res> {
   @override
   $Res call(
       {String id,
-      String name,
-      List<int> appearsIn,
-      List<String> friends,
+      @GraphQLField(nullable: true) String name,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())') List<int> appearsIn,
+      @GraphQLField(omit: true) List<String> friends,
       String? homePlanet});
 }
 
@@ -174,9 +180,12 @@ class __$HumanCopyWithImpl<$Res> extends _$HumanCopyWithImpl<$Res>
 class _$_Human extends _Human {
   const _$_Human(
       {required this.id,
-      required this.name,
-      required this.appearsIn,
-      required this.friends,
+      @GraphQLField(nullable: true)
+          required this.name,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required this.appearsIn,
+      @GraphQLField(omit: true)
+          required this.friends,
       this.homePlanet})
       : super._();
 
@@ -186,10 +195,13 @@ class _$_Human extends _Human {
   @override // The id of the human.
   final String id;
   @override // The name of the human.
+  @GraphQLField(nullable: true)
   final String name;
   @override // Which movies they appear in.
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   final List<int> appearsIn;
   @override // The friends of the human, or an empty list if they have none.
+  @GraphQLField(omit: true)
   final List<String> friends;
   @override // The home planet of the human, or null if unknown.
   final String? homePlanet;
@@ -241,9 +253,12 @@ class _$_Human extends _Human {
 abstract class _Human extends Human {
   const factory _Human(
       {required String id,
-      required String name,
-      required List<int> appearsIn,
-      required List<String> friends,
+      @GraphQLField(nullable: true)
+          required String name,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required List<int> appearsIn,
+      @GraphQLField(omit: true)
+          required List<String> friends,
       String? homePlanet}) = _$_Human;
   const _Human._() : super._();
 
@@ -252,10 +267,13 @@ abstract class _Human extends Human {
   @override // The id of the human.
   String get id => throw _privateConstructorUsedError;
   @override // The name of the human.
+  @GraphQLField(nullable: true)
   String get name => throw _privateConstructorUsedError;
   @override // Which movies they appear in.
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   List<int> get appearsIn => throw _privateConstructorUsedError;
   @override // The friends of the human, or an empty list if they have none.
+  @GraphQLField(omit: true)
   List<String> get friends => throw _privateConstructorUsedError;
   @override // The home planet of the human, or null if unknown.
   String? get homePlanet => throw _privateConstructorUsedError;
@@ -270,10 +288,14 @@ class _$DroidTearOff {
 
   _Droid call(
       {required String id,
-      required String name,
-      required List<String> friends,
-      required List<int> appearsIn,
-      required String primaryFunction}) {
+      @GraphQLField(nullable: true)
+          required String name,
+      @GraphQLField(omit: true)
+          required List<String> friends,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required List<int> appearsIn,
+      @GraphQLField(nullable: true)
+          required String primaryFunction}) {
     return _Droid(
       id: id,
       name: name,
@@ -290,16 +312,16 @@ const $Droid = _$DroidTearOff();
 /// @nodoc
 mixin _$Droid {
   /// The id of the droid.
-  String get id =>
-      throw _privateConstructorUsedError; // TODO: nullable from decoration
-  String get name =>
-      throw _privateConstructorUsedError; // TODO: nullable from decoration
+  String get id => throw _privateConstructorUsedError;
+  @GraphQLField(nullable: true)
+  String get name => throw _privateConstructorUsedError;
+  @GraphQLField(omit: true)
   List<String> get friends =>
       throw _privateConstructorUsedError; // Which movies they appear in.
-// TODO: episodeEnum for int
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   List<int> get appearsIn =>
       throw _privateConstructorUsedError; // The primary function of the droid.
-// TODO: nullable from decoration
+  @GraphQLField(nullable: true)
   String get primaryFunction => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -312,10 +334,10 @@ abstract class $DroidCopyWith<$Res> {
       _$DroidCopyWithImpl<$Res>;
   $Res call(
       {String id,
-      String name,
-      List<String> friends,
-      List<int> appearsIn,
-      String primaryFunction});
+      @GraphQLField(nullable: true) String name,
+      @GraphQLField(omit: true) List<String> friends,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())') List<int> appearsIn,
+      @GraphQLField(nullable: true) String primaryFunction});
 }
 
 /// @nodoc
@@ -366,10 +388,10 @@ abstract class _$DroidCopyWith<$Res> implements $DroidCopyWith<$Res> {
   @override
   $Res call(
       {String id,
-      String name,
-      List<String> friends,
-      List<int> appearsIn,
-      String primaryFunction});
+      @GraphQLField(nullable: true) String name,
+      @GraphQLField(omit: true) List<String> friends,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())') List<int> appearsIn,
+      @GraphQLField(nullable: true) String primaryFunction});
 }
 
 /// @nodoc
@@ -420,25 +442,31 @@ class __$DroidCopyWithImpl<$Res> extends _$DroidCopyWithImpl<$Res>
 class _$_Droid extends _Droid {
   const _$_Droid(
       {required this.id,
-      required this.name,
-      required this.friends,
-      required this.appearsIn,
-      required this.primaryFunction})
+      @GraphQLField(nullable: true)
+          required this.name,
+      @GraphQLField(omit: true)
+          required this.friends,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required this.appearsIn,
+      @GraphQLField(nullable: true)
+          required this.primaryFunction})
       : super._();
 
   @override
 
   /// The id of the droid.
   final String id;
-  @override // TODO: nullable from decoration
+  @override
+  @GraphQLField(nullable: true)
   final String name;
-  @override // TODO: nullable from decoration
+  @override
+  @GraphQLField(omit: true)
   final List<String> friends;
   @override // Which movies they appear in.
-// TODO: episodeEnum for int
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   final List<int> appearsIn;
   @override // The primary function of the droid.
-// TODO: nullable from decoration
+  @GraphQLField(nullable: true)
   final String primaryFunction;
 
   @override
@@ -483,25 +511,31 @@ class _$_Droid extends _Droid {
 abstract class _Droid extends Droid {
   const factory _Droid(
       {required String id,
-      required String name,
-      required List<String> friends,
-      required List<int> appearsIn,
-      required String primaryFunction}) = _$_Droid;
+      @GraphQLField(nullable: true)
+          required String name,
+      @GraphQLField(omit: true)
+          required List<String> friends,
+      @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+          required List<int> appearsIn,
+      @GraphQLField(nullable: true)
+          required String primaryFunction}) = _$_Droid;
   const _Droid._() : super._();
 
   @override
 
   /// The id of the droid.
   String get id => throw _privateConstructorUsedError;
-  @override // TODO: nullable from decoration
+  @override
+  @GraphQLField(nullable: true)
   String get name => throw _privateConstructorUsedError;
-  @override // TODO: nullable from decoration
+  @override
+  @GraphQLField(omit: true)
   List<String> get friends => throw _privateConstructorUsedError;
   @override // Which movies they appear in.
-// TODO: episodeEnum for int
+  @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
   List<int> get appearsIn => throw _privateConstructorUsedError;
   @override // The primary function of the droid.
-// TODO: nullable from decoration
+  @GraphQLField(nullable: true)
   String get primaryFunction => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

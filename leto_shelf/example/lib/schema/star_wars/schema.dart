@@ -98,8 +98,9 @@ final episodeEnum = GraphQLEnumType(
 /// }
 /// ```
 // TODO: GraphQLInterfaceType
+GraphQLObjectType<Character>? _characterInterface;
 GraphQLObjectType<Character> characterInterface() {
-  return objectType(
+  return _characterInterface ??= objectType(
     'Character',
     description: 'A character in the Star Wars Trilogy',
     isInterface: true,
@@ -149,20 +150,19 @@ GraphQLObjectType<Character> characterInterface() {
 ///   secretBackstory: String
 /// }
 /// ```
-
-// TODO: implements Character
-@GraphQLClass()
+@GraphQLClass(interfaces: ['characterInterface()'])
 @freezed
 class Human with _$Human implements Character {
   const factory Human({
     // The id of the human.
     required String id,
     // The name of the human.
-    required String name,
+    @GraphQLField(nullable: true) required String name,
     // Which movies they appear in.
-    required List<int> appearsIn,
+    @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+        required List<int> appearsIn,
     // The friends of the human, or an empty list if they have none.
-    required List<String> friends,
+    @GraphQLField(omit: true) required List<String> friends,
     // The home planet of the human, or null if unknown.
     String? homePlanet,
   }) = _Human;
@@ -170,6 +170,9 @@ class Human with _$Human implements Character {
   const Human._();
 
   factory Human.fromJson(Map<String, Object?> json) => _$HumanFromJson(json);
+
+  @GraphQLField(name: 'friends', type: 'listOf(characterInterface())')
+  Future<List<Character?>?> get fetchFriends => Future.wait(getFriends(this));
 
   /// Where are they from and how they came to be who they are.
   String? get secretBackstory {
@@ -191,8 +194,7 @@ class Human with _$Human implements Character {
 /// }
 /// ```
 /// A mechanical creature in the Star Wars universe.
-/// TODO: implements Character
-@GraphQLClass()
+@GraphQLClass(interfaces: ['characterInterface()'])
 @freezed
 class Droid with _$Droid implements Character {
   // ignore: invalid_annotation_target
@@ -200,21 +202,18 @@ class Droid with _$Droid implements Character {
   const factory Droid({
     /// The id of the droid.
     required String id,
-    // TODO: nullable from decoration
-    required String name,
-    // TODO: nullable from decoration
-    required List<String> friends,
+    @GraphQLField(nullable: true) required String name,
+    @GraphQLField(omit: true) required List<String> friends,
     // Which movies they appear in.
-    // TODO: episodeEnum for int
-    required List<int> appearsIn,
+    @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
+        required List<int> appearsIn,
     // The primary function of the droid.
-    // TODO: nullable from decoration
-    required String primaryFunction,
+    @GraphQLField(nullable: true) required String primaryFunction,
   }) = _Droid;
 
   const Droid._();
 
-  // TODO: rename
+  @GraphQLField(name: 'friends', type: 'listOf(characterInterface())')
   Future<List<Character?>?> get fetchFriends => Future.wait(getFriends(this));
 
   /// Construction date and the name of the designer.
@@ -294,7 +293,7 @@ final queryType = objectType<Object>(
               'If provided, returns the hero of that particular episode.',
         ),
       ],
-      resolve: (_source, ctx) => getHero(ctx.args['episode']! as int),
+      resolve: (_source, ctx) => getHero(ctx.args['episode'] as int?),
     ),
     humanGraphQlType.field(
       'human',
