@@ -34,7 +34,6 @@ Future<void> main() async {
   final _server = await testServer(globalVariables);
   final url = _server.url;
 
-
   test('query ui html', () async {
     final client = http.Client();
 
@@ -52,7 +51,7 @@ Future<void> main() async {
   });
 
   test('file upload', () async {
-    final operations = const GraphqlRequest(
+    final operations = const GraphQLRequest(
         query: 'mutation addFile(\$fileVar: Upload!) { '
             ' addFile (file: \$fileVar){ filename mimeType sizeInBytes }'
             ' }',
@@ -156,7 +155,7 @@ query unions {
 
     /// GET without query text (using persistedQueryExtension)
     /// returns error since
-    final reqErr = GraphqlRequest(
+    final reqErr = GraphQLRequest(
       query: '',
       operationName: 'unions',
       extensions: persistedQueryExtension(sha256Hash),
@@ -172,7 +171,7 @@ query unions {
     });
 
     /// GET with query text (using persistedQueryExtension)
-    final req = GraphqlRequest(
+    final req = GraphQLRequest(
       query: _query,
       operationName: 'unions',
       extensions: persistedQueryExtension(sha256Hash),
@@ -184,7 +183,7 @@ query unions {
     expect(jsonDecode(response.body), expectedBody);
 
     /// POST without query text (using persistedQueryExtension)
-    final req2 = GraphqlRequest(
+    final req2 = GraphQLRequest(
       query: '',
       operationName: 'unions',
       extensions: persistedQueryExtension(sha256Hash),
@@ -196,5 +195,15 @@ query unions {
     );
     expect(response2.statusCode, 200);
     expect(jsonDecode(response2.body), expectedBody);
+
+    /// POST without query text batched
+    const reqBatched = GraphQLRequest(query: _query);
+    final responseBatched = await client.post(
+      url,
+      body: jsonEncode([req2.toJson(), reqBatched.toJson()]),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(responseBatched.statusCode, 200);
+    expect(jsonDecode(responseBatched.body), [expectedBody, expectedBody]);
   });
 }

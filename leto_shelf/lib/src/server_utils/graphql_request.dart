@@ -8,14 +8,14 @@ import 'request_from_multipart.dart';
 part 'graphql_request.g.dart';
 
 @JsonSerializable()
-class GraphqlRequest {
+class GraphQLRequest {
   final String query;
   final String? operationName;
   final Map<String, Object?>? variables;
   final Map<String, Object?>? extensions;
-  final GraphqlRequest? child;
+  final GraphQLRequest? child;
 
-  const GraphqlRequest({
+  const GraphQLRequest({
     required this.query,
     this.operationName,
     this.variables,
@@ -23,17 +23,28 @@ class GraphqlRequest {
     this.child,
   });
 
-  factory GraphqlRequest.fromJson(Map<String, Object?> json) =>
-      _$GraphqlRequestFromJson(json);
+  factory GraphQLRequest.fromJson(Object? json) {
+    if (json is List) {
+      final list = json.cast<Map<String, Object?>>();
+      return GraphQLRequest.fromJson(
+        list.reversed.reduce(
+          (value, element) {
+            return element..['child'] = value;
+          },
+        ),
+      );
+    }
+    return _$GraphqlRequestFromJson(json! as Map<String, Object?>);
+  }
 
   Map<String, Object?> toJson() => _$GraphqlRequestToJson(this);
 
-  factory GraphqlRequest.fromQueryParameters(
+  factory GraphQLRequest.fromQueryParameters(
     Map<String, String> queryParameters,
   ) {
     final variables = queryParameters['variables'];
     final extensions = queryParameters['extensions'];
-    return GraphqlRequest.fromJson({
+    return GraphQLRequest.fromJson(<String, Object?>{
       ...queryParameters,
       if (variables is String) 'variables': jsonDecode(variables),
       if (extensions is String) 'extensions': jsonDecode(extensions),
@@ -47,8 +58,16 @@ class GraphqlRequest {
         if (extensions != null) 'extensions': jsonEncode(extensions),
       };
 
-  static Result<GraphqlRequest, String> fromMultiPartFormData(
+  static Result<GraphQLRequest, String> fromMultiPartFormData(
     MultiPartData data,
   ) =>
       graphqlRequestFromMultiPartFormData(data);
+
+  Iterable<GraphQLRequest> asIterable() sync* {
+    GraphQLRequest? req = this;
+    while (req != null) {
+      yield req;
+      req = req.child;
+    }
+  }
 }

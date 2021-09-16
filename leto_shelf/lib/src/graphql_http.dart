@@ -26,14 +26,14 @@ Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
     };
 
     try {
-      final GraphqlRequest gqlQuery;
+      final GraphQLRequest gqlQuery;
       if (request.method == 'POST') {
         if (request.mimeType == 'application/graphql') {
           final text = await request.readAsString();
-          gqlQuery = GraphqlRequest(query: text);
+          gqlQuery = GraphQLRequest(query: text);
         } else if (request.mimeType == 'multipart/form-data') {
           final data = await extractMultiPartData(request);
-          final parseQueryResult = GraphqlRequest.fromMultiPartFormData(data);
+          final parseQueryResult = GraphQLRequest.fromMultiPartFormData(data);
           if (parseQueryResult.isErr()) {
             return Response(
               HttpStatus.badRequest,
@@ -42,31 +42,41 @@ Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
           }
           gqlQuery = parseQueryResult.unwrap();
         } else if (request.mimeType == 'application/json') {
-          final payload = extractJson(request)! as Map<String, Object?>;
-          if (payload['query'] == null) {
+          final payload = extractJson(request);
+          if (payload is Map<String, Object?> && payload['query'] == null) {
             payload['query'] = request.url.queryParameters['query'];
           }
-          gqlQuery = GraphqlRequest.fromJson(payload);
+          gqlQuery = GraphQLRequest.fromJson(payload);
         } else {
           return Response(HttpStatus.badRequest);
         }
       } else if (request.method == 'GET') {
-        gqlQuery = GraphqlRequest.fromQueryParameters(
+        gqlQuery = GraphQLRequest.fromQueryParameters(
           request.url.queryParameters,
         );
       } else {
         return Response.notFound('');
       }
 
-      final result = await graphQL.parseAndExecute(
-        gqlQuery.query,
-        operationName: gqlQuery.operationName,
-        variableValues: gqlQuery.variables,
-        globalVariables: _globalVariables,
-        extensions: gqlQuery.extensions,
-        sourceUrl: 'input',
-      );
-      final responseBody = result.toJson();
+      final results = gqlQuery.asIterable().map((gqlQuery) async {
+        // ignore: unnecessary_await_in_return
+        return await graphQL.parseAndExecute(
+          gqlQuery.query,
+          operationName: gqlQuery.operationName,
+          variableValues: gqlQuery.variables,
+          globalVariables: _globalVariables,
+          extensions: gqlQuery.extensions,
+          sourceUrl: 'input',
+        );
+      });
+      final resultList = await Future.wait(results);
+      final Object? responseBody;
+      if (resultList.length == 1) {
+        responseBody = resultList.first.toJson();
+      } else {
+        responseBody = resultList.map((e) => e.toJson()).toList();
+      }
+
       final headers = ReqCtx.headersFromGlobals(_globalVariables);
       final response = Response.ok(jsonEncode(responseBody), headers: {
         HttpHeaders.contentTypeHeader: 'application/json',

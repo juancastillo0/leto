@@ -11,7 +11,7 @@ class MultiPartData {
   const MultiPartData(this.body, this.files);
 }
 
-Result<GraphqlRequest, String> graphqlRequestFromMultiPartFormData(
+Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
   MultiPartData data,
 ) {
   final operationsStr = data.body['operations'];
@@ -21,36 +21,43 @@ Result<GraphqlRequest, String> graphqlRequestFromMultiPartFormData(
   final Object? _operations = json.decode(operationsStr);
   final List<Object?> operationsList =
       _operations is List ? _operations : [_operations];
-  // TODO: support batch requests
-  final operation = operationsList.first;
-
-  if (operation is! Map<String, Object?>) {
-    return Err('"operations" field must decode to a JSON object.');
-  } else if (operation['query'] is! String) {
-    return Err('"operations.query" field must be a String.');
-  } else if (operation['variables'] is! Map<String, Object?>) {
-    return Err('"operations.variables" field must be a Map.');
+  if (operationsList.isEmpty) {
+    return Err('"operations" field should have at least one operation.');
   }
 
-  final Object? map =
-      data.body.containsKey('map') ? json.decode(data.body['map']!) : null;
-  if (map is! Map<String, Object?>) {
-    return Err('"map" field must decode to a JSON object.');
-  }
-  final variablesResult = _assignFilesToVariables(
-    operation: operation,
-    map: map,
-    files: data.files,
-  );
-  if (variablesResult.isErr()) {
-    return Err(variablesResult.unwrapErr());
-  }
-  final variables = variablesResult.unwrap();
+  GraphQLRequest? current;
+  for (final operation in operationsList.reversed) {
+    if (operation is! Map<String, Object?>) {
+      return Err('"operations" field must decode to a JSON object.');
+    } else if (operation['query'] is! String) {
+      return Err('"operations.query" field must be a String.');
+    } else if (operation['variables'] is! Map<String, Object?>) {
+      return Err('"operations.variables" field must be a Map.');
+    }
 
-  return Ok(GraphqlRequest(
-    query: operation['query']! as String,
-    variables: variables,
-  ));
+    final Object? map =
+        data.body.containsKey('map') ? json.decode(data.body['map']!) : null;
+    if (map is! Map<String, Object?>) {
+      return Err('"map" field must decode to a JSON object.');
+    }
+    final variablesResult = _assignFilesToVariables(
+      operation: operation,
+      map: map,
+      files: data.files,
+    );
+    if (variablesResult.isErr()) {
+      return Err(variablesResult.unwrapErr());
+    }
+    final variables = variablesResult.unwrap();
+
+    current = GraphQLRequest(
+      query: operation['query']! as String,
+      variables: variables,
+      child: current,
+    );
+  }
+
+  return Ok(current!);
 }
 
 Result<Map<String, Object?>, String> _assignFilesToVariables({
