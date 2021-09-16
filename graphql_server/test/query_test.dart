@@ -15,7 +15,7 @@ void main() {
     final result = await graphql.parseAndExecute('{ todos { text } }');
 
     print(result);
-    expect(result, {
+    expect(result.data, {
       'todos': [
         {'text': 'Clean your room!'}
       ]
@@ -40,7 +40,7 @@ void main() {
     );
 
     print(resultmut);
-    expect(resultmut, {
+    expect(resultmut.data, {
       'completeTodo': {
         'text': 'Clean your room! mut',
         'completed': true,

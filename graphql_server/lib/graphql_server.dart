@@ -11,6 +11,9 @@ import 'package:oxidized/oxidized.dart';
 import 'package:source_span/source_span.dart';
 
 import 'introspection.dart';
+import 'src/graphql_result.dart';
+
+export 'src/graphql_result.dart';
 
 /// Transforms any [Map] into `Map<String, dynamic>`.
 Map<String, dynamic>? foldToStringDynamic(Map map) {
@@ -119,7 +122,7 @@ class GraphQL {
   // if there are errors inside resolvers, those should be returned
   // https://graphql.org/learn/serving-over-http/
   //   - field should only be included if the error occurred during execution.
-  Future<Object> parseAndExecute(
+  Future<GraphQLResult> parseAndExecute(
     String text, {
     String? operationName,
 
@@ -129,20 +132,28 @@ class GraphQL {
     Map<String, Object?>? extensions,
     Object? initialValue,
     Map<Object, Object?>? globalVariables,
-  }) {
-    final document = getDocumentNode(
-      text,
-      sourceUrl: sourceUrl,
-      extensions: extensions,
-    );
-    return executeRequest(
-      _schema,
-      document,
-      operationName: operationName,
-      initialValue: initialValue ?? globalVariables ?? initialGlobalVariables,
-      variableValues: variableValues,
-      globalVariables: globalVariables,
-    );
+  }) async {
+    try {
+      final document = getDocumentNode(
+        text,
+        sourceUrl: sourceUrl,
+        extensions: extensions,
+      );
+      return executeRequest(
+        _schema,
+        document,
+        operationName: operationName,
+        initialValue: initialValue ?? globalVariables ?? initialGlobalVariables,
+        variableValues: variableValues,
+        globalVariables: globalVariables,
+      );
+    } on GraphQLException catch (e) {
+      return GraphQLResult(
+        null,
+        errors: e.errors,
+        didExecute: false,
+      );
+    }
   }
 
   DocumentNode getDocumentNode(
@@ -187,7 +198,7 @@ class GraphQL {
           errors.add(GraphQLExceptionError(
             e.message,
             locations: [
-              GraphExceptionErrorLocation.fromSourceLocation(e.span?.start),
+              GraphQLErrorLocation.fromSourceLocation(e.span?.start),
             ],
           ));
         } catch (e) {
@@ -203,7 +214,7 @@ class GraphQL {
     return document;
   }
 
-  Future<Object> executeRequest(
+  Future<GraphQLResult> executeRequest(
     GraphQLSchema schema,
     DocumentNode document, {
     String? operationName,
@@ -225,13 +236,26 @@ class GraphQL {
       serdeCtx: schema.serdeCtx,
       variableValues: coercedVariableValues,
     );
-    switch (operation.type) {
-      case OperationType.query:
-        return executeQuery(ctx, operation, schema, initialValue);
-      case OperationType.subscription:
-        return subscribe(ctx, operation, schema, initialValue);
-      case OperationType.mutation:
-        return executeMutation(ctx, operation, schema, initialValue);
+
+    try {
+      final Object? data;
+      switch (operation.type) {
+        case OperationType.query:
+          data = await executeQuery(ctx, operation, schema, initialValue);
+          break;
+        case OperationType.subscription:
+          data = await subscribe(ctx, operation, schema, initialValue);
+          break;
+        case OperationType.mutation:
+          data = await executeMutation(ctx, operation, schema, initialValue);
+          break;
+      }
+      return GraphQLResult(data, errors: ctx.errors);
+    } on GraphQLException catch (e) {
+      return GraphQLResult(
+        null,
+        errors: ctx.errors.followedBy(e.errors).toList(),
+      );
     }
   }
 
@@ -295,7 +319,7 @@ class GraphQL {
                   (e) => GraphQLExceptionError(
                     e,
                     locations: [
-                      GraphExceptionErrorLocation.fromSourceLocation(
+                      GraphQLErrorLocation.fromSourceLocation(
                         variableDefinition.span?.start,
                       )
                     ],
@@ -381,7 +405,7 @@ class GraphQL {
     }
     final fields = groupedFieldSet.entries.first.value;
     final fieldNode = fields.first;
-    final fieldName = fieldNode.alias?.value ?? fieldNode.name.value;
+    final fieldName = fieldNode.name.value;
     final argumentValues = coerceArgumentValues(
         schema.serdeCtx, subscriptionType, fieldNode, baseCtx.variableValues);
     final stream = await resolveFieldEventStream(
@@ -480,6 +504,7 @@ class GraphQL {
     Object objectValue, {
     required bool serial,
     ResolveObjectCtx? parentCtx,
+    Object? fieldPath,
   }) async {
     final groupedFieldSet = collectFields(
       baseCtx.document,
@@ -495,6 +520,7 @@ class GraphQL {
       objectType: objectType,
       objectValue: objectValue,
       parent: parentCtx,
+      fieldPath: fieldPath,
     );
 
     // If during ExecuteSelectionSet() a field with a non‐null fieldType throws
@@ -506,7 +532,7 @@ class GraphQL {
       final fields = groupEntry.value;
       final field = fields.first;
       // TODO: test alias?
-      final fieldName = field.alias?.value ?? field.name.value;
+      final fieldName = field.name.value;
       FutureOr<dynamic> futureResponseValue;
 
       if (fieldName == '__typename') {
@@ -518,13 +544,27 @@ class GraphQL {
         if (objectField == null) continue;
 
         futureResponseValue = (() async {
-          // improved debugging
-          // ignore: unnecessary_await_in_return
-          return await executeField(
-            fields,
-            objectCtx,
-            objectField,
-          );
+          try {
+            // improved debugging
+            // ignore: unnecessary_await_in_return
+            return await executeField(
+              fields,
+              objectCtx,
+              objectField,
+            );
+          } on Exception catch (e) {
+            final err = GraphQLException.fromException(
+              e,
+              [...objectCtx.path, fieldName],
+            );
+            if (objectField.type.isNullable) {
+              // TODO: chnage GraphQLException
+              baseCtx.errors.add(err.errors.first);
+              return null;
+            } else {
+              throw err;
+            }
+          }
         })();
       }
       if (serial) {
@@ -651,7 +691,7 @@ class GraphQL {
                   'Type coercion error for value of argument'
                   ' "$argumentName" of field "$fieldName".',
                   locations: [
-                    GraphExceptionErrorLocation.fromSourceLocation(
+                    GraphQLErrorLocation.fromSourceLocation(
                         argumentValue.value.span?.start)
                   ],
                 )
@@ -662,7 +702,7 @@ class GraphQL {
                   GraphQLExceptionError(
                     error,
                     locations: [
-                      GraphExceptionErrorLocation.fromSourceLocation(
+                      GraphQLErrorLocation.fromSourceLocation(
                           argumentValue.value.span?.start)
                     ],
                   ),
@@ -687,14 +727,14 @@ class GraphQL {
               'Type coercion error for value of argument '
               '"$argumentName" of field "$fieldName".',
               locations: [
-                GraphExceptionErrorLocation.fromSourceLocation(
+                GraphQLErrorLocation.fromSourceLocation(
                     argumentValue.value.span?.start)
               ],
             ),
             GraphQLExceptionError(
               e.toString(),
               locations: [
-                GraphExceptionErrorLocation.fromSourceLocation(
+                GraphQLErrorLocation.fromSourceLocation(
                     argumentValue.value.span?.start)
               ],
             ),
@@ -759,6 +799,7 @@ class GraphQL {
     if (fieldType.isNullable && result == null) {
       return null;
     }
+    final path = ctx.path.followedBy([fieldName]).toList();
     Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
       try {
         Object? _result = result;
@@ -776,6 +817,7 @@ class GraphQL {
         throw GraphQLException.fromMessage(
           'Value of field "$fieldName" must be '
           '${fieldType.generic.type}, got $result instead.',
+          path: path,
         );
       }
     }
@@ -791,7 +833,7 @@ class GraphQL {
 
       final subSelectionSet = mergeSelectionSets(fields);
       return executeSelectionSet(ctx.base, subSelectionSet, objectType, result!,
-          serial: false, parentCtx: ctx);
+          serial: false, parentCtx: ctx, fieldPath: fieldName);
     }
 
     return fieldType.when(
@@ -807,7 +849,9 @@ class GraphQL {
 
         if (completedResult == null) {
           throw GraphQLException.fromMessage(
-              'Null value provided for non-nullable field "$fieldName".');
+            'Null value provided for non-nullable field "$fieldName".',
+            path: path,
+          );
         } else {
           return completedResult;
         }
@@ -815,17 +859,35 @@ class GraphQL {
       list: (fieldType) async {
         if (result is! Iterable) {
           throw GraphQLException.fromMessage(
-            'Value of field "$fieldName" must be a list '
-            'or iterable, got $result instead.',
-          );
+              'Value of field "$fieldName" must be a list '
+              'or iterable, got $result instead.',
+              path: path);
         }
 
         final innerType = fieldType.ofType;
         final futureOut = <Future<Object?>>[];
 
+        int i = 0;
         for (final resultItem in result) {
+          final _i = i++;
           futureOut.add(completeValue(
-              ctx, '(item in "$fieldName")', innerType, fields, resultItem));
+            ctx,
+            _i.toString(), //'(item in "$fieldName")',
+            innerType,
+            fields,
+            resultItem,
+          ).onError<Exception>((error, stackTrace) {
+            final err = GraphQLException.fromException(
+              error,
+              [...path, fieldName, _i],
+            );
+            if (innerType.isNullable) {
+              ctx.base.errors.add(err.errors.first);
+              return null;
+            } else {
+              throw err;
+            }
+          }));
         }
 
         final out = <Object?>[];
@@ -881,7 +943,9 @@ class GraphQL {
           return t;
         }
 
-        errors.addAll(validation.errors.map((m) => GraphQLExceptionError(m)));
+        errors.addAll(validation.errors.map(
+          (m) => GraphQLExceptionError(m),
+        ));
       } on GraphQLException catch (e) {
         errors.addAll(e.errors);
       }
@@ -889,7 +953,9 @@ class GraphQL {
 
     errors.insert(
       0,
-      GraphQLExceptionError('Cannot convert value $result to type $type.'),
+      GraphQLExceptionError(
+        'Cannot convert value $result to type $type.',
+      ),
     );
 
     // TODO: check if there is only one type matching
@@ -1006,7 +1072,9 @@ class GraphQL {
       final vname = vv.name;
       if (!variableValues.containsKey(vname)) {
         throw GraphQLException.fromSourceSpan(
-            'Unknown variable: "$vname"', vv.span!);
+          'Unknown variable: "$vname"',
+          vv.span!,
+        );
       }
       return variableValues[vname as String];
     }
@@ -1074,7 +1142,7 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
           node.span!,
         );
       } else {
-        return matchingValue.value;
+        return matchingValue.name;
       }
     }
   }
@@ -1109,12 +1177,13 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
 }
 
 class ResolveCtx {
+  final errors = <GraphQLExceptionError>[];
   final SerdeCtx serdeCtx;
   final DocumentNode document;
   final Map<String, dynamic> variableValues;
   final Map<Object, dynamic> globalVariables;
 
-  const ResolveCtx({
+  ResolveCtx({
     required this.serdeCtx,
     required this.document,
     required this.variableValues,
@@ -1133,8 +1202,15 @@ class ResolveObjectCtx<P extends Object> {
   final GraphQLObjectType<P> objectType;
   final P objectValue;
   final ResolveObjectCtx<Object>? parent;
+  final Object? fieldPath;
+
+  // TODO: support aliases?
+  Iterable<Object> get path => parent == null
+      ? [if (fieldPath != null) fieldPath!]
+      : parent!.path.followedBy([if (fieldPath != null) fieldPath!]);
 
   ResolveObjectCtx({
+    required this.fieldPath,
     required this.base,
     required this.objectType,
     required this.objectValue,

@@ -36,13 +36,14 @@ void main() {
   final graphQL = GraphQL(schema);
 
   test('subscribe with selection', () async {
-    final stream = await graphQL.parseAndExecute('''
+    final result = await graphQL.parseAndExecute('''
     subscription {
       prequels {
         name
       }
     }
-    ''') as Stream<Map<String, dynamic>>;
+    ''');
+    final stream = result.data! as Stream<Map<String, dynamic>>;
 
     final asList = await stream.toList();
     print(asList);

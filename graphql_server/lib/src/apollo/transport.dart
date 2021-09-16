@@ -1,5 +1,3 @@
-import 'package:graphql_schema/graphql_schema.dart';
-
 /// A basic message in the Apollo WebSocket protocol.
 class OperationMessage {
   static const String gqlConnectionInit = 'connection_init',
@@ -68,11 +66,4 @@ class OperationMessage {
     if (payload != null) out['payload'] = payload;
     return out;
   }
-}
-
-class GraphQLResult {
-  final dynamic data;
-  final Iterable<GraphQLExceptionError> errors;
-
-  GraphQLResult(this.data, {this.errors = const []});
 }

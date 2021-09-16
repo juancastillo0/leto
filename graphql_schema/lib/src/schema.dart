@@ -98,21 +98,48 @@ class GraphQLException implements Exception {
 
   const GraphQLException(this.errors);
 
-  factory GraphQLException.fromMessage(String message) {
+  factory GraphQLException.fromMessage(
+    String message, {
+    List<Object>? path,
+  }) {
     return GraphQLException([
-      GraphQLExceptionError(message),
+      GraphQLExceptionError(message, path: path),
     ]);
   }
 
-  factory GraphQLException.fromSourceSpan(String message, FileSpan span) {
+  factory GraphQLException.fromSourceSpan(
+    String message,
+    FileSpan span, {
+    List<Object>? path,
+  }) {
     return GraphQLException([
       GraphQLExceptionError(
         message,
         locations: [
-          GraphExceptionErrorLocation.fromSourceLocation(span.start),
+          GraphQLErrorLocation.fromSourceLocation(span.start),
         ],
+        path: path,
       ),
     ]);
+  }
+
+  factory GraphQLException.fromException(Exception e, List<Object> path) {
+    if (e is GraphQLException) {
+      return GraphQLException([
+        ...e.errors.map(
+          (e) => GraphQLExceptionError(
+            e.message,
+            locations: e.locations,
+            path: path,
+          ),
+        ),
+      ]);
+    }
+    final message = e.toString();
+    return GraphQLException.fromMessage(
+      message.startsWith('Exception: ') ? message.substring(11) : message,
+      path: path,
+    );
   }
 
   Map<String, List<Map<String, dynamic>>> toJson() {
@@ -143,16 +170,26 @@ class GraphQLExceptionError {
   /// Smart tools can use this information to show end users exactly
   /// which part of the errant query
   /// triggered an error.
-  final List<GraphExceptionErrorLocation> locations;
+  final List<GraphQLErrorLocation> locations;
+
+  /// List of field names (with aliased names) or 0‐indexed integers for list
+  final List<Object>? path;
 
   final StackTrace stackTrace;
 
-  GraphQLExceptionError(this.message, {this.locations = const []})
-      // TODO: improve
-      : stackTrace = StackTrace.current;
+  GraphQLExceptionError(
+    this.message, {
+    this.locations = const [],
+    this.path,
+  })
+  // TODO: improve
+  : stackTrace = StackTrace.current;
 
   Map<String, dynamic> toJson() {
-    final out = <String, dynamic>{'message': message};
+    final out = <String, dynamic>{
+      'message': message,
+      if (path != null) 'path': path
+    };
     final locationsFiltered = locations.where((l) => l.line != null);
     if (locationsFiltered.isNotEmpty) {
       out['locations'] = locationsFiltered.map((l) => l.toJson()).toList();
@@ -170,19 +207,18 @@ class GraphQLExceptionError {
 /// the execution of a GraphQL query.
 ///
 /// This is analogous to a [SourceLocation] from `package:source_span`.
-class GraphExceptionErrorLocation {
+class GraphQLErrorLocation {
   // TODO:
   final int? line;
   final int? column;
 
-  const GraphExceptionErrorLocation(
+  const GraphQLErrorLocation(
     this.line,
     this.column,
   );
 
-  factory GraphExceptionErrorLocation.fromSourceLocation(
-      SourceLocation? location) {
-    return GraphExceptionErrorLocation(
+  factory GraphQLErrorLocation.fromSourceLocation(SourceLocation? location) {
+    return GraphQLErrorLocation(
       location?.line,
       location?.column,
     );

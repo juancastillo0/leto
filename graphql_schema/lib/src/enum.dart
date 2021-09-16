@@ -51,7 +51,6 @@ class GraphQLEnumType<Value extends Object>
 
   @override
   String serialize(Value value) {
-    // if (value == null) return null;
     return values.firstWhere((v) => v.value == value).name;
   }
 
@@ -62,13 +61,12 @@ class GraphQLEnumType<Value extends Object>
 
   @override
   ValidationResult<String> validate(String key, Object? input) {
+    if (input == null) {
+      return ValidationResult<String>.failure(
+          ['The enum "$name" does not accept null values.']);
+    }
     final value = values.firstWhereOrNull((v) => v.name == input);
     if (value == null) {
-      if (input == null) {
-        return ValidationResult<String>.failure(
-            ['The enum "$name" does not accept null values.']);
-      }
-
       return ValidationResult<String>.failure(
           ['"$input" is not a valid value for the enum "$name".']);
     }
