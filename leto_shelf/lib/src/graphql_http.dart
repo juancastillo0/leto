@@ -58,20 +58,15 @@ Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
         return Response.notFound('');
       }
 
-      Map<String, Object?> responseBody;
-      try {
-        final data = await graphQL.parseAndExecute(
-          gqlQuery.query,
-          operationName: gqlQuery.operationName,
-          variableValues: gqlQuery.variables,
-          globalVariables: _globalVariables,
-          extensions: gqlQuery.extensions,
-          sourceUrl: 'input',
-        );
-        responseBody = {'data': data};
-      } on GraphQLException catch (e) {
-        responseBody = e.toJson();
-      }
+      final result = await graphQL.parseAndExecute(
+        gqlQuery.query,
+        operationName: gqlQuery.operationName,
+        variableValues: gqlQuery.variables,
+        globalVariables: _globalVariables,
+        extensions: gqlQuery.extensions,
+        sourceUrl: 'input',
+      );
+      final responseBody = result.toJson();
       final headers = ReqCtx.headersFromGlobals(_globalVariables);
       final response = Response.ok(jsonEncode(responseBody), headers: {
         HttpHeaders.contentTypeHeader: 'application/json',

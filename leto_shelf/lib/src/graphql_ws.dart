@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/subscriptions_transport_ws.dart' as stw;
 import 'package:shelf/shelf.dart';
@@ -54,29 +53,24 @@ class _GraphQLWSServer extends stw.Server {
   bool onConnect(stw.RemoteClient client, [Map? connectionParams]) => true;
 
   @override
-  Future<stw.GraphQLResult> onOperation(
+  Future<GraphQLResult> onOperation(
     String? id,
     String query, [
     Map<String, Object?>? variables,
     String? operationName,
   ]) async {
-    try {
-      final _globalVariables = <Object, Object?>{
-        requestCtxKey: request,
-        if (globalVariables != null) ...globalVariables!
-      };
-      final data = await graphQL.parseAndExecute(
-        query,
-        operationName: operationName,
-        variableValues: variables,
-        globalVariables: _globalVariables,
-        // TODO: extensions? headers? auth?
-        sourceUrl: 'input',
-      );
-      return stw.GraphQLResult(data);
-    } on GraphQLException catch (e) {
-      return stw.GraphQLResult(null, errors: e.errors);
-    }
+    final _globalVariables = <Object, Object?>{
+      requestCtxKey: request,
+      if (globalVariables != null) ...globalVariables!
+    };
+    return graphQL.parseAndExecute(
+      query,
+      operationName: operationName,
+      variableValues: variables,
+      globalVariables: _globalVariables,
+      // TODO: extensions? headers? auth?
+      sourceUrl: 'input',
+    );
   }
 }
 
