@@ -1,10 +1,16 @@
 import 'dart:async';
 
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:graphql_generator/utils.dart';
+import 'package:graphql_schema/graphql_schema.dart';
 import 'package:recase/recase.dart';
+import 'package:source_gen/source_gen.dart';
 
 Future<List<UnionVarianInfo>> freezedFields(
   ClassElement clazz,
@@ -12,46 +18,117 @@ Future<List<UnionVarianInfo>> freezedFields(
   required bool isUnion,
 }) async {
   final className = ReCase(clazz.name).pascalCase;
+  final _unionClassFields = clazz.methods
+      .map((m) => fieldFromElement(m, m.returnType))
+      .followedBy(clazz.fields.map((m) => fieldFromElement(m, m.type)));
+
   return Future.wait(
       clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
+    final redirectedName = con.redirectedConstructor?.returnType
+            .getDisplayString(withNullability: false) ??
+        con.name;
+
     return UnionVarianInfo(
       isInterface: isInterface(clazz),
       hasFrezzed: true,
       isUnion: isUnion,
       interfaces: getGraphqlInterfaces(clazz),
-      typeName: isUnion
-          ? con.redirectedConstructor?.returnType
-                  .getDisplayString(withNullability: false) ??
-              con.name
-          : className,
-      constructorName: isUnion
-          ? con.name
-          : con.redirectedConstructor?.returnType
-                  .getDisplayString(withNullability: false) ??
-              con.name,
+      typeName: isUnion ? redirectedName : className,
+      constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
       description: getDescription(con),
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
-        con.parameters.map(
-          (p) => fieldFromParam(p, buildStep),
-        ),
+        con.parameters
+            .map((p) => fieldFromParam(p, buildStep))
+            .followedBy(_unionClassFields),
       ),
     );
   }));
 }
 
+GraphQLField getFieldAnnot(Element e) {
+  const graphQLFieldTypeChecker = TypeChecker.fromRuntime(GraphQLField);
+  DartObject? _annot;
+  if (!graphQLFieldTypeChecker.hasAnnotationOf(e, throwOnUnresolved: false)) {
+    if (e is FieldElement && e.getter != null) {
+      return getFieldAnnot(e.getter!);
+    } else if (e is ParameterElement) {
+      _annot = e.metadata.firstWhereOrNull(
+        (element) {
+          final type = element.computeConstantValue()?.type;
+          return type != null && graphQLFieldTypeChecker.isExactlyType(type);
+        },
+      )?.computeConstantValue();
+    }
+    if (_annot == null) {
+      return const GraphQLField();
+    }
+  }
+  final annot = graphQLFieldTypeChecker.firstAnnotationOf(
+    e,
+    throwOnUnresolved: false,
+  )!;
+
+  final name = annot.getField('name')?.toStringValue();
+  final omit = annot.getField('omit')?.toBoolValue();
+  final nullable = annot.getField('nullable')?.toBoolValue();
+  final type = annot.getField('type')?.toStringValue();
+
+  return GraphQLField(
+    name: name,
+    omit: omit,
+    nullable: nullable,
+    type: type,
+  );
+}
+
 bool isFreezedVariantConstructor(ConstructorElement con) =>
     con.name != '_' && con.name != 'fromJson';
+
+// Future<FieldInfo> fieldFromMethod(MethodElement method) async {
+//   final annot = getFieldAnnot(method);
+//   return FieldInfo(
+//     gqlType: inferType('', method.name, method.type),
+//     name: annot.name ?? method.name,
+//     nonNullable: annot.nullable != true &&
+//         method.returnType.nullabilitySuffix == NullabilitySuffix.none,
+//     fieldAnnot: annot,
+//     description: getDescription(method),
+//     deprecationReason: getDeprecationReason(method),
+//   );
+// }
+
+Future<FieldInfo> fieldFromElement(Element method, DartType type) async {
+  final annot = getFieldAnnot(method);
+  return FieldInfo(
+    gqlType: annot.type != null
+        ? refer(annot.type!)
+        : inferType('', method.name!, type, nullable: annot.nullable),
+    name: annot.name ?? method.name!,
+    // TODO: properly resolve
+    getter: method is MethodElement ? '${method.name}()' : method.name!,
+    nonNullable: annot.nullable != true &&
+        type.nullabilitySuffix == NullabilitySuffix.none,
+    fieldAnnot: annot,
+    description: getDescription(method),
+    deprecationReason: getDeprecationReason(method),
+  );
+}
 
 Future<FieldInfo> fieldFromParam(
   ParameterElement param,
   BuildStep buildStep,
 ) async {
+  final annot = getFieldAnnot(param);
   return FieldInfo(
-    gqlType: inferType('', param.name, param.type),
-    name: param.name,
-    nonNullable: param.isNotOptional,
+    gqlType: annot.type != null
+        ? refer(annot.type!)
+        : inferType('', param.name, param.type, nullable: annot.nullable),
+    name: annot.name ?? param.name,
+    getter: param.name,
+    nonNullable: annot.nullable != true && param.isNotOptional,
+    fieldAnnot: annot,
     description: await documentationOfParameter(param, buildStep),
     deprecationReason: getDeprecationReason(param),
   );
@@ -129,6 +206,7 @@ class UnionVarianInfo {
       {
         'fields': literalList(
           fields
+              .where((e) => e.fieldAnnot.omit != true)
               .map((e) => e.expression())
               .followedBy([if (isUnion) refer(unionKeyName)]),
         ),
@@ -147,17 +225,21 @@ class UnionVarianInfo {
 
 class FieldInfo {
   final String name;
+  final String getter;
   final bool nonNullable;
   final Expression gqlType;
   final String? description;
+  final GraphQLField fieldAnnot;
   final String? deprecationReason;
 
   const FieldInfo({
     required this.name,
+    required this.getter,
     required this.nonNullable,
     required this.gqlType,
     required this.description,
     required this.deprecationReason,
+    required this.fieldAnnot,
   });
 
   Expression expression() {
@@ -173,7 +255,8 @@ class FieldInfo {
               Parameter((p) => p..name = 'obj'),
               Parameter((p) => p..name = 'ctx'),
             ])
-            ..body = Code('obj.$name')
+            // TODO: support resolve method
+            ..body = Code('obj.$getter')
             ..lambda = true,
         ).genericClosure,
         'description': description == null || description!.isEmpty

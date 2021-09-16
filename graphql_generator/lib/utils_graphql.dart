@@ -26,13 +26,23 @@ bool isGraphQLClass(InterfaceType clazz) {
 }
 
 List<Expression> getGraphqlInterfaces(ClassElement clazz) {
+  final annot = graphQLClassTypeChecker.firstAnnotationOfExact(clazz);
+  final List<String> interfaces = annot!
+      .getField('interfaces')!
+      .toListValue()!
+      .map((i) => i.toStringValue()!)
+      .toList();
   // Add interfaces
-  return clazz.interfaces.where(isGraphQLClass).map((c) {
-    // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
-    final name = c.name!.startsWith('_') ? c.name!.substring(1) : c.name!;
-    final rc = ReCase(name);
-    return refer('${rc.camelCase}$graphqlTypeSuffix');
-  }).toList();
+  return clazz.interfaces
+      .where(isGraphQLClass)
+      .map((c) {
+        // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
+        final name = c.name!.startsWith('_') ? c.name!.substring(1) : c.name!;
+        final rc = ReCase(name);
+        return refer('${rc.camelCase}$graphqlTypeSuffix');
+      })
+      .followedBy(interfaces.map(refer))
+      .toList();
 }
 
 bool isInterface(ClassElement clazz) {
@@ -40,7 +50,8 @@ bool isInterface(ClassElement clazz) {
   return clazz.isAbstract;
 }
 
-Expression inferType(String className, String name, DartType type) {
+Expression inferType(String className, String name, DartType type,
+    {bool? nullable}) {
   // Next, check if this is the "id" field of a `Model`.
   // TODO:
   // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
@@ -48,9 +59,17 @@ Expression inferType(String className, String name, DartType type) {
   //   return refer('graphQLId');
   // }
 
+  if (type is ParameterizedType &&
+      type.typeArguments.isNotEmpty &&
+      (type.isDartAsyncFuture ||
+          type.isDartAsyncFutureOr ||
+          const TypeChecker.fromRuntime(Stream).isAssignableFromType(type))) {
+    final arg = type.typeArguments[0];
+    return inferType(className, name, arg);
+  }
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
   Expression _wrapNullability(Expression exp) =>
-      nonNullable ? exp.property('nonNull').call([]) : exp;
+      nonNullable && nullable != true ? exp.property('nonNull').call([]) : exp;
 
   const primitive = {
     String: 'graphQLString',

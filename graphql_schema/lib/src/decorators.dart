@@ -17,7 +17,27 @@ class GraphQLInput {
 /// [GraphQLEnumType] for enums
 @Target({TargetKind.classType, TargetKind.enumType})
 class GraphQLClass {
-  const GraphQLClass();
+  const GraphQLClass({
+    this.interfaces = const [],
+    this.omit,
+    this.nullable,
+  });
+  final List<String> interfaces;
+  final bool? omit;
+  final bool? nullable;
+}
+
+class GraphQLField {
+  const GraphQLField({
+    this.name,
+    this.omit,
+    this.nullable,
+    this.type,
+  });
+  final String? name;
+  final bool? omit;
+  final bool? nullable;
+  final String? type;
 }
 
 /// Signifies that a function should statically generate a [GraphQLObjectField].
