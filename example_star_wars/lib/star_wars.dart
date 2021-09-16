@@ -4,7 +4,6 @@ import 'package:angel_framework/angel_framework.dart';
 import 'package:angel_graphql/angel_graphql.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
-import 'package:graphql_server/mirrors.dart';
 import 'src/models/models.dart';
 
 Future configureServer(Angel app) async {
@@ -32,19 +31,19 @@ Future configureServer(Angel app) async {
     fields: [
       field(
         'droids',
-        listOf(droidGraphQLType.nonNullable()),
+        listOf(droidGraphQLType.nonNull()),
         description: 'All droids in the known galaxy.',
         resolve: resolveViaServiceIndex(droidService),
       ),
       field(
         'humans',
-        listOf(humanGraphQLType.nonNullable()),
+        listOf(humanGraphQLType.nonNull()),
         description: 'All humans in the known galaxy.',
         resolve: resolveViaServiceIndex(humansService),
       ),
       field(
         'starships',
-        listOf(starshipGraphQLType.nonNullable()),
+        listOf(starshipGraphQLType.nonNull()),
         description: 'All starships in the known galaxy.',
         resolve: resolveViaServiceIndex(starshipService),
       ),
@@ -72,11 +71,11 @@ Future configureServer(Angel app) async {
       // We'll use the `modify_human` mutation to modify a human in the database.
       field(
         'modify_human',
-        humanGraphQLType.nonNullable(),
+        humanGraphQLType.nonNull(),
         description: 'Modifies a human in the database.',
         inputs: [
-          GraphQLFieldInput('id', graphQLId.nonNullable()),
-          GraphQLFieldInput('data', humanChangesType.nonNullable()),
+          GraphQLFieldInput('id', graphQLId.nonNull()),
+          GraphQLFieldInput('data', humanChangesType.nonNull()),
         ],
         resolve: resolveViaServiceModify(humansService),
       ),
