@@ -36,7 +36,7 @@ Future<List<UnionVarianInfo>> freezedFields(
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
-      description: getDescription(con),
+      description: getDescription(con, con.documentationComment),
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
         con.parameters
@@ -111,7 +111,7 @@ Future<FieldInfo> fieldFromElement(Element method, DartType type) async {
     nonNullable: annot.nullable != true &&
         type.nullabilitySuffix == NullabilitySuffix.none,
     fieldAnnot: annot,
-    description: getDescription(method),
+    description: getDescription(method, method.documentationComment),
     deprecationReason: getDeprecationReason(method),
   );
 }
