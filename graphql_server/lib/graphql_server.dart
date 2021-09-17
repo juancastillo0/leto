@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart';
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
+import 'package:graphql_server/src/extension.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:source_span/source_span.dart';
 
@@ -33,6 +34,8 @@ class GraphQL {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes = [];
 
+  final List<GraphQLExtension> extensionList;
+
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s,
   /// when the related field has no resolver.
@@ -49,6 +52,7 @@ class GraphQL {
     GraphQLSchema schema, {
     bool introspect = true,
     this.defaultFieldResolver,
+    this.extensionList = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
     Map<Object, Object?>? globalVariables,
   })  : initialGlobalVariables = globalVariables ?? const {},
@@ -133,26 +137,71 @@ class GraphQL {
     Object? initialValue,
     Map<Object, Object?>? globalVariables,
   }) async {
+    final _globalVariables = globalVariables ?? <Object, Object?>{};
+    for (final e in initialGlobalVariables.entries) {
+      _globalVariables.putIfAbsent(e.key, () => e.value);
+    }
+    for (final ext in extensionList) {
+      ext.start(_globalVariables, extensions);
+    }
+
+    Map<String, Object?>? _extensionMap() {
+      final entries = extensionList
+          .map((e) => MapEntry(e.mapKey, e.toJson(_globalVariables)))
+          .where((e) => e.value != null);
+
+      return entries.isEmpty ? null : Map.fromEntries(entries);
+    }
+
+    final DocumentNode document;
     try {
-      final document = getDocumentNode(
+      document = getDocumentNode(
         text,
         sourceUrl: sourceUrl,
         extensions: extensions,
-      );
-      return executeRequest(
-        _schema,
-        document,
-        operationName: operationName,
-        initialValue: initialValue ?? globalVariables ?? initialGlobalVariables,
-        variableValues: variableValues,
-        globalVariables: globalVariables,
       );
     } on GraphQLException catch (e) {
       return GraphQLResult(
         null,
         errors: e.errors,
         didExecute: false,
+        extensions: _extensionMap(),
       );
+    }
+    final result = await executeRequest(
+      _schema,
+      document,
+      operationName: operationName,
+      initialValue: initialValue ?? _globalVariables,
+      variableValues: variableValues,
+      globalVariables: _globalVariables,
+    );
+
+    final newExtensions = _extensionMap();
+    if (newExtensions == null) {
+      return result;
+    }
+
+    return result.copyWith(
+      extensions: {
+        ...newExtensions,
+        if (result.extensions != null) ...result.extensions!
+      },
+    );
+  }
+
+  T withExtensions<T>(
+    T Function(T Function() next, GraphQLExtension) call,
+    T Function() next,
+  ) {
+    if (extensionList.isEmpty) {
+      return next();
+    } else {
+      T Function() _next = next;
+      for (final e in extensionList) {
+        _next = () => call(_next, e);
+      }
+      return _next();
     }
   }
 
@@ -161,57 +210,61 @@ class GraphQL {
     dynamic sourceUrl,
     Map<String, Object?>? extensions,
   }) {
-    // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
-    final persistedQuery =
-        extensions == null ? null : extensions['persistedQuery'];
+    return withExtensions(
+        (next, ext) => ext.getDocumentNode(next, text, extensions), () {
+      // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
+      final persistedQuery =
+          extensions == null ? null : extensions['persistedQuery'];
 
-    String? sha256Hash;
-    if (persistedQuery is Map<String, Object?>) {
-      final _version = persistedQuery['version'];
-      final version =
-          _version is int ? _version : int.tryParse(_version as String? ?? '');
+      String? sha256Hash;
+      if (persistedQuery is Map<String, Object?>) {
+        final _version = persistedQuery['version'];
+        final version = _version is int
+            ? _version
+            : int.tryParse(_version as String? ?? '');
 
-      if (version == 1) {
-        sha256Hash = persistedQuery['sha256Hash']! as String;
-        if (persistedQueries.containsKey(sha256Hash)) {
-          return persistedQueries[sha256Hash]!;
+        if (version == 1) {
+          sha256Hash = persistedQuery['sha256Hash']! as String;
+          if (persistedQueries.containsKey(sha256Hash)) {
+            return persistedQueries[sha256Hash]!;
+          }
+        }
+        if (text.isEmpty) {
+          throw GraphQLException.fromMessage(
+              GraphQLErrors.PERSISTED_QUERY_NOT_FOUND);
         }
       }
-      if (text.isEmpty) {
-        throw GraphQLException.fromMessage(
-            GraphQLErrors.PERSISTED_QUERY_NOT_FOUND);
-      }
-    }
 
-    final errors = <GraphQLExceptionError>[];
-    late final DocumentNode document;
-    if (persistedQueries.containsKey(text)) {
-      document = persistedQueries[text]!;
-    } else {
-      final digestHex = sha256.convert(utf8.encode(text)).toString();
-      if (persistedQueries.containsKey(digestHex)) {
-        document = persistedQueries[digestHex]!;
+      final errors = <GraphQLExceptionError>[];
+      late final DocumentNode document;
+      if (persistedQueries.containsKey(text)) {
+        document = persistedQueries[text]!;
       } else {
-        try {
-          document = gql.parseString(text, url: sourceUrl);
-        } on SourceSpanException catch (e) {
-          errors.add(GraphQLExceptionError(
-            e.message,
-            locations: [
-              GraphQLErrorLocation.fromSourceLocation(e.span?.start),
-            ],
-          ));
-        } catch (e) {
-          throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
-        }
+        final digestHex = sha256.convert(utf8.encode(text)).toString();
+        if (persistedQueries.containsKey(digestHex)) {
+          document = persistedQueries[digestHex]!;
+        } else {
+          try {
+            document = gql.parseString(text, url: sourceUrl);
+          } on SourceSpanException catch (e) {
+            errors.add(GraphQLExceptionError(
+              e.message,
+              locations: [
+                GraphQLErrorLocation.fromSourceLocation(e.span?.start),
+              ],
+            ));
+          } catch (e) {
+            throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
+          }
 
-        if (errors.isNotEmpty) {
-          throw GraphQLException(errors);
+          if (errors.isNotEmpty) {
+            throw GraphQLException(errors);
+          }
+          persistedQueries[digestHex] = document;
         }
-        persistedQueries[digestHex] = document;
       }
-    }
-    return document;
+      return document;
+    });
   }
 
   Future<GraphQLResult> executeRequest(
@@ -220,19 +273,18 @@ class GraphQL {
     String? operationName,
     Map<String, dynamic>? variableValues,
     required Object initialValue,
-    Map<Object, Object?>? globalVariables,
+    required Map<Object, Object?> globalVariables,
   }) async {
-    final _globalVariables = globalVariables ?? <Object, dynamic>{};
-    for (final e in initialGlobalVariables.entries) {
-      _globalVariables.putIfAbsent(e.key, () => e.value);
-    }
+    // TODO:
+    // tracing.validation.start();
 
     final operation = getOperation(document, operationName);
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
+    // tracing.validation.end();
     final ctx = ResolveCtx(
       document: document,
-      globalVariables: _globalVariables,
+      globalVariables: globalVariables,
       serdeCtx: schema.serdeCtx,
       variableValues: coercedVariableValues,
     );
@@ -542,8 +594,10 @@ class GraphQL {
           (f) => f.name == fieldName,
         );
         if (objectField == null) continue;
-
-        futureResponseValue = (() async {
+        final alias = field.alias?.value ?? fieldName;
+        futureResponseValue = withExtensions<FutureOr<Object?>>(
+            (n, e) => e.executeField(n, objectCtx, objectField, alias),
+            () async {
           try {
             // improved debugging
             // ignore: unnecessary_await_in_return
@@ -555,17 +609,16 @@ class GraphQL {
           } on Exception catch (e) {
             final err = GraphQLException.fromException(
               e,
-              [...objectCtx.path, fieldName],
+              [...objectCtx.path, alias],
             );
             if (objectField.type.isNullable) {
-              // TODO: chnage GraphQLException
               baseCtx.errors.add(err.errors.first);
               return null;
             } else {
               throw err;
             }
           }
-        })();
+        });
       }
       if (serial) {
         await futureResponseValue;
@@ -791,113 +844,119 @@ class GraphQL {
   /// from a [result] for [fieldName] in [ctx]
   Future<Object?> completeValue(
     ResolveObjectCtx ctx,
-    String fieldName,
+    Object fieldName,
     GraphQLType fieldType,
     List<SelectionNode> fields,
     Object? result,
   ) async {
-    if (fieldType.isNullable && result == null) {
-      return null;
-    }
-    final path = ctx.path.followedBy([fieldName]).toList();
-    Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
-      try {
-        Object? _result = result;
-        if (fieldType.generic.isValueOfType(_result)) {
-          _result = fieldType.serialize(_result!);
-        }
-        final validation = fieldType.validate(fieldName, _result);
-
-        if (!validation.successful) {
-          return null;
-        } else {
-          return validation.value;
-        }
-      } on TypeError {
-        throw GraphQLException.fromMessage(
-          'Value of field "$fieldName" must be '
-          '${fieldType.generic.type}, got $result instead.',
-          path: path,
-        );
+    return withExtensions(
+        (next, e) => e.completeValue(next, ctx, fieldName, fieldType, result),
+        () async {
+      if (fieldType.isNullable && result == null) {
+        return null;
       }
-    }
+      final path = ctx.path.followedBy([fieldName]).toList();
+      Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
+        try {
+          Object? _result = result;
+          if (fieldType.generic.isValueOfType(_result)) {
+            _result = fieldType.serialize(_result!);
+          }
+          final validation = fieldType.validate(fieldName.toString(), _result);
 
-    Future<Object?> _completeObjectOrUnion(GraphQLType fieldType) async {
-      GraphQLObjectType objectType;
-
-      if (fieldType is GraphQLObjectType && !fieldType.isInterface) {
-        objectType = fieldType;
-      } else {
-        objectType = resolveAbstractType(fieldName, fieldType, result);
-      }
-
-      final subSelectionSet = mergeSelectionSets(fields);
-      return executeSelectionSet(ctx.base, subSelectionSet, objectType, result!,
-          serial: false, parentCtx: ctx, fieldPath: fieldName);
-    }
-
-    return fieldType.when(
-      enum_: _completeScalar,
-      scalar: _completeScalar,
-      input: (_) => throw UnsupportedError('Unsupported type: $fieldType'),
-      object: _completeObjectOrUnion,
-      union: _completeObjectOrUnion,
-      nonNullable: (fieldType) async {
-        final innerType = fieldType.ofType;
-        final completedResult =
-            await completeValue(ctx, fieldName, innerType, fields, result);
-
-        if (completedResult == null) {
+          if (!validation.successful) {
+            return null;
+          } else {
+            return validation.value;
+          }
+        } on TypeError {
           throw GraphQLException.fromMessage(
-            'Null value provided for non-nullable field "$fieldName".',
+            'Value of field "$fieldName" must be '
+            '${fieldType.generic.type}, got $result instead.',
             path: path,
           );
+        }
+      }
+
+      Future<Object?> _completeObjectOrUnion(GraphQLType fieldType) async {
+        GraphQLObjectType objectType;
+
+        if (fieldType is GraphQLObjectType && !fieldType.isInterface) {
+          objectType = fieldType;
         } else {
-          return completedResult;
-        }
-      },
-      list: (fieldType) async {
-        if (result is! Iterable) {
-          throw GraphQLException.fromMessage(
-              'Value of field "$fieldName" must be a list '
-              'or iterable, got $result instead.',
-              path: path);
+          objectType =
+              resolveAbstractType(fieldName.toString(), fieldType, result);
         }
 
-        final innerType = fieldType.ofType;
-        final futureOut = <Future<Object?>>[];
+        final subSelectionSet = mergeSelectionSets(fields);
+        return executeSelectionSet(
+            ctx.base, subSelectionSet, objectType, result!,
+            serial: false, parentCtx: ctx, fieldPath: fieldName);
+      }
 
-        int i = 0;
-        for (final resultItem in result) {
-          final _i = i++;
-          futureOut.add(completeValue(
-            ctx,
-            _i.toString(), //'(item in "$fieldName")',
-            innerType,
-            fields,
-            resultItem,
-          ).onError<Exception>((error, stackTrace) {
-            final err = GraphQLException.fromException(
-              error,
-              [...path, fieldName, _i],
+      return fieldType.when(
+        enum_: _completeScalar,
+        scalar: _completeScalar,
+        input: (_) => throw UnsupportedError('Unsupported type: $fieldType'),
+        object: _completeObjectOrUnion,
+        union: _completeObjectOrUnion,
+        nonNullable: (fieldType) async {
+          final innerType = fieldType.ofType;
+          final completedResult =
+              await completeValue(ctx, fieldName, innerType, fields, result);
+
+          if (completedResult == null) {
+            throw GraphQLException.fromMessage(
+              'Null value provided for non-nullable field "$fieldName".',
+              path: path,
             );
-            if (innerType.isNullable) {
-              ctx.base.errors.add(err.errors.first);
-              return null;
-            } else {
-              throw err;
-            }
-          }));
-        }
+          } else {
+            return completedResult;
+          }
+        },
+        list: (fieldType) async {
+          if (result is! Iterable) {
+            throw GraphQLException.fromMessage(
+                'Value of field "$fieldName" must be a list '
+                'or iterable, got $result instead.',
+                path: path);
+          }
 
-        final out = <Object?>[];
-        for (final f in futureOut) {
-          out.add(await f);
-        }
+          final innerType = fieldType.ofType;
+          final futureOut = <Future<Object?>>[];
 
-        return out;
-      },
-    );
+          int i = 0;
+          for (final resultItem in result) {
+            final _i = i++;
+            futureOut.add(completeValue(
+              ctx,
+              _i, //'(item in "$fieldName")',
+              innerType,
+              fields,
+              resultItem,
+            ).onError<Exception>((error, stackTrace) {
+              final err = GraphQLException.fromException(
+                error,
+                [...path, fieldName, _i],
+              );
+              if (innerType.isNullable) {
+                ctx.base.errors.add(err.errors.first);
+                return null;
+              } else {
+                throw err;
+              }
+            }));
+          }
+
+          final out = <Object?>[];
+          for (final f in futureOut) {
+            out.add(await f);
+          }
+
+          return out;
+        },
+      );
+    });
   }
 
   GraphQLObjectType resolveAbstractType(
