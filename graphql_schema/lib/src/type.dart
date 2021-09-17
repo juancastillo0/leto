@@ -66,15 +66,37 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   @override
   bool operator ==(Object? other) {
     return identical(this, other) ||
+        // other is GraphQLType && identical(other.realType, realType) ||
         other is GraphQLType &&
             runtimeType == other.runtimeType &&
             const DeepCollectionEquality().equals(other.props, props);
   }
 
-  // int? _hashCode;
+  // static Map<String, GraphQLType>? _usedHashCodes;
+
   // @override
-  // int get hashCode => _hashCode ??=
-  //     runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+  // int get hashCode {
+  //   final key = toString();
+  //   final _used = _usedHashCodes;
+  //   if (_used == null) {
+  //     _usedHashCodes = {key: this};
+  //     final value =
+  //         runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+  //     _usedHashCodes = null;
+  //     return value;
+  //   } else if (_used.containsKey(key)) {
+  //     final areEqual = _used[key]!.realType == realType;
+  //     if (!areEqual) {
+  //       print(this);
+  //       print(_used[key]);
+  //       return 0;
+  //     }
+  //     return key.hashCode;
+  //   } else {
+  //     _used[key] = this;
+  //   }
+  //   return runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+  // }
 
   @override
   String toString() => name!;
