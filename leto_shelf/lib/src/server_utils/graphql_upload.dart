@@ -16,6 +16,10 @@ class GraphQLUploadType extends GraphQLScalarType<UploadedFile, UploadedFile> {
       'Represents a file from a `multipart/form-data` request.';
 
   @override
+  String get specifiedByURL =>
+      'https://github.com/jaydenseric/graphql-multipart-request-spec';
+
+  @override
   GraphQLType<UploadedFile, UploadedFile> coerceToInputObject() => this;
 
   @override
