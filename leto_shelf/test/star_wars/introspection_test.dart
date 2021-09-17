@@ -1,21 +1,29 @@
 // https://github.com/graphql/graphql-js/blob/ac9833e4358e1995729a6c54009781ea434d4354/src/__tests__/starWarsIntrospection-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+// import { expect } from 'chai';
+// import { describe, it } from 'mocha';
 
-import { graphqlSync } from '../graphql';
+// import { graphqlSync } from '../graphql';
 
-import { StarWarsSchema } from './starWarsSchema';
+// import { StarWarsSchema } from './starWarsSchema';
 
-function queryStarWars(source: string) {
-  const result = graphqlSync({ schema: StarWarsSchema, source });
-  expect(Object.keys(result)).to.deep.equal(['data']);
-  return result.data;
-}
+import 'package:graphql_server/graphql_server.dart';
+import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
+import 'package:test/test.dart';
 
-describe('Star Wars Introspection Tests', () => {
-  describe('Basic Introspection', () => {
-    it('Allows querying the schema for types', () => {
-      const data = queryStarWars(`
+void main() {
+  final server = GraphQL(starWarsSchema);
+
+  Future<Object?> queryStarWars(String query) async {
+    final result = await server.parseAndExecute(query);
+    expect(result.data, isMap);
+    expect(result.errors.length, 0);
+    return result.data;
+  }
+
+  group('Star Wars Introspection Tests', () {
+    group('Basic Introspection', () {
+      test('Allows querying the schema for types', () async {
+        final data = await queryStarWars('''
         {
           __schema {
             types {
@@ -23,36 +31,38 @@ describe('Star Wars Introspection Tests', () => {
             }
           }
         }
-      `);
+      ''');
 
-      // Include all types used by StarWars schema, introspection types and
-      // standard directives. For example, `Boolean` is used in `@skip`,
-      // `@include` and also inside introspection types.
-      expect(data).to.deep.equal({
-        __schema: {
-          types: [
-            { name: 'Human' },
-            { name: 'Character' },
-            { name: 'String' },
-            { name: 'Episode' },
-            { name: 'Droid' },
-            { name: 'Query' },
-            { name: 'Boolean' },
-            { name: '__Schema' },
-            { name: '__Type' },
-            { name: '__TypeKind' },
-            { name: '__Field' },
-            { name: '__InputValue' },
-            { name: '__EnumValue' },
-            { name: '__Directive' },
-            { name: '__DirectiveLocation' },
-          ],
-        },
+        // Include all types used by StarWars schema, introspection types and
+        // standard directives. For example, `Boolean` is used in `@skip`,
+        // `@include` and also inside introspection types.
+        expect(data, {
+          '__schema': {
+            'types': unorderedEquals(
+              <Object>[
+                {'name': 'Human'},
+                {'name': 'Character'},
+                {'name': 'String'},
+                {'name': 'Episode'},
+                {'name': 'Droid'},
+                {'name': 'Query'},
+                {'name': 'Boolean'},
+                {'name': '__Schema'},
+                {'name': '__Type'},
+                {'name': '__TypeKind'},
+                {'name': '__Field'},
+                {'name': '__InputValue'},
+                {'name': '__EnumValue'},
+                {'name': '__Directive'},
+                {'name': '__DirectiveLocation'},
+              ],
+            ),
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for query type', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for query type', () async {
+        final data = await queryStarWars('''
         {
           __schema {
             queryType {
@@ -60,71 +70,71 @@ describe('Star Wars Introspection Tests', () => {
             }
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __schema: {
-          queryType: {
-            name: 'Query',
+        expect(data, {
+          '__schema': {
+            'queryType': {
+              'name': 'Query',
+            },
           },
-        },
+        });
       });
-    });
 
-    it('Allows querying the schema for a specific type', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for a specific type', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Droid") {
             name
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Droid',
-        },
+        expect(data, {
+          '__type': {
+            'name': 'Droid',
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for an object kind', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for an object kind', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Droid") {
             name
             kind
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Droid',
-          kind: 'OBJECT',
-        },
+        expect(data, {
+          '__type': {
+            'name': 'Droid',
+            'kind': 'OBJECT',
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for an interface kind', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for an interface kind', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Character") {
             name
             kind
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Character',
-          kind: 'INTERFACE',
-        },
+        expect(data, {
+          '__type': {
+            'name': 'Character',
+            'kind': 'INTERFACE',
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for object fields', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for object fields', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Droid") {
             name
@@ -137,43 +147,43 @@ describe('Star Wars Introspection Tests', () => {
             }
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Droid',
-          fields: [
-            {
-              name: 'id',
-              type: { name: null, kind: 'NON_NULL' },
-            },
-            {
-              name: 'name',
-              type: { name: 'String', kind: 'SCALAR' },
-            },
-            {
-              name: 'friends',
-              type: { name: null, kind: 'LIST' },
-            },
-            {
-              name: 'appearsIn',
-              type: { name: null, kind: 'LIST' },
-            },
-            {
-              name: 'secretBackstory',
-              type: { name: 'String', kind: 'SCALAR' },
-            },
-            {
-              name: 'primaryFunction',
-              type: { name: 'String', kind: 'SCALAR' },
-            },
-          ],
-        },
+        expect(data, {
+          '__type': {
+            'name': 'Droid',
+            'fields': unorderedEquals(<Object>[
+              {
+                'name': 'id',
+                'type': {'name': null, 'kind': 'NON_NULL'},
+              },
+              {
+                'name': 'name',
+                'type': {'name': 'String', 'kind': 'SCALAR'},
+              },
+              {
+                'name': 'friends',
+                'type': {'name': null, 'kind': 'LIST'},
+              },
+              {
+                'name': 'appearsIn',
+                'type': {'name': null, 'kind': 'LIST'},
+              },
+              {
+                'name': 'secretBackstory',
+                'type': {'name': 'String', 'kind': 'SCALAR'},
+              },
+              {
+                'name': 'primaryFunction',
+                'type': {'name': 'String', 'kind': 'SCALAR'},
+              },
+            ]),
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for nested object fields', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for nested object fields', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Droid") {
             name
@@ -190,76 +200,78 @@ describe('Star Wars Introspection Tests', () => {
             }
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Droid',
-          fields: [
-            {
-              name: 'id',
-              type: {
-                name: null,
-                kind: 'NON_NULL',
-                ofType: {
-                  name: 'String',
-                  kind: 'SCALAR',
+        expect(data, {
+          '__type': {
+            'name': 'Droid',
+            'fields': unorderedEquals(
+              <Object>[
+                {
+                  'name': 'id',
+                  'type': {
+                    'name': null,
+                    'kind': 'NON_NULL',
+                    'ofType': {
+                      'name': 'String',
+                      'kind': 'SCALAR',
+                    },
+                  },
                 },
-              },
-            },
-            {
-              name: 'name',
-              type: {
-                name: 'String',
-                kind: 'SCALAR',
-                ofType: null,
-              },
-            },
-            {
-              name: 'friends',
-              type: {
-                name: null,
-                kind: 'LIST',
-                ofType: {
-                  name: 'Character',
-                  kind: 'INTERFACE',
+                {
+                  'name': 'name',
+                  'type': {
+                    'name': 'String',
+                    'kind': 'SCALAR',
+                    'ofType': null,
+                  },
                 },
-              },
-            },
-            {
-              name: 'appearsIn',
-              type: {
-                name: null,
-                kind: 'LIST',
-                ofType: {
-                  name: 'Episode',
-                  kind: 'ENUM',
+                {
+                  'name': 'friends',
+                  'type': {
+                    'name': null,
+                    'kind': 'LIST',
+                    'ofType': {
+                      'name': 'Character',
+                      'kind': 'INTERFACE',
+                    },
+                  },
                 },
-              },
-            },
-            {
-              name: 'secretBackstory',
-              type: {
-                name: 'String',
-                kind: 'SCALAR',
-                ofType: null,
-              },
-            },
-            {
-              name: 'primaryFunction',
-              type: {
-                name: 'String',
-                kind: 'SCALAR',
-                ofType: null,
-              },
-            },
-          ],
-        },
+                {
+                  'name': 'appearsIn',
+                  'type': {
+                    'name': null,
+                    'kind': 'LIST',
+                    'ofType': {
+                      'name': 'Episode',
+                      'kind': 'ENUM',
+                    },
+                  },
+                },
+                {
+                  'name': 'secretBackstory',
+                  'type': {
+                    'name': 'String',
+                    'kind': 'SCALAR',
+                    'ofType': null,
+                  },
+                },
+                {
+                  'name': 'primaryFunction',
+                  'type': {
+                    'name': 'String',
+                    'kind': 'SCALAR',
+                    'ofType': null,
+                  },
+                },
+              ],
+            ),
+          },
+        });
       });
-    });
 
-    it('Allows querying the schema for field args', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for field args', () async {
+        final data = await queryStarWars('''
         {
           __schema {
             queryType {
@@ -282,86 +294,88 @@ describe('Star Wars Introspection Tests', () => {
             }
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __schema: {
-          queryType: {
-            fields: [
-              {
-                name: 'hero',
-                args: [
-                  {
-                    defaultValue: null,
-                    description:
-                      'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
-                    name: 'episode',
-                    type: {
-                      kind: 'ENUM',
-                      name: 'Episode',
-                      ofType: null,
-                    },
-                  },
-                ],
-              },
-              {
-                name: 'human',
-                args: [
-                  {
-                    name: 'id',
-                    description: 'id of the human',
-                    type: {
-                      kind: 'NON_NULL',
-                      name: null,
-                      ofType: {
-                        kind: 'SCALAR',
-                        name: 'String',
+        expect(data, {
+          '__schema': {
+            'queryType': {
+              'fields': [
+                {
+                  'name': 'hero',
+                  'args': [
+                    {
+                      'defaultValue': null,
+                      'description':
+                          'If omitted, returns the hero of the whole saga. If '
+                              'provided, returns the hero of that particular episode.',
+                      'name': 'episode',
+                      'type': {
+                        'kind': 'ENUM',
+                        'name': 'Episode',
+                        'ofType': null,
                       },
                     },
-                    defaultValue: null,
-                  },
-                ],
-              },
-              {
-                name: 'droid',
-                args: [
-                  {
-                    name: 'id',
-                    description: 'id of the droid',
-                    type: {
-                      kind: 'NON_NULL',
-                      name: null,
-                      ofType: {
-                        kind: 'SCALAR',
-                        name: 'String',
+                  ],
+                },
+                {
+                  'name': 'human',
+                  'args': [
+                    {
+                      'name': 'id',
+                      'description': 'id of the human',
+                      'type': {
+                        'kind': 'NON_NULL',
+                        'name': null,
+                        'ofType': {
+                          'kind': 'SCALAR',
+                          'name': 'String',
+                        },
                       },
+                      'defaultValue': null,
                     },
-                    defaultValue: null,
-                  },
-                ],
-              },
-            ],
+                  ],
+                },
+                {
+                  'name': 'droid',
+                  'args': [
+                    {
+                      'name': 'id',
+                      'description': 'id of the droid',
+                      'type': {
+                        'kind': 'NON_NULL',
+                        'name': null,
+                        'ofType': {
+                          'kind': 'SCALAR',
+                          'name': 'String',
+                        },
+                      },
+                      'defaultValue': null,
+                    },
+                  ],
+                },
+              ],
+            },
           },
-        },
+        });
       });
-    });
 
-    it('Allows querying the schema for documentation', () => {
-      const data = queryStarWars(`
+      test('Allows querying the schema for documentation', () async {
+        final data = await queryStarWars('''
         {
           __type(name: "Droid") {
             name
             description
           }
         }
-      `);
+      ''');
 
-      expect(data).to.deep.equal({
-        __type: {
-          name: 'Droid',
-          description: 'A mechanical creature in the Star Wars universe.',
-        },
+        expect(data, {
+          '__type': {
+            'name': 'Droid',
+            'description': 'A mechanical creature in the Star Wars universe.',
+          },
+        });
       });
     });
   });
-});
+}

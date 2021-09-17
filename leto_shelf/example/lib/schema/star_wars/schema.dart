@@ -159,8 +159,7 @@ class Human with _$Human implements Character {
     // The name of the human.
     @GraphQLField(nullable: true) required String name,
     // Which movies they appear in.
-    @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
-        required List<int> appearsIn,
+    @GraphQLField(type: 'listOf(episodeEnum)') required List<int> appearsIn,
     // The friends of the human, or an empty list if they have none.
     @GraphQLField(omit: true) required List<String> friends,
     // The home planet of the human, or null if unknown.
@@ -193,10 +192,10 @@ class Human with _$Human implements Character {
 ///   primaryFunction: String
 /// }
 /// ```
-/// A mechanical creature in the Star Wars universe.
 @GraphQLClass(interfaces: ['characterInterface()'])
 @freezed
 class Droid with _$Droid implements Character {
+  /// A mechanical creature in the Star Wars universe.
   // ignore: invalid_annotation_target
   @JsonSerializable()
   const factory Droid({
@@ -205,8 +204,7 @@ class Droid with _$Droid implements Character {
     @GraphQLField(nullable: true) required String name,
     @GraphQLField(omit: true) required List<String> friends,
     // Which movies they appear in.
-    @GraphQLField(type: 'listOf(episodeEnum.nonNull())')
-        required List<int> appearsIn,
+    @GraphQLField(type: 'listOf(episodeEnum)') required List<int> appearsIn,
     // The primary function of the droid.
     @GraphQLField(nullable: true) required String primaryFunction,
   }) = _Droid;

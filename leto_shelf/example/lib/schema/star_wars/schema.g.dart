@@ -45,7 +45,7 @@ final GraphQLObjectType<Human> humanGraphQlType = objectType('Human',
           resolve: (obj, ctx) => obj.name,
           description: 'The name of the human.',
           deprecationReason: null),
-      field('appearsIn', listOf(episodeEnum.nonNull()),
+      field('appearsIn', listOf(episodeEnum),
           resolve: (obj, ctx) => obj.appearsIn,
           description: 'Which movies they appear in.',
           deprecationReason: null),
@@ -82,7 +82,7 @@ final GraphQLObjectType<Droid> droidGraphQlType = objectType('Droid',
           resolve: (obj, ctx) => obj.name,
           description: null,
           deprecationReason: null),
-      field('appearsIn', listOf(episodeEnum.nonNull()),
+      field('appearsIn', listOf(episodeEnum),
           resolve: (obj, ctx) => obj.appearsIn,
           description: 'Which movies they appear in.',
           deprecationReason: null),
@@ -101,7 +101,7 @@ final GraphQLObjectType<Droid> droidGraphQlType = objectType('Droid',
     ],
     isInterface: false,
     interfaces: [characterInterface()],
-    description: null);
+    description: 'A mechanical creature in the Star Wars universe.');
 
 // **************************************************************************
 // JsonSerializableGenerator

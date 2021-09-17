@@ -1,27 +1,33 @@
 // https://github.com/graphql/graphql-js/blob/ac9833e4358e1995729a6c54009781ea434d4354/src/__tests__/starWarsValidation-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+// import { expect } from 'chai';
+// import { describe, it } from 'mocha';
 
-import { parse } from '../language/parser';
-import { Source } from '../language/source';
+// import { parse } from '../language/parser';
+// import { Source } from '../language/source';
 
-import { validate } from '../validation/validate';
+// import { validate } from '../validation/validate';
 
-import { StarWarsSchema } from './starWarsSchema';
+// import { StarWarsSchema } from './starWarsSchema';
 
-/**
- * Helper function to test a query and the expected response.
- */
-function validationErrors(query: string) {
-  const source = new Source(query, 'StarWars.graphql');
-  const ast = parse(source);
-  return validate(StarWarsSchema, ast);
-}
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
+import 'package:test/test.dart';
 
-describe('Star Wars Validation Tests', () => {
-  describe('Basic Queries', () => {
-    it('Validates a complex but valid query', () => {
-      const query = `
+void main() {
+  final server = GraphQL(starWarsSchema);
+
+  ///
+  /// Helper function to test a query and the expected response.
+  ///
+  Future<List<GraphQLExceptionError>> validationErrors(String query) async {
+    final result = await server.parseAndExecute(query);
+    return result.errors;
+  }
+
+  group('Star Wars Validation Tests', () {
+    group('Basic Queries', () {
+      test('Validates a complex but valid query', () async {
+        const query = '''
         query NestedQueryWithFragment {
           hero {
             ...NameAndAppearances
@@ -37,32 +43,32 @@ describe('Star Wars Validation Tests', () => {
           name
           appearsIn
         }
-      `;
-      return expect(validationErrors(query)).to.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), hasLength(0));
+      });
 
-    it('Notes that non-existent fields are invalid', () => {
-      const query = `
+      test('Notes that non-existent fields are invalid', () async {
+        const query = '''
         query HeroSpaceshipQuery {
           hero {
             favoriteSpaceship
           }
         }
-      `;
-      return expect(validationErrors(query)).to.not.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), hasLength(greaterThan(0)));
+      });
 
-    it('Requires fields on objects', () => {
-      const query = `
+      test('Requires fields on objects', () async {
+        const query = '''
         query HeroNoFieldsQuery {
           hero
         }
-      `;
-      return expect(validationErrors(query)).to.not.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), hasLength(greaterThan(0)));
+      });
 
-    it('Disallows fields on scalars', () => {
-      const query = `
+      test('Disallows fields on scalars', () async {
+        const query = '''
         query HeroFieldsOnScalarQuery {
           hero {
             name {
@@ -70,24 +76,24 @@ describe('Star Wars Validation Tests', () => {
             }
           }
         }
-      `;
-      return expect(validationErrors(query)).to.not.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), hasLength(greaterThan(0)));
+      });
 
-    it('Disallows object fields on interfaces', () => {
-      const query = `
+      test('Disallows object fields on interfaces', () async {
+        const query = '''
         query DroidFieldOnCharacter {
           hero {
             name
             primaryFunction
           }
         }
-      `;
-      return expect(validationErrors(query)).to.not.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), hasLength(greaterThan(0)));
+      });
 
-    it('Allows object fields in fragments', () => {
-      const query = `
+      test('Allows object fields in fragments', () async {
+        const query = '''
         query DroidFieldInFragment {
           hero {
             name
@@ -97,12 +103,12 @@ describe('Star Wars Validation Tests', () => {
         fragment DroidFields on Droid {
           primaryFunction
         }
-      `;
-      return expect(validationErrors(query)).to.be.empty;
-    });
+      ''';
+        return expect(await validationErrors(query), const <Object?>[]);
+      });
 
-    it('Allows object fields in inline fragments', () => {
-      const query = `
+      test('Allows object fields in inline fragments', () async {
+        const query = '''
         query DroidFieldInFragment {
           hero {
             name
@@ -111,8 +117,9 @@ describe('Star Wars Validation Tests', () => {
             }
           }
         }
-      `;
-      return expect(validationErrors(query)).to.be.empty;
+      ''';
+        return expect(await validationErrors(query), const <Object?>[]);
+      });
     });
   });
-});
+}
