@@ -212,6 +212,7 @@ class GraphQL {
     return withExtensions(
         (next, ext) => ext.getDocumentNode(next, text, globals, extensions),
         () {
+      // TODO: extract into extension
       // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
       final persistedQuery =
           extensions == null ? null : extensions['persistedQuery'];
@@ -418,7 +419,7 @@ class GraphQL {
         serial: true);
   }
 
-  Future<Stream<Map<String, dynamic>>> subscribe(
+  Future<Stream<GraphQLResult>> subscribe(
     ResolveCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
@@ -466,7 +467,7 @@ class GraphQL {
     return MapEntry(fieldName, stream);
   }
 
-  Stream<Map<String, Object?>> mapSourceToResponseEvent(
+  Stream<GraphQLResult> mapSourceToResponseEvent(
     ResolveCtx baseCtx,
     MapEntry<String, Stream<Object?>> sourceStream,
     OperationDefinitionNode subscription,
@@ -484,26 +485,20 @@ class GraphQL {
           selectionSet,
           subscriptionType!,
           // TODO: improve this. Send same level field for execution?
+          // maybe with [completeValue]
           _SubscriptionEvent({sourceStream.key: event}),
           serial: false,
         );
-
-        // completeValue(
-        //   schema.serdeCtx,
-        //   document,
-        //   sourceStream.key,
-        //   ctx.objectField.type,
-        //   ctx.field,
-        //   event,
-        //   variableValues,
-        //   globalVariables,
-        // )
-        return {'data': data};
+        // TODO: extensions
+        return GraphQLResult(
+          data,
+          errors: baseCtx.errors,
+        );
       } on GraphQLException catch (e) {
-        return {
-          'data': null,
-          'errors': [e.errors.map((e) => e.toJson()).toList()]
-        };
+        return GraphQLResult(
+          null,
+          errors: baseCtx.errors.followedBy(e.errors).toList(),
+        );
       }
     });
   }

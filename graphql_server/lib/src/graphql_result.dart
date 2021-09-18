@@ -4,17 +4,23 @@ import 'package:meta/meta.dart';
 
 @immutable
 class GraphQLResult {
-  /// A Stream<Map<String, Object?>?> for subscriptions or
-  /// Map<String, Object?>? in queries and mutations
+  /// A Stream<GraphQLResult> for subscriptions
+  /// or a Map<String, Object?>? for queries and mutations
   final Object? data;
+
+  bool get isSubscription => subscriptionStream != null;
+  Stream<GraphQLResult>? get subscriptionStream =>
+      data is Stream<GraphQLResult> ? data! as Stream<GraphQLResult> : null;
 
   /// When [didExecute] is true, [data] is returned in the response
   final bool didExecute;
   final List<GraphQLExceptionError> errors;
   final Map<String, Object?>? extensions;
 
+  /// [errors] should not be empty when [didExecute] is false
   const GraphQLResult(
     this.data, {
+    // Should not be empty when [didExecute] is false
     this.errors = const [],
     this.didExecute = true,
     this.extensions,
