@@ -5,15 +5,31 @@ import 'package:async/async.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'transport.dart';
 
+typedef CloseWithReason = Future<void> Function([int? code, String? reason]);
+
 class RemoteClient extends StreamChannelMixin<OperationMessage> {
   final StreamChannel<Map<String, Object?>> channel;
   final StreamChannelController<OperationMessage> _ctrl =
       StreamChannelController();
 
-  RemoteClient(StreamChannel<String> channel)
-      : this.withoutJson(const _JsonMapTransformer().bind(channel));
+  final CloseWithReason closeWithReason;
+  final String protocol;
 
-  RemoteClient.withoutJson(this.channel) {
+  RemoteClient(
+    StreamChannel<String> channel,
+    CloseWithReason closeWithReason,
+    String protocol,
+  ) : this.withoutJson(
+          const _JsonMapTransformer().bind(channel),
+          closeWithReason,
+          protocol,
+        );
+
+  RemoteClient.withoutJson(
+    this.channel,
+    this.closeWithReason,
+    this.protocol,
+  ) {
     _ctrl.local.stream.map((m) => m.toJson()).forEach(channel.sink.add);
     channel.stream.listen(
       (m) => _ctrl.local.sink.add(OperationMessage.fromJson(m)),
