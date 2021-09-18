@@ -42,8 +42,7 @@ GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
 }
 
 GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
-  return type.when(
-    // TODO: nonNullable()
+  final GraphQLType<Object, Object> gqlType = type.when(
     bool: () => graphQLBoolean,
     int: () => graphQLInt,
     num: () => graphQLFloat,
@@ -83,6 +82,11 @@ GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
     dynamic: () => graphQLJson,
     late: (late) => graphQLTypeFromSerde(key, late.func()),
   );
+
+  if (type is SerdeTypeOption) {
+    return gqlType;
+  }
+  return gqlType.nonNull();
 }
 
 SerdeType serdeTypeFromJson(Json obj) {
@@ -96,8 +100,7 @@ SerdeType serdeTypeFromJson(Json obj) {
     list: (list) => SerdeType.list(serdeFromList(list)),
     number: (v) => v is int ? SerdeType.int : SerdeType.num,
     str: (_) => SerdeType.str,
-    // TODO:
-    none: () => SerdeType.dynamic,
+    none: () => const SerdeType.option(SerdeType.dynamic),
   );
   // if (obj is Map<String, Object?>) {
   //   return Optional(
@@ -131,9 +134,11 @@ SerdeType mergeSerdeSchema(
     return a == SerdeType.num || b == SerdeType.num
         ? SerdeType.num
         : SerdeType.int;
-  } else if (a is SerdeTypeOption && a.generic == b ||
-      b is SerdeTypeOption && b.generic == a) {
-    return SerdeType.option(a is SerdeTypeOption ? b : a);
+  } else if (a is SerdeTypeOption || b is SerdeTypeOption) {
+    return SerdeType.option(mergeSerdeSchema(
+      a is SerdeTypeOption ? a.generic : a,
+      b is SerdeTypeOption ? b.generic : b,
+    ));
   } else if (a is SerdeTypeNested && b is SerdeTypeNested) {
     return SerdeType.nested(
       Map.fromEntries(
@@ -152,6 +157,8 @@ SerdeType mergeSerdeSchema(
         ),
       ),
     );
+  } else if (a is SerdeTypeList && b is SerdeTypeList) {
+    return SerdeType.list(mergeSerdeSchema(a.generic, b.generic));
   }
   final Set<SerdeType> variants = {
     if (a is SerdeTypeUnionType) ...a.variants else a,
