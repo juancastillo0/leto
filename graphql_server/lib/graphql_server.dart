@@ -158,6 +158,7 @@ class GraphQL {
         text,
         sourceUrl: sourceUrl,
         extensions: extensions,
+        globals: _globalVariables,
       );
       final result = await executeRequest(
         _schema,
@@ -166,6 +167,7 @@ class GraphQL {
         initialValue: initialValue ?? _globalVariables,
         variableValues: variableValues,
         globalVariables: _globalVariables,
+        extensions: extensions,
       );
 
       final newExtensions = _extensionMap();
@@ -208,9 +210,11 @@ class GraphQL {
     String text, {
     dynamic sourceUrl,
     Map<String, Object?>? extensions,
+    required Map<Object, Object?> globals,
   }) {
     return withExtensions(
-        (next, ext) => ext.getDocumentNode(next, text, extensions), () {
+        (next, ext) => ext.getDocumentNode(next, text, globals, extensions),
+        () {
       // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
       final persistedQuery =
           extensions == null ? null : extensions['persistedQuery'];
@@ -271,6 +275,7 @@ class GraphQL {
     Map<String, dynamic>? variableValues,
     required Object initialValue,
     required Map<Object, Object?> globalVariables,
+    Map<String, dynamic>? extensions,
   }) async {
     // TODO:
     // tracing.validation.start();
@@ -282,8 +287,9 @@ class GraphQL {
     final ctx = ResolveCtx(
       document: document,
       globalVariables: globalVariables,
-      serdeCtx: schema.serdeCtx,
+      schema: schema,
       variableValues: coercedVariableValues,
+      extensions: extensions,
     );
 
     try {
@@ -1234,16 +1240,19 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
 
 class ResolveCtx {
   final errors = <GraphQLExceptionError>[];
-  final SerdeCtx serdeCtx;
+  final GraphQLSchema schema;
+  SerdeCtx get serdeCtx => schema.serdeCtx;
   final DocumentNode document;
   final Map<String, dynamic> variableValues;
   final Map<Object, dynamic> globalVariables;
+  final Map<String, dynamic>? extensions;
 
   ResolveCtx({
-    required this.serdeCtx,
+    required this.schema,
     required this.document,
     required this.variableValues,
     required this.globalVariables,
+    required this.extensions,
   });
 }
 

@@ -15,6 +15,7 @@ abstract class GraphQLExtension {
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
     String query,
+    Map<Object, Object?> globals,
     Map<String, Object?>? extensions,
   ) =>
       next();

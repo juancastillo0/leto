@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:gql/ast.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/src/extension.dart';
@@ -18,6 +19,20 @@ class GraphQLTracingExtension extends GraphQLExtension {
     Map<String, Object?>? extensions,
   ) {
     globals[ref] = TracingBuilder(version: 1);
+  }
+
+  @override
+  DocumentNode getDocumentNode(
+    DocumentNode Function() next,
+    String query,
+    Map<Object, Object?> globals,
+    Map<String, Object?>? extensions,
+  ) {
+    final tracing = globals[ref]! as TracingBuilder;
+    final endParsing = tracing.parsing.start();
+    final document = next();
+    endParsing();
+    return document;
   }
 
   @override
@@ -111,8 +126,8 @@ class TracingBuilder {
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),
       'duration': stopwatch.elapsedMicroseconds,
-      'parsing': parsing.build().toJson(),
-      'validation': validation.build().toJson(),
+      'parsing': parsing.toJson(),
+      'validation': validation.toJson(),
       'execution': execution.build().toJson(),
     };
   }
@@ -162,7 +177,13 @@ class TracingItemBuilder {
     );
   }
 
-  Map<String, Object?> toJson() {
+  Map<String, Object?>? toJson() {
+    if (startOffset == null) {
+      return null;
+    }
+    if (duration == null) {
+      end();
+    }
     return {
       'startOffset': startOffset,
       'duration': duration,
