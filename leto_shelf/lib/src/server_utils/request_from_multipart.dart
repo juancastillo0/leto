@@ -54,7 +54,7 @@ Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
       query: operation['query']! as String,
       variables: variables,
       child: current,
-      isNested: _operations is List,
+      isBatched: _operations is List,
     );
   }
 

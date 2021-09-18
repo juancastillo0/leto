@@ -14,7 +14,7 @@ class GraphQLRequest {
   final Map<String, Object?>? variables;
   final Map<String, Object?>? extensions;
   final GraphQLRequest? child;
-  final bool isNested;
+  final bool isBatched;
 
   const GraphQLRequest({
     required this.query,
@@ -22,7 +22,7 @@ class GraphQLRequest {
     this.variables,
     this.extensions,
     this.child,
-    this.isNested = false,
+    this.isBatched = false,
   });
 
   factory GraphQLRequest.fromJson(Object? json) {
@@ -33,13 +33,13 @@ class GraphQLRequest {
           (value, element) {
             return element..['child'] = value;
           },
-        )..['isNested'] = true,
+        )..['isBatched'] = true,
       );
     }
-    return _$GraphqlRequestFromJson(json! as Map<String, Object?>);
+    return _$GraphQLRequestFromJson(json! as Map<String, Object?>);
   }
 
-  Map<String, Object?> toJson() => _$GraphqlRequestToJson(this);
+  Map<String, Object?> toJson() => _$GraphQLRequestToJson(this);
 
   factory GraphQLRequest.fromQueryParameters(
     Map<String, String> queryParameters,

@@ -71,7 +71,7 @@ Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
       });
       final resultList = await Future.wait(results);
       final Object? responseBody;
-      if (gqlQuery.isNested) {
+      if (gqlQuery.isBatched) {
         responseBody = resultList.map((e) => e.toJson()).toList();
       } else {
         responseBody = resultList.first.toJson();

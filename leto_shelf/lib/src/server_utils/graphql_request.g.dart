@@ -6,7 +6,7 @@ part of 'graphql_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-GraphQLRequest _$GraphqlRequestFromJson(Map<String, dynamic> json) =>
+GraphQLRequest _$GraphQLRequestFromJson(Map<String, dynamic> json) =>
     GraphQLRequest(
       query: json['query'] as String,
       operationName: json['operationName'] as String?,
@@ -14,14 +14,16 @@ GraphQLRequest _$GraphqlRequestFromJson(Map<String, dynamic> json) =>
       extensions: json['extensions'] as Map<String, dynamic>?,
       child: json['child'] == null
           ? null
-          : GraphQLRequest.fromJson(json['child'] as Map<String, dynamic>),
+          : GraphQLRequest.fromJson(json['child'] as Object),
+      isBatched: json['isBatched'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$GraphqlRequestToJson(GraphQLRequest instance) =>
+Map<String, dynamic> _$GraphQLRequestToJson(GraphQLRequest instance) =>
     <String, dynamic>{
       'query': instance.query,
       'operationName': instance.operationName,
       'variables': instance.variables,
       'extensions': instance.extensions,
       'child': instance.child,
+      'isBatched': instance.isBatched,
     };

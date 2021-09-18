@@ -7,6 +7,8 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/safe_json.dart';
 import 'package:shelf_graphql_example/schema/safe_json_graphql.dart';
 
+export 'package:formgen/validate/serde_type.dart';
+
 GraphQLSchema schemaFromJson() {
   // final List<Map<String, Object?>> json =
   //     (jsonDecode(jsonPayload) as List).cast();

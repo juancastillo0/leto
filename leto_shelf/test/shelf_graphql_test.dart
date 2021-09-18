@@ -205,5 +205,14 @@ query unions {
     );
     expect(responseBatched.statusCode, 200);
     expect(jsonDecode(responseBatched.body), [expectedBody, expectedBody]);
+
+    /// POST without query text batched
+    final responseBatchedSingle = await client.post(
+      url,
+      body: jsonEncode([req2.toJson()]),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(responseBatchedSingle.statusCode, 200);
+    expect(jsonDecode(responseBatchedSingle.body), [expectedBody]);
   });
 }
