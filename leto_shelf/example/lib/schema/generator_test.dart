@@ -149,3 +149,10 @@ List<EventUnion?> testUnionModels(
 /// logging
 /// other types uuid/url/Uri/duration/validation/json/decimal
 /// dataloader
+/// 
+/// execution https://github.com/graphql/graphql-js/tree/main/src/execution/__tests__
+/// subscription https://github.com/graphql/graphql-js/tree/main/src/subscription/__tests__
+/// type https://github.com/graphql/graphql-js/tree/main/src/type/__tests__
+/// printSchema https://github.com/graphql/graphql-js/blob/main/src/utilities/__tests__/printSchema-test.ts
+/// valueFromAST https://github.com/graphql/graphql-js/blob/main/src/utilities/valueFromAST.ts
+/// 

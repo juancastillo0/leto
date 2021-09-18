@@ -175,7 +175,7 @@ class Human with _$Human implements Character {
 
   /// Where are they from and how they came to be who they are.
   String? get secretBackstory {
-    throw Exception('secretBackstory is secret.');
+    throw GraphQLException.fromMessage('secretBackstory is secret.');
   }
 }
 
@@ -216,7 +216,7 @@ class Droid with _$Droid implements Character {
 
   /// Construction date and the name of the designer.
   String? get secretBackstory {
-    throw Exception('secretBackstory is secret.');
+    throw GraphQLException.fromMessage('secretBackstory is secret.');
   }
 }
 

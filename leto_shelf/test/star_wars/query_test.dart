@@ -434,7 +434,7 @@ void main() {
             {
               'message': 'secretBackstory is secret.',
               'locations': [
-                {'line': 5, 'column': 13}
+                {'line': 3, 'column': 12}
               ],
               'path': ['hero', 'secretBackstory'],
             },
@@ -481,21 +481,21 @@ void main() {
             {
               'message': 'secretBackstory is secret.',
               'locations': [
-                {'line': 7, 'column': 15}
+                {'line': 5, 'column': 14}
               ],
               'path': ['hero', 'friends', 0, 'secretBackstory'],
             },
             {
               'message': 'secretBackstory is secret.',
               'locations': [
-                {'line': 7, 'column': 15}
+                {'line': 5, 'column': 14}
               ],
               'path': ['hero', 'friends', 1, 'secretBackstory'],
             },
             {
               'message': 'secretBackstory is secret.',
               'locations': [
-                {'line': 7, 'column': 15}
+                {'line': 5, 'column': 14}
               ],
               'path': ['hero', 'friends', 2, 'secretBackstory'],
             },
@@ -525,7 +525,7 @@ void main() {
             {
               'message': 'secretBackstory is secret.',
               'locations': [
-                {'line': 5, 'column': 13}
+                {'line': 3, 'column': 12}
               ],
               'path': ['mainHero', 'story'],
             },
