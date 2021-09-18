@@ -43,10 +43,9 @@ void main() {
       }
     }
     ''');
-    final stream = result.data! as Stream<Map<String, dynamic>>;
+    final stream = result.subscriptionStream!;
 
     final asList = await stream.toList();
-    print(asList);
-    expect(asList, episodesAsData);
+    expect(asList.map((e) => e.toJson()), episodesAsData);
   });
 }
