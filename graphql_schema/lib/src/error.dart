@@ -11,9 +11,14 @@ class GraphQLException implements Exception {
   factory GraphQLException.fromMessage(
     String message, {
     List<Object>? path,
+    SourceLocation? location,
   }) {
     return GraphQLException([
-      GraphQLExceptionError(message, path: path),
+      GraphQLExceptionError(
+        message,
+        path: path,
+        locations: GraphQLErrorLocation.listFromSource(location),
+      ),
     ]);
   }
 
@@ -33,13 +38,19 @@ class GraphQLException implements Exception {
     ]);
   }
 
-  factory GraphQLException.fromException(Exception e, List<Object> path) {
+  factory GraphQLException.fromException(
+    Exception e,
+    List<Object> path, {
+    FileSpan? span,
+  }) {
     if (e is GraphQLException) {
       return GraphQLException([
         ...e.errors.map(
           (e) => GraphQLExceptionError(
             e.message,
-            locations: e.locations,
+            locations: e.locations.isNotEmpty || span == null
+                ? e.locations
+                : [GraphQLErrorLocation.fromSourceLocation(span.start)],
             path: e.path ?? path,
           ),
         ),
@@ -48,15 +59,18 @@ class GraphQLException implements Exception {
       return GraphQLException([
         GraphQLExceptionError(
           e.message,
-          locations: e.locations,
+          locations: e.locations.isNotEmpty || span == null
+              ? e.locations
+              : [GraphQLErrorLocation.fromSourceLocation(span.start)],
           path: e.path ?? path,
         ),
       ]);
     }
     final message = e.toString();
     return GraphQLException.fromMessage(
-      message.startsWith('Exception: ') ? message.substring(11) : message,
+      message,
       path: path,
+      location: span?.start,
     );
   }
 
@@ -99,20 +113,15 @@ class GraphQLExceptionError implements Exception {
     this.message, {
     this.locations = const [],
     this.path,
-  })
-  // TODO: improve
-  : stackTrace = StackTrace.current;
+  }) : stackTrace = StackTrace.current;
 
   Map<String, dynamic> toJson() {
-    final out = <String, dynamic>{
+    return {
       'message': message,
-      if (path != null) 'path': path
+      if (path != null) 'path': path,
+      if (locations.isNotEmpty)
+        'locations': locations.map((l) => l.toJson()).toList(),
     };
-    final locationsFiltered = locations.where((l) => l.line != null);
-    if (locationsFiltered.isNotEmpty) {
-      out['locations'] = locationsFiltered.map((l) => l.toJson()).toList();
-    }
-    return out;
   }
 
   @override
@@ -125,24 +134,61 @@ class GraphQLExceptionError implements Exception {
 /// the execution of a GraphQL query.
 ///
 /// This is analogous to a [SourceLocation] from `package:source_span`.
+@immutable
 class GraphQLErrorLocation {
-  // TODO:
-  final int? line;
-  final int? column;
+  final int line;
+  final int column;
 
   const GraphQLErrorLocation(
     this.line,
     this.column,
   );
 
-  factory GraphQLErrorLocation.fromSourceLocation(SourceLocation? location) {
+  static List<GraphQLErrorLocation> listFromSource(SourceLocation? location) {
+    if (location == null) {
+      return const [];
+    }
+    return [
+      GraphQLErrorLocation(
+        location.line,
+        location.column,
+      )
+    ];
+  }
+
+  factory GraphQLErrorLocation.fromSourceLocation(SourceLocation location) {
     return GraphQLErrorLocation(
-      location?.line,
-      location?.column,
+      location.line,
+      location.column,
     );
   }
 
   Map<String, Object?> toJson() {
     return {'line': line, 'column': column};
   }
+
+  GraphQLErrorLocation copyWith({
+    int? line,
+    int? column,
+  }) {
+    return GraphQLErrorLocation(
+      line ?? this.line,
+      column ?? this.column,
+    );
+  }
+
+  @override
+  String toString() => 'GraphQLErrorLocation(line: $line, column: $column)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is GraphQLErrorLocation &&
+        other.line == line &&
+        other.column == column;
+  }
+
+  @override
+  int get hashCode => line.hashCode ^ column.hashCode;
 }

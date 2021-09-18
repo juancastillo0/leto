@@ -39,6 +39,7 @@ part 'error.dart';
 
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
+  // TODO: rename queryType to query
   /// The shape which all queries against the backend must take.
   final GraphQLObjectType<Object>? queryType;
 

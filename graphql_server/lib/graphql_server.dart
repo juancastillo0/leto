@@ -153,12 +153,31 @@ class GraphQL {
       return entries.isEmpty ? null : Map.fromEntries(entries);
     }
 
-    final DocumentNode document;
     try {
-      document = getDocumentNode(
+      final document = getDocumentNode(
         text,
         sourceUrl: sourceUrl,
         extensions: extensions,
+      );
+      final result = await executeRequest(
+        _schema,
+        document,
+        operationName: operationName,
+        initialValue: initialValue ?? _globalVariables,
+        variableValues: variableValues,
+        globalVariables: _globalVariables,
+      );
+
+      final newExtensions = _extensionMap();
+      if (newExtensions == null) {
+        return result;
+      }
+
+      return result.copyWith(
+        extensions: {
+          ...newExtensions,
+          if (result.extensions != null) ...result.extensions!
+        },
       );
     } on GraphQLException catch (e) {
       return GraphQLResult(
@@ -168,26 +187,6 @@ class GraphQL {
         extensions: _extensionMap(),
       );
     }
-    final result = await executeRequest(
-      _schema,
-      document,
-      operationName: operationName,
-      initialValue: initialValue ?? _globalVariables,
-      variableValues: variableValues,
-      globalVariables: _globalVariables,
-    );
-
-    final newExtensions = _extensionMap();
-    if (newExtensions == null) {
-      return result;
-    }
-
-    return result.copyWith(
-      extensions: {
-        ...newExtensions,
-        if (result.extensions != null) ...result.extensions!
-      },
-    );
   }
 
   T withExtensions<T>(
@@ -249,9 +248,7 @@ class GraphQL {
           } on SourceSpanException catch (e) {
             errors.add(GraphQLExceptionError(
               e.message,
-              locations: [
-                GraphQLErrorLocation.fromSourceLocation(e.span?.start),
-              ],
+              locations: GraphQLErrorLocation.listFromSource(e.span?.start),
             ));
           } catch (e) {
             throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
@@ -365,18 +362,13 @@ class GraphQL {
         final validation = type.validate(variableName, value);
 
         if (!validation.successful) {
+          final locations = GraphQLErrorLocation.listFromSource(
+            (variableDefinition.span ?? variableDefinition.variable.span)
+                ?.start,
+          );
           throw GraphQLException(
             validation.errors
-                .map(
-                  (e) => GraphQLExceptionError(
-                    e,
-                    locations: [
-                      GraphQLErrorLocation.fromSourceLocation(
-                        variableDefinition.span?.start,
-                      )
-                    ],
-                  ),
-                )
+                .map((e) => GraphQLExceptionError(e, locations: locations))
                 .toList(),
           );
         } else {
@@ -610,6 +602,7 @@ class GraphQL {
             final err = GraphQLException.fromException(
               e,
               [...objectCtx.path, alias],
+              span: field.span ?? field.name.span,
             );
             if (objectField.type.isNullable) {
               baseCtx.errors.add(err.errors.first);
@@ -701,98 +694,94 @@ class GraphQL {
           continue;
         }
       } else {
-        try {
-          // TODO: verify
-          // TODO: check subscriptions
-          final node = argumentValue.value;
-          if (node is VariableNode) {
-            /// variable values where already validated and
-            /// coerced in coerceVariableValues
-            final variableName = node.name.value;
-            final Object? value = variableValues[variableName];
-            coercedValues[argumentName] = value;
-            if (value == null && argumentType.isNonNullable) {
-              throw GraphQLException.fromMessage(
-                'Missing value for argument "$argumentName" of field "$fieldName".',
-              );
-            }
-            continue;
-          }
-          final value = computeValue(
-            argumentType,
-            node,
-            variableValues,
-          );
-          final Object? coercedValue;
-          // TODO: try a validation first, if not successful check argumentDefinition.type.isNullable
-          if (value == null) {
-            if (argumentDefinition.type.isNullable) {
-              coercedValue = null;
-            } else {
-              throw GraphQLException.fromMessage(
-                'Missing value for argument "$argumentName" of field "$fieldName".',
-              );
-            }
-          } else {
-            final validation = argumentType.validate(
-              argumentName,
-              value,
+        // try {
+        // TODO: verify
+        // TODO: check subscriptions
+        final node = argumentValue.value;
+        if (node is VariableNode) {
+          /// variable values where already validated and
+          /// coerced in coerceVariableValues
+          final variableName = node.name.value;
+          final Object? value = variableValues[variableName];
+          coercedValues[argumentName] = value;
+          if (value == null && argumentType.isNonNullable) {
+            throw GraphQLException.fromMessage(
+              'Missing value for argument "$argumentName" of field "$fieldName".',
             );
-            if (!validation.successful) {
-              final errors = <GraphQLExceptionError>[
+          }
+          continue;
+        }
+        final value = computeValue(
+          argumentType,
+          node,
+          variableValues,
+        );
+        final Object? coercedValue;
+        // TODO: try a validation first, if not successful check argumentDefinition.type.isNullable
+        if (value == null) {
+          if (argumentDefinition.type.isNullable) {
+            coercedValue = null;
+          } else {
+            throw GraphQLException.fromMessage(
+              'Missing value for argument "$argumentName" of field "$fieldName".',
+            );
+          }
+        } else {
+          final validation = argumentType.validate(
+            argumentName,
+            value,
+          );
+          final locations = GraphQLErrorLocation.listFromSource(
+            argumentValue.span?.start ??
+                argumentValue.value.span?.start ??
+                argumentValue.name.span?.start,
+          );
+          if (!validation.successful) {
+            final errors = <GraphQLExceptionError>[
+              GraphQLExceptionError(
+                'Type coercion error for value of argument'
+                ' "$argumentName" of field "$fieldName".',
+                locations: locations,
+              )
+            ];
+
+            for (final error in validation.errors) {
+              errors.add(
                 GraphQLExceptionError(
-                  'Type coercion error for value of argument'
-                  ' "$argumentName" of field "$fieldName".',
-                  locations: [
-                    GraphQLErrorLocation.fromSourceLocation(
-                        argumentValue.value.span?.start)
-                  ],
-                )
-              ];
-
-              for (final error in validation.errors) {
-                errors.add(
-                  GraphQLExceptionError(
-                    error,
-                    locations: [
-                      GraphQLErrorLocation.fromSourceLocation(
-                          argumentValue.value.span?.start)
-                    ],
-                  ),
-                );
-              }
-
-              throw GraphQLException(errors);
-            } else {
-              final serialized = validation.value!;
-              coercedValue = argumentDefinition.type.deserialize(
-                serdeCtx,
-                serialized,
+                  error,
+                  locations: locations,
+                ),
               );
             }
-            coercedValues[argumentName] = coercedValue;
-          }
 
-          // TODO: remove try catch
-        } on TypeError catch (e) {
-          throw GraphQLException(<GraphQLExceptionError>[
-            GraphQLExceptionError(
-              'Type coercion error for value of argument '
-              '"$argumentName" of field "$fieldName".',
-              locations: [
-                GraphQLErrorLocation.fromSourceLocation(
-                    argumentValue.value.span?.start)
-              ],
-            ),
-            GraphQLExceptionError(
-              e.toString(),
-              locations: [
-                GraphQLErrorLocation.fromSourceLocation(
-                    argumentValue.value.span?.start)
-              ],
-            ),
-          ]);
+            throw GraphQLException(errors);
+          } else {
+            final serialized = validation.value!;
+            coercedValue = argumentDefinition.type.deserialize(
+              serdeCtx,
+              serialized,
+            );
+          }
+          coercedValues[argumentName] = coercedValue;
         }
+
+        // TODO: remove try catch
+        // } on TypeError catch (e) {
+        //   throw GraphQLException(<GraphQLExceptionError>[
+        //     GraphQLExceptionError(
+        //       'Type coercion error for value of argument '
+        //       '"$argumentName" of field "$fieldName".',
+        //       locations: locations,
+        //     ),
+        //     GraphQLExceptionError(
+        //       e.toString(),
+        //       locations: [
+        //         GraphQLErrorLocation.fromSourceLocation(
+        //             argumentValue.value.span?.start)
+        //       ],
+        //     ),
+        //   ]);
+        // }
       }
     }
 
@@ -925,11 +914,19 @@ class GraphQL {
           final innerType = fieldType.ofType;
           final futureOut = <Future<Object?>>[];
 
+          final listCtx = ResolveObjectCtx(
+            base: ctx.base,
+            fieldPath: fieldName,
+            objectType: ctx.objectType,
+            objectValue: ctx.objectValue,
+            parent: ctx,
+          );
+
           int i = 0;
           for (final resultItem in result) {
             final _i = i++;
             futureOut.add(completeValue(
-              ctx,
+              listCtx,
               _i, //'(item in "$fieldName")',
               innerType,
               fields,
