@@ -12,45 +12,80 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 /// This endpoint only supports WebSockets, and can be used
 /// to deliver subscription events.
 ///
-/// `graphQLWS` uses the Apollo WebSocket protocol, for the sake
-/// of compatibility with existing tooling.
+/// [graphqlWebSocket] supports the 'graphql-transport-ws' and
+/// 'graphql-ws' (apollo subscriptions-transport-ws) subprotocols,
+/// for the sake of compatibility with existing tooling.
 ///
 /// See:
+/// * https://the-guild.dev/blog/graphql-over-websockets
 /// * https://github.com/apollographql/subscriptions-transport-ws
+/// * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
 Handler graphqlWebSocket(
   GraphQL graphQL, {
+  Iterable<String>? allowedOrigins,
   Duration? keepAliveInterval,
+  Duration? connectionInitWaitTimeout,
   Map<Object, Object?>? globalVariables,
+  FutureOr<bool> Function(Map<String, Object?>? payload)?
+      validateIncomingConnection,
 }) {
   return (request) {
     final handler = webSocketHandler(
       (WebSocketChannel channel) async {
-        final client = stw.RemoteClient(channel.cast<String>());
-        final server = _GraphQLWSServer(
-            client, graphQL, request, keepAliveInterval, globalVariables);
+        final client = stw.RemoteClient(
+          channel.cast<String>(),
+          channel.sink.close,
+          channel.protocol ?? 'graphql-ws',
+        );
+        final server = GraphQLWebSocketServer(
+          client,
+          graphQL,
+          request,
+          validateIncomingConnection: validateIncomingConnection,
+          globalVariables: globalVariables,
+          keepAliveInterval: keepAliveInterval,
+          connectionInitWaitTimeout: connectionInitWaitTimeout,
+        );
         await server.done;
       },
-      protocols: ['graphql-ws'],
+      protocols: stw.Server.supportedProtocols,
+      allowedOrigins: allowedOrigins,
     );
     return handler(request);
   };
 }
 
-class _GraphQLWSServer extends stw.Server {
+class GraphQLWebSocketServer extends stw.Server {
   final GraphQL graphQL;
   final Request request;
   final Map<Object, Object?>? globalVariables;
+  final FutureOr<bool> Function(Map<String, Object?>? payload)?
+      validateIncomingConnection;
 
-  _GraphQLWSServer(
+  GraphQLWebSocketServer(
     stw.RemoteClient client,
     this.graphQL,
-    this.request,
-    Duration? keepAliveInterval,
+    this.request, {
+    this.validateIncomingConnection,
     this.globalVariables,
-  ) : super(client, keepAliveInterval: keepAliveInterval);
+    Duration? keepAliveInterval,
+    Duration? connectionInitWaitTimeout,
+  }) : super(
+          client,
+          keepAliveInterval: keepAliveInterval,
+          connectionInitWaitTimeout: connectionInitWaitTimeout,
+        );
 
   @override
-  bool onConnect(stw.RemoteClient client, [Map? connectionParams]) => true;
+  FutureOr<bool> onConnect(
+    stw.RemoteClient client, [
+    Map<String, Object?>? connectionParams,
+  ]) {
+    if (validateIncomingConnection != null) {
+      return validateIncomingConnection!(connectionParams);
+    }
+    return true;
+  }
 
   @override
   Future<GraphQLResult> onOperation(
@@ -58,6 +93,7 @@ class _GraphQLWSServer extends stw.Server {
     String query, [
     Map<String, Object?>? variables,
     String? operationName,
+    Map<String, Object?>? extensions,
   ]) async {
     final _globalVariables = <Object, Object?>{
       requestCtxKey: request,
@@ -68,7 +104,7 @@ class _GraphQLWSServer extends stw.Server {
       operationName: operationName,
       variableValues: variables,
       globalVariables: _globalVariables,
-      // TODO: extensions? headers? auth?
+      extensions: extensions,
       sourceUrl: 'input',
     );
   }
