@@ -31,7 +31,7 @@ abstract class GraphQLExtension {
   FutureOr<Object?> completeValue(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
-    Object fieldPath,
+    String fieldName,
     GraphQLType fieldType,
     Object? result,
   ) =>

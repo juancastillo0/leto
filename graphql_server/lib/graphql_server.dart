@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_catching_errors
 import 'dart:async';
 import 'dart:convert';
 
@@ -8,21 +7,12 @@ import 'package:gql/ast.dart';
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/src/extension.dart';
-import 'package:oxidized/oxidized.dart';
 import 'package:source_span/source_span.dart';
 
 import 'introspection.dart';
 import 'src/graphql_result.dart';
 
 export 'src/graphql_result.dart';
-
-/// Transforms any [Map] into `Map<String, dynamic>`.
-Map<String, dynamic>? foldToStringDynamic(Map map) {
-  return map.keys.fold<Map<String, dynamic>>(
-    <String, dynamic>{},
-    (out, Object? k) => out..[k.toString()] = map[k],
-  );
-}
 
 class GraphQLErrors {
   // ignore: constant_identifier_names
@@ -34,15 +24,20 @@ class GraphQL {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes = [];
 
+  /// Extensions that add additional funcionalities to the
+  /// server's parsing, validation and execution.
+  /// For example extensions for tracing [GraphQLTracingExtension],
+  /// logging, error handling or caching
   final List<GraphQLExtension> extensionList;
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s,
   /// when the related field has no resolver.
-  final FutureOr<T> Function<T, P>(P, String, Map<String, dynamic>)?
+  final FutureOr<Object?> Function<P>(P object, String fieldName, ReqCtx<P>)?
       defaultFieldResolver;
 
   GraphQLSchema _schema;
+
   final Map<Object, Object?> initialGlobalVariables;
 
   // TODO: https://www.apollographql.com/docs/apollo-server/performance/apq/
@@ -73,7 +68,9 @@ class GraphQL {
       }
     }
 
-    if (_schema.queryType != null) this.customTypes.add(_schema.queryType!);
+    if (_schema.queryType != null) {
+      this.customTypes.add(_schema.queryType!);
+    }
     if (_schema.mutationType != null) {
       this.customTypes.add(_schema.mutationType!);
     }
@@ -120,8 +117,7 @@ class GraphQL {
     }
   }
 
-  // TODO: the output should be nullable
-  // TODO: the output should contain a list of GraphQLExceptions from the resolvers
+  // TODO:
   // if there are query inputs or validation errors, it is handled with thrown exceptions, but
   // if there are errors inside resolvers, those should be returned
   // https://graphql.org/learn/serving-over-http/
@@ -130,7 +126,8 @@ class GraphQL {
     String text, {
     String? operationName,
 
-    /// [sourceUrl] may be either a [String], a [Uri], or `null`.
+    /// The text document's source
+    /// may be either a [String], a [Uri], or `null`.
     dynamic sourceUrl,
     Map<String, Object?>? variableValues,
     Map<String, Object?>? extensions,
@@ -332,7 +329,7 @@ class GraphQL {
       return ops.firstWhere(
         (d) => d.name!.value == operationName,
         orElse: () => throw GraphQLException.fromMessage(
-          'Missing required operation "$operationName".',
+          'Operation named "$operationName" not found in query.',
         ),
       );
     }
@@ -554,7 +551,7 @@ class GraphQL {
     Object objectValue, {
     required bool serial,
     ResolveObjectCtx? parentCtx,
-    Object? fieldPath,
+    Object? pathItem,
   }) async {
     final groupedFieldSet = collectFields(
       baseCtx.document,
@@ -570,7 +567,7 @@ class GraphQL {
       objectType: objectType,
       objectValue: objectValue,
       parent: parentCtx,
-      fieldPath: fieldPath,
+      pathItem: pathItem,
     );
 
     // If during ExecuteSelectionSet() a field with a non‐null fieldType throws
@@ -603,12 +600,13 @@ class GraphQL {
               fields,
               objectCtx,
               objectField,
+              pathItem: alias,
             );
           } on Exception catch (e) {
             final err = GraphQLException.fromException(
               e,
               [...objectCtx.path, alias],
-              span: field.span ?? field.name.span,
+              span: field.span ?? field.alias?.span ?? field.name.span,
             );
             if (objectField.type.isNullable) {
               baseCtx.errors.add(err.errors.first);
@@ -637,8 +635,9 @@ class GraphQL {
   Future<T?> executeField<T extends Object, P extends Object>(
     List<FieldNode> fields,
     ResolveObjectCtx<P> ctx,
-    GraphQLObjectField<T, Object, P> objectField,
-  ) async {
+    GraphQLObjectField<T, Object, P> objectField, {
+    required Object pathItem,
+  }) async {
     final field = fields.first;
     final fieldName = field.name.value;
     final argumentValues = coerceArgumentValues(
@@ -648,13 +647,10 @@ class GraphQL {
       ctx.variableValues,
     );
     final resolvedValue = await resolveFieldValue<T, P>(
-      ctx.serdeCtx,
+      ctx,
       objectField,
-      ctx.objectValue,
-      ctx.serializedObject,
       fieldName,
       argumentValues,
-      ctx.globalVariables,
     );
     return await completeValue(
       ctx,
@@ -662,6 +658,7 @@ class GraphQL {
       objectField.type,
       fields,
       resolvedValue,
+      pathItem: pathItem,
     ) as T?;
   }
 
@@ -706,7 +703,7 @@ class GraphQL {
         final node = argumentValue.value;
         if (node is VariableNode) {
           /// variable values where already validated and
-          /// coerced in coerceVariableValues
+          /// coerced in [coerceVariableValues]
           final variableName = node.name.value;
           final Object? value = variableValues[variableName];
           coercedValues[argumentName] = value;
@@ -794,15 +791,13 @@ class GraphQL {
     return coercedValues;
   }
 
-  Future<T?> resolveFieldValue<T extends Object, P>(
-    SerdeCtx serdeCtx,
+  Future<T?> resolveFieldValue<T extends Object, P extends Object>(
+    ResolveObjectCtx<P> ctx,
     GraphQLObjectField<T, Object, P> field,
-    P objectValue,
-    Map<String, Object?>? Function() serealizedValue,
     String fieldName,
     Map<String, dynamic> argumentValues,
-    Map<Object, dynamic> globalVariables,
   ) async {
+    final objectValue = ctx.objectValue;
     if (objectValue is _SubscriptionEvent) {
       return objectValue.event[fieldName] as T?;
     } else if (field.resolve != null) {
@@ -811,24 +806,34 @@ class GraphQL {
         ReqCtx<P>(
           args: argumentValues,
           object: objectValue,
-          globals: globalVariables,
+          globals: ctx.globalVariables,
           // TODO:
           parentCtx: null,
         ),
       );
-    } else if (objectValue is Map) {
+    } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
       return objectValue[fieldName] as T?;
     } else if (field.type.generic.isValueOfType(objectValue)) {
       // TODO:
       return objectValue as T;
     } else {
-      final serealized = serealizedValue();
-      if (serealized != null) {
+      final serealized = ctx.serializedObject();
+      if (serealized != null && serealized.containsKey(fieldName)) {
         return serealized[fieldName] as T?;
       }
       if (defaultFieldResolver != null) {
-        return await defaultFieldResolver!(
-            objectValue, fieldName, argumentValues);
+        final value = await defaultFieldResolver!(
+          objectValue,
+          fieldName,
+          ReqCtx<P>(
+            args: argumentValues,
+            object: objectValue,
+            globals: ctx.globalVariables,
+            // TODO:
+            parentCtx: null,
+          ),
+        );
+        return value as T?;
       }
 
       return null;
@@ -839,25 +844,26 @@ class GraphQL {
   /// from a [result] for [fieldName] in [ctx]
   Future<Object?> completeValue(
     ResolveObjectCtx ctx,
-    Object fieldName,
+    String fieldName,
     GraphQLType fieldType,
     List<SelectionNode> fields,
-    Object? result,
-  ) async {
+    Object? result, {
+    required Object pathItem,
+  }) async {
     return withExtensions(
         (next, e) => e.completeValue(next, ctx, fieldName, fieldType, result),
         () async {
       if (fieldType.isNullable && result == null) {
         return null;
       }
-      final path = ctx.path.followedBy([fieldName]).toList();
+      final path = ctx.path.followedBy([pathItem]).toList();
       Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
         try {
           Object? _result = result;
           if (fieldType.generic.isValueOfType(_result)) {
             _result = fieldType.serialize(_result!);
           }
-          final validation = fieldType.validate(fieldName.toString(), _result);
+          final validation = fieldType.validate(fieldName, _result);
 
           if (!validation.successful) {
             return null;
@@ -879,14 +885,13 @@ class GraphQL {
         if (fieldType is GraphQLObjectType && !fieldType.isInterface) {
           objectType = fieldType;
         } else {
-          objectType =
-              resolveAbstractType(fieldName.toString(), fieldType, result);
+          objectType = resolveAbstractType(fieldName, fieldType, result);
         }
 
         final subSelectionSet = mergeSelectionSets(fields);
         return executeSelectionSet(
             ctx.base, subSelectionSet, objectType, result!,
-            serial: false, parentCtx: ctx, fieldPath: fieldName);
+            serial: false, parentCtx: ctx, pathItem: pathItem);
       }
 
       return fieldType.when(
@@ -897,8 +902,14 @@ class GraphQL {
         union: _completeObjectOrUnion,
         nonNullable: (fieldType) async {
           final innerType = fieldType.ofType;
-          final completedResult =
-              await completeValue(ctx, fieldName, innerType, fields, result);
+          final completedResult = await completeValue(
+            ctx,
+            fieldName,
+            innerType,
+            fields,
+            result,
+            pathItem: pathItem,
+          );
 
           if (completedResult == null) {
             throw GraphQLException.fromMessage(
@@ -922,7 +933,7 @@ class GraphQL {
 
           final listCtx = ResolveObjectCtx(
             base: ctx.base,
-            fieldPath: fieldName,
+            pathItem: fieldName,
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
             parent: ctx,
@@ -933,14 +944,15 @@ class GraphQL {
             final _i = i++;
             futureOut.add(completeValue(
               listCtx,
-              _i, //'(item in "$fieldName")',
+              '$fieldName[$_i]',
               innerType,
               fields,
               resultItem,
+              pathItem: _i,
             ).onError<Exception>((error, stackTrace) {
               final err = GraphQLException.fromException(
                 error,
-                [...path, fieldName, _i],
+                [...path, pathItem, _i],
               );
               if (innerType.isNullable) {
                 ctx.base.errors.add(err.errors.first);
@@ -1267,50 +1279,46 @@ class ResolveObjectCtx<P extends Object> {
   final GraphQLObjectType<P> objectType;
   final P objectValue;
   final ResolveObjectCtx<Object>? parent;
-  final Object? fieldPath;
+  final Object? pathItem;
 
   // TODO: support aliases?
   Iterable<Object> get path => parent == null
-      ? [if (fieldPath != null) fieldPath!]
-      : parent!.path.followedBy([if (fieldPath != null) fieldPath!]);
+      ? [if (pathItem != null) pathItem!]
+      : parent!.path.followedBy([if (pathItem != null) pathItem!]);
 
   ResolveObjectCtx({
-    required this.fieldPath,
+    required this.pathItem,
     required this.base,
     required this.objectType,
     required this.objectValue,
     required this.parent,
   });
 
-  Option<Map<String, dynamic>>? _serializedObject;
+  bool _didSerialized = false;
+  Map<String, dynamic>? _serializedObject;
   Map<String, Object?>? serializedObject() {
-    if (_serializedObject == null) {
+    if (!_didSerialized) {
       try {
         try {
           final serializer = serdeCtx.ofValue(objectType.generic.type);
           if (serializer != null) {
-            _serializedObject = Some(
-              serializer.toJson(objectValue)! as Map<String, dynamic>,
-            );
+            _serializedObject =
+                serializer.toJson(objectValue)! as Map<String, dynamic>;
           } else {
-            _serializedObject = Some(
-              serdeCtx.toJson(objectValue)! as Map<String, dynamic>,
-            );
+            _serializedObject =
+                serdeCtx.toJson(objectValue)! as Map<String, dynamic>;
           }
         } catch (e) {
-          _serializedObject = Some(objectType.serializeSafe(
+          _serializedObject = objectType.serializeSafe(
             objectValue,
             nested: false,
-          )!);
+          );
         }
-      } catch (e, _) {
-        _serializedObject = const None();
-      }
+      } catch (_) {}
+      _didSerialized = true;
     }
-    return _serializedObject!.toNullable();
+    return _serializedObject;
   }
-  // serdeCtx.toJson(objectValue)! as Map<String, Object?>;
-
 }
 
 // class ResolveFieldCtx<T, P> {
