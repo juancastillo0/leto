@@ -6,7 +6,7 @@ GraphQLType<T, S> refType<T extends Object, S extends Object>(
 }
 
 class GraphQLRefType<T extends Object, S extends Object>
-    extends GraphQLType<T, S> {
+    extends GraphQLType<T, S> with _NonNullableMixin<T, S> {
   final GraphQLType<T, S> Function() ref;
   GraphQLRefType(this.ref);
 
@@ -41,11 +41,6 @@ class GraphQLRefType<T extends Object, S extends Object>
   @override
   ValidationResult<S> validate(String key, Object? input) {
     return innerType().validate(key, input);
-  }
-
-  @override
-  GraphQLNonNullType<T, S> nonNull() {
-    return innerType().nonNull();
   }
 
   @override
