@@ -71,10 +71,10 @@ Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
       });
       final resultList = await Future.wait(results);
       final Object? responseBody;
-      if (resultList.length == 1) {
-        responseBody = resultList.first.toJson();
-      } else {
+      if (gqlQuery.isNested) {
         responseBody = resultList.map((e) => e.toJson()).toList();
+      } else {
+        responseBody = resultList.first.toJson();
       }
 
       final headers = ReqCtx.headersFromGlobals(_globalVariables);
