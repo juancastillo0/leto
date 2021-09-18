@@ -52,6 +52,7 @@ class GraphQLException implements Exception {
                 ? e.locations
                 : [GraphQLErrorLocation.fromSourceLocation(span.start)],
             path: e.path ?? path,
+            extensions: e.extensions,
           ),
         ),
       ]);
@@ -63,6 +64,7 @@ class GraphQLException implements Exception {
               ? e.locations
               : [GraphQLErrorLocation.fromSourceLocation(span.start)],
           path: e.path ?? path,
+          extensions: e.extensions,
         ),
       ]);
     }
@@ -109,10 +111,13 @@ class GraphQLExceptionError implements Exception {
 
   final StackTrace stackTrace;
 
+  final Map<String, Object?>? extensions;
+
   GraphQLExceptionError(
     this.message, {
     this.locations = const [],
     this.path,
+    this.extensions,
   }) : stackTrace = StackTrace.current;
 
   Map<String, dynamic> toJson() {
@@ -121,6 +126,7 @@ class GraphQLExceptionError implements Exception {
       if (path != null) 'path': path,
       if (locations.isNotEmpty)
         'locations': locations.map((l) => l.toJson()).toList(),
+      if (extensions != null) 'extensions': extensions,
     };
   }
 
