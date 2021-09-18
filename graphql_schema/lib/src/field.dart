@@ -68,9 +68,6 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
     this.deprecationReason,
     this.description,
   }) {
-// :  assert(type != null, 'GraphQL fields must specify a `type`.')
-//    assert(
-//        resolve != null, 'GraphQL fields must specify a `resolve` callback.');
     this.inputs.addAll(arguments);
   }
 
@@ -86,8 +83,6 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
     Serialized serialized, [
     Map<String, dynamic> argumentValues = const <String, dynamic>{},
   ]) {
-    // TODO:
-    // if (resolve != null) return resolve!(serialized, argumentValues);
     return type.deserialize(serdeCtx, serialized);
   }
 
@@ -98,12 +93,11 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
       other.name == name &&
       other.deprecationReason == deprecationReason &&
       other.type == type &&
-      other.resolve == resolve &&
       const ListEquality<GraphQLFieldInput>().equals(other.inputs, inputs);
 
   @override
   int get hashCode =>
       runtimeType.hashCode ^
       const DeepCollectionEquality()
-          .hash([name, deprecationReason, type, resolve, inputs]);
+          .hash([name, deprecationReason, type, inputs]);
 }

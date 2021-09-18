@@ -1,40 +1,4 @@
 // https://github.com/graphql/graphql-js/blob/2d48fbbeb8718e4a0152d458145a9fe2111c0f8d/src/utilities/printSchema.js
-// import { inspect } from '../jsutils/inspect';
-// import { invariant } from '../jsutils/invariant';
-
-// import { print } from '../language/printer';
-// import { printBlockString } from '../language/blockString';
-
-// import type { GraphQLSchema } from '../type/schema';
-// import type { GraphQLDirective } from '../type/directives';
-// import type {
-//   GraphQLNamedType,
-//   GraphQLArgument,
-//   GraphQLInputField,
-//   GraphQLScalarType,
-//   GraphQLEnumType,
-//   GraphQLObjectType,
-//   GraphQLInterfaceType,
-//   GraphQLUnionType,
-//   GraphQLInputObjectType,
-// } from '../type/definition';
-// import { isIntrospectionType } from '../type/introspection';
-// import { GraphQLString, isSpecifiedScalarType } from '../type/scalars';
-// import {
-//   DEFAULT_DEPRECATION_REASON,
-//   isSpecifiedDirective,
-// } from '../type/directives';
-// import {
-//   isScalarType,
-//   isObjectType,
-//   isInterfaceType,
-//   isUnionType,
-//   isEnumType,
-//   isInputObjectType,
-// } from '../type/definition';
-
-// import { astFromValue } from './astFromValue';
-
 // ignore_for_file: constant_identifier_names, prefer_interpolation_to_compose_strings
 
 part of graphql_schema.src.schema;

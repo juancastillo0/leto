@@ -69,7 +69,17 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
         other is GraphQLType &&
             runtimeType == other.runtimeType &&
             const DeepCollectionEquality().equals(other.props, props) ||
-        other is GraphQLType && identical(other.realType, realType);
+        other is GraphQLType &&
+            () {
+              final _otherReal = other.realType;
+              final _real = realType;
+              return identical(_otherReal, realType) ||
+                  (_otherReal.runtimeType == _real.runtimeType &&
+                      _otherReal is GraphQLTypeWrapper &&
+                      _real is GraphQLTypeWrapper &&
+                      (_otherReal as GraphQLTypeWrapper).ofType.realType ==
+                          (_real as GraphQLTypeWrapper).ofType.realType);
+            }();
   }
 
   static Map<String, GraphQLType>? _usedHashCodes;
@@ -80,23 +90,28 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     final _used = _usedHashCodes;
     if (_used == null) {
       _usedHashCodes = {key: this};
-      final value =
-          runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+      final value = this is GraphQLRefType
+          ? realType.hashCode
+          : runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
       _usedHashCodes = null;
       return value;
     } else if (_used.containsKey(key)) {
-      final areEqual =
-          _used[key]! == this || _used[key]!.realType == this.realType;
-      if (!areEqual) {
-        print(this);
-        print(_used[key]);
-        return 0;
-      }
+      assert(
+        () {
+          final other = _used[key]!;
+          final areEqual = other == this || other.realType == realType;
+          return areEqual;
+        }(),
+        'GraphQLTypes with the same name are different:'
+        ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
+      );
       return key.hashCode;
     } else {
       _used[key] = this;
     }
-    return runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+    return this is GraphQLRefType
+        ? realType.hashCode
+        : runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
   }
 
   @override
@@ -199,11 +214,17 @@ GraphQLListType<Value, Serialized>
             GraphQLType<Value, Serialized> innerType) =>
         GraphQLListType<Value, Serialized>(innerType);
 
+abstract class GraphQLTypeWrapper {
+  GraphQLType<Object, Object> get ofType;
+}
+
 /// A special [GraphQLType] that indicates that input vales should
 /// be a list of another type, [ofType].
 class GraphQLListType<Value extends Object, Serialized extends Object>
     extends GraphQLType<List<Value?>, List<Serialized?>>
-    with _NonNullableMixin<List<Value?>, List<Serialized?>> {
+    with _NonNullableMixin<List<Value?>, List<Serialized?>>
+    implements GraphQLTypeWrapper {
+  @override
   final GraphQLType<Value, Serialized> ofType;
 
   GraphQLListType(this.ofType);
@@ -291,7 +312,8 @@ mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
 /// A special [GraphQLType] that indicates that input values should both be
 /// non-null, and be valid when asserted against another type, named [ofType].
 class GraphQLNonNullType<Value extends Object, Serialized extends Object>
-    extends GraphQLType<Value, Serialized> {
+    extends GraphQLType<Value, Serialized> implements GraphQLTypeWrapper {
+  @override
   final GraphQLType<Value, Serialized> ofType;
 
   const GraphQLNonNullType._(this.ofType);
