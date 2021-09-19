@@ -5,62 +5,11 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/books.controller.dart';
+import 'package:shelf_graphql_example/schema/chat_room.dart/sql_utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'chat_table.g.dart';
 part 'chat_table.freezed.dart';
-
-// class DbCtx {
-//   static Future<DbCtx> create() {
-//      final x = ;
-
-//   }
-// }
-
-bool migrate(Database db, String tableName, List<String> queries) {
-  if (queries.isEmpty) {
-    return true;
-  }
-  db.execute('''
-    CREATE TABLE IF NOT EXISTS migration (
-      code TEXT NOT NULL,
-      query TEXT NOT NULL,
-      createdAt DATE NOT NULL DEFAULT CURRENT_DATE,
-      PRIMARY KEY (code)
-    );
-  ''');
-
-  db.execute('BEGIN TRANSACTION;');
-  int i = 0;
-  String migrationCode = '';
-  for (final query in queries) {
-    migrationCode = '${tableName}_$i';
-    final result = db.select(
-      'SELECT query from migration where code = ?;',
-      [migrationCode],
-    );
-    if (result.isEmpty) {
-      db.execute(query);
-      db.execute(
-        'INSERT INTO migration(code, query) VALUES(?, ?);',
-        [migrationCode, query],
-      );
-    } else {
-      final row = result.rows.first;
-      final savedQuery = row.first! as String;
-      if (savedQuery != query) {
-        throw Exception('savedQuery $savedQuery != query $query');
-      }
-    }
-    i++;
-  }
-  db.execute('COMMIT;');
-  final result = db.select(
-    'SELECT query from migration where code = ?;',
-    [migrationCode],
-  );
-  return result.isNotEmpty;
-}
 
 final chatControllerRef = RefWithDefault(
   'ChatController',
@@ -76,10 +25,13 @@ class ChatController {
     required this.messages,
   });
 
-  static Future<ChatController> create() async {
-    final chats = ChatTable();
+  static Future<ChatController> create({Database? db}) async {
+    final _db = db ?? sqlite3.open('chat_room.sqlite');
+    _db.execute('PRAGMA foreign_keys = ON;');
+
+    final chats = ChatTable(_db);
     await chats.setup();
-    final messages = ChatMessageTable();
+    final messages = ChatMessageTable(_db);
     await messages.setup();
 
     return ChatController(chats: chats, messages: messages);
@@ -89,7 +41,7 @@ class ChatController {
 class ChatTable {
   final Database db;
 
-  ChatTable() : db = sqlite3.open('chat_room.sqlite');
+  ChatTable(this.db);
 
   ChatRoom? insert(String name) {
     db.execute('INSERT INTO chat(name) VALUES (?)', [name]);
@@ -128,7 +80,7 @@ class ChatMessageTable {
 
   final controller = StreamController<ChatMessage>.broadcast();
 
-  ChatMessageTable() : db = sqlite3.open('chat_room.sqlite') {
+  ChatMessageTable(this.db) {
     controller.stream.listen((event) {
       print(event);
     });
@@ -147,20 +99,27 @@ FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
   }
 
   ChatMessage? insert(int chatId, String message) {
-    db.execute('''
+    try {
+      db.execute('''
 INSERT INTO message(chatId, message) VALUES (?, ?)
 ''', [chatId, message]);
 
-    final result = db.select(
-      'SELECT * FROM message WHERE id = ?',
-      [db.lastInsertRowId],
-    );
-    if (result.isEmpty) {
+      final result = db.select(
+        'SELECT * FROM message WHERE id = ?',
+        [db.lastInsertRowId],
+      );
+      if (result.isEmpty) {
+        return null;
+      }
+      final messageModel = ChatMessage.fromJson(result.first);
+      controller.add(messageModel);
+      return messageModel;
+    } on SqliteException catch (e) {
+      if (e.extendedResultCode == 787) {
+        throw Exception('Chat room with chatId $chatId not found.');
+      }
       return null;
     }
-    final messageModel = ChatMessage.fromJson(result.first);
-    controller.add(messageModel);
-    return messageModel;
   }
 
   Future<void> setup() async {
@@ -178,6 +137,24 @@ CREATE TABLE $tableName (
   PRIMARY KEY (id),
   FOREIGN KEY (chatId) REFERENCES chat (id)
 );''',
+
+        /// Change DEFAULT CURRENT_DATE -> DEFAULT CURRENT_TIMESTAMP
+        'ALTER TABLE $tableName RENAME TO tmp_$tableName;',
+
+        '''\
+CREATE TABLE $tableName (
+  id INTEGER NOT NULL,
+  chatId INTEGER NOT NULL,
+  message TEXT NOT NULL,
+  createdAt DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (chatId) REFERENCES chat (id)
+);''',
+        '''\
+INSERT INTO $tableName(id, chatId, message, createdAt) 
+SELECT id, chatId, message, createdAt
+FROM tmp_$tableName;''',
+        'DROP TABLE tmp_$tableName;'
       ],
     );
     print('migrated $tableName $migrated');
