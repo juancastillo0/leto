@@ -16,8 +16,8 @@ dependencies:
   source_gen: ^1.1.0
   json_annotation:
   freezed_annotation:
-  formgen:
-    path: ../../neural_graph/packages/formgen
+  valida:
+    path: ../../valida/valida
   dart_style:
   glob:
   path:

@@ -4,10 +4,10 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:formgen/formgen.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:valida/valida.dart';
 
 /// Generates GraphQL schemas, statically.
 Builder graphQLResolverBuilder(Object _) {
