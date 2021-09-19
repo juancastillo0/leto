@@ -36,6 +36,21 @@ class GraphQLTracingExtension extends GraphQLExtension {
   }
 
   @override
+  GraphQLException? validate(
+    GraphQLException? Function() next,
+    GraphQLSchema schema,
+    DocumentNode document,
+    Map<Object, Object?> globals,
+    Map<String, Object?>? extensions,
+  ) {
+    final tracing = globals[ref]! as TracingBuilder;
+    final endValidation = tracing.validation.start();
+    final exception = next();
+    endValidation();
+    return exception;
+  }
+
+  @override
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
@@ -46,7 +61,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
 
     final endTracing = tracing.execution.start(ResolverTracing(
       path: [...ctx.path, fieldAlias],
-      parentType: field.type.realType.toString(),
+      parentType: ctx.objectType.toString(),
       fieldName: field.name,
       returnType: field.type.toString(),
     ));
@@ -407,7 +422,7 @@ class ExecutionTracing {
       (map['resolvers'] as List?)!.map(
         (Object? x) => MapEntry(
           ResolverTracing.fromJson(x! as Map<String, Object?>),
-          TracingItem.fromJson(map),
+          TracingItem.fromJson(x as Map<String, Object?>),
         ),
       ),
     ));
@@ -434,7 +449,7 @@ class ResolverTracing {
   final String fieldName;
   final String returnType;
 
-  ResolverTracing({
+  const ResolverTracing({
     required this.path,
     required this.parentType,
     required this.fieldName,
@@ -470,7 +485,7 @@ class ResolverTracing {
 
   factory ResolverTracing.fromJson(Map<String, Object?> map) {
     return ResolverTracing(
-      path: map['path']! as List<Object>,
+      path: (map['path']! as List).cast(),
       parentType: map['parentType']! as String,
       fieldName: map['fieldName']! as String,
       returnType: map['returnType']! as String,
