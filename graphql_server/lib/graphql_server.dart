@@ -546,6 +546,16 @@ class GraphQL {
       pathItem: pathItem,
     );
 
+    if (groupedFieldSet.isEmpty) {
+      throw GraphQLExceptionError(
+        'Must select some fields in object ${objectType.name}.',
+        locations: GraphQLErrorLocation.listFromSource(
+          selectionSet.span?.start,
+        ),
+        path: objectCtx.path.toList(),
+      );
+    }
+
     // If during ExecuteSelectionSet() a field with a non‐null fieldType throws
     // a field error then that error must propagate to this entire selection set,
     // either resolving to null if allowed or further propagated to a parent field.
@@ -554,8 +564,10 @@ class GraphQL {
       final responseKey = groupEntry.key;
       final fields = groupEntry.value;
       final field = fields.first;
-      // TODO: test alias?
       final fieldName = field.name.value;
+      final fieldSpan = field.span ?? field.alias?.span ?? field.name.span;
+      final alias = field.alias?.value ?? fieldName;
+      final fieldPath = [...objectCtx.path, alias];
       FutureOr<dynamic> futureResponseValue;
 
       if (fieldName == '__typename') {
@@ -564,8 +576,13 @@ class GraphQL {
         final objectField = objectType.fields.firstWhereOrNull(
           (f) => f.name == fieldName,
         );
-        if (objectField == null) continue;
-        final alias = field.alias?.value ?? fieldName;
+        if (objectField == null) {
+          throw GraphQLExceptionError(
+            'Unknown field name $fieldName for type ${objectType.name}.',
+            locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
+            path: fieldPath,
+          );
+        }
         futureResponseValue = withExtensions<FutureOr<Object?>>(
             (n, e) => e.executeField(n, objectCtx, objectField, alias),
             () async {
@@ -579,11 +596,8 @@ class GraphQL {
               pathItem: alias,
             );
           } on Exception catch (e) {
-            final err = GraphQLException.fromException(
-              e,
-              [...objectCtx.path, alias],
-              span: field.span ?? field.alias?.span ?? field.name.span,
-            );
+            final err =
+                GraphQLException.fromException(e, fieldPath, span: fieldSpan);
             if (objectField.type.isNullable) {
               baseCtx.errors.add(err.errors.first);
               return null;
@@ -834,25 +848,26 @@ class GraphQL {
       }
       final path = ctx.path.followedBy([pathItem]).toList();
       Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
-        try {
-          Object? _result = result;
-          if (fieldType.generic.isValueOfType(_result)) {
-            _result = fieldType.serialize(_result!);
-          }
-          final validation = fieldType.validate(fieldName, _result);
-
-          if (!validation.successful) {
-            return null;
-          } else {
-            return validation.value;
-          }
-        } on TypeError {
-          throw GraphQLException.fromMessage(
-            'Value of field "$fieldName" must be '
-            '${fieldType.generic.type}, got $result instead.',
-            path: path,
-          );
+        // try {
+        Object? _result = result;
+        if (fieldType.generic.isValueOfType(_result)) {
+          _result = fieldType.serialize(_result!);
         }
+        final validation = fieldType.validate(fieldName, _result);
+
+        if (!validation.successful) {
+          return null;
+        } else {
+          return validation.value;
+        }
+        // TODO:
+        // } on TypeError {
+        //   throw GraphQLException.fromMessage(
+        //     'Value of field "$fieldName" must be '
+        //     '${fieldType.generic.type}, got $result instead.',
+        //     path: path,
+        //   );
+        // }
       }
 
       Future<Object?> _completeObjectOrUnion(GraphQLType fieldType) async {
