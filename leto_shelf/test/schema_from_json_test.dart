@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:gql/language.dart';
+import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/safe_json.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 import 'package:test/test.dart';
@@ -61,5 +65,52 @@ void main() {
         },
       )),
     );
+  });
+
+  test('serdeTypeFromJson server', () async {
+    const jsonString =
+        '''[{"s":"d", "a": [1], "n": {"nd":2.3}},{"s": null, "a": ["s"]}]''';
+    final field = graphqlFieldFromJson(
+      fieldName: 'items',
+      jsonString: jsonString,
+      typeName: 'RootType',
+    );
+    final schema = GraphQLSchema(
+      queryType: objectType('Query', fields: [field]),
+    );
+    final gqlServer = GraphQL(schema, introspect: false);
+    final schemaStr = printNode(gqlServer.schemaNode);
+
+    expect(schemaStr, '''
+type Query {
+  items: [RootTypeItem!]!
+}
+
+type RootTypeItem {
+  s: String
+  a: [Json!]!
+  n: RootTypeItemn
+}
+
+"""
+Represents a JSON value.
+"""
+scalar Json
+
+type RootTypeItemn {
+  nd: Float!
+}''');
+
+    final result = await gqlServer.parseAndExecute('{items{s, a, n {nd}}}');
+    final items = jsonDecode(jsonString) as List;
+    items[1] = {
+      ...items[1] as Map<String, Object?>,
+      'n': null,
+    };
+    expect(result.toJson(), {
+      'data': <String, Object?>{
+        'items': items,
+      }
+    });
   });
 }

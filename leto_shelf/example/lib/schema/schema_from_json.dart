@@ -86,7 +86,7 @@ GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
   );
 
   if (type is SerdeTypeOption) {
-    return gqlType;
+    return gqlType is GraphQLNonNullType ? gqlType.ofType : gqlType;
   }
   return gqlType.nonNull();
 }

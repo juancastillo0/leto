@@ -27,7 +27,7 @@ class GraphQLJsonType extends GraphQLScalarType<Json, Object> {
   ValidationResult<Object> validate(String key, Object? input) {
     final result = Json.fromJsonChecked(input, isRoot: true, getter: key);
     if (result.isOk()) {
-      return ValidationResult.ok(result.unwrap());
+      return ValidationResult.ok(input!);
     }
     return ValidationResult.failure(
         ['Expected "$key" to be an Json. ${result.unwrapErr()}']);
