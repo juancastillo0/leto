@@ -27,6 +27,7 @@ GraphQLObjectField<T, Serialized, P>
   GraphQLType<T, Serialized> type, {
   Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
   GraphQLFieldResolver<T, P>? resolve,
+  GraphQLSubscriptionFieldResolver<T, P>? subscribe,
   String? deprecationReason,
   String? description,
 }) {
@@ -35,6 +36,7 @@ GraphQLObjectField<T, Serialized, P>
     type,
     arguments: inputs,
     resolve: resolve == null ? null : FieldResolver(resolve),
+    subscribe: subscribe == null ? null : FieldSubscriptionResolver(subscribe),
     description: description,
     deprecationReason: deprecationReason,
   );
@@ -79,7 +81,7 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
     String? description,
     GraphQLFieldResolver<V, P>? resolve,
     GraphQLSubscriptionFieldResolver<V, P>? subscribe,
-    Iterable<GraphQLFieldInput<Object, Object>> arguments = const [],
+    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
   }) {
     return GraphQLObjectField(
       name,
@@ -89,7 +91,7 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
-      arguments: arguments,
+      arguments: inputs,
     );
   }
 }

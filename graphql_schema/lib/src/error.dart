@@ -76,7 +76,7 @@ class GraphQLException implements Exception {
     );
   }
 
-  Map<String, List<Map<String, dynamic>>> toJson() {
+  Map<String, Object?> toJson() {
     return {
       'errors': errors.map((e) => e.toJson()).toList(),
     };
@@ -93,7 +93,7 @@ class GraphQLException implements Exception {
 ///
 /// This will almost always be passed to a [GraphQLException],
 ///  as it is useless alone.
-class GraphQLExceptionError implements Exception {
+class GraphQLExceptionError implements Exception, GraphQLException {
   /// The reason execution was halted, whether it is a syntax error,
   /// or a runtime error, or some other exception.
   final String message;
@@ -120,7 +120,8 @@ class GraphQLExceptionError implements Exception {
     this.extensions,
   }) : stackTrace = StackTrace.current;
 
-  Map<String, dynamic> toJson() {
+  @override
+  Map<String, Object?> toJson() {
     return {
       'message': message,
       if (path != null) 'path': path,
@@ -134,6 +135,9 @@ class GraphQLExceptionError implements Exception {
   String toString() {
     return 'GraphQLExceptionError(${toJson()})';
   }
+
+  @override
+  List<GraphQLExceptionError> get errors => [this];
 }
 
 /// Information about a location in source text that caused an error during
