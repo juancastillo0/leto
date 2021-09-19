@@ -46,14 +46,26 @@ class ChatTable {
   ChatRoom? insert(String name) {
     db.execute('INSERT INTO chat(name) VALUES (?)', [name]);
 
+    return get(db.lastInsertRowId);
+  }
+
+  ChatRoom? get(int chatId) {
     final result = db.select(
-      'SELECT * FROM chat WHERE id = ?',
-      [db.lastInsertRowId],
+      'SELECT * FROM chat WHERE id = ?;',
+      [chatId],
     );
     if (result.isEmpty) {
       return null;
     }
     return ChatRoom.fromJson(result.first);
+  }
+
+  Future<List<ChatRoom>> getAll() async {
+    final result = db.select(
+      '''SELECT * FROM chat;''',
+    );
+    final values = result.map((e) => ChatRoom.fromJson(e)).toList();
+    return values;
   }
 
   Future<void> setup() async {
@@ -116,7 +128,7 @@ INSERT INTO message(chatId, message) VALUES (?, ?)
       return messageModel;
     } on SqliteException catch (e) {
       if (e.extendedResultCode == 787) {
-        throw Exception('Chat room with chatId $chatId not found.');
+        throw Exception('Chat room with id $chatId not found.');
       }
       return null;
     }
@@ -164,6 +176,7 @@ FROM tmp_$tableName;''',
 @GraphQLClass()
 @freezed
 class ChatRoom with _$ChatRoom {
+  const ChatRoom._();
   const factory ChatRoom({
     required int id,
     required String name,
@@ -172,6 +185,11 @@ class ChatRoom with _$ChatRoom {
 
   factory ChatRoom.fromJson(Map<String, Object?> json) =>
       _$ChatRoomFromJson(json);
+
+  Future<List<ChatMessage>> messages(ReqCtx<Object> ctx) async {
+    final controller = await chatControllerRef.get(ctx);
+    return controller.messages.getAll(chatId: id);
+  }
 }
 
 @GraphQLClass()
@@ -213,6 +231,10 @@ Future<Stream<List<ChatMessage>>> onMessageSent(
   int chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
+  final chat = controller.chats.get(chatId);
+  if (chat == null) {
+    throw GraphQLExceptionError('Chat with id $chatId not found.');
+  }
   return controller.messages.controller.stream
       .where((event) => event.chatId == chatId)
       .asyncMap((event) => controller.messages.getAll(chatId: chatId));
@@ -225,4 +247,12 @@ Future<ChatRoom?> createChatRoom(
 ) async {
   final controller = await chatControllerRef.get(ctx);
   return controller.chats.insert(name);
+}
+
+@Query()
+Future<List<ChatRoom>> getChatRooms(
+  ReqCtx<Object> ctx,
+) async {
+  final controller = await chatControllerRef.get(ctx);
+  return controller.chats.getAll();
 }

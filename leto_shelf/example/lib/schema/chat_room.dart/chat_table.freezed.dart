@@ -130,9 +130,10 @@ class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_ChatRoom implements _ChatRoom {
+class _$_ChatRoom extends _ChatRoom {
   const _$_ChatRoom(
-      {required this.id, required this.name, required this.createdAt});
+      {required this.id, required this.name, required this.createdAt})
+      : super._();
 
   factory _$_ChatRoom.fromJson(Map<String, dynamic> json) =>
       _$$_ChatRoomFromJson(json);
@@ -180,11 +181,12 @@ class _$_ChatRoom implements _ChatRoom {
   }
 }
 
-abstract class _ChatRoom implements ChatRoom {
+abstract class _ChatRoom extends ChatRoom {
   const factory _ChatRoom(
       {required int id,
       required String name,
       required DateTime createdAt}) = _$_ChatRoom;
+  const _ChatRoom._() : super._();
 
   factory _ChatRoom.fromJson(Map<String, dynamic> json) = _$_ChatRoom.fromJson;
 

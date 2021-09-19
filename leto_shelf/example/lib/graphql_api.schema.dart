@@ -19,6 +19,7 @@ final graphqlApiSchema = graphQLSchema(
     'Queries',
     fields: [
       getMessageGraphQLField,
+      getChatRoomsGraphQLField,
       droidGraphQLField,
       testModelsGraphQLField,
       testUnionModelsGraphQLField,

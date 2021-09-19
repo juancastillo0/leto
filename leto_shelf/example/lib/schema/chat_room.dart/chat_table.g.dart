@@ -86,6 +86,19 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
   deprecationReason: null,
 );
 
+final GraphQLObjectField<List<ChatRoom?>, Object, Object>
+    getChatRoomsGraphQLField = field(
+  'getChatRooms',
+  listOf(chatRoomGraphQlType.nonNull()).nonNull(),
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getChatRooms(ctx);
+  },
+  deprecationReason: null,
+);
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
@@ -108,6 +121,10 @@ final GraphQLObjectType<ChatRoom> chatRoomGraphQlType = objectType('ChatRoom',
           deprecationReason: null),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt,
+          description: null,
+          deprecationReason: null),
+      field('messages', listOf(chatMessageGraphQlType.nonNull()).nonNull(),
+          resolve: (obj, ctx) => obj.messages(ctx),
           description: null,
           deprecationReason: null)
     ],
