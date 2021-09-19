@@ -9,8 +9,8 @@ export 'book.model.dart';
 class BooksController {
   BooksController({
     this.bookChangesCallbacks,
-    this.bookAddedCallbacks,
-  });
+    StreamCallbacks? bookAddedCallbacks,
+  }) : bookAddedCallbacks = bookAddedCallbacks ?? StreamCallbacks();
 
   final StreamCallbacks? bookChangesCallbacks;
   final StreamCallbacks? bookAddedCallbacks;
