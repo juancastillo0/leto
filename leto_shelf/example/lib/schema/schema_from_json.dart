@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:formgen/formgen.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
+import 'package:json_path/json_path.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/safe_json.dart';
 import 'package:shelf_graphql_example/schema/safe_json_graphql.dart';
+import 'package:valida/valida.dart';
 
-export 'package:formgen/validate/serde_type.dart';
+export 'package:valida/validate/serde_type.dart';
 
 GraphQLSchema schemaFromJson() {
   // final List<Map<String, Object?>> json =

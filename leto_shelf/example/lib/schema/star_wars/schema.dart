@@ -283,7 +283,7 @@ final queryType = objectType<Object>(
   fields: [
     characterInterface().field(
       'hero',
-      arguments: [
+      inputs: [
         GraphQLFieldInput(
           'episode',
           episodeEnum,
@@ -295,7 +295,7 @@ final queryType = objectType<Object>(
     ),
     humanGraphQlType.field(
       'human',
-      arguments: [
+      inputs: [
         GraphQLFieldInput(
           'id',
           graphQLString.nonNull(),
