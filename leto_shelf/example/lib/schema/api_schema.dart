@@ -5,6 +5,7 @@ import 'package:shelf_graphql_example/graphql_api.schema.dart';
 import 'package:shelf_graphql_example/schema/books.schema.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
+import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
 
 import 'files.controller.dart';
 import 'safe_json.dart';
@@ -135,10 +136,12 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     ),
   );
 
-  return mergeGraphQLSchemas(
-    mergeGraphQLSchemas(base, graphqlApiSchema),
+  return [
+    base,
+    graphqlApiSchema,
+    starWarsSchema,
     makeBooksSchema(),
-  );
+  ].reduce(mergeGraphQLSchemas);
 }
 
 GraphQLObjectType<UploadedFileMeta>? _fileUploadType;

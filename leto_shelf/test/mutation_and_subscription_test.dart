@@ -17,7 +17,9 @@ Future<void> main() async {
     BooksController(bookAddedCallbacks: _streamCallbacks),
   );
 
-  final _server = await testServer(globals);
+  final _server = await testServer(ServerConfig(
+    globalVariables: globals,
+  ));
 
   test('subscription test', () async {
     final link = WebSocketLink(

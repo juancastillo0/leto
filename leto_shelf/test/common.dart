@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf_io.dart' as io;
-import 'package:shelf_graphql_example/run_server.dart' show serverHandler;
+import 'package:shelf_graphql_example/run_server.dart'
+    show ServerConfig, serverHandler;
 import 'package:test/test.dart';
+
+export 'package:shelf_graphql_example/run_server.dart' show ServerConfig;
 
 class TestGqlServer {
   final Uri url;
@@ -17,8 +20,8 @@ class TestGqlServer {
   });
 }
 
-Future<TestGqlServer> testServer(Map<Object, Object?> globalVariables) async {
-  final handler = serverHandler(globalVariables: globalVariables);
+Future<TestGqlServer> testServer(ServerConfig config) async {
+  final handler = serverHandler(config: config);
   final server = await io.serve(
     handler,
     '0.0.0.0',

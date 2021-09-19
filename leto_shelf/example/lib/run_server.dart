@@ -19,11 +19,21 @@ Future<void> runServer() async {
   );
 }
 
-Handler serverHandler({Map<Object, Object?>? globalVariables}) {
+class ServerConfig {
+  final Map<Object, Object?>? globalVariables;
+  final List<GraphQLExtension>? extensionList;
+
+  const ServerConfig({
+    this.globalVariables,
+    this.extensionList,
+  });
+}
+
+Handler serverHandler({ServerConfig? config}) {
   final app = Router();
   app.get('/echo', _echoHandler);
 
-  setUpGraphQL(app, globalVariables: globalVariables);
+  setUpGraphQL(app, config: config);
 
   final _logMiddleware = customLog(log: (msg) {
     if (!msg.contains('IntrospectionQuery')) {
@@ -39,7 +49,8 @@ Handler serverHandler({Map<Object, Object?>? globalVariables}) {
       .addHandler(app);
 }
 
-void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
+void setUpGraphQL(Router app, {ServerConfig? config}) {
+  final globalVariables = config?.globalVariables;
   final filesController = FilesController();
 
   app.get(
@@ -51,7 +62,8 @@ void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
     schema,
     introspect: true,
     globalVariables: globalVariables,
-    extensionList: [GraphQLPersistedQueries()]
+    extensionList: config?.extensionList ??
+        [GraphQLTracingExtension(), GraphQLPersistedQueries()],
   );
 
   const port = 8060;

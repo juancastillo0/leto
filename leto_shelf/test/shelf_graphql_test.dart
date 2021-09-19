@@ -31,7 +31,10 @@ Future<void> main() async {
     testUnionModelsTestKey: _testUnionModels,
   };
 
-  final _server = await testServer(globalVariables);
+  final _server = await testServer(ServerConfig(
+    globalVariables: globalVariables,
+    extensionList: [GraphQLPersistedQueries()],
+  ));
   final url = _server.url;
 
   test('query ui html', () async {
