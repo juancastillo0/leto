@@ -50,6 +50,28 @@ bool isInterface(ClassElement clazz) {
   return clazz.isAbstract;
 }
 
+bool isStreamOrAsyncStream(DartType type) {
+  DartType _type = type;
+  if (type is ParameterizedType &&
+      type.typeArguments.isNotEmpty &&
+      (type.isDartAsyncFuture || type.isDartAsyncFutureOr)) {
+    _type = type.typeArguments[0];
+  }
+  return const TypeChecker.fromRuntime(Stream).isAssignableFromType(_type);
+}
+
+DartType? genericTypeWhenFutureOrStream(DartType type) {
+  if (type is ParameterizedType &&
+      type.typeArguments.isNotEmpty &&
+      (type.isDartAsyncFuture ||
+          type.isDartAsyncFutureOr ||
+          const TypeChecker.fromRuntime(Stream).isAssignableFromType(type))) {
+    return genericTypeWhenFutureOrStream(type.typeArguments[0]) ??
+        type.typeArguments[0];
+  }
+  return null;
+}
+
 Expression inferType(String className, String name, DartType type,
     {bool? nullable}) {
   // Next, check if this is the "id" field of a `Model`.
@@ -59,13 +81,9 @@ Expression inferType(String className, String name, DartType type,
   //   return refer('graphQLId');
   // }
 
-  if (type is ParameterizedType &&
-      type.typeArguments.isNotEmpty &&
-      (type.isDartAsyncFuture ||
-          type.isDartAsyncFutureOr ||
-          const TypeChecker.fromRuntime(Stream).isAssignableFromType(type))) {
-    final arg = type.typeArguments[0];
-    return inferType(className, name, arg);
+  final genericWhenAsync = genericTypeWhenFutureOrStream(type);
+  if (genericWhenAsync != null) {
+    return inferType(className, name, genericWhenAsync);
   }
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
   Expression _wrapNullability(Expression exp) =>

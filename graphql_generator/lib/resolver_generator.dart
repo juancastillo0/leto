@@ -104,18 +104,27 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                 return e.getField('message')!.toStringValue();
               }).join('.\n')}"';
 
-        String returnType =
-            element.returnType.getDisplayString(withNullability: false);
+        final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
+            element.returnType;
+        String returnType = _retType.getDisplayString(withNullability: false);
+        if (_retType.isDartCoreList && returnType.endsWith('>')) {
+          // TODO: probably not the best way of getting a list with its
+          // type param nullable
+          returnType = '${returnType.substring(0, returnType.length - 1)}?>';
+        }
+
+        final hasSubsAnnot = const TypeChecker.fromRuntime(Subscription)
+            .hasAnnotationOfExact(element);
+        final isStream = isStreamOrAsyncStream(element.returnType);
+
+        if (hasSubsAnnot && !isStream || isStream && !hasSubsAnnot) {
+          print('$element should return a stream to be a Subscription.');
+        }
+
         final returnGqlType =
             inferType(element.name, element.name, element.returnType)
                 .accept(_dartEmitter)
                 .toString();
-
-        if (element.returnType.isDartCoreList && returnType.endsWith('>')) {
-          // TODO: probably not the best way of getting a list with its 
-          // type param nullable
-          returnType = '${returnType.substring(0, returnType.length - 1)}?>';
-        }
 
         b.body.add(
           Field(
@@ -126,7 +135,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                   '${element.name}', 
                   $returnGqlType,
                   description: ${desc == null ? 'null' : 'r"$desc"'},
-                  resolve: (obj, ctx) {
+                  ${isStream ? 'subscribe' : 'resolve'}: (obj, ctx) {
                     final args = ctx.args;
                     ${validations.join('\n')}
                     return ${element.name}($params);
