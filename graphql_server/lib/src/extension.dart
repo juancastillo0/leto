@@ -1,8 +1,11 @@
 import 'dart:async';
 
-import 'package:gql/ast.dart';
+import 'package:gql/ast.dart' show DocumentNode;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
+
+export 'persisted_queries.dart';
+export 'tracing.dart';
 
 abstract class GraphQLExtension {
   String get mapKey;

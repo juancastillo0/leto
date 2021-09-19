@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:collection/collection.dart' show IterableExtension;
-import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart';
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
@@ -12,36 +10,28 @@ import 'package:source_span/source_span.dart';
 import 'introspection.dart';
 import 'src/graphql_result.dart';
 
+export 'src/extension.dart';
 export 'src/graphql_result.dart';
-
-class GraphQLErrors {
-  // ignore: constant_identifier_names
-  static const PERSISTED_QUERY_NOT_FOUND = 'PERSISTED_QUERY_NOT_FOUND';
-}
 
 /// A Dart implementation of a GraphQL server.
 class GraphQL {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes = [];
 
-  /// Extensions that add additional funcionalities to the
+  /// Extensions implement additional funcionalities to the
   /// server's parsing, validation and execution.
-  /// For example extensions for tracing [GraphQLTracingExtension],
+  /// For example, extensions for tracing [GraphQLTracingExtension],
   /// logging, error handling or caching
   final List<GraphQLExtension> extensionList;
 
   /// An optional callback that can be used to resolve fields
-  /// from objects that are not [Map]s,
-  /// when the related field has no resolver.
+  /// from objects that are not [Map]s, when the related field has no resolver.
   final FutureOr<Object?> Function<P>(P object, String fieldName, ReqCtx<P>)?
       defaultFieldResolver;
 
   GraphQLSchema _schema;
 
   final Map<Object, Object?> initialGlobalVariables;
-
-  // TODO: https://www.apollographql.com/docs/apollo-server/performance/apq/
-  final Map<String, DocumentNode> persistedQueries = {};
 
   GraphQL(
     GraphQLSchema schema, {
@@ -197,7 +187,8 @@ class GraphQL {
     } else {
       T Function() _next = next;
       for (final e in extensionList) {
-        _next = () => call(_next, e);
+        final _currNext = _next;
+        _next = () => call(_currNext, e);
       }
       return _next();
     }
@@ -212,57 +203,19 @@ class GraphQL {
     return withExtensions(
         (next, ext) => ext.getDocumentNode(next, text, globals, extensions),
         () {
-      // TODO: extract into extension
-      // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
-      final persistedQuery =
-          extensions == null ? null : extensions['persistedQuery'];
-
-      String? sha256Hash;
-      if (persistedQuery is Map<String, Object?>) {
-        final _version = persistedQuery['version'];
-        final version = _version is int
-            ? _version
-            : int.tryParse(_version as String? ?? '');
-
-        if (version == 1) {
-          sha256Hash = persistedQuery['sha256Hash']! as String;
-          if (persistedQueries.containsKey(sha256Hash)) {
-            return persistedQueries[sha256Hash]!;
-          }
-        }
-        if (text.isEmpty) {
-          throw GraphQLException.fromMessage(
-              GraphQLErrors.PERSISTED_QUERY_NOT_FOUND);
-        }
+      try {
+        final document = gql.parseString(text, url: sourceUrl);
+        return document;
+      } on SourceSpanException catch (e) {
+        throw GraphQLException([
+          GraphQLExceptionError(
+            e.message,
+            locations: GraphQLErrorLocation.listFromSource(e.span?.start),
+          )
+        ]);
+      } catch (e) {
+        throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
       }
-
-      final errors = <GraphQLExceptionError>[];
-      late final DocumentNode document;
-      if (persistedQueries.containsKey(text)) {
-        document = persistedQueries[text]!;
-      } else {
-        final digestHex = sha256.convert(utf8.encode(text)).toString();
-        if (persistedQueries.containsKey(digestHex)) {
-          document = persistedQueries[digestHex]!;
-        } else {
-          try {
-            document = gql.parseString(text, url: sourceUrl);
-          } on SourceSpanException catch (e) {
-            errors.add(GraphQLExceptionError(
-              e.message,
-              locations: GraphQLErrorLocation.listFromSource(e.span?.start),
-            ));
-          } catch (e) {
-            throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
-          }
-
-          if (errors.isNotEmpty) {
-            throw GraphQLException(errors);
-          }
-          persistedQueries[digestHex] = document;
-        }
-      }
-      return document;
     });
   }
 
