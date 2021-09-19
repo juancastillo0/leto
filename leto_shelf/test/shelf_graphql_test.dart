@@ -166,7 +166,7 @@ query unions {
     expect(responseErr.statusCode, 200);
     expect(jsonDecode(responseErr.body), {
       'errors': [
-        {'message': GraphQLErrors.PERSISTED_QUERY_NOT_FOUND}
+        {'message': GraphQLPersistedQueries.PERSISTED_QUERY_NOT_FOUND}
       ]
     });
 

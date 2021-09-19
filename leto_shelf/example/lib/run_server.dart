@@ -51,6 +51,7 @@ void setUpGraphQL(Router app, {Map<Object, Object?>? globalVariables}) {
     schema,
     introspect: true,
     globalVariables: globalVariables,
+    extensionList: [GraphQLPersistedQueries()]
   );
 
   const port = 8060;
