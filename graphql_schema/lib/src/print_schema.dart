@@ -345,7 +345,7 @@ class SchemaPrinter {
   }
 }
 
-String printAST(String t) => t;
+String printAST(String t) => '"$t"';
 
 String? astFromValue(Object? value, GraphQLType type) => value?.toString();
 

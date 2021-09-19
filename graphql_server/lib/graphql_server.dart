@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:gql/ast.dart';
+import 'package:gql/document.dart' as gql_doc;
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/src/extension.dart';
@@ -32,6 +33,12 @@ class GraphQL {
   GraphQLSchema _schema;
 
   final Map<Object, Object?> initialGlobalVariables;
+
+  late final DocumentNode schemaNode = () {
+    final schemaStr = printSchema(_schema);
+    final node = gql.parseString(schemaStr);
+    return node;
+  }();
 
   GraphQL(
     GraphQLSchema schema, {
@@ -228,8 +235,29 @@ class GraphQL {
     required Map<Object, Object?> globalVariables,
     Map<String, dynamic>? extensions,
   }) async {
-    // TODO:
-    // tracing.validation.start();
+    final validationException = withExtensions<GraphQLException?>(
+      (n, e) => e.validate(n, schema, document, globalVariables, extensions),
+      () {
+        // final gqlSchema = gql_schema.GraphQLSchema.fromNode(node);
+        final errors = gql_doc.validateRequest(schemaNode, document);
+        if (errors.isEmpty) {
+          return null;
+        }
+        return GraphQLException([
+          ...errors.map(
+            (e) => GraphQLExceptionError(
+              e.message ?? 'Invalid operation.',
+              locations: GraphQLErrorLocation.listFromSource(
+                e.node?.span?.start,
+              ),
+            ),
+          )
+        ]);
+      },
+    );
+    if (validationException != null) {
+      throw validationException;
+    }
 
     final operation = getOperation(document, operationName);
     final coercedVariableValues =

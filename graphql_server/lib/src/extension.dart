@@ -23,6 +23,15 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  GraphQLException? validate(
+    GraphQLException? Function() next,
+    GraphQLSchema schema,
+    DocumentNode document,
+    Map<Object, Object?> globals,
+    Map<String, Object?>? extensions,
+  ) =>
+      next();
+
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
