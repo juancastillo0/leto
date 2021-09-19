@@ -1,6 +1,6 @@
-import 'package:formgen/formgen.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:valida/valida.dart';
 
 part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';

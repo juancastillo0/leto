@@ -1,4 +1,4 @@
-import 'package:formgen/formgen.dart';
+import 'package:valida/valida.dart';
 import 'package:shelf_graphql_example/schema/generator_test.dart';
 
 // ignore: avoid_classes_with_only_static_members

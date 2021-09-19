@@ -4,14 +4,17 @@ description: A sample dart graphql server using shelf_graphq.
 # homepage: https://www.example.com
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
   freezed_annotation: ^0.14.3
   json_annotation: ^4.1.0
+  json_path:
   oxidized: ^5.0.1
-  formgen:
-    path: ../../neural_graph/packages/formgen
+  valida:
+    path: ../../valida/valida
+
+  sqlite3: ^1.2.0
 
   shelf_plus: ^0.0.2
   shelf_router: ^1.1.1
@@ -28,8 +31,8 @@ dev_dependencies:
   test: ^1.14.4
   graphql_generator:
     path: ../../graphql_server/graphql_generator
-  formgen_generation:
-    path: ../../neural_graph/packages/formgen_generation
+  valida_generator:
+    path: ../../valida/valida_generator
 
 dependency_overrides:
   graphql_schema:
