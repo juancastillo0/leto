@@ -75,7 +75,18 @@ GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
           .map((e) => graphQLTypeFromSerde(e.key, e.value))
           .cast(),
     ),
-    unionType: (unionType) => throw UnimplementedError(),
+    unionType: (unionType) {
+      final variants = unionType.variants
+          .map((e) => graphQLTypeFromSerde('$key${e.inner}', e));
+      if (variants.every((v) => v.realType is GraphQLObjectType)) {
+        return GraphQLUnionType(
+          key,
+          variants.cast(),
+        );
+      } else {
+        return graphQLJson;
+      }
+    },
     enumV: (enumV) => enumTypeFromStrings(
       key,
       enumV.values.map((Object? e) => e.toString().split('.').last).toList(),
