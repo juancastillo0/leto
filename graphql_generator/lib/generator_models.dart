@@ -7,6 +7,7 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:graphql_generator/resolver_generator.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:recase/recase.dart';
@@ -106,8 +107,10 @@ Future<FieldInfo> fieldFromElement(Element method, DartType type) async {
         ? refer(annot.type!)
         : inferType('', method.name!, type, nullable: annot.nullable),
     name: annot.name ?? method.name!,
-    // TODO: properly resolve
-    getter: method is MethodElement ? '${method.name}()' : method.name!,
+    getter: method is MethodElement
+        ? resolverFunctionBodyFromElement(method)
+        : method.name!,
+    isMethod: method is MethodElement,
     nonNullable: annot.nullable != true &&
         type.nullabilitySuffix == NullabilitySuffix.none,
     fieldAnnot: annot,
@@ -127,6 +130,7 @@ Future<FieldInfo> fieldFromParam(
         : inferType('', param.name, param.type, nullable: annot.nullable),
     name: annot.name ?? param.name,
     getter: param.name,
+    isMethod: false,
     nonNullable: annot.nullable != true && param.isNotOptional,
     fieldAnnot: annot,
     description: await documentationOfParameter(param, buildStep),
@@ -186,15 +190,35 @@ class UnionVarianInfo {
   // String get typeName => name;
   String get fieldName => '${ReCase(typeName).camelCase}$graphqlTypeSuffix';
 
-  Field field() {
-    return Field(
-      (b) => b
-        ..name = fieldName
-        ..docs.add('/// Auto-generated from [$typeName].')
-        ..type = refer('GraphQLObjectType<$typeName>')
-        ..modifier = FieldModifier.final$
-        ..assignment = expression().code,
-    );
+  // Field field() {
+  //   return Field(
+  //     (b) => b
+  //       ..name = fieldName
+  //       ..docs.add('/// Auto-generated from [$typeName].')
+  //       ..type = refer('GraphQLObjectType<$typeName>')
+  //       ..modifier = FieldModifier.final$
+  //       ..assignment = expression().code,
+  //   );
+  // }
+
+  String fieldCode() {
+    return '''
+GraphQLObjectType<$typeName>? _$fieldName;
+/// Auto-generated from [$typeName].
+GraphQLObjectType<$typeName> get $fieldName {
+  if (_$fieldName != null) return _$fieldName!;
+
+  _$fieldName = ${expression().accept(DartEmitter())};
+  _$fieldName!.fields.addAll(${literalList(
+      fields
+          .where((e) => e.fieldAnnot.omit != true)
+          .map((e) => e.expression())
+          .followedBy([if (isUnion) refer(unionKeyName)]),
+    ).accept(DartEmitter())},);
+
+  return _$fieldName!;
+}
+''';
   }
 
   String get unionKeyName =>
@@ -204,12 +228,6 @@ class UnionVarianInfo {
     return refer('objectType').call(
       [literalString(typeName)],
       {
-        'fields': literalList(
-          fields
-              .where((e) => e.fieldAnnot.omit != true)
-              .map((e) => e.expression())
-              .followedBy([if (isUnion) refer(unionKeyName)]),
-        ),
         'isInterface': literalBool(isInterface),
         'interfaces': literalList(interfaces),
         'description': description == null || description!.isEmpty
@@ -226,6 +244,7 @@ class UnionVarianInfo {
 class FieldInfo {
   final String name;
   final String getter;
+  final bool isMethod;
   final bool nonNullable;
   final Expression gqlType;
   final String? description;
@@ -235,6 +254,7 @@ class FieldInfo {
   const FieldInfo({
     required this.name,
     required this.getter,
+    required this.isMethod,
     required this.nonNullable,
     required this.gqlType,
     required this.description,
@@ -255,9 +275,8 @@ class FieldInfo {
               Parameter((p) => p..name = 'obj'),
               Parameter((p) => p..name = 'ctx'),
             ])
-            // TODO: support resolve method
-            ..body = Code('obj.$getter')
-            ..lambda = true,
+            ..body = Code(isMethod ? getter : 'obj.$getter')
+            ..lambda = !isMethod,
         ).genericClosure,
         'description': description == null || description!.isEmpty
             ? literalNull

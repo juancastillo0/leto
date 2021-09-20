@@ -212,7 +212,7 @@ Future<Library> generateFromFreezed(
   return Library((l) {
     for (final variant in _fields) {
       l.body.add(variant.serializer());
-      l.body.add(variant.field());
+      l.body.add(Code(variant.fieldCode()));
     }
     if (!isUnion) {
       return;
