@@ -17,6 +17,9 @@ Builder graphQLResolverBuilder(Object _) {
 const _validateTypeChecker = TypeChecker.fromRuntime(Validate);
 const _validationTypeChecker = TypeChecker.fromRuntime(Validation);
 
+bool isReqCtx(DartType type) =>
+    const TypeChecker.fromRuntime(ReqCtx).isAssignableFromType(type);
+
 class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
   @override
   Future<String> generateForAnnotatedElement(
@@ -30,11 +33,8 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
     try {
       final _dartEmitter = DartEmitter();
 
-      bool _isReqCtx(DartType type) =>
-          const TypeChecker.fromRuntime(ReqCtx).isAssignableFromType(type);
-
       final inputs = (await Future.wait(element.parameters.map((e) async {
-        if (_isReqCtx(e.type)) {
+        if (isReqCtx(e.type)) {
           return null;
         } else {
           final type =
@@ -50,49 +50,6 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
           .whereType<String>();
 
       final desc = getDescription(element, element.documentationComment);
-
-      bool _hasValidation(Element? element) =>
-          element != null && _validateTypeChecker.hasAnnotationOfExact(element);
-      bool _isValidation(Element? element) =>
-          element != null && _validationTypeChecker.isAssignableFrom(element);
-
-      final validationsInParams = <ParameterElement>[];
-
-      final params = element.parameters.map((e) {
-        if (_isReqCtx(e.type)) {
-          const value = 'ctx';
-          return e.isPositional ? value : '${e.name}:$value';
-        } else {
-          final type = e.type.getDisplayString(withNullability: true);
-          final value = 'args["${e.name}"] as $type';
-
-          if (_isValidation(e.type.element)) {
-            validationsInParams.add(e);
-          }
-
-          return e.isPositional ? value : '${e.name}:$value';
-        }
-      }).join(',');
-
-      final validations = element.parameters.map((e) {
-        final hasValidation = _hasValidation(e.type.element);
-        if (!hasValidation) {
-          return null;
-        }
-
-        final resultName = '${e.name}ValidationResult';
-        final typeName = e.type.getDisplayString(withNullability: false);
-        final value = 'args["${e.name}"]';
-
-        return '''
-          if ($value != null) {
-            final $resultName = validate$typeName($value as $typeName);
-            if ($resultName.hasErrors) {
-              throw $resultName;
-            }
-          }
-          ''';
-      }).whereType<String>();
 
       final lib = Library((b) {
         final deprecationReasons = const TypeChecker.fromRuntime(Deprecated)
@@ -113,18 +70,12 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
           returnType = '${returnType.substring(0, returnType.length - 1)}?>';
         }
 
-        final hasSubsAnnot = const TypeChecker.fromRuntime(Subscription)
-            .hasAnnotationOfExact(element);
-        final isStream = isStreamOrAsyncStream(element.returnType);
-
-        if (hasSubsAnnot && !isStream || isStream && !hasSubsAnnot) {
-          print('$element should return a stream to be a Subscription.');
-        }
-
         final returnGqlType =
             inferType(element.name, element.name, element.returnType)
                 .accept(_dartEmitter)
                 .toString();
+
+        final funcDef = resolverFunctionFromElement(element);
 
         b.body.add(
           Field(
@@ -135,11 +86,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                   '${element.name}', 
                   $returnGqlType,
                   description: ${desc == null ? 'null' : 'r"$desc"'},
-                  ${isStream ? 'subscribe' : 'resolve'}: (obj, ctx) {
-                    final args = ctx.args;
-                    ${validations.join('\n')}
-                    return ${element.name}($params);
-                  },
+                  $funcDef,
                   ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
                   deprecationReason: $deprecationReason,
                   )
@@ -160,4 +107,72 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
       return '/*$e $s*/';
     }
   }
+}
+
+String resolverFunctionBodyFromElement(ExecutableElement element) {
+  bool _hasValidation(Element? element) =>
+      element != null && _validateTypeChecker.hasAnnotationOfExact(element);
+  bool _isValidation(Element? element) =>
+      element != null && _validationTypeChecker.isAssignableFrom(element);
+
+  final validationsInParams = <ParameterElement>[];
+
+  final params = element.parameters.map((e) {
+    if (isReqCtx(e.type)) {
+      const value = 'ctx';
+      return e.isPositional ? value : '${e.name}:$value';
+    } else {
+      final type = e.type.getDisplayString(withNullability: true);
+      final value = 'args["${e.name}"] as $type';
+
+      if (_isValidation(e.type.element)) {
+        validationsInParams.add(e);
+      }
+
+      return e.isPositional ? value : '${e.name}:$value';
+    }
+  }).join(',');
+
+  final validations = element.parameters.map((e) {
+    final hasValidation = _hasValidation(e.type.element);
+    if (!hasValidation) {
+      return null;
+    }
+
+    final resultName = '${e.name}ValidationResult';
+    final typeName = e.type.getDisplayString(withNullability: false);
+    final value = 'args["${e.name}"]';
+
+    return '''
+if ($value != null) {
+  final $resultName = validate$typeName($value as $typeName);
+  if ($resultName.hasErrors) {
+    throw $resultName;
+  }
+}
+''';
+  }).whereType<String>();
+
+  return '''
+final args = ctx.args;
+${validations.join('\n')}
+return ${element is MethodElement ? 'obj.' : ''}${element.name}($params);
+''';
+}
+
+String resolverFunctionFromElement(ExecutableElement element) {
+  final hasSubsAnnot =
+      const TypeChecker.fromRuntime(Subscription).hasAnnotationOfExact(element);
+  final isStream = isStreamOrAsyncStream(element.returnType);
+
+  if (hasSubsAnnot && !isStream || isStream && !hasSubsAnnot) {
+    print('$element should return a stream to be a Subscription.');
+  }
+
+  final body = resolverFunctionBodyFromElement(element);
+  return '''
+${isStream ? 'subscribe' : 'resolve'}: (obj, ctx) {
+  $body
+}
+''';
 }
