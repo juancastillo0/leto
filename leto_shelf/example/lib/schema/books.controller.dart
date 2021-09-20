@@ -80,7 +80,7 @@ class RefWithDefault<T> {
     return globals.putIfAbsent(ref, () => create(globals))! as T;
   }
 
-  T get(ReqCtx<Object> ctx) {
+  T get(ReqCtx ctx) {
     return getFromGlobals(ctx.globals);
   }
 }

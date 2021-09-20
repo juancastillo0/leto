@@ -1021,7 +1021,7 @@ void main() {
             graphQLString.field(
               'field',
               resolve: (_source, ctx) => jsonEncode(ctx.args),
-              arguments: [
+              inputs: [
                 GraphQLFieldInput('a', graphQLBoolean),
                 GraphQLFieldInput('b', graphQLBoolean),
                 GraphQLFieldInput('c', graphQLBoolean),

@@ -33,10 +33,18 @@ final humanSerializer = SerializerValue<Human>(
   fromJson: _$$_HumanFromJson,
   toJson: (m) => _$$_HumanToJson(m as _$_Human),
 );
+GraphQLObjectType<Human>? _humanGraphQlType;
 
 /// Auto-generated from [Human].
-final GraphQLObjectType<Human> humanGraphQlType = objectType('Human',
-    fields: [
+GraphQLObjectType<Human> get humanGraphQlType {
+  if (_humanGraphQlType != null) return _humanGraphQlType!;
+
+  _humanGraphQlType = objectType('Human',
+      isInterface: false,
+      interfaces: [characterInterface()],
+      description: null);
+  _humanGraphQlType!.fields.addAll(
+    [
       field('id', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.id,
           description: 'The id of the human.',
@@ -62,18 +70,27 @@ final GraphQLObjectType<Human> humanGraphQlType = objectType('Human',
           description: null,
           deprecationReason: null)
     ],
-    isInterface: false,
-    interfaces: [characterInterface()],
-    description: null);
+  );
+
+  return _humanGraphQlType!;
+}
 
 final droidSerializer = SerializerValue<Droid>(
   fromJson: _$$_DroidFromJson,
   toJson: (m) => _$$_DroidToJson(m as _$_Droid),
 );
+GraphQLObjectType<Droid>? _droidGraphQlType;
 
 /// Auto-generated from [Droid].
-final GraphQLObjectType<Droid> droidGraphQlType = objectType('Droid',
-    fields: [
+GraphQLObjectType<Droid> get droidGraphQlType {
+  if (_droidGraphQlType != null) return _droidGraphQlType!;
+
+  _droidGraphQlType = objectType('Droid',
+      isInterface: false,
+      interfaces: [characterInterface()],
+      description: 'A mechanical creature in the Star Wars universe.');
+  _droidGraphQlType!.fields.addAll(
+    [
       field('id', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.id,
           description: 'The id of the droid.',
@@ -99,9 +116,10 @@ final GraphQLObjectType<Droid> droidGraphQlType = objectType('Droid',
           description: null,
           deprecationReason: null)
     ],
-    isInterface: false,
-    interfaces: [characterInterface()],
-    description: 'A mechanical creature in the Star Wars universe.');
+  );
+
+  return _droidGraphQlType!;
+}
 
 // **************************************************************************
 // JsonSerializableGenerator

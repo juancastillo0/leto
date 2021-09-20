@@ -125,97 +125,117 @@ final testModelFreezedSerializer = SerializerValue<TestModelFreezed>(
   fromJson: _$$_TestModelFreezedFromJson,
   toJson: (m) => _$$_TestModelFreezedToJson(m as _$_TestModelFreezed),
 );
+GraphQLObjectType<TestModelFreezed>? _testModelFreezedGraphQlType;
 
 /// Auto-generated from [TestModelFreezed].
-final GraphQLObjectType<TestModelFreezed> testModelFreezedGraphQlType =
-    objectType('TestModelFreezed',
-        fields: [
-          field('name', graphQLString.nonNull(),
-              resolve: (obj, ctx) => obj.name,
-              description: null,
-              deprecationReason: null),
-          field('description', graphQLString,
-              resolve: (obj, ctx) => obj.description,
-              description: 'Custom doc d',
-              deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNull()),
-              resolve: (obj, ctx) => obj.dates,
-              description: null,
-              deprecationReason: null),
-          field('hasDates', graphQLBoolean.nonNull(),
-              resolve: (obj, ctx) => obj.hasDates,
-              description: null,
-              deprecationReason: null)
-        ],
-        isInterface: false,
-        interfaces: [],
-        description: null);
+GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQlType {
+  if (_testModelFreezedGraphQlType != null)
+    return _testModelFreezedGraphQlType!;
+
+  _testModelFreezedGraphQlType = objectType('TestModelFreezed',
+      isInterface: false, interfaces: [], description: null);
+  _testModelFreezedGraphQlType!.fields.addAll(
+    [
+      field('name', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.name,
+          description: null,
+          deprecationReason: null),
+      field('description', graphQLString,
+          resolve: (obj, ctx) => obj.description,
+          description: 'Custom doc d',
+          deprecationReason: null),
+      field('dates', listOf(graphQLDate.nonNull()),
+          resolve: (obj, ctx) => obj.dates,
+          description: null,
+          deprecationReason: null),
+      field('hasDates', graphQLBoolean.nonNull(),
+          resolve: (obj, ctx) => obj.hasDates,
+          description: null,
+          deprecationReason: null)
+    ],
+  );
+
+  return _testModelFreezedGraphQlType!;
+}
 
 final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
   fromJson: _$$_EventUnionAddFromJson,
   toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
 );
+GraphQLObjectType<_EventUnionAdd>? _eventUnionAddGraphQlType;
 
 /// Auto-generated from [_EventUnionAdd].
-final GraphQLObjectType<_EventUnionAdd> eventUnionAddGraphQlType =
-    objectType('_EventUnionAdd',
-        fields: [
-          field('name', graphQLString.nonNull(),
-              resolve: (obj, ctx) => obj.name,
-              description: null,
-              deprecationReason: null),
-          field('description', graphQLString,
-              resolve: (obj, ctx) => obj.description,
-              description: 'Custom doc d',
-              deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNull()),
-              resolve: (obj, ctx) => obj.dates,
-              description: null,
-              deprecationReason: null),
-          field('models', listOf(testModelGraphQlType).nonNull(),
-              resolve: (obj, ctx) => obj.models,
-              description: null,
-              deprecationReason: null),
-          field('hasDates', graphQLBoolean.nonNull(),
-              resolve: (obj, ctx) => obj.hasDates,
-              description: null,
-              deprecationReason: null),
-          eventUnionGraphQlTypeDiscriminant()
-        ],
-        isInterface: false,
-        interfaces: [],
-        description: null);
+GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQlType {
+  if (_eventUnionAddGraphQlType != null) return _eventUnionAddGraphQlType!;
+
+  _eventUnionAddGraphQlType = objectType('_EventUnionAdd',
+      isInterface: false, interfaces: [], description: null);
+  _eventUnionAddGraphQlType!.fields.addAll(
+    [
+      field('name', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.name,
+          description: null,
+          deprecationReason: null),
+      field('description', graphQLString,
+          resolve: (obj, ctx) => obj.description,
+          description: 'Custom doc d',
+          deprecationReason: null),
+      field('dates', listOf(graphQLDate.nonNull()),
+          resolve: (obj, ctx) => obj.dates,
+          description: null,
+          deprecationReason: null),
+      field('models', listOf(testModelGraphQlType).nonNull(),
+          resolve: (obj, ctx) => obj.models,
+          description: null,
+          deprecationReason: null),
+      field('hasDates', graphQLBoolean.nonNull(),
+          resolve: (obj, ctx) => obj.hasDates,
+          description: null,
+          deprecationReason: null),
+      eventUnionGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return _eventUnionAddGraphQlType!;
+}
 
 final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
   fromJson: _$$EventUnionDeleteFromJson,
   toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
 );
+GraphQLObjectType<EventUnionDelete>? _eventUnionDeleteGraphQlType;
 
 /// Auto-generated from [EventUnionDelete].
-final GraphQLObjectType<EventUnionDelete> eventUnionDeleteGraphQlType =
-    objectType('EventUnionDelete',
-        fields: [
-          field('name', graphQLString,
-              resolve: (obj, ctx) => obj.name,
-              description: null,
-              deprecationReason: null),
-          field('cost', graphQLInt.nonNull(),
-              resolve: (obj, ctx) => obj.cost,
-              description: null,
-              deprecationReason: null),
-          field('dates', listOf(graphQLDate.nonNull()),
-              resolve: (obj, ctx) => obj.dates,
-              description: null,
-              deprecationReason: null),
-          field('hasDates', graphQLBoolean.nonNull(),
-              resolve: (obj, ctx) => obj.hasDates,
-              description: null,
-              deprecationReason: null),
-          eventUnionGraphQlTypeDiscriminant()
-        ],
-        isInterface: false,
-        interfaces: [],
-        description: null);
+GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQlType {
+  if (_eventUnionDeleteGraphQlType != null)
+    return _eventUnionDeleteGraphQlType!;
+
+  _eventUnionDeleteGraphQlType = objectType('EventUnionDelete',
+      isInterface: false, interfaces: [], description: null);
+  _eventUnionDeleteGraphQlType!.fields.addAll(
+    [
+      field('name', graphQLString,
+          resolve: (obj, ctx) => obj.name,
+          description: null,
+          deprecationReason: null),
+      field('cost', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.cost,
+          description: null,
+          deprecationReason: null),
+      field('dates', listOf(graphQLDate.nonNull()),
+          resolve: (obj, ctx) => obj.dates,
+          description: null,
+          deprecationReason: null),
+      field('hasDates', graphQLBoolean.nonNull(),
+          resolve: (obj, ctx) => obj.hasDates,
+          description: null,
+          deprecationReason: null),
+      eventUnionGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return _eventUnionDeleteGraphQlType!;
+}
 
 final eventUnionSerializer = SerializerValue<EventUnion>(
   fromJson: _$EventUnionFromJson,
