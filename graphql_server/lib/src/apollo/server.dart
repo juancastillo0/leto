@@ -79,14 +79,11 @@ abstract class Server {
       (msg) async {
         if (msg.type == OperationMessage.gqlConnectionInit) {
           _connectionInitTimer?.cancel();
-          if (_receivedInit) {
-            if (isTransportWsProtocol) {
-              return client.closeWithReason(
-                ErrorReason.tooManyInitialisations,
-                'Too many initialisation requests',
-              );
-            }
-            return;
+          if (_receivedInit && isTransportWsProtocol) {
+            return client.closeWithReason(
+              ErrorReason.tooManyInitialisations,
+              'Too many initialisation requests',
+            );
           }
           _receivedInit = true;
 
