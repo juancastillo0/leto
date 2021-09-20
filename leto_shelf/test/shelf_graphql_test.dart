@@ -27,7 +27,7 @@ Future<void> main() async {
     ),
   ];
 
-  final globalVariables = {
+  final globalVariables = <Object, Object?>{
     testUnionModelsTestKey: _testUnionModels,
   };
 
