@@ -214,11 +214,13 @@ class _$ChatMessageTearOff {
       {required int id,
       required int chatId,
       required String message,
+      int? referencedMessageId,
       required DateTime createdAt}) {
     return _ChatMessage(
       id: id,
       chatId: chatId,
       message: message,
+      referencedMessageId: referencedMessageId,
       createdAt: createdAt,
     );
   }
@@ -236,6 +238,7 @@ mixin _$ChatMessage {
   int get id => throw _privateConstructorUsedError;
   int get chatId => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
+  int? get referencedMessageId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -249,7 +252,12 @@ abstract class $ChatMessageCopyWith<$Res> {
   factory $ChatMessageCopyWith(
           ChatMessage value, $Res Function(ChatMessage) then) =
       _$ChatMessageCopyWithImpl<$Res>;
-  $Res call({int id, int chatId, String message, DateTime createdAt});
+  $Res call(
+      {int id,
+      int chatId,
+      String message,
+      int? referencedMessageId,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -265,6 +273,7 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
     Object? id = freezed,
     Object? chatId = freezed,
     Object? message = freezed,
+    Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -280,6 +289,10 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
+      referencedMessageId: referencedMessageId == freezed
+          ? _value.referencedMessageId
+          : referencedMessageId // ignore: cast_nullable_to_non_nullable
+              as int?,
       createdAt: createdAt == freezed
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -295,7 +308,12 @@ abstract class _$ChatMessageCopyWith<$Res>
           _ChatMessage value, $Res Function(_ChatMessage) then) =
       __$ChatMessageCopyWithImpl<$Res>;
   @override
-  $Res call({int id, int chatId, String message, DateTime createdAt});
+  $Res call(
+      {int id,
+      int chatId,
+      String message,
+      int? referencedMessageId,
+      DateTime createdAt});
 }
 
 /// @nodoc
@@ -313,6 +331,7 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
     Object? id = freezed,
     Object? chatId = freezed,
     Object? message = freezed,
+    Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(_ChatMessage(
@@ -328,6 +347,10 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
+      referencedMessageId: referencedMessageId == freezed
+          ? _value.referencedMessageId
+          : referencedMessageId // ignore: cast_nullable_to_non_nullable
+              as int?,
       createdAt: createdAt == freezed
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -338,12 +361,14 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_ChatMessage implements _ChatMessage {
+class _$_ChatMessage extends _ChatMessage {
   const _$_ChatMessage(
       {required this.id,
       required this.chatId,
       required this.message,
-      required this.createdAt});
+      this.referencedMessageId,
+      required this.createdAt})
+      : super._();
 
   factory _$_ChatMessage.fromJson(Map<String, dynamic> json) =>
       _$$_ChatMessageFromJson(json);
@@ -355,11 +380,13 @@ class _$_ChatMessage implements _ChatMessage {
   @override
   final String message;
   @override
+  final int? referencedMessageId;
+  @override
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'ChatMessage(id: $id, chatId: $chatId, message: $message, createdAt: $createdAt)';
+    return 'ChatMessage(id: $id, chatId: $chatId, message: $message, referencedMessageId: $referencedMessageId, createdAt: $createdAt)';
   }
 
   @override
@@ -373,6 +400,9 @@ class _$_ChatMessage implements _ChatMessage {
             (identical(other.message, message) ||
                 const DeepCollectionEquality()
                     .equals(other.message, message)) &&
+            (identical(other.referencedMessageId, referencedMessageId) ||
+                const DeepCollectionEquality()
+                    .equals(other.referencedMessageId, referencedMessageId)) &&
             (identical(other.createdAt, createdAt) ||
                 const DeepCollectionEquality()
                     .equals(other.createdAt, createdAt)));
@@ -384,6 +414,7 @@ class _$_ChatMessage implements _ChatMessage {
       const DeepCollectionEquality().hash(id) ^
       const DeepCollectionEquality().hash(chatId) ^
       const DeepCollectionEquality().hash(message) ^
+      const DeepCollectionEquality().hash(referencedMessageId) ^
       const DeepCollectionEquality().hash(createdAt);
 
   @JsonKey(ignore: true)
@@ -397,12 +428,14 @@ class _$_ChatMessage implements _ChatMessage {
   }
 }
 
-abstract class _ChatMessage implements ChatMessage {
+abstract class _ChatMessage extends ChatMessage {
   const factory _ChatMessage(
       {required int id,
       required int chatId,
       required String message,
+      int? referencedMessageId,
       required DateTime createdAt}) = _$_ChatMessage;
+  const _ChatMessage._() : super._();
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$_ChatMessage.fromJson;
@@ -413,6 +446,8 @@ abstract class _ChatMessage implements ChatMessage {
   int get chatId => throw _privateConstructorUsedError;
   @override
   String get message => throw _privateConstructorUsedError;
+  @override
+  int? get referencedMessageId => throw _privateConstructorUsedError;
   @override
   DateTime get createdAt => throw _privateConstructorUsedError;
   @override

@@ -14,7 +14,8 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return sendMessage(ctx, args["chatId"] as int, args["message"] as String);
+    return sendMessage(ctx, args["chatId"] as int, args["message"] as String,
+        args["referencedMessageId"] as int?);
   },
   inputs: [
     GraphQLFieldInput(
@@ -24,6 +25,10 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
     GraphQLFieldInput(
       "message",
       graphQLString.nonNull().coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "referencedMessageId",
+      graphQLInt.coerceToInputObject(),
     )
   ],
   deprecationReason: null,
@@ -107,10 +112,16 @@ final chatRoomSerializer = SerializerValue<ChatRoom>(
   fromJson: _$$_ChatRoomFromJson,
   toJson: (m) => _$$_ChatRoomToJson(m as _$_ChatRoom),
 );
+GraphQLObjectType<ChatRoom>? _chatRoomGraphQlType;
 
 /// Auto-generated from [ChatRoom].
-final GraphQLObjectType<ChatRoom> chatRoomGraphQlType = objectType('ChatRoom',
-    fields: [
+GraphQLObjectType<ChatRoom> get chatRoomGraphQlType {
+  if (_chatRoomGraphQlType != null) return _chatRoomGraphQlType!;
+
+  _chatRoomGraphQlType = objectType('ChatRoom',
+      isInterface: false, interfaces: [], description: null);
+  _chatRoomGraphQlType!.fields.addAll(
+    [
       field('id', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.id,
           description: null,
@@ -124,43 +135,61 @@ final GraphQLObjectType<ChatRoom> chatRoomGraphQlType = objectType('ChatRoom',
           description: null,
           deprecationReason: null),
       field('messages', listOf(chatMessageGraphQlType.nonNull()).nonNull(),
-          resolve: (obj, ctx) => obj.messages(ctx),
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return obj.messages(ctx);
+      }, description: null, deprecationReason: null)
     ],
-    isInterface: false,
-    interfaces: [],
-    description: null);
+  );
+
+  return _chatRoomGraphQlType!;
+}
 
 final chatMessageSerializer = SerializerValue<ChatMessage>(
   fromJson: _$$_ChatMessageFromJson,
   toJson: (m) => _$$_ChatMessageToJson(m as _$_ChatMessage),
 );
+GraphQLObjectType<ChatMessage>? _chatMessageGraphQlType;
 
 /// Auto-generated from [ChatMessage].
-final GraphQLObjectType<ChatMessage> chatMessageGraphQlType =
-    objectType('ChatMessage',
-        fields: [
-          field('id', graphQLInt.nonNull(),
-              resolve: (obj, ctx) => obj.id,
-              description: null,
-              deprecationReason: null),
-          field('chatId', graphQLInt.nonNull(),
-              resolve: (obj, ctx) => obj.chatId,
-              description: null,
-              deprecationReason: null),
-          field('message', graphQLString.nonNull(),
-              resolve: (obj, ctx) => obj.message,
-              description: null,
-              deprecationReason: null),
-          field('createdAt', graphQLDate.nonNull(),
-              resolve: (obj, ctx) => obj.createdAt,
-              description: null,
-              deprecationReason: null)
-        ],
-        isInterface: false,
-        interfaces: [],
-        description: null);
+GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
+  if (_chatMessageGraphQlType != null) return _chatMessageGraphQlType!;
+
+  _chatMessageGraphQlType = objectType('ChatMessage',
+      isInterface: false, interfaces: [], description: null);
+  _chatMessageGraphQlType!.fields.addAll(
+    [
+      field('id', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.id,
+          description: null,
+          deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
+          description: null,
+          deprecationReason: null),
+      field('message', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.message,
+          description: null,
+          deprecationReason: null),
+      field('referencedMessageId', graphQLInt,
+          resolve: (obj, ctx) => obj.referencedMessageId,
+          description: null,
+          deprecationReason: null),
+      field('createdAt', graphQLDate.nonNull(),
+          resolve: (obj, ctx) => obj.createdAt,
+          description: null,
+          deprecationReason: null),
+      field('referencedMessage', chatMessageGraphQlType, resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return obj.referencedMessage(ctx);
+      }, description: null, deprecationReason: null)
+    ],
+  );
+
+  return _chatMessageGraphQlType!;
+}
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -184,6 +213,7 @@ _$_ChatMessage _$$_ChatMessageFromJson(Map<String, dynamic> json) =>
       id: json['id'] as int,
       chatId: json['chatId'] as int,
       message: json['message'] as String,
+      referencedMessageId: json['referencedMessageId'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
@@ -192,5 +222,6 @@ Map<String, dynamic> _$$_ChatMessageToJson(_$_ChatMessage instance) =>
       'id': instance.id,
       'chatId': instance.chatId,
       'message': instance.message,
+      'referencedMessageId': instance.referencedMessageId,
       'createdAt': instance.createdAt.toIso8601String(),
     };

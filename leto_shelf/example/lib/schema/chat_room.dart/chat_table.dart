@@ -11,9 +11,13 @@ import 'package:sqlite3/sqlite3.dart';
 part 'chat_table.g.dart';
 part 'chat_table.freezed.dart';
 
+final chatRoomDatabase = GlobalRef('ChatRoomDatabase');
+
 final chatControllerRef = RefWithDefault(
   'ChatController',
-  (globals) => ChatController.create(),
+  (globals) => ChatController.create(
+    db: globals[chatRoomDatabase] as Database?,
+  ),
 );
 
 class ChatController {
@@ -101,8 +105,7 @@ class ChatMessageTable {
   Future<List<ChatMessage>> getAll({int? chatId}) async {
     final result = db.select(
       '''
-SELECT id, chatId, message, createdAt
-FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
+SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
 ''',
       [if (chatId != null) chatId],
     );
@@ -110,28 +113,61 @@ FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
     return values;
   }
 
-  ChatMessage? insert(int chatId, String message) {
-    try {
-      db.execute('''
-INSERT INTO message(chatId, message) VALUES (?, ?)
-''', [chatId, message]);
+  Future<ChatMessage?> get(int id) async {
+    final result = db.select(
+      '''SELECT * FROM message WHERE id = ?;''',
+      [id],
+    );
+    if (result.isEmpty) {
+      return null;
+    }
+    return ChatMessage.fromJson(result.first);
+  }
 
-      final result = db.select(
-        'SELECT * FROM message WHERE id = ?',
-        [db.lastInsertRowId],
-      );
-      if (result.isEmpty) {
-        return null;
+  Future<ChatMessage?> insert(
+    int chatId,
+    String message, {
+    int? referencedMessageId,
+  }) async {
+    bool success = false;
+    try {
+      if (referencedMessageId != null) {
+        db.execute('BEGIN TRANSACTION;');
+        final referencedMessage = await get(referencedMessageId);
+        if (referencedMessage == null) {
+          throw Exception(
+              'Chat message with id $referencedMessageId not found.');
+        } else if (referencedMessage.chatId != chatId) {
+          throw Exception('Can only reference messages within the same chat.');
+        }
       }
-      final messageModel = ChatMessage.fromJson(result.first);
-      controller.add(messageModel);
-      return messageModel;
+      db.execute(
+        referencedMessageId == null
+            ? '''INSERT INTO message(chatId, message) VALUES (?, ?)'''
+            : '''INSERT INTO message(chatId, message, referencedMessageId) VALUES (?, ?, ?)''',
+        [chatId, message, if (referencedMessageId != null) referencedMessageId],
+      );
+      success = true;
     } on SqliteException catch (e) {
       if (e.extendedResultCode == 787) {
         throw Exception('Chat room with id $chatId not found.');
       }
       return null;
+    } finally {
+      if (referencedMessageId != null) {
+        if (success) {
+          db.execute('COMMIT;');
+        } else {
+          db.execute('ROLLBACK;');
+        }
+      }
     }
+
+    final messageModel = await get(db.lastInsertRowId);
+    if (messageModel != null) {
+      controller.add(messageModel);
+    }
+    return messageModel;
   }
 
   Future<void> setup() async {
@@ -152,7 +188,6 @@ CREATE TABLE $tableName (
 
         /// Change DEFAULT CURRENT_DATE -> DEFAULT CURRENT_TIMESTAMP
         'ALTER TABLE $tableName RENAME TO tmp_$tableName;',
-
         '''\
 CREATE TABLE $tableName (
   id INTEGER NOT NULL,
@@ -166,7 +201,12 @@ CREATE TABLE $tableName (
 INSERT INTO $tableName(id, chatId, message, createdAt) 
 SELECT id, chatId, message, createdAt
 FROM tmp_$tableName;''',
-        'DROP TABLE tmp_$tableName;'
+        'DROP TABLE tmp_$tableName;',
+
+        /// Add referencedMessageId column
+        '''
+ALTER TABLE $tableName ADD referencedMessageId INT NULL
+REFERENCES $tableName (id);''',
       ],
     );
     print('migrated $tableName $migrated');
@@ -176,12 +216,12 @@ FROM tmp_$tableName;''',
 @GraphQLClass()
 @freezed
 class ChatRoom with _$ChatRoom {
-  const ChatRoom._();
   const factory ChatRoom({
     required int id,
     required String name,
     required DateTime createdAt,
   }) = _ChatRoom;
+  const ChatRoom._();
 
   factory ChatRoom.fromJson(Map<String, Object?> json) =>
       _$ChatRoomFromJson(json);
@@ -199,11 +239,21 @@ class ChatMessage with _$ChatMessage {
     required int id,
     required int chatId,
     required String message,
+    int? referencedMessageId,
     required DateTime createdAt,
   }) = _ChatMessage;
+  const ChatMessage._();
 
   factory ChatMessage.fromJson(Map<String, Object?> json) =>
       _$ChatMessageFromJson(json);
+
+  Future<ChatMessage?> referencedMessage(ReqCtx ctx) async {
+    if (referencedMessageId == null) {
+      return null;
+    }
+    final controller = await chatControllerRef.get(ctx);
+    return controller.messages.get(referencedMessageId!);
+  }
 }
 
 @Mutation()
@@ -211,9 +261,14 @@ Future<ChatMessage?> sendMessage(
   ReqCtx<Object> ctx,
   int chatId,
   String message,
+  int? referencedMessageId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
-  return controller.messages.insert(chatId, message);
+  return controller.messages.insert(
+    chatId,
+    message,
+    referencedMessageId: referencedMessageId,
+  );
 }
 
 @Query()
