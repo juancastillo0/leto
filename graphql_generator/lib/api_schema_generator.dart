@@ -66,14 +66,15 @@ class ValidatorsLibGenerator implements Builder {
       }
       allClasses.addAll(
         reader.classes.where(
-          (element) => const TypeChecker.fromRuntime(GraphQLClass)
-              .hasAnnotationOfExact(element),
+          (element) => const TypeChecker.fromRuntime(GraphQLObjectDec)
+              .hasAnnotationOf(element),
         ),
       );
     }
 
     try {
       final _serializers = allClasses
+          .where((element) => !element.isAbstract)
           .map((e) {
             final typeName =
                 e.thisType.getDisplayString(withNullability: false);

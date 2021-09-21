@@ -3,9 +3,13 @@ part of graphql_schema.src.schema;
 /// The canonical instance.
 const GraphQLClass graphQLClass = GraphQLClass();
 
+class GraphQLObjectDec {
+  const GraphQLObjectDec();
+}
+
 /// Signifies that a class should statically generate a [GraphQLInputObjectType]
 @Target({TargetKind.classType})
-class GraphQLInput {
+class GraphQLInput extends GraphQLObjectDec {
   const GraphQLInput();
 }
 
@@ -16,7 +20,7 @@ class GraphQLInput {
 /// [GraphQLInputObjectType] for classes
 /// [GraphQLEnumType] for enums
 @Target({TargetKind.classType, TargetKind.enumType})
-class GraphQLClass {
+class GraphQLClass extends GraphQLObjectDec {
   const GraphQLClass({
     this.interfaces = const [],
     this.omit,
