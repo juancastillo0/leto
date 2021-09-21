@@ -110,6 +110,9 @@ Expression inferType(
   // Check to see if it's a primitive type.
   for (final entry in primitive.entries) {
     if (TypeChecker.fromRuntime(entry.key).isAssignableFromType(type)) {
+      if (entry.key == String && name == 'id') {
+        return _wrapNullability(refer('graphQLId'));
+      }
       return _wrapNullability(refer(entry.value));
     }
   }
