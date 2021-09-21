@@ -213,7 +213,7 @@ void main() {
                     'name': null,
                     'kind': 'NON_NULL',
                     'ofType': {
-                      'name': 'String',
+                      'name': 'ID',
                       'kind': 'SCALAR',
                     },
                   },
@@ -328,7 +328,7 @@ void main() {
                         'name': null,
                         'ofType': {
                           'kind': 'SCALAR',
-                          'name': 'String',
+                          'name': 'ID',
                         },
                       },
                       'defaultValue': null,
@@ -346,7 +346,7 @@ void main() {
                         'name': null,
                         'ofType': {
                           'kind': 'SCALAR',
-                          'name': 'String',
+                          'name': 'ID',
                         },
                       },
                       'defaultValue': null,

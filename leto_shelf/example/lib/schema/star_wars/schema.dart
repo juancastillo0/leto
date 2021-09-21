@@ -298,7 +298,7 @@ final queryType = objectType<Object>(
       inputs: [
         GraphQLFieldInput(
           'id',
-          graphQLString.nonNull(),
+          graphQLId.nonNull(),
           description: 'id of the human',
         )
       ],
