@@ -6,6 +6,7 @@ import 'package:shelf_graphql_example/schema/books.schema.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
+import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
 
 import 'files.controller.dart';
 import 'safe_json.dart';
@@ -141,6 +142,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     graphqlApiSchema,
     starWarsSchema,
     makeBooksSchema(),
+    relayStarWarsSchema,
   ].reduce(mergeGraphQLSchemas);
 }
 
