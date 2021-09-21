@@ -124,6 +124,12 @@ Expression inferType(
     final arg = type.typeArguments[0];
     final inner = inferType(className, name, arg);
     return _wrapNullability(refer('listOf').call([inner]));
+  } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
+    return _wrapNullability(
+      refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix').call([
+        ...type.typeArguments.map((e) => inferType(className, name, e)),
+      ]),
+    );
   }
 
   final typeName = type.getDisplayString(withNullability: false);
