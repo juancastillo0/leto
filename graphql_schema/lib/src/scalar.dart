@@ -126,7 +126,7 @@ class _GraphQLStringType extends GraphQLScalarType<String, String> {
           : ValidationResult.failure(['Expected "$key" to be a string.']);
 
   @override
-  Iterable<Object?> get props => [];
+  Iterable<Object?> get props => [name];
 }
 
 class _GraphQLDateType extends GraphQLScalarType<DateTime, String>

@@ -43,7 +43,7 @@ GraphQLObjectField<T, Serialized, P>
 }
 
 /// Shorthand for generating a [GraphQLInputObjectType].
-GraphQLInputObjectType inputObjectType(
+GraphQLInputObjectType<T> inputObjectType<T extends Object>(
   String name, {
   String? description,
   Iterable<GraphQLInputObjectField> inputFields = const [],
