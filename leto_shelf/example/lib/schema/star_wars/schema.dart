@@ -105,7 +105,7 @@ GraphQLObjectType<Character> characterInterface() {
     description: 'A character in the Star Wars Trilogy',
     isInterface: true,
     fields: [
-      graphQLString.nonNull().field(
+      graphQLId.nonNull().field(
             'id',
             description: 'The id of the character.',
           ),

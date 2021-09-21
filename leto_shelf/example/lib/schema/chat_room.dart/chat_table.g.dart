@@ -124,14 +124,17 @@ GraphQLObjectType<ChatRoom> get chatRoomGraphQlType {
     [
       field('id', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.id,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('messages', listOf(chatMessageGraphQlType.nonNull()).nonNull(),
@@ -139,7 +142,7 @@ GraphQLObjectType<ChatRoom> get chatRoomGraphQlType {
         final args = ctx.args;
 
         return obj.messages(ctx);
-      }, description: null, deprecationReason: null)
+      }, inputs: [], description: null, deprecationReason: null)
     ],
   );
 
@@ -162,29 +165,34 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
     [
       field('id', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.id,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('chatId', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.chatId,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('message', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.message,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('referencedMessageId', graphQLInt,
           resolve: (obj, ctx) => obj.referencedMessageId,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('referencedMessage', chatMessageGraphQlType, resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.referencedMessage(ctx);
-      }, description: null, deprecationReason: null)
+      }, inputs: [], description: null, deprecationReason: null)
     ],
   );
 

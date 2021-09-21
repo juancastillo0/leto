@@ -104,22 +104,41 @@ final testModelSerializer = SerializerValue<TestModel>(
   fromJson: _$TestModelFromJson,
   toJson: (m) => _$TestModelToJson(m as TestModel),
 );
+GraphQLObjectType<TestModel>? _testModelGraphQlType;
 
 /// Auto-generated from [TestModel].
-final GraphQLObjectType<TestModel> testModelGraphQlType = objectType(
-    'TestModel',
-    isInterface: false,
-    description: 'Custom doc',
-    interfaces: [],
-    fields: [
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
+GraphQLObjectType<TestModel> get testModelGraphQlType {
+  if (_testModelGraphQlType != null) return _testModelGraphQlType!;
+
+  _testModelGraphQlType = objectType('TestModel',
+      isInterface: false, interfaces: [], description: 'Custom doc');
+  _testModelGraphQlType!.fields.addAll(
+    [
+      field('name', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.name,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('description', graphQLString,
-          description: 'Custom doc d', resolve: (obj, ctx) => obj.description),
+          resolve: (obj, ctx) => obj.description,
+          inputs: [],
+          description: 'Custom doc d',
+          deprecationReason: null),
       field('dates', listOf(graphQLDate.nonNull()),
-          resolve: (obj, ctx) => obj.dates),
+          resolve: (obj, ctx) => obj.dates,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates)
-    ]);
+          resolve: (obj, ctx) => obj.hasDates,
+          inputs: [],
+          description: null,
+          deprecationReason: null)
+    ],
+  );
+
+  return _testModelGraphQlType!;
+}
 
 final testModelFreezedSerializer = SerializerValue<TestModelFreezed>(
   fromJson: _$$_TestModelFreezedFromJson,
@@ -138,18 +157,22 @@ GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQlType {
     [
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('description', graphQLString,
           resolve: (obj, ctx) => obj.description,
+          inputs: [],
           description: 'Custom doc d',
           deprecationReason: null),
       field('dates', listOf(graphQLDate.nonNull()),
           resolve: (obj, ctx) => obj.dates,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates,
+          inputs: [],
           description: null,
           deprecationReason: null)
     ],
@@ -174,22 +197,27 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQlType {
     [
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('description', graphQLString,
           resolve: (obj, ctx) => obj.description,
+          inputs: [],
           description: 'Custom doc d',
           deprecationReason: null),
       field('dates', listOf(graphQLDate.nonNull()),
           resolve: (obj, ctx) => obj.dates,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('models', listOf(testModelGraphQlType).nonNull(),
           resolve: (obj, ctx) => obj.models,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates,
+          inputs: [],
           description: null,
           deprecationReason: null),
       eventUnionGraphQlTypeDiscriminant()
@@ -216,18 +244,22 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQlType {
     [
       field('name', graphQLString,
           resolve: (obj, ctx) => obj.name,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('cost', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.cost,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('dates', listOf(graphQLDate.nonNull()),
           resolve: (obj, ctx) => obj.dates,
+          inputs: [],
           description: null,
           deprecationReason: null),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates,
+          inputs: [],
           description: null,
           deprecationReason: null),
       eventUnionGraphQlTypeDiscriminant()
