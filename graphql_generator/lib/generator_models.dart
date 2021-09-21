@@ -13,15 +13,25 @@ import 'package:graphql_schema/graphql_schema.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
+Iterable<Future<FieldInfo>> fieldsFromClass(
+  ClassElement clazz,
+  BuildStep buildStep,
+) {
+  return clazz.methods
+      .where((element) => element.name != 'toJson')
+      .map((m) => fieldFromElement(m, m.returnType, buildStep))
+      .followedBy(
+          clazz.fields.map((m) => fieldFromElement(m, m.type, buildStep)));
+}
+
 Future<List<UnionVarianInfo>> freezedFields(
   ClassElement clazz,
-  BuildStep buildStep, {
-  required bool isUnion,
-}) async {
+  BuildStep buildStep,
+) async {
+  final isUnion =
+      clazz.constructors.where(isFreezedVariantConstructor).length > 1;
   final className = ReCase(clazz.name).pascalCase;
-  final _unionClassFields = clazz.methods
-      .map((m) => fieldFromElement(m, m.returnType))
-      .followedBy(clazz.fields.map((m) => fieldFromElement(m, m.type)));
+  final _unionClassFields = fieldsFromClass(clazz, buildStep);
 
   return Future.wait(
       clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
@@ -37,6 +47,7 @@ Future<List<UnionVarianInfo>> freezedFields(
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
+      isInput: isInputType(clazz),
       description: getDescription(con, con.documentationComment),
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
@@ -100,7 +111,11 @@ bool isFreezedVariantConstructor(ConstructorElement con) =>
 //   );
 // }
 
-Future<FieldInfo> fieldFromElement(Element method, DartType type) async {
+Future<FieldInfo> fieldFromElement(
+  Element method,
+  DartType type,
+  BuildStep buildStep,
+) async {
   final annot = getFieldAnnot(method);
   return FieldInfo(
     gqlType: annot.type != null
@@ -110,6 +125,9 @@ Future<FieldInfo> fieldFromElement(Element method, DartType type) async {
     getter: method is MethodElement
         ? resolverFunctionBodyFromElement(method)
         : method.name!,
+    inputs: method is MethodElement
+        ? await inputsFromElement(method, buildStep)
+        : const [],
     isMethod: method is MethodElement,
     nonNullable: annot.nullable != true &&
         type.nullabilitySuffix == NullabilitySuffix.none,
@@ -131,6 +149,7 @@ Future<FieldInfo> fieldFromParam(
     name: annot.name ?? param.name,
     getter: param.name,
     isMethod: false,
+    inputs: [],
     nonNullable: annot.nullable != true && param.isNotOptional,
     fieldAnnot: annot,
     description: await documentationOfParameter(param, buildStep),
@@ -164,6 +183,7 @@ class UnionVarianInfo {
   final bool isInterface;
   final List<Expression> interfaces;
   final bool hasFrezzed;
+  final bool isInput;
   final bool isUnion;
 
   const UnionVarianInfo({
@@ -176,15 +196,20 @@ class UnionVarianInfo {
     required this.isInterface,
     required this.interfaces,
     required this.hasFrezzed,
+    required this.isInput,
     required this.isUnion,
   });
 
   Code serializer() {
-    return Code(serializerDefinitionCode(
-      typeName,
-      hasFrezzed: hasFrezzed,
-      constructorName: isUnion ? null : constructorName,
-    ));
+    return Code(
+      isInterface
+          ? ''
+          : serializerDefinitionCode(
+              typeName,
+              hasFrezzed: hasFrezzed,
+              constructorName: isUnion ? null : constructorName,
+            ),
+    );
   }
 
   // String get typeName => name;
@@ -202,17 +227,18 @@ class UnionVarianInfo {
   // }
 
   String fieldCode() {
+    final _type = 'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName>';
     return '''
-GraphQLObjectType<$typeName>? _$fieldName;
+$_type? _$fieldName;
 /// Auto-generated from [$typeName].
-GraphQLObjectType<$typeName> get $fieldName {
+$_type get $fieldName {
   if (_$fieldName != null) return _$fieldName!;
 
   _$fieldName = ${expression().accept(DartEmitter())};
-  _$fieldName!.fields.addAll(${literalList(
+  _$fieldName!.${isInput ? 'inputFields' : 'fields'}.addAll(${literalList(
       fields
           .where((e) => e.fieldAnnot.omit != true)
-          .map((e) => e.expression())
+          .map((e) => e.expression(isInput: isInput))
           .followedBy([if (isUnion) refer(unionKeyName)]),
     ).accept(DartEmitter())},);
 
@@ -225,11 +251,11 @@ GraphQLObjectType<$typeName> get $fieldName {
       '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
 
   Expression expression() {
-    return refer('objectType').call(
+    return refer(isInput ? 'inputObjectType' : 'objectType').call(
       [literalString(typeName)],
       {
-        'isInterface': literalBool(isInterface),
-        'interfaces': literalList(interfaces),
+        if (!isInput) 'isInterface': literalBool(isInterface),
+        if (!isInput) 'interfaces': literalList(interfaces),
         'description': description == null || description!.isEmpty
             ? literalNull
             : literalString(description!),
@@ -247,6 +273,7 @@ class FieldInfo {
   final bool isMethod;
   final bool nonNullable;
   final Expression gqlType;
+  final List<String> inputs;
   final String? description;
   final GraphQLField fieldAnnot;
   final String? deprecationReason;
@@ -257,27 +284,32 @@ class FieldInfo {
     required this.isMethod,
     required this.nonNullable,
     required this.gqlType,
+    required this.inputs,
     required this.description,
     required this.deprecationReason,
     required this.fieldAnnot,
   });
 
-  Expression expression() {
-    return refer('field').call(
+  Expression expression({bool isInput = false}) {
+    return refer(isInput ? 'inputField' : 'field').call(
       [
         literalString(name),
-        gqlType,
+        isInput ? gqlType.property('coerceToInputObject').call([]) : gqlType,
       ],
       {
-        'resolve': Method(
-          (m) => m
-            ..requiredParameters.addAll([
-              Parameter((p) => p..name = 'obj'),
-              Parameter((p) => p..name = 'ctx'),
-            ])
-            ..body = Code(isMethod ? getter : 'obj.$getter')
-            ..lambda = !isMethod,
-        ).genericClosure,
+        if (!isInput)
+          'resolve': Method(
+            (m) => m
+              ..requiredParameters.addAll([
+                Parameter((p) => p..name = 'obj'),
+                Parameter((p) => p..name = 'ctx'),
+              ])
+              ..body = Code(isMethod ? getter : 'obj.$getter')
+              ..lambda = !isMethod,
+          ).genericClosure,
+        if (!isInput) 'inputs': literalList(inputs.map(refer)),
+        // TODO:
+        // if (isInput) 'defaultValue': literalList(inputs.map(refer)),
         'description': description == null || description!.isEmpty
             ? literalNull
             : literalString(description!),
