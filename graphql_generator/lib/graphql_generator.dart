@@ -23,7 +23,7 @@ Builder graphQLBuilder(Object _) {
 const _jsonSerializableTypeChecker = TypeChecker.fromRuntime(JsonSerializable);
 const _freezedTypeChecker = TypeChecker.fromRuntime(Freezed);
 
-class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
+class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
   @override
   Future<String> generateForAnnotatedElement(
     Element element,
@@ -77,11 +77,8 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
 
     if (hasFrezzed) {
       return generateFromFreezed(clazz, buildStep);
-    }
-    return Library((b) {
-      // Generate a top-level xGraphQLType object
-
-      if (clazz.isEnum) {
+    } else if (clazz.isEnum) {
+      return Library((b) {
         b.body.add(Field((b) {
           // enumTypeFromStrings(String name, List<String> values, {String description})
           final args = <Expression>[literalString(clazz.name)];
@@ -100,99 +97,138 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLClass> {
             ..modifier = FieldModifier.final$
             ..assignment = refer('enumTypeFromStrings').call(args, named).code;
         }));
-      } else {
-        b.body.add(
-          Code(serializerDefinitionCode(classType, hasFrezzed: hasFrezzed)),
-        );
+      });
+    } else {
+      final className = clazz.name;
+      final redirectedName =
+          clazz.constructors.firstWhere(isFreezedVariantConstructor).name;
 
-        b.body.add(Field((b) {
-          final args = <Expression>[literalString(ctx!.modelClassName)];
-          final named = <String, Expression>{
-            'isInterface': literalBool(isInterface(clazz))
-          };
+      // TODO:
+      // Also incorporate parent fields.
+      // InterfaceType? search = clazz.thisType;
+      // while (search != null &&
+      //     !const TypeChecker.fromRuntime(Object).isExactlyType(search)) {
+      //   for (final field in search.element.fields) {
+      //     if (!ctxFields.any((f) => f.name == field.name)) {
+      //       ctxFields.add(field);
+      //     }
+      //   }
 
-          // Add documentation
-          _applyDescription(named, clazz, clazz.documentationComment);
+      //   search = search.superclass;
+      // }
 
-          // Add interfaces
-          named['interfaces'] = literalList(getGraphqlInterfaces(clazz));
+      final classInfo = UnionVarianInfo(
+        isInterface: isInterface(clazz),
+        hasFrezzed: false,
+        isUnion: false,
+        isInput: isInputType(clazz),
+        interfaces: getGraphqlInterfaces(clazz),
+        typeName: className,
+        constructorName: redirectedName.isEmpty ? className : redirectedName,
+        unionName: className,
+        description: getDescription(clazz, clazz.documentationComment),
+        deprecationReason: getDeprecationReason(clazz),
+        fields: await Future.wait(
+          fieldsFromClass(clazz, buildStep),
+        ),
+      );
+      return Library((l) {
+        l.body.add(classInfo.serializer());
+        l.body.add(Code(classInfo.fieldCode()));
+      });
+    }
+    // return Library((b) {
+    //   // Generate a top-level xGraphQLType object
+    //   b.body.add(
+    //     Code(serializerDefinitionCode(classType, hasFrezzed: hasFrezzed)),
+    //   );
 
-          // Add fields
-          final ctxFields = ctx.fields.toList();
+    //   b.body.add(Field((b) {
+    //     final args = <Expression>[literalString(ctx!.modelClassName)];
+    //     final named = <String, Expression>{
+    //       'isInterface': literalBool(isInterface(clazz))
+    //     };
 
-          // Also incorporate parent fields.
-          InterfaceType? search = clazz.thisType;
-          while (search != null &&
-              !const TypeChecker.fromRuntime(Object).isExactlyType(search)) {
-            for (final field in search.element.fields) {
-              if (!ctxFields.any((f) => f.name == field.name)) {
-                ctxFields.add(field);
-              }
-            }
+    //     // Add documentation
+    //     _applyDescription(named, clazz, clazz.documentationComment);
 
-            search = search.superclass;
-          }
+    //     // Add interfaces
+    //     named['interfaces'] = literalList(getGraphqlInterfaces(clazz));
 
-          final fields = <Expression>[];
-          for (final field in ctxFields) {
-            final named = <String, Expression>{};
-            final originalField =
-                clazz.fields.firstWhereOrNull((f) => f.name == field.name);
+    //     // Add fields
+    //     final ctxFields = ctx.fields.toList();
 
-            // Check if it is deprecated.
-            final depEl = originalField?.getter ?? originalField ?? field;
-            final depAnn = getDeprecationReason(depEl);
-            if (depAnn != null) {
-              named['deprecationReason'] = literalString(depAnn);
-            }
+    //     // Also incorporate parent fields.
+    //     InterfaceType? search = clazz.thisType;
+    //     while (search != null &&
+    //         !const TypeChecker.fromRuntime(Object).isExactlyType(search)) {
+    //       for (final field in search.element.fields) {
+    //         if (!ctxFields.any((f) => f.name == field.name)) {
+    //           ctxFields.add(field);
+    //         }
+    //       }
 
-            // Description finder...
-            _applyDescription(
-              named,
-              originalField?.getter ?? originalField ?? field,
-              originalField?.getter?.documentationComment ??
-                  originalField?.documentationComment,
-            );
+    //       search = search.superclass;
+    //     }
 
-            // Pick the type.
-            final doc = graphQLDocTypeChecker.firstAnnotationOf(depEl);
-            Expression? type;
-            if (doc != null) {
-              final cr = ConstantReader(doc);
-              final typeName = cr.peek('typeName')?.symbolValue;
-              if (typeName != null)
-                type = refer(MirrorSystem.getName(typeName));
-            }
-            named['resolve'] = Method(
-              (m) => m
-                ..requiredParameters.addAll([
-                  Parameter((p) => p..name = 'obj'),
-                  Parameter((p) => p..name = 'ctx'),
-                ])
-                ..body = Code(
-                  'obj.${ctx.resolveFieldName(field.name)}',
-                )
-                ..lambda = true,
-            ).genericClosure;
+    //     final fields = <Expression>[];
+    //     for (final field in ctxFields) {
+    //       final named = <String, Expression>{};
+    //       final originalField =
+    //           clazz.fields.firstWhereOrNull((f) => f.name == field.name);
 
-            fields.add(
-              refer('field').call([
-                literalString(ctx.resolveFieldName(field.name)!),
-                type ??= inferType(clazz.name, field.name, field.type)
-              ], named),
-            );
-          }
-          named['fields'] = literalList(fields);
+    //       // Check if it is deprecated.
+    //       final depEl = originalField?.getter ?? originalField ?? field;
+    //       final depAnn = getDeprecationReason(depEl);
+    //       if (depAnn != null) {
+    //         named['deprecationReason'] = literalString(depAnn);
+    //       }
 
-          b
-            ..name = '${ctx.modelClassNameRecase.camelCase}$graphqlTypeSuffix'
-            ..docs.add('/// Auto-generated from [${ctx.modelClassName}].')
-            ..type = refer('GraphQLObjectType<${clazz.name}>')
-            ..modifier = FieldModifier.final$
-            ..assignment = refer('objectType').call(args, named).code;
-        }));
-      }
-    });
+    //       // Description finder...
+    //       _applyDescription(
+    //         named,
+    //         originalField?.getter ?? originalField ?? field,
+    //         originalField?.getter?.documentationComment ??
+    //             originalField?.documentationComment,
+    //       );
+
+    //       // Pick the type.
+    //       final doc = graphQLDocTypeChecker.firstAnnotationOf(depEl);
+    //       Expression? type;
+    //       if (doc != null) {
+    //         final cr = ConstantReader(doc);
+    //         final typeName = cr.peek('typeName')?.symbolValue;
+    //         if (typeName != null) type = refer(MirrorSystem.getName(typeName));
+    //       }
+    //       named['resolve'] = Method(
+    //         (m) => m
+    //           ..requiredParameters.addAll([
+    //             Parameter((p) => p..name = 'obj'),
+    //             Parameter((p) => p..name = 'ctx'),
+    //           ])
+    //           ..body = Code(
+    //             'obj.${ctx.resolveFieldName(field.name)}',
+    //           )
+    //           ..lambda = true,
+    //       ).genericClosure;
+
+    //       fields.add(
+    //         refer('field').call([
+    //           literalString(ctx.resolveFieldName(field.name)!),
+    //           type ??= inferType(clazz.name, field.name, field.type)
+    //         ], named),
+    //       );
+    //     }
+    //     named['fields'] = literalList(fields);
+
+    //     b
+    //       ..name = '${ctx.modelClassNameRecase.camelCase}$graphqlTypeSuffix'
+    //       ..docs.add('/// Auto-generated from [${ctx.modelClassName}].')
+    //       ..type = refer('GraphQLObjectType<${clazz.name}>')
+    //       ..modifier = FieldModifier.final$
+    //       ..assignment = refer('objectType').call(args, named).code;
+    //   }));
+    // });
   }
 }
 
@@ -200,13 +236,9 @@ Future<Library> generateFromFreezed(
   ClassElement clazz,
   BuildStep buildStep,
 ) async {
-  // TODO:
-  final isUnion =
-      clazz.constructors.where(isFreezedVariantConstructor).length > 1;
   final _fields = await freezedFields(
     clazz,
     buildStep,
-    isUnion: isUnion,
   );
 
   return Library((l) {
@@ -214,7 +246,7 @@ Future<Library> generateFromFreezed(
       l.body.add(variant.serializer());
       l.body.add(Code(variant.fieldCode()));
     }
-    if (!isUnion) {
+    if (_fields.length == 1) {
       return;
     }
 
