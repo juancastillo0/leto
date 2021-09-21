@@ -33,21 +33,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
     try {
       final _dartEmitter = DartEmitter();
 
-      final inputs = (await Future.wait(element.parameters.map((e) async {
-        if (isReqCtx(e.type)) {
-          return null;
-        } else {
-          final type =
-              inferType(element.name, e.name, e.type).accept(_dartEmitter);
-          final defaultValue =
-              e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
-
-          final docs = await documentationOfParameter(e, buildStep);
-          return 'GraphQLFieldInput("${e.name}", $type.coerceToInputObject(),'
-              ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
-        }
-      })))
-          .whereType<String>();
+      final inputs = await inputsFromElement(element, buildStep);
 
       final desc = getDescription(element, element.documentationComment);
 
@@ -107,6 +93,30 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
       return '/*$e $s*/';
     }
   }
+}
+
+Future<List<String>> inputsFromElement(
+  ExecutableElement element,
+  BuildStep buildStep,
+) async {
+  final _dartEmitter = DartEmitter();
+  final inputMaybe = await Future.wait(element.parameters.map((e) async {
+    if (isReqCtx(e.type)) {
+      return null;
+    } else {
+      final type = inferType(element.name, e.name, e.type).accept(_dartEmitter);
+      final defaultValue =
+          e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
+
+      final isInput = e.type.element != null &&
+          isInputType(e.type.element!);
+
+      final docs = await documentationOfParameter(e, buildStep);
+      return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
+          ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
+    }
+  }));
+  return inputMaybe.whereType<String>().toList();
 }
 
 String resolverFunctionBodyFromElement(ExecutableElement element) {

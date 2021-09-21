@@ -26,6 +26,9 @@ bool isGraphQLClass(InterfaceType clazz) {
 }
 
 List<Expression> getGraphqlInterfaces(ClassElement clazz) {
+  if (isInputType(clazz)) {
+    return [];
+  }
   final annot = graphQLClassTypeChecker.firstAnnotationOfExact(clazz);
   final List<String> interfaces = annot!
       .getField('interfaces')!
@@ -72,8 +75,15 @@ DartType? genericTypeWhenFutureOrStream(DartType type) {
   return null;
 }
 
-Expression inferType(String className, String name, DartType type,
-    {bool? nullable}) {
+bool isInputType(Element elem) =>
+    const TypeChecker.fromRuntime(GraphQLInput).hasAnnotationOfExact(elem);
+
+Expression inferType(
+  String className,
+  String name,
+  DartType type, {
+  bool? nullable,
+}) {
   // Next, check if this is the "id" field of a `Model`.
   // TODO:
   // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
