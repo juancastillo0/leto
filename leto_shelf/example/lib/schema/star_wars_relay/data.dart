@@ -285,7 +285,7 @@ class Ship implements Node {
   factory Ship.fromJson(Map<String, Object?> json) => _$ShipFromJson(json);
   Map<String, Object?> toJson() => _$ShipToJson(this);
 
-  @GraphQLField(name: 'id')
+  @GraphQLField(name: 'id', type: 'graphQLId.nonNull()')
   String get idResolve => toGlobalId('Ship', id);
 }
 
@@ -339,7 +339,7 @@ class Faction implements Node {
     return connectionFromEdges(arr, args);
   }
 
-  @GraphQLField(name: 'id')
+  @GraphQLField(name: 'id', type: 'graphQLId.nonNull()')
   String get idResolve => toGlobalId('Faction', id);
 }
 
