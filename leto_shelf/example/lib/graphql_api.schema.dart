@@ -8,6 +8,7 @@ import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
 final graphqlApiSchema = graphQLSchema(
   serdeCtx: SerdeCtx()
     ..addAll([
+      dBEventSerializer,
       chatRoomSerializer,
       chatMessageSerializer,
       humanSerializer,
@@ -41,6 +42,7 @@ final graphqlApiSchema = graphQLSchema(
     'Subscriptions',
     fields: [
       onMessageSentGraphQLField,
+      onMessageEventGraphQLField,
     ],
   ),
 );

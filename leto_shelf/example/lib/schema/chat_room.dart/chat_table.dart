@@ -1,6 +1,7 @@
 // ignore_for_file: leading_newlines_in_multiline_strings
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -23,22 +24,30 @@ final chatControllerRef = RefWithDefault(
 class ChatController {
   final ChatTable chats;
   final ChatMessageTable messages;
+  final EventTable events;
 
   ChatController({
     required this.chats,
     required this.messages,
+    required this.events,
   });
 
   static Future<ChatController> create({Database? db}) async {
     final _db = db ?? sqlite3.open('chat_room.sqlite');
     _db.execute('PRAGMA foreign_keys = ON;');
 
+    final events = EventTable(_db);
+    await events.setup();
     final chats = ChatTable(_db);
     await chats.setup();
-    final messages = ChatMessageTable(_db);
+    final messages = ChatMessageTable(_db, events);
     await messages.setup();
 
-    return ChatController(chats: chats, messages: messages);
+    return ChatController(
+      chats: chats,
+      messages: messages,
+      events: events,
+    );
   }
 }
 
@@ -93,10 +102,11 @@ CREATE TABLE $tableName (
 
 class ChatMessageTable {
   final Database db;
+  final EventTable eventsTable;
 
   final controller = StreamController<ChatMessage>.broadcast();
 
-  ChatMessageTable(this.db) {
+  ChatMessageTable(this.db, this.eventsTable) {
     controller.stream.listen((event) {
       print(event);
     });
@@ -129,10 +139,10 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
     String message, {
     int? referencedMessageId,
   }) async {
-    bool success = false;
+    ChatMessage? messageModel;
+    db.execute('BEGIN TRANSACTION;');
     try {
       if (referencedMessageId != null) {
-        db.execute('BEGIN TRANSACTION;');
         final referencedMessage = await get(referencedMessageId);
         if (referencedMessage == null) {
           throw Exception(
@@ -141,32 +151,38 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
           throw Exception('Can only reference messages within the same chat.');
         }
       }
+      final createdAt = DateTime.now();
+
       db.execute(
-        referencedMessageId == null
-            ? '''INSERT INTO message(chatId, message) VALUES (?, ?)'''
-            : '''INSERT INTO message(chatId, message, referencedMessageId) VALUES (?, ?, ?)''',
-        [chatId, message, if (referencedMessageId != null) referencedMessageId],
+        '''INSERT INTO message(chatId, message, referencedMessageId, createdAt)
+              VALUES (?, ?, ?, ?)''',
+        [chatId, message, referencedMessageId, createdAt.toIso8601String()],
       );
-      success = true;
+      final _messageModel = ChatMessage(
+        chatId: chatId,
+        createdAt: createdAt,
+        id: db.lastInsertRowId,
+        message: message,
+        referencedMessageId: referencedMessageId,
+      );
+      eventsTable.insert(
+        EventType.messageSent,
+        jsonEncode(_messageModel.toJson()),
+      );
+
+      db.execute('COMMIT;');
+      messageModel = _messageModel;
     } on SqliteException catch (e) {
       if (e.extendedResultCode == 787) {
         throw Exception('Chat room with id $chatId not found.');
       }
       return null;
     } finally {
-      if (referencedMessageId != null) {
-        if (success) {
-          db.execute('COMMIT;');
-        } else {
-          db.execute('ROLLBACK;');
-        }
+      if (messageModel == null) {
+        db.execute('ROLLBACK;');
       }
     }
-
-    final messageModel = await get(db.lastInsertRowId);
-    if (messageModel != null) {
-      controller.add(messageModel);
-    }
+    controller.add(messageModel);
     return messageModel;
   }
 
@@ -207,6 +223,154 @@ FROM tmp_$tableName;''',
         '''
 ALTER TABLE $tableName ADD referencedMessageId INT NULL
 REFERENCES $tableName (id);''',
+      ],
+    );
+    print('migrated $tableName $migrated');
+  }
+}
+
+@GraphQLClass()
+enum EventType { messageSent }
+
+extension SerdeEventType on EventType {
+  String toJson() {
+    return toString().split('.').last;
+  }
+}
+
+@JsonSerializable()
+@GraphQLClass()
+class DBEvent {
+  final int id;
+  final EventType type;
+  final String data;
+  final DateTime createdAt;
+
+  const DBEvent({
+    required this.id,
+    required this.type,
+    required this.data,
+    required this.createdAt,
+  });
+
+  factory DBEvent.fromJson(Map<String, Object?> json) =>
+      _$DBEventFromJson(json);
+}
+
+class EventTable {
+  final Database db;
+
+  EventTable(this.db);
+
+  final subs = <EventType, Set<StreamSubscription>>{};
+  Timer? _subsTimer;
+  int subsLastEventId = -1;
+  late final controller = StreamController<List<DBEvent>>.broadcast(
+    onListen: setUpSubscription,
+    onCancel: () {
+      _subsTimer?.cancel();
+    },
+  );
+
+  void setUpSubscription() {
+    _subsTimer?.cancel();
+    if (subs.isEmpty) {
+      return;
+    }
+    _subsTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      final _subsLastEventId = subsLastEventId;
+      // maybe compare the last id without filtering by type?
+      final events = await getAllAfter(_subsLastEventId, types: subs.keys);
+      if (events.isNotEmpty && subsLastEventId == _subsLastEventId) {
+        subsLastEventId =
+            events.map((e) => e.id).reduce((v, e) => v > e ? v : e);
+        controller.add(events);
+      }
+    });
+  }
+
+  int insert(EventType type, String data) {
+    db.execute(
+      'INSERT INTO event(type, data) VALUES (?, ?)',
+      [type.toJson(), data],
+    );
+
+    return db.lastInsertRowId;
+  }
+
+  DBEvent? get(int eventId) {
+    final result = db.select(
+      'SELECT * FROM event WHERE id = ?;',
+      [eventId],
+    );
+    if (result.isEmpty) {
+      return null;
+    }
+    return DBEvent.fromJson(result.first);
+  }
+
+  Future<List<DBEvent>> getAllAfter(
+    int id, {
+    Iterable<EventType>? types,
+  }) async {
+    final result = db.select(
+      'SELECT * FROM event WHERE id > ?'
+      ' ${types == null || types.isEmpty ? '' : 'AND (${types.map((_) => 'type = ?').join(' OR ')})'}'
+      ' ORDER BY id;',
+      [id, if (types != null) ...types.map((e) => e.toJson())],
+    );
+    final values = result.map((e) => DBEvent.fromJson(e)).toList();
+    return values;
+  }
+
+  Future<Stream<DBEvent>> subscribeToChanges(EventType type) async {
+    StreamSubscription<DBEvent>? _localSubs;
+    late final StreamController<DBEvent> _controller;
+    _controller = StreamController(
+      onListen: () {
+        _localSubs = controller.stream
+            .expand((element) => element)
+            .where((event) => event.type == type)
+            .listen(_controller.add);
+        if (subs.containsKey(type)) {
+          subs[type]!.add(_localSubs!);
+        } else {
+          subs[type] = {_localSubs!};
+          setUpSubscription();
+        }
+      },
+      onCancel: () async {
+        if (_localSubs != null) {
+          final typeSubs = subs[type];
+          if (typeSubs != null) {
+            typeSubs.remove(_localSubs);
+            if (typeSubs.isEmpty) {
+              subs.remove(type);
+              setUpSubscription();
+            }
+          }
+          await _localSubs!.cancel();
+        }
+      },
+    );
+
+    return _controller.stream;
+  }
+
+  Future<void> setup() async {
+    const tableName = 'event';
+    final migrated = migrate(
+      db,
+      tableName,
+      [
+        '''\
+CREATE TABLE $tableName (
+  id INTEGER NOT NULL,
+  type TEXT NOT NULL,
+  data TEXT NOT NULL,
+  createdAt DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);''',
       ],
     );
     print('migrated $tableName $migrated');
@@ -310,4 +474,13 @@ Future<List<ChatRoom>> getChatRooms(
 ) async {
   final controller = await chatControllerRef.get(ctx);
   return controller.chats.getAll();
+}
+
+@Subscription()
+Future<Stream<DBEvent>> onMessageEvent(
+  ReqCtx<Object> ctx,
+  EventType type,
+) async {
+  final controller = await chatControllerRef.get(ctx);
+  return controller.events.subscribeToChanges(type);
 }

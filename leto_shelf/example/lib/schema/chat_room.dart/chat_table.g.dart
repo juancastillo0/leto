@@ -14,8 +14,8 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return sendMessage(ctx, args["chatId"] as int, args["message"] as String,
-        args["referencedMessageId"] as int?);
+    return sendMessage(ctx, (args["chatId"] as int),
+        (args["message"] as String), (args["referencedMessageId"] as int?));
   },
   inputs: [
     GraphQLFieldInput(
@@ -42,7 +42,7 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return getMessage(ctx, args["chatId"] as int?);
+    return getMessage(ctx, (args["chatId"] as int?));
   },
   inputs: [
     GraphQLFieldInput(
@@ -61,7 +61,7 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
-    return onMessageSent(ctx, args["chatId"] as int);
+    return onMessageSent(ctx, (args["chatId"] as int));
   },
   inputs: [
     GraphQLFieldInput(
@@ -80,7 +80,7 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return createChatRoom(ctx, args["name"] as String);
+    return createChatRoom(ctx, (args["name"] as String));
   },
   inputs: [
     GraphQLFieldInput(
@@ -104,9 +104,68 @@ final GraphQLObjectField<List<ChatRoom?>, Object, Object>
   deprecationReason: null,
 );
 
+final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
+    field(
+  'onMessageEvent',
+  dBEventGraphQlType.nonNull(),
+  description: null,
+  subscribe: (obj, ctx) {
+    final args = ctx.args;
+
+    return onMessageEvent(ctx, (args["type"] as EventType));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "type",
+      eventTypeGraphQlType.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
+
+final dBEventSerializer = SerializerValue<DBEvent>(
+  fromJson: _$DBEventFromJson,
+  toJson: (m) => _$DBEventToJson(m as DBEvent),
+);
+GraphQLObjectType<DBEvent>? _dBEventGraphQlType;
+
+/// Auto-generated from [DBEvent].
+GraphQLObjectType<DBEvent> get dBEventGraphQlType {
+  if (_dBEventGraphQlType != null) return _dBEventGraphQlType!;
+
+  _dBEventGraphQlType = objectType('DBEvent',
+      isInterface: false, interfaces: [], description: null);
+  _dBEventGraphQlType!.fields.addAll(
+    [
+      field('id', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.id,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('type', eventTypeGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.type,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('data', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.data,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('createdAt', graphQLDate.nonNull(),
+          resolve: (obj, ctx) => obj.createdAt,
+          inputs: [],
+          description: null,
+          deprecationReason: null)
+    ],
+  );
+
+  return _dBEventGraphQlType!;
+}
 
 final chatRoomSerializer = SerializerValue<ChatRoom>(
   fromJson: _$$_ChatRoomFromJson,
@@ -199,9 +258,57 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
   return _chatMessageGraphQlType!;
 }
 
+/// Auto-generated from [EventType].
+final GraphQLEnumType<EventType> eventTypeGraphQlType =
+    enumType('EventType', const {'messageSent': EventType.messageSent});
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
+
+DBEvent _$DBEventFromJson(Map<String, dynamic> json) => DBEvent(
+      id: json['id'] as int,
+      type: _$enumDecode(_$EventTypeEnumMap, json['type']),
+      data: json['data'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+
+Map<String, dynamic> _$DBEventToJson(DBEvent instance) => <String, dynamic>{
+      'id': instance.id,
+      'type': _$EventTypeEnumMap[instance.type],
+      'data': instance.data,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };
+
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+const _$EventTypeEnumMap = {
+  EventType.messageSent: 'messageSent',
+};
 
 _$_ChatRoom _$$_ChatRoomFromJson(Map<String, dynamic> json) => _$_ChatRoom(
       id: json['id'] as int,
