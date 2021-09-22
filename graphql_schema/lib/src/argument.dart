@@ -5,7 +5,7 @@ part of graphql_schema.src.schema;
 // TODO: GraphQLArgument
 @immutable
 class GraphQLFieldInput<Value extends Object, Serialized extends Object>
-    implements GraphQLInputField {
+    implements ObjectField, GraphQLInputField {
   /// The name of this field.
   final String name;
 
@@ -19,10 +19,6 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
   ///
   /// This is useful when documenting your API for consumers like GraphiQL.
   final String? description;
-
-  /// If [defaultValue] is `null`, and `null` is a valid value
-  /// for this parameter, set this to `true`.
-  final bool defaultsToNull;
 
   final String? deprecationReason;
 
@@ -42,7 +38,6 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
     this.name,
     this.type, {
     this.defaultValue,
-    this.defaultsToNull = false,
     this.description,
     this.deprecationReason,
   }) : assert(
@@ -60,8 +55,8 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
       other.name == name &&
       other.type == type &&
       other.defaultValue == other.defaultValue &&
-      other.defaultsToNull == defaultsToNull &&
-      other.description == description;
+      other.description == description &&
+      other.deprecationReason == deprecationReason;
 
   @override
   int get hashCode =>
@@ -69,6 +64,6 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
       name.hashCode ^
       type.hashCode ^
       defaultValue.hashCode ^
-      defaultsToNull.hashCode ^
-      description.hashCode;
+      description.hashCode ^
+      deprecationReason.hashCode;
 }

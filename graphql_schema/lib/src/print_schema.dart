@@ -278,7 +278,7 @@ class SchemaPrinter {
     var argDecl = arg.name + ': ' + printTypeReference(arg.type);
     final defaultValue = arg is GraphQLArgument
         ? arg.defaultValue
-        : arg is GraphQLInputObjectField
+        : arg is GraphQLFieldInput
             ? arg.defaultValue
             : null;
     if (defaultValue != null) {

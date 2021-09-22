@@ -294,11 +294,11 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
 T? _fetchFromInputValue<T>(
   Object? x,
   T Function(GraphQLFieldInput) ifInput,
-  T Function(GraphQLInputObjectField) ifObjectField,
+  T Function(GraphQLFieldInput) ifObjectField,
 ) {
   if (x is GraphQLFieldInput) {
     return ifInput(x);
-  } else if (x is GraphQLInputObjectField) {
+  } else if (x is GraphQLFieldInput) {
     return ifObjectField(x);
   } else {
     return null;

@@ -55,7 +55,7 @@ class GraphQLObjectType<P extends Object>
       name,
       description: description ?? this.description,
       inputFields: fields.map(
-        (f) => GraphQLInputObjectField(
+        (f) => GraphQLFieldInput(
           f.name,
           f.type.coerceToInputObject(),
           description: f.description,
@@ -207,14 +207,14 @@ class GraphQLInputObjectType<Value extends Object>
 
   /// A list of the fields that an input object of this
   /// type is expected to have.
-  final List<GraphQLInputObjectField> inputFields = [];
+  final List<GraphQLFieldInput> inputFields = [];
 
   final Value Function(Map<String, Object?>)? customDeserialize;
 
   GraphQLInputObjectType(
     this.name, {
     this.description,
-    Iterable<GraphQLInputObjectField> inputFields = const [],
+    Iterable<GraphQLFieldInput> inputFields = const [],
     this.customDeserialize,
   }) {
     this.inputFields.addAll(inputFields);
@@ -291,45 +291,46 @@ class GraphQLInputObjectType<Value extends Object>
 
 /// A field expected within a [GraphQLInputObjectType].
 @immutable
-class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
-    implements ObjectField, GraphQLInputField {
-  /// The name of this field.
-  final String name;
+// class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
+//     implements ObjectField, GraphQLInputField {
+//   /// The name of this field.
+//   final String name;
 
-  /// The type that a value for this field is validated against.
-  final GraphQLType<Value, Serialized> type;
+//   /// The type that a value for this field is validated against.
+//   final GraphQLType<Value, Serialized> type;
 
-  /// A description of this field, which is useful for tools like GraphiQL.
-  final String? description;
+//   /// A description of this field, which is useful for tools like GraphiQL.
+//   final String? description;
 
-  /// An optional default value for this field in an input object.
-  final Value? defaultValue;
+//   /// An optional default value for this field in an input object.
+//   final Value? defaultValue;
 
-  final String? deprecationReason;
+//   final String? deprecationReason;
 
-  const GraphQLInputObjectField(
-    this.name,
-    this.type, {
-    this.description,
-    this.defaultValue,
-    this.deprecationReason,
-  });
+//   const GraphQLInputObjectField(
+//     this.name,
+//     this.type, {
+//     this.description,
+//     this.defaultValue,
+//     this.deprecationReason,
+//   });
 
-  @override
-  bool operator ==(Object other) =>
-      other is GraphQLInputObjectField &&
-      other.runtimeType == runtimeType &&
-      other.name == name &&
-      other.type == type &&
-      other.description == description &&
-      other.defaultValue == defaultValue;
+//   @override
+//   bool operator ==(Object other) =>
+//       other is GraphQLInputObjectField &&
+//       other.runtimeType == runtimeType &&
+//       other.name == name &&
+//       other.type == type &&
+//       other.description == description &&
+//       other.defaultValue == defaultValue &&
+//       other.deprecationReason == deprecationReason;
 
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality()
-          .hash([name, type, description, defaultValue]);
-}
+//   @override
+//   int get hashCode =>
+//       runtimeType.hashCode ^
+//       const DeepCollectionEquality()
+//           .hash([name, type, description, defaultValue, deprecationReason]);
+// }
 
 abstract class ObjectField {
   String get name;

@@ -677,7 +677,7 @@ class GraphQL {
           argumentValues.firstWhereOrNull((a) => a.name.value == argumentName);
 
       if (argumentValue == null) {
-        if (defaultValue != null || argumentDefinition.defaultsToNull) {
+        if (defaultValue != null) {
           coercedValues[argumentName] = defaultValue;
         } else if (argumentType.isNonNullable) {
           throw GraphQLException.fromMessage(

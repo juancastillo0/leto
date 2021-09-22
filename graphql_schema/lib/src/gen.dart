@@ -46,7 +46,7 @@ GraphQLObjectField<T, Serialized, P>
 GraphQLInputObjectType<T> inputObjectType<T extends Object>(
   String name, {
   String? description,
-  Iterable<GraphQLInputObjectField> inputFields = const [],
+  Iterable<GraphQLFieldInput> inputFields = const [],
 }) {
   return GraphQLInputObjectType(
     name,
@@ -55,8 +55,8 @@ GraphQLInputObjectType<T> inputObjectType<T extends Object>(
   );
 }
 
-/// Shorthand for generating a [GraphQLInputObjectField].
-GraphQLInputObjectField<T, Serialized>
+/// Shorthand for generating a [GraphQLFieldInput].
+GraphQLFieldInput<T, Serialized>
     inputField<T extends Object, Serialized extends Object>(
   String name,
   GraphQLType<T, Serialized> type, {
@@ -64,7 +64,7 @@ GraphQLInputObjectField<T, Serialized>
   T? defaultValue,
   String? deprecationReason,
 }) {
-  return GraphQLInputObjectField(
+  return GraphQLFieldInput(
     name,
     type,
     description: description,
