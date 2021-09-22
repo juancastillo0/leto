@@ -9,28 +9,32 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 /// }
 final pageInfoGraphQLType = objectType<PageInfo>(
   'PageInfo',
-  description: 'GraphQL pagination',
+  description: 'Information about pagination in a connection.',
   fields: [
     graphQLBoolean.nonNull().field(
       'hasNextPage',
+      description: 'When paginating forwards, are there more items?',
       resolve: (pageInfo, _) {
         return pageInfo.hasNextPage;
       },
     ),
     graphQLBoolean.nonNull().field(
       'hasPreviousPage',
+      description: 'When paginating backwards, are there more items?',
       resolve: (pageInfo, _) {
         return pageInfo.hasPreviousPage;
       },
     ),
     graphQLString.field(
       'startCursor',
+      description: 'When paginating backwards, the cursor to continue.',
       resolve: (pageInfo, _) {
         return pageInfo.startCursor;
       },
     ),
     graphQLString.field(
       'endCursor',
+      description: 'When paginating forwards, the cursor to continue.',
       resolve: (pageInfo, _) {
         return pageInfo.endCursor;
       },
