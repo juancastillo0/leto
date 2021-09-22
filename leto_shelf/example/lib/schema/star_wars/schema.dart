@@ -1,17 +1,4 @@
 // https://github.com/graphql/graphql-js/blob/2df59f18dd3f3c415eaba57d744131a674079ddf/src/__tests__/starWarsSchema.ts
-// import { invariant } from "../jsutils/invariant";
-
-// import { GraphQLSchema } from "../type/schema";
-// import { GraphQLString } from "../type/scalars";
-// import {
-//   GraphQLList,
-//   GraphQLNonNull,
-//   GraphQLEnumType,
-//   GraphQLInterfaceType,
-//   GraphQLObjectType,
-// } from "../type/definition";
-
-// import { getFriends, getHero, getHuman, getDroid } from "./starWarsData";
 
 /**
  * This is designed to be an end-to-end test, demonstrating

@@ -13,18 +13,18 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
   description: r"the function uses [value] to do stuff",
   resolve: (obj, ctx) {
     final args = ctx.args;
-    if (args["previous"] != null) {
+    if ((args["previous"] as TestModel?) != null) {
       final previousValidationResult =
-          validateTestModel(args["previous"] as TestModel);
+          validateTestModel((args["previous"] as TestModel?) as TestModel);
       if (previousValidationResult.hasErrors) {
         throw previousValidationResult;
       }
     }
 
-    return addTestModel(ctx, args["realName"] as String,
-        previous: args["previous"] as TestModel?,
-        name: args["name"] as String,
-        value: args["value"] as List<int>);
+    return addTestModel(ctx, (args["realName"] as String),
+        previous: (args["previous"] as TestModel?),
+        name: (args["name"] as String),
+        value: (args["value"] as List<int>));
   },
   inputs: [
     GraphQLFieldInput(
@@ -55,8 +55,8 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return testModels(ctx, args["lessThan"] as DateTime,
-        position: args["position"] as int);
+    return testModels(ctx, (args["lessThan"] as DateTime),
+        position: (args["position"] as int));
   },
   inputs: [
     GraphQLFieldInput(
@@ -83,7 +83,7 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return testUnionModels(ctx, positions: args["positions"] as List<int?>);
+    return testUnionModels(ctx, positions: (args["positions"] as List<int?>));
   },
   inputs: [
     GraphQLFieldInput(

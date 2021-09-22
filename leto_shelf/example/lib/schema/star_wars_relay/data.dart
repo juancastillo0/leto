@@ -330,14 +330,24 @@ class Faction implements Node {
 
   /// The ships used by the faction.
   @GraphQLField(name: 'ships')
-  Connection<Ship> shipConnection(ReqCtx ctx, ConnectionArguments args) {
-    final arr = ships
-        .map(getShip)
-        .whereType<Ship>()
-        .mapIndexed((i, e) => Edge(cursor: '$i', node: e))
-        .toList();
+  Connection<Ship> shipConnection(
+    ReqCtx ctx,
+    @GraphQLArg(inline: true) ConnectionArguments args,
+  ) {
+    final arr =
+        ships.map(getShip).whereType<Ship>().mapIndexed(arrayEdge).toList();
     return connectionFromEdges(arr, args);
   }
+
+  @GraphQLField(name: 'id')
+  String get idResolve => toGlobalId('Faction', id);
+}
+
+Edge<E> arrayEdge<E extends Node>(int index, E node) {
+  return Edge(
+    cursor: base64.encode(utf8.encode('arrayconnection:$index')),
+    node: node,
+  );
 }
 
 Connection<T> connectionFromEdges<T extends Node>(
@@ -523,7 +533,7 @@ class MutationConfig<V extends MutationPayload> {
   final String? deprecationReason;
   final String? description;
   // final GraphQLFieldExtensions<any, any>? extensions;
-  final List<GraphQLInputObjectField<Object, Object>> inputFields;
+  final List<GraphQLFieldInput<Object, Object>> inputFields;
   final List<GraphQLObjectField<Object, Object, V>> outputFields;
   final FutureOr<V?> Function(MutationValue<Map<String, Object?>>, ReqCtx)
       mutateAndGetPayload;
@@ -561,10 +571,10 @@ GraphQLObjectField<V, Map<String, dynamic>, Object>
     '${config.name}Input',
     inputFields: [
       ...config.inputFields,
-      GraphQLInputObjectField('clientMutationId', graphQLString),
+      GraphQLFieldInput('clientMutationId', graphQLString),
     ],
     customDeserialize: (map) => MutationValue(
-      map.remove('clientMutationId') as String?,
+      map['clientMutationId'] as String?,
       map,
     ),
   );

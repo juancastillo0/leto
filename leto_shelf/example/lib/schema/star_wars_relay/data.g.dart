@@ -46,15 +46,15 @@ GraphQLObjectType<Ship> get shipGraphQlType {
       description: 'A ship in the Star Wars saga');
   _shipGraphQlType!.fields.addAll(
     [
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
           inputs: [],
           description: 'The name of the ship.',
+          deprecationReason: null),
+      field('id', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.idResolve,
+          inputs: [],
+          description: null,
           deprecationReason: null)
     ],
   );
@@ -81,33 +81,29 @@ GraphQLObjectType<Faction> get factionGraphQlType {
       field('ships', connectionGraphQlType(shipGraphQlType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
-        if (args["args"] != null) {
+        final argsArg = connectionArgumentsSerializer.fromJson(args);
+        if (argsArg != null) {
           final argsValidationResult =
-              validateConnectionArguments(args["args"] as ConnectionArguments);
+              validateConnectionArguments(argsArg as ConnectionArguments);
           if (argsValidationResult.hasErrors) {
             throw argsValidationResult;
           }
         }
 
-        return obj.shipConnection(ctx, args["args"] as ConnectionArguments);
+        return obj.shipConnection(ctx, argsArg);
       },
-          inputs: [
-            GraphQLFieldInput(
-              "args",
-              connectionArgumentsGraphQlType.nonNull(),
-            )
-          ],
+          inputs: [...connectionArgumentsGraphQlType.inputFields],
           description: 'The ships used by the faction.',
-          deprecationReason: null),
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
           deprecationReason: null),
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
           inputs: [],
           description: 'The name of the faction.',
+          deprecationReason: null),
+      field('id', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.idResolve,
+          inputs: [],
+          description: null,
           deprecationReason: null)
     ],
   );

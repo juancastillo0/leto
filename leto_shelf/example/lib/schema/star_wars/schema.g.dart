@@ -13,7 +13,7 @@ final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return droid(args["id"] as String);
+    return droid((args["id"] as String));
   },
   inputs: [
     GraphQLFieldInput(
