@@ -31,6 +31,11 @@ class GraphQLClass extends GraphQLObjectDec {
   final bool? nullable;
 }
 
+class GraphQLArg {
+  const GraphQLArg({this.inline = false});
+  final bool inline;
+}
+
 class GraphQLField {
   const GraphQLField({
     this.name,

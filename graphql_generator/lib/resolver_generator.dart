@@ -6,6 +6,7 @@ import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
+import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:valida/valida.dart';
 
@@ -101,15 +102,21 @@ Future<List<String>> inputsFromElement(
 ) async {
   final _dartEmitter = DartEmitter();
   final inputMaybe = await Future.wait(element.parameters.map((e) async {
+    final argInfo = argInfoFromElement(e);
+    final type =
+        inferType(element.name, e.name, e.type, nullable: argInfo.inline)
+            .accept(_dartEmitter);
+
     if (isReqCtx(e.type)) {
       return null;
+    } else if (argInfo.inline) {
+      // TODO; Check e.type is InputType?
+      return '...$type.inputFields';
     } else {
-      final type = inferType(element.name, e.name, e.type).accept(_dartEmitter);
       final defaultValue =
           e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
 
-      final isInput = e.type.element != null &&
-          isInputType(e.type.element!);
+      final isInput = e.type.element != null && isInputType(e.type.element!);
 
       final docs = await documentationOfParameter(e, buildStep);
       return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
@@ -119,6 +126,15 @@ Future<List<String>> inputsFromElement(
   return inputMaybe.whereType<String>().toList();
 }
 
+GraphQLArg argInfoFromElement(Element element) {
+  final argAnnot =
+      const TypeChecker.fromRuntime(GraphQLArg).firstAnnotationOfExact(element);
+  final argInfo = GraphQLArg(
+    inline: argAnnot?.getField('inline')?.toBoolValue() ?? false,
+  );
+  return argInfo;
+}
+
 String resolverFunctionBodyFromElement(ExecutableElement element) {
   bool _hasValidation(Element? element) =>
       element != null && _validateTypeChecker.hasAnnotationOfExact(element);
@@ -126,47 +142,51 @@ String resolverFunctionBodyFromElement(ExecutableElement element) {
       element != null && _validationTypeChecker.isAssignableFrom(element);
 
   final validationsInParams = <ParameterElement>[];
-
-  final params = element.parameters.map((e) {
+  final validations = <String>[];
+  final params = <String>[];
+  for (final e in element.parameters) {
     if (isReqCtx(e.type)) {
       const value = 'ctx';
-      return e.isPositional ? value : '${e.name}:$value';
+      params.add(e.isPositional ? value : '${e.name}:$value');
     } else {
       final type = e.type.getDisplayString(withNullability: true);
-      final value = 'args["${e.name}"] as $type';
-
+      final typeName = e.type.getDisplayString(withNullability: false);
+      final argInfo = argInfoFromElement(e);
+      final value =
+          argInfo.inline ? '${e.name}Arg' : '(args["${e.name}"] as $type)';
+      if (argInfo.inline) {
+        // TODO: support generics
+        validations.add(
+          'final $value = '
+          '${ReCase(typeName).camelCase}$serializerSuffix.fromJson(args);',
+        );
+      }
       if (_isValidation(e.type.element)) {
+        // TODO: pass validation resot in param (don't throw on validation errorπ)
         validationsInParams.add(e);
       }
 
-      return e.isPositional ? value : '${e.name}:$value';
-    }
-  }).join(',');
+      params.add(e.isPositional ? value : '${e.name}:$value');
+      final hasValidation = _hasValidation(e.type.element);
+      if (hasValidation) {
+        final resultName = '${e.name}ValidationResult';
 
-  final validations = element.parameters.map((e) {
-    final hasValidation = _hasValidation(e.type.element);
-    if (!hasValidation) {
-      return null;
-    }
-
-    final resultName = '${e.name}ValidationResult';
-    final typeName = e.type.getDisplayString(withNullability: false);
-    final value = 'args["${e.name}"]';
-
-    return '''
+        validations.add('''
 if ($value != null) {
   final $resultName = validate$typeName($value as $typeName);
   if ($resultName.hasErrors) {
     throw $resultName;
   }
 }
-''';
-  }).whereType<String>();
+''');
+      }
+    }
+  }
 
   return '''
 final args = ctx.args;
 ${validations.join('\n')}
-return ${element is MethodElement ? 'obj.' : ''}${element.name}($params);
+return ${element is MethodElement ? 'obj.' : ''}${element.name}(${params.join(',')});
 ''';
 }
 
