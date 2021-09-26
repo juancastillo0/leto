@@ -11,7 +11,7 @@ final GraphQLScalarType<String, String> graphQLString = _GraphQLStringType._();
 ///
 /// The ID type is serialized in the same way as a String; however, defining it
 ///  as an ID signifies that it is not intended to be human‐readable.
-final GraphQLScalarType<String, String> graphQLId = _GraphQLStringType._('ID');
+final GraphQLScalarType<String, Object> graphQLId = _GraphQLIDType._();
 
 /// A [DateTime], serialized as an ISO-8601 string.
 final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
@@ -62,7 +62,8 @@ class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
   @override
   ValidationResult<bool> validate(String key, Object? input) {
     if (input is bool) return ValidationResult.ok(input);
-    return ValidationResult.failure(['Expected "$key" to be a boolean.']);
+    return ValidationResult.failure(
+        ['Expected "$key" to be a boolean. Got invalid value $input.']);
   }
 
   @override
@@ -87,7 +88,8 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   ValidationResult<T> validate(String key, Object? input) {
     if (input is T) return ValidationResult.ok(input);
 
-    return ValidationResult.failure(['Expected "$key" to be $expected.']);
+    return ValidationResult.failure(
+        ['Expected "$key" to be $expected. Got invalid value $input.']);
   }
 
   @override
@@ -123,10 +125,47 @@ class _GraphQLStringType extends GraphQLScalarType<String, String> {
   ValidationResult<String> validate(String key, Object? input) =>
       input is String
           ? ValidationResult.ok(input)
-          : ValidationResult.failure(['Expected "$key" to be a string.']);
+          : ValidationResult.failure(
+              ['Expected "$key" to be a string. Got invalid value $input.']);
 
   @override
   Iterable<Object?> get props => [name];
+}
+
+class _GraphQLIDType extends GraphQLScalarType<String, Object> {
+  @override
+  String get name => 'ID';
+
+  _GraphQLIDType._();
+
+  @override
+  String get description =>
+      'The `ID` scalar type represents a unique identifier,'
+      ' often used to refetch an object or as key for a cache.'
+      ' The ID type appears in a JSON response as a String; however,'
+      ' it is not intended to be human-readable. When expected'
+      ' as an input type, any string (such as `"4"`) or integer (such as `4`)'
+      ' input value will be accepted as an ID.';
+
+  @override
+  Object serialize(String value) => value;
+
+  @override
+  String deserialize(SerdeCtx serdeCtx, Object serialized) =>
+      serialized.toString();
+
+  @override
+  ValidationResult<Object> validate(String key, Object? input) =>
+      input is int || input is String
+          ? ValidationResult.ok(input!)
+          : ValidationResult.failure(
+              [
+                'Expected "$key" to be a ID, string or int. Got invalid value $input.'
+              ],
+            );
+
+  @override
+  Iterable<Object?> get props => [];
 }
 
 class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
