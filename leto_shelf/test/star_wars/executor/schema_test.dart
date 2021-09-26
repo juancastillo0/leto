@@ -1,72 +1,100 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/schema-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
-import { parse } from '../../language/parser';
+/// Execute: Handles execution with a complex schema
+void main() {
+  Map<String, Object?> getPic(int uid, int width, int height) {
+    return {
+      'url': 'cdn://${uid}',
+      // TODO: graphql-js serializes into string
+      'width': width,
+      'height': height,
+    };
+  }
 
-import { GraphQLSchema } from '../../type/schema';
-import {
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-} from '../../type/definition';
-import {
-  GraphQLID,
-  GraphQLInt,
-  GraphQLString,
-  GraphQLBoolean,
-} from '../../type/scalars';
-
-import { executeSync } from '../execute';
-
-describe('Execute: Handles execution with a complex schema', () => {
-  it('executes using a schema', () => {
-    const BlogImage = new GraphQLObjectType({
-      name: 'Image',
-      fields: {
-        url: { type: GraphQLString },
-        width: { type: GraphQLInt },
-        height: { type: GraphQLInt },
+  Map<String, Object?> article(int id) {
+    return {
+      // TODO: graphql-js doesnt serialize into string
+      'id': '$id',
+      'isPublished': true,
+      'author': {
+        // TODO: graphql-js doesnt serialize into string
+        'id': '123',
+        'name': 'John Smith',
+        'pic': (int width, int height) => getPic(123, width, height),
+        'recentArticle': () => article(1),
       },
-    });
+      'title': 'My Article $id',
+      'body': 'This is a post',
+      'hidden': 'This data is not exposed in the schema',
+      // TODO: graphql-js doesnt serialize '1' and 'true' into string
+      'keywords': ['foo', 'bar', '1', 'true', null],
+    };
+  }
 
-    const BlogAuthor: GraphQLObjectType = new GraphQLObjectType({
-      name: 'Author',
-      fields: () => ({
-        id: { type: GraphQLString },
-        name: { type: GraphQLString },
-        pic: {
-          args: { width: { type: GraphQLInt }, height: { type: GraphQLInt } },
-          type: BlogImage,
-          resolve: (obj, { width, height }) => obj.pic(width, height),
-        },
-        recentArticle: { type: BlogArticle },
-      }),
-    });
+  test('executes using a schema', () async {
+    final blogImage = objectType<Object>(
+      'Image',
+      fields: [
+        field('url', graphQLString),
+        field('width', graphQLInt),
+        field('height', graphQLInt),
+      ],
+    );
 
-    const BlogArticle = new GraphQLObjectType({
-      name: 'Article',
-      fields: {
-        id: { type: new GraphQLNonNull(GraphQLString) },
-        isPublished: { type: GraphQLBoolean },
-        author: { type: BlogAuthor },
-        title: { type: GraphQLString },
-        body: { type: GraphQLString },
-        keywords: { type: new GraphQLList(GraphQLString) },
-      },
-    });
+    final blogAuthor = objectType<Map<String, Object?>>(
+      'Author',
+    );
 
-    const BlogQuery = new GraphQLObjectType({
-      name: 'Query',
-      fields: {
-        article: {
-          type: BlogArticle,
-          args: { id: { type: GraphQLID } },
-          resolve: (_, { id }) => article(id),
-        },
-        feed: {
-          type: new GraphQLList(BlogArticle),
-          resolve: () => [
+    final blogArticle = objectType<Object>(
+      'Article',
+      fields: [
+        field('id', graphQLId.nonNull()),
+        field('isPublished', graphQLBoolean),
+        field('author', blogAuthor),
+        field('title', graphQLString),
+        field('body', graphQLString),
+        field('keywords', listOf(graphQLString)),
+      ],
+    );
+
+    blogAuthor.fields.addAll([
+      field('id', graphQLString),
+      field('name', graphQLString),
+      blogImage.field(
+        'pic',
+        inputs: [
+          GraphQLFieldInput('width', graphQLInt),
+          GraphQLFieldInput('height', graphQLInt),
+        ],
+        resolve: (obj, ctx) => (obj['pic']! as Function(int, int))(
+          ctx.args['width']! as int,
+          ctx.args['height']! as int,
+        ),
+      ),
+      field(
+        'recentArticle',
+        blogArticle,
+        // resolve: (obj, _) => (obj['recentArticle']! as Function()).call(),
+      ),
+    ]);
+
+    final blogQuery = objectType<Object>(
+      'Query',
+      fields: [
+        field(
+          'article',
+          blogArticle,
+          inputs: [
+            GraphQLFieldInput('id', graphQLId),
+          ],
+          resolve: (_, ctx) => article(int.parse(ctx.args['id']! as String)),
+        ),
+        field(
+          'feed',
+          listOf(blogArticle),
+          resolve: (_, __) => [
             article(1),
             article(2),
             article(3),
@@ -78,40 +106,15 @@ describe('Execute: Handles execution with a complex schema', () => {
             article(9),
             article(10),
           ],
-        },
-      },
-    });
+        ),
+      ],
+    );
 
-    const BlogSchema = new GraphQLSchema({
-      query: BlogQuery,
-    });
+    final blogSchema = GraphQLSchema(
+      queryType: blogQuery,
+    );
 
-    function article(id: number) {
-      return {
-        id,
-        isPublished: true,
-        author: {
-          id: 123,
-          name: 'John Smith',
-          pic: (width: number, height: number) => getPic(123, width, height),
-          recentArticle: () => article(1),
-        },
-        title: 'My Article ' + id,
-        body: 'This is a post',
-        hidden: 'This data is not exposed in the schema',
-        keywords: ['foo', 'bar', 1, true, null],
-      };
-    }
-
-    function getPic(uid: number, width: number, height: number) {
-      return {
-        url: `cdn://${uid}`,
-        width: `${width}`,
-        height: `${height}`,
-      };
-    }
-
-    const document = parse(`
+    const document = '''
       {
         feed {
           id,
@@ -134,7 +137,6 @@ describe('Execute: Handles execution with a complex schema', () => {
           }
         }
       }
-
       fragment articleFields on Article {
         id,
         isPublished,
@@ -143,47 +145,51 @@ describe('Execute: Handles execution with a complex schema', () => {
         hidden,
         notDefined
       }
-    `);
+    ''';
 
     // Note: this is intentionally not validating to ensure appropriate
     // behavior occurs when executing an invalid query.
-    expect(executeSync({ schema: BlogSchema, document })).to.deep.equal({
-      data: {
-        feed: [
-          { id: '1', title: 'My Article 1' },
-          { id: '2', title: 'My Article 2' },
-          { id: '3', title: 'My Article 3' },
-          { id: '4', title: 'My Article 4' },
-          { id: '5', title: 'My Article 5' },
-          { id: '6', title: 'My Article 6' },
-          { id: '7', title: 'My Article 7' },
-          { id: '8', title: 'My Article 8' },
-          { id: '9', title: 'My Article 9' },
-          { id: '10', title: 'My Article 10' },
+    final result = await GraphQL(
+      blogSchema,
+      validate: false,
+    ).parseAndExecute(document);
+    expect(result.toJson(), {
+      'data': {
+        'feed': [
+          {'id': '1', 'title': 'My Article 1'},
+          {'id': '2', 'title': 'My Article 2'},
+          {'id': '3', 'title': 'My Article 3'},
+          {'id': '4', 'title': 'My Article 4'},
+          {'id': '5', 'title': 'My Article 5'},
+          {'id': '6', 'title': 'My Article 6'},
+          {'id': '7', 'title': 'My Article 7'},
+          {'id': '8', 'title': 'My Article 8'},
+          {'id': '9', 'title': 'My Article 9'},
+          {'id': '10', 'title': 'My Article 10'},
         ],
-        article: {
-          id: '1',
-          isPublished: true,
-          title: 'My Article 1',
-          body: 'This is a post',
-          author: {
-            id: '123',
-            name: 'John Smith',
-            pic: {
-              url: 'cdn://123',
-              width: 640,
-              height: 480,
+        'article': {
+          'id': '1',
+          'isPublished': true,
+          'title': 'My Article 1',
+          'body': 'This is a post',
+          'author': {
+            'id': '123',
+            'name': 'John Smith',
+            'pic': {
+              'url': 'cdn://123',
+              'width': 640,
+              'height': 480,
             },
-            recentArticle: {
-              id: '1',
-              isPublished: true,
-              title: 'My Article 1',
-              body: 'This is a post',
-              keywords: ['foo', 'bar', '1', 'true', null],
+            'recentArticle': {
+              'id': '1',
+              'isPublished': true,
+              'title': 'My Article 1',
+              'body': 'This is a post',
+              'keywords': ['foo', 'bar', '1', 'true', null],
             },
           },
         },
       },
     });
   });
-});
+}
