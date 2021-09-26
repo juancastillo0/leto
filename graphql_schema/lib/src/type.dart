@@ -96,15 +96,15 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
       _usedHashCodes = null;
       return value;
     } else if (_used.containsKey(key)) {
-      assert(
-        () {
-          final other = _used[key]!;
-          final areEqual = other == this || other.realType == realType;
-          return areEqual;
-        }(),
-        'GraphQLTypes with the same name are different:'
-        ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
-      );
+      // assert(
+      //   () {
+      //     final other = _used[key]!;
+      //     final areEqual = other == this || other.realType == realType;
+      //     return areEqual;
+      //   }(),
+      //   'GraphQLTypes with the same name are different:'
+      //   ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
+      // );
       return key.hashCode;
     } else {
       _used[key] = this;
@@ -246,9 +246,11 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  ValidationResult<List<Serialized?>> validate(String key, Object? input) {
+  ValidationResult<List<Serialized?>> validate(String key, Object? _input) {
+    final input = _input != null && _input is! List ? [_input] : _input;
     if (input is! List)
-      return ValidationResult.failure(['Expected "$key" to be a list.']);
+      return ValidationResult.failure(
+          ['Expected "$key" to be a list. Got invalid value $_input.']);
 
     final out = ofType.isNullable ? <Serialized?>[] : <Serialized>[];
     final List<String> errors = [];
@@ -273,14 +275,17 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
   }
 
   @override
-  List<Value?> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
+  List<Value?> deserialize(SerdeCtx serdeCtx, List<Object?> serialized) {
     if (ofType.isNonNullable) {
       return serialized
-          .map<Value>((v) => ofType.deserialize(serdeCtx, v!))
+          .map<Value>((v) => ofType.deserialize(serdeCtx, v! as Serialized))
           .toList();
     }
     return serialized
-        .map<Value?>((v) => v == null ? null : ofType.deserialize(serdeCtx, v))
+        .map<Value?>(
+          (v) =>
+              v == null ? null : ofType.deserialize(serdeCtx, v as Serialized),
+        )
         .toList();
   }
 
