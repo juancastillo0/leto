@@ -1,164 +1,202 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/union-interface-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
-
-import { parse } from '../../language/parser';
-
-import { GraphQLSchema } from '../../type/schema';
-import { GraphQLString, GraphQLBoolean } from '../../type/scalars';
-import {
-  GraphQLList,
-  GraphQLUnionType,
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-} from '../../type/definition';
-
-import { executeSync } from '../execute';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
 class Dog {
-  name: string;
-  barks: boolean;
-  mother?: Dog;
-  father?: Dog;
-  progeny: ReadonlyArray<Dog>;
+  final String name;
+  final bool barks;
+  Dog? mother;
+  Dog? father;
+  final List<Dog> progeny = [];
 
-  constructor(name: string, barks: boolean) {
-    this.name = name;
-    this.barks = barks;
-    this.progeny = [];
+  Dog(this.name, this.barks);
+
+  Map<String, Object?> toMap() {
+    return {
+      'name': name,
+      'barks': barks,
+      'mother': mother,
+      'father': father,
+      'progeny': progeny,
+    };
   }
 }
 
 class Cat {
-  name: string;
-  meows: boolean;
-  mother?: Cat;
-  father?: Cat;
-  progeny: ReadonlyArray<Cat>;
+  final String name;
+  final bool meows;
+  Cat? mother;
+  Cat? father;
+  final List<Cat> progeny = [];
 
-  constructor(name: string, meows: boolean) {
-    this.name = name;
-    this.meows = meows;
-    this.progeny = [];
+  Cat(this.name, this.meows);
+
+  Map<String, Object?> toJson() {
+    return {
+      'name': name,
+      'meows': meows,
+      'mother': mother,
+      'father': father,
+      'progeny': progeny,
+    };
   }
 }
 
 class Person {
-  name: string;
-  pets?: ReadonlyArray<Dog | Cat>;
-  friends?: ReadonlyArray<Dog | Cat | Person>;
+  final String name;
+  final List<Object>? pets; // Dog | Cat
+  final List<Object>? friends; // Dog | Cat | Person>
 
-  constructor(
-    name: string,
-    pets?: ReadonlyArray<Dog | Cat>,
-    friends?: ReadonlyArray<Dog | Cat | Person>,
-  ) {
-    this.name = name;
-    this.pets = pets;
-    this.friends = friends;
+  Person(
+    this.name, [
+    this.pets,
+    this.friends,
+  ]);
+
+  Map<String, Object?> toMap() {
+    return {
+      'name': name,
+      'pets': pets,
+      'friends': friends,
+    };
   }
 }
 
-const NamedType = new GraphQLInterfaceType({
-  name: 'Named',
-  fields: {
-    name: { type: GraphQLString },
-  },
-});
+final NamedType = objectType<Object>(
+  'Named',
+  isInterface: true,
+  fields: [graphQLString.field('name')],
+);
 
-const LifeType: GraphQLInterfaceType = new GraphQLInterfaceType({
-  name: 'Life',
-  fields: () => ({
-    progeny: { type: new GraphQLList(LifeType) },
-  }),
-});
+final LifeType = () {
+  final LifeType = objectType(
+    'Life',
+    isInterface: true,
+  );
 
-const MammalType: GraphQLInterfaceType = new GraphQLInterfaceType({
-  name: 'Mammal',
-  interfaces: [LifeType],
-  fields: () => ({
-    progeny: { type: new GraphQLList(MammalType) },
-    mother: { type: MammalType },
-    father: { type: MammalType },
-  }),
-});
+  LifeType.fields.add(listOf(LifeType).field('progeny'));
 
-const DogType: GraphQLObjectType = new GraphQLObjectType({
-  name: 'Dog',
-  interfaces: [MammalType, LifeType, NamedType],
-  fields: () => ({
-    name: { type: GraphQLString },
-    barks: { type: GraphQLBoolean },
-    progeny: { type: new GraphQLList(DogType) },
-    mother: { type: DogType },
-    father: { type: DogType },
-  }),
-  isTypeOf: (value) => value instanceof Dog,
-});
+  return LifeType;
+}();
 
-const CatType: GraphQLObjectType = new GraphQLObjectType({
-  name: 'Cat',
-  interfaces: [MammalType, LifeType, NamedType],
-  fields: () => ({
-    name: { type: GraphQLString },
-    meows: { type: GraphQLBoolean },
-    progeny: { type: new GraphQLList(CatType) },
-    mother: { type: CatType },
-    father: { type: CatType },
-  }),
-  isTypeOf: (value) => value instanceof Cat,
-});
+final MammalType = () {
+  final MammalType = objectType(
+    'Mammal',
+    isInterface: true,
+    interfaces: [LifeType],
+  );
 
-const PetType = new GraphQLUnionType({
-  name: 'Pet',
-  types: [DogType, CatType],
-  resolveType(value) {
-    if (value instanceof Dog) {
-      return DogType.name;
-    }
-    // istanbul ignore else (See: 'https://github.com/graphql/graphql-js/issues/2618')
-    if (value instanceof Cat) {
-      return CatType.name;
-    }
+  MammalType.fields.addAll([
+    field('progeny', listOf(MammalType)),
+    field('mother', MammalType),
+    field('father', MammalType),
+  ]);
+  return MammalType;
+}();
 
-    // istanbul ignore next (Not reachable. All possible types have been considered)
-    expect.fail('Not reachable');
-  },
-});
+final DogType = () {
+  final DogType = objectType<Dog>(
+    'Dog',
+    interfaces: [MammalType, LifeType, NamedType],
+    // isTypeOf: (value) => value is Dog,
+  );
 
-const PersonType: GraphQLObjectType = new GraphQLObjectType({
-  name: 'Person',
-  interfaces: [NamedType, MammalType, LifeType],
-  fields: () => ({
-    name: { type: GraphQLString },
-    pets: { type: new GraphQLList(PetType) },
-    friends: { type: new GraphQLList(NamedType) },
-    progeny: { type: new GraphQLList(PersonType) },
-    mother: { type: PersonType },
-    father: { type: PersonType },
-  }),
-  isTypeOf: (value) => value instanceof Person,
-});
+  DogType.fields.addAll([
+    field('name', graphQLString),
+    field('barks', graphQLBoolean),
+    field('progeny', listOf(DogType)),
+    field('mother', DogType),
+    field('father', DogType),
+  ]);
+  return DogType;
+}();
 
-const schema = new GraphQLSchema({
-  query: PersonType,
-  types: [PetType],
-});
+final CatType = () {
+  final CatType = objectType<Cat>(
+    'Cat',
+    interfaces: [MammalType, LifeType, NamedType],
+    // isTypeOf: (value) => value is Cat,
+  );
 
-const garfield = new Cat('Garfield', false);
-garfield.mother = new Cat("Garfield's Mom", false);
-garfield.mother.progeny = [garfield];
+  CatType.fields.addAll([
+    field('name', graphQLString),
+    field('meows', graphQLBoolean),
+    field('progeny', listOf(CatType)),
+    field('mother', CatType),
+    field('father', CatType),
+  ]);
+  return CatType;
+}();
 
-const odie = new Dog('Odie', true);
-odie.mother = new Dog("Odie's Mom", true);
-odie.mother.progeny = [odie];
+final PetType = GraphQLUnionType(
+  'Pet',
+  [DogType, CatType],
+  // resolveType(value) {
+  //   if (value instanceof Dog) {
+  //     return DogType.name;
+  //   }
+  //   // istanbul ignore else (See: 'https://github.com/graphql/graphql-js/issues/2618')
+  //   if (value instanceof Cat) {
+  //     return CatType.name;
+  //   }
 
-const liz = new Person('Liz');
-const john = new Person('John', [garfield, odie], [liz, odie]);
+  //   // istanbul ignore next (Not reachable. All possible types have been considered)
+  //   expect.fail('Not reachable');
+  // },
+);
 
-describe('Execute: Union and intersection types', () => {
-  it('can introspect on union and intersection types', () => {
-    const document = parse(`
+final PersonType = () {
+  final PersonType = objectType<Person>(
+    'Person',
+    interfaces: [NamedType, MammalType, LifeType],
+
+    // isTypeOf: (value) => value is Person,
+  );
+
+  PersonType.fields.addAll([
+    field('name', graphQLString),
+    field('pets', listOf(PetType)),
+    field('friends', listOf(NamedType)),
+    field('progeny', listOf(PersonType)),
+    field('mother', PersonType),
+    field('father', PersonType),
+  ]);
+  return PersonType;
+}();
+
+final schema = GraphQLSchema(
+  queryType: PersonType,
+  // types: [PetType],
+);
+
+final garfield = () {
+  final garfield = Cat('Garfield', false);
+  garfield.mother = Cat("Garfield's Mom", false);
+  garfield.mother!.progeny.add(garfield);
+  return garfield;
+}();
+
+final odie = () {
+  final odie = Dog('Odie', true);
+  odie.mother = Dog("Odie's Mom", true);
+  odie.mother!.progeny.add(odie);
+  return odie;
+}();
+
+final liz = Person('Liz');
+final john = Person('John', [garfield, odie], [liz, odie]);
+
+/// 'Execute: Union and intersection types'
+void main() {
+  Future<Map<String, Object?>> execute(String document,
+      {Object? rootValue}) async {
+    final result = await GraphQL(schema)
+        .parseAndExecute(document, initialValue: rootValue);
+    return result.toJson();
+  }
+
+  test('can introspect on union and intersection types', () async {
+    const document = '''
       {
         Named: __type(name: "Named") {
           kind
@@ -188,44 +226,63 @@ describe('Execute: Union and intersection types', () => {
           inputFields { name }
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document })).to.deep.equal({
-      data: {
-        Named: {
-          kind: 'INTERFACE',
-          name: 'Named',
-          fields: [{ name: 'name' }],
-          interfaces: [],
-          possibleTypes: [{ name: 'Dog' }, { name: 'Cat' }, { name: 'Person' }],
-          enumValues: null,
-          inputFields: null,
+    expect(await execute(document), {
+      'data': {
+        'Named': {
+          'kind': 'INTERFACE',
+          'name': 'Named',
+          'fields': [
+            {'name': 'name'}
+          ],
+          'interfaces': <Object>[],
+          'possibleTypes': unorderedEquals(<Object>[
+            {'name': 'Dog'},
+            {'name': 'Cat'},
+            {'name': 'Person'}
+          ]),
+          'enumValues': null,
+          'inputFields': null,
         },
-        Mammal: {
-          kind: 'INTERFACE',
-          name: 'Mammal',
-          fields: [{ name: 'progeny' }, { name: 'mother' }, { name: 'father' }],
-          interfaces: [{ name: 'Life' }],
-          possibleTypes: [{ name: 'Dog' }, { name: 'Cat' }, { name: 'Person' }],
-          enumValues: null,
-          inputFields: null,
+        'Mammal': {
+          'kind': 'INTERFACE',
+          'name': 'Mammal',
+          'fields': [
+            {'name': 'progeny'},
+            {'name': 'mother'},
+            {'name': 'father'}
+          ],
+          'interfaces': [
+            {'name': 'Life'}
+          ],
+          'possibleTypes': unorderedEquals(<Object>[
+            {'name': 'Dog'},
+            {'name': 'Cat'},
+            {'name': 'Person'}
+          ]),
+          'enumValues': null,
+          'inputFields': null,
         },
-        Pet: {
-          kind: 'UNION',
-          name: 'Pet',
-          fields: null,
-          interfaces: null,
-          possibleTypes: [{ name: 'Dog' }, { name: 'Cat' }],
-          enumValues: null,
-          inputFields: null,
+        'Pet': {
+          'kind': 'UNION',
+          'name': 'Pet',
+          'fields': null,
+          'interfaces': null,
+          'possibleTypes': unorderedEquals(<Object>[
+            {'name': 'Dog'},
+            {'name': 'Cat'}
+          ]),
+          'enumValues': null,
+          'inputFields': null,
         },
       },
     });
   });
 
-  it('executes using union types', () => {
+  test('executes using union types', () async {
     // NOTE: This is an *invalid* query, but it should be an *executable* query.
-    const document = parse(`
+    const document = '''
       {
         __typename
         name
@@ -236,31 +293,31 @@ describe('Execute: Union and intersection types', () => {
           meows
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        pets: [
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'pets': [
           {
-            __typename: 'Cat',
-            name: 'Garfield',
-            meows: false,
+            '__typename': 'Cat',
+            'name': 'Garfield',
+            'meows': false,
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
           },
         ],
       },
     });
   });
 
-  it('executes union types with inline fragments', () => {
+  test('executes union types with inline fragments', () async {
     // This is the valid version of the query in the above test.
-    const document = parse(`
+    const document = '''
       {
         __typename
         name
@@ -276,31 +333,31 @@ describe('Execute: Union and intersection types', () => {
           }
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        pets: [
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'pets': [
           {
-            __typename: 'Cat',
-            name: 'Garfield',
-            meows: false,
+            '__typename': 'Cat',
+            'name': 'Garfield',
+            'meows': false,
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
           },
         ],
       },
     });
   });
 
-  it('executes using interface types', () => {
+  test('executes using interface types', () async {
     // NOTE: This is an *invalid* query, but it should be an *executable* query.
-    const document = parse(`
+    const document = '''
       {
         __typename
         name
@@ -311,23 +368,23 @@ describe('Execute: Union and intersection types', () => {
           meows
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        friends: [
-          { __typename: 'Person', name: 'Liz' },
-          { __typename: 'Dog', name: 'Odie', barks: true },
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'friends': [
+          {'__typename': 'Person', 'name': 'Liz'},
+          {'__typename': 'Dog', 'name': 'Odie', 'barks': true},
         ],
       },
     });
   });
 
-  it('executes interface types with inline fragments', () => {
+  test('executes interface types with inline fragments', () async {
     // This is the valid version of the query in the above test.
-    const document = parse(`
+    const document = '''
       {
         __typename
         name
@@ -340,7 +397,6 @@ describe('Execute: Union and intersection types', () => {
           ... on Cat {
             meows
           }
-
           ... on Mammal {
             mother {
               __typename
@@ -356,31 +412,35 @@ describe('Execute: Union and intersection types', () => {
           }
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        friends: [
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'friends': [
           {
-            __typename: 'Person',
-            name: 'Liz',
-            mother: null,
+            '__typename': 'Person',
+            'name': 'Liz',
+            'mother': null,
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
-            mother: { __typename: 'Dog', name: "Odie's Mom", barks: true },
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
+            'mother': {
+              '__typename': 'Dog',
+              'name': "Odie's Mom",
+              'barks': true
+            },
           },
         ],
       },
     });
   });
 
-  it('executes interface types with named fragments', () => {
-    const document = parse(`
+  test('executes interface types with named fragments', () async {
+    const document = '''
       {
         __typename
         name
@@ -391,37 +451,35 @@ describe('Execute: Union and intersection types', () => {
           ...CatMeows
         }
       }
-
       fragment  DogBarks on Dog {
         barks
       }
-
       fragment  CatMeows on Cat {
         meows
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        friends: [
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'friends': [
           {
-            __typename: 'Person',
-            name: 'Liz',
+            '__typename': 'Person',
+            'name': 'Liz',
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
           },
         ],
       },
     });
   });
 
-  it('allows fragment conditions to be abstract types', () => {
-    const document = parse(`
+  test('allows fragment conditions to be abstract types', () async {
+    const document = '''
       {
         __typename
         name
@@ -435,7 +493,6 @@ describe('Execute: Union and intersection types', () => {
         }
         friends { ...FriendFields }
       }
-
       fragment PetFields on Pet {
         __typename
         ... on Dog {
@@ -447,7 +504,6 @@ describe('Execute: Union and intersection types', () => {
           meows
         }
       }
-
       fragment FriendFields on Named {
         __typename
         name
@@ -458,93 +514,103 @@ describe('Execute: Union and intersection types', () => {
           meows
         }
       }
-
       fragment ProgenyFields on Life {
         progeny {
           __typename
         }
       }
-    `);
+    ''';
 
-    expect(executeSync({ schema, document, rootValue: john })).to.deep.equal({
-      data: {
-        __typename: 'Person',
-        name: 'John',
-        pets: [
+    expect(await execute(document, rootValue: john), {
+      'data': {
+        '__typename': 'Person',
+        'name': 'John',
+        'pets': [
           {
-            __typename: 'Cat',
-            name: 'Garfield',
-            meows: false,
-            mother: { progeny: [{ __typename: 'Cat' }] },
+            '__typename': 'Cat',
+            'name': 'Garfield',
+            'meows': false,
+            'mother': {
+              'progeny': [
+                {'__typename': 'Cat'}
+              ]
+            },
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
-            mother: { progeny: [{ __typename: 'Dog' }] },
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
+            'mother': {
+              'progeny': [
+                {'__typename': 'Dog'}
+              ]
+            },
           },
         ],
-        friends: [
+        'friends': [
           {
-            __typename: 'Person',
-            name: 'Liz',
+            '__typename': 'Person',
+            'name': 'Liz',
           },
           {
-            __typename: 'Dog',
-            name: 'Odie',
-            barks: true,
+            '__typename': 'Dog',
+            'name': 'Odie',
+            'barks': true,
           },
         ],
       },
     });
   });
 
-  it('gets execution info in resolver', () => {
-    let encounteredContext;
-    let encounteredSchema;
-    let encounteredRootValue;
+  test('gets execution info in resolver', () async {
+    Object? encounteredContext;
+    Object? encounteredSchema;
+    Object? encounteredRootValue;
 
-    const NamedType2: GraphQLInterfaceType = new GraphQLInterfaceType({
-      name: 'Named',
-      fields: {
-        name: { type: GraphQLString },
-      },
-      resolveType(_source, context, info) {
-        encounteredContext = context;
-        encounteredSchema = info.schema;
-        encounteredRootValue = info.rootValue;
-        return PersonType2.name;
-      },
-    });
+    final NamedType2 = objectType<Object>(
+      'Named',
+      fields: [
+        field('name', graphQLString),
+      ],
+      // resolveType(_source, context, info) {
+      //   encounteredContext = context;
+      //   encounteredSchema = info.schema;
+      //   encounteredRootValue = info.rootValue;
+      //   return PersonType2.name;
+      // },
+    );
 
-    const PersonType2: GraphQLObjectType = new GraphQLObjectType({
-      name: 'Person',
+    final PersonType2 = objectType<Object>(
+      'Person',
       interfaces: [NamedType2],
-      fields: {
-        name: { type: GraphQLString },
-        friends: { type: new GraphQLList(NamedType2) },
-      },
-    });
-    const schema2 = new GraphQLSchema({ query: PersonType2 });
-    const document = parse('{ name, friends { name } }');
-    const rootValue = new Person('John', [], [liz]);
-    const contextValue = { authToken: '123abc' };
+      fields: [
+        field('name', graphQLString),
+        field('friends', listOf(NamedType2)),
+      ],
+    );
+    final schema2 = GraphQLSchema(queryType: PersonType2);
+    const document = '{ name, friends { name } }';
+    final rootValue = Person('John', [], [liz]);
+    final contextValue = <Object, Object?>{'authToken': '123abc'};
 
-    const result = executeSync({
-      schema: schema2,
+    final result = await GraphQL(
+      schema2,
+    ).parseAndExecute(
       document,
-      rootValue,
-      contextValue,
-    });
-    expect(result).to.deep.equal({
-      data: {
-        name: 'John',
-        friends: [{ name: 'Liz' }],
+      initialValue: rootValue,
+      globalVariables: contextValue,
+    );
+    expect(result.toJson(), {
+      'data': {
+        'name': 'John',
+        'friends': [
+          {'name': 'Liz'}
+        ],
       },
     });
 
-    expect(encounteredSchema).to.equal(schema2);
-    expect(encounteredRootValue).to.equal(rootValue);
-    expect(encounteredContext).to.equal(contextValue);
+    expect(encounteredSchema, schema2);
+    expect(encounteredRootValue, rootValue);
+    expect(encounteredContext, contextValue);
   });
-});
+}
