@@ -1,16 +1,10 @@
-// class DbCtx {
-//   static Future<DbCtx> create() {
-//      final x = ;
-
-//   }
-// }
-
 import 'package:sqlite3/sqlite3.dart';
 
 bool migrate(Database db, String tableName, List<String> queries) {
   if (queries.isEmpty) {
     return true;
   }
+
   db.execute('''
     CREATE TABLE IF NOT EXISTS migration (
       tableName TEXT NOT NULL,

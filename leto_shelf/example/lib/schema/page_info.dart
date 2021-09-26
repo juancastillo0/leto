@@ -1,12 +1,16 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 
+/// GraphQLType with the state of pagination
+///
+/// ```graphql
 /// type PageInfo {
 ///   hasNextPage: Boolean!
 ///   hasPreviousPage: Boolean!
 ///   startCursor: String
 ///   endCursor: String
 /// }
+/// ```
 final pageInfoGraphQLType = objectType<PageInfo>(
   'PageInfo',
   description: 'Information about pagination in a connection.',

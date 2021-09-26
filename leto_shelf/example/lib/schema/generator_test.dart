@@ -149,6 +149,7 @@ List<EventUnion?> testUnionModels(
 /// logging
 /// other types uuid/url/Uri/duration/validation/json/decimal
 /// dataloader
+/// close connection on pong timeout ws
 /// 
 /// execution https://github.com/graphql/graphql-js/tree/main/src/execution/__tests__
 /// subscription https://github.com/graphql/graphql-js/tree/main/src/subscription/__tests__
