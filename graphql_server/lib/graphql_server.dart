@@ -240,34 +240,35 @@ class GraphQL {
     required Map<Object, Object?> globalVariables,
     Map<String, dynamic>? extensions,
   }) async {
-    final validationException = withExtensions<GraphQLException?>(
-      (n, e) => e.validate(n, schema, document, globalVariables, extensions),
-      () {
-        // final gqlSchema = gql_schema.GraphQLSchema.fromNode(node);
-        final errors = gql_doc.validateRequest(schemaNode, document);
-        if (errors.isEmpty) {
-          return null;
-        }
-        return GraphQLException([
-          ...errors.map(
-            (e) => GraphQLExceptionError(
-              e.message ?? 'Invalid operation.',
-              locations: GraphQLErrorLocation.listFromSource(
-                e.node?.span?.start,
+    if (validate) {
+      final validationException = withExtensions<GraphQLException?>(
+        (n, e) => e.validate(n, schema, document, globalVariables, extensions),
+        () {
+          // final gqlSchema = gql_schema.GraphQLSchema.fromNode(node);
+          final errors = gql_doc.validateRequest(schemaNode, document);
+          if (errors.isEmpty) {
+            return null;
+          }
+          return GraphQLException([
+            ...errors.map(
+              (e) => GraphQLExceptionError(
+                e.message ?? 'Invalid operation.',
+                locations: GraphQLErrorLocation.listFromSource(
+                  e.node?.span?.start,
+                ),
               ),
-            ),
-          )
-        ]);
-      },
-    );
-    if (validationException != null) {
-      throw validationException;
+            )
+          ]);
+        },
+      );
+      if (validationException != null) {
+        throw validationException;
+      }
     }
 
     final operation = getOperation(document, operationName);
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
-    // tracing.validation.end();
     final ctx = ResolveCtx(
       document: document,
       globalVariables: globalVariables,
