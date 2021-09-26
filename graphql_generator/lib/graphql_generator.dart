@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:mirrors';
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:collection/collection.dart' show IterableExtension;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:graphql_generator/build_context.dart';
 import 'package:graphql_generator/generator_models.dart';
@@ -86,16 +83,25 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
               clazz.fields.where((f) => f.isEnumConstant).map((f) => f.name);
           final named = <String, Expression>{};
           _applyDescription(named, clazz, clazz.documentationComment);
-          args.add(literalConstList(values.map(literalString).toList()));
+          args.add(
+            literalConstMap(Map.fromEntries(
+              values.map(
+                (v) => MapEntry(
+                  literalString(v),
+                  refer('${clazz.name}.$v'),
+                ),
+              ),
+            )),
+          );
 
           b
             ..name = '${ReCase(clazz.name).camelCase}$graphqlTypeSuffix'
             ..docs.add('/// Auto-generated from [${clazz.name}].')
             ..type = TypeReference((b) => b
               ..symbol = 'GraphQLEnumType'
-              ..types.add(refer('String')))
+              ..types.add(refer(clazz.name)))
             ..modifier = FieldModifier.final$
-            ..assignment = refer('enumTypeFromStrings').call(args, named).code;
+            ..assignment = refer('enumType').call(args, named).code;
         }));
       });
     } else {
