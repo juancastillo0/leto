@@ -36,10 +36,18 @@ class GraphQLObjectType<P extends Object>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
   GraphQLObjectType(
-    this.name,
-    this.description, {
+    this.name, {
+    this.description,
     this.isInterface = false,
-  });
+    Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
+    Iterable<GraphQLObjectType> interfaces = const [],
+  }) {
+    this.fields.addAll(fields);
+
+    for (final i in interfaces) {
+      inheritFrom(i);
+    }
+  }
 
   @override
   GraphQLType<P, Map<String, dynamic>> coerceToInputObject() {
