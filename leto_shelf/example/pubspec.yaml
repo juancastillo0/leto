@@ -14,6 +14,9 @@ dependencies:
   valida:
     path: ../../valida/valida
 
+  query_builder:
+    path: ../../query_builder
+
   sqlite3: ^1.2.0
 
   shelf_plus: ^0.0.2
@@ -33,6 +36,8 @@ dev_dependencies:
     path: ../../graphql_server/graphql_generator
   valida_generator:
     path: ../../valida/valida_generator
+  query_builder_generator:
+    path: ../../query_builder/query_builder_generator
 
 dependency_overrides:
   graphql_schema:
