@@ -1,106 +1,101 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/mutations-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+// import { expect } from 'chai';
+// import { describe, it } from 'mocha';
 
-import { expectJSON } from '../../__testUtils__/expectJSON';
+// import { expectJSON } from '../../__testUtils__/expectJSON';
 
-import { resolveOnNextTick } from '../../__testUtils__/resolveOnNextTick';
+// import { resolveOnNextTick } from '../../__testUtils__/resolveOnNextTick';
 
-import { parse } from '../../language/parser';
+// import { parse } from '../../language/parser';
 
-import { GraphQLInt } from '../../type/scalars';
-import { GraphQLSchema } from '../../type/schema';
-import { GraphQLObjectType } from '../../type/definition';
+// import { GraphQLInt } from '../../type/scalars';
+// import { GraphQLSchema } from '../../type/schema';
+// import { GraphQLObjectType } from '../../type/definition';
 
-import { execute, executeSync } from '../execute';
+// import { execute, executeSync } from '../execute';
+
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
 class NumberHolder {
-  theNumber: number;
+  int theNumber;
 
-  constructor(originalNumber: number) {
-    this.theNumber = originalNumber;
-  }
+  NumberHolder(this.theNumber);
 }
 
 class Root {
-  numberHolder: NumberHolder;
+  final NumberHolder numberHolder;
 
-  constructor(originalNumber: number) {
-    this.numberHolder = new NumberHolder(originalNumber);
+  Root(int originalNumber) : numberHolder = NumberHolder(originalNumber);
+
+  NumberHolder immediatelyChangeTheNumber(int newNumber) {
+    numberHolder.theNumber = newNumber;
+    return numberHolder;
   }
 
-  immediatelyChangeTheNumber(newNumber: number): NumberHolder {
-    this.numberHolder.theNumber = newNumber;
-    return this.numberHolder;
+  Future<NumberHolder> promiseToChangeTheNumber(int newNumber) async {
+    return Future.microtask(() => immediatelyChangeTheNumber(newNumber));
   }
 
-  async promiseToChangeTheNumber(newNumber: number): Promise<NumberHolder> {
-    await resolveOnNextTick();
-    return this.immediatelyChangeTheNumber(newNumber);
+  NumberHolder failToChangeTheNumber() {
+    throw GraphQLException.fromMessage('Cannot change the number');
   }
 
-  failToChangeTheNumber(): NumberHolder {
-    throw new Error('Cannot change the number');
-  }
-
-  async promiseAndFailToChangeTheNumber(): Promise<NumberHolder> {
-    await resolveOnNextTick();
-    throw new Error('Cannot change the number');
+  Future<NumberHolder> promiseAndFailToChangeTheNumber() async {
+    await Future.microtask(
+      () => throw GraphQLException.fromMessage('Cannot change the number'),
+    );
   }
 }
 
-const numberHolderType = new GraphQLObjectType({
-  fields: {
-    theNumber: { type: GraphQLInt },
-  },
-  name: 'NumberHolder',
-});
+final numberHolderType = objectType<NumberHolder>(
+  'NumberHolder',
+  fields: [
+    graphQLInt.field('theNumber', resolve: (obj, ctx) => obj.theNumber),
+  ],
+);
 
-const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    fields: {
-      numberHolder: { type: numberHolderType },
-    },
-    name: 'Query',
-  }),
-  mutation: new GraphQLObjectType({
-    fields: {
-      immediatelyChangeTheNumber: {
-        type: numberHolderType,
-        args: { newNumber: { type: GraphQLInt } },
-        resolve(obj, { newNumber }) {
-          return obj.immediatelyChangeTheNumber(newNumber);
-        },
+final schema = GraphQLSchema(
+  queryType: objectType(
+    'Query',
+    fields: [numberHolderType.field('numberHolder')],
+  ),
+  mutationType: objectType<Root>('Mutation', fields: [
+    numberHolderType.field(
+      'immediatelyChangeTheNumber',
+      inputs: [GraphQLFieldInput('newNumber', graphQLInt.nonNull())],
+      resolve: (obj, ctx) {
+        return obj.immediatelyChangeTheNumber(ctx.args['newNumber']! as int);
       },
-      promiseToChangeTheNumber: {
-        type: numberHolderType,
-        args: { newNumber: { type: GraphQLInt } },
-        resolve(obj, { newNumber }) {
-          return obj.promiseToChangeTheNumber(newNumber);
-        },
+    ),
+    numberHolderType.field(
+      'promiseToChangeTheNumber',
+      inputs: [GraphQLFieldInput('newNumber', graphQLInt.nonNull())],
+      resolve: (obj, ctx) {
+        return obj.promiseToChangeTheNumber(ctx.args['newNumber']! as int);
       },
-      failToChangeTheNumber: {
-        type: numberHolderType,
-        args: { newNumber: { type: GraphQLInt } },
-        resolve(obj, { newNumber }) {
-          return obj.failToChangeTheNumber(newNumber);
-        },
+    ),
+    numberHolderType.field(
+      'failToChangeTheNumber',
+      inputs: [GraphQLFieldInput('newNumber', graphQLInt.nonNull())],
+      resolve: (obj, ctx) {
+        return obj.failToChangeTheNumber();
       },
-      promiseAndFailToChangeTheNumber: {
-        type: numberHolderType,
-        args: { newNumber: { type: GraphQLInt } },
-        resolve(obj, { newNumber }) {
-          return obj.promiseAndFailToChangeTheNumber(newNumber);
-        },
+    ),
+    numberHolderType.field(
+      'promiseAndFailToChangeTheNumber',
+      inputs: [GraphQLFieldInput('newNumber', graphQLInt.nonNull())],
+      resolve: (obj, ctx) {
+        return obj.promiseAndFailToChangeTheNumber();
       },
-    },
-    name: 'Mutation',
-  }),
-});
+    ),
+  ]),
+);
 
-describe('Execute: Handles mutation execution ordering', () => {
-  it('evaluates mutations serially', async () => {
-    const document = parse(`
+/// 'Execute: Handles mutation execution ordering'
+void main() {
+  test('evaluates mutations serially', () async {
+    const document = '''
       mutation M {
         first: immediatelyChangeTheNumber(newNumber: 1) {
           theNumber
@@ -118,33 +113,36 @@ describe('Execute: Handles mutation execution ordering', () => {
           theNumber
         }
       }
-    `);
+    ''';
 
-    const rootValue = new Root(6);
-    const mutationResult = await execute({ schema, document, rootValue });
+    final rootValue = Root(6);
+    final mutationResult = await GraphQL(schema, introspect: false)
+        .parseAndExecute(document, initialValue: rootValue);
 
-    expect(mutationResult).to.deep.equal({
-      data: {
-        first: { theNumber: 1 },
-        second: { theNumber: 2 },
-        third: { theNumber: 3 },
-        fourth: { theNumber: 4 },
-        fifth: { theNumber: 5 },
+    expect(mutationResult.toJson(), {
+      'data': {
+        'first': {'theNumber': 1},
+        'second': {'theNumber': 2},
+        'third': {'theNumber': 3},
+        'fourth': {'theNumber': 4},
+        'fifth': {'theNumber': 5},
       },
     });
   });
 
-  it('does not include illegal mutation fields in output', () => {
-    const document = parse('mutation { thisIsIllegalDoNotIncludeMe }');
+  test('does not include illegal mutation fields in output', () async {
+    const document = 'mutation { thisIsIllegalDoNotIncludeMe }';
 
-    const result = executeSync({ schema, document });
-    expect(result).to.deep.equal({
-      data: {},
+    final result =
+        await GraphQL(schema, introspect: false).parseAndExecute(document);
+    expect(result.toJson(), {
+      'data': <String, Object?>{},
     });
   });
 
-  it('evaluates mutations correctly in the presence of a failed mutation', async () => {
-    const document = parse(`
+  test('evaluates mutations correctly in the presence of a failed mutation',
+      () async {
+    const document = '''
       mutation M {
         first: immediatelyChangeTheNumber(newNumber: 1) {
           theNumber
@@ -165,32 +163,37 @@ describe('Execute: Handles mutation execution ordering', () => {
           theNumber
         }
       }
-    `);
+    ''';
 
-    const rootValue = new Root(6);
-    const result = await execute({ schema, document, rootValue });
+    final rootValue = Root(6);
+    final result = await GraphQL(schema, introspect: false)
+        .parseAndExecute(document, initialValue: rootValue);
 
-    expectJSON(result).to.deep.equal({
-      data: {
-        first: { theNumber: 1 },
-        second: { theNumber: 2 },
-        third: null,
-        fourth: { theNumber: 4 },
-        fifth: { theNumber: 5 },
-        sixth: null,
+    expect(result.toJson(), {
+      'data': {
+        'first': {'theNumber': 1},
+        'second': {'theNumber': 2},
+        'third': null,
+        'fourth': {'theNumber': 4},
+        'fifth': {'theNumber': 5},
+        'sixth': null,
       },
-      errors: [
+      'errors': [
         {
-          message: 'Cannot change the number',
-          locations: [{ line: 9, column: 9 }],
-          path: ['third'],
+          'message': 'Cannot change the number',
+          'locations': [
+            {'line': 7, 'column': 8}
+          ],
+          'path': ['third'],
         },
         {
-          message: 'Cannot change the number',
-          locations: [{ line: 18, column: 9 }],
-          path: ['sixth'],
+          'message': 'Cannot change the number',
+          'locations': [
+            {'line': 16, 'column': 8}
+          ],
+          'path': ['sixth'],
         },
       ],
     });
   });
-});
+}
