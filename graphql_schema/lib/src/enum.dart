@@ -1,12 +1,12 @@
 part of graphql_schema.src.schema;
 
 /// Shorthand for building a [GraphQLEnumType].
-GraphQLEnumType enumType<Value extends Object>(
+GraphQLEnumType<Value> enumType<Value extends Object>(
   String name,
   Map<String, Value> values, {
   String? description,
 }) {
-  return GraphQLEnumType<Value>(
+  return GraphQLEnumType(
     name,
     values.entries.map((e) => GraphQLEnumValue(e.key, e.value)).toList(),
     description: description,

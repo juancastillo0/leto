@@ -6,18 +6,36 @@ GraphQLObjectType<P> objectType<P extends Object>(
   String? description,
   bool isInterface = false,
   Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
+  Map<String, GraphQLObjectField<Object, Object, P>>? fieldsMap,
   Iterable<GraphQLObjectType> interfaces = const [],
 }) {
-  final obj = GraphQLObjectType<P>(name, description, isInterface: isInterface)
-    ..fields.addAll(fields);
+  return GraphQLObjectType<P>(
+    name,
+    description: description,
+    isInterface: isInterface,
+    fields: fieldsMap == null
+        ? fields
+        : fieldsMap.entries
+            .map((e) => copyFieldWithName(e.key, e.value))
+            .followedBy(fields),
+    interfaces: interfaces,
+  );
+}
 
-  if (interfaces.isNotEmpty) {
-    for (final i in interfaces) {
-      obj.inheritFrom(i);
-    }
-  }
-
-  return obj;
+GraphQLObjectField<V, S, P>
+    copyFieldWithName<V extends Object, S extends Object, P>(
+  String name,
+  GraphQLObjectField<V, S, P> f,
+) {
+  return GraphQLObjectField(
+    name,
+    f.type,
+    arguments: f.inputs,
+    resolve: f.resolve,
+    subscribe: f.subscribe,
+    description: f.description,
+    deprecationReason: f.deprecationReason,
+  );
 }
 
 /// Shorthand for generating a [GraphQLObjectField].
@@ -92,6 +110,26 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
       description: description,
       deprecationReason: deprecationReason,
       arguments: inputs,
+    );
+  }
+
+  /// Shorthand for generating a [GraphQLObjectField].
+  GraphQLObjectField<V, S, P> fieldSpec<P>({
+    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
+    GraphQLFieldResolver<V, P>? resolve,
+    GraphQLSubscriptionFieldResolver<V, P>? subscribe,
+    String? deprecationReason,
+    String? description,
+  }) {
+    return GraphQLObjectField(
+      '',
+      this,
+      arguments: inputs,
+      resolve: resolve == null ? null : FieldResolver(resolve),
+      subscribe:
+          subscribe == null ? null : FieldSubscriptionResolver(subscribe),
+      description: description,
+      deprecationReason: deprecationReason,
     );
   }
 }
