@@ -335,36 +335,51 @@ class GraphQL {
       final variableType = variableDefinition.type;
       // TODO: Assert: IsInputType(variableType) must be true.
       final defaultValue = variableDefinition.defaultValue;
-      final Object? value = variableValues?[variableName];
 
-      if (value == null) {
+      if (variableValues == null || !variableValues.containsKey(variableName)) {
         if (defaultValue != null) {
-          coercedValues[variableName] = computeValue(
-              convertType(variableType), defaultValue.value!, variableValues);
-        } else if (variableType.isNonNull) {
-          throw GraphQLException.fromSourceSpan(
-              'Missing required variable "$variableName".',
-              variableDefinition.span!);
+          coercedValues[variableName] = defaultValue.value == null
+              ? null
+              : computeValue(
+                  convertType(variableType),
+                  defaultValue.value!,
+                  variableValues,
+                );
         }
       } else {
-        final type = convertType(variableType);
-        // TODO: should we just deserialize with a result?
-        final validation = type.validate(variableName, value);
-
-        if (!validation.successful) {
-          final locations = GraphQLErrorLocation.listFromSource(
-            (variableDefinition.span ?? variableDefinition.variable.span)
-                ?.start,
-          );
-          throw GraphQLException(
-            validation.errors
-                .map((e) => GraphQLExceptionError(e, locations: locations))
-                .toList(),
-          );
+        final Object? value = variableValues[variableName];
+        if (value == null) {
+          coercedValues[variableName] = null;
         } else {
-          final coercedValue = type.deserialize(schema.serdeCtx, value);
-          coercedValues[variableName] = coercedValue;
+          final type = convertType(variableType);
+          // TODO: should we just deserialize with a result?
+          final validation = type.validate(variableName, value);
+
+          if (!validation.successful) {
+            final locations = GraphQLErrorLocation.listFromSource(
+              (variableDefinition.span ??
+                      variableDefinition.variable.span ??
+                      variableDefinition.variable.name.span)
+                  ?.start,
+            );
+            throw GraphQLException(
+              validation.errors
+                  .map((e) => GraphQLExceptionError(e, locations: locations))
+                  .toList(),
+            );
+          } else {
+            final coercedValue = type.deserialize(
+              schema.serdeCtx,
+              validation.value!,
+            );
+            coercedValues[variableName] = coercedValue;
+          }
         }
+      }
+      if (variableType.isNonNull && coercedValues[variableName] == null) {
+        throw GraphQLException.fromSourceSpan(
+            'Missing required variable "$variableName".',
+            variableDefinition.span!);
       }
     }
 
@@ -1198,22 +1213,26 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
 
   @override
   Object? visitEnumValueNode(EnumValueNode node) {
+    final span = (node.span ?? node.name.span)!;
     if (targetType == null) {
       throw GraphQLException.fromSourceSpan(
-          'An enum value was given, but in this context, its type cannot be deduced.',
-          node.span!);
+          'An enum value was given, but in this context,'
+          ' its type cannot be deduced.',
+          span);
     } else if (targetType is! GraphQLEnumType) {
       throw GraphQLException.fromSourceSpan(
-          'An enum value was given, but the type "${targetType!.name}" is not an enum.',
-          node.span!);
+          'An enum value was given, but the type'
+          ' "${targetType!.name}" is not an enum.',
+          span);
     } else {
       final enumType = targetType! as GraphQLEnumType;
       final matchingValue =
           enumType.values.firstWhereOrNull((v) => v.name == node.name.value);
       if (matchingValue == null) {
         throw GraphQLException.fromSourceSpan(
-          'The enum "${targetType!.name}" has no member named "${node.name.value}".',
-          node.span!,
+          'The enum "${targetType!.name}" has no'
+          ' member named "${node.name.value}".',
+          span,
         );
       } else {
         return matchingValue.name;
@@ -1281,7 +1300,6 @@ class ResolveObjectCtx<P extends Object> {
   final ResolveObjectCtx<Object>? parent;
   final Object? pathItem;
 
-  // TODO: support aliases?
   Iterable<Object> get path => parent == null
       ? [if (pathItem != null) pathItem!]
       : parent!.path.followedBy([if (pathItem != null) pathItem!]);
