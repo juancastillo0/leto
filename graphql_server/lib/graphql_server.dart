@@ -40,9 +40,14 @@ class GraphQL {
     return node;
   }();
 
+  /// If validate is false, a parsed document is executed without
+  /// being validated with the provided schema
+  final bool validate;
+
   GraphQL(
     GraphQLSchema schema, {
     bool introspect = true,
+    this.validate = true,
     this.defaultFieldResolver,
     this.extensionList = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
@@ -546,7 +551,7 @@ class GraphQL {
       pathItem: pathItem,
     );
 
-    if (groupedFieldSet.isEmpty) {
+    if (groupedFieldSet.isEmpty && validate) {
       throw GraphQLExceptionError(
         'Must select some fields in object ${objectType.name}.',
         locations: GraphQLErrorLocation.listFromSource(
@@ -577,11 +582,15 @@ class GraphQL {
           (f) => f.name == fieldName,
         );
         if (objectField == null) {
-          throw GraphQLExceptionError(
-            'Unknown field name $fieldName for type ${objectType.name}.',
-            locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
-            path: fieldPath,
-          );
+          if (validate) {
+            throw GraphQLExceptionError(
+              'Unknown field name $fieldName for type ${objectType.name}.',
+              locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
+              path: fieldPath,
+            );
+          } else {
+            continue;
+          }
         }
         futureResponseValue = withExtensions<FutureOr<Object?>>(
             (n, e) => e.executeField(n, objectCtx, objectField, alias),
