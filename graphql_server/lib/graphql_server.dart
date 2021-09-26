@@ -827,7 +827,12 @@ class GraphQL {
         ),
       );
     } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
-      return objectValue[fieldName] as T?;
+      final Object? value = objectValue[fieldName];
+      // TODO: support functions with more params?
+      if (value is Function()) {
+        return value() as T?;
+      }
+      return value as T?;
     } else if (field.type.generic.isValueOfType(objectValue)) {
       // TODO:
       return objectValue as T;
