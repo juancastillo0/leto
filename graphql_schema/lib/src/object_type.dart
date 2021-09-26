@@ -83,7 +83,9 @@ class GraphQLObjectType<P extends Object>
     Object? input,
   ) {
     if (input is! Map<String, Object?>)
-      return ValidationResult.failure(['Expected "$key" to be a Map.']);
+      return ValidationResult.failure([
+        'Expected "$key" to be a Map of type $this. Got invalid value $input.'
+      ]);
 
     if (isInterface) {
       final List<String> errors = [];
@@ -107,10 +109,15 @@ class GraphQLObjectType<P extends Object>
     errors.addAll(
       fields.where((f) => f.type.isNonNullable && input[f.name] == null).map(
           (field) =>
-              'Field "${field.name}, of type ${field.type} cannot be null."'),
+              '$key: Field "${field.name}" of type ${field.type} cannot be null.'),
     );
 
     input.forEach((k, v) {
+      if (v == null) {
+        // already verified
+        out[k] = v;
+        return;
+      }
       final field = fields.firstWhereOrNull((f) => f.name == k);
 
       if (field == null) {
@@ -123,7 +130,7 @@ class GraphQLObjectType<P extends Object>
         if (!result.successful) {
           errors.addAll(result.errors.map((s) => '$key: $s'));
         } else {
-          out[k] = v;
+          out[k] = result.value;
         }
       }
     });
@@ -223,7 +230,9 @@ class GraphQLInputObjectType<Value extends Object>
   @override
   ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
     if (input is! Map<String, Object?>)
-      return ValidationResult.failure(['Expected "$key" to be a Map.']);
+      return ValidationResult.failure([
+        'Expected "$key" to be a Map of type $this. Got invalid value $input.'
+      ]);
 
     final out = <String, Object?>{};
     final List<String> errors = [];
@@ -232,10 +241,15 @@ class GraphQLInputObjectType<Value extends Object>
       inputFields
           .where((f) => f.type.isNonNullable && input[f.name] == null)
           .map((field) =>
-              'Field "${field.name}, of type ${field.type} cannot be null."'),
+              '$key: Field "${field.name}" of type ${field.type} cannot be null.'),
     );
 
     input.forEach((k, v) {
+      if (v == null) {
+        // already verified
+        out[k] = v;
+        return;
+      }
       final field = inputFields.firstWhereOrNull((f) => f.name == k);
 
       if (field == null) {
@@ -248,7 +262,7 @@ class GraphQLInputObjectType<Value extends Object>
         if (!result.successful) {
           errors.addAll(result.errors.map((s) => '$key: $s'));
         } else {
-          out[k] = v;
+          out[k] = result.value;
         }
       }
     });
@@ -335,7 +349,7 @@ class GraphQLInputObjectType<Value extends Object>
 abstract class ObjectField {
   String get name;
 
-  GraphQLType<Object?, Object?> get type;
+  GraphQLType<Object, Object> get type;
 }
 
 Value _valueFromJson<Value>(
@@ -353,7 +367,10 @@ Value _valueFromJson<Value>(
           'Unexpected field "$k" encountered in map.',
         ),
       );
-      return MapEntry(k, field.type.deserialize(serdeCtx, value));
+      return MapEntry(
+        k,
+        value == null ? null : field.type.deserialize(serdeCtx, value),
+      );
     }) as Value;
   }
 }
