@@ -33,6 +33,8 @@ dev_dependencies:
   http: ^0.13.3
   json_serializable: ^5.0.0
   lint: ^1.0.0
+  # tests
+  toml: ^0.12.0
 
   shelf_graphql_example:
     path: ./example

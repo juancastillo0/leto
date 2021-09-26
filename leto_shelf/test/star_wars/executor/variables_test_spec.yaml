@@ -1,0 +1,23 @@
+queries:
+  withInput: |
+    query ($input: TestInputObject) {
+        fieldWithObjectInput(input: $input)
+    }
+  simple: |
+    query ($input: TestInputObject) {
+        fieldWithObjectInput(input: $input)
+    }
+tests:
+  - description: "using variables"
+    query: |
+      query ($input: TestInputObject) {
+          fieldWithObjectInput(input: $input)
+      }
+    variables: { "input": { "a": "foo", "b": ["bar"], "c": "baz" } } }
+  
+  - description: "using variables"
+    query: |
+      query ($input: TestInputObject) {
+          fieldWithObjectInput(input: $input)
+      }
+    variables: { "input": { "a": "foo", "b": ["bar"], "c": "baz" } } }
