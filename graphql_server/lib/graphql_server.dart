@@ -837,6 +837,14 @@ class GraphQL {
     }
   }
 
+  FutureOr<Object?> _extractResult(Object? result) {
+    return result is Function()
+        ? _extractResult(result())
+        : result is Future
+            ? result.then(_extractResult)
+            : result;
+  }
+
   /// Returns the serialized value of type [fieldType]
   /// from a [result] for [fieldName] in [ctx]
   Future<Object?> completeValue(
@@ -844,9 +852,10 @@ class GraphQL {
     String fieldName,
     GraphQLType fieldType,
     List<SelectionNode> fields,
-    Object? result, {
+    Object? _result, {
     required Object pathItem,
   }) async {
+    final Object? result = await _extractResult(_result);
     return withExtensions(
         (next, e) => e.completeValue(next, ctx, fieldName, fieldType, result),
         () async {
