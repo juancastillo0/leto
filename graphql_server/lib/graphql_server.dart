@@ -1119,40 +1119,6 @@ class GraphQL {
     return groupedFields;
   }
 
-  Object? getDirectiveValue(
-    String name,
-    String argumentName,
-    SelectionNode selection,
-    Map<String, dynamic> variableValues,
-  ) {
-    if (selection is! FieldNode) return null;
-    final directive = selection.directives.firstWhereOrNull((d) {
-      if (d.arguments.isEmpty) return false;
-      final vv = d.arguments[0].value;
-      if (vv is VariableNode) {
-        return vv.name.value == name;
-      } else {
-        return computeValue(null, vv, variableValues) == name;
-      }
-    });
-
-    if (directive == null) return null;
-    if (directive.arguments[0].name.value != argumentName) return null;
-
-    final vv = directive.arguments[0].value;
-    if (vv is VariableNode) {
-      final vname = vv.name;
-      if (!variableValues.containsKey(vname)) {
-        throw GraphQLException.fromSourceSpan(
-          'Unknown variable: "$vname"',
-          vv.span!,
-        );
-      }
-      return variableValues[vname as String];
-    }
-    return computeValue(null, vv, variableValues);
-  }
-
   bool doesFragmentTypeApply(
     GraphQLObjectType objectType,
     TypeConditionNode fragmentType,
@@ -1183,73 +1149,6 @@ class GraphQL {
       orElse: (_) => false,
     );
   }
-}
-
-class GraphQLValueComputer extends SimpleVisitor<Object> {
-  final GraphQLType? targetType;
-  final Map<String, dynamic>? variableValues;
-
-  GraphQLValueComputer(this.targetType, this.variableValues);
-
-  @override
-  Object visitBooleanValueNode(BooleanValueNode node) => node.value;
-
-  @override
-  Object? visitEnumValueNode(EnumValueNode node) {
-    final span = (node.span ?? node.name.span)!;
-    if (targetType == null) {
-      throw GraphQLException.fromSourceSpan(
-          'An enum value was given, but in this context,'
-          ' its type cannot be deduced.',
-          span);
-    } else if (targetType is! GraphQLEnumType) {
-      throw GraphQLException.fromSourceSpan(
-          'An enum value was given, but the type'
-          ' "${targetType!.name}" is not an enum.',
-          span);
-    } else {
-      final enumType = targetType! as GraphQLEnumType;
-      final matchingValue =
-          enumType.values.firstWhereOrNull((v) => v.name == node.name.value);
-      if (matchingValue == null) {
-        throw GraphQLException.fromSourceSpan(
-          'The enum "${targetType!.name}" has no'
-          ' member named "${node.name.value}".',
-          span,
-        );
-      } else {
-        return matchingValue.name;
-      }
-    }
-  }
-
-  @override
-  Object visitFloatValueNode(FloatValueNode node) => double.parse(node.value);
-
-  @override
-  Object visitIntValueNode(IntValueNode node) => int.parse(node.value);
-
-  @override
-  Object visitListValueNode(ListValueNode node) {
-    return node.values.map((v) => v.accept(this)).toList();
-  }
-
-  @override
-  Object visitObjectValueNode(ObjectValueNode node) {
-    return Map.fromEntries(node.fields.map((f) {
-      return MapEntry(f.name.value, f.value.accept(this));
-    }));
-  }
-
-  @override
-  Object? visitNullValueNode(NullValueNode node) => null;
-
-  @override
-  Object visitStringValueNode(StringValueNode node) => node.value;
-
-  @override
-  Object? visitVariableNode(VariableNode node) =>
-      variableValues?[node.name.value];
 }
 
 class ResolveCtx {
