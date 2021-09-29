@@ -11,10 +11,12 @@ class Json with _$Json {
   const factory Json.map(Map<String, Json> value) = JsonMap;
   const factory Json.list(List<Json> value) = JsonList;
   const factory Json.number(num value) = JsonNumber;
+  // ignore: avoid_positional_boolean_parameters
+  const factory Json.boolean(bool value) = JsonBoolean;
   const factory Json.str(String value) = JsonStr;
   const factory Json.none() = JsonNone;
 
-  static const null$ = JsonNone();
+  static const null_ = JsonNone();
 
   Object? toJson({bool shallow = false}) {
     final v = this;
@@ -32,6 +34,7 @@ class Json with _$Json {
         list: (list) => list.map((e) => e.toJson()).toList(),
         number: (n) => n,
         str: (str) => str,
+        boolean: (b) => b,
         none: () => null,
       );
     }
@@ -91,6 +94,8 @@ class Json with _$Json {
           return value;
         } else if (value is num) {
           return Json.number(value);
+        } else if (value is bool) {
+          return Json.boolean(value);
         } else if (value is String) {
           if (isRoot) {
             try {

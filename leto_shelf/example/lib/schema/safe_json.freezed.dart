@@ -35,6 +35,12 @@ class _$JsonTearOff {
     );
   }
 
+  JsonBoolean boolean(bool value) {
+    return JsonBoolean(
+      value,
+    );
+  }
+
   JsonStr str(String value) {
     return JsonStr(
       value,
@@ -56,6 +62,7 @@ mixin _$Json {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) =>
@@ -65,6 +72,7 @@ mixin _$Json {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) =>
@@ -74,6 +82,7 @@ mixin _$Json {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -84,6 +93,7 @@ mixin _$Json {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) =>
@@ -93,6 +103,7 @@ mixin _$Json {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) =>
@@ -102,6 +113,7 @@ mixin _$Json {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
@@ -189,6 +201,7 @@ class _$JsonMap extends JsonMap {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) {
@@ -201,6 +214,7 @@ class _$JsonMap extends JsonMap {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) {
@@ -213,6 +227,7 @@ class _$JsonMap extends JsonMap {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -229,6 +244,7 @@ class _$JsonMap extends JsonMap {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) {
@@ -241,6 +257,7 @@ class _$JsonMap extends JsonMap {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) {
@@ -253,6 +270,7 @@ class _$JsonMap extends JsonMap {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
@@ -338,6 +356,7 @@ class _$JsonList extends JsonList {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) {
@@ -350,6 +369,7 @@ class _$JsonList extends JsonList {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) {
@@ -362,6 +382,7 @@ class _$JsonList extends JsonList {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -378,6 +399,7 @@ class _$JsonList extends JsonList {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) {
@@ -390,6 +412,7 @@ class _$JsonList extends JsonList {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) {
@@ -402,6 +425,7 @@ class _$JsonList extends JsonList {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
@@ -489,6 +513,7 @@ class _$JsonNumber extends JsonNumber {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) {
@@ -501,6 +526,7 @@ class _$JsonNumber extends JsonNumber {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) {
@@ -513,6 +539,7 @@ class _$JsonNumber extends JsonNumber {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -529,6 +556,7 @@ class _$JsonNumber extends JsonNumber {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) {
@@ -541,6 +569,7 @@ class _$JsonNumber extends JsonNumber {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) {
@@ -553,6 +582,7 @@ class _$JsonNumber extends JsonNumber {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
@@ -571,6 +601,164 @@ abstract class JsonNumber extends Json {
   num get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $JsonNumberCopyWith<JsonNumber> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $JsonBooleanCopyWith<$Res> {
+  factory $JsonBooleanCopyWith(
+          JsonBoolean value, $Res Function(JsonBoolean) then) =
+      _$JsonBooleanCopyWithImpl<$Res>;
+  $Res call({bool value});
+}
+
+/// @nodoc
+class _$JsonBooleanCopyWithImpl<$Res> extends _$JsonCopyWithImpl<$Res>
+    implements $JsonBooleanCopyWith<$Res> {
+  _$JsonBooleanCopyWithImpl(
+      JsonBoolean _value, $Res Function(JsonBoolean) _then)
+      : super(_value, (v) => _then(v as JsonBoolean));
+
+  @override
+  JsonBoolean get _value => super._value as JsonBoolean;
+
+  @override
+  $Res call({
+    Object? value = freezed,
+  }) {
+    return _then(JsonBoolean(
+      value == freezed
+          ? _value.value
+          : value // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$JsonBoolean extends JsonBoolean {
+  const _$JsonBoolean(this.value) : super._();
+
+  @override
+  final bool value;
+
+  @override
+  String toString() {
+    return 'Json.boolean(value: $value)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is JsonBoolean &&
+            (identical(other.value, value) ||
+                const DeepCollectionEquality().equals(other.value, value)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+
+  @JsonKey(ignore: true)
+  @override
+  $JsonBooleanCopyWith<JsonBoolean> get copyWith =>
+      _$JsonBooleanCopyWithImpl<JsonBoolean>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(Map<String, Json> value) map,
+    required TResult Function(List<Json> value) list,
+    required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
+    required TResult Function(String value) str,
+    required TResult Function() none,
+  }) {
+    return boolean(value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(Map<String, Json> value)? map,
+    TResult Function(List<Json> value)? list,
+    TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
+    TResult Function(String value)? str,
+    TResult Function()? none,
+  }) {
+    return boolean?.call(value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(Map<String, Json> value)? map,
+    TResult Function(List<Json> value)? list,
+    TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
+    TResult Function(String value)? str,
+    TResult Function()? none,
+    required TResult orElse(),
+  }) {
+    if (boolean != null) {
+      return boolean(value);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(JsonMap value) map,
+    required TResult Function(JsonList value) list,
+    required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
+    required TResult Function(JsonStr value) str,
+    required TResult Function(JsonNone value) none,
+  }) {
+    return boolean(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(JsonMap value)? map,
+    TResult Function(JsonList value)? list,
+    TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
+    TResult Function(JsonStr value)? str,
+    TResult Function(JsonNone value)? none,
+  }) {
+    return boolean?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(JsonMap value)? map,
+    TResult Function(JsonList value)? list,
+    TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
+    TResult Function(JsonStr value)? str,
+    TResult Function(JsonNone value)? none,
+    required TResult orElse(),
+  }) {
+    if (boolean != null) {
+      return boolean(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class JsonBoolean extends Json {
+  const factory JsonBoolean(bool value) = _$JsonBoolean;
+  const JsonBoolean._() : super._();
+
+  bool get value => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $JsonBooleanCopyWith<JsonBoolean> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -639,6 +827,7 @@ class _$JsonStr extends JsonStr {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) {
@@ -651,6 +840,7 @@ class _$JsonStr extends JsonStr {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) {
@@ -663,6 +853,7 @@ class _$JsonStr extends JsonStr {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -679,6 +870,7 @@ class _$JsonStr extends JsonStr {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) {
@@ -691,6 +883,7 @@ class _$JsonStr extends JsonStr {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) {
@@ -703,6 +896,7 @@ class _$JsonStr extends JsonStr {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
@@ -763,6 +957,7 @@ class _$JsonNone extends JsonNone {
     required TResult Function(Map<String, Json> value) map,
     required TResult Function(List<Json> value) list,
     required TResult Function(num value) number,
+    required TResult Function(bool value) boolean,
     required TResult Function(String value) str,
     required TResult Function() none,
   }) {
@@ -775,6 +970,7 @@ class _$JsonNone extends JsonNone {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
   }) {
@@ -787,6 +983,7 @@ class _$JsonNone extends JsonNone {
     TResult Function(Map<String, Json> value)? map,
     TResult Function(List<Json> value)? list,
     TResult Function(num value)? number,
+    TResult Function(bool value)? boolean,
     TResult Function(String value)? str,
     TResult Function()? none,
     required TResult orElse(),
@@ -803,6 +1000,7 @@ class _$JsonNone extends JsonNone {
     required TResult Function(JsonMap value) map,
     required TResult Function(JsonList value) list,
     required TResult Function(JsonNumber value) number,
+    required TResult Function(JsonBoolean value) boolean,
     required TResult Function(JsonStr value) str,
     required TResult Function(JsonNone value) none,
   }) {
@@ -815,6 +1013,7 @@ class _$JsonNone extends JsonNone {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
   }) {
@@ -827,6 +1026,7 @@ class _$JsonNone extends JsonNone {
     TResult Function(JsonMap value)? map,
     TResult Function(JsonList value)? list,
     TResult Function(JsonNumber value)? number,
+    TResult Function(JsonBoolean value)? boolean,
     TResult Function(JsonStr value)? str,
     TResult Function(JsonNone value)? none,
     required TResult orElse(),
