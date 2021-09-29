@@ -1,96 +1,109 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/nonnull-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import 'dart:convert';
 
-import { expectJSON } from '../../__testUtils__/expectJSON';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
-import { parse } from '../../language/parser';
+class _Exception implements Exception {
+  final String message;
 
-import { GraphQLSchema } from '../../type/schema';
-import { GraphQLString } from '../../type/scalars';
-import { GraphQLNonNull, GraphQLObjectType } from '../../type/definition';
+  const _Exception(this.message);
 
-import { buildSchema } from '../../utilities/buildASTSchema';
+  @override
+  String toString() {
+    return message;
+  }
+}
 
-import type { ExecutionResult } from '../execute';
-import { execute, executeSync } from '../execute';
+const syncError = _Exception('sync');
+const syncNonNullError = _Exception('syncNonNull');
+const promiseError = _Exception('promise');
+const promiseNonNullError = _Exception('promiseNonNull');
 
-const syncError = new Error('sync');
-const syncNonNullError = new Error('syncNonNull');
-const promiseError = new Error('promise');
-const promiseNonNullError = new Error('promiseNonNull');
+final Map<String, Object? Function()> throwingData = () {
+  final Map<String, Object? Function()> throwingData = {
+    'sync': () {
+      throw syncError;
+    },
+    'syncNonNull': () {
+      throw syncNonNullError;
+    },
+    'promise': () {
+      return Future.microtask(() {
+        throw promiseError;
+      });
+    },
+    'promiseNonNull': () {
+      return Future.microtask(() {
+        throw promiseNonNullError;
+      });
+    },
+  };
 
-const throwingData = {
-  sync() {
-    throw syncError;
-  },
-  syncNonNull() {
-    throw syncNonNullError;
-  },
-  promise() {
-    return new Promise(() => {
-      throw promiseError;
-    });
-  },
-  promiseNonNull() {
-    return new Promise(() => {
-      throw promiseNonNullError;
-    });
-  },
-  syncNest() {
-    return throwingData;
-  },
-  syncNonNullNest() {
-    return throwingData;
-  },
-  promiseNest() {
-    return new Promise((resolve) => {
-      resolve(throwingData);
-    });
-  },
-  promiseNonNullNest() {
-    return new Promise((resolve) => {
-      resolve(throwingData);
-    });
-  },
-};
+  throwingData.addAll({
+    'syncNest': () {
+      return throwingData;
+    },
+    'syncNonNullNest': () {
+      return throwingData;
+    },
+    'promiseNest': () {
+      return Future<Object?>.microtask(() {
+        return throwingData;
+      });
+    },
+    'promiseNonNullNest': () {
+      return Future<Object?>.microtask(() {
+        return throwingData;
+      });
+    },
+  });
 
-const nullingData = {
-  sync() {
-    return null;
-  },
-  syncNonNull() {
-    return null;
-  },
-  promise() {
-    return new Promise((resolve) => {
-      resolve(null);
-    });
-  },
-  promiseNonNull() {
-    return new Promise((resolve) => {
-      resolve(null);
-    });
-  },
-  syncNest() {
-    return nullingData;
-  },
-  syncNonNullNest() {
-    return nullingData;
-  },
-  promiseNest() {
-    return new Promise((resolve) => {
-      resolve(nullingData);
-    });
-  },
-  promiseNonNullNest() {
-    return new Promise((resolve) => {
-      resolve(nullingData);
-    });
-  },
-};
+  return throwingData;
+}();
 
-const schema = buildSchema(`
+final Map<String, Object? Function()> nullingData = () {
+  final nullingData = <String, Object? Function()>{
+    'sync': () {
+      return null;
+    },
+    'syncNonNull': () {
+      return null;
+    },
+    'promise': () {
+      return Future.microtask(() {
+        return null;
+      });
+    },
+    'promiseNonNull': () {
+      return Future.microtask(() {
+        return null;
+      });
+    },
+  };
+  nullingData.addAll({
+    'syncNest': () {
+      return nullingData;
+    },
+    'syncNonNullNest': () {
+      return nullingData;
+    },
+    'promiseNest': () {
+      return Future.microtask(() {
+        return nullingData;
+      });
+    },
+    'promiseNonNullNest': () {
+      return Future.microtask(() {
+        return nullingData;
+      });
+    },
+  });
+  return nullingData;
+}();
+
+// TODO:
+final schema = buildSchema('''
   type DataType {
     sync: String
     syncNonNull: String!
@@ -105,109 +118,138 @@ const schema = buildSchema(`
   schema {
     query: DataType
   }
-`);
+''');
 
-function executeQuery(
-  query: string,
-  rootValue: unknown,
-): ExecutionResult | Promise<ExecutionResult> {
-  return execute({ schema, document: parse(query), rootValue });
+Future<Map<String, Object?>> execute(
+  GraphQLSchema schema,
+  String query, {
+  Map<String, Object?>? variableValues,
+  Object? rootValue,
+  bool validate = true,
+}) async {
+  final result = await GraphQL(schema, validate: validate).parseAndExecute(
+    query,
+    initialValue: rootValue,
+    variableValues: variableValues,
+  );
+  return result.toJson();
 }
 
-function patch(str: string): string {
+Future<Map<String, Object?>> executeQuery(
+  String query,
+  Object? rootValue,
+) async {
+  final result = await GraphQL(schema).parseAndExecute(
+    query,
+    initialValue: rootValue,
+  );
+  return result.toJson();
+}
+
+String patch(String str) {
   return str
-    .replace(/\bsync\b/g, 'promise')
-    .replace(/\bsyncNonNull\b/g, 'promiseNonNull');
+      .replaceAll(RegExp('\bsync\b'), 'promise')
+      .replaceAll(RegExp('\bsyncNonNull\b'), 'promiseNonNull');
 }
 
 // avoids also doing any nests
-function patchData(data: ExecutionResult): ExecutionResult {
-  return JSON.parse(patch(JSON.stringify(data)));
+Map<String, Object?> patchData(Map<String, Object?> data) {
+  return jsonDecode(patch(jsonEncode(data))) as Map<String, Object?>;
 }
 
-async function executeSyncAndAsync(query: string, rootValue: unknown) {
-  const syncResult = executeSync({ schema, document: parse(query), rootValue });
-  const asyncResult = await execute({
-    schema,
-    document: parse(patch(query)),
-    rootValue,
-  });
+Future<Map<String, Object?>> executeSyncAndAsync(
+    String query, Object? rootValue) {
+  // const syncResult = executeSync({ schema, document: parse(query), rootValue });
+  // const asyncResult = await execute({
+  //   schema,
+  //   document: parse(patch(query)),
+  //   rootValue,
+  // });
 
-  expectJSON(asyncResult).to.deep.equal(patchData(syncResult));
-  return syncResult;
+  // expect(asyncResult, patchData(syncResult));
+  // return syncResult;
+  return executeQuery(query, rootValue);
 }
 
-describe('Execute: handles non-nullable types', () => {
-  describe('nulls a nullable field', () => {
-    const query = `
+/// 'Execute: handles non-nullable types'
+void main() {
+  group('nulls a nullable field', () {
+    const query = '''
       {
         sync
       }
-    `;
+    ''';
 
-    it('that returns null', async () => {
-      const result = await executeSyncAndAsync(query, nullingData);
-      expect(result).to.deep.equal({
-        data: { sync: null },
+    test('that returns null', () async {
+      final result = await executeSyncAndAsync(query, nullingData);
+      expect(result, {
+        'data': {'sync': null},
       });
     });
 
-    it('that throws', async () => {
-      const result = await executeSyncAndAsync(query, throwingData);
-      expectJSON(result).to.deep.equal({
-        data: { sync: null },
-        errors: [
+    test('that throws', () async {
+      final result = await executeSyncAndAsync(query, throwingData);
+      expect(result, {
+        'data': {'sync': null},
+        'errors': <Map<String, Object?>>[
           {
-            message: syncError.message,
-            path: ['sync'],
-            locations: [{ line: 3, column: 9 }],
+            'message': syncError.message,
+            'path': ['sync'],
+            'locations': [
+              {'line': 1, 'column': 8}
+            ],
           },
         ],
       });
     });
   });
 
-  describe('nulls a returned object that contains a non-nullable field', () => {
-    const query = `
+  group('nulls a returned object that contains a non-nullable field', () {
+    const query = '''
       {
         syncNest {
           syncNonNull,
         }
       }
-    `;
+    ''';
 
-    it('that returns null', async () => {
-      const result = await executeSyncAndAsync(query, nullingData);
-      expectJSON(result).to.deep.equal({
-        data: { syncNest: null },
-        errors: [
+    test('that returns null', () async {
+      final result = await executeSyncAndAsync(query, nullingData);
+      expect(result, {
+        'data': {'syncNest': null},
+        'errors': [
           {
-            message:
-              'Cannot return null for non-nullable field DataType.syncNonNull.',
-            path: ['syncNest', 'syncNonNull'],
-            locations: [{ line: 4, column: 11 }],
+            // TODO: DataType object in error
+            'message': stringContainsInOrder(['non-null', 'syncNonNull']),
+            // 'Cannot return null for non-nullable field DataType.syncNonNull.',
+            'path': ['syncNest', 'syncNonNull'],
+            'locations': [
+              {'line': 2, 'column': 10}
+            ],
           },
         ],
       });
     });
 
-    it('that throws', async () => {
-      const result = await executeSyncAndAsync(query, throwingData);
-      expectJSON(result).to.deep.equal({
-        data: { syncNest: null },
-        errors: [
+    test('that throws', () async {
+      final result = await executeSyncAndAsync(query, throwingData);
+      expect(result, {
+        'data': {'syncNest': null},
+        'errors': <Map<String, Object?>>[
           {
-            message: syncNonNullError.message,
-            path: ['syncNest', 'syncNonNull'],
-            locations: [{ line: 4, column: 11 }],
+            'message': syncNonNullError.message,
+            'path': ['syncNest', 'syncNonNull'],
+            'locations': [
+              {'line': 2, 'column': 10}
+            ],
           },
         ],
       });
     });
   });
 
-  describe('nulls a complex tree of nullable fields, each', () => {
-    const query = `
+  group('nulls a complex tree of nullable fields, each', () {
+    const query = '''
       {
         syncNest {
           sync
@@ -222,99 +264,126 @@ describe('Execute: handles non-nullable types', () => {
           promiseNest { sync promise }
         }
       }
-    `;
+    ''';
     const data = {
-      syncNest: {
-        sync: null,
-        promise: null,
-        syncNest: { sync: null, promise: null },
-        promiseNest: { sync: null, promise: null },
+      'syncNest': {
+        'sync': null,
+        'promise': null,
+        'syncNest': {'sync': null, 'promise': null},
+        'promiseNest': {'sync': null, 'promise': null},
       },
-      promiseNest: {
-        sync: null,
-        promise: null,
-        syncNest: { sync: null, promise: null },
-        promiseNest: { sync: null, promise: null },
+      'promiseNest': {
+        'sync': null,
+        'promise': null,
+        'syncNest': {'sync': null, 'promise': null},
+        'promiseNest': {'sync': null, 'promise': null},
       },
     };
 
-    it('that returns null', async () => {
-      const result = await executeQuery(query, nullingData);
-      expect(result).to.deep.equal({ data });
+    test('that returns null', () async {
+      final result = await executeQuery(query, nullingData);
+      expect(result, {'data': data});
     });
 
-    it('that throws', async () => {
-      const result = await executeQuery(query, throwingData);
-      expectJSON(result).to.deep.equal({
-        data,
-        errors: [
+    test('that throws', () async {
+      final result = await executeQuery(query, throwingData);
+      expect(result, {
+        'data': data,
+        // TODO: should this be ordered?
+        'errors': unorderedEquals(<Map<String, Object?>>[
           {
-            message: syncError.message,
-            path: ['syncNest', 'sync'],
-            locations: [{ line: 4, column: 11 }],
+            'message': syncError.message,
+            'path': ['syncNest', 'sync'],
+            'locations': [
+              {'line': 2, 'column': 10}
+            ],
           },
           {
-            message: syncError.message,
-            path: ['syncNest', 'syncNest', 'sync'],
-            locations: [{ line: 6, column: 22 }],
+            'message': syncError.message,
+            'path': ['syncNest', 'syncNest', 'sync'],
+            'locations': [
+              {'line': 4, 'column': 21}
+            ],
           },
           {
-            message: syncError.message,
-            path: ['syncNest', 'promiseNest', 'sync'],
-            locations: [{ line: 7, column: 25 }],
+            'message': syncError.message,
+            'path': ['syncNest', 'promiseNest', 'sync'],
+            'locations': [
+              {'line': 5, 'column': 24}
+            ],
           },
           {
-            message: syncError.message,
-            path: ['promiseNest', 'sync'],
-            locations: [{ line: 10, column: 11 }],
+            'message': syncError.message,
+            'path': ['promiseNest', 'sync'],
+            'locations': [
+              {'line': 8, 'column': 10}
+            ],
           },
           {
-            message: syncError.message,
-            path: ['promiseNest', 'syncNest', 'sync'],
-            locations: [{ line: 12, column: 22 }],
+            'message': syncError.message,
+            'path': ['promiseNest', 'syncNest', 'sync'],
+            'locations': [
+              {'line': 10, 'column': 21}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['syncNest', 'promise'],
-            locations: [{ line: 5, column: 11 }],
+            'message': promiseError.message,
+            'path': ['syncNest', 'promise'],
+            'locations': [
+              {'line': 3, 'column': 10}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['syncNest', 'syncNest', 'promise'],
-            locations: [{ line: 6, column: 27 }],
+            'message': promiseError.message,
+            'path': ['syncNest', 'syncNest', 'promise'],
+            'locations': [
+              {'line': 4, 'column': 26}
+            ],
           },
           {
-            message: syncError.message,
-            path: ['promiseNest', 'promiseNest', 'sync'],
-            locations: [{ line: 13, column: 25 }],
+            'message': syncError.message,
+            'path': ['promiseNest', 'promiseNest', 'sync'],
+            'locations': [
+              {'line': 11, 'column': 24}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['syncNest', 'promiseNest', 'promise'],
-            locations: [{ line: 7, column: 30 }],
+            'message': promiseError.message,
+            'path': ['syncNest', 'promiseNest', 'promise'],
+            'locations': [
+              {'line': 5, 'column': 29}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['promiseNest', 'promise'],
-            locations: [{ line: 11, column: 11 }],
+            'message': promiseError.message,
+            'path': ['promiseNest', 'promise'],
+            'locations': [
+              {'line': 9, 'column': 10}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['promiseNest', 'syncNest', 'promise'],
-            locations: [{ line: 12, column: 27 }],
+            'message': promiseError.message,
+            'path': ['promiseNest', 'syncNest', 'promise'],
+            'locations': [
+              {'line': 10, 'column': 26}
+            ],
           },
           {
-            message: promiseError.message,
-            path: ['promiseNest', 'promiseNest', 'promise'],
-            locations: [{ line: 13, column: 30 }],
+            'message': promiseError.message,
+            'path': ['promiseNest', 'promiseNest', 'promise'],
+            'locations': [
+              {'line': 11, 'column': 29}
+            ],
           },
-        ],
+        ]),
       });
     });
   });
 
-  describe('nulls the first nullable object after a field in a long chain of non-null fields', () => {
-    const query = `
+  group(
+      'nulls the first nullable object after a field in a long chain of non-null fields',
+      () {
+    const query = '''
       {
         syncNest {
           syncNonNullNest {
@@ -361,23 +430,23 @@ describe('Execute: handles non-nullable types', () => {
           }
         }
       }
-    `;
+    ''';
     const data = {
-      syncNest: null,
-      promiseNest: null,
-      anotherNest: null,
-      anotherPromiseNest: null,
+      'syncNest': null,
+      'promiseNest': null,
+      'anotherNest': null,
+      'anotherPromiseNest': null,
     };
 
-    it('that returns null', async () => {
-      const result = await executeQuery(query, nullingData);
-      expectJSON(result).to.deep.equal({
-        data,
-        errors: [
+    test('that returns null', () async {
+      final result = await executeQuery(query, nullingData);
+      expect(result, {
+        'data': data,
+        'errors': [
           {
-            message:
-              'Cannot return null for non-nullable field DataType.syncNonNull.',
-            path: [
+            'message':
+                'Cannot return null for non-nullable field DataType.syncNonNull.',
+            'path': [
               'syncNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -385,12 +454,14 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'syncNonNull',
             ],
-            locations: [{ line: 8, column: 19 }],
+            'locations': [
+              {'line': 6, 'column': 18}
+            ],
           },
           {
-            message:
-              'Cannot return null for non-nullable field DataType.syncNonNull.',
-            path: [
+            'message':
+                'Cannot return null for non-nullable field DataType.syncNonNull.',
+            'path': [
               'promiseNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -398,12 +469,14 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'syncNonNull',
             ],
-            locations: [{ line: 19, column: 19 }],
+            'locations': [
+              {'line': 17, 'column': 18}
+            ],
           },
           {
-            message:
-              'Cannot return null for non-nullable field DataType.promiseNonNull.',
-            path: [
+            'message':
+                'Cannot return null for non-nullable field DataType.promiseNonNull.',
+            'path': [
               'anotherNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -411,12 +484,14 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'promiseNonNull',
             ],
-            locations: [{ line: 30, column: 19 }],
+            'locations': [
+              {'line': 28, 'column': 18}
+            ],
           },
           {
-            message:
-              'Cannot return null for non-nullable field DataType.promiseNonNull.',
-            path: [
+            'message':
+                'Cannot return null for non-nullable field DataType.promiseNonNull.',
+            'path': [
               'anotherPromiseNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -424,20 +499,22 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'promiseNonNull',
             ],
-            locations: [{ line: 41, column: 19 }],
+            'locations': [
+              {'line': 39, 'column': 18}
+            ],
           },
         ],
       });
     });
 
-    it('that throws', async () => {
-      const result = await executeQuery(query, throwingData);
-      expectJSON(result).to.deep.equal({
-        data,
-        errors: [
+    test('that throws', () async {
+      final result = await executeQuery(query, throwingData);
+      expect(result, {
+        'data': data,
+        'errors': [
           {
-            message: syncNonNullError.message,
-            path: [
+            'message': syncNonNullError.message,
+            'path': [
               'syncNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -445,11 +522,13 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'syncNonNull',
             ],
-            locations: [{ line: 8, column: 19 }],
+            'locations': [
+              {'line': 6, 'column': 18}
+            ],
           },
           {
-            message: syncNonNullError.message,
-            path: [
+            'message': syncNonNullError.message,
+            'path': [
               'promiseNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -457,11 +536,13 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'syncNonNull',
             ],
-            locations: [{ line: 19, column: 19 }],
+            'locations': [
+              {'line': 17, 'column': 18}
+            ],
           },
           {
-            message: promiseNonNullError.message,
-            path: [
+            'message': promiseNonNullError.message,
+            'path': [
               'anotherNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -469,11 +550,13 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'promiseNonNull',
             ],
-            locations: [{ line: 30, column: 19 }],
+            'locations': [
+              {'line': 28, 'column': 18}
+            ],
           },
           {
-            message: promiseNonNullError.message,
-            path: [
+            'message': promiseNonNullError.message,
+            'path': [
               'anotherPromiseNest',
               'syncNonNullNest',
               'promiseNonNullNest',
@@ -481,235 +564,250 @@ describe('Execute: handles non-nullable types', () => {
               'promiseNonNullNest',
               'promiseNonNull',
             ],
-            locations: [{ line: 41, column: 19 }],
+            'locations': [
+              {'line': 39, 'column': 18}
+            ],
           },
         ],
       });
     });
   });
 
-  describe('nulls the top level if non-nullable field', () => {
-    const query = `
+  group('nulls the top level if non-nullable field', () {
+    const query = '''
       {
         syncNonNull
       }
-    `;
+    ''';
 
-    it('that returns null', async () => {
-      const result = await executeSyncAndAsync(query, nullingData);
-      expectJSON(result).to.deep.equal({
-        data: null,
-        errors: [
+    test('that returns null', () async {
+      final result = await executeSyncAndAsync(query, nullingData);
+      expect(result, {
+        'data': null,
+        'errors': [
           {
-            message:
-              'Cannot return null for non-nullable field DataType.syncNonNull.',
-            path: ['syncNonNull'],
-            locations: [{ line: 3, column: 9 }],
+            'message':
+                'Cannot return null for non-nullable field DataType.syncNonNull.',
+            'path': ['syncNonNull'],
+            'locations': [
+              {'line': 1, 'column': 8}
+            ],
           },
         ],
       });
     });
 
-    it('that throws', async () => {
-      const result = await executeSyncAndAsync(query, throwingData);
-      expectJSON(result).to.deep.equal({
-        data: null,
-        errors: [
+    test('that throws', () async {
+      final result = await executeSyncAndAsync(query, throwingData);
+      expect(result, {
+        'data': null,
+        'errors': [
           {
-            message: syncNonNullError.message,
-            path: ['syncNonNull'],
-            locations: [{ line: 3, column: 9 }],
+            'message': syncNonNullError.message,
+            'path': ['syncNonNull'],
+            'locations': [
+              {'line': 1, 'column': 8}
+            ],
           },
         ],
       });
     });
   });
 
-  describe('Handles non-null argument', () => {
-    const schemaWithNonNullArg = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          withNonNullArg: {
-            type: GraphQLString,
-            args: {
-              cannotBeNull: {
-                type: new GraphQLNonNull(GraphQLString),
-              },
-            },
-            resolve: (_, args) => 'Passed: ' + String(args.cannotBeNull),
-          },
-        },
-      }),
-    });
+  group('Handles non-null argument', () {
+    final schemaWithNonNullArg = GraphQLSchema(
+      queryType: GraphQLObjectType(
+        'Query',
+        fields: [
+          graphQLString.field(
+            'withNonNullArg',
+            inputs: [
+              GraphQLFieldInput('cannotBeNull', graphQLString.nonNull()),
+            ],
+            resolve: (_, ctx) => 'Passed: ${ctx.args['cannotBeNull']}',
+          ),
+        ],
+      ),
+    );
 
-    it('succeeds when passed non-null literal value', () => {
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+    test('succeeds when passed non-null literal value', () async {
+      final result = await execute(
+        schemaWithNonNullArg,
+        '''
           query {
             withNonNullArg (cannotBeNull: "literal value")
           }
-        `),
-      });
+        ''',
+      );
 
-      expect(result).to.deep.equal({
-        data: {
-          withNonNullArg: 'Passed: literal value',
+      expect(result, {
+        'data': {
+          'withNonNullArg': 'Passed: literal value',
         },
       });
     });
 
-    it('succeeds when passed non-null variable value', () => {
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+    test('succeeds when passed non-null variable value', () async {
+      final result = await execute(
+        schemaWithNonNullArg,
+        r'''
           query ($testVar: String!) {
             withNonNullArg (cannotBeNull: $testVar)
           }
-        `),
+        ''',
         variableValues: {
-          testVar: 'variable value',
+          'testVar': 'variable value',
         },
-      });
+      );
 
-      expect(result).to.deep.equal({
-        data: {
-          withNonNullArg: 'Passed: variable value',
+      expect(result, {
+        'data': {
+          'withNonNullArg': 'Passed: variable value',
         },
       });
     });
 
-    it('succeeds when missing variable has default value', () => {
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+    test('succeeds when missing variable has default value', () async {
+      final result = await execute(
+        schemaWithNonNullArg,
+        r'''
           query ($testVar: String = "default value") {
             withNonNullArg (cannotBeNull: $testVar)
           }
-        `),
+        ''',
         variableValues: {
           // Intentionally missing variable
         },
-      });
+      );
 
-      expect(result).to.deep.equal({
-        data: {
-          withNonNullArg: 'Passed: default value',
+      expect(result, {
+        'data': {
+          'withNonNullArg': 'Passed: default value',
         },
       });
     });
 
-    it('field error when missing non-null arg', () => {
+    test('field error when missing non-null arg', () async {
       // Note: validation should identify this issue first (missing args rule)
       // however execution should still protect against this.
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+      final result = await execute(
+        schemaWithNonNullArg,
+        '''
           query {
             withNonNullArg
           }
-        `),
-      });
+        ''',
+      );
 
-      expectJSON(result).to.deep.equal({
-        data: {
-          withNonNullArg: null,
+      expect(result, {
+        'data': {
+          'withNonNullArg': null,
         },
-        errors: [
+        'errors': [
           {
-            message:
-              'Argument "cannotBeNull" of required type "String!" was not provided.',
-            locations: [{ line: 3, column: 13 }],
-            path: ['withNonNullArg'],
+            'message':
+                'Argument "cannotBeNull" of required type "String!" was not provided.',
+            'locations': [
+              {'line': 1, 'column': 12}
+            ],
+            'path': ['withNonNullArg'],
           },
         ],
       });
     });
 
-    it('field error when non-null arg provided null', () => {
+    test('field error when non-null arg provided null', () async {
       // Note: validation should identify this issue first (values of correct
       // type rule) however execution should still protect against this.
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+      final result = await execute(
+        schemaWithNonNullArg,
+        '''
           query {
             withNonNullArg(cannotBeNull: null)
           }
-        `),
-      });
+        ''',
+      );
 
-      expectJSON(result).to.deep.equal({
-        data: {
-          withNonNullArg: null,
+      expect(result, {
+        'data': {
+          'withNonNullArg': null,
         },
-        errors: [
+        'errors': [
           {
-            message:
-              'Argument "cannotBeNull" of non-null type "String!" must not be null.',
-            locations: [{ line: 3, column: 42 }],
-            path: ['withNonNullArg'],
+            'message':
+                'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+            'locations': [
+              {'line': 1, 'column': 42}
+            ],
+            'path': ['withNonNullArg'],
           },
         ],
       });
     });
 
-    it('field error when non-null arg not provided variable value', () => {
+    test('field error when non-null arg not provided variable value', () async {
       // Note: validation should identify this issue first (variables in allowed
       // position rule) however execution should still protect against this.
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+      final result = await execute(
+        schemaWithNonNullArg,
+        r'''
           query ($testVar: String) {
             withNonNullArg(cannotBeNull: $testVar)
           }
-        `),
+        ''',
         variableValues: {
           // Intentionally missing variable
         },
-      });
+      );
 
-      expectJSON(result).to.deep.equal({
-        data: {
-          withNonNullArg: null,
+      expect(result, {
+        'data': {
+          'withNonNullArg': null,
         },
-        errors: [
+        'errors': [
           {
-            message:
-              'Argument "cannotBeNull" of required type "String!" was provided the variable "$testVar" which was not provided a runtime value.',
-            locations: [{ line: 3, column: 42 }],
-            path: ['withNonNullArg'],
+            'message':
+                stringContainsInOrder(['cannotBeNull', 'String!', 'testVar']),
+            // 'Argument "cannotBeNull" of required type "String!" was provided the variable "$testVar" which was not provided a runtime value.',
+            'locations': [
+              {'line': 2, 'column': 42}
+            ],
+            'path': ['withNonNullArg'],
           },
         ],
       });
     });
 
-    it('field error when non-null arg provided variable with explicit null value', () => {
-      const result = executeSync({
-        schema: schemaWithNonNullArg,
-        document: parse(`
+    test(
+        'field error when non-null arg provided variable with explicit null value',
+        () async {
+      final result = await execute(
+        schemaWithNonNullArg,
+        r'''
           query ($testVar: String = "default value") {
             withNonNullArg (cannotBeNull: $testVar)
           }
-        `),
+        ''',
         variableValues: {
-          testVar: null,
+          'testVar': null,
         },
-      });
+      );
 
-      expectJSON(result).to.deep.equal({
-        data: {
-          withNonNullArg: null,
+      expect(result, {
+        'data': {
+          'withNonNullArg': null,
         },
-        errors: [
+        'errors': [
           {
-            message:
-              'Argument "cannotBeNull" of non-null type "String!" must not be null.',
-            locations: [{ line: 3, column: 43 }],
-            path: ['withNonNullArg'],
+            'message':
+                'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+            'locations': [
+              {'line': 1, 'column': 43}
+            ],
+            'path': ['withNonNullArg'],
           },
         ],
       });
     });
   });
-});
+}
