@@ -345,6 +345,7 @@ class SchemaPrinter {
   }
 }
 
+// TODO:
 String printAST(String t) => '"$t"';
 
 String? astFromValue(Object? value, GraphQLType type) => value?.toString();
@@ -516,6 +517,9 @@ class CollectTypes {
 
     for (final i in objectType.interfaces) {
       _fetchAllTypesFromObject(i);
+    }
+    for (final pt in objectType.possibleTypes) {
+      _fetchAllTypesFromObject(pt);
     }
   }
 
