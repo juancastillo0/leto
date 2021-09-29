@@ -6,6 +6,7 @@ import 'package:gql/ast.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/src/extension.dart';
+import 'package:meta/meta.dart';
 
 class GraphQLTracingExtension extends GraphQLExtension {
   final ref = GlobalRef('GraphQLTracingExtension');
@@ -206,6 +207,7 @@ class TracingItemBuilder {
   }
 }
 
+@immutable
 class Tracing {
   final int version;
   final DateTime startTime;
@@ -217,7 +219,7 @@ class Tracing {
   final TracingItem validation;
   final ExecutionTracing execution;
 
-  Tracing({
+  const Tracing({
     required this.version,
     required this.startTime,
     required this.endTime,
@@ -313,6 +315,7 @@ abstract class TracingItemI {
   int get duration;
 }
 
+@immutable
 class TracingItem implements TracingItemI {
   @override
   final int startOffset;
@@ -320,7 +323,7 @@ class TracingItem implements TracingItemI {
   @override
   final int duration;
 
-  TracingItem({
+  const TracingItem({
     required this.startOffset,
     required this.duration,
   });
@@ -396,9 +399,10 @@ class ExecutionTracingBuilder {
   }
 }
 
+@immutable
 class ExecutionTracing {
   final Map<ResolverTracing, TracingItem> resolvers;
-  ExecutionTracing({
+  const ExecutionTracing({
     required this.resolvers,
   });
 
@@ -440,9 +444,10 @@ class ExecutionTracing {
   }
 
   @override
-  int get hashCode => resolvers.hashCode;
+  int get hashCode => const DeepCollectionEquality().hash(resolvers);
 }
 
+@immutable
 class ResolverTracing {
   final List<Object> path;
   final String parentType;
@@ -512,7 +517,7 @@ class ResolverTracing {
 
   @override
   int get hashCode {
-    return path.hashCode ^
+    return const DeepCollectionEquality().hash(path) ^
         parentType.hashCode ^
         fieldName.hashCode ^
         returnType.hashCode;
