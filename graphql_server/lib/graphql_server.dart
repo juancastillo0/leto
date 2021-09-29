@@ -12,6 +12,7 @@ import 'introspection.dart';
 import 'src/graphql_result.dart';
 import 'src/schema_helpers.dart';
 
+export 'src/build_schema.dart';
 export 'src/extension.dart';
 export 'src/graphql_result.dart';
 
