@@ -10,6 +10,7 @@ import 'package:source_span/source_span.dart';
 
 import 'introspection.dart';
 import 'src/graphql_result.dart';
+import 'src/schema_helpers.dart';
 
 export 'src/extension.dart';
 export 'src/graphql_result.dart';
@@ -78,44 +79,6 @@ class GraphQL {
     }
     if (_schema.subscriptionType != null) {
       this.customTypes.add(_schema.subscriptionType!);
-    }
-  }
-
-  Object? computeValue(
-    GraphQLType? targetType,
-    ValueNode node,
-    Map<String, dynamic>? values,
-  ) =>
-      node.accept(GraphQLValueComputer(targetType, values));
-
-  GraphQLType convertType(TypeNode node) {
-    if (node is ListTypeNode) {
-      return GraphQLListType<Object, Object>(convertType(node.type));
-    } else if (node is NamedTypeNode) {
-      switch (node.name.value) {
-        case 'Int':
-          return graphQLInt;
-        case 'Float':
-          return graphQLFloat;
-        case 'String':
-          return graphQLString;
-        case 'Boolean':
-          return graphQLBoolean;
-        case 'ID':
-          return graphQLId;
-        case 'Date':
-        case 'DateTime':
-          return graphQLDate;
-        default:
-          return customTypes.firstWhere(
-            (t) => t.name == node.name.value,
-            orElse: () => throw ArgumentError(
-              'Unknown GraphQL type: "${node.name.value}"',
-            ),
-          );
-      }
-    } else {
-      throw ArgumentError('Invalid GraphQL type: "${node.span!.text}"');
     }
   }
 
@@ -334,34 +297,34 @@ class GraphQL {
     for (final variableDefinition in variableDefinitions) {
       final variableName = variableDefinition.variable.name.value;
       final variableType = variableDefinition.type;
+      final type = convertType(variableType, customTypes);
       // TODO: Assert: IsInputType(variableType) must be true.
       final defaultValue = variableDefinition.defaultValue;
 
+      final span = variableDefinition.span ??
+          variableDefinition.variable.span ??
+          variableDefinition.variable.name.span;
+
       if (variableValues == null || !variableValues.containsKey(variableName)) {
-        if (defaultValue != null) {
-          coercedValues[variableName] = defaultValue.value == null
-              ? null
-              : computeValue(
-                  convertType(variableType),
-                  defaultValue.value!,
-                  variableValues,
-                );
+        if (defaultValue?.value != null) {
+          coercedValues[variableName] = computeValue(
+            type,
+            defaultValue!.value!,
+            variableValues,
+          );
         }
       } else {
         final Object? value = variableValues[variableName];
         if (value == null) {
-          coercedValues[variableName] = null;
+          if (variableValues.containsKey(variableName))
+            coercedValues[variableName] = null;
         } else {
-          final type = convertType(variableType);
           // TODO: should we just deserialize with a result?
           final validation = type.validate(variableName, value);
 
           if (!validation.successful) {
             final locations = GraphQLErrorLocation.listFromSource(
-              (variableDefinition.span ??
-                      variableDefinition.variable.span ??
-                      variableDefinition.variable.name.span)
-                  ?.start,
+              span?.start,
             );
             throw GraphQLException(
               validation.errors
@@ -379,8 +342,10 @@ class GraphQL {
       }
       if (variableType.isNonNull && coercedValues[variableName] == null) {
         throw GraphQLException.fromSourceSpan(
-            'Missing required variable "$variableName".',
-            variableDefinition.span!);
+            coercedValues.containsKey(variableName)
+                ? 'Required variable "$variableName" of type $type must not be null.'
+                : 'Missing required variable "$variableName" of type $type',
+            span!);
       }
     }
 
@@ -1184,7 +1149,7 @@ class GraphQL {
         name: fragmentType.on.name,
         span: fragmentType.on.span,
         isNonNull: fragmentType.on.isNonNull);
-    final type = convertType(typeNode);
+    final type = convertType(typeNode, customTypes);
 
     return type.whenMaybe(
       object: (type) {
