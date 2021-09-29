@@ -670,8 +670,10 @@ class GraphQL {
         if (defaultValue != null) {
           coercedValues[argumentName] = defaultValue;
         } else if (argumentType.isNonNullable) {
+          // TODO: "Missing value for argument" repeated 3 times
           throw GraphQLException.fromMessage(
-            'Missing value for argument "$argumentName" of field "$fieldName".',
+            'Missing value for argument "$argumentName" of type $argumentType'
+            ' for field "$fieldName".',
           );
         } else {
           continue;
@@ -681,15 +683,23 @@ class GraphQL {
         // TODO: verify
         // TODO: check subscriptions
         final node = argumentValue.value;
+        final span = node.span ?? argumentValue.span ?? argumentValue.name.span;
         if (node is VariableNode) {
           /// variable values where already validated and
           /// coerced in [coerceVariableValues]
           final variableName = node.name.value;
-          final Object? value = variableValues[variableName];
+          final Object? value = variableValues.containsKey(variableName)
+              ? variableValues[variableName]
+              : defaultValue;
           coercedValues[argumentName] = value;
           if (value == null && argumentType.isNonNullable) {
             throw GraphQLException.fromMessage(
-              'Missing value for argument "$argumentName" of field "$fieldName".',
+              variableValues.containsKey(variableName)
+                  ? 'Variable value for argument "$argumentName" of type $argumentType'
+                      ' for field "$fieldName" must not be null.'
+                  : 'Missing variable value for argument "$argumentName" of type $argumentType'
+                      ' for field "$fieldName".',
+              location: span?.start,
             );
           }
           continue;
@@ -706,7 +716,9 @@ class GraphQL {
             coercedValue = null;
           } else {
             throw GraphQLException.fromMessage(
-              'Missing value for argument "$argumentName" of field "$fieldName".',
+              'Missing value for argument "$argumentName" $argumentType'
+              ' for field "$fieldName".',
+              location: span?.start,
             );
           }
         } else {
