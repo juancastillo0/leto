@@ -1,0 +1,17 @@
+{
+  "Type": {
+    "a": "Apple",
+    "b": "Banana",
+    "c": "Cookie",
+    "d": "Donut",
+    "e": "Egg",
+    "f": "Fish",
+    "deep": {
+      "a": "Already Been Done",
+      "b": "Boring",
+      "c": ["Contrived", null, "Confusing"],
+      "deeper": ["@late:Type", null, "@late:Type"]
+    },
+    "promise": "@late:Type"
+  }
+}
