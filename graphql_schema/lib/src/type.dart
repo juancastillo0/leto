@@ -256,7 +256,7 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
     final List<String> errors = [];
 
     for (int i = 0; i < input.length; i++) {
-      final k = '"$key" at index $i';
+      final k = '$key[$i]';
       final v = input[i];
       final result = ofType.validate(k, v);
       if (!result.successful) {
@@ -337,7 +337,7 @@ class GraphQLNonNullType<Value extends Object, Serialized extends Object>
   ValidationResult<Serialized> validate(String key, Object? input) {
     if (input == null)
       return ValidationResult.failure(
-        ['Expected "$key" to be a non-null value.'],
+        ['Expected "$key" to be a non-null value of type $this.'],
       );
     return ofType.validate(key, input);
   }

@@ -21,15 +21,18 @@ class GraphQLUnionType<P extends Object>
     this.name,
     Iterable<GraphQLType<P, Map<String, dynamic>>> possibleTypes, {
     this.description,
-  })  : assert(
-            possibleTypes.every(
-                (t) => t.whenMaybe(object: (_) => true, orElse: (_) => false)),
-            'The member types of a Union type must all be Object base types; '
-            'Scalar, Interface and Union types must not be member types '
-            'of a Union. Similarly, wrapping types must not be member '
-            'types of a Union.'),
-        assert(possibleTypes.isNotEmpty,
-            'A Union type must define one or more member types.') {
+  })
+  // TODO:
+  // : assert(
+  //           possibleTypes.every((t) => t.whenMaybe(
+  //               object: (obj) => !obj.isInterface, orElse: (_) => false)),
+  //           'The member types of a Union type must all be Object base types; '
+  //           'Scalar, Interface and Union types must not be member types '
+  //           'of a Union. Similarly, wrapping types must not be member '
+  //           'types of a Union.'),
+  //       assert(possibleTypes.isNotEmpty,
+  //           'A Union type must define one or more member types.')
+  {
     for (final t in possibleTypes.toSet()) {
       this.possibleTypes.add(t);
     }
