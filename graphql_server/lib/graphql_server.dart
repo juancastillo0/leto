@@ -1004,6 +1004,13 @@ class GraphQL {
     if (matchingTypes.length == 1) {
       return matchingTypes.first;
     }
+    if (result is Map && result['__typename'] is String) {
+      final _typename = result['__typename'] as String;
+      final t = possibleTypes.firstWhereOrNull((t) => t.name == _typename);
+      if (t != null) {
+        return t;
+      }
+    }
     // No match or multiple found, try each one and validate the output
     for (final t in possibleTypes) {
       try {
