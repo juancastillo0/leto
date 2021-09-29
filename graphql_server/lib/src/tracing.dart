@@ -9,6 +9,14 @@ import 'package:graphql_server/src/extension.dart';
 import 'package:meta/meta.dart';
 
 class GraphQLTracingExtension extends GraphQLExtension {
+  GraphQLTracingExtension({
+    this.onExecute,
+    this.returnInResponse = true,
+  });
+
+  final void Function(TracingBuilder)? onExecute;
+  final bool returnInResponse;
+
   final ref = GlobalRef('GraphQLTracingExtension');
 
   @override
@@ -73,10 +81,15 @@ class GraphQLTracingExtension extends GraphQLExtension {
     }
   }
 
+  // TODO: should probably be in execute instead of toJson
   @override
   Object? toJson(Map<Object, Object?> globals) {
     final tracing = globals[ref]! as TracingBuilder;
-    return tracing.toJson();
+    tracing.end();
+    onExecute?.call(tracing);
+    if (returnInResponse) {
+      return tracing.toJson();
+    }
   }
 }
 
