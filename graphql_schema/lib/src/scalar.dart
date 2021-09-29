@@ -45,6 +45,59 @@ abstract class GraphQLScalarType<Value extends Object,
   GraphQLType<Value, Serialized> coerceToInputObject() => this;
 }
 
+class GraphQLScalarTypeValue<Value extends Object, Serialized extends Object>
+    extends GraphQLScalarType<Value, Serialized> {
+  @override
+  final String name;
+  @override
+  final String? description;
+  @override
+  final String? specifiedByURL;
+
+  final ValidationResult<Serialized> Function(String key, Object? input)
+      _validate;
+  final Serialized Function(Value value) _serialize;
+  final Value Function(SerdeCtx serdeCtx, Serialized serialized) _deserialize;
+
+  GraphQLScalarTypeValue({
+    required this.name,
+    required this.description,
+    required this.specifiedByURL,
+    required ValidationResult<Serialized> Function(String key, Object? input)
+        validate,
+    required Serialized Function(Value value) serialize,
+    required Value Function(SerdeCtx serdeCtx, Serialized serialized)
+        deserialize,
+  })  : _validate = validate,
+        _serialize = serialize,
+        _deserialize = deserialize;
+
+  @override
+  Value deserialize(SerdeCtx serdeCtx, Serialized serialized) {
+    return _deserialize(serdeCtx, serialized);
+  }
+
+  @override
+  Serialized serialize(Value value) {
+    return _serialize(value);
+  }
+
+  @override
+  ValidationResult<Serialized> validate(String key, Object? input) {
+    return _validate(key, input);
+  }
+
+  @override
+  Iterable<Object?> get props => [
+        name,
+        description,
+        specifiedByURL,
+        _validate,
+        _serialize,
+        _deserialize,
+      ];
+}
+
 class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
   // const _GraphQLBoolType();
 
