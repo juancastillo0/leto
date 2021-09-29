@@ -113,6 +113,8 @@ class GraphQLTracingExtension extends GraphQLExtension {
 class TracingBuilder {
   final int version;
   final DateTime startTime;
+  DateTime? endTime;
+  int? duration;
   final Stopwatch stopwatch = Stopwatch()..start();
 
   TracingBuilder({required this.version, DateTime? startTime})
@@ -122,13 +124,18 @@ class TracingBuilder {
   late final validation = TracingItemBuilder(stopwatch);
   late final execution = ExecutionTracingBuilder(stopwatch);
 
+  void end() {
+    endTime ??= DateTime.now();
+    duration ??= stopwatch.elapsedMicroseconds;
+  }
+
   Tracing build() {
-    final endTime = DateTime.now();
+    end();
     return Tracing(
       version: version,
       startTime: startTime,
-      endTime: endTime,
-      duration: stopwatch.elapsedMicroseconds,
+      endTime: endTime!,
+      duration: duration!,
       parsing: parsing.build(),
       validation: validation.build(),
       execution: execution.build(),
@@ -136,12 +143,12 @@ class TracingBuilder {
   }
 
   Map<String, Object?> toJson() {
-    final endTime = DateTime.now();
+    end();
     return {
       'version': version,
       'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'duration': stopwatch.elapsedMicroseconds,
+      'endTime': endTime!.toIso8601String(),
+      'duration': duration!,
       'parsing': parsing.toJson(),
       'validation': validation.toJson(),
       'execution': execution.build().toJson(),
