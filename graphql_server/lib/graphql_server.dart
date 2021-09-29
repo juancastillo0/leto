@@ -863,17 +863,21 @@ class GraphQL {
         final validation = fieldType.validate(fieldName, _result);
 
         if (!validation.successful) {
-          return null;
+          throw GraphQLException.fromMessage(
+            'Value of field "$fieldName" must be '
+            '$fieldType, got $result instead.',
+            path: path,
+          );
         } else {
           return validation.value;
         }
         // TODO:
         // } on TypeError {
-        //   throw GraphQLException.fromMessage(
-        //     'Value of field "$fieldName" must be '
-        //     '${fieldType.generic.type}, got $result instead.',
-        //     path: path,
-        //   );
+        // throw GraphQLException.fromMessage(
+        //   'Value of field "$fieldName" must be '
+        //   '${fieldType.generic.type}, got $result instead.',
+        //   path: path,
+        // );
         // }
       }
 
@@ -911,7 +915,7 @@ class GraphQL {
 
           if (completedResult == null) {
             throw GraphQLException.fromMessage(
-              'Null value provided for non-nullable field "$fieldName".',
+              'Null value provided for non-nullable field "${ctx.objectType}.$fieldName".',
               path: path,
             );
           } else {
@@ -1060,12 +1064,17 @@ class GraphQL {
     visitedFragments ??= [];
 
     for (final selection in selectionSet.selections) {
-      if (getDirectiveValue('skip', 'if', selection, variableValues) == true) {
+      if (selection is FieldNode &&
+          getDirectiveValue(
+                  'skip', 'if', selection.directives, variableValues) ==
+              true) {
         continue;
       }
       // TODO: test
-      if (getDirectiveValue('include', 'if', selection, variableValues) ==
-          false) {
+      if (selection is FieldNode &&
+          getDirectiveValue(
+                  'include', 'if', selection.directives, variableValues) ==
+              false) {
         continue;
       }
 
