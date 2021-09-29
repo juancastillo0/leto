@@ -1,120 +1,111 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/abstract-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
-import { expectJSON } from '../../__testUtils__/expectJSON';
+Future<Map<String, Object?>> executeQuery(
+  GraphQLSchema schema,
+  String query, {
+  Object? rootValue,
+}) async {
+  final result = await GraphQL(schema).parseAndExecute(
+    query,
+    initialValue: rootValue,
+    globalVariables: {'async': false},
+  );
+  // const asyncResult = await execute({
+  //   schema,
+  //   document,
+  //   rootValue,
+  //   contextValue: { async: true },
+  // });
 
-import { parse } from '../../language/parser';
-
-import { GraphQLSchema } from '../../type/schema';
-import { GraphQLString, GraphQLBoolean } from '../../type/scalars';
-import {
-  assertInterfaceType,
-  GraphQLList,
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-  GraphQLUnionType,
-} from '../../type/definition';
-
-import { buildSchema } from '../../utilities/buildASTSchema';
-
-import { executeSync, execute } from '../execute';
-
-async function executeQuery(args: {
-  schema: GraphQLSchema;
-  query: string;
-  rootValue?: unknown;
-}) {
-  const { schema, query, rootValue } = args;
-  const document = parse(query);
-  const result = executeSync({
-    schema,
-    document,
-    rootValue,
-    contextValue: { async: false },
-  });
-  const asyncResult = await execute({
-    schema,
-    document,
-    rootValue,
-    contextValue: { async: true },
-  });
-
-  expect(result).to.deep.equal(asyncResult);
-  return result;
+  // expect(result, asyncResult);
+  return result.toJson();
 }
 
 class Dog {
-  name: string;
-  woofs: boolean;
+  String name;
+  bool woofs;
 
-  constructor(name: string, woofs: boolean) {
-    this.name = name;
-    this.woofs = woofs;
+  Dog(this.name, this.woofs);
+
+  Map<String, Object?> toJson() {
+    return {
+      'name': name,
+      'woofs': woofs,
+    };
   }
 }
 
 class Cat {
-  name: string;
-  meows: boolean;
+  String name;
+  bool meows;
 
-  constructor(name: string, meows: boolean) {
-    this.name = name;
-    this.meows = meows;
+  Cat(this.name, this.meows);
+
+  Map<String, Object?> toJson() {
+    return {
+      'name': name,
+      'meows': meows,
+    };
   }
 }
 
-describe('Execute: Handles execution of abstract types', () => {
-  it('isTypeOf used to resolve runtime type for Interface', async () => {
-    const PetType = new GraphQLInterfaceType({
-      name: 'Pet',
-      fields: {
-        name: { type: GraphQLString },
+// describe('Execute: Handles execution of abstract types', () async {
+void main() {
+  test('isTypeOf used to resolve runtime type for Interface', () async {
+    final PetType = objectType<Object>(
+      'Pet',
+      isInterface: true,
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
       },
-    });
+    );
 
-    const DogType = new GraphQLObjectType({
-      name: 'Dog',
+    final DogType = objectType<Dog>(
+      'Dog',
       interfaces: [PetType],
-      isTypeOf(obj, context) {
-        const isDog = obj instanceof Dog;
-        return context.async ? Promise.resolve(isDog) : isDog;
+      // TODO:
+      // isTypeOf(obj, context) {
+      //   const isDog = obj instanceof Dog;
+      //   return context.async ? Promise.resolve(isDog) : isDog;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'woofs': graphQLBoolean.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-        woofs: { type: GraphQLBoolean },
-      },
-    });
+    );
 
-    const CatType = new GraphQLObjectType({
-      name: 'Cat',
+    final CatType = objectType<Cat>(
+      'Cat',
       interfaces: [PetType],
-      isTypeOf(obj, context) {
-        const isCat = obj instanceof Cat;
-        return context.async ? Promise.resolve(isCat) : isCat;
+      // TODO:
+      // isTypeOf(obj, context) {
+      //   final isCat = obj instanceof Cat;
+      //   return context.async ? Promise.resolve(isCat) : isCat;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'meows': graphQLBoolean.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-        meows: { type: GraphQLBoolean },
-      },
-    });
+    );
 
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          pets: {
-            type: new GraphQLList(PetType),
-            resolve() {
-              return [new Dog('Odie', true), new Cat('Garfield', false)];
+    final schema = GraphQLSchema(
+      queryType: objectType(
+        'Query',
+        fields: [
+          listOf(PetType).field(
+            'pets',
+            resolve: (_, __) {
+              return [Dog('Odie', true), Cat('Garfield', false)];
             },
-          },
-        },
-      }),
-      types: [CatType, DogType],
-    });
+          ),
+        ],
+      ),
+      // types: [CatType, DogType],
+    );
 
-    const query = `
+    const query = '''
       {
         pets {
           name
@@ -126,74 +117,74 @@ describe('Execute: Handles execution of abstract types', () => {
           }
         }
       }
-    `;
+    ''';
 
-    expect(await executeQuery({ schema, query })).to.deep.equal({
-      data: {
-        pets: [
+    expect(await executeQuery(schema, query), {
+      'data': {
+        'pets': [
           {
-            name: 'Odie',
-            woofs: true,
+            'name': 'Odie',
+            'woofs': true,
           },
           {
-            name: 'Garfield',
-            meows: false,
+            'name': 'Garfield',
+            'meows': false,
           },
         ],
       },
     });
   });
 
-  it('isTypeOf can throw', async () => {
-    const PetType = new GraphQLInterfaceType({
-      name: 'Pet',
-      fields: {
-        name: { type: GraphQLString },
-      },
-    });
+  test('isTypeOf can throw', () async {
+    final PetType = objectType<Object>(
+      'Pet',
+      fields: [graphQLString.field('name')],
+      isInterface: true,
+    );
 
-    const DogType = new GraphQLObjectType({
-      name: 'Dog',
+    final DogType = objectType<Dog>(
+      'Dog',
       interfaces: [PetType],
-      isTypeOf(_source, context) {
-        const error = new Error('We are testing this error');
-        if (context.async) {
-          return Promise.reject(error);
-        }
-        throw error;
+      // isTypeOf(_source, context) {
+      //   const error =  Error('We are testing this error');
+      //   if (context.async) {
+      //     return Promise.reject(error);
+      //   }
+      //   throw error;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'woofs': graphQLBoolean.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-        woofs: { type: GraphQLBoolean },
-      },
-    });
+    );
 
-    const CatType = new GraphQLObjectType({
-      name: 'Cat',
+    final CatType = objectType<Cat>(
+      'Cat',
       interfaces: [PetType],
-      isTypeOf: undefined,
-      fields: {
-        name: { type: GraphQLString },
-        meows: { type: GraphQLBoolean },
+      // isTypeOf: undefined,
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'meows': graphQLBoolean.fieldSpec(),
       },
-    });
+    );
 
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          pets: {
-            type: new GraphQLList(PetType),
-            resolve() {
-              return [new Dog('Odie', true), new Cat('Garfield', false)];
+    final schema = GraphQLSchema(
+      queryType: GraphQLObjectType(
+        'Query',
+        fields: [
+          listOf(PetType).field(
+            'pets',
+            resolve: (_, __) {
+              return [Dog('Odie', true), Cat('Garfield', false)];
             },
-          },
-        },
-      }),
-      types: [DogType, CatType],
-    });
+          ),
+        ],
+      ),
+      // TODO:
+      // types: [DogType, CatType],
+    );
 
-    const query = `
+    const query = '''
       {
         pets {
           name
@@ -205,72 +196,77 @@ describe('Execute: Handles execution of abstract types', () => {
           }
         }
       }
-    `;
+    ''';
 
-    expectJSON(await executeQuery({ schema, query })).to.deep.equal({
-      data: {
-        pets: [null, null],
+    expect(await executeQuery(schema, query), {
+      'data': {
+        'pets': [null, null],
       },
-      errors: [
+      'errors': [
         {
-          message: 'We are testing this error',
-          locations: [{ line: 3, column: 9 }],
-          path: ['pets', 0],
+          'message': 'We are testing this error',
+          'locations': [
+            {'line': 3, 'column': 9}
+          ],
+          'path': ['pets', 0],
         },
         {
-          message: 'We are testing this error',
-          locations: [{ line: 3, column: 9 }],
-          path: ['pets', 1],
+          'message': 'We are testing this error',
+          'locations': [
+            {'line': 3, 'column': 9}
+          ],
+          'path': ['pets', 1],
         },
       ],
     });
   });
 
-  it('isTypeOf used to resolve runtime type for Union', async () => {
-    const DogType = new GraphQLObjectType({
-      name: 'Dog',
-      isTypeOf(obj, context) {
-        const isDog = obj instanceof Dog;
-        return context.async ? Promise.resolve(isDog) : isDog;
+  test('isTypeOf used to resolve runtime type for Union', () async {
+    final DogType = objectType<Dog>(
+      'Dog',
+      // isTypeOf(obj, context) {
+      //   const isDog = obj instanceof Dog;
+      //   return context.async ? Promise.resolve(isDog) : isDog;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'woofs': graphQLBoolean.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-        woofs: { type: GraphQLBoolean },
-      },
-    });
+    );
 
-    const CatType = new GraphQLObjectType({
-      name: 'Cat',
-      isTypeOf(obj, context) {
-        const isCat = obj instanceof Cat;
-        return context.async ? Promise.resolve(isCat) : isCat;
+    final CatType = objectType<Cat>(
+      'Cat',
+      // isTypeOf(obj, context) {
+      //   const isCat = obj instanceof Cat;
+      //   return context.async ? Promise.resolve(isCat) : isCat;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'meows': graphQLBoolean.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-        meows: { type: GraphQLBoolean },
-      },
-    });
+    );
 
-    const PetType = new GraphQLUnionType({
-      name: 'Pet',
-      types: [DogType, CatType],
-    });
+    final PetType = GraphQLUnionType(
+      'Pet',
+      [DogType, CatType],
+    );
 
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          pets: {
-            type: new GraphQLList(PetType),
-            resolve() {
-              return [new Dog('Odie', true), new Cat('Garfield', false)];
+    final schema = GraphQLSchema(
+      queryType: GraphQLObjectType(
+        'Query',
+        fields: [
+          listOf(PetType).field(
+            'pets',
+            resolve: (_, __) {
+              return [Dog('Odie', true), Cat('Garfield', false)];
             },
-          },
-        },
-      }),
-    });
+          ),
+        ],
+      ),
+    );
 
-    const query = `{
+    // ignore: leading_newlines_in_multiline_strings
+    const query = '''{
       pets {
         ... on Dog {
           name
@@ -281,73 +277,75 @@ describe('Execute: Handles execution of abstract types', () => {
           meows
         }
       }
-    }`;
+    }''';
 
-    expect(await executeQuery({ schema, query })).to.deep.equal({
-      data: {
-        pets: [
+    expect(await executeQuery(schema, query), {
+      'data': {
+        'pets': [
           {
-            name: 'Odie',
-            woofs: true,
+            'name': 'Odie',
+            'woofs': true,
           },
           {
-            name: 'Garfield',
-            meows: false,
+            'name': 'Garfield',
+            'meows': false,
           },
         ],
       },
     });
   });
 
-  it('resolveType can throw', async () => {
-    const PetType = new GraphQLInterfaceType({
-      name: 'Pet',
-      resolveType(_source, context) {
-        const error = new Error('We are testing this error');
-        if (context.async) {
-          return Promise.reject(error);
-        }
-        throw error;
+  test('resolveType can throw', () async {
+    final PetType = objectType<Object>(
+      'Pet',
+      // resolveType(_source, context) {
+      //   final error = new Error('We are testing this error');
+      //   if (context.async) {
+      //     return Promise.reject(error);
+      //   }
+      //   throw error;
+      // },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
       },
-      fields: {
-        name: { type: GraphQLString },
-      },
-    });
+      isInterface: true,
+    );
 
-    const DogType = new GraphQLObjectType({
-      name: 'Dog',
+    final DogType = objectType<Dog>(
+      'Dog',
       interfaces: [PetType],
-      fields: {
-        name: { type: GraphQLString },
-        woofs: { type: GraphQLBoolean },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'woofs': graphQLBoolean.fieldSpec(),
       },
-    });
+    );
 
-    const CatType = new GraphQLObjectType({
-      name: 'Cat',
+    final CatType = objectType<Cat>(
+      'Cat',
       interfaces: [PetType],
-      fields: {
-        name: { type: GraphQLString },
-        meows: { type: GraphQLBoolean },
+      fieldsMap: {
+        'name': graphQLString.fieldSpec(),
+        'meows': graphQLBoolean.fieldSpec(),
       },
-    });
+    );
 
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          pets: {
-            type: new GraphQLList(PetType),
-            resolve() {
-              return [new Dog('Odie', true), new Cat('Garfield', false)];
+    final schema = GraphQLSchema(
+      queryType: GraphQLObjectType(
+        'Query',
+        fields: [
+          listOf(PetType).field(
+            'pets',
+            resolve: (_, __) {
+              return [Dog('Odie', true), Cat('Garfield', false)];
             },
-          },
-        },
-      }),
-      types: [CatType, DogType],
-    });
+          ),
+        ],
+      ),
+      // TODO:
+      // types: [CatType, DogType],
+    );
 
-    const query = `
+    const query = '''
       {
         pets {
           name
@@ -359,29 +357,33 @@ describe('Execute: Handles execution of abstract types', () => {
           }
         }
       }
-    `;
+    ''';
 
-    expectJSON(await executeQuery({ schema, query })).to.deep.equal({
-      data: {
-        pets: [null, null],
+    expect(await executeQuery(schema, query), {
+      'data': {
+        'pets': [null, null],
       },
-      errors: [
+      'errors': [
         {
-          message: 'We are testing this error',
-          locations: [{ line: 3, column: 9 }],
-          path: ['pets', 0],
+          'message': 'We are testing this error',
+          'locations': [
+            {'line': 3, 'column': 9}
+          ],
+          'path': ['pets', 0],
         },
         {
-          message: 'We are testing this error',
-          locations: [{ line: 3, column: 9 }],
-          path: ['pets', 1],
+          'message': 'We are testing this error',
+          'locations': [
+            {'line': 3, 'column': 9}
+          ],
+          'path': ['pets', 1],
         },
       ],
     });
   });
 
-  it('resolve Union type using __typename on source object', async () => {
-    const schema = buildSchema(`
+  test('resolve Union type using __typename on source object', () async {
+    final schema = buildSchema('''
       type Query {
         pets: [Pet]
       }
@@ -397,9 +399,9 @@ describe('Execute: Handles execution of abstract types', () => {
         name: String
         woofs: Boolean
       }
-    `);
+    ''');
 
-    const query = `
+    const query = '''
       {
         pets {
           name
@@ -411,41 +413,41 @@ describe('Execute: Handles execution of abstract types', () => {
           }
         }
       }
-    `;
+    ''';
 
     const rootValue = {
-      pets: [
+      'pets': [
         {
-          __typename: 'Dog',
-          name: 'Odie',
-          woofs: true,
+          '__typename': 'Dog',
+          'name': 'Odie',
+          'woofs': true,
         },
         {
-          __typename: 'Cat',
-          name: 'Garfield',
-          meows: false,
+          '__typename': 'Cat',
+          'name': 'Garfield',
+          'meows': false,
         },
       ],
     };
 
-    expect(await executeQuery({ schema, query, rootValue })).to.deep.equal({
-      data: {
-        pets: [
+    expect(await executeQuery(schema, query, rootValue: rootValue), {
+      'data': {
+        'pets': [
           {
-            name: 'Odie',
-            woofs: true,
+            'name': 'Odie',
+            'woofs': true,
           },
           {
-            name: 'Garfield',
-            meows: false,
+            'name': 'Garfield',
+            'meows': false,
           },
         ],
       },
     });
   });
 
-  it('resolve Interface type using __typename on source object', async () => {
-    const schema = buildSchema(`
+  test('resolve Interface type using __typename on source object', () async {
+    final schema = buildSchema('''
       type Query {
         pets: [Pet]
       }
@@ -463,9 +465,9 @@ describe('Execute: Handles execution of abstract types', () => {
         name: String
         woofs: Boolean
       }
-    `);
+    ''');
 
-    const query = `
+    const query = '''
       {
         pets {
           name
@@ -477,114 +479,115 @@ describe('Execute: Handles execution of abstract types', () => {
           }
         }
       }
-    `;
+    ''';
 
     const rootValue = {
-      pets: [
+      'pets': [
         {
-          __typename: 'Dog',
-          name: 'Odie',
-          woofs: true,
+          '__typename': 'Dog',
+          'name': 'Odie',
+          'woofs': true,
         },
         {
-          __typename: 'Cat',
-          name: 'Garfield',
-          meows: false,
+          '__typename': 'Cat',
+          'name': 'Garfield',
+          'meows': false,
         },
       ],
     };
 
-    expect(await executeQuery({ schema, query, rootValue })).to.deep.equal({
-      data: {
-        pets: [
+    expect(await executeQuery(schema, query, rootValue: rootValue), {
+      'data': {
+        'pets': [
           {
-            name: 'Odie',
-            woofs: true,
+            'name': 'Odie',
+            'woofs': true,
           },
           {
-            name: 'Garfield',
-            meows: false,
+            'name': 'Garfield',
+            'meows': false,
           },
         ],
       },
     });
   });
 
-  it('resolveType on Interface yields useful error', () => {
-    const schema = buildSchema(`
-      type Query {
-        pet: Pet
-      }
+  // TODO:
+  // test('resolveType on Interface yields useful error', () async {
+  //   final schema = buildSchema('''
+  //     type Query {
+  //       pet: Pet
+  //     }
 
-      interface Pet {
-        name: String
-      }
+  //     interface Pet {
+  //       name: String
+  //     }
 
-      type Cat implements Pet {
-        name: String
-      }
+  //     type Cat implements Pet {
+  //       name: String
+  //     }
 
-      type Dog implements Pet {
-        name: String
-      }
-    `);
+  //     type Dog implements Pet {
+  //       name: String
+  //     }
+  //   ''');
 
-    const document = parse(`
-      {
-        pet {
-          name
-        }
-      }
-    `);
+  //   const document = '''
+  //     {
+  //       pet {
+  //         name
+  //       }
+  //     }
+  //   ''';
 
-    function expectError({ forTypeName }: { forTypeName: unknown }) {
-      const rootValue = { pet: { __typename: forTypeName } };
-      const result = executeSync({ schema, document, rootValue });
-      return {
-        toEqual(message: string) {
-          expectJSON(result).to.deep.equal({
-            data: { pet: null },
-            errors: [
-              {
-                message,
-                locations: [{ line: 3, column: 9 }],
-                path: ['pet'],
-              },
-            ],
-          });
-        },
-      };
-    }
+  //   function expectError({ forTypeName }: { forTypeName: unknown }) {
+  //     const rootValue = { pet: { __typename: forTypeName } };
+  //     const result = executeSync({ schema, document, rootValue });
+  //     return {
+  //       toEqual(message: string) {
+  //         expect(result, {
+  //           'data': { 'pet': null },
+  //           'errors': [
+  //             {
+  //               'message': message,
+  //               'locations': [{ 'line': 3, 'column': 9 }],
+  //               'path': ['pet'],
+  //             },
+  //           ],
+  //         });
+  //       },
+  //     };
+  //   }
 
-    expectError({ forTypeName: undefined }).toEqual(
-      'Abstract type "Pet" must resolve to an Object type at runtime for field "Query.pet". Either the "Pet" type should provide a "resolveType" function or each possible type should provide an "isTypeOf" function.',
-    );
+  //   expectError({ forTypeName: undefined }).toEqual(
+  //     'Abstract type "Pet" must resolve to an Object type at runtime for field "Query.pet". Either the "Pet" type should provide a "resolveType" function or each possible type should provide an "isTypeOf" function.',
+  //   );
 
-    expectError({ forTypeName: 'Human' }).toEqual(
-      'Abstract type "Pet" was resolved to a type "Human" that does not exist inside the schema.',
-    );
+  //   expectError({ forTypeName: 'Human' }).toEqual(
+  //     'Abstract type "Pet" was resolved to a type "Human" that does not exist inside the schema.',
+  //   );
 
-    expectError({ forTypeName: 'String' }).toEqual(
-      'Abstract type "Pet" was resolved to a non-object type "String".',
-    );
+  //   expectError({ forTypeName: 'String' }).toEqual(
+  //     'Abstract type "Pet" was resolved to a non-object type "String".',
+  //   );
 
-    expectError({ forTypeName: '__Schema' }).toEqual(
-      'Runtime Object type "__Schema" is not a possible type for "Pet".',
-    );
+  //   expectError({ forTypeName: '__Schema' }).toEqual(
+  //     'Runtime Object type "__Schema" is not a possible type for "Pet".',
+  //   );
 
-    // FIXME: workaround since we can't inject resolveType into SDL
-    // @ts-expect-error
-    assertInterfaceType(schema.getType('Pet')).resolveType = () => [];
-    expectError({ forTypeName: undefined }).toEqual(
-      'Abstract type "Pet" must resolve to an Object type at runtime for field "Query.pet" with value { __typename: undefined }, received "[]".',
-    );
+  //   // FIXME: workaround since we can't inject resolveType into SDL
+  //   // @ts-expect-error
+  //   assertInterfaceType(schema.getType('Pet')).resolveType = () => [];
+  //   expectError({ forTypeName: undefined }).toEqual(
+  //     'Abstract type "Pet" must resolve to an Object type at runtime for field "Query.pet" with value { __typename: undefined }, received "[]".',
+  //   );
 
-    // FIXME: workaround since we can't inject resolveType into SDL
-    // @ts-expect-error
-    assertInterfaceType(schema.getType('Pet')).resolveType = () =>
-      schema.getType('Cat');
-    expectError({ forTypeName: undefined }).toEqual(
-      'Support for returning GraphQLObjectType from resolveType was removed in graphql-js@16.0.0 please return type name instead.',
-    );
-  });
-});
+  //   // FIXME: workaround since we can't inject resolveType into SDL
+  //   // @ts-expect-error
+  //   assertInterfaceType(schema.getType('Pet')).resolveType = () =>
+  //     schema.getType('Cat');
+  //   expectError({ forTypeName: undefined }).toEqual(
+  //     'Support for returning GraphQLObjectType from resolveType was removed in graphql-js@16.0.0 please return type name instead.',
+  //   );
+  // });
+}
