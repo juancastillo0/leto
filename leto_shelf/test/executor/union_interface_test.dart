@@ -188,10 +188,18 @@ final john = Person('John', [garfield, odie], [liz, odie]);
 
 /// 'Execute: Union and intersection types'
 void main() {
-  Future<Map<String, Object?>> execute(String document,
-      {Object? rootValue}) async {
-    final result = await GraphQL(schema)
-        .parseAndExecute(document, initialValue: rootValue);
+  Future<Map<String, Object?>> execute(
+    String document, {
+    Object? rootValue,
+    bool validate = true,
+  }) async {
+    final result = await GraphQL(
+      schema,
+      validate: validate,
+    ).parseAndExecute(
+      document,
+      initialValue: rootValue,
+    );
     return result.toJson();
   }
 
@@ -295,7 +303,7 @@ void main() {
       }
     ''';
 
-    expect(await execute(document, rootValue: john), {
+    expect(await execute(document, rootValue: john, validate: false), {
       'data': {
         '__typename': 'Person',
         'name': 'John',
@@ -370,7 +378,7 @@ void main() {
       }
     ''';
 
-    expect(await execute(document, rootValue: john), {
+    expect(await execute(document, rootValue: john, validate: false), {
       'data': {
         '__typename': 'Person',
         'name': 'John',
