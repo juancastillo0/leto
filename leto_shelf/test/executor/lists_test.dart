@@ -1,226 +1,267 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/lists-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import 'package:graphql_server/graphql_server.dart';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
-import { expectJSON } from '../../__testUtils__/expectJSON';
-
-import { parse } from '../../language/parser';
-
-import { buildSchema } from '../../utilities/buildASTSchema';
-
-import { execute, executeSync } from '../execute';
-
-describe('Execute: Accepts any iterable as list value', () => {
-  function complete(rootValue: unknown) {
-    return executeSync({
-      schema: buildSchema('type Query { listField: [String] }'),
-      document: parse('{ listField }'),
-      rootValue,
-    });
-  }
-
-  it('Accepts a Set as a List value', () => {
-    const listField = new Set(['apple', 'banana', 'apple', 'coconut']);
-
-    expect(complete({ listField })).to.deep.equal({
-      data: { listField: ['apple', 'banana', 'coconut'] },
-    });
-  });
-
-  it('Accepts an Generator function as a List value', () => {
-    function* listField() {
-      yield 'one';
-      yield 2;
-      yield true;
-    }
-
-    expect(complete({ listField })).to.deep.equal({
-      data: { listField: ['one', '2', 'true'] },
-    });
-  });
-
-  it('Accepts function arguments as a List value', () => {
-    function getArgs(..._args: ReadonlyArray<string>) {
-      return arguments;
-    }
-    const listField = getArgs('one', 'two');
-
-    expect(complete({ listField })).to.deep.equal({
-      data: { listField: ['one', 'two'] },
-    });
-  });
-
-  it('Does not accept (Iterable) String-literal as a List value', () => {
-    const listField = 'Singular';
-
-    expectJSON(complete({ listField })).to.deep.equal({
-      data: { listField: null },
-      errors: [
-        {
-          message:
-            'Expected Iterable, but did not find one for field "Query.listField".',
-          locations: [{ line: 1, column: 3 }],
-          path: ['listField'],
-        },
-      ],
-    });
-  });
-});
-
-describe('Execute: Handles list nullability', () => {
-  async function complete(args: { listField: unknown; as: string }) {
-    const { listField, as } = args;
-    const schema = buildSchema(`type Query { listField: ${as} }`);
-    const document = parse('{ listField }');
-
-    const result = await executeQuery(listField);
-    // Promise<Array<T>> === Array<T>
-    expect(await executeQuery(promisify(listField))).to.deep.equal(result);
-    if (Array.isArray(listField)) {
-      const listOfPromises = listField.map(promisify);
-
-      // Array<Promise<T>> === Array<T>
-      expect(await executeQuery(listOfPromises)).to.deep.equal(result);
-      // Promise<Array<Promise<T>>> === Array<T>
-      expect(await executeQuery(promisify(listOfPromises))).to.deep.equal(
-        result,
+///
+void main() {
+  group('Execute: Accepts any iterable as list value', () {
+    Future<Map<String, Object?>> complete(Object? listValue) async {
+      final result =
+          await GraphQL(buildSchema('type Query { listField: [String] }'))
+              .parseAndExecute(
+        '{ listField }',
+        initialValue: {'listField': listValue},
       );
-    }
-    return result;
 
-    function executeQuery(listValue: unknown) {
-      return execute({ schema, document, rootValue: { listField: listValue } });
+      return result.toJson();
     }
 
-    function promisify(value: unknown): Promise<unknown> {
-      return value instanceof Error
-        ? Promise.reject(value)
-        : Promise.resolve(value);
+    test('Accepts a Set as a List value', () async {
+      final listField =
+          Set<String>.from(<String>['apple', 'banana', 'apple', 'coconut']);
+
+      expect(await complete(listField), {
+        'data': {
+          'listField': ['apple', 'banana', 'coconut']
+        },
+      });
+    });
+
+    test('Accepts an Generator function as a List value', () async {
+      Iterable<Object> listField() sync* {
+        yield 'one';
+        // TODO: allow numbers or boolean as String?
+        yield 2;
+        yield true;
+      }
+
+      expect(await complete(listField), {
+        'data': {
+          'listField': ['one', '2', 'true']
+        },
+      });
+    });
+
+    test('Accepts function arguments as a List value', () async {
+      // function getArgs(..._args: ReadonlyArray<string>) {
+      //   return arguments;
+      // }
+      // const listField = getArgs('one', 'two');
+
+      // expect(complete({ listField }), {
+      //   data: { listField: ['one', 'two'] },
+      // });
+    });
+
+    test('Does not accept (Iterable) String-literal as a List value', () async {
+      const listField = 'Singular';
+
+      expect(await complete(listField), {
+        'data': {'listField': null},
+        'errors': [
+          {
+            'message':
+                stringContainsInOrder(['listField', 'iterable', 'Singular']),
+            // 'Expected Iterable, but did not find one for field "Query.listField".',
+            'locations': [
+              {'line': 0, 'column': 2}
+            ],
+            'path': ['listField'],
+          },
+        ],
+      });
+    });
+  });
+
+  group('Execute: Handles list nullability', () {
+    Future<Map<String, Object?>> complete(
+      Object? listField, {
+      required String as_,
+    }) async {
+      final schema = buildSchema('type Query { listField: $as_ }');
+      const document = '{ listField }';
+
+      Future<Map<String, Object?>> executeQuery(Object? listValue) {
+        return GraphQL(schema).parseAndExecute(
+          document,
+          initialValue: {
+            'listField': listValue,
+          },
+        ).then((v) => v.toJson());
+      }
+
+      Future<Object?> promisify(Object? value) {
+        return value is Exception ? Future.error(value) : Future.value(value);
+      }
+
+      final result = await executeQuery(listField);
+      // Promise<Array<T>> === Array<T>
+      expect(await executeQuery(promisify(listField)), result);
+      if (listField is List) {
+        final listOfPromises = listField.map(promisify);
+
+        // Array<Promise<T>> === Array<T>
+        expect(await executeQuery(listOfPromises), result);
+        // Promise<Array<Promise<T>>> === Array<T>
+        expect(
+          await executeQuery(promisify(listOfPromises)),
+          result,
+        );
+      }
+
+      return result;
     }
-  }
 
-  it('Contains values', async () => {
-    const listField = [1, 2];
+    test('Contains values', () async {
+      const listField = [1, 2];
 
-    expect(await complete({ listField, as: '[Int]' })).to.deep.equal({
-      data: { listField: [1, 2] },
+      expect(await complete(listField, as_: '[Int]'), {
+        'data': {
+          'listField': [1, 2]
+        },
+      });
+      expect(await complete(listField, as_: '[Int]!'), {
+        'data': {
+          'listField': [1, 2]
+        },
+      });
+      expect(await complete(listField, as_: '[Int!]'), {
+        'data': {
+          'listField': [1, 2]
+        },
+      });
+      expect(await complete(listField, as_: '[Int!]!'), {
+        'data': {
+          'listField': [1, 2]
+        },
+      });
     });
-    expect(await complete({ listField, as: '[Int]!' })).to.deep.equal({
-      data: { listField: [1, 2] },
+
+    test('Contains null', () async {
+      const listField = [1, null, 2];
+      final errors = [
+        {
+          'message': stringContainsInOrder(['non-null', 'Query.listField']),
+          // 'Cannot return null for non-nullable field Query.listField.',
+          'locations': [
+            {'line': 0, 'column': 2}
+          ],
+          'path': ['listField', 1],
+        },
+      ];
+
+      expect(await complete(listField, as_: '[Int]'), {
+        'data': {
+          'listField': [1, null, 2]
+        },
+      });
+      expect(await complete(listField, as_: '[Int]!'), {
+        'data': {
+          'listField': [1, null, 2]
+        },
+      });
+      expect(await complete(listField, as_: '[Int!]'), {
+        'data': {'listField': null},
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]!'), {
+        'data': null,
+        'errors': errors,
+      });
     });
-    expect(await complete({ listField, as: '[Int!]' })).to.deep.equal({
-      data: { listField: [1, 2] },
+
+    test('Returns null', () async {
+      const Object? listField = null;
+      final errors = [
+        {
+          'message': stringContainsInOrder(['non-null', 'Query.listField']),
+          // 'Cannot return null for non-nullable field Query.listField.',
+          'locations': [
+            {'line': 0, 'column': 2}
+          ],
+          'path': ['listField'],
+        },
+      ];
+
+      expect(await complete(listField, as_: '[Int]'), {
+        'data': {'listField': null},
+      });
+      expect(await complete(listField, as_: '[Int]!'), {
+        'data': null,
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]'), {
+        'data': {'listField': null},
+      });
+      expect(await complete(listField, as_: '[Int!]!'), {
+        'data': null,
+        'errors': errors,
+      });
     });
-    expect(await complete({ listField, as: '[Int!]!' })).to.deep.equal({
-      data: { listField: [1, 2] },
+
+    test('Contains error', () async {
+      final listField = [1, () => throw GraphQLExceptionError('bad'), 2];
+      const errors = [
+        {
+          'message': 'bad',
+          'locations': [
+            {'line': 0, 'column': 2}
+          ],
+          'path': ['listField', 1],
+        },
+      ];
+
+      expect(await complete(listField, as_: '[Int]'), {
+        'data': {
+          'listField': [1, null, 2]
+        },
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int]!'), {
+        'data': {
+          'listField': [1, null, 2]
+        },
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]'), {
+        'data': {'listField': null},
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]!'), {
+        'data': null,
+        'errors': errors,
+      });
+    });
+
+    test('Results in error', () async {
+      final listField = () => throw GraphQLExceptionError('bad');
+      const errors = [
+        {
+          'message': 'bad',
+          'locations': [
+            {'line': 0, 'column': 2}
+          ],
+          'path': ['listField'],
+        },
+      ];
+
+      expect(await complete(listField, as_: '[Int]'), {
+        'data': {'listField': null},
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int]!'), {
+        'data': null,
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]'), {
+        'data': {'listField': null},
+        'errors': errors,
+      });
+      expect(await complete(listField, as_: '[Int!]!'), {
+        'data': null,
+        'errors': errors,
+      });
     });
   });
-
-  it('Contains null', async () => {
-    const listField = [1, null, 2];
-    const errors = [
-      {
-        message: 'Cannot return null for non-nullable field Query.listField.',
-        locations: [{ line: 1, column: 3 }],
-        path: ['listField', 1],
-      },
-    ];
-
-    expect(await complete({ listField, as: '[Int]' })).to.deep.equal({
-      data: { listField: [1, null, 2] },
-    });
-    expect(await complete({ listField, as: '[Int]!' })).to.deep.equal({
-      data: { listField: [1, null, 2] },
-    });
-    expectJSON(await complete({ listField, as: '[Int!]' })).to.deep.equal({
-      data: { listField: null },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int!]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-  });
-
-  it('Returns null', async () => {
-    const listField = null;
-    const errors = [
-      {
-        message: 'Cannot return null for non-nullable field Query.listField.',
-        locations: [{ line: 1, column: 3 }],
-        path: ['listField'],
-      },
-    ];
-
-    expect(await complete({ listField, as: '[Int]' })).to.deep.equal({
-      data: { listField: null },
-    });
-    expectJSON(await complete({ listField, as: '[Int]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-    expect(await complete({ listField, as: '[Int!]' })).to.deep.equal({
-      data: { listField: null },
-    });
-    expectJSON(await complete({ listField, as: '[Int!]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-  });
-
-  it('Contains error', async () => {
-    const listField = [1, new Error('bad'), 2];
-    const errors = [
-      {
-        message: 'bad',
-        locations: [{ line: 1, column: 3 }],
-        path: ['listField', 1],
-      },
-    ];
-
-    expectJSON(await complete({ listField, as: '[Int]' })).to.deep.equal({
-      data: { listField: [1, null, 2] },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int]!' })).to.deep.equal({
-      data: { listField: [1, null, 2] },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int!]' })).to.deep.equal({
-      data: { listField: null },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int!]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-  });
-
-  it('Results in error', async () => {
-    const listField = new Error('bad');
-    const errors = [
-      {
-        message: 'bad',
-        locations: [{ line: 1, column: 3 }],
-        path: ['listField'],
-      },
-    ];
-
-    expectJSON(await complete({ listField, as: '[Int]' })).to.deep.equal({
-      data: { listField: null },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int!]' })).to.deep.equal({
-      data: { listField: null },
-      errors,
-    });
-    expectJSON(await complete({ listField, as: '[Int!]!' })).to.deep.equal({
-      data: null,
-      errors,
-    });
-  });
-});
+}
