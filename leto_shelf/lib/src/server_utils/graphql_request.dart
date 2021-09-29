@@ -29,11 +29,14 @@ class GraphQLRequest {
     if (json is List) {
       final list = json.cast<Map<String, Object?>>();
       return GraphQLRequest.fromJson(
-        list.reversed.reduce(
-          (value, element) {
-            return element..['child'] = value;
-          },
-        )..['isBatched'] = true,
+        {
+          ...list.reversed.reduce(
+            (value, element) {
+              return {...element, 'child': value};
+            },
+          ),
+          'isBatched': true,
+        },
       );
     }
     return _$GraphQLRequestFromJson(json! as Map<String, Object?>);
