@@ -299,13 +299,22 @@ class GraphQL {
       final variableName = variableDefinition.variable.name.value;
       final variableType = variableDefinition.type;
       final type = convertType(variableType, customTypes);
-      // TODO: Assert: IsInputType(variableType) must be true.
-      final defaultValue = variableDefinition.defaultValue;
-
       final span = variableDefinition.span ??
           variableDefinition.variable.span ??
           variableDefinition.variable.name.span;
+      final locations = GraphQLErrorLocation.listFromSource(
+        span?.start,
+      );
 
+      if (!GraphQLFieldInput.isInputType(type)) {
+        throw GraphQLExceptionError(
+          'Variable "$variableName" expected value of type "$type"'
+          ' which cannot be used as an input type.',
+          locations: locations,
+        );
+      }
+
+      final defaultValue = variableDefinition.defaultValue;
       if (variableValues == null || !variableValues.containsKey(variableName)) {
         if (defaultValue?.value != null) {
           coercedValues[variableName] = computeValue(
@@ -324,9 +333,6 @@ class GraphQL {
           final validation = type.validate(variableName, value);
 
           if (!validation.successful) {
-            final locations = GraphQLErrorLocation.listFromSource(
-              span?.start,
-            );
             throw GraphQLException(
               validation.errors
                   .map((e) => GraphQLExceptionError(e, locations: locations))

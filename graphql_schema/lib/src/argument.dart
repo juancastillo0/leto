@@ -22,15 +22,15 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
 
   final String? deprecationReason;
 
-  static bool _isInputTypeOrScalar(GraphQLType type) {
+  static bool isInputType(GraphQLType type) {
     return type.when(
       enum_: (type) => true,
       scalar: (type) => true,
       input: (type) => true,
       object: (type) => false,
-      union: (type) => type.possibleTypes.every(_isInputTypeOrScalar),
-      list: (type) => _isInputTypeOrScalar(type.ofType),
-      nonNullable: (type) => _isInputTypeOrScalar(type.ofType),
+      union: (type) => false, // type.possibleTypes.every(isInputType),
+      list: (type) => isInputType(type.ofType),
+      nonNullable: (type) => isInputType(type.ofType),
     );
   }
 
@@ -41,7 +41,7 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
     this.description,
     this.deprecationReason,
   }) : assert(
-          _isInputTypeOrScalar(type),
+          isInputType(type),
           'All inputs to a GraphQL field must either be scalar types'
           ' or explicitly marked as INPUT_OBJECT. Call'
           ' `GraphQLObjectType.asInputObject()` on any'
