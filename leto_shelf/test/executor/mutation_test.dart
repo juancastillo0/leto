@@ -133,8 +133,11 @@ void main() {
   test('does not include illegal mutation fields in output', () async {
     const document = 'mutation { thisIsIllegalDoNotIncludeMe }';
 
-    final result =
-        await GraphQL(schema, introspect: false).parseAndExecute(document);
+    final result = await GraphQL(
+      schema,
+      introspect: false,
+      validate: false,
+    ).parseAndExecute(document);
     expect(result.toJson(), {
       'data': <String, Object?>{},
     });

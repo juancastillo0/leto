@@ -60,7 +60,8 @@ void main() {
       ),
     );
 
-    final result = await GraphQL(schema, introspect: false).parseAndExecute(
+    final result = await GraphQL(schema, introspect: false, validate: false)
+        .parseAndExecute(
       document,
       initialValue: rootValue,
       operationName: operationName,
@@ -1080,10 +1081,12 @@ void main() {
         },
         'errors': [
           {
-            'message': 'Expected value of type "SpecialType" '
-                'but got: { value: "bar" }.',
+            'message': stringContainsInOrder(
+                ['"SpecialType"', 'Query.specials[1]', 'NotSpecial']),
+            // 'Expected value of type "SpecialType" '
+            //     'but got: { value: "bar" }.',
             'locations': [
-              {'line': 0, 'column': 1}
+              {'line': 0, 'column': 2}
             ],
             'path': ['specials', 1],
           },
