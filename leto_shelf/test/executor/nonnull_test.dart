@@ -445,7 +445,8 @@ void main() {
         'errors': [
           {
             'message':
-                'Cannot return null for non-nullable field DataType.syncNonNull.',
+                stringContainsInOrder(['non-nullable', 'DataType.syncNonNull']),
+            // 'Cannot return null for non-nullable field DataType.syncNonNull.',
             'path': [
               'syncNest',
               'syncNonNullNest',
@@ -460,7 +461,8 @@ void main() {
           },
           {
             'message':
-                'Cannot return null for non-nullable field DataType.syncNonNull.',
+                stringContainsInOrder(['non-nullable', 'DataType.syncNonNull']),
+            // 'Cannot return null for non-nullable field DataType.syncNonNull.',
             'path': [
               'promiseNest',
               'syncNonNullNest',
@@ -474,8 +476,9 @@ void main() {
             ],
           },
           {
-            'message':
-                'Cannot return null for non-nullable field DataType.promiseNonNull.',
+            'message': stringContainsInOrder(
+                ['non-nullable', 'DataType.promiseNonNull']),
+            // 'Cannot return null for non-nullable field DataType.promiseNonNull.',
             'path': [
               'anotherNest',
               'syncNonNullNest',
@@ -489,8 +492,9 @@ void main() {
             ],
           },
           {
-            'message':
-                'Cannot return null for non-nullable field DataType.promiseNonNull.',
+            'message': stringContainsInOrder(
+                ['non-nullable', 'DataType.promiseNonNull']),
+            // 'Cannot return null for non-nullable field DataType.promiseNonNull.',
             'path': [
               'anotherPromiseNest',
               'syncNonNullNest',
@@ -587,7 +591,8 @@ void main() {
         'errors': [
           {
             'message':
-                'Cannot return null for non-nullable field DataType.syncNonNull.',
+                stringContainsInOrder(['non-nullable', 'DataType.syncNonNull']),
+            // 'Cannot return null for non-nullable field DataType.syncNonNull.',
             'path': ['syncNonNull'],
             'locations': [
               {'line': 1, 'column': 8}
@@ -705,8 +710,9 @@ void main() {
         },
         'errors': [
           {
-            'message':
-                'Argument "cannotBeNull" of required type "String!" was not provided.',
+            'message': stringContainsInOrder(
+                ['"cannotBeNull"', 'String!', 'withNonNullArg']),
+            // 'Argument "cannotBeNull" of required type "String!" was not provided.',
             'locations': [
               {'line': 1, 'column': 12}
             ],
@@ -734,10 +740,12 @@ void main() {
         },
         'errors': [
           {
-            'message':
-                'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+            'message': stringContainsInOrder(
+                ['"cannotBeNull"', 'String!', 'withNonNullArg']),
+            // 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
             'locations': [
-              {'line': 1, 'column': 42}
+              // TODO: point to value at column 42?
+              {'line': 1, 'column': 27}
             ],
             'path': ['withNonNullArg'],
           },
@@ -767,10 +775,10 @@ void main() {
         'errors': [
           {
             'message':
-                stringContainsInOrder(['cannotBeNull', 'String!', 'testVar']),
+                stringContainsInOrder(['"testVar"', 'cannotBeNull', 'String!']),
             // 'Argument "cannotBeNull" of required type "String!" was provided the variable "$testVar" which was not provided a runtime value.',
             'locations': [
-              {'line': 2, 'column': 42}
+              {'line': 1, 'column': 27}
             ],
             'path': ['withNonNullArg'],
           },
@@ -799,10 +807,11 @@ void main() {
         },
         'errors': [
           {
-            'message':
-                'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+            'message': stringContainsInOrder(
+                ['cannotBeNull', 'String!', 'not be null']),
+            // 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
             'locations': [
-              {'line': 1, 'column': 43}
+              {'line': 1, 'column': 28}
             ],
             'path': ['withNonNullArg'],
           },
