@@ -44,10 +44,6 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
   allTypes.addAll([
     graphQLBoolean,
     graphQLString,
-    graphQLId,
-    graphQLDate,
-    graphQLFloat,
-    graphQLInt,
     directiveType,
     typeType,
     directiveType,
