@@ -92,6 +92,7 @@ final TestEnum = GraphQLEnumType<Json>(
     GraphQLEnumValue('NAN', JsonNumber(double.nan)),
     GraphQLEnumValue('FALSE', JsonBoolean(false)),
     GraphQLEnumValue('CUSTOM', JsonStr('custom value')),
+    // TODO: default value
     GraphQLEnumValue('DEFAULT_VALUE', JsonStr('DEFAULT_VALUE')),
   ],
 );
@@ -264,11 +265,16 @@ Future<void> main() async {
           },
           'errors': [
             {
-              'message':
-                  'Argument "input" has invalid value ["foo", "bar", "baz"].',
+              'message': stringContainsInOrder([
+                'input',
+                'TestInputObject',
+                'fieldWithObjectInput',
+                '[foo, bar, baz]'
+              ]),
+              // 'Argument "input" has invalid value ["foo", "bar", "baz"].',
               'path': ['fieldWithObjectInput'],
               'locations': [
-                {'line': 3, 'column': 41}
+                {'line': 1, 'column': 33}
               ],
             },
           ],
@@ -759,9 +765,10 @@ Future<void> main() async {
         'errors': [
           {
             // 'Variable "$value" of non-null type "String!" must not be null.',
-            'message': stringContainsInOrder(['value', 'String!']),
+            'message':
+                stringContainsInOrder(['value', 'String!', 'not be null']),
             'locations': [
-              {'line': 2, 'column': 16}
+              {'line': 0, 'column': 16}
             ],
           },
         ],
@@ -1113,10 +1120,14 @@ Future<void> main() async {
       expect(result, {
         'errors': [
           {
-            'message': stringContainsInOrder(['input', 'TestType!']),
+            'message': stringContainsInOrder([
+              'input',
+              'TestType!',
+              'which cannot be used as an input type'
+            ]),
             // 'Variable "$input" expected value of type "TestType!" which cannot be used as an input type.',
             'locations': [
-              {'line': 0, 'column': 24}
+              {'line': 0, 'column': 16}
             ],
           },
         ],
@@ -1134,10 +1145,10 @@ Future<void> main() async {
       expect(result, {
         'errors': [
           {
-            'message': stringContainsInOrder(['input', 'TestType!']),
+            'message': stringContainsInOrder(['Unknown', '"UnknownType"']),
             // 'Variable "$input" expected value of type "UnknownType!" which cannot be used as an input type.',
             'locations': [
-              {'line': 2, 'column': 24}
+              {'line': 0, 'column': 23}
             ],
           },
         ],
@@ -1183,7 +1194,8 @@ Future<void> main() async {
         },
         'errors': [
           {
-            'message': 'Argument "input" has invalid value WRONG_TYPE.',
+            'message': stringContainsInOrder(['WRONG_TYPE', '"String"']),
+            // 'Argument "input" has invalid value WRONG_TYPE.',
             'locations': [
               {'line': 1, 'column': 47}
             ],
