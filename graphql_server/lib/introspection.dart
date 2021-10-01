@@ -117,7 +117,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
         listOf(_reflectSchemaTypes().nonNull()),
         resolve: (type, _) => type.whenMaybe(
           object: (type) => type.interfaces,
-          orElse: (_) => <GraphQLType>[],
+          orElse: (_) => null,
         ),
       ),
     );
