@@ -1,22 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:shelf_graphql/src/graphql_ui/playground_css.dart';
 import 'package:shelf/shelf.dart';
-// import 'package:shelf_static/shelf_static.dart';
+import 'package:shelf_graphql/src/graphql_ui/playground_css.dart';
+
 import 'playground_config.dart';
 
 export 'playground_config.dart';
 
 Handler playgroundHandler({PlaygroundConfig? config}) {
-  // return createStaticHandler(
-  //   'assets',
-  //   defaultDocument: 'graphql-playground.html',
-  // );
-  // createFileHandler(
-  //   'assets/graphql-playground.html',
-  //   url: url,
-  // );
   return (request) {
     return Response.ok(
       makePlaygroundHtml(config: config),
