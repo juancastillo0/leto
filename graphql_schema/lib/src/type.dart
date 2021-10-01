@@ -183,17 +183,17 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     );
   }
 
-  O whenOrNull<O extends Object?>({
-    O Function(GraphQLEnumType<Value>)? enum_,
-    O Function(GraphQLScalarType<Value, Serialized>)? scalar,
-    O Function(GraphQLObjectType<Value>)? object,
-    O Function(GraphQLInputObjectType<Value>)? input,
-    O Function(GraphQLUnionType<Value>)? union,
-    O Function(GraphQLListType)? list,
-    O Function(GraphQLNonNullType<Value, Serialized>)? nonNullable,
+  O? whenOrNull<O>({
+    O? Function(GraphQLEnumType<Value>)? enum_,
+    O? Function(GraphQLScalarType<Value, Serialized>)? scalar,
+    O? Function(GraphQLObjectType<Value>)? object,
+    O? Function(GraphQLInputObjectType<Value>)? input,
+    O? Function(GraphQLUnionType<Value>)? union,
+    O? Function(GraphQLListType)? list,
+    O? Function(GraphQLNonNullType<Value, Serialized>)? nonNullable,
   }) {
-    O orElse(GraphQLType _) {
-      return null as O;
+    O? orElse(GraphQLType _) {
+      return null;
     }
 
     return when(

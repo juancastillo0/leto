@@ -827,17 +827,12 @@ class GraphQL {
     } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
       final Object? value = objectValue[fieldName];
       // TODO: support functions with more params?
-      if (value is Function()) {
-        return value() as T?;
-      }
-      return value as T?;
-    } else if (field.type.generic.isValueOfType(objectValue)) {
-      // TODO:
-      return objectValue as T;
+      return await _extractResult(value) as T?;
     } else {
       final serealized = ctx.serializedObject();
       if (serealized != null && serealized.containsKey(fieldName)) {
-        return serealized[fieldName] as T?;
+        final value = serealized[fieldName];
+        return await _extractResult(value) as T?;
       }
       if (defaultFieldResolver != null) {
         final value = await defaultFieldResolver!(
@@ -859,11 +854,14 @@ class GraphQL {
   }
 
   FutureOr<Object?> _extractResult(Object? result) {
-    return result is Function()
-        ? _extractResult(result())
-        : result is Future
-            ? result.then(_extractResult)
-            : result;
+    // TODO: support functions with more params?
+    if (result is Function()) {
+      return _extractResult(result());
+    } else if (result is Future) {
+      return result.then(_extractResult);
+    } else {
+      return result;
+    }
   }
 
   /// Returns the serialized value of type [fieldType]
