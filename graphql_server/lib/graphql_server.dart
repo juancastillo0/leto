@@ -865,7 +865,8 @@ class GraphQL {
   }
 
   /// Returns the serialized value of type [fieldType]
-  /// from a [result] for [fieldName] in [ctx]
+  /// from a resolved [_result] for [fieldName]
+  /// given the Object context ([ctx])
   Future<Object?> completeValue(
     ResolveObjectCtx ctx,
     String fieldName,
@@ -959,7 +960,7 @@ class GraphQL {
           }
 
           final innerType = fieldType.ofType;
-          final futureOut = <Future<Object?>>[];
+          final futureOut = <Future<Object?> Function()>[];
 
           final listCtx = ResolveObjectCtx(
             base: ctx.base,
@@ -972,33 +973,39 @@ class GraphQL {
           int i = 0;
           for (final resultItem in result) {
             final _i = i++;
-            futureOut.add(completeValue(
-              listCtx,
-              '$fieldName[$_i]',
-              innerType,
-              fields,
-              resultItem,
-              pathItem: _i,
-            ).onError<Exception>((error, stackTrace) {
-              final err = GraphQLException.fromException(
-                error,
-                [...path, pathItem, _i],
-              );
-              if (innerType.isNullable) {
-                ctx.base.errors.add(err.errors.first);
-                return null;
-              } else {
-                throw err;
-              }
-            }));
+            futureOut.add(
+              () async {
+                try {
+                  return await completeValue(
+                    listCtx,
+                    '$fieldName[$_i]',
+                    innerType,
+                    fields,
+                    resultItem,
+                    pathItem: _i,
+                  );
+                } on Exception catch (error, stackTrace) {
+                  final field = fields.first;
+                  final fieldSpan = field is FieldNode
+                      ? field.span ?? field.alias?.span ?? field.name.span
+                      : field.span;
+                  final err = GraphQLException.fromException(
+                    error,
+                    [...path, _i],
+                    span: fieldSpan,
+                  );
+                  if (innerType.isNullable) {
+                    ctx.base.errors.add(err.errors.first);
+                    return null;
+                  } else {
+                    throw err;
+                  }
+                }
+              },
+            );
           }
 
-          final out = <Object?>[];
-          for (final f in futureOut) {
-            out.add(await f);
-          }
-
-          return out;
+          return Future.wait(futureOut.map((e) => e()));
         },
       );
     });
