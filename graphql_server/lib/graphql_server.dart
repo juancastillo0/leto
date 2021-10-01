@@ -580,6 +580,16 @@ class GraphQL {
             continue;
           }
         }
+        if (validate &&
+            objectField.type.realType is GraphQLScalarType &&
+            (field.selectionSet?.selections.isNotEmpty ?? false)) {
+          throw GraphQLExceptionError(
+            'Can´t have fields on scalar $fieldName (${objectField.type})'
+            ' of object type ${objectType.name}.',
+            locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
+            path: fieldPath,
+          );
+        }
         futureResponseValue = withExtensions<FutureOr<Object?>>(
             (n, e) => e.executeField(n, objectCtx, objectField, alias),
             () async {
@@ -596,6 +606,7 @@ class GraphQL {
             final err =
                 GraphQLException.fromException(e, fieldPath, span: fieldSpan);
             if (objectField.type.isNullable) {
+              // TODO: add only one error?
               baseCtx.errors.add(err.errors.first);
               return null;
             } else {
@@ -690,7 +701,10 @@ class GraphQL {
         // TODO: verify
         // TODO: check subscriptions
         final node = argumentValue.value;
-        final span = node.span ?? argumentValue.span ?? argumentValue.name.span;
+        final span = node.span ??
+            argumentValue.span ??
+            argumentValue.value.span ??
+            argumentValue.name.span;
         if (node is VariableNode) {
           /// variable values where already validated and
           /// coerced in [coerceVariableValues]
@@ -704,7 +718,7 @@ class GraphQL {
               variableValues.containsKey(variableName)
                   ? 'Variable value for argument "$argumentName" of type $argumentType'
                       ' for field "$fieldName" must not be null.'
-                  : 'Missing variable value for argument "$argumentName" of type $argumentType'
+                  : 'Missing variable "$variableName" for argument "$argumentName" of type $argumentType'
                       ' for field "$fieldName".',
               location: span?.start,
             );
@@ -723,8 +737,8 @@ class GraphQL {
             coercedValue = null;
           } else {
             throw GraphQLException.fromMessage(
-              'Missing value for argument "$argumentName" $argumentType'
-              ' for field "$fieldName".',
+              'Argument "$argumentName" of type $argumentType'
+              ' for field "$fieldName" must not be null.',
               location: span?.start,
             );
           }
@@ -741,8 +755,8 @@ class GraphQL {
           if (!validation.successful) {
             final errors = <GraphQLExceptionError>[
               GraphQLExceptionError(
-                'Type coercion error for value of argument'
-                ' "$argumentName" of field "$fieldName".',
+                'Type coercion error for argument "$argumentName" ($argumentType)'
+                ' of field "$fieldName". Got value $value.',
                 locations: locations,
               )
             ];
