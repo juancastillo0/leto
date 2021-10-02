@@ -33,7 +33,7 @@ GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
 }) {
   final Object? response = jsonDecode(jsonString);
   final json = Json.fromJson(response);
-  final schema = serdeTypeFromJson(json);
+  final schema = serdeTypeFromJson(json, root: response);
   final rootType = graphQLTypeFromSerde(typeName, schema);
 
   return field(
@@ -102,17 +102,32 @@ GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
   return gqlType.nonNull();
 }
 
-SerdeType serdeTypeFromJson(Json obj) {
+SerdeType serdeTypeFromJson(
+  Json obj, {
+  Object? root,
+  List<String> path = const [],
+}) {
   return obj.when(
     map: (map) => SerdeType.nested(map.map(
       (key, value) => MapEntry(
         key,
-        serdeTypeFromJson(value),
+        serdeTypeFromJson(value, root: root),
       ),
     )),
-    list: (list) => SerdeType.list(serdeFromList(list)),
+    list: (list) => SerdeType.list(serdeFromList(list, root: root)),
     number: (v) => v is int ? SerdeType.int : SerdeType.num,
-    str: (_) => SerdeType.str,
+    boolean: (b) => SerdeType.bool,
+    str: (value) {
+      if (value.startsWith('@late:')) {
+        return SerdeType.late(() {
+          final Object? val =
+              JsonPath(value.substring(6)).readValues(root).first;
+          final v = Json.fromJson(val);
+          return serdeTypeFromJson(v, root: root);
+        });
+      }
+      return SerdeType.str;
+    },
     none: () => const SerdeType.option(SerdeType.dynamic),
   );
   // if (obj is Map<String, Object?>) {
@@ -125,11 +140,15 @@ SerdeType serdeTypeFromJson(Json obj) {
   // }
 }
 
-SerdeType serdeFromList(List<Json> obj) {
-  final initial = serdeTypeFromJson(obj.first);
+SerdeType serdeFromList(
+  List<Json> obj, {
+  Object? root,
+  List<String> path = const [],
+}) {
+  final initial = serdeTypeFromJson(obj.first, root: root);
   return obj.skip(1).fold(
         initial,
-        (v, item) => mergeSerdeSchema(v, serdeTypeFromJson(item)),
+        (v, item) => mergeSerdeSchema(v, serdeTypeFromJson(item, root: root)),
       );
 }
 
