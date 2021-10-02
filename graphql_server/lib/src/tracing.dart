@@ -23,11 +23,22 @@ class GraphQLTracingExtension extends GraphQLExtension {
   String get mapKey => 'tracing';
 
   @override
-  void start(
+  FutureOr<GraphQLResult> executeRequest(
+    FutureOr<GraphQLResult> Function() next,
     Map<Object, Object?> globals,
     Map<String, Object?>? extensions,
-  ) {
-    globals[ref] = TracingBuilder(version: 1);
+  ) async {
+    final tracing = TracingBuilder(version: 1);
+    globals[ref] = tracing;
+
+    final result = await next();
+
+    tracing.end();
+    onExecute?.call(tracing);
+    if (returnInResponse) {
+      return result.copyWithExtension(mapKey, tracing.toJson());
+    }
+    return result;
   }
 
   @override
@@ -81,15 +92,17 @@ class GraphQLTracingExtension extends GraphQLExtension {
     }
   }
 
-  // TODO: should probably be in execute instead of toJson
   @override
-  Object? toJson(Map<Object, Object?> globals) {
-    final tracing = globals[ref]! as TracingBuilder;
-    tracing.end();
-    onExecute?.call(tracing);
-    if (returnInResponse) {
-      return tracing.toJson();
-    }
+  FutureOr<GraphQLResult> executeSubscriptionEvent(
+    FutureOr<GraphQLResult> Function() next,
+    ResolveCtx ctx,
+    Map<Object, Object?> parentGlobals,
+  ) async {
+    return executeRequest(
+      next,
+      ctx.globalVariables,
+      ctx.extensions,
+    );
   }
 }
 

@@ -40,6 +40,14 @@ class GraphQLResult {
     );
   }
 
+  GraphQLResult copyWithExtension(String key, Object? value) {
+    final extensions = this.extensions;
+    return copyWith(extensions: {
+      if (extensions != null) ...extensions,
+      key: value,
+    });
+  }
+
   Map<String, Object?> toJson() {
     return {
       if (errors.isNotEmpty) 'errors': errors.map((x) => x.toJson()).toList(),

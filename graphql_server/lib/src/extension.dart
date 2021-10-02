@@ -10,10 +10,12 @@ export 'tracing.dart';
 abstract class GraphQLExtension {
   String get mapKey;
 
-  void start(
+  FutureOr<GraphQLResult> executeRequest(
+    FutureOr<GraphQLResult> Function() next,
     Map<Object, Object?> globals,
     Map<String, Object?>? extensions,
-  ) {}
+  ) =>
+      next();
 
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
@@ -40,6 +42,13 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  FutureOr<GraphQLResult> executeSubscriptionEvent(
+    FutureOr<GraphQLResult> Function() next,
+    ResolveCtx ctx,
+    Map<Object, Object?> parentGlobals,
+  ) =>
+      next();
+
   FutureOr<Object?> completeValue(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
@@ -48,6 +57,4 @@ abstract class GraphQLExtension {
     Object? result,
   ) =>
       next();
-
-  Object? toJson(Map<Object, Object?> globals) {}
 }
