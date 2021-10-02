@@ -26,7 +26,7 @@ void main() {
     final t = DateTime.now();
 
     final resultmut = await graphql.parseAndExecute(
-      'mutation mut1 (\$todoIn: Todo) { '
+      'mutation mut1 (\$todoIn: TodoInput) { '
       '  completeTodo(todoIn: \$todoIn) { text, time, completed, users {name}} '
       '}',
       variableValues: {

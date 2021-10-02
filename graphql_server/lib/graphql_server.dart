@@ -690,13 +690,10 @@ class GraphQL {
         if (defaultValue != null) {
           coercedValues[argumentName] = defaultValue;
         } else if (argumentType.isNonNullable) {
-          // TODO: "Missing value for argument" repeated 3 times
           throw GraphQLException.fromMessage(
             'Missing value for argument "$argumentName" of type $argumentType'
             ' for field "$fieldName".',
           );
-        } else {
-          continue;
         }
       } else {
         // try {
@@ -780,26 +777,8 @@ class GraphQL {
               serialized,
             );
           }
-          coercedValues[argumentName] = coercedValue;
         }
-
-        // TODO: remove try catch
-        // } on TypeError catch (e) {
-        //   throw GraphQLException(<GraphQLExceptionError>[
-        //     GraphQLExceptionError(
-        //       'Type coercion error for value of argument '
-        //       '"$argumentName" of field "$fieldName".',
-        //       locations: locations,
-        //     ),
-        //     GraphQLExceptionError(
-        //       e.toString(),
-        //       locations: [
-        //         GraphQLErrorLocation.fromSourceLocation(
-        //             argumentValue.value.span?.start)
-        //       ],
-        //     ),
-        //   ]);
-        // }
+        coercedValues[argumentName] = coercedValue;
       }
     }
 
@@ -919,6 +898,16 @@ class GraphQL {
           objectType = fieldType;
         } else {
           objectType = resolveAbstractType(fieldName, fieldType, result);
+        }
+
+        if (validate &&
+            result is! Map<String, dynamic> &&
+            !objectType.generic.isValueOfType(result)) {
+          throw GraphQLException.fromMessage(
+            'Expected value of type "$objectType" for'
+            ' field "${ctx.objectType}.$fieldName", but got $result.',
+            path: path,
+          );
         }
 
         final subSelectionSet = mergeSelectionSets(fields);
