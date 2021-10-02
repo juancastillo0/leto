@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -26,10 +27,6 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     queryType: objectType(
       'Queries',
       fields: [
-        graphqlFieldFromJson(
-          fieldName: 'json',
-          jsonString: jsonPayload,
-        ),
         field(
           'files',
           listOf(fileUploadType()),
@@ -143,6 +140,39 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     starWarsSchema,
     makeBooksSchema(),
     relayStarWarsSchema,
+    schemaFromJson(
+      fieldName: 'JsonTest',
+      jsonString: jsonPayload,
+      idFields: {
+        'JsonTest': {'id'}
+      },
+    ),
+    schemaFromJson(
+      fieldName: 'TodoJsonTest',
+      jsonString: jsonEncode({
+        'Todo1': [
+          {
+            'code': 'pso1',
+            'name': 'ba',
+            'assigned': null,
+            'done': false,
+            'created': DateTime.now().toIso8601String(),
+          },
+          {
+            'code': 'pso2',
+            'name': 'ba',
+            'assigned': '@ref:User1:apoxaw',
+            'done': true,
+            'created': DateTime.now()
+                .subtract(const Duration(hours: 2))
+                .toIso8601String(),
+          },
+        ],
+      }),
+      idFields: {
+        'Todo1': {'code'}
+      },
+    ),
   ].reduce(mergeGraphQLSchemas);
 }
 

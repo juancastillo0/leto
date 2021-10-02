@@ -1,29 +1,78 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:async/async.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_path/json_path.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/safe_json.dart';
 import 'package:shelf_graphql_example/schema/safe_json_graphql.dart';
 import 'package:valida/valida.dart';
 
 export 'package:valida/validate/serde_type.dart';
 
-GraphQLSchema schemaFromJson() {
-  // final List<Map<String, Object?>> json =
-  //     (jsonDecode(jsonPayload) as List).cast();
+GraphQLSchema schemaFromJson({
+  required String fieldName,
+  required String jsonString,
+  String typeName = 'Root',
+  Map<String, Set<String>>? idFields,
+}) {
+  final Object? response = jsonDecode(jsonString);
+  final json = Json.fromJson(response);
+  final schema = serdeTypeFromJson(json, root: response);
+  final rootType = graphQLTypeFromSerde(typeName, schema);
 
-  return GraphQLSchema(
-    queryType: objectType(
-      'Query',
-      fields: [
-        graphqlFieldFromJson(
-          fieldName: 'json',
-          jsonString: jsonPayload,
-        )
-      ],
-    ),
-  );
+  final schemas = <GraphQLSchema>[
+    GraphQLSchema(
+      queryType: objectType(
+        'Query',
+        fields: [
+          field(
+            fieldName,
+            rootType,
+            resolve: (obj, ctx) => response,
+          ),
+        ],
+      ),
+    )
+  ];
+
+  GraphQLType _inner(GraphQLType type) {
+    return type is GraphQLNonNullType ? type.ofType : type;
+  }
+
+  void _addFromList(GraphQLListType listType, String name, Object? listJson) {
+    if (listType.ofType is GraphQLNonNullType) {
+      final typeInner = (listType.ofType as GraphQLNonNullType).ofType;
+      if (typeInner is GraphQLObjectType) {
+        final schema = makeMutationSchema(
+          typeInner,
+          (listJson! as List).cast(),
+          fieldName:
+              '${name.substring(0, 1).toUpperCase()}${name.substring(1)}',
+          idFields: idFields == null ? null : idFields[name],
+        );
+        schemas.add(schema);
+      }
+    }
+  }
+
+  if (_inner(rootType) is GraphQLListType) {
+    final listType = _inner(rootType) as GraphQLListType;
+    _addFromList(listType, fieldName, response);
+  } else if (response is Map<String, Object?> &&
+      _inner(rootType) is GraphQLObjectType) {
+    for (final _field in (_inner(rootType) as GraphQLObjectType)
+        .fields
+        .where((f) => _inner(f.type) is GraphQLListType)) {
+      final listType = _inner(_field.type) as GraphQLListType;
+      final list = response[_field.name];
+      _addFromList(listType, _field.name, list);
+    }
+  }
+
+  return schemas.reduce(mergeGraphQLSchemas);
 }
 
 GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
@@ -40,6 +89,204 @@ GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
     fieldName,
     rootType,
     resolve: (obj, ctx) => response,
+  );
+}
+
+GraphQLSchema makeMutationSchema(
+  GraphQLObjectType objType,
+  List<Map<String, Object?>> response, {
+  required String fieldName,
+  Set<String>? idFields,
+  bool upsert = true,
+}) {
+  final mutationFields = <GraphQLObjectField<Object, Object, Object>>[];
+  final subscriptionFields = <GraphQLObjectField<Object, Object, Object>>[];
+
+  final controllerAdd = StreamController<Map<String, Object?>>.broadcast();
+  final controllerUpdate = StreamController<Map<String, Object?>>.broadcast();
+  final controllerDelete = StreamController<Map<String, Object?>>.broadcast();
+
+  final streamGroup = StreamGroup.mergeBroadcast([
+    controllerAdd.stream.map((event) => {'type': 'add', 'value': event}),
+    controllerUpdate.stream.map((event) => {'type': 'update', 'value': event}),
+    controllerDelete.stream.map((event) => {'type': 'delete', 'value': event}),
+  ]);
+
+  final idObjectFields = idFields != null
+      ? objType.fields.where((f) => idFields.contains(f.name)).toList()
+      : null;
+  if (idObjectFields != null) {
+    assert(idObjectFields.every((f) => f.type.isNonNullable));
+  }
+
+  int findById(Map<String, Object?> value, Set<String> idFields) {
+    return response.indexWhere((element) {
+      return idFields.every((name) => element[name] == value[name]);
+    });
+  }
+
+  Map<String, Object?>? _update(Map<String, Object?> patch) {
+    assert(idFields != null);
+    if (idFields == null) {
+      return null;
+    }
+    final previous = findById(patch, idFields);
+    if (previous == -1) {
+      return null;
+    }
+    final value = response[previous];
+    value.addEntries(patch.entries.where((entry) {
+      if (entry.value != null) {
+        return true;
+      }
+      final field = objType.fields.firstWhereOrNull(
+        (f) => f.name == entry.key,
+      );
+      return field != null && field.type.isNullable;
+    }));
+    controllerUpdate.add(value);
+
+    return value;
+  }
+
+  subscriptionFields.add(
+    listOf(objType.nonNull()).nonNull().field(
+      'on${fieldName}ListChange',
+      subscribe: (obj, ctx) {
+        return streamGroup.map((event) => response);
+      },
+    ),
+  );
+
+  mutationFields.add(field(
+    'add$fieldName',
+    idFields == null ? objType.nonNull() : objType,
+    resolve: (obj, ctx) {
+      final value = ctx.args['value']! as Map<String, Object?>;
+      if (idFields != null) {
+        final previous = findById(value, idFields);
+        if (previous != -1) {
+          if (upsert && ctx.args['upsert']! as bool) {
+            return _update(value);
+          } else {
+            return null;
+          }
+        }
+      }
+      response.add(value);
+      controllerAdd.add(value);
+
+      return value;
+    },
+    inputs: [
+      GraphQLFieldInput(
+        'value',
+        objType.coerceToInputObject().nonNull(),
+      ),
+      if (upsert && idFields != null)
+        GraphQLFieldInput(
+          'upsert',
+          graphQLBoolean.nonNull(),
+          defaultValue: false,
+          description: 'Whether to update the item if it was already created.',
+        ),
+    ],
+  ));
+
+  subscriptionFields.add(field(
+    'onAdd$fieldName',
+    objType.nonNull(),
+    subscribe: (obj, ctx) => controllerAdd.stream,
+  ));
+
+  if (idFields != null) {
+    /// Delete
+
+    mutationFields.add(field(
+      'delete$fieldName',
+      objType,
+      resolve: (obj, ctx) {
+        final previous = findById(ctx.args, idFields);
+        if (previous == -1) {
+          return null;
+        }
+        final value = response.removeAt(previous);
+        controllerDelete.add(value);
+
+        return value;
+      },
+      inputs: [
+        ...idObjectFields!.map(
+          (e) => GraphQLFieldInput(
+            e.name,
+            e.type.coerceToInputObject().nonNull(),
+          ),
+        ),
+      ],
+    ));
+
+    subscriptionFields.add(field(
+      'onDelete$fieldName',
+      objType.nonNull(),
+      subscribe: (obj, ctx) => controllerDelete.stream,
+    ));
+
+    /// Update
+
+    mutationFields.add(field(
+      'update$fieldName',
+      objType,
+      resolve: (obj, ctx) {
+        return _update(ctx.args);
+      },
+      inputs: [
+        ...objType.fields.map(
+          (e) {
+            final type = e.type.coerceToInputObject();
+            return GraphQLFieldInput(
+              e.name,
+              idFields.contains(e.name)
+                  ? type.nonNull()
+                  : (type is GraphQLNonNullType ? type.ofType : type),
+            );
+          },
+        ),
+      ],
+    ));
+
+    subscriptionFields.add(field(
+      'onUpdate$fieldName',
+      objType.nonNull(),
+      subscribe: (obj, ctx) => controllerUpdate.stream,
+    ));
+
+    /// All events
+
+    final eventType = enumTypeFromStrings(
+      '${fieldName}EventType',
+      ['add', 'update', 'delete'],
+    );
+
+    subscriptionFields.add(
+      objectType<Map<String, Object?>>(
+        '${fieldName}Event',
+        fields: [
+          eventType.nonNull().field('type'),
+          objType.nonNull().field('value'),
+        ],
+      ).nonNull().field(
+        'on${fieldName}Event',
+        subscribe: (obj, ctx) {
+          return streamGroup;
+        },
+      ),
+    );
+  }
+
+  return GraphQLSchema(
+    queryType: objectType('Query', fields: []),
+    mutationType: objectType('Mutation', fields: mutationFields),
+    subscriptionType: objectType('Subcription', fields: subscriptionFields),
   );
 }
 
