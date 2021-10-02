@@ -1097,17 +1097,16 @@ class GraphQL {
     visitedFragments ??= [];
 
     for (final selection in selectionSet.selections) {
-      if (selection is FieldNode &&
-          getDirectiveValue(
-                  'skip', 'if', selection.directives, variableValues) ==
-              true) {
+      final directives = selection is FieldNode
+          ? selection.directives
+          : selection is FragmentSpreadNode
+              ? selection.directives
+              : (selection as InlineFragmentNode).directives;
+      if (getDirectiveValue('skip', 'if', directives, variableValues) == true) {
         continue;
       }
-      // TODO: test
-      if (selection is FieldNode &&
-          getDirectiveValue(
-                  'include', 'if', selection.directives, variableValues) ==
-              false) {
+      if (getDirectiveValue('include', 'if', directives, variableValues) ==
+          false) {
         continue;
       }
 

@@ -85,31 +85,28 @@ Object? getDirectiveValue(
   List<DirectiveNode> directives,
   Map<String, dynamic>? variableValues,
 ) {
-  final directive = directives.firstWhereOrNull((d) {
-    if (d.arguments.isEmpty) return false;
-    final vv = d.arguments[0].value;
-    if (vv is VariableNode) {
-      return vv.name.value == name;
-    } else {
-      return computeValue(null, vv, variableValues) == name;
-    }
-  });
-
+  final directive = directives.firstWhereOrNull(
+    (d) => d.arguments.isNotEmpty && d.name.value == name,
+  );
   if (directive == null) return null;
-  if (directive.arguments[0].name.value != argumentName) return null;
 
-  final vv = directive.arguments[0].value;
-  if (vv is VariableNode) {
-    final vname = vv.name;
+  final argument = directive.arguments.firstWhereOrNull(
+    (arg) => arg.name.value == argumentName,
+  );
+  if (argument == null) return null;
+
+  final value = argument.value;
+  if (value is VariableNode) {
+    final vname = value.name.value;
     if (variableValues == null || !variableValues.containsKey(vname)) {
       throw GraphQLException.fromSourceSpan(
         'Unknown variable: "$vname"',
-        vv.span!,
+        (value.span ?? value.name.span ?? argument.span ?? argument.name.span)!,
       );
     }
-    return variableValues[vname as String];
+    return variableValues[vname];
   }
-  return computeValue(null, vv, variableValues);
+  return computeValue(null, value, variableValues);
 }
 
 GraphQLType convertType(
