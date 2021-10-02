@@ -104,54 +104,41 @@ class GraphQL {
     for (final e in initialGlobalVariables.entries) {
       _globalVariables.putIfAbsent(e.key, () => e.value);
     }
-    for (final ext in extensionList) {
-      ext.start(_globalVariables, extensions);
-    }
 
-    Map<String, Object?>? _extensionMap() {
-      final entries = extensionList
-          .map((e) => MapEntry(e.mapKey, e.toJson(_globalVariables)))
-          .where((e) => e.value != null);
+    return withExtensions(
+      (next, p1) => p1.executeRequest(
+        next,
+        _globalVariables,
+        extensions,
+      ),
+      () async {
+        try {
+          final document = getDocumentNode(
+            text,
+            sourceUrl: sourceUrl,
+            extensions: extensions,
+            globals: _globalVariables,
+          );
+          final result = await executeRequest(
+            _schema,
+            document,
+            operationName: operationName,
+            initialValue: initialValue ?? _globalVariables,
+            variableValues: variableValues,
+            globalVariables: _globalVariables,
+            extensions: extensions,
+          );
 
-      return entries.isEmpty ? null : Map.fromEntries(entries);
-    }
-
-    try {
-      final document = getDocumentNode(
-        text,
-        sourceUrl: sourceUrl,
-        extensions: extensions,
-        globals: _globalVariables,
-      );
-      final result = await executeRequest(
-        _schema,
-        document,
-        operationName: operationName,
-        initialValue: initialValue ?? _globalVariables,
-        variableValues: variableValues,
-        globalVariables: _globalVariables,
-        extensions: extensions,
-      );
-
-      final newExtensions = _extensionMap();
-      if (newExtensions == null) {
-        return result;
-      }
-
-      return result.copyWith(
-        extensions: {
-          ...newExtensions,
-          if (result.extensions != null) ...result.extensions!
-        },
-      );
-    } on GraphQLException catch (e) {
-      return GraphQLResult(
-        null,
-        errors: e.errors,
-        didExecute: false,
-        extensions: _extensionMap(),
-      );
-    }
+          return result;
+        } on GraphQLException catch (e) {
+          return GraphQLResult(
+            null,
+            errors: e.errors,
+            didExecute: false,
+          );
+        }
+      },
+    );
   }
 
   T withExtensions<T>(
@@ -448,32 +435,47 @@ class GraphQL {
     GraphQLSchema schema,
     Object? initialValue,
   ) {
-    return sourceStream.value.asyncMap((event) async {
-      // TODO: extract ExecuteSubscriptionEvent
-      try {
-        final selectionSet = subscription.selectionSet;
-        final subscriptionType = schema.subscriptionType;
+    return sourceStream.value.asyncMap((event) {
+      final ctx = ResolveCtx(
+        document: baseCtx.document,
+        extensions: baseCtx.extensions,
+        globalVariables: <Object, Object?>{...baseCtx.globalVariables},
+        schema: baseCtx.schema,
+        variableValues: baseCtx.variableValues,
+      );
+      return withExtensions(
+        (next, p1) => p1.executeSubscriptionEvent(
+          next,
+          ctx,
+          baseCtx.globalVariables,
+        ),
+        () async {
+          /// ExecuteSubscriptionEvent
+          try {
+            final selectionSet = subscription.selectionSet;
+            final subscriptionType = schema.subscriptionType;
 
-        final data = await executeSelectionSet(
-          baseCtx,
-          selectionSet,
-          subscriptionType!,
-          // TODO: improve this. Send same level field for execution?
-          // maybe with [completeValue]
-          _SubscriptionEvent({sourceStream.key: event}),
-          serial: false,
-        );
-        // TODO: extensions
-        return GraphQLResult(
-          data,
-          errors: baseCtx.errors,
-        );
-      } on GraphQLException catch (e) {
-        return GraphQLResult(
-          null,
-          errors: baseCtx.errors.followedBy(e.errors).toList(),
-        );
-      }
+            final data = await executeSelectionSet(
+              ctx,
+              selectionSet,
+              subscriptionType!,
+              // TODO: improve this. Send same level field for execution?
+              // maybe with [completeValue]
+              _SubscriptionEvent({sourceStream.key: event}),
+              serial: false,
+            );
+            return GraphQLResult(
+              data,
+              errors: ctx.errors,
+            );
+          } on GraphQLException catch (e) {
+            return GraphQLResult(
+              null,
+              errors: ctx.errors.followedBy(e.errors).toList(),
+            );
+          }
+        },
+      );
     });
   }
 
