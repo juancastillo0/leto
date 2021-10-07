@@ -30,7 +30,8 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Iterable<GraphQLObjectField<Object, Object, T>> fieldsFromMap<T>(
+  Iterable<GraphQLObjectField<Object, Object, T>>
+      fieldsFromMap<T extends Object>(
     Map<String, GraphQLType> map,
   ) {
     return map.entries.map((e) => e.value.field(e.key));
@@ -119,121 +120,128 @@ void main() {
     //   );
     // });
 
-    // TODO:
-    // it('executes arbitrary code', () async {
-    //   final data = {
-    //     a: () => 'Apple',
-    //     b: () => 'Banana',
-    //     c: () => 'Cookie',
-    //     d: () => 'Donut',
-    //     e: () => 'Egg',
-    //     f: 'Fish',
-    //     // Called only by DataType::pic static resolver
-    //     pic: (size: number) => 'Pic of size: ' + size,
-    //     deep: () => deepData,
-    //     promise: promiseData,
-    //   };
+    test('executes arbitrary code', () async {
+      final data = {
+        'a': () => 'Apple',
+        'b': () => 'Banana',
+        'c': () => 'Cookie',
+        'd': () => 'Donut',
+        'e': () => 'Egg',
+        'f': 'Fish',
+        // Called only by DataType::pic static resolver
+        'pic': (int size) => 'Pic of size: $size',
+      };
 
-    //   final deepData = {
-    //     a: () => 'Already Been Done',
-    //     b: () => 'Boring',
-    //     c: () => ['Contrived', undefined, 'Confusing'],
-    //     deeper: () => [data, null, data],
-    //   };
+      final deepData = {
+        'a': () => 'Already Been Done',
+        'b': () => 'Boring',
+        'c': () => ['Contrived', null, 'Confusing'],
+        'deeper': () => [data, null, data],
+      };
 
-    //   function promiseData() {
-    //     return Promise.resolve(data);
-    //   }
+      Object promiseData() {
+        return Future.value(data);
+      }
 
-    //   final DataType: GraphQLObjectType = new GraphQLObjectType({
-    //     name: 'DataType',
-    //     fields: () => ({
-    //       a: { type: GraphQLString },
-    //       b: { type: GraphQLString },
-    //       c: { type: GraphQLString },
-    //       d: { type: GraphQLString },
-    //       e: { type: GraphQLString },
-    //       f: { type: GraphQLString },
-    //       pic: {
-    //         args: { size: { type: GraphQLInt } },
-    //         type: GraphQLString,
-    //         resolve: (obj, { size }) => obj.pic(size),
-    //       },
-    //       deep: { type: DeepDataType },
-    //       promise: { type: DataType },
-    //     }),
-    //   });
+      data.addAll({
+        'deep': () => deepData,
+        'promise': promiseData,
+      });
 
-    //   final DeepDataType = new GraphQLObjectType({
-    //     name: 'DeepDataType',
-    //     fields: {
-    //       a: { type: GraphQLString },
-    //       b: { type: GraphQLString },
-    //       c: { type: new GraphQLList(GraphQLString) },
-    //       deeper: { type: new GraphQLList(DataType) },
-    //     },
-    //   });
+      final DataType = GraphQLObjectType<Map<String, Object?>>(
+        'DataType',
+      );
 
-    //   final document = parse(`
-    //     query ($size: Int) {
-    //       a,
-    //       b,
-    //       x: c
-    //       ...c
-    //       f
-    //       ...on DataType {
-    //         pic(size: $size)
-    //         promise {
-    //           a
-    //         }
-    //       }
-    //       deep {
-    //         a
-    //         b
-    //         c
-    //         deeper {
-    //           a
-    //           b
-    //         }
-    //       }
-    //     }
+      final DeepDataType = GraphQLObjectType<Object>(
+        'DeepDataType',
+        fields: {
+          field('a', graphQLString),
+          field('b', graphQLString),
+          field('c', listOf(graphQLString)),
+          field('deeper', listOf(DataType)),
+        },
+      );
 
-    //     fragment c on DataType {
-    //       d
-    //       e
-    //     }
-    //   `);
+      DataType.fields.addAll([
+        field('a', graphQLString),
+        field('b', graphQLString),
+        field('c', graphQLString),
+        field('d', graphQLString),
+        field('e', graphQLString),
+        field('f', graphQLString),
+        field(
+          'pic',
+          graphQLString,
+          inputs: {
+            GraphQLFieldInput('size', graphQLInt),
+          },
+          resolve: (obj, ctx) =>
+              (obj['pic'] as Function(int))(ctx.args['size'] as int),
+        ),
+        field('deep', DeepDataType),
+        field('promise', DataType),
+      ]);
 
-    //   final result = await execute({
-    //     schema: new GraphQLSchema({ query: DataType }),
-    //     document,
-    //     rootValue: data,
-    //     variableValues: { size: 100 },
-    //   });
+      const document = r'''
+        query ($size: Int) {
+          a,
+          b,
+          x: c
+          ...c
+          f
+          ...on DataType {
+            pic(size: $size)
+            promise {
+              a
+            }
+          }
+          deep {
+            a
+            b
+            c
+            deeper {
+              a
+              b
+            }
+          }
+        }
 
-    //   expect(result).to.deep.equal({
-    //     data: {
-    //       a: 'Apple',
-    //       b: 'Banana',
-    //       x: 'Cookie',
-    //       d: 'Donut',
-    //       e: 'Egg',
-    //       f: 'Fish',
-    //       pic: 'Pic of size: 100',
-    //       promise: { a: 'Apple' },
-    //       deep: {
-    //         a: 'Already Been Done',
-    //         b: 'Boring',
-    //         c: ['Contrived', null, 'Confusing'],
-    //         deeper: [
-    //           { a: 'Apple', b: 'Banana' },
-    //           null,
-    //           { a: 'Apple', b: 'Banana' },
-    //         ],
-    //       },
-    //     },
-    //   });
-    // });
+        fragment c on DataType {
+          d
+          e
+        }
+      ''';
+
+      final result =
+          await GraphQL(GraphQLSchema(queryType: DataType)).parseAndExecute(
+        document,
+        initialValue: data,
+        variableValues: {'size': 100},
+      );
+
+      expect(result.toJson(), {
+        'data': {
+          'a': 'Apple',
+          'b': 'Banana',
+          'x': 'Cookie',
+          'd': 'Donut',
+          'e': 'Egg',
+          'f': 'Fish',
+          'pic': 'Pic of size: 100',
+          'promise': {'a': 'Apple'},
+          'deep': {
+            'a': 'Already Been Done',
+            'b': 'Boring',
+            'c': ['Contrived', null, 'Confusing'],
+            'deeper': [
+              {'a': 'Apple', 'b': 'Banana'},
+              null,
+              {'a': 'Apple', 'b': 'Banana'},
+            ],
+          },
+        },
+      });
+    });
 
     test('merges parallel fragments', () async {
       // final data = {'a': 'Apple', 'b': 'Banana', 'c': 'Cherry'};
@@ -1164,7 +1172,7 @@ void main() {
       final result = await GraphQL(
         schema,
         introspect: false,
-        defaultFieldResolver: <Object>(obj, fieldName, ctx) => fieldName,
+        defaultFieldResolver: (obj, fieldName, ctx) => fieldName,
       ).parseAndExecute('{ foo }');
 
       expect(result.toJson(), {
