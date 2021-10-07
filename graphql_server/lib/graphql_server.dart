@@ -531,12 +531,13 @@ class GraphQL {
   }
 
   Future<Stream<Object?>> resolveFieldEventStream(
+    ResolveObjectCtx ctx,
     GraphQLObjectType subscriptionType,
     Object rootValue,
-    String fieldName,
+    FieldNode fieldNode,
     Map<String, dynamic> argumentValues,
-    Map<Object, dynamic> globalVariables,
   ) async {
+    final fieldName = fieldNode.name.value;
     final field = subscriptionType.fields.firstWhere(
       (f) => f.name == fieldName,
       orElse: () {
@@ -544,26 +545,47 @@ class GraphQL {
             'No subscription field named "$fieldName" is defined.');
       },
     );
+
     final reqCtx = ReqCtx(
       args: argumentValues,
       object: rootValue,
-      globals: globalVariables,
-      // TODO:
-      parentCtx: null,
+      globals: ctx.globalVariables,
+      fieldName: fieldName,
+      parentCtx: ctx,
+      groupedFieldSet: possibleSelections(field.type, fieldName, ctx),
     );
 
     final Object? result;
-    if (field.subscribe != null) {
-      result = await field.subscribe!(rootValue, reqCtx);
-    } else {
-      result = await field.resolve!(rootValue, reqCtx);
+    try {
+      if (field.subscribe != null) {
+        result = await field.subscribe!(rootValue, reqCtx);
+      } else if (field.resolve != null) {
+        result = await field.resolve!(rootValue, reqCtx);
+      } else if (rootValue is Map<String, Object?> &&
+          rootValue.containsKey(fieldName)) {
+        final value = rootValue[fieldName];
+        result = await _extractResult(value);
+      } else {
+        throw Exception(
+          'Could not resolve subscription field event stream for $fieldName.',
+        );
+      }
+    } on Exception catch (e) {
+      throw GraphQLException.fromException(
+        e,
+        [fieldNode.alias?.value ?? fieldName],
+        span: fieldNode.span ?? fieldNode.alias?.span ?? fieldNode.name.span,
+      );
     }
 
+    final Stream<Object?> stream;
     if (result is Stream) {
-      return result;
+      stream = result;
     } else {
-      return Stream.fromIterable([result]);
+      stream = Stream.fromIterable([result]);
     }
+
+    return stream; // Result.captureStream(stream).map((event) {});
   }
 
   Future<Map<String, dynamic>> executeSelectionSet(
@@ -653,7 +675,6 @@ class GraphQL {
               fields,
               objectCtx,
               objectField,
-              pathItem: alias,
             );
           } on Exception catch (e) {
             final err =
@@ -680,17 +701,18 @@ class GraphQL {
     return resultMap;
   }
 
-  /// Returns the serialized value of type [objectField] for [ctx]
-  /// by [coerceArgumentValues], executing the resolvers [resolveFieldValue]
+  /// Returns the serialized value of type [objectField] for the object [ctx]
+  /// by [coerceArgumentValues], executing the resolver [resolveFieldValue]
   /// and serializing the result [completeValue]
   Future<T?> executeField<T extends Object, P extends Object>(
     List<FieldNode> fields,
     ResolveObjectCtx<P> ctx,
-    GraphQLObjectField<T, Object, P> objectField, {
-    required Object pathItem,
-  }) async {
+    GraphQLObjectField<T, Object, P> objectField,
+  ) async {
     final field = fields.first;
     final fieldName = field.name.value;
+    final pathItem = field.alias?.value ?? fieldName;
+
     final argumentValues = coerceArgumentValues(
       ctx.serdeCtx,
       ctx.objectType,
@@ -724,8 +746,11 @@ class GraphQL {
     final fieldName = field.name.value;
     final desiredField = objectType.fields.firstWhere(
       (f) => f.name == fieldName,
-      orElse: () => throw FormatException(
-          '${objectType.name} has no field named "$fieldName".'),
+      orElse: () => throw GraphQLExceptionError(
+        '${objectType.name} has no field named "$fieldName".',
+        locations: GraphQLErrorLocation.listFromSource(
+            (field.span ?? field.name.span)?.start),
+      ),
     );
     final argumentDefinitions = desiredField.inputs;
 
@@ -843,19 +868,22 @@ class GraphQL {
     Map<String, dynamic> argumentValues,
   ) async {
     final objectValue = ctx.objectValue;
-    if (objectValue is _SubscriptionEvent) {
-      return objectValue.event[fieldName] as T?;
+    final fieldCtx = ReqCtx<P>(
+      args: argumentValues,
+      object: objectValue,
+      globals: ctx.globalVariables,
+      parentCtx: ctx,
+      fieldName: fieldName,
+      groupedFieldSet: possibleSelections(field.type, fieldName, ctx),
+    );
+
+    if (objectValue is SubscriptionEvent) {
+      if (field.resolve != null) {
+        return field.resolve!(objectValue, fieldCtx);
+      }
+      return objectValue.value as T?;
     } else if (field.resolve != null) {
-      return await field.resolve!(
-        objectValue,
-        ReqCtx<P>(
-          args: argumentValues,
-          object: objectValue,
-          globals: ctx.globalVariables,
-          // TODO:
-          parentCtx: null,
-        ),
-      );
+      return await field.resolve!(objectValue, fieldCtx);
     } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
       final Object? value = objectValue[fieldName];
       // TODO: support functions with more params?
@@ -870,13 +898,7 @@ class GraphQL {
         final value = await defaultFieldResolver!(
           objectValue,
           fieldName,
-          ReqCtx<P>(
-            args: argumentValues,
-            object: objectValue,
-            globals: ctx.globalVariables,
-            // TODO:
-            parentCtx: null,
-          ),
+          fieldCtx,
         );
         return value as T?;
       }
@@ -916,7 +938,6 @@ class GraphQL {
       }
       final path = ctx.path.followedBy([pathItem]).toList();
       Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
-        // try {
         Object? _result = result;
         if (fieldType.generic.isValueOfType(_result)) {
           _result = fieldType.serialize(_result!);
@@ -932,14 +953,6 @@ class GraphQL {
         } else {
           return validation.value;
         }
-        // TODO:
-        // } on TypeError {
-        // throw GraphQLException.fromMessage(
-        //   'Value of field "$fieldName" must be '
-        //   '${fieldType.generic.type}, got $result instead.',
-        //   path: path,
-        // );
-        // }
       }
 
       Future<Object?> _completeObjectOrUnion(GraphQLType fieldType) async {
@@ -986,7 +999,8 @@ class GraphQL {
 
           if (completedResult == null) {
             throw GraphQLException.fromMessage(
-              'Null value provided for non-nullable field "${ctx.objectType}.$fieldName".',
+              'Null value provided for non-nullable'
+              ' field "${ctx.objectType}.$fieldName".',
               path: path,
             );
           } else {
