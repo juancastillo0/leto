@@ -72,54 +72,6 @@ void main() {
   }
 
   group('Execute: Handles basic execution tasks', () {
-    // it('throws if no document is provided', () {
-    //   final schema = new GraphQLSchema({
-    //     query: new GraphQLObjectType({
-    //       name: 'Type',
-    //       fields: {
-    //         a: { type: GraphQLString },
-    //       },
-    //     }),
-    //   });
-
-    //   // @ts-expect-error
-    //   expect(() => executeSync({ schema })).to.throw('Must provide document.');
-    // });
-
-    // it('throws if no schema is provided', () {
-    //   final document = parse('{ field }');
-
-    //   // @ts-expect-error
-    //   expect(() => executeSync({ document })).to.throw(
-    //     'Expected undefined to be a GraphQL schema.',
-    //   );
-    // });
-
-    // it('throws on invalid variables', () {
-    //   final schema = new GraphQLSchema({
-    //     query: new GraphQLObjectType({
-    //       name: 'Type',
-    //       fields: {
-    //         fieldA: {
-    //           type: GraphQLString,
-    //           args: { argA: { type: GraphQLInt } },
-    //         },
-    //       },
-    //     }),
-    //   });
-    //   final document = parse(`
-    //     query ($a: Int) {
-    //       fieldA(argA: $a)
-    //     }
-    //   `);
-    //   final variableValues = '{ "a": 1 }';
-
-    //   // @ts-expect-error
-    //   expect(() => executeSync({ schema, document, variableValues })).to.throw(
-    //     'Variables must be provided as an Object where each property is a variable value. Perhaps look to see if an unparsed JSON string was provided.',
-    //   );
-    // });
-
     test('executes arbitrary code', () async {
       final data = {
         'a': () => 'Apple',
