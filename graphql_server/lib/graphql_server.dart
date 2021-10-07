@@ -227,6 +227,7 @@ class GraphQL {
       schema: schema,
       variableValues: coercedVariableValues,
       extensions: extensions,
+      rootValue: initialValue,
     );
 
     try {
@@ -459,6 +460,7 @@ class GraphQL {
         final ctx = ResolveCtx(
           document: baseCtx.document,
           extensions: baseCtx.extensions,
+          rootValue: baseCtx.rootValue,
           globalVariables: <Object, Object?>{...baseCtx.globalVariables},
           schema: baseCtx.schema,
           variableValues: baseCtx.variableValues,
@@ -538,6 +540,7 @@ class GraphQL {
     Map<String, dynamic> argumentValues,
   ) async {
     final fieldName = fieldNode.name.value;
+    final pathItem = fieldNode.alias?.value ?? fieldName;
     final field = subscriptionType.fields.firstWhere(
       (f) => f.name == fieldName,
       orElse: () {
@@ -550,9 +553,10 @@ class GraphQL {
       args: argumentValues,
       object: rootValue,
       globals: ctx.globalVariables,
-      fieldName: fieldName,
+      field: field,
       parentCtx: ctx,
-      groupedFieldSet: possibleSelections(field.type, fieldName, ctx),
+      pathItem: pathItem,
+      groupedFieldSet: possibleSelections(field.type, pathItem, ctx),
     );
 
     final Object? result;
@@ -723,7 +727,7 @@ class GraphQL {
     final resolvedValue = await resolveFieldValue<T, P>(
       ctx,
       objectField,
-      fieldName,
+      pathItem,
       argumentValues,
     );
     return await completeValue(
@@ -864,7 +868,7 @@ class GraphQL {
 
   Map<String, List<FieldNode>>? Function() possibleSelections(
     GraphQLType type,
-    String fieldName,
+    String pathItem,
     ResolveObjectCtx ctx,
   ) {
     bool calculated = false;
@@ -885,7 +889,7 @@ class GraphQL {
       );
       if (possibleObjects.isNotEmpty) {
         final selectionSet = mergeSelectionSets(
-          ctx.groupedFieldSet[fieldName]!,
+          ctx.groupedFieldSet[pathItem]!,
         );
 
         _value = Map.fromEntries(
@@ -908,17 +912,19 @@ class GraphQL {
   Future<T?> resolveFieldValue<T extends Object, P extends Object>(
     ResolveObjectCtx<P> ctx,
     GraphQLObjectField<T, Object, P> field,
-    String fieldName,
+    String pathItem,
     Map<String, dynamic> argumentValues,
   ) async {
     final objectValue = ctx.objectValue;
+    final fieldName = field.name;
     final fieldCtx = ReqCtx<P>(
       args: argumentValues,
       object: objectValue,
       globals: ctx.globalVariables,
       parentCtx: ctx,
-      fieldName: fieldName,
-      groupedFieldSet: possibleSelections(field.type, fieldName, ctx),
+      field: field,
+      pathItem: pathItem,
+      groupedFieldSet: possibleSelections(field.type, pathItem, ctx),
     );
 
     if (objectValue is SubscriptionEvent) {

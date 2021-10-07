@@ -12,10 +12,12 @@ class ReqCtx<P extends Object> {
   final Map<Object, Object?> globals;
   final Map<String, Object?> args;
   final P object;
-  final ResolveObjectCtx<Object>? parentCtx;
-  final String fieldName;
+  final ResolveObjectCtx<Object> parentCtx;
+  final GraphQLObjectField<Object, Object, Object> field;
+  final String pathItem;
 
-  /// Possible selected fields if this resolver is for an object or union type
+  List<Object> get path => parentCtx.path.followedBy([pathItem]).toList();
+
   final Map<String, List<FieldNode>>? Function() groupedFieldSet;
 
   const ReqCtx({
@@ -23,7 +25,8 @@ class ReqCtx<P extends Object> {
     required this.args,
     required this.object,
     required this.parentCtx,
-    required this.fieldName,
+    required this.field,
+    required this.pathItem,
     required this.groupedFieldSet,
   });
 
@@ -36,7 +39,8 @@ class ReqCtx<P extends Object> {
       args: args,
       object: object as T,
       parentCtx: parentCtx,
-      fieldName: fieldName,
+      pathItem: pathItem,
+      field: field,
       groupedFieldSet: groupedFieldSet,
     );
   }
@@ -61,6 +65,7 @@ class ResolveCtx {
   final GraphQLSchema schema;
   SerdeCtx get serdeCtx => schema.serdeCtx;
   final DocumentNode document;
+  final Object rootValue;
   final Map<String, dynamic> variableValues;
   final Map<Object, dynamic> globalVariables;
   final Map<String, dynamic>? extensions;
@@ -68,6 +73,7 @@ class ResolveCtx {
   ResolveCtx({
     required this.schema,
     required this.document,
+    required this.rootValue,
     required this.variableValues,
     required this.globalVariables,
     required this.extensions,
