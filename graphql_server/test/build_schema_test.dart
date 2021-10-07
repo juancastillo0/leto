@@ -1,9 +1,14 @@
+import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('build schema', () async {
-    final schema = buildSchema('''
+    const schemaStr = '''
+schema {
+  query: DataType
+}
+
 type DataType {
   sync: String
   syncNonNull: String!
@@ -13,12 +18,10 @@ type DataType {
   syncNonNullNest: DataType!
   promiseNest: DataType
   promiseNonNullNest: DataType!
-}
+}''';
+    final schema = buildSchema(schemaStr);
 
-schema {
-  query: DataType
-}
-''');
+    expect(printSchema(schema), schemaStr);
 
     expect(schema.queryType!.name, 'DataType');
     expect(schema.queryType!.fields.length, 8);
