@@ -46,10 +46,13 @@ class GraphQL {
   /// being validated with the provided schema
   final bool validate;
 
+  final bool handleSubscriptionError;
+
   GraphQL(
     GraphQLSchema schema, {
     bool introspect = true,
     this.validate = true,
+    this.handleSubscriptionError = false,
     this.defaultFieldResolver,
     this.extensionList = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
@@ -83,11 +86,9 @@ class GraphQL {
     }
   }
 
-  // TODO:
-  // if there are query inputs or validation errors, it is handled with thrown exceptions, but
-  // if there are errors inside resolvers, those should be returned
-  // https://graphql.org/learn/serving-over-http/
-  //   - field should only be included if the error occurred during execution.
+  /// Parses the GraphQLDocument in [text] and executes [operationName]
+  /// or the only operation in the document if not given.
+  ///
   Future<GraphQLResult> parseAndExecute(
     String text, {
     String? operationName,
@@ -243,9 +244,11 @@ class GraphQL {
       }
       return GraphQLResult(data, errors: ctx.errors);
     } on GraphQLException catch (e) {
+      final errors = ctx.errors.followedBy(e.errors).toList();
       return GraphQLResult(
         null,
-        errors: ctx.errors.followedBy(e.errors).toList(),
+        errors: errors,
+        didExecute: operation.type != OperationType.subscription,
       );
     }
   }
@@ -392,7 +395,7 @@ class GraphQL {
         baseCtx, sourceStream, subscription, schema, initialValue);
   }
 
-  Future<MapEntry<String, Stream<Object?>>> createSourceEventStream(
+  Future<MapEntry<FieldNode, Stream<Object?>>> createSourceEventStream(
     ResolveCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
@@ -401,82 +404,130 @@ class GraphQL {
     final selectionSet = subscription.selectionSet;
     final subscriptionType = schema.subscriptionType;
     if (subscriptionType == null) {
-      throw GraphQLException.fromSourceSpan(
-          'The schema does not define a subscription type.',
-          subscription.span!);
+      throw GraphQLException.fromMessage(
+        'The schema does not define a subscription type.',
+      );
     }
     final groupedFieldSet = collectFields(baseCtx.document, subscriptionType,
         selectionSet, baseCtx.variableValues);
-    if (groupedFieldSet.length != 1) {
-      throw GraphQLException.fromSourceSpan(
-          'The grouped field set from this query must have exactly one entry.',
-          selectionSet.span!);
+    if (validate && groupedFieldSet.length != 1) {
+      throw GraphQLException.fromMessage(
+        'The grouped field set from this query must have exactly one entry.',
+        // TODO:
+        // selectionSet.selections.elementAt(1).span!,
+      );
     }
+
+    final objCtx = ResolveObjectCtx(
+      base: baseCtx,
+      groupedFieldSet: groupedFieldSet,
+      objectType: subscriptionType,
+      objectValue: initialValue,
+      parent: null,
+      pathItem: null,
+    );
     final fields = groupedFieldSet.entries.first.value;
     final fieldNode = fields.first;
-    final fieldName = fieldNode.name.value;
     final argumentValues = coerceArgumentValues(
         schema.serdeCtx, subscriptionType, fieldNode, baseCtx.variableValues);
     final stream = await resolveFieldEventStream(
+      objCtx,
       subscriptionType,
       initialValue,
-      fieldName,
+      fieldNode,
       argumentValues,
-      baseCtx.globalVariables,
     );
     // TODO: don't use MapEntry
-    return MapEntry(fieldName, stream);
+    return MapEntry(fieldNode, stream);
   }
 
   Stream<GraphQLResult> mapSourceToResponseEvent(
     ResolveCtx baseCtx,
-    MapEntry<String, Stream<Object?>> sourceStream,
+    MapEntry<FieldNode, Stream<Object?>> sourceStream,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Object? initialValue,
   ) {
-    return sourceStream.value.asyncMap((event) {
-      final ctx = ResolveCtx(
-        document: baseCtx.document,
-        extensions: baseCtx.extensions,
-        globalVariables: <Object, Object?>{...baseCtx.globalVariables},
-        schema: baseCtx.schema,
-        variableValues: baseCtx.variableValues,
-      );
-      return withExtensions(
-        (next, p1) => p1.executeSubscriptionEvent(
-          next,
-          ctx,
-          baseCtx.globalVariables,
-        ),
-        () async {
-          /// ExecuteSubscriptionEvent
-          try {
-            final selectionSet = subscription.selectionSet;
-            final subscriptionType = schema.subscriptionType;
+    final fieldName = sourceStream.key.name.value;
+    final span = sourceStream.key.span ??
+        sourceStream.key.alias?.span ??
+        sourceStream.key.name.span;
+    Future<GraphQLResult?> prev = Future.value();
 
-            final data = await executeSelectionSet(
-              ctx,
-              selectionSet,
-              subscriptionType!,
-              // TODO: improve this. Send same level field for execution?
-              // maybe with [completeValue]
-              _SubscriptionEvent({sourceStream.key: event}),
-              serial: false,
-            );
-            return GraphQLResult(
-              data,
-              errors: ctx.errors,
-            );
-          } on GraphQLException catch (e) {
-            return GraphQLResult(
-              null,
-              errors: ctx.errors.followedBy(e.errors).toList(),
-            );
-          }
-        },
-      );
-    });
+    final transformer = StreamTransformer<Object?, GraphQLResult>.fromHandlers(
+      handleData: (event, sink) {
+        final ctx = ResolveCtx(
+          document: baseCtx.document,
+          extensions: baseCtx.extensions,
+          globalVariables: <Object, Object?>{...baseCtx.globalVariables},
+          schema: baseCtx.schema,
+          variableValues: baseCtx.variableValues,
+        );
+        final _prev = prev;
+        final curr = withExtensions<Future<GraphQLResult>>(
+          (next, p1) async => p1.executeSubscriptionEvent(
+            next,
+            ctx,
+            baseCtx.globalVariables,
+          ),
+          () async {
+            /// ExecuteSubscriptionEvent
+            try {
+              final selectionSet = subscription.selectionSet;
+              final subscriptionType = schema.subscriptionType;
+
+              final data = await executeSelectionSet(
+                ctx,
+                selectionSet,
+                subscriptionType!,
+                // TODO: improve this. Send same level field for execution?
+                // maybe with [completeValue]
+                SubscriptionEvent._(event),
+                serial: false,
+              );
+              return GraphQLResult(
+                data,
+                errors: ctx.errors,
+              );
+            } on GraphQLException catch (e) {
+              return GraphQLResult(
+                null,
+                errors: ctx.errors.followedBy(e.errors).toList(),
+              );
+            }
+          },
+        );
+        prev = curr.then<GraphQLResult>((event) async {
+          await _prev;
+          sink.add(event);
+          return event;
+        });
+      },
+      handleError: (error, stackTrace, sink) {
+        if (handleSubscriptionError && error is Exception) {
+          prev.then(
+            (Object? value) {
+              final exception = GraphQLException.fromException(
+                error,
+                [fieldName],
+                span: span,
+              );
+              sink.add(GraphQLResult(
+                {fieldName: null},
+                errors: exception.errors,
+              ));
+            },
+          );
+        } else {
+          prev.then((Object? _) {
+            sink.addError(error, stackTrace);
+            sink.close();
+          });
+        }
+      },
+      handleDone: (_) {},
+    );
+    return transformer.bind(sourceStream.value);
   }
 
   Future<Stream<Object?>> resolveFieldEventStream(
