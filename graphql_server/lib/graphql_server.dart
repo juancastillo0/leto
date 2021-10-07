@@ -270,7 +270,7 @@ class GraphQL {
               'Multiple operations found, please provide an operation name.');
     } else {
       return ops.firstWhere(
-        (d) => d.name!.value == operationName,
+        (d) => d.name?.value == operationName,
         orElse: () => throw GraphQLException.fromMessage(
           'Operation named "$operationName" not found in query.',
         ),
@@ -1070,7 +1070,7 @@ class GraphQL {
 
           final listCtx = ResolveObjectCtx(
             base: ctx.base,
-            pathItem: fieldName,
+            pathItem: pathItem,
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
             groupedFieldSet: ctx.groupedFieldSet,
