@@ -80,7 +80,8 @@ GraphQLObjectType<T> mergeObject<T extends Object>(
   );
 }
 
-Map<String, GraphQLObjectField<Object, Object, T>> mergeObjectFields<T>(
+Map<String, GraphQLObjectField<Object, Object, T>>
+    mergeObjectFields<T extends Object>(
   List<GraphQLObjectField<Object, Object, T>>? aFields,
   List<GraphQLObjectField<Object, Object, T>>? bFields,
 ) {

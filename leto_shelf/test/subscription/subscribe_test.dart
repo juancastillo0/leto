@@ -1,88 +1,217 @@
 // https://github.com/graphql/graphql-js/blob/0c7165a5d0a7054cac4f2a0898ace19ca9d67f76/src/subscription/__tests__/subscribe-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
 
-import { expectJSON } from '../../__testUtils__/expectJSON';
-import { resolveOnNextTick } from '../../__testUtils__/resolveOnNextTick';
+import 'dart:async';
 
-import { invariant } from '../../jsutils/invariant';
-import { isAsyncIterable } from '../../jsutils/isAsyncIterable';
+import 'package:graphql_schema/graphql_schema.dart';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:test/test.dart';
 
-import { parse } from '../../language/parser';
+class Email {
+  final String from;
+  final String subject;
+  final String message;
+  final bool unread;
 
-import { GraphQLSchema } from '../../type/schema';
-import { GraphQLList, GraphQLObjectType } from '../../type/definition';
-import { GraphQLInt, GraphQLString, GraphQLBoolean } from '../../type/scalars';
+  Email({
+    required this.from,
+    required this.subject,
+    required this.message,
+    required this.unread,
+  });
 
-import { createSourceEventStream, subscribe } from '../subscribe';
+  Map<String, Object?> toJson() {
+    return {
+      'from': from,
+      'subject': subject,
+      'message': message,
+      'unread': unread,
+    };
+  }
 
-import { SimplePubSub } from './simplePubSub';
-
-interface Email {
-  from: string;
-  subject: string;
-  message: string;
-  unread: boolean;
+  factory Email.fromJson(Map<String, Object?> map) {
+    return Email(
+      from: map['from']! as String,
+      subject: map['subject']! as String,
+      message: map['message']! as String,
+      unread: map['unread']! as bool,
+    );
+  }
 }
 
-const EmailType = new GraphQLObjectType({
-  name: 'Email',
-  fields: {
-    from: { type: GraphQLString },
-    subject: { type: GraphQLString },
-    message: { type: GraphQLString },
-    unread: { type: GraphQLBoolean },
-  },
-});
+final EmailType = GraphQLObjectType<Email>(
+  'Email',
+  fields: [
+    field('from', graphQLString),
+    field('subject', graphQLString),
+    field('message', graphQLString),
+    field('unread', graphQLBoolean),
+  ],
+);
 
-const InboxType = new GraphQLObjectType({
-  name: 'Inbox',
-  fields: {
-    total: {
-      type: GraphQLInt,
-      resolve: (inbox) => inbox.emails.length,
-    },
-    unread: {
-      type: GraphQLInt,
-      resolve: (inbox) =>
-        inbox.emails.filter((email: any) => email.unread).length,
-    },
-    emails: { type: new GraphQLList(EmailType) },
-  },
-});
+class Inbox {
+  final List<Email> emails;
 
-const QueryType = new GraphQLObjectType({
-  name: 'Query',
-  fields: {
-    inbox: { type: InboxType },
-  },
-});
+  Inbox(this.emails);
+}
 
-const EmailEventType = new GraphQLObjectType({
-  name: 'EmailEvent',
-  fields: {
-    email: { type: EmailType },
-    inbox: { type: InboxType },
-  },
-});
+final InboxType = GraphQLObjectType<Inbox>(
+  'Inbox',
+  fields: [
+    graphQLInt.field(
+      'total',
+      resolve: (inbox, ctx) => inbox.emails.length,
+    ),
+    graphQLInt.field(
+      'unread',
+      resolve: (inbox, ctx) =>
+          inbox.emails.where((email) => email.unread).length,
+    ),
+    listOf(EmailType).field(
+      'emails',
+      resolve: (inbox, _) => inbox.emails,
+    ),
+  ],
+);
 
-const emailSchema = new GraphQLSchema({
-  query: QueryType,
-  subscription: new GraphQLObjectType({
-    name: 'Subscription',
-    fields: {
-      importantEmail: {
-        type: EmailEventType,
-        args: {
-          priority: { type: GraphQLInt },
-        },
+final QueryType = GraphQLObjectType<Object>(
+  'Query',
+  fields: [
+    InboxType.field('inbox'),
+  ],
+);
+
+final EmailEventType = GraphQLObjectType<Object>(
+  'EmailEvent',
+  fields: [
+    field('email', EmailType),
+    field('inbox', InboxType),
+  ],
+);
+
+final emailSchema = GraphQLSchema(
+  queryType: QueryType,
+  subscriptionType: GraphQLObjectType(
+    'Subscription',
+    fields: [
+      EmailEventType.field(
+        'importantEmail',
+        inputs: [
+          GraphQLFieldInput('piority', graphQLInt),
+        ],
+      ),
+    ],
+  ),
+);
+
+Future<TestSubs> subscribe(
+  GraphQLSchema schema, {
+  required String document,
+  Object? rootValue,
+  Map<String, Object?>? variableValues,
+}) async {
+  final stream = await GraphQL(schema, validate: false)
+      .parseAndExecute(
+        document,
+        initialValue: rootValue,
+        variableValues: variableValues,
+      )
+      .then(
+        (value) => value.subscriptionStream == null
+            ? Stream.value(value)
+            : value.subscriptionStream!,
+      );
+  return TestSubs(stream);
+}
+
+class TestSubs {
+  final Stream<GraphQLResult> stream;
+  bool done = false;
+  int resolvedIndex = -1;
+  int currentIndex = -1;
+  final events = <Completer<Map<String, Object?>>>[];
+
+  late final StreamSubscription<GraphQLResult> subs;
+
+  // ignore: prefer_const_constructors
+  final _closeResult = GraphQLResult(null);
+
+  static const _doneEvent = {'done': true, 'value': null};
+
+  TestSubs(this.stream) {
+    subs = stream.listen(
+      (event) {
+        final index = ++resolvedIndex;
+        getCompleter(index).complete(
+          Future.delayed(
+            Duration.zero,
+            () => {
+              'done': done && index == events.length - 1,
+              'value': identical(event, _closeResult) ? null : event.toJson()
+            },
+          ),
+        );
       },
-    },
-  }),
-});
+      onError: (Object error, StackTrace stackTrace) {
+        final comp = getCompleter(++resolvedIndex);
+        Future.delayed(
+          Duration.zero,
+          () => comp.completeError(
+            error,
+            stackTrace,
+          ),
+        );
+      },
+      onDone: () {
+        done = true;
+      },
+    );
+  }
 
-function createSubscription(pubsub: SimplePubSub<Email>) {
-  const document = parse(`
+  Completer<Map<String, Object?>> getCompleter(int index) {
+    if (index >= events.length) {
+      assert(index == events.length);
+      events.add(Completer());
+    }
+    return events[index];
+  }
+
+  Future<Map<String, Object?>> throwErr(Object err) async {
+    await close();
+
+    return Future.error(err);
+  }
+
+  Future<Map<String, Object?>> next() async {
+    if (done && currentIndex == events.length - 1) {
+      return _doneEvent;
+    }
+    final comp = getCompleter(++currentIndex);
+    return comp.future;
+  }
+
+  Future<Map<String, Object?>> singleValue() {
+    return next().then(
+      (value) {
+        assert(done);
+        return value['value']! as Map<String, Object?>;
+      },
+    );
+  }
+
+  Future<Map<String, Object?>> close() async {
+    await subs.cancel();
+    done = true;
+    for (final comp in events) {
+      if (!comp.isCompleted) {
+        comp.complete(_doneEvent);
+      }
+    }
+    return _doneEvent;
+  }
+}
+
+Future<TestSubs> createSubscription(StreamController<Email> pubsub) async {
+  const document = r'''
     subscription ($priority: Int = 0) {
       importantEmail(priority: $priority) {
         email {
@@ -95,865 +224,912 @@ function createSubscription(pubsub: SimplePubSub<Email>) {
         }
       }
     }
-  `);
+  ''';
 
-  const emails = [
-    {
+  final emails = [
+    Email(
       from: 'joe@graphql.org',
       subject: 'Hello',
       message: 'Hello World',
       unread: false,
-    },
+    ),
   ];
 
-  const data: any = {
-    inbox: { emails },
-    // FIXME: we shouldn't use mapAsyncIterator here since it makes tests way more complex
-    importantEmail: pubsub.getSubscriber((newEmail) => {
-      emails.push(newEmail);
+  late final StreamController<Email> _controller;
+  StreamSubscription<Email>? _subs;
+  void _onListen() {
+    _subs ??= pubsub.stream.listen((event) {
+      emails.add(event);
+      _controller.add(event);
+    }, onDone: () async {
+      await _controller.close();
+    });
+  }
 
-      return {
-        importantEmail: {
-          email: newEmail,
-          inbox: data.inbox,
-        },
-      };
-    }),
+  Future<void> _onCancel() async {
+    return _subs?.cancel();
+  }
+
+  _controller = StreamController<Email>(
+    onListen: _onListen,
+    onCancel: _onCancel,
+  );
+
+  final inbox = Inbox(emails);
+  final data = <String, Object?>{
+    'inbox': inbox,
+
+    // FIXME: we shouldn't use mapAsyncIterator here since it makes tests way more complex
+    'importantEmail': () => _controller.stream.map((newEmail) {
+          return {
+            'email': newEmail,
+            'inbox': inbox,
+          };
+          // TODO: was
+          // return {
+          //   'importantEmail': {
+          //     'email': newEmail,
+          //     'inbox': data.inbox,
+          //   },
+          // };
+        })
   };
 
-  return subscribe({ schema: emailSchema, document, rootValue: data });
+  return subscribe(emailSchema, document: document, rootValue: data);
+  // return TestSubs(stream);
 }
 
-async function expectPromise(promise: Promise<unknown>) {
-  let caughtError: Error;
+Future<FutReject> expectPromise(Future Function() promise) async {
+  Object? caughtError;
 
   try {
-    await promise;
+    await promise();
     // istanbul ignore next (Shouldn't be reached)
-    expect.fail('promise should have thrown but did not');
+    expect(true, false, reason: 'promise should have thrown but did not');
   } catch (error) {
     caughtError = error;
   }
 
-  return {
-    toReject() {
-      expect(caughtError).to.be.an.instanceOf(Error);
-    },
-    toRejectWith(message: string) {
-      expect(caughtError).to.be.an.instanceOf(Error);
-      expect(caughtError).to.have.property('message', message);
-    },
-  };
+  return FutReject(caughtError);
 }
 
-const DummyQueryType = new GraphQLObjectType({
-  name: 'Query',
-  fields: {
-    dummy: { type: GraphQLString },
-  },
-});
+class FutReject {
+  final Object? caughtError;
 
+  FutReject(this.caughtError);
+
+  void toReject() {
+    expect(caughtError, const TypeMatcher<Exception>());
+  }
+
+  void toRejectWith(String message) {
+    expect(caughtError, const TypeMatcher<Exception>());
+    // TODO:
+    expect((caughtError as dynamic).message, message);
+  }
+}
+
+final DummyQueryType = GraphQLObjectType<Object>(
+  'Query',
+  fields: [
+    graphQLString.field('dummy'),
+  ],
+);
+
+void main() {
 /* eslint-disable @typescript-eslint/require-await */
 // Check all error cases when initializing the subscription.
-describe('Subscription Initialization Phase', () => {
-  it('accepts multiple subscription fields defined in schema', async () => {
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: { type: GraphQLString },
-          bar: { type: GraphQLString },
-        },
-      }),
-    });
-
-    async function* fooGenerator() {
-      yield { foo: 'FooValue' };
+  group('Subscription Initialization Phase', () {
+    Stream<String?> fooGenerator() async* {
+      yield 'FooValue';
+      // TODO: was
+      // yield { 'foo': 'FooValue' };
     }
 
-    const subscription = await subscribe({
-      schema,
-      document: parse('subscription { foo }'),
-      rootValue: { foo: fooGenerator },
-    });
-    invariant(isAsyncIterable(subscription));
-
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: { data: { foo: 'FooValue' } },
-    });
-
-    // Close subscription
-    await subscription.return();
-  });
-
-  it('accepts type definition with sync subscribe function', async () => {
-    async function* fooGenerator() {
-      yield { foo: 'FooValue' };
-    }
-
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: {
-            type: GraphQLString,
-            subscribe: fooGenerator,
-          },
-        },
-      }),
-    });
-
-    const subscription = await subscribe({
-      schema,
-      document: parse('subscription { foo }'),
-    });
-    invariant(isAsyncIterable(subscription));
-
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: { data: { foo: 'FooValue' } },
-    });
-
-    // Close subscription
-    await subscription.return();
-  });
-
-  it('accepts type definition with async subscribe function', async () => {
-    async function* fooGenerator() {
-      yield { foo: 'FooValue' };
-    }
-
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: {
-            type: GraphQLString,
-            async subscribe() {
-              await resolveOnNextTick();
-              return fooGenerator();
-            },
-          },
-        },
-      }),
-    });
-
-    const subscription = await subscribe({
-      schema,
-      document: parse('subscription { foo }'),
-    });
-    invariant(isAsyncIterable(subscription));
-
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: { data: { foo: 'FooValue' } },
-    });
-
-    // Close subscription
-    await subscription.return();
-  });
-
-  it('should only resolve the first field of invalid multi-field', async () => {
-    async function* fooGenerator() {
-      yield { foo: 'FooValue' };
-    }
-
-    let didResolveFoo = false;
-    let didResolveBar = false;
-
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: {
-            type: GraphQLString,
-            subscribe() {
-              didResolveFoo = true;
-              return fooGenerator();
-            },
-          },
-          bar: {
-            type: GraphQLString,
-            // istanbul ignore next (Shouldn't be called)
-            subscribe() {
-              didResolveBar = true;
-            },
-          },
-        },
-      }),
-    });
-
-    const subscription = await subscribe({
-      schema,
-      document: parse('subscription { foo bar }'),
-    });
-    invariant(isAsyncIterable(subscription));
-
-    expect(didResolveFoo).to.equal(true);
-    expect(didResolveBar).to.equal(false);
-
-    expect(await subscription.next()).to.have.property('done', false);
-
-    // Close subscription
-    await subscription.return();
-  });
-
-  it('throws an error if some of required arguments are missing', async () => {
-    const document = parse('subscription { foo }');
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: { type: GraphQLString },
-        },
-      }),
-    });
-
-    // @ts-expect-error (schema must not be null)
-    (await expectPromise(subscribe({ schema: null, document }))).toRejectWith(
-      'Expected null to be a GraphQL schema.',
-    );
-
-    // @ts-expect-error
-    (await expectPromise(subscribe({ document }))).toRejectWith(
-      'Expected undefined to be a GraphQL schema.',
-    );
-
-    // @ts-expect-error (document must not be null)
-    (await expectPromise(subscribe({ schema, document: null }))).toRejectWith(
-      'Must provide document.',
-    );
-
-    // @ts-expect-error
-    (await expectPromise(subscribe({ schema }))).toRejectWith(
-      'Must provide document.',
-    );
-  });
-
-  it('resolves to an error for unknown subscription field', async () => {
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: { type: GraphQLString },
-        },
-      }),
-    });
-    const document = parse('subscription { unknownField }');
-
-    const result = await subscribe({ schema, document });
-    expectJSON(result).to.deep.equal({
-      errors: [
-        {
-          message: 'The subscription field "unknownField" is not defined.',
-          locations: [{ line: 1, column: 16 }],
-        },
-      ],
-    });
-  });
-
-  it('should pass through unexpected errors thrown in subscribe', async () => {
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: { type: GraphQLString },
-        },
-      }),
-    });
-
-    // @ts-expect-error
-    (await expectPromise(subscribe({ schema, document: {} }))).toReject();
-  });
-
-  it('throws an error if subscribe does not return an iterator', async () => {
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: {
-            type: GraphQLString,
-            subscribe: () => 'test',
-          },
-        },
-      }),
-    });
-
-    const document = parse('subscription { foo }');
-
-    (await expectPromise(subscribe({ schema, document }))).toRejectWith(
-      'Subscription field must return Async Iterable. Received: "test".',
-    );
-  });
-
-  it('resolves to an error for subscription resolver errors', async () => {
-    async function subscribeWithFn(subscribeFn: () => unknown) {
-      const schema = new GraphQLSchema({
-        query: DummyQueryType,
-        subscription: new GraphQLObjectType({
-          name: 'Subscription',
-          fields: {
-            foo: { type: GraphQLString, subscribe: subscribeFn },
-          },
-        }),
-      });
-      const document = parse('subscription { foo }');
-      const result = await subscribe({ schema, document });
-
-      expect(await createSourceEventStream(schema, document)).to.deep.equal(
-        result,
+    test('accepts multiple subscription fields defined in schema', () async {
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: [
+            field('foo', graphQLString),
+            field('bar', graphQLString),
+          ],
+        ),
       );
-      return result;
-    }
 
-    const expectedResult = {
-      errors: [
-        {
-          message: 'test error',
-          locations: [{ line: 1, column: 16 }],
-          path: ['foo'],
+      final subscription = await subscribe(
+        schema,
+        document: 'subscription { foo }',
+        rootValue: {'foo': fooGenerator},
+      );
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'foo': 'FooValue'}
         },
-      ],
-    };
+      });
 
-    expectJSON(
-      // Returning an error
-      await subscribeWithFn(() => new Error('test error')),
-    ).to.deep.equal(expectedResult);
-
-    expectJSON(
-      // Throwing an error
-      await subscribeWithFn(() => {
-        throw new Error('test error');
-      }),
-    ).to.deep.equal(expectedResult);
-
-    expectJSON(
-      // Resolving to an error
-      await subscribeWithFn(() => Promise.resolve(new Error('test error'))),
-    ).to.deep.equal(expectedResult);
-
-    expectJSON(
-      // Rejecting with an error
-      await subscribeWithFn(() => Promise.reject(new Error('test error'))),
-    ).to.deep.equal(expectedResult);
-  });
-
-  it('resolves to an error if variables were wrong type', async () => {
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          foo: {
-            type: GraphQLString,
-            args: { arg: { type: GraphQLInt } },
-          },
-        },
-      }),
+      // Close subscription
+      await subscription.close();
     });
 
-    const variableValues = { arg: 'meow' };
-    const document = parse(`
+    test('accepts type definition with sync subscribe function', () async {
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: [
+            graphQLString.field(
+              'foo',
+              subscribe: (_, __) => fooGenerator(),
+            ),
+          ],
+        ),
+      );
+
+      final subscription = await subscribe(
+        schema,
+        document: 'subscription { foo }',
+      );
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'foo': 'FooValue'}
+        },
+      });
+
+      // Close subscription
+      await subscription.close();
+    });
+
+    test('accepts type definition with async subscribe function', () async {
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType('Subscription', fields: [
+          graphQLString.field(
+            'foo',
+            subscribe: (_, __) {
+              return Future.microtask(() => fooGenerator());
+            },
+          ),
+        ]),
+      );
+
+      final subscription = await subscribe(
+        schema,
+        document: 'subscription { foo }',
+      );
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'foo': 'FooValue'}
+        },
+      });
+
+      // Close subscription
+      await subscription.close();
+    });
+
+    test('should only resolve the first field of invalid multi-field',
+        () async {
+      var didResolveFoo = false;
+      var didResolveBar = false;
+
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: [
+            graphQLString.field(
+              'foo',
+              subscribe: (_, __) {
+                didResolveFoo = true;
+                return fooGenerator();
+              },
+            ),
+            graphQLString.field(
+              'bar',
+              // istanbul ignore next (Shouldn't be called)
+              subscribe: (_, __) {
+                didResolveBar = true;
+                throw Error();
+              },
+            ),
+          ],
+        ),
+      );
+
+      final subscription = await subscribe(
+        schema,
+        document: 'subscription { foo bar }',
+      );
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      expect(didResolveFoo, true);
+      expect(didResolveBar, false);
+
+      expect((await subscription.next())['done'], false);
+
+      // Close subscription
+      await subscription.close();
+    });
+
+    GraphQLSchema makeSchema(Object? Function() subscribe) => GraphQLSchema(
+          queryType: DummyQueryType,
+          subscriptionType: GraphQLObjectType(
+            'Subscription',
+            fields: [
+              graphQLString.field('foo', subscribe: (_, __) {
+                final out = subscribe();
+                if (out is Stream) {
+                  return out.cast();
+                }
+                return Stream.value(out as String?);
+              }),
+            ],
+          ),
+        );
+
+    test('throws an error if some of required arguments are missing', () async {
+      const document = 'subscription { foo }';
+      final schema = makeSchema(() => null);
+
+      /// The dart type signature does not allow these errors
+
+      // @ts-expect-error (schema must not be null)
+      // (await expectPromise(subscribe({ schema: null, document }))).toRejectWith(
+      //   'Expected null to be a GraphQL schema.',
+      // );
+
+      // @ts-expect-error
+      // (await expectPromise(subscribe({ document }))).toRejectWith(
+      //   'Expected undefined to be a GraphQL schema.',
+      // );
+
+      // @ts-expect-error (document must not be null)
+      // (await expectPromise(subscribe({ schema, document: null }))).toRejectWith(
+      //   'Must provide document.',
+      // );
+
+      // @ts-expect-error
+      // (await expectPromise(subscribe({ schema }))).toRejectWith(
+      //   'Must provide document.',
+      // );
+    });
+
+    test('resolves to an error for unknown subscription field', () async {
+      const document = 'subscription { unknownField }';
+      final schema = makeSchema(() => null);
+
+      final result = await subscribe(schema, document: document);
+      expect(await result.singleValue(), {
+        'errors': [
+          {
+            'message': 'Subscription has no field named "unknownField".',
+            'locations': [
+              {'line': 0, 'column': 15}
+            ],
+          },
+        ],
+      });
+    });
+
+    test('should pass through unexpected errors thrown in subscribe', () async {
+      // final schema = makeSchema(() => null);
+      // // @ts-expect-error
+      // (await expectPromise(() => subscribe(schema, document: {})
+      //         .then<Object>((value) => value.singleValue())))
+      //     .toReject();
+    });
+
+    test('throws an error if subscribe does not return an iterator', () async {
+      // final schema = makeSchema(() => 'test');
+
+      // const document = 'subscription { foo }';
+
+      // (await expectPromise(() => subscribe(schema, document: document)))
+      //     .toRejectWith(
+      //   'Subscription field must return Async Iterable. Received: "test".',
+      // );
+    });
+
+    test('resolves to an error for subscription resolver errors', () async {
+      Future<TestSubs> subscribeWithFn(
+          FutureOr<Stream<String?>> Function() subscribeFn) async {
+        final schema = GraphQLSchema(
+          queryType: DummyQueryType,
+          subscriptionType: GraphQLObjectType(
+            'Subscription',
+            fields: [
+              graphQLString.field('foo', subscribe: (_, __) => subscribeFn()),
+            ],
+          ),
+        );
+        const document = 'subscription { foo }';
+        final result = await subscribe(schema, document: document);
+
+        // TODO:
+        // expect(await GraphQL(schema).createSourceEventStream(schema, document),
+        //   result,
+        // );
+        return result;
+      }
+
+      const expectedResult = {
+        'errors': [
+          {
+            'message': 'test error',
+            'locations': [
+              {'line': 0, 'column': 15}
+            ],
+            'path': ['foo'],
+          },
+        ],
+      };
+
+      // TODO:
+      // expect(
+      //   // Returning an error
+      //   await subscribeWithFn(() => GraphQLExceptionError('test error')),
+      // expectedResult);
+
+      expect(
+          // Throwing an error
+          await (await subscribeWithFn(() {
+            throw GraphQLExceptionError('test error');
+          }))
+              .singleValue(),
+          expectedResult);
+
+      // TODO:
+      // expect(
+      //   // Resolving to an error
+      //   await subscribeWithFn(() => Future.value(GraphQLExceptionError('test error'))),
+      // expectedResult);
+
+      expect(
+          // Rejecting with an error
+          await (await subscribeWithFn(
+                  () => Future.error(GraphQLExceptionError('test error'))))
+              .singleValue(),
+          expectedResult);
+    });
+
+    test('resolves to an error if variables were wrong type', () async {
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: [
+            field(
+              'foo',
+              graphQLString,
+              inputs: [GraphQLFieldInput('arg', graphQLInt)],
+            ),
+          ],
+        ),
+      );
+
+      const variableValues = {'arg': 'meow'};
+      const document = r'''
       subscription ($arg: Int) {
         foo(arg: $arg)
       }
-    `);
+    ''';
 
-    // If we receive variables that cannot be coerced correctly, subscribe() will
-    // resolve to an ExecutionResult that contains an informative error description.
-    const result = await subscribe({ schema, document, variableValues });
-    expectJSON(result).to.deep.equal({
-      errors: [
-        {
-          message:
-            'Variable "$arg" got invalid value "meow"; Int cannot represent non-integer value: "meow"',
-          locations: [{ line: 2, column: 21 }],
-        },
-      ],
+      // If we receive variables that cannot be coerced correctly, subscribe() will
+      // resolve to an ExecutionResult that contains an informative error description.
+      final result = await subscribe(schema,
+          document: document, variableValues: variableValues);
+      expect(await result.singleValue(), {
+        'errors': [
+          {
+            'message': stringContainsInOrder(['"arg"', 'integer', 'meow']),
+            // r'Variable "$arg" got invalid value "meow"; Int cannot represent non-integer value: "meow"',
+            'locations': [
+              {'line': 0, 'column': 21}
+            ],
+          },
+        ],
+      });
     });
   });
-});
 
 // Once a subscription returns a valid AsyncIterator, it can still yield errors.
-describe('Subscription Publish Phase', () => {
-  it('produces a payload for multiple subscribe in same subscription', async () => {
-    const pubsub = new SimplePubSub<Email>();
+  group('Subscription Publish Phase', () {
+    test('produces a payload for multiple subscribe in same subscription',
+        () async {
+      final pubsub = StreamController<Email>.broadcast();
 
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
 
-    const secondSubscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(secondSubscription));
+      final secondSubscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(secondSubscription));
 
-    const payload1 = subscription.next();
-    const payload2 = secondSubscription.next();
+      final payload1 = subscription.next();
+      final payload2 = secondSubscription.next();
 
-    expect(
-      pubsub.emit({
+      // expect(
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright',
         message: 'Tests are good',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      // ).to.equal(true);
 
-    const expectedPayload = {
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright',
-            },
-            inbox: {
-              unread: 1,
-              total: 2,
-            },
-          },
-        },
-      },
-    };
-
-    expect(await payload1).to.deep.equal(expectedPayload);
-    expect(await payload2).to.deep.equal(expectedPayload);
-  });
-
-  it('produces a payload per subscription event', async () => {
-    const pubsub = new SimplePubSub<Email>();
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
-
-    // Wait for the next subscription payload.
-    const payload = subscription.next();
-
-    // A new email arrives!
-    expect(
-      pubsub.emit({
-        from: 'yuzhi@graphql.org',
-        subject: 'Alright',
-        message: 'Tests are good',
-        unread: true,
-      }),
-    ).to.equal(true);
-
-    // The previously waited on payload now has a value.
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright',
-            },
-            inbox: {
-              unread: 1,
-              total: 2,
+      const expectedPayload = {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright',
+              },
+              'inbox': {
+                'unread': 1,
+                'total': 2,
+              },
             },
           },
         },
-      },
+      };
+
+      expect(await payload1, expectedPayload);
+      expect(await payload2, expectedPayload);
     });
 
-    // Another new email arrives, before subscription.next() is called.
-    expect(
-      pubsub.emit({
+    test('produces a payload per subscription event', () async {
+      final pubsub = StreamController<Email>();
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      // Wait for the next subscription payload.
+      final payload = subscription.next();
+
+      // A new email arrives!
+      pubsub.add(Email(
+        from: 'yuzhi@graphql.org',
+        subject: 'Alright',
+        message: 'Tests are good',
+        unread: true,
+      ));
+      expect(pubsub.hasListener, true);
+
+      // The previously waited on payload now has a value.
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright',
+              },
+              'inbox': {
+                'unread': 1,
+                'total': 2,
+              },
+            },
+          },
+        },
+      });
+
+      // Another new email arrives, before subscription.next() is called.
+
+      pubsub.add(Email(
         from: 'hyo@graphql.org',
         subject: 'Tools',
         message: 'I <3 making things',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    // The next waited on payload will have a value.
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'hyo@graphql.org',
-              subject: 'Tools',
-            },
-            inbox: {
-              unread: 2,
-              total: 3,
+      // The next waited on payload will have a value.
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'hyo@graphql.org',
+                'subject': 'Tools',
+              },
+              'inbox': {
+                'unread': 2,
+                'total': 3,
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    // The client decides to disconnect.
-    expect(await subscription.return()).to.deep.equal({
-      done: true,
-      value: undefined,
-    });
+      // The client decides to disconnect.
+      expect(await subscription.close(), {
+        'done': true,
+        'value': null,
+      });
 
-    // Which may result in disconnecting upstream services as well.
-    expect(
-      pubsub.emit({
+      // Which may result in disconnecting upstream services as well.
+
+      pubsub.add(Email(
         from: 'adam@graphql.org',
         subject: 'Important',
         message: 'Read me please',
         unread: true,
-      }),
-    ).to.equal(false); // No more listeners.
+      )); // No more listeners.
+      expect(pubsub.hasListener, false);
 
-    // Awaiting a subscription after closing it results in completed results.
-    expect(await subscription.next()).to.deep.equal({
-      done: true,
-      value: undefined,
+      // Awaiting a subscription after closing it results in completed results.
+      expect(await subscription.next(), {
+        'done': true,
+        'value': null,
+      });
     });
-  });
 
-  it('produces a payload when there are multiple events', async () => {
-    const pubsub = new SimplePubSub<Email>();
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
+    test('produces a payload when there are multiple events', () async {
+      final pubsub = StreamController<Email>();
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
 
-    let payload = subscription.next();
+      var payload = subscription.next();
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright',
         message: 'Tests are good',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright',
-            },
-            inbox: {
-              unread: 1,
-              total: 2,
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright',
+              },
+              'inbox': {
+                'unread': 1,
+                'total': 2,
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    payload = subscription.next();
+      payload = subscription.next();
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright 2',
         message: 'Tests are good 2',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright 2',
-            },
-            inbox: {
-              unread: 2,
-              total: 3,
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright 2',
+              },
+              'inbox': {
+                'unread': 2,
+                'total': 3,
+              },
             },
           },
         },
-      },
+      });
     });
-  });
 
-  it('should not trigger when subscription is already done', async () => {
-    const pubsub = new SimplePubSub<Email>();
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
+    test('should not trigger when subscription is already done', () async {
+      final pubsub = StreamController<Email>();
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
 
-    let payload = subscription.next();
+      var payload = subscription.next();
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright',
         message: 'Tests are good',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright',
-            },
-            inbox: {
-              unread: 1,
-              total: 2,
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright',
+              },
+              'inbox': {
+                'unread': 1,
+                'total': 2,
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    payload = subscription.next();
-    await subscription.return();
+      payload = subscription.next();
+      await subscription.close();
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright 2',
         message: 'Tests are good 2',
         unread: true,
-      }),
-    ).to.equal(false);
+      ));
+      expect(pubsub.hasListener, false);
 
-    expect(await payload).to.deep.equal({
-      done: true,
-      value: undefined,
+      expect(await payload, {
+        'done': true,
+        'value': null,
+      });
     });
-  });
 
-  it('should not trigger when subscription is thrown', async () => {
-    const pubsub = new SimplePubSub<Email>();
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
+    test('should not trigger when subscription is thrown', () async {
+      final pubsub = StreamController<Email>();
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
 
-    let payload = subscription.next();
+      var payload = subscription.next();
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Alright',
         message: 'Tests are good',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Alright',
-            },
-            inbox: {
-              unread: 1,
-              total: 2,
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Alright',
+              },
+              'inbox': {
+                'unread': 1,
+                'total': 2,
+              },
             },
           },
         },
-      },
+      });
+
+      payload = subscription.next();
+
+      // Throw error
+      Object? caughtError;
+      try {
+        await subscription.throwErr('ouch');
+      } catch (e) {
+        caughtError = e;
+      }
+      expect(caughtError, 'ouch');
+
+      expect(await payload, {
+        'done': true,
+        // TODO: was undefined
+        'value': null,
+      });
     });
 
-    payload = subscription.next();
+    test('event order is correct for multiple publishes', () async {
+      final pubsub = StreamController<Email>.broadcast();
+      final subscription = await createSubscription(pubsub);
+      // TODO: invariant(isAsyncIterable(subscription));
 
-    // Throw error
-    let caughtError;
-    try {
-      await subscription.throw('ouch');
-    } catch (e) {
-      caughtError = e;
-    }
-    expect(caughtError).to.equal('ouch');
+      var payload = subscription.next();
 
-    expect(await payload).to.deep.equal({
-      done: true,
-      value: undefined,
-    });
-  });
+      // A new email arrives!
 
-  it('event order is correct for multiple publishes', async () => {
-    const pubsub = new SimplePubSub<Email>();
-    const subscription = await createSubscription(pubsub);
-    invariant(isAsyncIterable(subscription));
-
-    let payload = subscription.next();
-
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Message',
         message: 'Tests are good',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    // A new email arrives!
-    expect(
-      pubsub.emit({
+      // A new email arrives!
+
+      pubsub.add(Email(
         from: 'yuzhi@graphql.org',
         subject: 'Message 2',
         message: 'Tests are good 2',
         unread: true,
-      }),
-    ).to.equal(true);
+      ));
+      expect(pubsub.hasListener, true);
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Message',
-            },
-            inbox: {
-              unread: 2,
-              total: 3,
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Message',
+              },
+              'inbox': {
+                'unread': 2,
+                'total': 3,
+              },
             },
           },
         },
-      },
+      });
+
+      payload = subscription.next();
+
+      expect(await payload, {
+        'done': false,
+        'value': {
+          'data': {
+            'importantEmail': {
+              'email': {
+                'from': 'yuzhi@graphql.org',
+                'subject': 'Message 2',
+              },
+              'inbox': {
+                'unread': 2,
+                'total': 3,
+              },
+            },
+          },
+        },
+      });
     });
 
-    payload = subscription.next();
+    test('should handle error during execution of source event', () async {
+      Stream<String> generateMessages() async* {
+        yield 'Hello';
+        yield 'Goodbye';
+        yield 'Bonjour';
+      }
 
-    expect(await payload).to.deep.equal({
-      done: false,
-      value: {
-        data: {
-          importantEmail: {
-            email: {
-              from: 'yuzhi@graphql.org',
-              subject: 'Message 2',
-            },
-            inbox: {
-              unread: 2,
-              total: 3,
-            },
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: {
+            graphQLString.field(
+              'newMessage',
+              subscribe: (_, __) => generateMessages()
+              // TODO: support throwing in stream?
+              // .map((message) {
+              // if (message == 'Goodbye') {
+              //   throw GraphQLExceptionError('Never leave.');
+              // }
+              // return message;
+              // })
+              ,
+              // TODO:
+              resolve: (event, _) {
+                final message = (event as SubscriptionEvent).value as String?;
+                if (message == 'Goodbye') {
+                  throw GraphQLExceptionError('Never leave.');
+                }
+                return message;
+              },
+            ),
           },
+        ),
+      );
+
+      const document = 'subscription { newMessage }';
+      final subscription = await subscribe(schema, document: document);
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'newMessage': 'Hello'},
         },
-      },
+      });
+
+      // An error in execution is presented as such.
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'newMessage': null},
+          'errors': [
+            {
+              'message': 'Never leave.',
+              'locations': [
+                {'line': 0, 'column': 15}
+              ],
+              'path': ['newMessage'],
+            },
+          ],
+        },
+      });
+
+      // However that does not close the response event stream.
+      // Subsequent events are still executed.
+      expect(await subscription.next(), {
+        'done': false,
+        'value': {
+          'data': {'newMessage': 'Bonjour'},
+        },
+      });
+    });
+
+    test('should pass through error thrown in source event stream', () async {
+      Stream<String> generateMessages() async* {
+        yield 'Hello';
+        throw GraphQLExceptionError('test error');
+      }
+
+      final schema = GraphQLSchema(
+        queryType: DummyQueryType,
+        subscriptionType: GraphQLObjectType(
+          'Subscription',
+          fields: [
+            graphQLString.field(
+              'newMessage',
+              // TODO:
+              // resolve: (message, __) => message,
+              subscribe: (_, __) => generateMessages(),
+            ),
+          ],
+        ),
+      );
+
+      const document = 'subscription { newMessage }';
+      final subscription = await subscribe(schema, document: document);
+      // TODO: invariant(isAsyncIterable(subscription));
+
+      final payload = await subscription.next();
+      expect(payload, {
+        'done': false,
+        'value': {
+          'data': {'newMessage': 'Hello'},
+        },
+      });
+
+      final futMatcher = await expectPromise(() => subscription.next());
+      futMatcher.toRejectWith('test error');
+
+      expect(await subscription.next(), {
+        'done': true,
+        // TODO: was undefined
+        'value': null,
+      });
     });
   });
-
-  it('should handle error during execution of source event', async () => {
-    async function* generateMessages() {
-      yield 'Hello';
-      yield 'Goodbye';
-      yield 'Bonjour';
-    }
-
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          newMessage: {
-            type: GraphQLString,
-            subscribe: generateMessages,
-            resolve(message) {
-              if (message === 'Goodbye') {
-                throw new Error('Never leave.');
-              }
-              return message;
-            },
-          },
-        },
-      }),
-    });
-
-    const document = parse('subscription { newMessage }');
-    const subscription = await subscribe({ schema, document });
-    invariant(isAsyncIterable(subscription));
-
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: {
-        data: { newMessage: 'Hello' },
-      },
-    });
-
-    // An error in execution is presented as such.
-    expectJSON(await subscription.next()).to.deep.equal({
-      done: false,
-      value: {
-        data: { newMessage: null },
-        errors: [
-          {
-            message: 'Never leave.',
-            locations: [{ line: 1, column: 16 }],
-            path: ['newMessage'],
-          },
-        ],
-      },
-    });
-
-    // However that does not close the response event stream.
-    // Subsequent events are still executed.
-    expectJSON(await subscription.next()).to.deep.equal({
-      done: false,
-      value: {
-        data: { newMessage: 'Bonjour' },
-      },
-    });
-  });
-
-  it('should pass through error thrown in source event stream', async () => {
-    async function* generateMessages() {
-      yield 'Hello';
-      throw new Error('test error');
-    }
-
-    const schema = new GraphQLSchema({
-      query: DummyQueryType,
-      subscription: new GraphQLObjectType({
-        name: 'Subscription',
-        fields: {
-          newMessage: {
-            type: GraphQLString,
-            resolve: (message) => message,
-            subscribe: generateMessages,
-          },
-        },
-      }),
-    });
-
-    const document = parse('subscription { newMessage }');
-    const subscription = await subscribe({ schema, document });
-    invariant(isAsyncIterable(subscription));
-
-    expect(await subscription.next()).to.deep.equal({
-      done: false,
-      value: {
-        data: { newMessage: 'Hello' },
-      },
-    });
-
-    (await expectPromise(subscription.next())).toRejectWith('test error');
-
-    expect(await subscription.next()).to.deep.equal({
-      done: true,
-      value: undefined,
-    });
-  });
-});
+}
