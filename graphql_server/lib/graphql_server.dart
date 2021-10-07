@@ -5,10 +5,10 @@ import 'package:gql/ast.dart';
 import 'package:gql/document.dart' as gql_doc;
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/src/extension.dart';
 import 'package:source_span/source_span.dart';
 
 import 'introspection.dart';
+import 'src/extension.dart';
 import 'src/graphql_result.dart';
 import 'src/schema_helpers.dart';
 
@@ -24,12 +24,12 @@ class GraphQL {
   /// Extensions implement additional funcionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
-  /// logging, error handling or caching
+  /// logging, error handling or caching [GraphQLPersistedQueries]
   final List<GraphQLExtension> extensionList;
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function<P>(P object, String fieldName, ReqCtx<P>)?
+  final FutureOr<Object?> Function(Object parent, String fieldName, ReqCtx)?
       defaultFieldResolver;
 
   GraphQLSchema _schema;
@@ -612,6 +612,7 @@ class GraphQL {
       objectValue: objectValue,
       parent: parentCtx,
       pathItem: pathItem,
+      groupedFieldSet: groupedFieldSet,
     );
 
     if (groupedFieldSet.isEmpty && validate) {
@@ -861,6 +862,49 @@ class GraphQL {
     return coercedValues;
   }
 
+  Map<String, List<FieldNode>>? Function() possibleSelections(
+    GraphQLType type,
+    String fieldName,
+    ResolveObjectCtx ctx,
+  ) {
+    bool calculated = false;
+    Map<String, List<FieldNode>>? _value;
+    return () {
+      if (calculated) return _value;
+
+      final possibleObjects = <GraphQLObjectType>[];
+      type.whenOrNull(
+        object: (obj) {
+          if (obj.isInterface) {
+            possibleObjects.addAll(obj.possibleTypes);
+          } else {
+            possibleObjects.add(obj);
+          }
+        },
+        union: (union) => possibleObjects.addAll(union.possibleTypes.cast()),
+      );
+      if (possibleObjects.isNotEmpty) {
+        final selectionSet = mergeSelectionSets(
+          ctx.groupedFieldSet[fieldName]!,
+        );
+
+        _value = Map.fromEntries(
+          possibleObjects.expand((e) {
+            final groupedFields = collectFields(
+              ctx.document,
+              e,
+              selectionSet,
+              ctx.variableValues,
+            );
+            return groupedFields.entries;
+          }),
+        );
+      }
+      calculated = true;
+      return _value;
+    };
+  }
+
   Future<T?> resolveFieldValue<T extends Object, P extends Object>(
     ResolveObjectCtx<P> ctx,
     GraphQLObjectField<T, Object, P> field,
@@ -1023,6 +1067,7 @@ class GraphQL {
             pathItem: fieldName,
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
+            groupedFieldSet: ctx.groupedFieldSet,
             parent: ctx,
           );
 
@@ -1040,7 +1085,7 @@ class GraphQL {
                     resultItem,
                     pathItem: _i,
                   );
-                } on Exception catch (error, stackTrace) {
+                } on Exception catch (error) {
                   final field = fields.first;
                   final fieldSpan = field is FieldNode
                       ? field.span ?? field.alias?.span ?? field.name.span
@@ -1257,92 +1302,8 @@ class GraphQL {
   }
 }
 
-class ResolveCtx {
-  final errors = <GraphQLExceptionError>[];
-  final GraphQLSchema schema;
-  SerdeCtx get serdeCtx => schema.serdeCtx;
-  final DocumentNode document;
-  final Map<String, dynamic> variableValues;
-  final Map<Object, dynamic> globalVariables;
-  final Map<String, dynamic>? extensions;
+class SubscriptionEvent {
+  final Object? value;
 
-  ResolveCtx({
-    required this.schema,
-    required this.document,
-    required this.variableValues,
-    required this.globalVariables,
-    required this.extensions,
-  });
-}
-
-class ResolveObjectCtx<P extends Object> {
-  final ResolveCtx base;
-
-  SerdeCtx get serdeCtx => base.serdeCtx;
-  Map<String, dynamic> get variableValues => base.variableValues;
-  Map<Object, dynamic> get globalVariables => base.globalVariables;
-  DocumentNode get document => base.document;
-
-  final GraphQLObjectType<P> objectType;
-  final P objectValue;
-  final ResolveObjectCtx<Object>? parent;
-  final Object? pathItem;
-
-  Iterable<Object> get path => parent == null
-      ? [if (pathItem != null) pathItem!]
-      : parent!.path.followedBy([if (pathItem != null) pathItem!]);
-
-  ResolveObjectCtx({
-    required this.pathItem,
-    required this.base,
-    required this.objectType,
-    required this.objectValue,
-    required this.parent,
-  });
-
-  bool _didSerialized = false;
-  Map<String, dynamic>? _serializedObject;
-  Map<String, Object?>? serializedObject() {
-    if (!_didSerialized) {
-      try {
-        try {
-          final serializer = serdeCtx.ofValue(objectType.generic.type);
-          if (serializer != null) {
-            _serializedObject =
-                serializer.toJson(objectValue)! as Map<String, dynamic>;
-          } else {
-            _serializedObject =
-                serdeCtx.toJson(objectValue)! as Map<String, dynamic>;
-          }
-        } catch (e) {
-          _serializedObject = objectType.serializeSafe(
-            objectValue,
-            nested: false,
-          );
-        }
-      } catch (_) {}
-      _didSerialized = true;
-    }
-    return _serializedObject;
-  }
-}
-
-// class ResolveFieldCtx<T, P> {
-//   final ResolveObjectCtx<P> objectCtx;
-//   final String fieldName;
-//   final FieldNode field;
-//   final GraphQLObjectField<T, Object?, P> objectField;
-
-//   const ResolveFieldCtx({
-//     required this.objectCtx,
-//     required this.fieldName,
-//     required this.field,
-//     required this.objectField,
-//   });
-// }
-
-class _SubscriptionEvent {
-  final Map<String, Object?> event;
-
-  const _SubscriptionEvent(this.event);
+  const SubscriptionEvent._(this.value);
 }

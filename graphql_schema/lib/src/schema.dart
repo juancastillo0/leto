@@ -3,39 +3,26 @@ library graphql_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:gql/ast.dart' show DocumentNode, FieldNode;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart';
 import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
-
-part 'enum.dart';
-
-part 'field.dart';
-
-part 'gen.dart';
-
-part 'object_type.dart';
-
-part 'scalar.dart';
-
-part 'type.dart';
-
-part 'union.dart';
-
-part 'validation_result.dart';
-
-part 'serde_ctx.dart';
-
-part 'ref_type.dart';
-
-part 'print_schema.dart';
-
 part 'decorators.dart';
-
-part 'req_ctx.dart';
-
+part 'enum.dart';
 part 'error.dart';
+part 'field.dart';
+part 'gen.dart';
+part 'object_type.dart';
+part 'print_schema.dart';
+part 'ref_type.dart';
+part 'req_ctx.dart';
+part 'scalar.dart';
+part 'serde_ctx.dart';
+part 'type.dart';
+part 'union.dart';
+part 'validation_result.dart';
 
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
@@ -68,12 +55,13 @@ class GraphQLSchema {
     this.description,
     this.directives = const [],
     SerdeCtx? serdeCtx,
-  })  : serdeCtx = serdeCtx ?? SerdeCtx(),
-        assert(
-          subscriptionType == null ||
-              subscriptionType.fields
-                  .every((f) => f.subscribe != null || f.resolve != null),
-        );
+  }) : serdeCtx = serdeCtx ?? SerdeCtx()
+  // ,assert(
+  //   subscriptionType == null ||
+  //       subscriptionType.fields
+  //           .every((f) => f.subscribe != null || f.resolve != null),
+  // )
+  ;
 }
 
 /// A shorthand for creating a [GraphQLSchema].
