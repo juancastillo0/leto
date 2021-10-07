@@ -311,66 +311,69 @@ void main() {
       // });
     });
 
-    // test('populates path correctly with complex types', () async {
-    //   String? path;
-    //   final someObject = objectType<Object>(
-    //     'SomeObject',
-    //     fields: [
-    //       graphQLString.field(
-    //         'test',
-    //         resolve: (obj, ctx) {
-    //           path = info.path;
-    //         },
-    //       ),
-    //     ],
-    //   );
-    //   final someUnion = GraphQLUnionType(
-    //     'SomeUnion',
-    //     [someObject],
-    //     // TODO:
-    //     // resolveType() {
-    //     //   return 'SomeObject';
-    //     // },
-    //   );
-    //   final testType = objectType<Object>(
-    //     'SomeQuery',
-    //     fields: [
-    //       field(
-    //         'test',
-    //         listOf(someUnion.nonNull()).nonNull(),
-    //       )
-    //     ],
-    //   );
-    //   final schema = GraphQLSchema(queryType: testType);
-    //   final rootValue = {
-    //     'test': [<String, Object?>{}]
-    //   };
-    //   const document = '''
-    //     query {
-    //       l1: test {
-    //         ... on SomeObject {
-    //           l2: test
-    //         }
-    //       }
-    //     }
-    //   ''';
+    test('populates path correctly with complex types', () async {
+      late List<Object> path;
+      final someObject = objectType<Object>(
+        'SomeObject',
+        fields: [
+          graphQLString.field(
+            'test',
+            resolve: (obj, ctx) {
+              path = ctx.path;
+            },
+          ),
+        ],
+      );
+      final someUnion = GraphQLUnionType(
+        'SomeUnion',
+        [someObject],
+        // TODO:
+        // resolveType() {
+        //   return 'SomeObject';
+        // },
+      );
+      final testType = objectType<Object>(
+        'SomeQuery',
+        fields: [
+          field(
+            'test',
+            listOf(someUnion.nonNull()).nonNull(),
+          )
+        ],
+      );
+      final schema = GraphQLSchema(queryType: testType);
+      final rootValue = {
+        'test': [<String, Object?>{}]
+      };
+      const document = '''
+        query {
+          l1: test {
+            ... on SomeObject {
+              l2: test
+            }
+          }
+        }
+      ''';
 
-    //   executeSync({schema, document, rootValue});
+      await GraphQL(schema).parseAndExecute(document, initialValue: rootValue);
 
-    //   expect(path, {
-    //     'key': 'l2',
-    //     'typename': 'SomeObject',
-    //     'prev': {
-    //       'key': 0,
-    //       'typename': null,
-    //       'prev': {
-    //         'key': 'l1',
-    //         'typename': 'SomeQuery',
-    //         'prev': null,
-    //       },
-    //     },
-    //   });
-    // });
+      expect(path, ['l1', 0, 'l2']);
+
+      // TODO:
+      // expect(path, {
+      //   'key': 'l2',
+      //   'typename': 'SomeObject',
+      //   'prev': {
+      //     'key': 0,
+      //     'typename': null,
+      //     'prev': {
+      //       'key': 'l1',
+      //       'typename': 'SomeQuery',
+      //       'prev': null,
+      //     },
+      //   },
+      // });
+    });
 
     test('threads root value context correctly', () async {
       Object? resolvedRootValue;
@@ -812,23 +815,26 @@ void main() {
       );
     });
 
-    // it('errors if empty string is provided as operation name', () {
-    //   final schema = new GraphQLSchema({
-    //     query: new GraphQLObjectType({
-    //       name: 'Type',
-    //       fields: {
-    //         a: { type: GraphQLString },
-    //       },
-    //     }),
-    //   });
-    //   final document = parse('{ a }');
-    //   final operationName = '';
+    test('errors if empty string is provided as operation name', () async {
+      final schema = GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Type',
+          fields: {
+            field('a', graphQLString),
+          },
+        ),
+      );
+      const document = '{ a }';
+      const operationName = '';
 
-    //   final result = executeSync({ schema, document, operationName });
-    //   expectJSON(result).to.deep.equal({
-    //     errors: [{ message: 'Unknown operation named "".' }],
-    //   });
-    // });
+      final result = await GraphQL(schema)
+          .parseAndExecute(document, operationName: operationName);
+      expect(result.toJson(), {
+        'errors': [
+          {'message': 'Operation named "" not found in query.'}
+        ],
+      });
+    });
 
     // it('uses the query schema for queries', () {
     //   final schema = new GraphQLSchema({
