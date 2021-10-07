@@ -365,12 +365,13 @@ class GraphQLNonNullType<Value extends Object, Serialized extends Object>
     return ofType.coerceToInputObject().nonNull();
   }
 
-  GraphQLObjectField<Value, Serialized, P> field<P>(
+  GraphQLObjectField<Value, Serialized, P> field<P extends Object>(
     String name, {
     String? deprecationReason,
     String? description,
     FutureOr<Value> Function(P parent, ReqCtx<P> ctx)? resolve,
-    FutureOr<Stream<Value>> Function(P parent, ReqCtx<P> ctx)? subscribe,
+    FutureOr<Stream<Value>> Function(Object parent, ReqCtx<Object> ctx)?
+        subscribe,
     Iterable<GraphQLFieldInput> arguments = const [],
   }) {
     return GraphQLObjectField(

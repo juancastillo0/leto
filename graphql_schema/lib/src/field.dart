@@ -2,14 +2,14 @@ part of graphql_schema.src.schema;
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 /// whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
-    P parent, ReqCtx<P> ctx);
-typedef GraphQLSubscriptionFieldResolver<Value, P> = FutureOr<Stream<Value?>>
+typedef GraphQLFieldResolver<Value, P extends Object> = FutureOr<Value?>
     Function(P parent, ReqCtx<P> ctx);
+typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
+    Function(Object parent, ReqCtx<Object> ctx);
 
 /// Wrapper class for [GraphQLFieldResolver]
 /// necessary for type casting.
-class FieldResolver<Value, P> {
+class FieldResolver<Value, P extends Object> {
   final GraphQLFieldResolver<Value, P> resolve;
 
   const FieldResolver(this.resolve);
@@ -19,12 +19,12 @@ class FieldResolver<Value, P> {
 
 /// Wrapper class for [GraphQLSubscriptionFieldResolver]
 /// necessary for type casting.
-class FieldSubscriptionResolver<Value, P> {
-  final GraphQLSubscriptionFieldResolver<Value, P> subscribe;
+class FieldSubscriptionResolver<Value> {
+  final GraphQLSubscriptionFieldResolver<Value> subscribe;
 
   const FieldSubscriptionResolver(this.subscribe);
 
-  FutureOr<Stream<Value?>> call(P parent, ReqCtx ctx) =>
+  FutureOr<Stream<Value?>> call(Object parent, ReqCtx ctx) =>
       subscribe(parent, ctx.cast());
 }
 
@@ -33,8 +33,8 @@ class FieldSubscriptionResolver<Value, P> {
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
 @immutable
-class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
-    implements ObjectField {
+class GraphQLObjectField<Value extends Object, Serialized extends Object,
+    P extends Object> implements ObjectField {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 
@@ -47,7 +47,7 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object, P>
 
   /// A function used to evaluate the [Stream] of [Value]s of this field, with
   /// respect to the parent (root) value [P] and context [ReqCtx].
-  final FieldSubscriptionResolver<Value, P>? subscribe;
+  final FieldSubscriptionResolver<Value>? subscribe;
 
   /// The [GraphQLType] associated with values that this
   /// field's [resolve] callback returns.

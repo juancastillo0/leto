@@ -23,7 +23,7 @@ GraphQLObjectType<P> objectType<P extends Object>(
 }
 
 GraphQLObjectField<V, S, P>
-    copyFieldWithName<V extends Object, S extends Object, P>(
+    copyFieldWithName<V extends Object, S extends Object, P extends Object>(
   String name,
   GraphQLObjectField<V, S, P> f,
 ) {
@@ -40,12 +40,12 @@ GraphQLObjectField<V, S, P>
 
 /// Shorthand for generating a [GraphQLObjectField].
 GraphQLObjectField<T, Serialized, P>
-    field<T extends Object, Serialized extends Object, P>(
+    field<T extends Object, Serialized extends Object, P extends Object>(
   String name,
   GraphQLType<T, Serialized> type, {
   Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
   GraphQLFieldResolver<T, P>? resolve,
-  GraphQLSubscriptionFieldResolver<T, P>? subscribe,
+  GraphQLSubscriptionFieldResolver<T>? subscribe,
   String? deprecationReason,
   String? description,
 }) {
@@ -93,12 +93,12 @@ GraphQLFieldInput<T, Serialized>
 
 extension GraphQLFieldTypeExt<V extends Object, S extends Object>
     on GraphQLType<V, S> {
-  GraphQLObjectField<V, S, P> field<P>(
+  GraphQLObjectField<V, S, P> field<P extends Object>(
     String name, {
     String? deprecationReason,
     String? description,
     GraphQLFieldResolver<V, P>? resolve,
-    GraphQLSubscriptionFieldResolver<V, P>? subscribe,
+    GraphQLSubscriptionFieldResolver<V>? subscribe,
     Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
   }) {
     return GraphQLObjectField(
@@ -114,10 +114,10 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
   }
 
   /// Shorthand for generating a [GraphQLObjectField].
-  GraphQLObjectField<V, S, P> fieldSpec<P>({
+  GraphQLObjectField<V, S, P> fieldSpec<P extends Object>({
     Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
     GraphQLFieldResolver<V, P>? resolve,
-    GraphQLSubscriptionFieldResolver<V, P>? subscribe,
+    GraphQLSubscriptionFieldResolver<V>? subscribe,
     String? deprecationReason,
     String? description,
   }) {

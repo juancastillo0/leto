@@ -49,7 +49,7 @@ List<Expression> getGraphqlInterfaces(ClassElement clazz) {
 }
 
 bool isInterface(ClassElement clazz) {
-  //TODO: && !serializableTypeChecker.hasAnnotationOf(clazz);
+  // TODO: && !serializableTypeChecker.hasAnnotationOf(clazz);
   return clazz.isAbstract;
 }
 

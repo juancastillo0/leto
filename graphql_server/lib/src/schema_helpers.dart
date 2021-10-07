@@ -139,7 +139,8 @@ GraphQLType convertType(
             orElse: () => throw GraphQLExceptionError(
               'Unknown GraphQL type: "${node.name.value}".',
               locations: GraphQLErrorLocation.listFromSource(
-                  node.span?.start ?? node.name.span?.start),
+                node.span?.start ?? node.name.span?.start,
+              ),
             ),
           );
       }
