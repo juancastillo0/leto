@@ -242,59 +242,74 @@ void main() {
       });
     });
 
-    // it('provides info about current execution state', () {
-    //   let resolvedInfo;
-    //   final testType = new GraphQLObjectType({
-    //     name: 'Test',
-    //     fields: {
-    //       test: {
-    //         type: GraphQLString,
-    //         resolve(_val, _args, _ctx, info) {
-    //           resolvedInfo = info;
-    //         },
-    //       },
-    //     },
-    //   });
-    //   final schema = new GraphQLSchema({ query: testType });
+    test('provides info about current execution state', () async {
+      ReqCtx<Object>? _resolvedInfo;
+      final testType = GraphQLObjectType<Object>(
+        'Test',
+        fields: [
+          graphQLString.field(
+            'test',
+            resolve: (obj, ctx) {
+              _resolvedInfo = ctx;
+            },
+          ),
+        ],
+      );
+      final schema = GraphQLSchema(queryType: testType);
 
-    //   final document = parse('query ($var: String) { result: test }');
-    //   final rootValue = { root: 'val' };
-    //   final variableValues = { var: 'abc' };
+      const document = r'query ($var: String) { result: test }';
+      final rootValue = {'root': 'val'};
+      final variableValues = {'var': 'abc'};
 
-    //   executeSync({ schema, document, rootValue, variableValues });
+      await GraphQL(schema, introspect: false).parseAndExecute(document,
+          initialValue: rootValue, variableValues: variableValues);
 
-    //   expect(resolvedInfo).to.have.all.keys(
-    //     'fieldName',
-    //     'fieldNodes',
-    //     'returnType',
-    //     'parentType',
-    //     'path',
-    //     'schema',
-    //     'fragments',
-    //     'rootValue',
-    //     'operation',
-    //     'variableValues',
-    //   );
+      // expect(resolvedInfo).to.have.all.keys(
+      //   'fieldName',
+      //   'fieldNodes',
+      //   'returnType',
+      //   'parentType',
+      //   'path',
+      //   'schema',
+      //   'fragments',
+      //   'rootValue',
+      //   'operation',
+      //   'variableValues',
+      // );
 
-    //   final operation = document.definitions[0];
-    //   invariant(operation.kind === Kind.OPERATION_DEFINITION);
+      // final operation = document.definitions[0];
+      // invariant(operation.kind === Kind.OPERATION_DEFINITION);
+      final resolvedInfo = _resolvedInfo;
+      if (resolvedInfo == null) {
+        throw Error();
+      }
+      final parentType = resolvedInfo.parentCtx!.objectType;
 
-    //   expect(resolvedInfo).to.include({
-    //     fieldName: 'test',
-    //     returnType: GraphQLString,
-    //     parentType: testType,
-    //     schema,
-    //     rootValue,
-    //     operation,
-    //   });
+      expect({
+        'fieldName': resolvedInfo.field.name,
+        'returnType': resolvedInfo.field.type,
+        'path': resolvedInfo.path,
+        'parentType': parentType,
+        'schema': resolvedInfo.parentCtx!.base.schema,
+        'rootValue': resolvedInfo.parentCtx!.base.rootValue,
+        'variableValues': resolvedInfo.parentCtx!.base.variableValues,
+      }, {
+        'fieldName': 'test',
+        'returnType': graphQLString,
+        'path': ['result'],
+        'parentType': testType,
+        'schema': schema,
+        'rootValue': rootValue,
+        'variableValues': {'var': 'abc'},
+        // 'operation': operation,
+      });
 
-    //   final field = operation.selectionSet.selections[0];
-    //   expect(resolvedInfo).to.deep.include({
-    //     fieldNodes: [field],
-    //     path: { prev: undefined, key: 'result', typename: 'Test' },
-    //     variableValues: { var: 'abc' },
-    //   });
-    // });
+      // final field = operation.selectionSet.selections[0];
+      // expect(resolvedInfo).to.deep.include({
+      //   fieldNodes: [field],
+      //   path: { prev: undefined, key: 'result', typename: 'Test' },
+      // });
+    });
 
     // test('populates path correctly with complex types', () async {
     //   String? path;
