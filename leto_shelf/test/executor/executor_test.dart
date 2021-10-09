@@ -1,29 +1,5 @@
 // https://github.com/graphql/graphql-js/blob/e6820a98b27b0d0c0c880edfe3b5b39a72496a62/src/execution/__tests__/executor-test.ts
 
-// import { expect } from 'chai';
-// import { describe, it } from 'mocha';
-
-// import { expectJSON } from '../../__testUtils__/expectJSON';
-
-// import { inspect } from '../../jsutils/inspect';
-// import { invariant } from '../../jsutils/invariant';
-
-// import { Kind } from '../../language/kinds';
-// import { parse } from '../../language/parser';
-
-// import { GraphQLSchema } from '../../type/schema';
-// import { GraphQLInt, GraphQLBoolean, GraphQLString } from '../../type/scalars';
-// import {
-//   GraphQLList,
-//   GraphQLNonNull,
-//   GraphQLScalarType,
-//   GraphQLInterfaceType,
-//   GraphQLObjectType,
-//   GraphQLUnionType,
-// } from '../../type/definition';
-
-// import { execute, executeSync } from '../execute';
-
 import 'dart:convert';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -264,6 +240,7 @@ void main() {
       await GraphQL(schema, introspect: false).parseAndExecute(document,
           initialValue: rootValue, variableValues: variableValues);
 
+      // TODO:
       // expect(resolvedInfo).to.have.all.keys(
       //   'fieldName',
       //   'fieldNodes',
@@ -283,16 +260,16 @@ void main() {
       if (resolvedInfo == null) {
         throw Error();
       }
-      final parentType = resolvedInfo.parentCtx!.objectType;
+      final parentType = resolvedInfo.parentCtx.objectType;
 
       expect({
         'fieldName': resolvedInfo.field.name,
         'returnType': resolvedInfo.field.type,
         'path': resolvedInfo.path,
         'parentType': parentType,
-        'schema': resolvedInfo.parentCtx!.base.schema,
-        'rootValue': resolvedInfo.parentCtx!.base.rootValue,
-        'variableValues': resolvedInfo.parentCtx!.base.variableValues,
+        'schema': resolvedInfo.parentCtx.base.schema,
+        'rootValue': resolvedInfo.parentCtx.base.rootValue,
+        'variableValues': resolvedInfo.parentCtx.base.variableValues,
       }, {
         'fieldName': 'test',
         'returnType': graphQLString,
@@ -432,190 +409,233 @@ void main() {
       expect(resolvedArgs, {'numArg': 123, 'stringArg': 'foo'});
     });
 
-    // it('nulls out error subtrees', () async {
-    //   final schema = new GraphQLSchema({
-    //     query: new GraphQLObjectType({
-    //       name: 'Type',
-    //       fields: {
-    //         sync: { type: GraphQLString },
-    //         syncError: { type: GraphQLString },
-    //         syncRawError: { type: GraphQLString },
-    //         syncReturnError: { type: GraphQLString },
-    //         syncReturnErrorList: { type: new GraphQLList(GraphQLString) },
-    //         async: { type: GraphQLString },
-    //         asyncReject: { type: GraphQLString },
-    //         asyncRejectWithExtensions: { type: GraphQLString },
-    //         asyncRawReject: { type: GraphQLString },
-    //         asyncEmptyReject: { type: GraphQLString },
-    //         asyncError: { type: GraphQLString },
-    //         asyncRawError: { type: GraphQLString },
-    //         asyncReturnError: { type: GraphQLString },
-    //         asyncReturnErrorWithExtensions: { type: GraphQLString },
-    //       },
-    //     }),
-    //   });
+    test('nulls out error subtrees', () async {
+      final schema = GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Type',
+          fields: [
+            field('sync', graphQLString),
+            field('syncError', graphQLString),
+            field('syncRawError', graphQLString),
+            field('syncReturnError', graphQLString),
+            field('syncReturnErrorList', listOf(graphQLString)),
+            field('async', graphQLString),
+            field('asyncReject', graphQLString),
+            field('asyncRejectWithExtensions', graphQLString),
+            field('asyncRawReject', graphQLString),
+            field('asyncEmptyReject', graphQLString),
+            field('asyncError', graphQLString),
+            field('asyncRawError', graphQLString),
+            field('asyncReturnError', graphQLString),
+            field('asyncReturnErrorWithExtensions', graphQLString),
+          ],
+        ),
+      );
 
-    //   final document = parse(`
-    //     {
-    //       sync
-    //       syncError
-    //       syncRawError
-    //       syncReturnError
-    //       syncReturnErrorList
-    //       async
-    //       asyncReject
-    //       asyncRawReject
-    //       asyncEmptyReject
-    //       asyncError
-    //       asyncRawError
-    //       asyncReturnError
-    //       asyncReturnErrorWithExtensions
-    //     }
-    //   `);
+      const document = '''
+        {
+          sync
+          syncError
+          syncRawError
+          syncReturnError
+          syncReturnErrorList
+          async
+          asyncReject
+          asyncRawReject
+          asyncEmptyReject
+          asyncError
+          asyncRawError
+          asyncReturnError
+          asyncReturnErrorWithExtensions
+        }
+      ''';
 
-    //   final rootValue = {
-    //     sync() {
-    //       return 'sync';
-    //     },
-    //     syncError() {
-    //       throw new Error('Error getting syncError');
-    //     },
-    //     syncRawError() {
-    //       // eslint-disable-next-line @typescript-eslint/no-throw-literal
-    //       throw 'Error getting syncRawError';
-    //     },
-    //     syncReturnError() {
-    //       return new Error('Error getting syncReturnError');
-    //     },
-    //     syncReturnErrorList() {
-    //       return [
-    //         'sync0',
-    //         new Error('Error getting syncReturnErrorList1'),
-    //         'sync2',
-    //         new Error('Error getting syncReturnErrorList3'),
-    //       ];
-    //     },
-    //     async() {
-    //       return new Promise((resolve) => resolve('async'));
-    //     },
-    //     asyncReject() {
-    //       return new Promise((_, reject) =>
-    //         reject(new Error('Error getting asyncReject')),
-    //       );
-    //     },
-    //     asyncRawReject() {
-    //       // eslint-disable-next-line prefer-promise-reject-errors
-    //       return Promise.reject('Error getting asyncRawReject');
-    //     },
-    //     asyncEmptyReject() {
-    //       // eslint-disable-next-line prefer-promise-reject-errors
-    //       return Promise.reject();
-    //     },
-    //     asyncError() {
-    //       return new Promise(() {
-    //         throw new Error('Error getting asyncError');
-    //       });
-    //     },
-    //     asyncRawError() {
-    //       return new Promise(() {
-    //         // eslint-disable-next-line @typescript-eslint/no-throw-literal
-    //         throw 'Error getting asyncRawError';
-    //       });
-    //     },
-    //     asyncReturnError() {
-    //       return Promise.resolve(new Error('Error getting asyncReturnError'));
-    //     },
-    //     asyncReturnErrorWithExtensions() {
-    //       final error = new Error('Error getting asyncReturnErrorWithExtensions');
-    //       // @ts-expect-error
-    //       error.extensions = { foo: 'bar' };
+      final rootValue = {
+        'sync': () {
+          return 'sync';
+        },
+        'syncError': () {
+          throw GraphQLExceptionError('Error getting syncError');
+        },
+        'syncRawError': () {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
+          throw 'Error getting syncRawError';
+        },
+        'syncReturnError': () {
+          return throw GraphQLExceptionError('Error getting syncReturnError');
+        },
+        'syncReturnErrorList': () {
+          // TODO: didn't throw
+          return [
+            'sync0',
+            () => throw GraphQLExceptionError(
+                'Error getting syncReturnErrorList1'),
+            'sync2',
+            () => throw GraphQLExceptionError(
+                'Error getting syncReturnErrorList3'),
+          ];
+        },
+        'async': () {
+          return Future.microtask(() => 'async');
+        },
+        'asyncReject': () {
+          return Future<Object>.microtask(
+            () => Future.error(
+                GraphQLExceptionError('Error getting asyncReject')),
+          );
+        },
+        'asyncRawReject': () {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          return Future<Object>.error('Error getting asyncRawReject');
+        },
+        'asyncEmptyReject': () {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          return Future<Object>.error('');
+        },
+        'asyncError': () {
+          return Future.microtask(() {
+            throw GraphQLExceptionError('Error getting asyncError');
+          });
+        },
+        'asyncRawError': () {
+          return Future.microtask(() {
+            // eslint-disable-next-line @typescript-eslint/no-throw-literal
+            throw 'Error getting asyncRawError';
+          });
+        },
+        'asyncReturnError': () async {
+          // TODO: didn't throw
+          // TODO: support async errors?
+          // return throw Future.value(
+          //   GraphQLExceptionError('Error getting asyncReturnError'),
+          // );
+          return throw GraphQLExceptionError('Error getting asyncReturnError');
+        },
+        'asyncReturnErrorWithExtensions': () {
+          final error = GraphQLExceptionError(
+            'Error getting asyncReturnErrorWithExtensions',
+            extensions: {'foo': 'bar'},
+          );
 
-    //       return Promise.resolve(error);
-    //     },
-    //   };
+          // TODO: didn't throw
+          // TODO: support async errors?
+          // return throw Future.value(error);
+          return Future.value(error).then((value) => throw value);
+        },
+      };
 
-    //   final result = await execute({ schema, document, rootValue });
-    //   expectJSON(result).to.deep.equal({
-    //     data: {
-    //       sync: 'sync',
-    //       syncError: null,
-    //       syncRawError: null,
-    //       syncReturnError: null,
-    //       syncReturnErrorList: ['sync0', null, 'sync2', null],
-    //       async: 'async',
-    //       asyncReject: null,
-    //       asyncRawReject: null,
-    //       asyncEmptyReject: null,
-    //       asyncError: null,
-    //       asyncRawError: null,
-    //       asyncReturnError: null,
-    //       asyncReturnErrorWithExtensions: null,
-    //     },
-    //     errors: [
-    //       {
-    //         message: 'Error getting syncError',
-    //         locations: [{ line: 4, column: 9 }],
-    //         path: ['syncError'],
-    //       },
-    //       {
-    //         message: 'Unexpected error value: "Error getting syncRawError"',
-    //         locations: [{ line: 5, column: 9 }],
-    //         path: ['syncRawError'],
-    //       },
-    //       {
-    //         message: 'Error getting syncReturnError',
-    //         locations: [{ line: 6, column: 9 }],
-    //         path: ['syncReturnError'],
-    //       },
-    //       {
-    //         message: 'Error getting syncReturnErrorList1',
-    //         locations: [{ line: 7, column: 9 }],
-    //         path: ['syncReturnErrorList', 1],
-    //       },
-    //       {
-    //         message: 'Error getting syncReturnErrorList3',
-    //         locations: [{ line: 7, column: 9 }],
-    //         path: ['syncReturnErrorList', 3],
-    //       },
-    //       {
-    //         message: 'Error getting asyncReject',
-    //         locations: [{ line: 9, column: 9 }],
-    //         path: ['asyncReject'],
-    //       },
-    //       {
-    //         message: 'Unexpected error value: "Error getting asyncRawReject"',
-    //         locations: [{ line: 10, column: 9 }],
-    //         path: ['asyncRawReject'],
-    //       },
-    //       {
-    //         message: 'Unexpected error value: undefined',
-    //         locations: [{ line: 11, column: 9 }],
-    //         path: ['asyncEmptyReject'],
-    //       },
-    //       {
-    //         message: 'Error getting asyncError',
-    //         locations: [{ line: 12, column: 9 }],
-    //         path: ['asyncError'],
-    //       },
-    //       {
-    //         message: 'Unexpected error value: "Error getting asyncRawError"',
-    //         locations: [{ line: 13, column: 9 }],
-    //         path: ['asyncRawError'],
-    //       },
-    //       {
-    //         message: 'Error getting asyncReturnError',
-    //         locations: [{ line: 14, column: 9 }],
-    //         path: ['asyncReturnError'],
-    //       },
-    //       {
-    //         message: 'Error getting asyncReturnErrorWithExtensions',
-    //         locations: [{ line: 15, column: 9 }],
-    //         path: ['asyncReturnErrorWithExtensions'],
-    //         extensions: { foo: 'bar' },
-    //       },
-    //     ],
-    //   });
-    // });
+      final result = await GraphQL(schema)
+          .parseAndExecute(document, initialValue: rootValue);
+
+      expect(result.toJson(), {
+        'data': {
+          'sync': 'sync',
+          'syncError': null,
+          'syncRawError': null,
+          'syncReturnError': null,
+          'syncReturnErrorList': ['sync0', null, 'sync2', null],
+          'async': 'async',
+          'asyncReject': null,
+          'asyncRawReject': null,
+          'asyncEmptyReject': null,
+          'asyncError': null,
+          'asyncRawError': null,
+          'asyncReturnError': null,
+          'asyncReturnErrorWithExtensions': null,
+        },
+        'errors': unorderedEquals(<Object>[
+          {
+            'message': 'Error getting syncError',
+            'locations': [
+              {'line': 2, 'column': 10}
+            ],
+            'path': ['syncError'],
+          },
+          {
+            // Unexpected error value:
+            'message': 'Error getting syncRawError',
+            'locations': [
+              {'line': 3, 'column': 10}
+            ],
+            'path': ['syncRawError'],
+          },
+          {
+            'message': 'Error getting syncReturnError',
+            'locations': [
+              {'line': 4, 'column': 10}
+            ],
+            'path': ['syncReturnError'],
+          },
+          {
+            'message': 'Error getting syncReturnErrorList1',
+            'locations': [
+              {'line': 5, 'column': 10}
+            ],
+            'path': ['syncReturnErrorList', 1],
+          },
+          {
+            'message': 'Error getting syncReturnErrorList3',
+            'locations': [
+              {'line': 5, 'column': 10}
+            ],
+            'path': ['syncReturnErrorList', 3],
+          },
+          {
+            'message': 'Error getting asyncReject',
+            'locations': [
+              {'line': 7, 'column': 10}
+            ],
+            'path': ['asyncReject'],
+          },
+          {
+            // Unexpected error value:
+            'message': 'Error getting asyncRawReject',
+            'locations': [
+              {'line': 8, 'column': 10}
+            ],
+            'path': ['asyncRawReject'],
+          },
+          {
+            // Unexpected error value: undefined
+            'message': '',
+            'locations': [
+              {'line': 9, 'column': 10}
+            ],
+            'path': ['asyncEmptyReject'],
+          },
+          {
+            'message': 'Error getting asyncError',
+            'locations': [
+              {'line': 10, 'column': 10}
+            ],
+            'path': ['asyncError'],
+          },
+          {
+            // Unexpected error value:
+            'message': 'Error getting asyncRawError',
+            'locations': [
+              {'line': 11, 'column': 10}
+            ],
+            'path': ['asyncRawError'],
+          },
+          {
+            'message': 'Error getting asyncReturnError',
+            'locations': [
+              {'line': 12, 'column': 10}
+            ],
+            'path': ['asyncReturnError'],
+          },
+          {
+            'message': 'Error getting asyncReturnErrorWithExtensions',
+            'locations': [
+              {'line': 13, 'column': 10}
+            ],
+            'path': ['asyncReturnErrorWithExtensions'],
+            'extensions': {'foo': 'bar'},
+          },
+        ]),
+      });
+    });
 
     test('nulls error subtree for promise rejection #1071', () async {
       final schema = GraphQLSchema(
