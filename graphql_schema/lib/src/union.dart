@@ -12,14 +12,14 @@ class GraphQLUnionType<P extends Object>
   final String name;
 
   /// A list of all types that conform to this union.
-  final List<GraphQLType<P, Map<String, dynamic>>> possibleTypes = [];
+  final List<GraphQLObjectType<P>> possibleTypes = [];
 
   @override
   final String? description;
 
   GraphQLUnionType(
     this.name,
-    Iterable<GraphQLType<P, Map<String, dynamic>>> possibleTypes, {
+    Iterable<GraphQLObjectType<P>> possibleTypes, {
     this.description,
   })
   // TODO:

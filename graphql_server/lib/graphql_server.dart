@@ -558,7 +558,12 @@ class GraphQL {
       field: field,
       parentCtx: ctx,
       pathItem: pathItem,
-      groupedFieldSet: possibleSelections(field.type, pathItem, ctx),
+      lookahead: possibleSelectionsCallback(
+        field.type,
+        ctx.groupedFieldSet[pathItem]!,
+        ctx.document,
+        ctx.variableValues,
+      ),
     );
 
     final Object? result;
@@ -864,42 +869,107 @@ class GraphQL {
     return coercedValues;
   }
 
-  Map<String, List<FieldNode>>? Function() possibleSelections(
+  PossibleSelections? Function() possibleSelectionsCallback(
     GraphQLType type,
-    String pathItem,
-    ResolveObjectCtx ctx,
+    List<FieldNode> fields,
+    DocumentNode document,
+    Map<String, Object?> variableValues,
   ) {
     bool calculated = false;
-    Map<String, List<FieldNode>>? _value;
+    PossibleSelections? _value;
     return () {
       if (calculated) return _value;
 
       final possibleObjects = <GraphQLObjectType>[];
+
+      void _mapperType(GraphQLTypeWrapper nn) {
+        final ofType = nn.ofType.realType;
+        if (ofType is GraphQLObjectType) {
+          possibleObjects.add(ofType);
+        } else if (ofType is GraphQLUnionType) {
+          possibleObjects.addAll(ofType.possibleTypes);
+        } else if (ofType is GraphQLTypeWrapper) {
+          _mapperType(ofType as GraphQLTypeWrapper);
+        }
+      }
+
       type.whenOrNull(
         object: (obj) {
-          if (obj.isInterface) {
-            possibleObjects.addAll(obj.possibleTypes);
-          } else {
-            possibleObjects.add(obj);
-          }
+          // if (obj.isInterface) {
+          //   possibleObjects.addAll(obj.possibleTypes);
+          // } else {
+          possibleObjects.add(obj);
+          // }
         },
-        union: (union) => possibleObjects.addAll(union.possibleTypes.cast()),
+        union: (union) => possibleObjects.addAll(union.possibleTypes),
+        nonNullable: _mapperType,
+        list: _mapperType,
       );
       if (possibleObjects.isNotEmpty) {
-        final selectionSet = mergeSelectionSets(
-          ctx.groupedFieldSet[pathItem]!,
-        );
+        final selectionSet = mergeSelectionSets(fields);
 
-        _value = Map.fromEntries(
-          possibleObjects.expand((e) {
-            final groupedFields = collectFields(
-              ctx.document,
-              e,
-              selectionSet,
-              ctx.variableValues,
-            );
-            return groupedFields.entries;
-          }),
+        _value = PossibleSelections(
+          Map.fromEntries(
+            possibleObjects.map((obj) {
+              final nonAlised = collectFields(
+                document,
+                obj,
+                selectionSet,
+                variableValues,
+                aliased: false,
+              );
+
+              // final Map<String, List<FieldNode>> nonAlised =
+              //     groupedFields.entries.fold(
+              //   {},
+              //   (map, e) {
+              //     final list = map.putIfAbsent(
+              //       e.value.first.name.value,
+              //       () => [],
+              //     );
+              //     list.addAll(e.value);
+              //     return map;
+              //   },
+              // );
+
+              Iterable<MapEntry<String, PossibleSelections? Function()>>
+                  _mapEntries(
+                Iterable<MapEntry<String, List<FieldNode>>> entries,
+              ) {
+                return entries.map(
+                  (e) {
+                    final fieldName = e.value.first.name.value;
+                    final field = obj.fields.firstWhereOrNull(
+                      (f) => f.name == fieldName,
+                    );
+                    if (field == null) {
+                      // TODO: should we do something else?
+                      return null;
+                    }
+                    return MapEntry(
+                      e.key,
+                      possibleSelectionsCallback(
+                        field.type,
+                        e.value,
+                        document,
+                        variableValues,
+                      ),
+                    );
+                  },
+                ).whereType();
+              }
+
+              return MapEntry(
+                obj.name,
+                PossibleSelectionsObject(
+                  Map.fromEntries(
+                    _mapEntries(nonAlised.entries),
+                  ),
+                ),
+              );
+            }),
+          ),
+          fields,
         );
       }
       calculated = true;
@@ -922,7 +992,12 @@ class GraphQL {
       parentCtx: ctx,
       field: field,
       pathItem: pathItem,
-      groupedFieldSet: possibleSelections(field.type, pathItem, ctx),
+      lookahead: possibleSelectionsCallback(
+        field.type,
+        ctx.groupedFieldSet[pathItem]!,
+        ctx.document,
+        ctx.variableValues,
+      ),
     );
 
     if (objectValue is SubscriptionEvent) {
@@ -1207,16 +1282,13 @@ class GraphQL {
     SelectionSetNode selectionSet,
     Map<String, dynamic> variableValues, {
     List<Object?>? visitedFragments,
+    bool aliased = true,
   }) {
     final groupedFields = <String, List<FieldNode>>{};
     visitedFragments ??= [];
 
     for (final selection in selectionSet.selections) {
-      final directives = selection is FieldNode
-          ? selection.directives
-          : selection is FragmentSpreadNode
-              ? selection.directives
-              : (selection as InlineFragmentNode).directives;
+      final directives = selection.directives;
       if (getDirectiveValue('skip', 'if', directives, variableValues) == true) {
         continue;
       }
@@ -1226,7 +1298,9 @@ class GraphQL {
       }
 
       if (selection is FieldNode) {
-        final responseKey = selection.alias?.value ?? selection.name.value;
+        final responseKey = aliased
+            ? (selection.alias?.value ?? selection.name.value)
+            : selection.name.value;
         final groupForResponseKey =
             groupedFields.putIfAbsent(responseKey, () => []);
         groupForResponseKey.add(selection);
@@ -1244,7 +1318,7 @@ class GraphQL {
         final fragmentSelectionSet = fragment.selectionSet;
         final fragmentGroupFieldSet = collectFields(
             document, objectType, fragmentSelectionSet, variableValues,
-            visitedFragments: visitedFragments);
+            visitedFragments: visitedFragments, aliased: aliased);
 
         for (final groupEntry in fragmentGroupFieldSet.entries) {
           final responseKey = groupEntry.key;
@@ -1260,7 +1334,7 @@ class GraphQL {
         final fragmentSelectionSet = selection.selectionSet;
         final fragmentGroupFieldSet = collectFields(
             document, objectType, fragmentSelectionSet, variableValues,
-            visitedFragments: visitedFragments);
+            visitedFragments: visitedFragments, aliased: aliased);
 
         for (final groupEntry in fragmentGroupFieldSet.entries) {
           final responseKey = groupEntry.key;
@@ -1311,4 +1385,27 @@ class SubscriptionEvent {
   final Object? value;
 
   const SubscriptionEvent._(this.value);
+}
+
+extension DirectiveExtension on SelectionNode {
+  List<DirectiveNode> get directives {
+    final selection = this;
+    return selection is FieldNode
+        ? selection.directives
+        : selection is FragmentSpreadNode
+            ? selection.directives
+            : (selection as InlineFragmentNode).directives;
+  }
+
+  T when<T>({
+    required T Function(FieldNode) field,
+    required T Function(FragmentSpreadNode) fragmentSpread,
+    required T Function(InlineFragmentNode) inlineFragment,
+  }) {
+    final selection = this;
+    if (selection is FieldNode) return field(selection);
+    if (selection is FragmentSpreadNode) return fragmentSpread(selection);
+    if (selection is InlineFragmentNode) return inlineFragment(selection);
+    throw Error();
+  }
 }

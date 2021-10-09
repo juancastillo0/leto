@@ -18,7 +18,7 @@ class ReqCtx<P extends Object> {
 
   List<Object> get path => parentCtx.path.followedBy([pathItem]).toList();
 
-  final Map<String, List<FieldNode>>? Function() groupedFieldSet;
+  final PossibleSelections? Function() lookahead;
 
   const ReqCtx({
     required this.globals,
@@ -27,7 +27,7 @@ class ReqCtx<P extends Object> {
     required this.parentCtx,
     required this.field,
     required this.pathItem,
-    required this.groupedFieldSet,
+    required this.lookahead,
   });
 
   ReqCtx<T> cast<T extends Object>() {
@@ -41,7 +41,7 @@ class ReqCtx<P extends Object> {
       parentCtx: parentCtx,
       pathItem: pathItem,
       field: field,
-      groupedFieldSet: groupedFieldSet,
+      lookahead: lookahead,
     );
   }
 
@@ -58,6 +58,33 @@ class ReqCtx<P extends Object> {
     Map<Object, Object?> globals,
   ) =>
       globals[_responseHeadersCtxKey] as Map<String, String>?;
+}
+
+class PossibleSelections {
+  final Map<String, PossibleSelectionsObject> unionMap;
+  final List<FieldNode> fieldNodes;
+
+  PossibleSelectionsObject get asObject {
+    assert(!isUnion);
+    return unionMap.values.first;
+  }
+
+  bool get isUnion => unionMap.length > 1;
+
+  PossibleSelections(
+    this.unionMap,
+    this.fieldNodes,
+  );
+}
+
+class PossibleSelectionsObject {
+  final Map<String, PossibleSelections? Function()> map;
+
+  PossibleSelectionsObject(this.map);
+
+  bool contains(String fieldName) => map.containsKey(fieldName);
+
+  PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
 }
 
 class ResolveCtx {
