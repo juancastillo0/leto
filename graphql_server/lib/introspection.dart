@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart' show IterableExtension;
-import 'package:gql/ast.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 
 /// Performs introspection over a GraphQL [schema], and returns a one,
@@ -41,8 +40,9 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     ),
     field(
       'directives',
-      listOf(directiveType).nonNull(),
-      resolve: (_, __) => <Object?>[], // TODO: Actually fetch directives
+      listOf(directiveType.nonNull()).nonNull(),
+      description: 'A list of all directives supported by this server.',
+      resolve: (_, __) => schema.directives,
     ),
   ]);
 
@@ -353,44 +353,63 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
   ]);
 }
 
-final GraphQLEnumType<String> _directiveLocationType =
-    enumTypeFromStrings('__DirectiveLocation', [
-  'QUERY',
-  'MUTATION',
-  'FIELD',
-  'FRAGMENT_DEFINITION',
-  'FRAGMENT_SPREAD',
-  'INLINE_FRAGMENT'
-]);
+final GraphQLEnumType<String> _directiveLocationType = enumTypeFromStrings(
+  '__DirectiveLocation',
+  [
+    ...DirectiveLocation.values.map((e) => e.toJson()),
+  ],
+  description:
+      'A Directive can be adjacent to many parts of the GraphQL language,'
+      ' a __DirectiveLocation describes one such possible adjacencies.',
+);
 
-GraphQLObjectType<gql.DirectiveNode>? _directiveType;
-GraphQLObjectType<gql.DirectiveNode> _reflectDirectiveType() {
+GraphQLObjectType<GraphQLDirective>? _directiveType;
+GraphQLObjectType<GraphQLDirective> _reflectDirectiveType() {
   final inputValueType = _reflectInputValueType();
 
-  // TODO: What actually is this???
-  return _directiveType ??= objectType('__Directive', fields: [
-    field(
-      'name',
-      graphQLString.nonNull(),
-      resolve: (obj, _) => obj.name.value,
-    ),
-    field(
-      'description',
-      graphQLString,
-      resolve: (obj, _) => null,
-    ),
-    field(
-      'locations',
-      listOf(_directiveLocationType.nonNull()).nonNull(),
-      // TODO: Fetch directiveLocation
-      resolve: (obj, _) => <String>[],
-    ),
-    field(
-      'args',
-      listOf(inputValueType.nonNull()).nonNull(),
-      resolve: (obj, _) => <Map<String, Object?>>[],
-    ),
-  ]);
+  return _directiveType ??= objectType(
+    '__Directive',
+    description: '''
+A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
+In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
+''',
+    fields: [
+      field(
+        'name',
+        graphQLString.nonNull(),
+        resolve: (obj, _) => obj.name,
+      ),
+      field(
+        'description',
+        graphQLString,
+        resolve: (obj, _) => obj.description,
+      ),
+      field(
+        'description',
+        graphQLBoolean.nonNull(),
+        resolve: (obj, _) => obj.isRepeatable,
+      ),
+      field(
+        'locations',
+        listOf(_directiveLocationType.nonNull()).nonNull(),
+        resolve: (obj, _) => obj.locations.map((e) => e.toJson()).toList(),
+      ),
+      field(
+        'args',
+        listOf(inputValueType.nonNull()).nonNull(),
+        resolve: (obj, ctx) => ctx.args['includeDeprecated'] == true
+            ? obj.args
+            : obj.args.where((e) => e.deprecationReason == null).toList(),
+        inputs: [
+          GraphQLFieldInput(
+            'includeDeprecated',
+            graphQLBoolean,
+            defaultValue: false,
+          )
+        ],
+      ),
+    ],
+  );
 }
 
 GraphQLObjectType<GraphQLEnumValue>? _enumValueType;
