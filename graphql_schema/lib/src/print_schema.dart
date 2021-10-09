@@ -4,17 +4,6 @@
 
 part of graphql_schema.src.schema;
 
-const DEFAULT_DEPRECATION_REASON = 'No longer supported';
-
-bool isSpecifiedDirective(GraphQLDirective directive) {
-  return const [
-    'GraphQLIncludeDirective',
-    'GraphQLSkipDirective',
-    'GraphQLDeprecatedDirective',
-    'GraphQLSpecifiedByDirective',
-  ].contains(directive.name);
-}
-
 bool isIntrospectionType(GraphQLType type) {
   return const [
     '__Schema',
@@ -25,16 +14,6 @@ bool isIntrospectionType(GraphQLType type) {
     '__InputValue',
     '__EnumValue',
     '__TypeKind',
-  ].contains(type.name);
-}
-
-bool isSpecifiedScalarType(GraphQLType type) {
-  return const [
-    'String',
-    'Int',
-    'Float',
-    'Boolean',
-    'ID',
   ].contains(type.name);
 }
 
@@ -351,25 +330,6 @@ String printAST(String t) => '"$t"';
 
 String? astFromValue(Object? value, GraphQLType type) => value?.toString();
 
-class GraphQLDirective {
-  final String name;
-  final String? description;
-  final List<DirectiveLocationEnum> locations;
-  final List<GraphQLFieldInput> args;
-  final bool isRepeatable;
-  final Map<String, Object?>? extensions;
-  // ?DirectiveDefinitionNode astNode;
-
-  const GraphQLDirective({
-    required this.name,
-    this.description,
-    required this.locations,
-    required this.args,
-    required this.isRepeatable,
-    this.extensions,
-  });
-}
-
 // export type GraphQLInputType =
 //   | GraphQLScalarType
 //   | GraphQLEnumType
@@ -381,29 +341,6 @@ class GraphQLDirective {
 //       | GraphQLInputObjectType
 //       | GraphQLList<any>
 //     >;
-
-enum DirectiveLocationEnum {
-  QUERY,
-  MUTATION,
-  SUBSCRIPTION,
-  FIELD,
-  FRAGMENT_DEFINITION,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  VARIABLE_DEFINITION,
-  // Type System Definitions
-  SCHEMA,
-  SCALAR,
-  OBJECT,
-  FIELD_DEFINITION,
-  ARGUMENT_DEFINITION,
-  INTERFACE,
-  UNION,
-  ENUM,
-  ENUM_VALUE,
-  INPUT_OBJECT,
-  INPUT_FIELD_DEFINITION,
-}
 
 /// Print a block string in the indented block form by adding a leading and
 /// trailing blank line. However, if a block string starts with whitespace and

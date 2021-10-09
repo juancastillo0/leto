@@ -11,6 +11,7 @@ import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
 part 'decorators.dart';
+part 'directive.dart';
 part 'enum.dart';
 part 'error.dart';
 part 'field.dart';
@@ -26,7 +27,6 @@ part 'validation_result.dart';
 
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
-  // TODO: rename queryType to query
   /// The shape which all queries against the backend must take.
   final GraphQLObjectType<Object>? queryType;
 
@@ -53,9 +53,10 @@ class GraphQLSchema {
     this.mutationType,
     this.subscriptionType,
     this.description,
-    this.directives = const [],
+    List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
-  }) : serdeCtx = serdeCtx ?? SerdeCtx()
+  })  : serdeCtx = serdeCtx ?? SerdeCtx(),
+        directives = directives ?? GraphQLDirective.specifiedDirectives
   // ,assert(
   //   subscriptionType == null ||
   //       subscriptionType.fields

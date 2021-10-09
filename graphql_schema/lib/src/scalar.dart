@@ -34,6 +34,16 @@ final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
   'a float',
 );
 
+bool isSpecifiedScalarType(GraphQLType type) {
+  return const [
+    'String',
+    'Int',
+    'Float',
+    'Boolean',
+    'ID',
+  ].contains(type.name);
+}
+
 abstract class GraphQLScalarType<Value extends Object,
         Serialized extends Object> extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
