@@ -15,7 +15,7 @@ GraphQLSchema makeBooksSchema() {
   //   print('bookAddedStream $d');
   // });
 
-  return graphQLSchema(
+  return GraphQLSchema(
     queryType: objectType(
       'Queries',
       fields: [

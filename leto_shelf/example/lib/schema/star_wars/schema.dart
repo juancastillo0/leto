@@ -297,7 +297,8 @@ final queryType = objectType<Object>(
       ],
       resolve: (_source, ctx) => getHuman(ctx.args['id']! as String),
     ),
-    // Generated
+
+    /// Generated from the [droid] function
     droidGraphQLField,
     // droidGraphQlType.field(
     //   'droid',

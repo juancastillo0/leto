@@ -24,7 +24,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
 
   String? _schemaString;
 
-  final base = graphQLSchema(
+  final base = GraphQLSchema(
     serdeCtx: SerdeCtx()..addAll([UploadedFileMeta.serializer]),
     queryType: objectType(
       'Queries',

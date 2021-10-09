@@ -5,7 +5,7 @@ import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
 import 'package:shelf_graphql_example/schema/generator_test.dart';
 import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
 
-final graphqlApiSchema = graphQLSchema(
+final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
     ..addAll([
       dBEventSerializer,
