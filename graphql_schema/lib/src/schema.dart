@@ -3,7 +3,7 @@ library graphql_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:gql/ast.dart' show DocumentNode, FieldNode;
+import 'package:gql/ast.dart' show DocumentNode, FieldNode, OperationDefinitionNode;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart';
 import 'package:source_span/source_span.dart';

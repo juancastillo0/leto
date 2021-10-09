@@ -65,6 +65,7 @@ class ResolveCtx {
   final GraphQLSchema schema;
   SerdeCtx get serdeCtx => schema.serdeCtx;
   final DocumentNode document;
+  final OperationDefinitionNode operation;
   final Object rootValue;
   final Map<String, dynamic> variableValues;
   final Map<Object, dynamic> globalVariables;
@@ -73,6 +74,7 @@ class ResolveCtx {
   ResolveCtx({
     required this.schema,
     required this.document,
+    required this.operation,
     required this.rootValue,
     required this.variableValues,
     required this.globalVariables,
@@ -133,17 +135,3 @@ class ResolveObjectCtx<P extends Object> {
     return _serializedObject;
   }
 }
-
-// class ResolveFieldCtx<T, P> {
-//   final ResolveObjectCtx<P> objectCtx;
-//   final String fieldName;
-//   final FieldNode field;
-//   final GraphQLObjectField<T, Object?, P> objectField;
-
-//   const ResolveFieldCtx({
-//     required this.objectCtx,
-//     required this.fieldName,
-//     required this.field,
-//     required this.objectField,
-//   });
-// }

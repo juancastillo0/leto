@@ -223,6 +223,7 @@ class GraphQL {
         coerceVariableValues(schema, operation, variableValues);
     final ctx = ResolveCtx(
       document: document,
+      operation: operation,
       globalVariables: globalVariables,
       schema: schema,
       variableValues: coercedVariableValues,
@@ -459,6 +460,7 @@ class GraphQL {
       handleData: (event, sink) {
         final ctx = ResolveCtx(
           document: baseCtx.document,
+          operation: baseCtx.operation,
           extensions: baseCtx.extensions,
           rootValue: baseCtx.rootValue,
           globalVariables: <Object, Object?>{...baseCtx.globalVariables},
@@ -506,7 +508,7 @@ class GraphQL {
         });
       },
       handleError: (error, stackTrace, sink) {
-        if (handleSubscriptionError && error is Exception) {
+        if (handleSubscriptionError) {
           prev.then(
             (Object? value) {
               final exception = GraphQLException.fromException(
@@ -574,7 +576,7 @@ class GraphQL {
           'Could not resolve subscription field event stream for $fieldName.',
         );
       }
-    } on Exception catch (e) {
+    } catch (e) {
       throw GraphQLException.fromException(
         e,
         [fieldNode.alias?.value ?? fieldName],
@@ -629,10 +631,6 @@ class GraphQL {
       );
     }
 
-    // If during ExecuteSelectionSet() a field with a non‐null fieldType throws
-    // a field error then that error must propagate to this entire selection set,
-    // either resolving to null if allowed or further propagated to a parent field.
-    // TODO: try {}
     for (final groupEntry in groupedFieldSet.entries) {
       final responseKey = groupEntry.key;
       final fields = groupEntry.value;
@@ -681,7 +679,7 @@ class GraphQL {
               objectCtx,
               objectField,
             );
-          } on Exception catch (e) {
+          } catch (e) {
             final err =
                 GraphQLException.fromException(e, fieldPath, span: fieldSpan);
             if (objectField.type.isNullable) {
@@ -1071,6 +1069,7 @@ class GraphQL {
           final listCtx = ResolveObjectCtx(
             base: ctx.base,
             pathItem: pathItem,
+            // TODO: objectType, objectValue, groupedFieldSet do not apply for lists
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
             groupedFieldSet: ctx.groupedFieldSet,
@@ -1091,7 +1090,7 @@ class GraphQL {
                     resultItem,
                     pathItem: _i,
                   );
-                } on Exception catch (error) {
+                } catch (error) {
                   final field = fields.first;
                   final fieldSpan = field is FieldNode
                       ? field.span ?? field.alias?.span ?? field.name.span

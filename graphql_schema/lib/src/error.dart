@@ -39,7 +39,7 @@ class GraphQLException implements Exception {
   }
 
   factory GraphQLException.fromException(
-    Exception e,
+    Object e,
     List<Object> path, {
     FileSpan? span,
   }) {

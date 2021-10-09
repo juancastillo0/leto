@@ -157,16 +157,16 @@ GraphQLSchema buildSchema(
     }
   } else {
     for (final op in schemaDef.first.operationTypes) {
+      final typeName = op.type.name.value;
       switch (op.operation) {
         case OperationType.query:
-          queryType = types[op.type.name.value]!.key as GraphQLObjectType;
+          queryType = types[typeName]!.key as GraphQLObjectType;
           break;
         case OperationType.mutation:
-          mutationType = types[op.type.name.value]!.key as GraphQLObjectType;
+          mutationType = types[typeName]!.key as GraphQLObjectType;
           break;
         case OperationType.subscription:
-          subscriptionType =
-              types[op.type.name.value]!.key as GraphQLObjectType;
+          subscriptionType = types[typeName]!.key as GraphQLObjectType;
           break;
       }
     }
