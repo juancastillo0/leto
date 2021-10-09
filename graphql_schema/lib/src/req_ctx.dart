@@ -12,6 +12,7 @@ class ReqCtx<P extends Object> {
   final Map<Object, Object?> globals;
   final Map<String, Object?> args;
   final P object;
+  ResolveCtx get baseCtx => parentCtx.base;
   final ResolveObjectCtx<Object> parentCtx;
   final GraphQLObjectField<Object, Object, Object> field;
   final String pathItem;
