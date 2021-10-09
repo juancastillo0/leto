@@ -22,11 +22,21 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
     ],
   );
 
+  String? _schemaString;
+
   final base = graphQLSchema(
     serdeCtx: SerdeCtx()..addAll([UploadedFileMeta.serializer]),
     queryType: objectType(
       'Queries',
       fields: [
+        graphQLString.nonNull().field(
+          'apiSchema',
+          description: "The api's GraphQL schema in the"
+              ' GraphQL Schema Definition Language (SDL).',
+          resolve: (obj, ctx) {
+            return _schemaString ??= printSchema(ctx.baseCtx.schema);
+          },
+        ),
         field(
           'files',
           listOf(fileUploadType()),
