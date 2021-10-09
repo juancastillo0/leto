@@ -87,6 +87,24 @@ abstract class Cache<K, T> {
   // TODO: FutureOr
   T? get(K key);
   void set(K key, T value);
+  void delete(K key);
+  void clear();
+}
+
+class MapCache<K, V> implements Cache<K, V> {
+  final Map<K, V> stash = {};
+
+  @override
+  V? get(K key) => stash[key];
+
+  @override
+  void set(K key, V value) => stash[key] = value;
+
+  @override
+  void delete(K key) => stash.remove(key);
+
+  @override
+  void clear() => stash.clear();
 }
 
 /// Least Recently Used (LRU) cache implementation.
@@ -148,5 +166,19 @@ class LruCacheSimple<K, T> implements Cache<K, T> {
   void addFirst(K key, T value) {
     linkedList.addFirst(MapEntry(key, value));
     map[key] = linkedList.firstEntry()!;
+  }
+
+  @override
+  void clear() {
+    map.clear();
+    linkedList.clear();
+  }
+
+  @override
+  void delete(K key) {
+    final value = map.remove(key);
+    if (value != null) {
+      value.remove();
+    }
   }
 }
