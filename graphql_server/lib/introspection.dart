@@ -15,13 +15,18 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
 
   final schemaType = objectType<Object>('__Schema', fields: [
     field(
+      'description',
+      graphQLString,
+      resolve: (_, __) => schema.description,
+    ),
+    field(
       'types',
-      listOf(typeType),
+      listOf(typeType.nonNull()).nonNull(),
       resolve: (_, __) => allTypeSet ??= allTypes.toSet(),
     ),
     field(
       'queryType',
-      typeType,
+      typeType.nonNull(),
       resolve: (_, __) => schema.queryType,
     ),
     field(
@@ -138,7 +143,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
       fieldType.fields.add(
         field(
           'type',
-          _reflectSchemaTypes(),
+          _reflectSchemaTypes().nonNull(),
           resolve: (f, _) => f.type,
         ),
       );
@@ -150,7 +155,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
       inputValueType.fields.add(
         field(
           'type',
-          _reflectSchemaTypes(),
+          _reflectSchemaTypes().nonNull(),
           resolve: (f, _) => f.type,
         ),
       );
@@ -189,8 +194,14 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
       resolve: (type, _) => type.description,
     ),
     field(
+      'specifiedByURL',
+      graphQLString,
+      resolve: (type, _) =>
+          type is GraphQLScalarType ? type.specifiedByURL : null,
+    ),
+    field(
       'kind',
-      _typeKindType,
+      _typeKindType.nonNull(),
       resolve: (t, _) => t.when(
         enum_: (type) => 'ENUM',
         scalar: (type) => 'SCALAR',
@@ -203,7 +214,7 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
     ),
     field(
       'fields',
-      listOf(fieldType),
+      listOf(fieldType.nonNull()),
       inputs: [
         GraphQLFieldInput(
           'includeDeprecated',
@@ -213,9 +224,9 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
       ],
       resolve: (type, ctx) => type.whenOrNull(
         object: (type) {
+          final includeDeprecated = ctx.args['includeDeprecated'] == true;
           return type.fields
-              .where((f) =>
-                  !f.isDeprecated || ctx.args['includeDeprecated'] == true)
+              .where((f) => !f.isDeprecated || includeDeprecated)
               .toList();
         },
       ),
@@ -232,10 +243,9 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
       ],
       resolve: (type, ctx) => type.whenOrNull(
         enum_: (type) {
+          final includeDeprecated = ctx.args['includeDeprecated'] == true;
           return type.values
-              .where(
-                (f) => !f.isDeprecated || ctx.args['includeDeprecated'] == true,
-              )
+              .where((f) => !f.isDeprecated || includeDeprecated)
               .toList();
         },
       ),
@@ -243,7 +253,20 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
     field(
       'inputFields',
       listOf(inputValueType.nonNull()),
-      resolve: (obj, _) => obj.whenOrNull(input: (type) => type.inputFields),
+      inputs: [
+        GraphQLFieldInput(
+          'includeDeprecated',
+          graphQLBoolean,
+          defaultValue: false,
+        ),
+      ],
+      resolve: (obj, ctx) => obj.whenOrNull(
+        input: (type) => ctx.args['includeDeprecated'] == true
+            ? type.inputFields
+            : type.inputFields
+                .where((element) => element.deprecationReason == null)
+                .toList(),
+      ),
     ),
   ]);
 }
@@ -259,7 +282,7 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
   return objectType<GraphQLObjectField>('__Field', fields: [
     field(
       'name',
-      graphQLString,
+      graphQLString.nonNull(),
       resolve: (f, _) => f.name,
     ),
     field(
@@ -269,7 +292,7 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
     ),
     field(
       'isDeprecated',
-      graphQLBoolean,
+      graphQLBoolean.nonNull(),
       resolve: (f, _) => f.isDeprecated,
     ),
     field(
@@ -280,7 +303,18 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
     field(
       'args',
       listOf(inputValueType.nonNull()).nonNull(),
-      resolve: (f, _) => f.inputs,
+      inputs: [
+        GraphQLFieldInput(
+          'includeDeprecated',
+          graphQLBoolean,
+          defaultValue: false,
+        ),
+      ],
+      resolve: (f, ctx) => ctx.args['includeDeprecated'] == true
+          ? f.inputs
+          : f.inputs
+              .where((element) => element.deprecationReason == null)
+              .toList(),
     ),
   ]);
 }
@@ -301,7 +335,20 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
     field(
       'defaultValue',
       graphQLString,
+      description: 'A GraphQL-formatted string representing the default'
+          ' value for this input value.',
+      // TODO:
       resolve: (obj, _) => obj.defaultValue,
+    ),
+    field(
+      'isDeprecated',
+      graphQLBoolean.nonNull(),
+      resolve: (obj, _) => obj.deprecationReason != null,
+    ),
+    field(
+      'deprecationReason',
+      graphQLString,
+      resolve: (obj, _) => obj.deprecationReason,
     ),
   ]);
 }

@@ -72,7 +72,7 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object,
   }
 
   /// Returns `true` if this field has a [deprecationReason].
-  bool get isDeprecated => deprecationReason?.isNotEmpty == true;
+  bool get isDeprecated => deprecationReason != null;
 
   Serialized? serialize(Value value) {
     return type.serialize(value);
