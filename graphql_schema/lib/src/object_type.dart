@@ -296,11 +296,11 @@ class GraphQLInputObjectType<Value extends Object>
   }
 
   @override
-  Value deserialize(SerdeCtx serdeCtx, Map<String, Object?> value) {
+  Value deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
     if (customDeserialize != null) {
-      return customDeserialize!(value);
+      return customDeserialize!(serialized);
     } else {
-      return _valueFromJson(serdeCtx, value, inputFields);
+      return _valueFromJson(serdeCtx, serialized, inputFields);
     }
     // return value.keys.fold(<String, dynamic>{}, (out, k) {
     //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
@@ -317,49 +317,6 @@ class GraphQLInputObjectType<Value extends Object>
   @override
   GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;
 }
-
-/// A field expected within a [GraphQLInputObjectType].
-@immutable
-// class GraphQLInputObjectField<Value extends Object, Serialized extends Object>
-//     implements ObjectField, GraphQLInputField {
-//   /// The name of this field.
-//   final String name;
-
-//   /// The type that a value for this field is validated against.
-//   final GraphQLType<Value, Serialized> type;
-
-//   /// A description of this field, which is useful for tools like GraphiQL.
-//   final String? description;
-
-//   /// An optional default value for this field in an input object.
-//   final Value? defaultValue;
-
-//   final String? deprecationReason;
-
-//   const GraphQLInputObjectField(
-//     this.name,
-//     this.type, {
-//     this.description,
-//     this.defaultValue,
-//     this.deprecationReason,
-//   });
-
-//   @override
-//   bool operator ==(Object other) =>
-//       other is GraphQLInputObjectField &&
-//       other.runtimeType == runtimeType &&
-//       other.name == name &&
-//       other.type == type &&
-//       other.description == description &&
-//       other.defaultValue == defaultValue &&
-//       other.deprecationReason == deprecationReason;
-
-//   @override
-//   int get hashCode =>
-//       runtimeType.hashCode ^
-//       const DeepCollectionEquality()
-//           .hash([name, type, description, defaultValue, deprecationReason]);
-// }
 
 abstract class ObjectField {
   String get name;

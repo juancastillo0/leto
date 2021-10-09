@@ -1,4 +1,5 @@
 // https://github.com/graphql/graphql-js/blob/2d48fbbeb8718e4a0152d458145a9fe2111c0f8d/src/utilities/printSchema.js
+// ignore: lines_longer_than_80_chars
 // ignore_for_file: constant_identifier_names, prefer_interpolation_to_compose_strings
 
 part of graphql_schema.src.schema;
@@ -117,9 +118,9 @@ class SchemaPrinter {
         'schema {\n${operationTypes.join('\n')}\n}';
   }
 
-  /// GraphQL schema define root types for each type of operation. These types are
-  /// the same as any other type and can be named in any manner, however there is
-  /// a common naming convention:
+  /// GraphQL schema define root types for each type of operation. These types
+  /// are the same as any other type and can be named in any manner, however
+  /// there is a common naming convention:
   ///
   ///   schema {
   ///     query: Query
@@ -245,7 +246,7 @@ class SchemaPrinter {
   }
 
   String printArgs(
-    List<GraphQLInputField> args, [
+    List<GraphQLFieldInput> args, [
     String indentation = '',
   ]) {
     if (args.isEmpty) {
@@ -273,14 +274,10 @@ class SchemaPrinter {
         ')';
   }
 
-// GraphQLInputField => GraphQLInputObjectField, GraphQLArgument
-  String printInputValue(GraphQLInputField arg) {
+  // GraphQLInputField => GraphQLInputObjectField, GraphQLArgument
+  String printInputValue(GraphQLFieldInput arg) {
     var argDecl = arg.name + ': ' + printTypeReference(arg.type);
-    final defaultValue = arg is GraphQLArgument
-        ? arg.defaultValue
-        : arg is GraphQLFieldInput
-            ? arg.defaultValue
-            : null;
+    final defaultValue = arg.defaultValue;
     if (defaultValue != null) {
       final defaultAST = astFromValue(defaultValue, arg.type);
       if (defaultAST != null) {
@@ -327,6 +324,7 @@ class SchemaPrinter {
   String printDescription(
     String? description, [
     String indentation = '',
+    // ignore: avoid_positional_boolean_parameters
     bool firstInBlock = true,
   ]) {
     if (description == null) {
@@ -334,7 +332,10 @@ class SchemaPrinter {
     }
 
     final preferMultipleLines = description.length > 70;
-    final blockString = printBlockString(description, preferMultipleLines);
+    final blockString = printBlockString(
+      description,
+      preferMultipleLines: preferMultipleLines,
+    );
     final prefix = indentation.isNotEmpty && !firstInBlock
         ? '\n' + indentation
         : indentation;
@@ -354,7 +355,7 @@ class GraphQLDirective {
   final String name;
   final String? description;
   final List<DirectiveLocationEnum> locations;
-  final List<GraphQLArgument> args;
+  final List<GraphQLFieldInput> args;
   final bool isRepeatable;
   final Map<String, Object?>? extensions;
   // ?DirectiveDefinitionNode astNode;
@@ -365,38 +366,6 @@ class GraphQLDirective {
     required this.locations,
     required this.args,
     required this.isRepeatable,
-    this.extensions,
-  });
-}
-
-abstract class GraphQLInputField {
-  String get name;
-  String? get description;
-  GraphQLType get type; // GraphQLInputType
-  String? get deprecationReason;
-  Object? get defaultValue;
-}
-
-class GraphQLArgument implements GraphQLInputField {
-  @override
-  final String name;
-  @override
-  final String? description;
-  @override
-  final GraphQLType type; // GraphQLInputType
-  @override
-  final Object? defaultValue;
-  @override
-  final String? deprecationReason;
-  final Map<String, Object?>? extensions;
-  // final InputValueDefinitionNode? astNode;
-
-  const GraphQLArgument({
-    required this.name,
-    this.description,
-    required this.type,
-    this.defaultValue,
-    this.deprecationReason,
     this.extensions,
   });
 }
@@ -437,14 +406,14 @@ enum DirectiveLocationEnum {
 }
 
 /// Print a block string in the indented block form by adding a leading and
-/// trailing blank line. However, if a block string starts with whitespace and is
-/// a single-line, adding a leading blank line would strip that whitespace.
+/// trailing blank line. However, if a block string starts with whitespace and
+/// is a single-line, adding a leading blank line would strip that whitespace.
 ///
 /// @internal
 String printBlockString(
-  String value, [
+  String value, {
   bool preferMultipleLines = false,
-]) {
+}) {
   final isSingleLine = !value.contains('\n');
   final hasLeadingSpace = value[0] == ' ' || value[0] == '\t';
   final hasTrailingQuote = value[value.length - 1] == '"';

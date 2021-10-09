@@ -2,10 +2,9 @@ part of graphql_schema.src.schema;
 
 /// An input to a GraphQL field. This is analogous
 /// to a function parameter in Dart.
-// TODO: GraphQLArgument
 @immutable
 class GraphQLFieldInput<Value extends Object, Serialized extends Object>
-    implements ObjectField, GraphQLInputField {
+    implements ObjectField {
   /// The name of this field.
   final String name;
 

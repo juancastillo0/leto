@@ -151,8 +151,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
         field(
           'type',
           _reflectSchemaTypes(),
-          resolve: (f, _) =>
-              _fetchFromInputValue(f, (f) => f.type, (f) => f.type),
+          resolve: (f, _) => f.type,
         ),
       );
     }
@@ -286,44 +285,23 @@ GraphQLObjectType<GraphQLObjectField> _createFieldType() {
   ]);
 }
 
-// TODO: remove
-T? _fetchFromInputValue<T>(
-  Object? x,
-  T Function(GraphQLFieldInput) ifInput,
-  T Function(GraphQLFieldInput) ifObjectField,
-) {
-  if (x is GraphQLFieldInput) {
-    return ifInput(x);
-  } else if (x is GraphQLFieldInput) {
-    return ifObjectField(x);
-  } else {
-    return null;
-  }
-}
-
-GraphQLObjectType<GraphQLInputField>? _inputValueType;
-GraphQLObjectType<GraphQLInputField> _reflectInputValueType() {
+GraphQLObjectType<GraphQLFieldInput>? _inputValueType;
+GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
   return _inputValueType ??= objectType('__InputValue', fields: [
     field(
       'name',
       graphQLString.nonNull(),
-      resolve: (obj, _) =>
-          _fetchFromInputValue(obj, (f) => f.name, (f) => f.name),
+      resolve: (obj, _) => obj.name,
     ),
     field(
       'description',
       graphQLString,
-      resolve: (obj, _) => _fetchFromInputValue<String?>(
-          obj, (f) => f.description, (f) => f.description),
+      resolve: (obj, _) => obj.description,
     ),
     field(
       'defaultValue',
       graphQLString,
-      resolve: (obj, _) => _fetchFromInputValue<String?>(
-        obj,
-        (f) => f.defaultValue?.toString(),
-        (f) => f.defaultValue?.toString(),
-      ),
+      resolve: (obj, _) => obj.defaultValue,
     ),
   ]);
 }
