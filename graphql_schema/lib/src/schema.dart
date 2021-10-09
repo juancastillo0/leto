@@ -16,7 +16,6 @@ part 'field.dart';
 part 'gen.dart';
 part 'object_type.dart';
 part 'print_schema.dart';
-part 'ref_type.dart';
 part 'req_ctx.dart';
 part 'scalar.dart';
 part 'serde_ctx.dart';
