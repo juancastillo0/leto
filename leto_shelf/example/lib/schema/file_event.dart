@@ -45,6 +45,12 @@ class FileEvent with _$FileEvent {
 
 GraphQLUnionType<FileEvent>? _fileEventType;
 GraphQLUnionType<FileEvent> fileEventType() {
+  if (_fileEventType != null) return _fileEventType!;
+  _fileEventType = GraphQLUnionType(
+    'FileEvent',
+    [],
+  );
+
   final typeDiscriminator = field<String, String, FileEvent>(
     'runtimeType',
     enumTypeFromStrings('FileEventType', [
@@ -54,51 +60,50 @@ GraphQLUnionType<FileEvent> fileEventType() {
       'many',
     ]),
   );
-  return _fileEventType ??= GraphQLUnionType(
-    'FileEvent',
-    [
-      objectType(
-        'FileEventAdded',
-        fields: [
-          typeDiscriminator,
-          field(
-            'fileUpload',
-            fileUploadType().nonNull(),
-          ),
-        ],
-      ),
-      objectType(
-        'FileEventRenamed',
-        fields: [
-          typeDiscriminator,
-          graphQLString.nonNull().field('filename'),
-          graphQLString.nonNull().field('newFilename'),
-        ],
-      ),
-      objectType(
-        'FileEventDeleted',
-        fields: [
-          typeDiscriminator,
-          graphQLString.nonNull().field('filename'),
-        ],
-      ),
-      objectType(
-        'FileEventMany',
-        fields: [
-          typeDiscriminator,
-          field(
-            'events',
-            listOf(refType(fileEventType)),
-          ),
-          field(
-            'size',
-            graphQLInt.nonNull(),
-            resolve: (event, ctx) {
-              return (event as FileEventMany).events.length;
-            },
-          ),
-        ],
-      ),
-    ],
-  );
+  _fileEventType!.possibleTypes.addAll([
+    objectType(
+      'FileEventAdded',
+      fields: [
+        typeDiscriminator,
+        field(
+          'fileUpload',
+          fileUploadType().nonNull(),
+        ),
+      ],
+    ),
+    objectType(
+      'FileEventRenamed',
+      fields: [
+        typeDiscriminator,
+        graphQLString.nonNull().field('filename'),
+        graphQLString.nonNull().field('newFilename'),
+      ],
+    ),
+    objectType(
+      'FileEventDeleted',
+      fields: [
+        typeDiscriminator,
+        graphQLString.nonNull().field('filename'),
+      ],
+    ),
+    objectType(
+      'FileEventMany',
+      fields: [
+        typeDiscriminator,
+        field(
+          'events',
+          listOf(fileEventType()),
+        ),
+        field(
+          'size',
+          graphQLInt.nonNull(),
+          resolve: (event, ctx) {
+            return (event as FileEventMany).events.length;
+          },
+        ),
+      ],
+    ),
+  ]);
+
+  return fileEventType();
 }

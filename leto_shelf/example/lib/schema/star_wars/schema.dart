@@ -87,7 +87,8 @@ final episodeEnum = GraphQLEnumType(
 // TODO: GraphQLInterfaceType
 GraphQLObjectType<Character>? _characterInterface;
 GraphQLObjectType<Character> characterInterface() {
-  return _characterInterface ??= objectType(
+  if (_characterInterface != null) return _characterInterface!;
+  _characterInterface = objectType(
     'Character',
     description: 'A character in the Star Wars Trilogy',
     isInterface: true,
@@ -99,11 +100,6 @@ GraphQLObjectType<Character> characterInterface() {
       graphQLString.field(
         'name',
         description: 'The name of the character.',
-      ),
-      listOf(refType(characterInterface)).field(
-        'friends',
-        description:
-            'The friends of the character, or an empty list if they have none.',
       ),
       listOf(episodeEnum).field(
         'appearsIn',
@@ -123,6 +119,16 @@ GraphQLObjectType<Character> characterInterface() {
     //   }
     // },
   );
+
+  _characterInterface!.fields.add(
+    listOf(characterInterface()).field(
+      'friends',
+      description:
+          'The friends of the character, or an empty list if they have none.',
+    ),
+  );
+
+  return characterInterface();
 }
 
 /// We define our human type, which implements the character interface.

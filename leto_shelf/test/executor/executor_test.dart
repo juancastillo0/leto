@@ -679,17 +679,17 @@ void main() {
     });
 
     test('Full response path is included for non-nullable fields', () async {
-      GraphQLObjectType<Object>? _A;
-      GraphQLObjectType<Object> A() {
-        return _A ??= objectType('A', fields: [
+      GraphQLObjectType<Object> A = () {
+        final A = objectType('A');
+        A.fields.addAll([
           field(
             'nullableA',
-            refType(A),
+            A,
             resolve: (_, __) => <String, Object?>{},
           ),
           field(
             'nonNullA',
-            refType(A).nonNull(),
+            A.nonNull(),
             resolve: (_, __) => <String, Object?>{},
           ),
           field(
@@ -700,13 +700,14 @@ void main() {
             },
           ),
         ]);
-      }
+        return A;
+      }();
 
       final schema = GraphQLSchema(
         queryType: objectType(
           'query',
           fields: [
-            A().nonNull().field(
+            A.nonNull().field(
                   'nullableA',
                   resolve: (_, __) => <String, Object?>{},
                 ),
