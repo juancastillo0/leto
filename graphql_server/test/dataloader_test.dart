@@ -1,999 +1,1172 @@
 // https://github.com/graphql/dataloader/blob/ef6d32f97cde16aba84d96dc806c4439eaf8efae/src/__tests__/dataloader.test.js
-/**
- * Copyright (c) 2019-present, GraphQL Foundation
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @flow
- */
+/// Copyright (c) 2019-present, GraphQL Foundation
+///
+/// This source code is licensed under the MIT license found in the
+/// LICENSE file in the root directory of this source tree.
+///
+/// @flow
 
-import type { Options } from '..';
-const DataLoader = require('..');
+import 'dart:async';
 
-function idLoader<K, C = K>(
-  options?: Options<K, K, C>
-): [ DataLoader<K, K, C>, Array<$ReadOnlyArray<K>> ] {
-  const loadCalls = [];
-  const identityLoader = new DataLoader(keys => {
-    loadCalls.push(keys);
-    return Promise.resolve(keys);
-  }, options);
-  return [ identityLoader, loadCalls ];
+import 'package:graphql_server/src/dataloader.dart';
+import 'package:graphql_server/src/persisted_queries.dart';
+import 'package:test/test.dart';
+
+_Loader<K, K> idLoader<K extends Object>([Options<K, K, K>? options]) {
+  final loadCalls = <List<K>>[];
+  return _Loader(
+    DataLoader(
+      (keys) {
+        loadCalls.add(keys);
+        return Future.value(keys);
+      },
+      options,
+    ),
+    loadCalls,
+  );
 }
 
-describe('Primary API', () => {
+_Loader<K, C> idLoaderMapped<K extends Object, C>([Options<K, K, C>? options]) {
+  final loadCalls = <List<K>>[];
+  return _Loader(
+    DataLoader(
+      (keys) {
+        loadCalls.add(keys);
+        return Future.value(keys);
+      },
+      options,
+    ),
+    loadCalls,
+  );
+}
 
-  it('builds a really really simple data loader', async () => {
-    const identityLoader = new DataLoader<number, number>(async keys => keys);
+class _Loader<K extends Object, C> {
+  final DataLoader<K, K, C> identityLoader;
+  final List<List<K>> loadCalls;
 
-    const promise1 = identityLoader.load(1);
-    expect(promise1).toBeInstanceOf(Promise);
+  _Loader(this.identityLoader, this.loadCalls);
+}
 
-    const value1 = await promise1;
-    expect(value1).toBe(1);
-  });
+void main() {
+  group('Argument errors', () {
+    test('Batch function must promise an Array of correct length', () async {
+      // Note: this resolves to empty array
+      final badLoader = DataLoader.unmapped<int, int>((_) async => <int>[]);
 
-  it('references the loader as "this" in the batch function', async () => {
-    let that;
-    const loader = new DataLoader<number, number>(async function (keys) {
-      that = this;
-      return keys;
-    });
-
-    // Trigger the batch function
-    await loader.load(1);
-
-    expect(that).toBe(loader);
-  });
-
-  it('references the loader as "this" in the cache key function', async () => {
-    let that;
-    const loader = new DataLoader<number, number>(async keys => keys, {
-      cacheKeyFn(key) {
-        that = this;
-        return key;
+      Object? caughtError;
+      try {
+        await badLoader.load(1);
+      } catch (error) {
+        caughtError = error;
       }
+      expect(caughtError, const TypeMatcher<StateError>());
+      expect(
+          (caughtError! as StateError).message,
+          'DataLoader must be constructed with a function which accepts '
+          'List<key> and returns Future<List<value>>, but the function did '
+          'not return a Future of an List of the same length as the List '
+          'of keys.'
+          '\n\nKeys:\n[1]'
+          '\n\nValues:\n[]');
     });
 
-    // Trigger the cache key function
-    await loader.load(1);
-
-    expect(that).toBe(loader);
-  });
-
-  it('supports loading multiple keys in one call', async () => {
-    const identityLoader = new DataLoader<number, number>(async keys => keys);
-
-    const promiseAll = identityLoader.loadMany([ 1, 2 ]);
-    expect(promiseAll).toBeInstanceOf(Promise);
-
-    const values = await promiseAll;
-    expect(values).toEqual([ 1, 2 ]);
-
-    const promiseEmpty = identityLoader.loadMany([]);
-    expect(promiseEmpty).toBeInstanceOf(Promise);
-
-    const empty = await promiseEmpty;
-    expect(empty).toEqual([]);
-  });
-
-  it('supports loading multiple keys in one call with errors', async () => {
-    const identityLoader = new DataLoader(keys =>
-      Promise.resolve(
-        keys.map(key => (key === 'bad' ? new Error('Bad Key') : key))
-      )
-    );
-
-    const promiseAll = identityLoader.loadMany([ 'a', 'b', 'bad' ]);
-    expect(promiseAll).toBeInstanceOf(Promise);
-
-    const values = await promiseAll;
-    expect(values).toEqual([ 'a', 'b', new Error('Bad Key') ]);
-  });
-
-  it('batches multiple requests', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>();
-
-    const promise1 = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
-
-    const [ value1, value2 ] = await Promise.all([ promise1, promise2 ]);
-    expect(value1).toBe(1);
-    expect(value2).toBe(2);
-
-    expect(loadCalls).toEqual([ [ 1, 2 ] ]);
-  });
-
-  it('batches multiple requests with max batch sizes', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>({ maxBatchSize: 2 });
-
-    const promise1 = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
-    const promise3 = identityLoader.load(3);
-
-    const [ value1, value2, value3 ] =
-      await Promise.all([ promise1, promise2, promise3 ]);
-    expect(value1).toBe(1);
-    expect(value2).toBe(2);
-    expect(value3).toBe(3);
-
-    expect(loadCalls).toEqual([ [ 1, 2 ], [ 3 ] ]);
-  });
-
-  it('batches cached requests', async () => {
-    const loadCalls = [];
-    let resolveBatch = () => {};
-    const identityLoader = new DataLoader<number, number>(keys => {
-      loadCalls.push(keys);
-      return new Promise(resolve => {
-        resolveBatch = () => resolve(keys);
-      });
+    test('Requires a positive number for maxBatchSize', () {
+      Object? caughtError;
+      try {
+        final _ = DataLoader<Object, Object, Object>(
+            (keys) async => keys, Options(maxBatchSize: 0));
+      } catch (error) {
+        caughtError = error;
+      }
+      expect(caughtError, const TypeMatcher<ArgumentError>());
+      expect((caughtError! as ArgumentError).message,
+          'maxBatchSize must be a positive number: 0');
     });
 
-    identityLoader.prime(1, 1);
-
-    const promise1 = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
-
-    // Track when each resolves.
-    let promise1Resolved = false;
-    let promise2Resolved = false;
-    promise1.then(() => { promise1Resolved = true; });
-    promise2.then(() => { promise2Resolved = true; });
-
-    // Move to next macro-task (tick)
-    await new Promise(setImmediate);
-
-    expect(promise1Resolved).toBe(false);
-    expect(promise2Resolved).toBe(false);
-
-    resolveBatch();
-    // Move to next macro-task (tick)
-    await new Promise(setImmediate);
-
-    expect(promise1Resolved).toBe(true);
-    expect(promise2Resolved).toBe(true);
-
-    const [ value1, value2 ] = await Promise.all([ promise1, promise2 ]);
-    expect(value1).toBe(1);
-    expect(value2).toBe(2);
-
-    expect(loadCalls).toEqual([ [ 2 ] ]);
-  });
-
-  it('max batch size respects cached results', async () => {
-    const loadCalls = [];
-    let resolveBatch = () => {};
-    const identityLoader = new DataLoader<number, number>(keys => {
-      loadCalls.push(keys);
-      return new Promise(resolve => {
-        resolveBatch = () => resolve(keys);
-      });
-    }, { maxBatchSize: 1 });
-
-    identityLoader.prime(1, 1);
-
-    const promise1 = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
-
-    // Track when each resolves.
-    let promise1Resolved = false;
-    let promise2Resolved = false;
-    promise1.then(() => { promise1Resolved = true; });
-    promise2.then(() => { promise2Resolved = true; });
-
-    // Move to next macro-task (tick)
-    await new Promise(setImmediate);
-
-    // Promise 1 resolves first since max batch size is 1
-    expect(promise1Resolved).toBe(true);
-    expect(promise2Resolved).toBe(false);
-
-    resolveBatch();
-    // Move to next macro-task (tick)
-    await new Promise(setImmediate);
-
-    expect(promise1Resolved).toBe(true);
-    expect(promise2Resolved).toBe(true);
-
-    const [ value1, value2 ] = await Promise.all([ promise1, promise2 ]);
-    expect(value1).toBe(1);
-    expect(value2).toBe(2);
-
-    expect(loadCalls).toEqual([ [ 2 ] ]);
-  });
-
-  it('coalesces identical requests', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>();
-
-    const promise1a = identityLoader.load(1);
-    const promise1b = identityLoader.load(1);
-
-    const [ value1a, value1b ] = await Promise.all([ promise1a, promise1b ]);
-    expect(value1a).toBe(1);
-    expect(value1b).toBe(1);
-
-    expect(loadCalls).toEqual([ [ 1 ] ]);
-  });
-
-  it('coalesces identical requests across sized batches', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>({ maxBatchSize: 2 });
-
-    const promise1a = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
-    const promise1b = identityLoader.load(1);
-    const promise3 = identityLoader.load(3);
-
-    const [ value1a, value2, value1b, value3 ] =
-      await Promise.all([ promise1a, promise2, promise1b, promise3 ]);
-    expect(value1a).toBe(1);
-    expect(value2).toBe(2);
-    expect(value1b).toBe(1);
-    expect(value3).toBe(3);
-
-    expect(loadCalls).toEqual([ [ 1, 2 ], [ 3 ] ]);
-  });
-
-  it('caches repeated requests', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    const [ a, b ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a).toBe('A');
-    expect(b).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ] ]);
-
-    const [ a2, c ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('C')
-    ]);
-
-    expect(a2).toBe('A');
-    expect(c).toBe('C');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'C' ] ]);
-
-    const [ a3, b2, c2 ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B'),
-      identityLoader.load('C')
-    ]);
-
-    expect(a3).toBe('A');
-    expect(b2).toBe('B');
-    expect(c2).toBe('C');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'C' ] ]);
-  });
-
-  it('clears single value in loader', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    const [ a, b ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a).toBe('A');
-    expect(b).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ] ]);
-
-    identityLoader.clear('A');
-
-    const [ a2, b2 ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a2).toBe('A');
-    expect(b2).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'A' ] ]);
-  });
-
-  it('clears all values in loader', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    const [ a, b ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a).toBe('A');
-    expect(b).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ] ]);
-
-    identityLoader.clearAll();
-
-    const [ a2, b2 ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a2).toBe('A');
-    expect(b2).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'A', 'B' ] ]);
-  });
-
-  it('allows priming the cache', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    identityLoader.prime('A', 'A');
-
-    const [ a, b ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
-
-    expect(a).toBe('A');
-    expect(b).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'B' ] ]);
-  });
-
-  it('does not prime keys that already exist', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    identityLoader.prime('A', 'X');
-
-    const a1 = await identityLoader.load('A');
-    const b1 = await identityLoader.load('B');
-    expect(a1).toBe('X');
-    expect(b1).toBe('B');
-
-    identityLoader.prime('A', 'Y');
-    identityLoader.prime('B', 'Y');
-
-    const a2 = await identityLoader.load('A');
-    const b2 = await identityLoader.load('B');
-    expect(a2).toBe('X');
-    expect(b2).toBe('B');
-
-    expect(loadCalls).toEqual([ [ 'B' ] ]);
-  });
-
-  it('allows forcefully priming the cache', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    identityLoader.prime('A', 'X');
-
-    const a1 = await identityLoader.load('A');
-    const b1 = await identityLoader.load('B');
-    expect(a1).toBe('X');
-    expect(b1).toBe('B');
-
-    identityLoader.clear('A').prime('A', 'Y');
-    identityLoader.clear('B').prime('B', 'Y');
-
-    const a2 = await identityLoader.load('A');
-    const b2 = await identityLoader.load('B');
-    expect(a2).toBe('Y');
-    expect(b2).toBe('Y');
-
-    expect(loadCalls).toEqual([ [ 'B' ] ]);
-  });
-
-});
-
-describe('Represents Errors', () => {
-
-  it('Resolves to error to indicate failure', async () => {
-    const loadCalls = [];
-    const evenLoader = new DataLoader(keys => {
-      loadCalls.push(keys);
-      return Promise.resolve(
-        keys.map(key => key % 2 === 0 ? key : new Error(`Odd: ${key}`))
+    test('Requires a cacheKeyFn when the cache key is of different type', () {
+      Object? caughtError;
+      try {
+        final _ = DataLoader<Object, Object, int>((keys) async => keys);
+      } catch (error) {
+        caughtError = error;
+      }
+      expect(caughtError, const TypeMatcher<ArgumentError>());
+      expect(
+        (caughtError! as ArgumentError).message,
+        'Must pass options.cacheKeyFn if the'
+        ' key type K $Object is different from C $int.',
       );
     });
-
-    let caughtError;
-    try {
-      await evenLoader.load(1);
-    } catch (error) {
-      caughtError = error;
-    }
-    expect(caughtError).toBeInstanceOf(Error);
-    expect((caughtError: any).message).toBe('Odd: 1');
-
-    const value2 = await evenLoader.load(2);
-    expect(value2).toBe(2);
-
-    expect(loadCalls).toEqual([ [ 1 ], [ 2 ] ]);
   });
 
-  it('Can represent failures and successes simultaneously', async () => {
-    const loadCalls = [];
-    const evenLoader = new DataLoader(keys => {
-      loadCalls.push(keys);
-      return Promise.resolve(
-        keys.map(key => key % 2 === 0 ? key : new Error(`Odd: ${key}`))
-      );
+  group('Primary API', () {
+    test('builds a really really simple data loader', () async {
+      final identityLoader = DataLoader<int, int, int>((keys) async => keys);
+
+      final promise1 = identityLoader.load(1);
+
+      final value1 = await promise1;
+      expect(value1, 1);
     });
 
-    const promise1 = evenLoader.load(1);
-    const promise2 = evenLoader.load(2);
+    test('references the loader as "this" in the batch function', () async {
+      // Object? that;
+      // final loader = DataLoader<int, int, int>((keys) async {
+      //   that = this;
+      //   return keys;
+      // });
 
-    let caughtError;
-    try {
-      await promise1;
-    } catch (error) {
-      caughtError = error;
-    }
-    expect(caughtError).toBeInstanceOf(Error);
-    expect((caughtError: any).message).toBe('Odd: 1');
+      // // Trigger the batch function
+      // await loader.load(1);
 
-    expect(await promise2).toBe(2);
-
-    expect(loadCalls).toEqual([ [ 1, 2 ] ]);
-  });
-
-  it('Caches failed fetches', async () => {
-    const loadCalls = [];
-    const errorLoader = new DataLoader(keys => {
-      loadCalls.push(keys);
-      return Promise.resolve(
-        keys.map(key => new Error(`Error: ${key}`))
-      );
+      // expect(that, loader);
     });
 
-    let caughtErrorA;
-    try {
-      await errorLoader.load(1);
-    } catch (error) {
-      caughtErrorA = error;
-    }
-    expect(caughtErrorA).toBeInstanceOf(Error);
-    expect((caughtErrorA: any).message).toBe('Error: 1');
+    test('references the loader as "this" in the cache key function', () async {
+      // Object? that;
+      // final loader = DataLoader<int, int, int>((keys) async => keys,
+      //     Options(cacheKeyFn: (key) {
+      //   that = this;
+      //   return key;
+      // }));
 
-    let caughtErrorB;
-    try {
-      await errorLoader.load(1);
-    } catch (error) {
-      caughtErrorB = error;
-    }
-    expect(caughtErrorB).toBeInstanceOf(Error);
-    expect((caughtErrorB: any).message).toBe('Error: 1');
+      // // Trigger the cache key function
+      // await loader.load(1);
 
-    expect(loadCalls).toEqual([ [ 1 ] ]);
-  });
-
-  it('Handles priming the cache with an error', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>();
-
-    identityLoader.prime(1, new Error('Error: 1'));
-
-    // Wait a bit.
-    await new Promise(setImmediate);
-
-    let caughtErrorA;
-    try {
-      await identityLoader.load(1);
-    } catch (error) {
-      caughtErrorA = error;
-    }
-    expect(caughtErrorA).toBeInstanceOf(Error);
-    expect((caughtErrorA: any).message).toBe('Error: 1');
-
-    expect(loadCalls).toEqual([]);
-  });
-
-  it('Can clear values from cache after errors', async () => {
-    const loadCalls = [];
-    const errorLoader = new DataLoader(keys => {
-      loadCalls.push(keys);
-      return Promise.resolve(
-        keys.map(key => new Error(`Error: ${key}`))
-      );
+      // expect(that, loader);
     });
 
-    let caughtErrorA;
-    try {
-      await errorLoader.load(1).catch(error => {
-        // Presumably determine if this error is transient, and only clear the
-        // cache in that case.
-        errorLoader.clear(1);
-        throw error;
+    test('supports loading multiple keys in one call', () async {
+      final identityLoader = DataLoader<int, int, int>((keys) async => keys);
+
+      final promiseAll = identityLoader.loadMany([1, 2]);
+
+      final values = await promiseAll;
+      expect(values, [1, 2]);
+
+      final promiseEmpty = identityLoader.loadMany([]);
+
+      final empty = await promiseEmpty;
+      expect(empty, <Object>[]);
+    });
+
+    // test('supports loading multiple keys in one call with errors', () async {
+    //   final identityLoader = DataLoader<String, String, String>((keys) =>
+    //       Future.value(keys
+    //           .map((key) => (key == 'bad' ? Exception('Bad Key') : key))
+    //           .toList()));
+
+    //   final promiseAll = identityLoader.loadMany(['a', 'b', 'bad']);
+    //   // expect(promiseAll).toBeInstanceOf(Promise);
+
+    //   final values = await promiseAll;
+    //   expect(values, ['a', 'b', Exception('Bad Key')]);
+    // });
+
+    test('batches multiple requests', () async {
+      final _loader = idLoader<int>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
+
+      final promise1 = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
+
+      final values = await Future.wait<Object?>([promise1, promise2]);
+      expect(values, [1, 2]);
+
+      expect(loadCalls, [
+        [1, 2]
+      ]);
+    });
+
+    test('batches multiple requests with max batch sizes', () async {
+      final _loader = idLoader<int>(Options(maxBatchSize: 2));
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
+
+      final promise1 = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
+      final promise3 = identityLoader.load(3);
+
+      final values = await Future.wait<Object?>([promise1, promise2, promise3]);
+      expect(values[0], 1);
+      expect(values[1], 2);
+      expect(values[2], 3);
+
+      expect(loadCalls, [
+        [1, 2],
+        [3]
+      ]);
+    });
+
+    test('batches cached requests', () async {
+      final loadCalls = <List<int>>[];
+      var resolveBatch = () {};
+      final identityLoader = DataLoader<int, int, int>((keys) {
+        loadCalls.add(keys);
+        final comp = Completer<List<int>>();
+        resolveBatch = () {
+          comp.complete(keys);
+        };
+        return comp.future;
       });
-    } catch (error) {
-      caughtErrorA = error;
-    }
-    expect(caughtErrorA).toBeInstanceOf(Error);
-    expect((caughtErrorA: any).message).toBe('Error: 1');
 
-    let caughtErrorB;
-    try {
-      await errorLoader.load(1).catch(error => {
-        // Again, only do this if you can determine the error is transient.
-        errorLoader.clear(1);
-        throw error;
+      identityLoader.prime(1, 1);
+
+      final promise1 = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
+
+      // Track when each resolves.
+      var promise1Resolved = false;
+      var promise2Resolved = false;
+      // ignore: unawaited_futures
+      promise1.then((_) {
+        promise1Resolved = true;
       });
-    } catch (error) {
-      caughtErrorB = error;
-    }
-    expect(caughtErrorB).toBeInstanceOf(Error);
-    expect((caughtErrorB: any).message).toBe('Error: 1');
+      // ignore: unawaited_futures
+      promise2.then((_) {
+        promise2Resolved = true;
+      });
 
-    expect(loadCalls).toEqual([ [ 1 ], [ 1 ] ]);
-  });
+      // Move to next macro-task (tick)
+      await Future<dynamic>.delayed(Duration.zero);
 
-  it('Propagates error to all loads', async () => {
-    const loadCalls = [];
-    const failLoader = new DataLoader(keys => {
-      loadCalls.push(keys);
-      return Promise.reject(new Error('I am a terrible loader'));
+      expect(promise1Resolved, false);
+      expect(promise2Resolved, false);
+
+      resolveBatch();
+      // Move to next macro-task (tick)
+      await Future<dynamic>.delayed(Duration.zero);
+
+      expect(promise1Resolved, true);
+      expect(promise2Resolved, true);
+
+      final value = await Future.wait<Object?>([promise1, promise2]);
+      expect(value[0], 1);
+      expect(value[1], 2);
+
+      expect(loadCalls, [
+        [2]
+      ]);
     });
 
-    const promise1 = failLoader.load(1);
-    const promise2 = failLoader.load(2);
+    test('max batch size respects cached results', () async {
+      final loadCalls = <List<int>>[];
+      var resolveBatch = () {};
+      final identityLoader = DataLoader.unmapped<int, int>((keys) {
+        loadCalls.add(keys);
+        final comp = Completer<List<int>>();
+        resolveBatch = () {
+          comp.complete(keys);
+        };
+        return comp.future;
+      }, Options(maxBatchSize: 1));
 
-    let caughtErrorA;
-    try {
-      await promise1;
-    } catch (error) {
-      caughtErrorA = error;
-    }
-    expect(caughtErrorA).toBeInstanceOf(Error);
-    expect((caughtErrorA: any).message).toBe('I am a terrible loader');
+      identityLoader.prime(1, 1);
 
-    let caughtErrorB;
-    try {
-      await promise2;
-    } catch (error) {
-      caughtErrorB = error;
-    }
-    expect(caughtErrorB).toBe(caughtErrorA);
+      final promise1 = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
 
-    expect(loadCalls).toEqual([ [ 1, 2 ] ]);
-  });
+      // Track when each resolves.
+      var promise1Resolved = false;
+      var promise2Resolved = false;
+      // ignore: unawaited_futures
+      promise1.then((_) {
+        promise1Resolved = true;
+      });
+      // ignore: unawaited_futures
+      promise2.then((_) {
+        promise2Resolved = true;
+      });
 
-});
+      // Move to next macro-task (tick)
+      await Future<dynamic>.delayed(Duration.zero);
 
-describe('Accepts any kind of key', () => {
+      // Promise 1 resolves first since max batch size is 1
+      expect(promise1Resolved, true);
+      expect(promise2Resolved, false);
 
-  it('Accepts objects as keys', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<{}>();
+      resolveBatch();
+      // Move to next macro-task (tick)
+      await Future<dynamic>.delayed(Duration.zero);
 
-    const keyA = {};
-    const keyB = {};
+      expect(promise1Resolved, true);
+      expect(promise2Resolved, true);
 
-    // Fetches as expected
+      final value = await Future.wait<Object?>([promise1, promise2]);
+      expect(value[0], 1);
+      expect(value[1], 2);
 
-    const [ valueA, valueB ] = await Promise.all([
-      identityLoader.load(keyA),
-      identityLoader.load(keyB),
-    ]);
+      expect(loadCalls, [
+        [2]
+      ]);
+    });
 
-    expect(valueA).toBe(keyA);
-    expect(valueB).toBe(keyB);
+    test('coalesces identical requests', () async {
+      final _loader = idLoader<int>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    expect(loadCalls).toHaveLength(1);
-    expect(loadCalls[0]).toHaveLength(2);
-    expect(loadCalls[0][0]).toBe(keyA);
-    expect(loadCalls[0][1]).toBe(keyB);
+      final promise1a = identityLoader.load(1);
+      final promise1b = identityLoader.load(1);
 
-    // Caching
+      final value1 = await Future.wait<Object?>([promise1a, promise1b]);
+      expect(value1[0], 1);
+      expect(value1[1], 1);
 
-    identityLoader.clear(keyA);
+      expect(loadCalls, [
+        [1]
+      ]);
+    });
 
-    const [ valueA2, valueB2 ] = await Promise.all([
-      identityLoader.load(keyA),
-      identityLoader.load(keyB),
-    ]);
+    test('coalesces identical requests across sized batches', () async {
+      final _loader = idLoader<int>(Options(maxBatchSize: 2));
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    expect(valueA2).toBe(keyA);
-    expect(valueB2).toBe(keyB);
+      final promise1a = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
+      final promise1b = identityLoader.load(1);
+      final promise3 = identityLoader.load(3);
 
-    expect(loadCalls).toHaveLength(2);
-    expect(loadCalls[1]).toHaveLength(1);
-    expect(loadCalls[1][0]).toBe(keyA);
+      final value = await Future.wait<Object?>(
+          [promise1a, promise2, promise1b, promise3]);
+      expect(value[0], 1);
+      expect(value[1], 2);
+      expect(value[2], 1);
+      expect(value[3], 3);
 
-  });
+      expect(loadCalls, [
+        [1, 2],
+        [3]
+      ]);
+    });
 
-});
+    test('caches repeated requests', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-describe('Accepts options', () => {
+      final values1 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
 
-  // Note: mirrors 'batches multiple requests' above.
-  it('May disable batching', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<number>({ batch: false });
+      expect(values1[0], 'A');
+      expect(values1[1], 'B');
 
-    const promise1 = identityLoader.load(1);
-    const promise2 = identityLoader.load(2);
+      expect(loadCalls, [
+        ['A', 'B']
+      ]);
 
-    const [ value1, value2 ] = await Promise.all([ promise1, promise2 ]);
-    expect(value1).toBe(1);
-    expect(value2).toBe(2);
+      final values2 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('C')]);
 
-    expect(loadCalls).toEqual([ [ 1 ], [ 2 ] ]);
-  });
+      expect(values2[0], 'A');
+      expect(values2[1], 'C');
 
-  // Note: mirror's 'caches repeated requests' above.
-  it('May disable caching', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>({ cache: false });
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['C']
+      ]);
 
-    const [ a, b ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B')
-    ]);
+      final values3 = await Future.wait<Object?>([
+        identityLoader.load('A'),
+        identityLoader.load('B'),
+        identityLoader.load('C')
+      ]);
 
-    expect(a).toBe('A');
-    expect(b).toBe('B');
+      expect(values3[0], 'A');
+      expect(values3[1], 'B');
+      expect(values3[2], 'C');
 
-    expect(loadCalls).toEqual([ [ 'A', 'B' ] ]);
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['C']
+      ]);
+    });
 
-    const [ a2, c ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('C')
-    ]);
+    test('clears single value in loader', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    expect(a2).toBe('A');
-    expect(c).toBe('C');
+      final values1 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
 
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'A', 'C' ] ]);
+      expect(values1[0], 'A');
+      expect(values1[1], 'B');
 
-    const [ a3, b2, c2 ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B'),
-      identityLoader.load('C')
-    ]);
+      expect(loadCalls, [
+        ['A', 'B']
+      ]);
 
-    expect(a3).toBe('A');
-    expect(b2).toBe('B');
-    expect(c2).toBe('C');
+      identityLoader.clear('A');
 
-    expect(loadCalls).toEqual(
-      [ [ 'A', 'B' ], [ 'A', 'C' ], [ 'A', 'B', 'C' ] ]
-    );
-  });
+      final values2 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
 
-  it('Keys are repeated in batch when cache disabled', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>({ cache: false });
+      expect(values2[0], 'A');
+      expect(values2[1], 'B');
 
-    const [ values1, values2, values3, values4 ] = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('C'),
-      identityLoader.load('D'),
-      identityLoader.loadMany([ 'C', 'D', 'A', 'A', 'B' ]),
-    ]);
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['A']
+      ]);
+    });
 
-    expect(values1).toBe('A');
-    expect(values2).toBe('C');
-    expect(values3).toBe('D');
-    expect(values4).toEqual([ 'C', 'D', 'A', 'A', 'B' ]);
+    test('clears all values in loader', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    expect(loadCalls).toEqual([
-      [ 'A', 'C', 'D', 'C', 'D', 'A', 'A', 'B' ]
-    ]);
-  });
+      final values1 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
 
-  it('cacheMap may be set to null to disable cache', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>({ cacheMap: null });
+      expect(values1[0], 'A');
+      expect(values1[1], 'B');
 
-    await identityLoader.load('A');
-    await identityLoader.load('A');
+      expect(loadCalls, [
+        ['A', 'B']
+      ]);
 
-    expect(loadCalls).toEqual([ [ 'A' ], [ 'A' ] ]);
-  });
-
-  it('Does not interact with a cache when cache is disabled', () => {
-    const promiseX = Promise.resolve('X');
-    const cacheMap = new Map([ [ 'X', promiseX ] ]);
-    const [ identityLoader ] = idLoader<string>({ cache: false, cacheMap });
-
-    identityLoader.prime('A', 'A');
-    expect(cacheMap.get('A')).toBe(undefined);
-    identityLoader.clear('X');
-    expect(cacheMap.get('X')).toBe(promiseX);
-    identityLoader.clearAll();
-    expect(cacheMap.get('X')).toBe(promiseX);
-  });
-
-  it('Complex cache behavior via clearAll()', async () => {
-    // This loader clears its cache as soon as a batch function is dispatched.
-    const loadCalls = [];
-    const identityLoader = new DataLoader<string, string>(keys => {
       identityLoader.clearAll();
-      loadCalls.push(keys);
-      return Promise.resolve(keys);
+
+      final values2 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
+
+      expect(values2[0], 'A');
+      expect(values2[1], 'B');
+
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['A', 'B']
+      ]);
     });
 
-    const values1 = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B'),
-      identityLoader.load('A'),
-    ]);
+    test('allows priming the cache', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    expect(values1).toEqual([ 'A', 'B', 'A' ]);
+      identityLoader.prime('A', 'A');
 
-    const values2 = await Promise.all([
-      identityLoader.load('A'),
-      identityLoader.load('B'),
-      identityLoader.load('A'),
-    ]);
+      final values = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
 
-    expect(values2).toEqual([ 'A', 'B', 'A' ]);
+      expect(values[0], 'A');
+      expect(values[1], 'B');
 
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'A', 'B' ] ]);
+      expect(loadCalls, [
+        ['B']
+      ]);
+    });
+
+    test('does not prime keys that already exist', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
+
+      identityLoader.prime('A', 'X');
+
+      final a1 = await identityLoader.load('A');
+      final b1 = await identityLoader.load('B');
+      expect(a1, 'X');
+      expect(b1, 'B');
+
+      identityLoader.prime('A', 'Y');
+      identityLoader.prime('B', 'Y');
+
+      final a2 = await identityLoader.load('A');
+      final b2 = await identityLoader.load('B');
+      expect(a2, 'X');
+      expect(b2, 'B');
+
+      expect(loadCalls, [
+        ['B']
+      ]);
+    });
+
+    test('allows forcefully priming the cache', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
+
+      identityLoader.prime('A', 'X');
+
+      final a1 = await identityLoader.load('A');
+      final b1 = await identityLoader.load('B');
+      expect(a1, 'X');
+      expect(b1, 'B');
+
+      identityLoader.clear('A').prime('A', 'Y');
+      identityLoader.clear('B').prime('B', 'Y');
+
+      final a2 = await identityLoader.load('A');
+      final b2 = await identityLoader.load('B');
+      expect(a2, 'Y');
+      expect(b2, 'Y');
+
+      expect(loadCalls, [
+        ['B']
+      ]);
+    });
   });
 
-  describe('Accepts object key in custom cacheKey function', () => {
-    function cacheKey(key: {[string]: any}): string {
-      return Object.keys(key).sort().map(k => k + ':' + key[k]).join();
-    }
+  group('Represents Errors', () {
+    // test('Resolves to error to indicate failure', () async {
+    //   final loadCalls = <List<int>>[];
+    //   final evenLoader = DataLoader<int, int, int>((keys) {
+    //     loadCalls.add(keys);
+    //     return Future.value(keys
+    //         .map((key) => key % 2 == 0 ? key : Exception('Odd: ${key}'))
+    //         .toList());
+    //   });
 
-    type Obj = { [string]: number };
+    //   Object? caughtError;
+    //   try {
+    //     await evenLoader.load(1);
+    //   } catch (error) {
+    //     caughtError = error;
+    //   }
+    //   expect(caughtError, const TypeMatcher<Exception>());
+    //   expect((caughtError as dynamic).message, 'Odd: 1');
 
-    it('Accepts objects with a complex key', async () => {
-      const identityLoadCalls = [];
-      const identityLoader = new DataLoader<Obj, Obj, string>(keys => {
-        identityLoadCalls.push(keys);
-        return Promise.resolve(keys);
-      }, { cacheKeyFn: cacheKey });
+    //   final value2 = await evenLoader.load(2);
+    //   expect(value2, 2);
 
-      const key1 = { id: 123 };
-      const key2 = { id: 123 };
+    //   expect(loadCalls, [
+    //     [1],
+    //     [2]
+    //   ]);
+    // });
 
-      const value1 = await identityLoader.load(key1);
-      const value2 = await identityLoader.load(key2);
+    // test('Can represent failures and successes simultaneously', () async {
+    //   final loadCalls = <List<int>>[];
+    //   final evenLoader = DataLoader<int, int, int>((keys) {
+    //     loadCalls.add(keys);
+    //     return Future.value(keys
+    //         .map((key) => key % 2 == 0 ? key : Exception('Odd: ${key}'))
+    //         .toList());
+    //   });
 
-      expect(identityLoadCalls).toEqual([ [ key1 ] ]);
-      expect(value1).toBe(key1);
-      expect(value2).toBe(key1);
+    //   final promise1 = evenLoader.load(1);
+    //   final promise2 = evenLoader.load(2);
+
+    //   Object? caughtError;
+    //   try {
+    //     await promise1;
+    //   } catch (error) {
+    //     caughtError = error;
+    //   }
+    //   expect(caughtError, const TypeMatcher<Exception>());
+    //   expect((caughtError as dynamic).message, 'Odd: 1');
+
+    //   expect(await promise2, 2);
+
+    //   expect(loadCalls, [
+    //     [1, 2]
+    //   ]);
+    // });
+
+    // test('Caches failed fetches', () async {
+    //   final loadCalls = <List<int>>[];
+    //   final errorLoader = DataLoader<int, int, int>((keys) {
+    //     loadCalls.add(keys);
+    //     return Future.value(
+    //         keys.map((key) => Exception('Error: ${key}')).toList());
+    //   });
+
+    //   Object? caughtErrorA;
+    //   try {
+    //     await errorLoader.load(1);
+    //   } catch (error) {
+    //     caughtErrorA = error;
+    //   }
+    //   expect(caughtErrorA, const TypeMatcher<Exception>());
+    //   expect((caughtErrorA as dynamic).message, 'Error: 1');
+
+    //   Object? caughtErrorB;
+    //   try {
+    //     await errorLoader.load(1);
+    //   } catch (error) {
+    //     caughtErrorB = error;
+    //   }
+    //   expect(caughtErrorB, const TypeMatcher<Exception>());
+    //   expect((caughtErrorB as dynamic).message, 'Error: 1');
+
+    //   expect(loadCalls, [
+    //     [1]
+    //   ]);
+    // });
+
+    // test('Handles priming the cache with an error', () async {
+    //   final _loader = idLoader<int>();
+    //   final identityLoader = _loader.identityLoader;
+    //   final loadCalls = _loader.loadCalls;
+
+    //   identityLoader.prime(1, Exception('Error: 1'));
+
+    //   // Wait a bit.
+    //   // await Promise(setImmediate);
+
+    //   Object? caughtErrorA;
+    //   try {
+    //     await identityLoader.load(1);
+    //   } catch (error) {
+    //     caughtErrorA = error;
+    //   }
+    //   expect(caughtErrorA, const TypeMatcher<Exception>());
+    //   expect((caughtErrorA as dynamic).message, 'Error: 1');
+
+    //   expect(loadCalls, <Object>[]);
+    // });
+
+    // test('Can clear values from cache after errors', () async {
+    //   final loadCalls = <List<int>>[];
+    //   final errorLoader = DataLoader<int, int, int>((keys) {
+    //     loadCalls.add(keys);
+    //     return Future.value(
+    //         keys.map((key) => Exception('Error: ${key}')).toList());
+    //   });
+
+    //   Object? caughtErrorA;
+    //   try {
+    //     await errorLoader.load(1).catchError((Object error) {
+    //       // Presumably determine if this error is transient, and only clear the
+    //       // cache in that case.
+    //       errorLoader.clear(1);
+    //       throw error;
+    //     });
+    //   } catch (error) {
+    //     caughtErrorA = error;
+    //   }
+
+    //   expect(caughtErrorA, const TypeMatcher<Exception>());
+    //   expect((caughtErrorA as dynamic).message, 'Error: 1');
+
+    //   Object? caughtErrorB;
+    //   try {
+    //     await errorLoader.load(1).catchError((Object error) {
+    //       // Again, only do this if you can determine the error is transient.
+    //       errorLoader.clear(1);
+    //       throw error;
+    //     });
+    //   } catch (error) {
+    //     caughtErrorB = error;
+    //   }
+    //   expect(caughtErrorB, const TypeMatcher<Exception>());
+    //   expect((caughtErrorB as dynamic).message, 'Error: 1');
+
+    //   expect(loadCalls, [
+    //     [1],
+    //     [1]
+    //   ]);
+    // });
+
+    test('Propagates error to all loads', () async {
+      final loadCalls = <List<int>>[];
+      final failLoader = DataLoader<int, int, int>((keys) {
+        loadCalls.add(keys);
+        return Future.error(Exception('I am a terrible loader'));
+      });
+
+      final promise1 = failLoader.load(1);
+      final promise2 = failLoader.load(2);
+
+      Object? caughtErrorA;
+      try {
+        await promise1;
+      } catch (error) {
+        caughtErrorA = error;
+      }
+      expect(caughtErrorA, const TypeMatcher<Exception>());
+      // ignore: avoid_dynamic_calls
+      expect((caughtErrorA as dynamic).message, 'I am a terrible loader');
+
+      Object? caughtErrorB;
+      try {
+        await promise2;
+      } catch (error) {
+        caughtErrorB = error;
+      }
+      expect(caughtErrorB, caughtErrorA);
+
+      expect(loadCalls, [
+        [1, 2]
+      ]);
     });
+  });
 
-    it('Clears objects with complex key', async () => {
-      const identityLoadCalls = [];
-      const identityLoader = new DataLoader<Obj, Obj, string>(keys => {
-        identityLoadCalls.push(keys);
-        return Promise.resolve(keys);
-      }, { cacheKeyFn: cacheKey });
+  group('Accepts any kind of key', () {
+    test('Accepts objects as keys', () async {
+      final _loader = idLoader<Set>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-      const key1 = { id: 123 };
-      const key2 = { id: 123 };
-
-      const value1 = await identityLoader.load(key1);
-      identityLoader.clear(key2); // clear equivalent object key
-      const value2 = await identityLoader.load(key1);
-
-      expect(identityLoadCalls).toEqual([ [ key1 ], [ key1 ] ]);
-      expect(value1).toBe(key1);
-      expect(value2).toBe(key1);
-    });
-
-    it('Accepts objects with different order of keys', async () => {
-      const identityLoadCalls = [];
-      const identityLoader = new DataLoader<Obj, Obj, string>(keys => {
-        identityLoadCalls.push(keys);
-        return Promise.resolve(keys);
-      }, { cacheKeyFn: cacheKey });
+      final Set<Object> keyA = {};
+      final Set<Object> keyB = {};
 
       // Fetches as expected
 
-      const keyA = { a: 123, b: 321 };
-      const keyB = { b: 321, a: 123 };
-
-      const [ valueA, valueB ] = await Promise.all([
+      final values = await Future.wait<Object?>([
         identityLoader.load(keyA),
         identityLoader.load(keyB),
       ]);
 
-      expect(valueA).toBe(keyA);
-      expect(valueB).toBe(valueA);
+      expect(values[0], keyA);
+      expect(values[1], keyB);
 
-      expect(identityLoadCalls).toHaveLength(1);
-      expect(identityLoadCalls[0]).toHaveLength(1);
-      expect(identityLoadCalls[0][0]).toBe(keyA);
+      expect(loadCalls.length, 1);
+      expect(loadCalls[0].length, 2);
+      expect(loadCalls[0][0], keyA);
+      expect(loadCalls[0][1], keyB);
+
+      // Caching
+
+      identityLoader.clear(keyA);
+
+      final values2 = await Future.wait<Object?>([
+        identityLoader.load(keyA),
+        identityLoader.load(keyB),
+      ]);
+
+      expect(values2[0], keyA);
+      expect(values2[1], keyB);
+
+      expect(loadCalls.length, 2);
+      expect(loadCalls[1].length, 1);
+      expect(loadCalls[1][0], keyA);
     });
-
-    it('Allows priming the cache with an object key', async () => {
-      const [ identityLoader, loadCalls ] =
-        idLoader<Obj, string>({ cacheKeyFn: cacheKey });
-
-      const key1 = { id: 123 };
-      const key2 = { id: 123 };
-
-      identityLoader.prime(key1, key1);
-
-      const value1 = await identityLoader.load(key1);
-      const value2 = await identityLoader.load(key2);
-
-      expect(loadCalls).toEqual([]);
-      expect(value1).toBe(key1);
-      expect(value2).toBe(key1);
-    });
-
   });
 
-  describe('Accepts custom cacheMap instance', () => {
+  group('Accepts options', () {
+    // Note: mirrors 'batches multiple requests' above.
+    test('May disable batching', () async {
+      final _loader = idLoader<int>(Options(batch: false));
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    class SimpleMap {
-      stash: Object;
+      final promise1 = identityLoader.load(1);
+      final promise2 = identityLoader.load(2);
 
-      constructor() {
-        this.stash = {};
-      }
-      get(key) {
-        return this.stash[key];
-      }
-      set(key, value) {
-        this.stash[key] = value;
-      }
-      delete(key) {
-        delete this.stash[key];
-      }
-      clear() {
-        this.stash = {};
-      }
-    }
+      final values = await Future.wait<Object?>([promise1, promise2]);
+      expect(values[0], 1);
+      expect(values[1], 2);
 
-    it('Accepts a custom cache map implementation', async () => {
-      const aCustomMap = new SimpleMap();
-      const identityLoadCalls = [];
-      const identityLoader = new DataLoader<string, string>(keys => {
-        identityLoadCalls.push(keys);
-        return Promise.resolve(keys);
-      }, { cacheMap: aCustomMap });
+      expect(loadCalls, [
+        [1],
+        [2]
+      ]);
+    });
 
-      // Fetches as expected
+    // Note: mirror's 'caches repeated requests' above.
+    test('May disable caching', () async {
+      final _loader = idLoader<String>(Options(cache: false));
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-      const [ valueA, valueB1 ] = await Promise.all([
-        identityLoader.load('a'),
-        identityLoader.load('b'),
+      final values1 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('B')]);
+
+      expect(values1[0], 'A');
+      expect(values1[1], 'B');
+
+      expect(loadCalls, [
+        ['A', 'B']
       ]);
 
-      expect(valueA).toBe('a');
-      expect(valueB1).toBe('b');
+      final values2 = await Future.wait<Object?>(
+          [identityLoader.load('A'), identityLoader.load('C')]);
 
-      expect(identityLoadCalls).toEqual([ [ 'a', 'b' ] ]);
-      expect(Object.keys(aCustomMap.stash)).toEqual([ 'a', 'b' ]);
+      expect(values2[0], 'A');
+      expect(values2[1], 'C');
 
-      const [ valueC, valueB2 ] = await Promise.all([
-        identityLoader.load('c'),
-        identityLoader.load('b'),
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['A', 'C']
       ]);
 
-      expect(valueC).toBe('c');
-      expect(valueB2).toBe('b');
+      final values3 = await Future.wait<Object?>([
+        identityLoader.load('A'),
+        identityLoader.load('B'),
+        identityLoader.load('C')
+      ]);
 
-      expect(identityLoadCalls).toEqual([ [ 'a', 'b' ], [ 'c' ] ]);
-      expect(Object.keys(aCustomMap.stash)).toEqual([ 'a', 'b', 'c' ]);
+      expect(values3[0], 'A');
+      expect(values3[1], 'B');
+      expect(values3[2], 'C');
 
-      // Supports clear
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['A', 'C'],
+        ['A', 'B', 'C']
+      ]);
+    });
 
-      identityLoader.clear('b');
-      const valueB3 = await identityLoader.load('b');
+    test('Keys are repeated in batch when cache disabled', () async {
+      final _loader = idLoader<String>(Options(cache: false));
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-      expect(valueB3).toBe('b');
-      expect(identityLoadCalls).toEqual(
-        [ [ 'a', 'b' ], [ 'c' ], [ 'b' ] ]
-      );
-      expect(Object.keys(aCustomMap.stash)).toEqual([ 'a', 'c', 'b' ]);
+      final values = await Future.wait<Object?>([
+        identityLoader.load('A'),
+        identityLoader.load('C'),
+        identityLoader.load('D'),
+        identityLoader.loadMany(['C', 'D', 'A', 'A', 'B']),
+      ]);
 
-      // Supports clear all
+      expect(values[0], 'A');
+      expect(values[1], 'C');
+      expect(values[2], 'D');
+      expect(values[3], ['C', 'D', 'A', 'A', 'B']);
 
+      expect(loadCalls, [
+        ['A', 'C', 'D', 'C', 'D', 'A', 'A', 'B']
+      ]);
+    });
+
+    // test('cacheMap may be set to null to disable cache', () async {
+    //   final _loader = idLoader<String>(Options(cacheMap: null));
+    //   final identityLoader = _loader.identityLoader;
+    //   final loadCalls = _loader.loadCalls;
+
+    //   await identityLoader.load('A');
+    //   await identityLoader.load('A');
+
+    //   expect(loadCalls, [
+    //     ['A'],
+    //     ['A']
+    //   ]);
+    // });
+
+    test('Does not interact with a cache when cache is disabled', () {
+      final promiseX = Future.value('X');
+
+      final cacheMap = MapCache<String, Future<String>>();
+      cacheMap.set('X', promiseX);
+      final _loader =
+          idLoader<String>(Options(cache: false, cacheMap: cacheMap));
+      final identityLoader = _loader.identityLoader;
+      identityLoader.prime('A', 'A');
+      expect(cacheMap.get('A'), null);
+      identityLoader.clear('X');
+      expect(cacheMap.get('X'), promiseX);
       identityLoader.clearAll();
-
-      expect(Object.keys(aCustomMap.stash)).toEqual([]);
+      expect(cacheMap.get('X'), promiseX);
     });
 
+    test('Complex cache behavior via clearAll()', () async {
+      // This loader clears its cache as soon as a batch function is dispatched.
+      final loadCalls = <List<String>>[];
+      late final DataLoader<String, String, String> identityLoader;
+      identityLoader = DataLoader<String, String, String>((keys) {
+        identityLoader.clearAll();
+        loadCalls.add(keys);
+        return Future.value(keys);
+      });
+
+      final values1 = await Future.wait<Object?>([
+        identityLoader.load('A'),
+        identityLoader.load('B'),
+        identityLoader.load('A'),
+      ]);
+
+      expect(values1, ['A', 'B', 'A']);
+
+      final values2 = await Future.wait<Object?>([
+        identityLoader.load('A'),
+        identityLoader.load('B'),
+        identityLoader.load('A'),
+      ]);
+
+      expect(values2, ['A', 'B', 'A']);
+
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['A', 'B']
+      ]);
+    });
+
+    group('Accepts object key in custom cacheKey function', () {
+      String cacheKey(Map<String, Object?> key) {
+        return (key.keys.toList()..sort()).map((k) => '$k:${key[k]}').join();
+      }
+
+      test('Accepts objects with a complex key', () async {
+        final identityLoadCalls = <List<Map<String, int>>>[];
+        final identityLoader =
+            DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
+          identityLoadCalls.add(keys);
+          return Future.value(keys);
+        }, Options(cacheKeyFn: cacheKey));
+
+        final key1 = {'id': 123};
+        final key2 = {'id': 123};
+
+        final value1 = await identityLoader.load(key1);
+        final value2 = await identityLoader.load(key2);
+
+        expect(identityLoadCalls, [
+          [key1]
+        ]);
+        expect(value1, key1);
+        expect(value2, key1);
+      });
+
+      test('Clears objects with complex key', () async {
+        final identityLoadCalls = <List<Map<String, int>>>[];
+        final identityLoader =
+            DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
+          identityLoadCalls.add(keys);
+          return Future.value(keys);
+        }, Options(cacheKeyFn: cacheKey));
+
+        final key1 = {'id': 123};
+        final key2 = {'id': 123};
+
+        final value1 = await identityLoader.load(key1);
+        identityLoader.clear(key2); // clear equivalent object key
+        final value2 = await identityLoader.load(key1);
+
+        expect(identityLoadCalls, [
+          [key1],
+          [key1]
+        ]);
+        expect(value1, key1);
+        expect(value2, key1);
+      });
+
+      test('Accepts objects with different order of keys', () async {
+        final identityLoadCalls = <List<Map<String, int>>>[];
+        final identityLoader =
+            DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
+          identityLoadCalls.add(keys);
+          return Future.value(keys);
+        }, Options(cacheKeyFn: cacheKey));
+
+        // Fetches as expected
+
+        final keyA = {'a': 123, 'b': 321};
+        final keyB = {'b': 321, 'a': 123};
+
+        final values = await Future.wait<Object?>([
+          identityLoader.load(keyA),
+          identityLoader.load(keyB),
+        ]);
+
+        expect(values[0], keyA);
+        expect(values[1], values[0]);
+
+        expect(identityLoadCalls.length, 1);
+        expect(identityLoadCalls[0].length, 1);
+        expect(identityLoadCalls[0][0], keyA);
+      });
+
+      test('Allows priming the cache with an object key', () async {
+        final _loader = idLoaderMapped<Map<String, int>, String>(
+            Options(cacheKeyFn: cacheKey));
+
+        final identityLoader = _loader.identityLoader;
+
+        final key1 = {'id': 123};
+        final key2 = {'id': 123};
+
+        identityLoader.prime(key1, key1);
+
+        final value1 = await identityLoader.load(key1);
+        final value2 = await identityLoader.load(key2);
+
+        expect(_loader.loadCalls, <Object>[]);
+        expect(value1, key1);
+        expect(value2, key1);
+      });
+    });
+
+    group('Accepts custom cacheMap instance', () {
+      test('Accepts a custom cache map implementation', () async {
+        final aCustomMap = MapCache<String, Future<String>>();
+        final identityLoadCalls = <List<String>>[];
+        final identityLoader = DataLoader<String, String, String>((keys) {
+          identityLoadCalls.add(keys);
+          return Future.value(keys);
+        }, Options(cacheMap: aCustomMap));
+
+        // Fetches as expected
+
+        final values1 = await Future.wait<Object?>([
+          identityLoader.load('a'),
+          identityLoader.load('b'),
+        ]);
+
+        expect(values1[0], 'a');
+        expect(values1[1], 'b');
+
+        expect(identityLoadCalls, [
+          ['a', 'b']
+        ]);
+        expect(aCustomMap.stash.keys, ['a', 'b']);
+
+        final values2 = await Future.wait<Object?>([
+          identityLoader.load('c'),
+          identityLoader.load('b'),
+        ]);
+
+        expect(values2[0], 'c');
+        expect(values2[1], 'b');
+
+        expect(identityLoadCalls, [
+          ['a', 'b'],
+          ['c']
+        ]);
+        expect(aCustomMap.stash.keys, ['a', 'b', 'c']);
+
+        // Supports clear
+
+        identityLoader.clear('b');
+        final valueB3 = await identityLoader.load('b');
+
+        expect(valueB3, 'b');
+        expect(identityLoadCalls, [
+          ['a', 'b'],
+          ['c'],
+          ['b']
+        ]);
+        expect(aCustomMap.stash.keys, ['a', 'c', 'b']);
+
+        // Supports clear all
+
+        identityLoader.clearAll();
+
+        expect(aCustomMap.stash.keys, <Object>[]);
+      });
+    });
   });
 
-});
+  group('It allows custom schedulers', () {
+    test('Supports manual dispatch', () {
+      // function createScheduler() {
+      var callbacks = <void Function()>[];
+      // return {
+      void schedule(void Function() callback) {
+        callbacks.add(callback);
+      }
 
-describe('It allows custom schedulers', () => {
-
-  it('Supports manual dispatch', () => {
-    function createScheduler() {
-      let callbacks = [];
-      return {
-        schedule(callback) {
-          callbacks.push(callback);
-        },
-        dispatch() {
-          callbacks.forEach(callback => callback());
-          callbacks = [];
+      void dispatch() {
+        for (final callback in callbacks) {
+          callback();
         }
-      };
-    }
+        callbacks = [];
+      }
+      // };
+      // }
 
-    const { schedule, dispatch } = createScheduler();
-    const [ identityLoader, loadCalls ] = idLoader<string>({
-      batchScheduleFn: schedule
+      // final { schedule, dispatch } = createScheduler();
+      final _loader = idLoader<String>(Options(batchScheduleFn: schedule));
+
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
+
+      identityLoader.load('A');
+      identityLoader.load('B');
+      dispatch();
+      identityLoader.load('A');
+      identityLoader.load('C');
+      dispatch();
+      // Note: never dispatched!
+      identityLoader.load('D');
+
+      expect(loadCalls, [
+        ['A', 'B'],
+        ['C']
+      ]);
     });
 
-    identityLoader.load('A');
-    identityLoader.load('B');
-    dispatch();
-    identityLoader.load('A');
-    identityLoader.load('C');
-    dispatch();
-    // Note: never dispatched!
-    identityLoader.load('D');
+    test('Custom batch scheduler is provided loader as this context', () {
+      // var that;
+      // void batchScheduleFn(void Function() callback) {
+      //   that = this;
+      //   callback();
+      // }
 
-    expect(loadCalls).toEqual([ [ 'A', 'B' ], [ 'C' ] ]);
+      // final _loader =
+      //     idLoader<String>(Options(batchScheduleFn: batchScheduleFn));
+
+      // _loader.identityLoader.load('A');
+      // expect(that, _loader.identityLoader);
+    });
   });
 
-  it('Custom batch scheduler is provided loader as this context', () => {
-    let that;
-    function batchScheduleFn(callback) {
-      that = this;
-      callback();
-    }
+  group('It is resilient to job queue ordering', () {
+    test('batches loads occuring within promises', () async {
+      final _loader = idLoader<String>();
+      final identityLoader = _loader.identityLoader;
+      final loadCalls = _loader.loadCalls;
 
-    const [ identityLoader ] = idLoader<string>({ batchScheduleFn });
-
-    identityLoader.load('A');
-    expect(that).toBe(identityLoader);
-  });
-
-});
-
-describe('It is resilient to job queue ordering', () => {
-
-  it('batches loads occuring within promises', async () => {
-    const [ identityLoader, loadCalls ] = idLoader<string>();
-
-    await Promise.all([
-      identityLoader.load('A'),
-      Promise.resolve().then(() => Promise.resolve()).then(() => {
-        identityLoader.load('B');
-        Promise.resolve().then(() => Promise.resolve()).then(() => {
-          identityLoader.load('C');
-          Promise.resolve().then(() => Promise.resolve()).then(() => {
-            identityLoader.load('D');
+      await Future.wait<Object?>([
+        identityLoader.load('A'),
+        Future<Object?>.value().then((_) => Future<Object?>.value()).then((_) {
+          identityLoader.load('B');
+          Future<Object?>.value()
+              .then((_) => Future<Object?>.value())
+              .then((_) {
+            identityLoader.load('C');
+            Future<Object?>.value()
+                .then((_) => Future<Object?>.value())
+                .then((_) {
+              identityLoader.load('D');
+            });
           });
-        });
-      })
-    ]);
+        })
+      ]);
 
-    expect(loadCalls).toEqual([ [ 'A', 'B', 'C', 'D' ] ]);
+      expect(loadCalls, [
+        ['A', 'B', 'C', 'D']
+      ]);
+    });
+
+    test('can call a loader from a loader', () async {
+      final deepLoadCalls = <List<List<String>>>[];
+      final deepLoader =
+          DataLoader<List<String>, List<String>, List<String>>((keys) {
+        deepLoadCalls.add(keys);
+        return Future.value(keys);
+      });
+
+      final aLoadCalls = <List<String>>[];
+      final aLoader = DataLoader<String, String, String>((keys) {
+        aLoadCalls.add(keys);
+        return deepLoader.load(keys);
+      });
+
+      final bLoadCalls = <List<String>>[];
+      final bLoader = DataLoader<String, String, String>((keys) {
+        bLoadCalls.add(keys);
+        return deepLoader.load(keys);
+      });
+
+      final values = await Future.wait<Object?>([
+        aLoader.load('A1'),
+        bLoader.load('B1'),
+        aLoader.load('A2'),
+        bLoader.load('B2')
+      ]);
+
+      expect(values[0], 'A1');
+      expect(values[1], 'B1');
+      expect(values[2], 'A2');
+      expect(values[3], 'B2');
+
+      expect(aLoadCalls, [
+        ['A1', 'A2']
+      ]);
+      expect(bLoadCalls, [
+        ['B1', 'B2']
+      ]);
+      expect(deepLoadCalls, [
+        [
+          ['A1', 'A2'],
+          ['B1', 'B2']
+        ]
+      ]);
+    });
   });
-
-  it('can call a loader from a loader', async () => {
-    const deepLoadCalls = [];
-    const deepLoader = new DataLoader<
-      $ReadOnlyArray<string>,
-      $ReadOnlyArray<string>
-    >(keys => {
-      deepLoadCalls.push(keys);
-      return Promise.resolve(keys);
-    });
-
-    const aLoadCalls = [];
-    const aLoader = new DataLoader<string, string>(keys => {
-      aLoadCalls.push(keys);
-      return deepLoader.load(keys);
-    });
-
-    const bLoadCalls = [];
-    const bLoader = new DataLoader<string, string>(keys => {
-      bLoadCalls.push(keys);
-      return deepLoader.load(keys);
-    });
-
-    const [ a1, b1, a2, b2 ] = await Promise.all([
-      aLoader.load('A1'),
-      bLoader.load('B1'),
-      aLoader.load('A2'),
-      bLoader.load('B2')
-    ]);
-
-    expect(a1).toBe('A1');
-    expect(b1).toBe('B1');
-    expect(a2).toBe('A2');
-    expect(b2).toBe('B2');
-
-    expect(aLoadCalls).toEqual([ [ 'A1', 'A2' ] ]);
-    expect(bLoadCalls).toEqual([ [ 'B1', 'B2' ] ]);
-    expect(deepLoadCalls).toEqual([ [ [ 'A1', 'A2' ], [ 'B1', 'B2' ] ] ]);
-  });
-
-});
+}
