@@ -190,8 +190,15 @@ class GraphQLObjectType<P extends Object>
   }
 
   @override
-  Iterable<Object?> get props =>
-      [name, description, isInterface, fields, interfaces, possibleTypes];
+  Iterable<Object?> get props => [
+        name,
+        description,
+        isInterface,
+        // Filter introspection fields TODO: should we do this?
+        fields.where((f) => !f.name.startsWith('__')),
+        interfaces,
+        possibleTypes
+      ];
 }
 
 Map<String, Object?> _foldToStringDynamic(Map<Object, Object?> map) {

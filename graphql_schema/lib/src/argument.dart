@@ -9,16 +9,16 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
   /// The name of this field.
   final String name;
 
+  /// An optional description for this field.
+  ///
+  /// This is useful when documenting your API for consumers like GraphiQL.
+  final String? description;
+
   /// The type that input values must conform to.
   final GraphQLType<Value, Serialized> type;
 
   /// An optional default value for this field.
   final Value? defaultValue;
-
-  /// An optional description for this field.
-  ///
-  /// This is useful when documenting your API for consumers like GraphiQL.
-  final String? description;
 
   final String? deprecationReason;
 
