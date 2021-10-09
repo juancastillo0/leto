@@ -39,7 +39,7 @@ GraphQLSchema todosSchema() {
     User.serializer,
   ]);
 
-  final schema = graphQLSchema(
+  final schema = GraphQLSchema(
     serdeCtx: serdeCtx,
     queryType: objectType('api', fields: [
       field(

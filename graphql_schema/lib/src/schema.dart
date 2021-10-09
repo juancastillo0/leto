@@ -3,7 +3,8 @@ library graphql_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:gql/ast.dart' show DocumentNode, FieldNode, OperationDefinitionNode;
+import 'package:gql/ast.dart'
+    show DocumentNode, FieldNode, OperationDefinitionNode;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart';
 import 'package:source_span/source_span.dart';
@@ -62,20 +63,6 @@ class GraphQLSchema {
   // )
   ;
 }
-
-/// A shorthand for creating a [GraphQLSchema].
-GraphQLSchema graphQLSchema({
-  required GraphQLObjectType<Object> queryType,
-  GraphQLObjectType<Object>? mutationType,
-  GraphQLObjectType<Object>? subscriptionType,
-  SerdeCtx? serdeCtx,
-}) =>
-    GraphQLSchema(
-      queryType: queryType,
-      mutationType: mutationType,
-      subscriptionType: subscriptionType,
-      serdeCtx: serdeCtx,
-    );
 
 /// A default resolver that always returns `null`.
 Object? resolveToNull(Object? _, Object? __) => null;

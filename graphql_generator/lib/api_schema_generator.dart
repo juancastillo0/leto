@@ -98,7 +98,7 @@ class ValidatorsLibGenerator implements Builder {
 import 'package:graphql_schema/graphql_schema.dart';
 ${allClasses.map((e) => "import '${cleanImport(basePath, e.source.uri)}';").toSet().join()}
 
-final graphqlApiSchema = graphQLSchema(
+final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()..addAll([$_serializers]),
   queryType: objectType(
     'Queries',

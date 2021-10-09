@@ -17,7 +17,7 @@ void main() {
       ),
     ]);
 
-    final schema = graphQLSchema(
+    final schema = GraphQLSchema(
       queryType: objectType('api', fields: [
         field(
           'todos',

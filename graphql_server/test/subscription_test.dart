@@ -24,7 +24,7 @@ void main() {
     field('not_selected', graphQLInt),
   ]);
 
-  final schema = graphQLSchema(
+  final schema = GraphQLSchema(
     queryType: objectType('TestQuery', fields: [
       field('episodes', graphQLInt, resolve: (_, __) => episodes),
     ]),
