@@ -377,14 +377,6 @@ SerdeType serdeTypeFromJson(
     },
     none: () => const SerdeType.option(SerdeType.dynamic),
   );
-  // if (obj is Map<String, Object?>) {
-  //   return Optional(
-  //     SerdeType.nested(obj.map((key, value) => MapEntry(key, value))),
-  //     nullable: false,
-  //   );
-  // } else if (obj is int) {
-
-  // }
 }
 
 SerdeType serdeFromList(
@@ -445,29 +437,6 @@ SerdeType mergeSerdeSchema(
   };
 
   return variants.length == 1 ? variants.first : SerdeType.unionType(variants);
-}
-
-@immutable
-class Optional {
-  final bool nullable;
-  final SerdeType type;
-
-  const Optional(
-    this.type, {
-    required this.nullable,
-  });
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Optional &&
-        other.nullable == nullable &&
-        other.type == type;
-  }
-
-  @override
-  int get hashCode => nullable.hashCode ^ type.hashCode;
 }
 
 const jsonPayload = '''

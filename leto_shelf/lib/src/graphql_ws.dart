@@ -24,6 +24,7 @@ Handler graphqlWebSocket(
   GraphQL graphQL, {
   Iterable<String>? allowedOrigins,
   Duration? keepAliveInterval,
+  Duration? pingInterval,
   Duration? connectionInitWaitTimeout,
   Map<Object, Object?>? globalVariables,
   FutureOr<bool> Function(Map<String, Object?>? payload)?
@@ -50,6 +51,7 @@ Handler graphqlWebSocket(
       },
       protocols: stw.Server.supportedProtocols,
       allowedOrigins: allowedOrigins,
+      pingInterval: pingInterval,
     );
     return handler(request);
   };
@@ -109,43 +111,3 @@ class GraphQLWebSocketServer extends stw.Server {
     );
   }
 }
-
-// if (req.protocolVersion != '1.1') {
-//   return Response(
-//     HttpStatus.badRequest,
-//     body: 'The `graphQLWS` endpoint only accepts HTTP/1.1 requests.',
-//   );
-// }
-// if (!req.canHijack) {
-//   throw ArgumentError('webSocketHandler may only be used with a server '
-//       'that supports request hijacking.');
-// }
-// req.hijack((p0) async {
-//   if (WebSocketTransformer.isUpgradeRequest(req.rawRequest)) {
-//     await res.detach();
-//     var socket = await WebSocketTransformer.upgrade(
-//       req.rawRequest,
-//       protocolSelector: (protocols) {
-//         if (protocols.contains('graphql-ws')) {
-//           return 'graphql-ws';
-//         } else {
-//           return Response(
-//             HttpStatus.badRequest,
-//             body: 'Only the "graphql-ws" protocol is allowed.',
-//           );
-//         }
-//       },
-//     );
-
-//     final channel = IOWebSocketChannel(socket);
-//     final client = stw.RemoteClient(channel.cast<String>());
-//     final server =
-//         _GraphQLWSServer(client, graphQL, req, keepAliveInterval);
-//     await server.done;
-//   } else {
-//     return Response(
-//       HttpStatus.badRequest,
-//       body: 'The `graphQLWS` endpoint only accepts WebSockets.',
-//     );
-//   }
-// });
