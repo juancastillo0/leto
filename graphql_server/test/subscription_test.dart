@@ -29,7 +29,7 @@ void main() {
       field('episodes', graphQLInt, resolve: (_, __) => episodes),
     ]),
     subscriptionType: objectType('TestSubscription', fields: [
-      field('prequels', episodeType, resolve: resolveEpisodes),
+      field('prequels', episodeType, subscribe: resolveEpisodes),
     ]),
   );
 

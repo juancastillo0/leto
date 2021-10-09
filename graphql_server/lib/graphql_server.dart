@@ -46,13 +46,10 @@ class GraphQL {
   /// being validated with the provided schema
   final bool validate;
 
-  final bool handleSubscriptionError;
-
   GraphQL(
     GraphQLSchema schema, {
     bool introspect = true,
     this.validate = true,
-    this.handleSubscriptionError = false,
     this.defaultFieldResolver,
     this.extensionList = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
@@ -450,14 +447,14 @@ class GraphQL {
     GraphQLSchema schema,
     Object? initialValue,
   ) {
-    final fieldName = sourceStream.key.name.value;
-    final span = sourceStream.key.span ??
-        sourceStream.key.alias?.span ??
-        sourceStream.key.name.span;
-    Future<GraphQLResult?> prev = Future.value();
+    // final fieldName = sourceStream.key.name.value;
+    // final span = sourceStream.key.span ??
+    //     sourceStream.key.alias?.span ??
+    //     sourceStream.key.name.span;
+    // Future<GraphQLResult?> prev = Future.value();
 
-    final transformer = StreamTransformer<Object?, GraphQLResult>.fromHandlers(
-      handleData: (event, sink) {
+    return sourceStream.value.asyncMap(
+      (event) async {
         final ctx = ResolveCtx(
           document: baseCtx.document,
           operation: baseCtx.operation,
@@ -467,8 +464,8 @@ class GraphQL {
           schema: baseCtx.schema,
           variableValues: baseCtx.variableValues,
         );
-        final _prev = prev;
-        final curr = withExtensions<Future<GraphQLResult>>(
+        // final _prev = prev;
+        return withExtensions<Future<GraphQLResult>>(
           (next, p1) async => p1.executeSubscriptionEvent(
             next,
             ctx,
@@ -501,37 +498,37 @@ class GraphQL {
             }
           },
         );
-        prev = curr.then<GraphQLResult>((event) async {
-          await _prev;
-          sink.add(event);
-          return event;
-        });
+        // prev = curr.then<GraphQLResult>((event) async {
+        //   await _prev;
+        //   sink.add(event);
+        //   return event;
+        // });
       },
-      handleError: (error, stackTrace, sink) {
-        if (handleSubscriptionError) {
-          prev.then(
-            (Object? value) {
-              final exception = GraphQLException.fromException(
-                error,
-                [fieldName],
-                span: span,
-              );
-              sink.add(GraphQLResult(
-                {fieldName: null},
-                errors: exception.errors,
-              ));
-            },
-          );
-        } else {
-          prev.then((Object? _) {
-            sink.addError(error, stackTrace);
-            sink.close();
-          });
-        }
-      },
-      handleDone: (_) {},
+      // handleError: (error, stackTrace, sink) {
+      //   if (handleSubscriptionError) {
+      //     prev.then(
+      //       (Object? value) {
+      //         final exception = GraphQLException.fromException(
+      //           error,
+      //           [fieldName],
+      //           span: span,
+      //         );
+      //         sink.add(GraphQLResult(
+      //           {fieldName: null},
+      //           errors: exception.errors,
+      //         ));
+      //       },
+      //     );
+      //   } else {
+      //     prev.then((Object? _) {
+      //       sink.addError(error, stackTrace);
+      //       sink.close();
+      //     });
+      //   }
+      // },
+      // handleDone: (_) {},
     );
-    return transformer.bind(sourceStream.value);
+    // return transformer.bind(sourceStream.value);
   }
 
   Future<Stream<Object?>> resolveFieldEventStream(
@@ -570,8 +567,6 @@ class GraphQL {
     try {
       if (field.subscribe != null) {
         result = await field.subscribe!(rootValue, reqCtx);
-      } else if (field.resolve != null) {
-        result = await field.resolve!(rootValue, reqCtx);
       } else if (rootValue is Map<String, Object?> &&
           rootValue.containsKey(fieldName)) {
         final value = rootValue[fieldName];
@@ -1043,7 +1038,7 @@ class GraphQL {
 
   /// Returns the serialized value of type [fieldType]
   /// from a resolved [_result] for [fieldName]
-  /// given the Object context ([ctx])
+  /// given the Object context [ctx]
   Future<Object?> completeValue(
     ResolveObjectCtx ctx,
     String fieldName,
