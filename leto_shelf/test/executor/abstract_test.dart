@@ -145,13 +145,13 @@ void main() {
     final DogType = objectType<Dog>(
       'Dog',
       interfaces: [PetType],
-      // isTypeOf(_source, context) {
-      //   const error =  Error('We are testing this error');
-      //   if (context.async) {
-      //     return Promise.reject(error);
-      //   }
-      //   throw error;
-      // },
+      isTypeOf: (_source, type, context) {
+        const error = 'We are testing this error';
+        // if (context.async) {
+        //   return Promise.reject(error);
+        // }
+        throw error;
+      },
       fieldsMap: {
         'name': graphQLString.fieldSpec(),
         'woofs': graphQLBoolean.fieldSpec(),
@@ -206,14 +206,14 @@ void main() {
         {
           'message': 'We are testing this error',
           'locations': [
-            {'line': 3, 'column': 9}
+            {'line': 1, 'column': 8}
           ],
           'path': ['pets', 0],
         },
         {
           'message': 'We are testing this error',
           'locations': [
-            {'line': 3, 'column': 9}
+            {'line': 1, 'column': 8}
           ],
           'path': ['pets', 1],
         },
@@ -298,13 +298,13 @@ void main() {
   test('resolveType can throw', () async {
     final PetType = objectType<Object>(
       'Pet',
-      // resolveType(_source, context) {
-      //   final error = new Error('We are testing this error');
-      //   if (context.async) {
-      //     return Promise.reject(error);
-      //   }
-      //   throw error;
-      // },
+      resolveType: (_source, type, context) {
+        const error = 'We are testing this error';
+        // if (context.async) {
+        //   return Promise.reject(error);
+        // }
+        throw error;
+      },
       fieldsMap: {
         'name': graphQLString.fieldSpec(),
       },
@@ -367,14 +367,14 @@ void main() {
         {
           'message': 'We are testing this error',
           'locations': [
-            {'line': 3, 'column': 9}
+            {'line': 1, 'column': 8}
           ],
           'path': ['pets', 0],
         },
         {
           'message': 'We are testing this error',
           'locations': [
-            {'line': 3, 'column': 9}
+            {'line': 1, 'column': 8}
           ],
           'path': ['pets', 1],
         },

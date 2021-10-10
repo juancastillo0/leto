@@ -580,12 +580,13 @@ void main() {
       fields: [
         field('name', graphQLString),
       ],
-      // resolveType(_source, context, info) {
-      //   encounteredContext = context;
-      //   encounteredSchema = info.schema;
-      //   encounteredRootValue = info.rootValue;
-      //   return PersonType2.name;
-      // },
+      isInterface: true,
+      resolveType: (_source, type, ctx) {
+        encounteredContext = ctx.globalVariables;
+        encounteredSchema = ctx.base.schema;
+        encounteredRootValue = ctx.base.rootValue;
+        return 'Person';
+      },
     );
 
     final PersonType2 = objectType<Object>(
@@ -603,6 +604,7 @@ void main() {
 
     final result = await GraphQL(
       schema2,
+      introspect: false,
     ).parseAndExecute(
       document,
       initialValue: rootValue,
