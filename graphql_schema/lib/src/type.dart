@@ -67,7 +67,8 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   bool operator ==(Object? other) {
     return identical(this, other) ||
             other is GraphQLType &&
-                runtimeType == other.runtimeType &&
+                (runtimeType == other.runtimeType ||
+                    this is GraphQLObjectType && other is GraphQLObjectType) &&
                 const DeepCollectionEquality().equals(other.props, props)
         // || other is GraphQLType &&
         // () {
@@ -91,8 +92,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     final _used = _usedHashCodes;
     if (_used == null) {
       _usedHashCodes = {key: this};
-      final value =
-          runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+      final value = const DeepCollectionEquality().hash(props);
       _usedHashCodes = null;
       return value;
     } else if (_used.containsKey(key)) {
@@ -109,13 +109,13 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     } else {
       _used[key] = this;
     }
-    return runtimeType.hashCode ^ const DeepCollectionEquality().hash(props);
+    return const DeepCollectionEquality().hash(props);
   }
 
   @override
   String toString() => name!;
 
-  GenericHelp<Value> get generic => GenericHelp<Value>();
+  GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
 
   GraphQLType<Value, Serialized> get realType {
     return this;

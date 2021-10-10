@@ -82,10 +82,17 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     ),
   ];
 
-  fields.addAll(schema.queryType!.fields);
+  final queryType = schema.queryType!;
+  fields.addAll(queryType.fields);
 
   return GraphQLSchema(
-    queryType: objectType(schema.queryType!.name, fields: fields),
+    queryType: objectType(
+      queryType.name,
+      fields: fields,
+      description: queryType.description,
+      interfaces: queryType.interfaces,
+      isInterface: queryType.isInterface,
+    ),
     mutationType: schema.mutationType,
     subscriptionType: schema.subscriptionType,
     serdeCtx: schema.serdeCtx,

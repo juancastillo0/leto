@@ -204,6 +204,37 @@ class GenericHelp<T> implements GenericHelpSingle<T> {
   int get hashCode => T.hashCode;
 }
 
+@immutable
+class GenericHelpWithExtends<T extends E, E> implements GenericHelpSingle<T> {
+  /// [T] as a [Type] object.
+  Type get type => T;
+
+  /// [E] as a [Type] object.
+  Type get extendsType => E;
+
+  /// Returns true if [value] is of type [T], false otherwise.
+  bool isValueOfType(Object? value) => value is T;
+
+  /// Returns true if [O] is equal to [T], false otherwise.
+  bool isEqualToType<O>() => O == T;
+
+  /// Executes a generic callback with the generic type parameter as [T].
+  /// Returns the object returned by the callback.
+  O callWithType<O>(O Function<P extends E>() callback) => callback<T>();
+
+  @override
+  GenericHelp<T> get generic => GenericHelp<T>();
+
+  @override
+  bool operator ==(Object? other) =>
+      other is GenericHelpWithExtends &&
+      other.type == T &&
+      other.extendsType == E;
+
+  @override
+  int get hashCode => T.hashCode ^ E.hashCode;
+}
+
 class _SerializerIdentity<T> extends Serializer<T> {
   const _SerializerIdentity();
 
