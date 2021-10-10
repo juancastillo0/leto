@@ -199,8 +199,6 @@ void main() {
     ''';
 
       final result = await GraphQL(schema).parseAndExecute(document);
-      print(printSchema(schema));
-      print(result);
       expect(result.toJson(), {
         'data': {
           'a': 'Apple',
@@ -455,23 +453,23 @@ void main() {
           return 'sync';
         },
         'syncError': () {
-          throw GraphQLExceptionError('Error getting syncError');
+          throw GraphQLError('Error getting syncError');
         },
         'syncRawError': () {
           // eslint-disable-next-line @typescript-eslint/no-throw-literal
           throw 'Error getting syncRawError';
         },
         'syncReturnError': () {
-          return throw GraphQLExceptionError('Error getting syncReturnError');
+          return throw GraphQLError('Error getting syncReturnError');
         },
         'syncReturnErrorList': () {
           // TODO: didn't throw
           return [
             'sync0',
-            () => throw GraphQLExceptionError(
+            () => throw GraphQLError(
                 'Error getting syncReturnErrorList1'),
             'sync2',
-            () => throw GraphQLExceptionError(
+            () => throw GraphQLError(
                 'Error getting syncReturnErrorList3'),
           ];
         },
@@ -481,7 +479,7 @@ void main() {
         'asyncReject': () {
           return Future<Object>.microtask(
             () => Future.error(
-                GraphQLExceptionError('Error getting asyncReject')),
+                GraphQLError('Error getting asyncReject')),
           );
         },
         'asyncRawReject': () {
@@ -494,7 +492,7 @@ void main() {
         },
         'asyncError': () {
           return Future.microtask(() {
-            throw GraphQLExceptionError('Error getting asyncError');
+            throw GraphQLError('Error getting asyncError');
           });
         },
         'asyncRawError': () {
@@ -507,12 +505,12 @@ void main() {
           // TODO: didn't throw
           // TODO: support async errors?
           // return throw Future.value(
-          //   GraphQLExceptionError('Error getting asyncReturnError'),
+          //   GraphQLError('Error getting asyncReturnError'),
           // );
-          return throw GraphQLExceptionError('Error getting asyncReturnError');
+          return throw GraphQLError('Error getting asyncReturnError');
         },
         'asyncReturnErrorWithExtensions': () {
-          final error = GraphQLExceptionError(
+          final error = GraphQLError(
             'Error getting asyncReturnErrorWithExtensions',
             extensions: {'foo': 'bar'},
           );
@@ -648,7 +646,7 @@ void main() {
           )).field(
             'foods',
             resolve: (parent, ctx) {
-              return Future.error(GraphQLExceptionError('Oops'));
+              return Future.error(GraphQLError('Oops'));
             },
           )
         ]),
@@ -696,7 +694,7 @@ void main() {
             'throws',
             graphQLString.nonNull(),
             resolve: (_, __) {
-              throw GraphQLExceptionError('Catch me if you can');
+              throw GraphQLError('Catch me if you can');
             },
           ),
         ]);

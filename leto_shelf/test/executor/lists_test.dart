@@ -201,7 +201,7 @@ void main() {
     });
 
     test('Contains error', () async {
-      final listField = [1, () => throw GraphQLExceptionError('bad'), 2];
+      final listField = [1, () => throw GraphQLError('bad'), 2];
       const errors = [
         {
           'message': 'bad',
@@ -235,7 +235,7 @@ void main() {
     });
 
     test('Results in error', () async {
-      final listField = () => throw GraphQLExceptionError('bad');
+      final listField = () => throw GraphQLError('bad');
       const errors = [
         {
           'message': 'bad',

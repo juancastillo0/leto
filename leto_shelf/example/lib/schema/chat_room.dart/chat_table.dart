@@ -452,7 +452,7 @@ Future<Stream<List<ChatMessage>>> onMessageSent(
   final controller = await chatControllerRef.get(ctx);
   final chat = controller.chats.get(chatId);
   if (chat == null) {
-    throw GraphQLExceptionError('Chat with id $chatId not found.');
+    throw GraphQLError('Chat with id $chatId not found.');
   }
   return controller.messages.controller.stream
       .where((event) => event.chatId == chatId)

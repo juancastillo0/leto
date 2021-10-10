@@ -577,13 +577,13 @@ void main() {
       // TODO:
       // expect(
       //   // Returning an error
-      //   await subscribeWithFn(() => GraphQLExceptionError('test error')),
+      //   await subscribeWithFn(() => GraphQLError('test error')),
       // expectedResult);
 
       expect(
           // Throwing an error
           await (await subscribeWithFn(() {
-            throw GraphQLExceptionError('test error');
+            throw GraphQLError('test error');
           }))
               .singleValue(),
           expectedResult);
@@ -591,13 +591,13 @@ void main() {
       // TODO:
       // expect(
       //   // Resolving to an error
-      //   await subscribeWithFn(() => Future.value(GraphQLExceptionError('test error'))),
+      //   await subscribeWithFn(() => Future.value(GraphQLError('test error'))),
       // expectedResult);
 
       expect(
           // Rejecting with an error
           await (await subscribeWithFn(
-                  () => Future.error(GraphQLExceptionError('test error'))))
+                  () => Future.error(GraphQLError('test error'))))
               .singleValue(),
           expectedResult);
     });
@@ -1033,7 +1033,7 @@ void main() {
               // TODO: support throwing in stream?
               // .map((message) {
               // if (message == 'Goodbye') {
-              //   throw GraphQLExceptionError('Never leave.');
+              //   throw GraphQLError('Never leave.');
               // }
               // return message;
               // })
@@ -1042,7 +1042,7 @@ void main() {
               resolve: (event, _) {
                 final message = (event as SubscriptionEvent).value as String?;
                 if (message == 'Goodbye') {
-                  throw GraphQLExceptionError('Never leave.');
+                  throw GraphQLError('Never leave.');
                 }
                 return message;
               },
@@ -1092,7 +1092,7 @@ void main() {
     test('should pass through error thrown in source event stream', () async {
       Stream<String> generateMessages() async* {
         yield 'Hello';
-        throw GraphQLExceptionError('test error');
+        throw GraphQLError('test error');
       }
 
       final schema = GraphQLSchema(
