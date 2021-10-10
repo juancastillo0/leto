@@ -344,8 +344,15 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
       graphQLString,
       description: 'A GraphQL-formatted string representing the default'
           ' value for this input value.',
-      // TODO:
-      resolve: (obj, _) => obj.defaultValue,
+      resolve: (obj, _) {
+        final ast = obj.type.isNullable && obj.defaultValue == null
+            ? null
+            : astFromValue(obj.defaultValue, obj.type);
+        if (ast == null) {
+          return null;
+        }
+        return printAST(ast);
+      },
     ),
     field(
       'isDeprecated',
