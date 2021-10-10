@@ -165,8 +165,11 @@ class Connection<T extends Node> {
 GraphQLType<Edge<T>, Object> edgeGraphQlType<T extends Node>(
   GraphQLType<T, Object> type,
 ) {
+  final _name = type is GraphQLNonNullType
+      ? (type as GraphQLNonNullType).ofType.name
+      : type.name;
   return objectType(
-    '${type.name}Edge',
+    '${_name}Edge',
     fields: [
       type.field(
         'node',
@@ -183,8 +186,11 @@ GraphQLType<Edge<T>, Object> edgeGraphQlType<T extends Node>(
 GraphQLType<Connection<T>, Object> connectionGraphQlType<T extends Node>(
   GraphQLType<T, Object> type,
 ) {
+  final _name = type is GraphQLNonNullType
+      ? (type as GraphQLNonNullType).ofType.name
+      : type.name;
   return objectType(
-    '${type.name}Connection',
+    '${_name}Connection',
     fields: [
       listOf(edgeGraphQlType(type)).field(
         'edges',
