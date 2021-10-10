@@ -338,10 +338,11 @@ class GraphQL {
       }
       if (variableType.isNonNull && coercedValues[variableName] == null) {
         throw GraphQLException.fromSourceSpan(
-            coercedValues.containsKey(variableName)
-                ? 'Required variable "$variableName" of type $type must not be null.'
-                : 'Missing required variable "$variableName" of type $type',
-            span!);
+          coercedValues.containsKey(variableName)
+              ? 'Required variable "$variableName" of type $type must not be null.'
+              : 'Missing required variable "$variableName" of type $type',
+          span!,
+        );
       }
     }
 
@@ -436,7 +437,6 @@ class GraphQL {
       fieldNode,
       argumentValues,
     );
-    // TODO: don't use MapEntry
     return MapEntry(fieldNode, stream);
   }
 
@@ -775,9 +775,6 @@ class GraphQL {
           );
         }
       } else {
-        // try {
-        // TODO: verify
-        // TODO: check subscriptions
         final node = argumentValue.value;
         final span = node.span ??
             argumentValue.span ??
@@ -890,11 +887,7 @@ class GraphQL {
 
       type.whenOrNull(
         object: (obj) {
-          // if (obj.isInterface) {
-          //   possibleObjects.addAll(obj.possibleTypes);
-          // } else {
           possibleObjects.add(obj);
-          // }
         },
         union: (union) => possibleObjects.addAll(union.possibleTypes),
         nonNullable: _mapperType,
@@ -913,19 +906,6 @@ class GraphQL {
                 variableValues,
                 aliased: false,
               );
-
-              // final Map<String, List<FieldNode>> nonAlised =
-              //     groupedFields.entries.fold(
-              //   {},
-              //   (map, e) {
-              //     final list = map.putIfAbsent(
-              //       e.value.first.name.value,
-              //       () => [],
-              //     );
-              //     list.addAll(e.value);
-              //     return map;
-              //   },
-              // );
 
               Iterable<MapEntry<String, PossibleSelections? Function()>>
                   _mapEntries(
@@ -1192,7 +1172,7 @@ class GraphQL {
     GraphQLType type,
     Object? result,
   ) {
-    List<GraphQLObjectType> possibleTypes;
+    final List<GraphQLObjectType> possibleTypes;
 
     if (type is GraphQLObjectType) {
       if (type.isInterface) {
@@ -1201,9 +1181,11 @@ class GraphQL {
         return type;
       }
     } else if (type is GraphQLUnionType) {
-      possibleTypes = type.possibleTypes.cast();
+      possibleTypes = type.possibleTypes;
     } else {
-      throw ArgumentError();
+      throw ArgumentError(
+        'abtract type should be an Object or Union. Received $type.',
+      );
     }
 
     final errors = <GraphQLExceptionError>[];
@@ -1254,7 +1236,7 @@ class GraphQL {
 
     // TODO: check if there is only one type matching
     // throw GraphQLException(errors);
-    return throw GraphQLException(errors);
+    throw GraphQLException(errors);
   }
 
   SelectionSetNode mergeSelectionSets(List<SelectionNode> fields) {
@@ -1369,8 +1351,8 @@ class GraphQL {
           return objectType.isImplementationOf(type);
         }
       },
-      union: (type) => type.possibleTypes
-          .any((t) => objectType.isImplementationOf(t as GraphQLObjectType)),
+      union: (type) =>
+          type.possibleTypes.any((t) => objectType.isImplementationOf(t)),
       orElse: (_) => false,
     );
   }
