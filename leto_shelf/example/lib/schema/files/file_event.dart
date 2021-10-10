@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:shelf_graphql/shelf_graphql.dart' show UploadedFileMeta;
 
-import 'api_schema.dart';
+import 'file_upload.dart';
 
 part 'file_event.freezed.dart';
 part 'file_event.g.dart';

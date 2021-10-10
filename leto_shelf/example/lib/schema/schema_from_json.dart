@@ -6,8 +6,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_path/json_path.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
-import 'package:shelf_graphql_example/schema/safe_json.dart';
-import 'package:shelf_graphql_example/schema/safe_json_graphql.dart';
+import 'package:shelf_graphql_example/types/safe_json.dart';
+import 'package:shelf_graphql_example/types/safe_json_graphql.dart';
 import 'package:valida/valida.dart';
 
 export 'package:valida/validate/serde_type.dart';

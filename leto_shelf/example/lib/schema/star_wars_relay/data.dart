@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/page_info.dart';
+import 'package:shelf_graphql_example/types/page_info.dart';
 import 'package:valida/valida.dart';
 
 part 'data.g.dart';

@@ -86,7 +86,9 @@ class RefWithDefault<T> {
 }
 
 abstract class GlobalsHolder {
-  GlobalsHolder();
+  GlobalsHolder([this.parent]);
+
+  final GlobalsHolder? parent;
 
   Map<Object, Object?> get globals;
 

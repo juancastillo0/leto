@@ -3,15 +3,16 @@ import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/graphql_api.schema.dart';
-import 'package:shelf_graphql_example/schema/books.schema.dart';
+import 'package:shelf_graphql_example/schema/books/books.schema.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
 import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
 import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
 
-import 'files.controller.dart';
-import 'safe_json.dart';
-import 'safe_json_graphql.dart';
+import 'files/file_upload.dart';
+import 'files/files.controller.dart';
+import '../types/safe_json.dart';
+import '../types/safe_json_graphql.dart';
 
 GraphQLSchema makeApiSchema(FilesController filesController) {
   final simpleError = objectType<Map<String, String>>(
@@ -184,27 +185,6 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
       },
     ),
   ].reduce(mergeGraphQLSchemas);
-}
-
-GraphQLObjectType<UploadedFileMeta>? _fileUploadType;
-GraphQLObjectType<UploadedFileMeta> fileUploadType() {
-  return _fileUploadType ??= objectType(
-    'FileUpload',
-    fields: [
-      graphQLString.nonNull().field('filename'),
-      graphQLInt.nonNull().field('sizeInBytes'),
-      graphQLString.nonNull().field('mimeType'),
-      graphQLDate.nonNull().field('createdAt'),
-      graphQLString.nonNull().field('sha1Hash'),
-      graphQLJson.field('extra'),
-      graphQLString.nonNull().field(
-        'url',
-        resolve: (file, ctx) {
-          return 'http://localhost:8060/files/${file.filename}';
-        },
-      ),
-    ],
-  );
 }
 
 String pathRelativeToScript(List<String> pathSegments) {
