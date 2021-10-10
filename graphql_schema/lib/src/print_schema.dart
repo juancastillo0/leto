@@ -288,10 +288,10 @@ class SchemaPrinter {
   }
 
   String printSpecifiedByURL(GraphQLScalarType scalar) {
-    if (scalar.specifiedByURL == null) {
+    final url = scalar.specifiedByURL;
+    if (url == null) {
       return '';
     }
-    final url = scalar.specifiedByURL;
     final urlAST = astFromValue(url, graphQLString);
     if (urlAST == null)
       throw Exception(
@@ -325,10 +325,7 @@ class SchemaPrinter {
   }
 }
 
-// TODO:
-String printAST(String t) => '"$t"';
-
-String? astFromValue(Object? value, GraphQLType type) => value?.toString();
+String printAST(ast.ValueNode node) => printNode(node);
 
 // export type GraphQLInputType =
 //   | GraphQLScalarType
@@ -341,6 +338,113 @@ String? astFromValue(Object? value, GraphQLType type) => value?.toString();
 //       | GraphQLInputObjectType
 //       | GraphQLList<any>
 //     >;
+
+ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
+  if (type is GraphQLNonNullType) {
+    final astNode = astFromValue(value, type.ofType);
+    if (astNode == const ast.NullValueNode()) {
+      return null;
+    }
+    return astNode;
+  }
+  if (value == null) {
+    return const ast.NullValueNode();
+  }
+
+  ast.ObjectValueNode astFromObject(
+    Map<String, Object?> value,
+    Iterable<ObjectField> fields,
+  ) {
+    return ast.ObjectValueNode(fields: [
+      ...value.entries.map(
+        (e) {
+          final astNode = astFromValue(
+            e.value,
+            fields.firstWhere((f) => f.name == e.key).type,
+          );
+          if (astNode == null) {
+            return null;
+          }
+          return ast.ObjectFieldNode(
+            name: ast.NameNode(
+              value: e.key,
+            ),
+            value: astNode,
+          );
+        },
+      ).whereType(),
+    ]);
+  }
+
+  return type.when(
+    enum_: (enum_) => ast.EnumValueNode(
+      name: ast.NameNode(
+        value: enum_.serialize(value),
+      ),
+    ),
+    scalar: (scalar) {
+      final serialized = type.serialize(value);
+      return astFromUntypedValue(serialized);
+    },
+    input: (input) =>
+        astFromObject(input.serializeSafe(value), input.inputFields),
+    object: (object) {
+      throw ArgumentError('astFromValue can only be called with input types.');
+      // TODO: should we support this?
+      // return astFromObject(object.serializeSafe(value), object.fields);
+    },
+    union: (union) {
+      throw ArgumentError('astFromValue can only be called with input types.');
+    },
+    list: (list) {
+      if (value is List) {
+        return ast.ListValueNode(values: [
+          ...value.map((e) => astFromValue(e, list.ofType)).whereType(),
+        ]);
+      }
+      return astFromValue(value, list.ofType);
+    },
+    nonNullable: (nonNullable) => astFromValue(value, nonNullable.ofType),
+  );
+}
+
+ast.ValueNode astFromUntypedValue(Object value) {
+  if (value is String) {
+    return ast.StringValueNode(
+      value: value,
+      isBlock: value.length > 100,
+    );
+  } else if (value is int) {
+    return ast.IntValueNode(value: value.toString());
+  } else if (value is double) {
+    return ast.FloatValueNode(value: value.toString());
+  } else if (value is bool) {
+    return ast.BooleanValueNode(value: value);
+  } else if (value is Map<String, Object?>) {
+    return ast.ObjectValueNode(fields: [
+      ...value.entries.map(
+        (e) {
+          return ast.ObjectFieldNode(
+            name: ast.NameNode(
+              value: e.key,
+            ),
+            value: e.value == null
+                ? const ast.NullValueNode()
+                : astFromUntypedValue(e.value!),
+          );
+        },
+      ),
+    ]);
+  } else if (value is List<Object?>) {
+    return ast.ListValueNode(values: [
+      ...value.map(
+        (e) => e == null ? const ast.NullValueNode() : astFromUntypedValue(e),
+      ),
+    ]);
+  }
+  // TODO:
+  throw Error();
+}
 
 /// Print a block string in the indented block form by adding a leading and
 /// trailing blank line. However, if a block string starts with whitespace and

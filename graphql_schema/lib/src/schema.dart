@@ -5,6 +5,9 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode;
+
+import 'package:gql/ast.dart' as ast;
+import 'package:gql/language.dart' show printNode;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart';
 import 'package:source_span/source_span.dart';
