@@ -20,6 +20,20 @@ final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
 final GraphQLScalarType<DateTime, int> graphQLTimestamp =
     _GraphQLTimestampType._();
 
+final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
+  name: 'Uri',
+  description: 'A Uniform Resource Identifier (URI) is a compact sequence of'
+      ' characters that identifies an abstract or physical resource.',
+  serialize: (uri) => uri.toString(),
+  deserialize: (_, input) => Uri.parse(input),
+  specifiedByURL: 'https://datatracker.ietf.org/doc/html/rfc3986',
+  validate: (key, input) => input is String && Uri.tryParse(input) != null
+      ? ValidationResult.ok(input)
+      : ValidationResult.failure(
+          ['Expected "$key" to be a Uri. Got invalid value $input.'],
+        ),
+);
+
 /// A signed 32‐bit integer.
 final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
   'Int',
