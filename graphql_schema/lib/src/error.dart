@@ -4,7 +4,7 @@ part of graphql_schema.src.schema;
 class GraphQLException implements Exception {
   /// A list of all specific errors, with text representation,
   /// that caused this exception.
-  final List<GraphQLExceptionError> errors;
+  final List<GraphQLError> errors;
 
   const GraphQLException(this.errors);
 
@@ -14,7 +14,7 @@ class GraphQLException implements Exception {
     SourceLocation? location,
   }) {
     return GraphQLException([
-      GraphQLExceptionError(
+      GraphQLError(
         message,
         path: path,
         locations: GraphQLErrorLocation.listFromSource(location),
@@ -28,7 +28,7 @@ class GraphQLException implements Exception {
     List<Object>? path,
   }) {
     return GraphQLException([
-      GraphQLExceptionError(
+      GraphQLError(
         message,
         locations: [
           GraphQLErrorLocation.fromSourceLocation(span.start),
@@ -46,7 +46,7 @@ class GraphQLException implements Exception {
     if (e is GraphQLException) {
       return GraphQLException([
         ...e.errors.map(
-          (e) => GraphQLExceptionError(
+          (e) => GraphQLError(
             e.message,
             locations: e.locations.isNotEmpty || span == null
                 ? e.locations
@@ -56,9 +56,9 @@ class GraphQLException implements Exception {
           ),
         ),
       ]);
-    } else if (e is GraphQLExceptionError) {
+    } else if (e is GraphQLError) {
       return GraphQLException([
-        GraphQLExceptionError(
+        GraphQLError(
           e.message,
           locations: e.locations.isNotEmpty || span == null
               ? e.locations
@@ -93,7 +93,7 @@ class GraphQLException implements Exception {
 ///
 /// This will almost always be passed to a [GraphQLException],
 ///  as it is useless alone.
-class GraphQLExceptionError implements Exception, GraphQLException {
+class GraphQLError implements Exception, GraphQLException {
   /// The reason execution was halted, whether it is a syntax error,
   /// or a runtime error, or some other exception.
   final String message;
@@ -113,7 +113,7 @@ class GraphQLExceptionError implements Exception, GraphQLException {
 
   final Map<String, Object?>? extensions;
 
-  GraphQLExceptionError(
+  GraphQLError(
     this.message, {
     this.locations = const [],
     this.path,
@@ -137,7 +137,7 @@ class GraphQLExceptionError implements Exception, GraphQLException {
   }
 
   @override
-  List<GraphQLExceptionError> get errors => [this];
+  List<GraphQLError> get errors => [this];
 }
 
 /// Information about a location in source text that caused an error during

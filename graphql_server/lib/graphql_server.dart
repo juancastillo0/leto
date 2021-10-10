@@ -169,7 +169,7 @@ class GraphQL {
         return document;
       } on SourceSpanException catch (e) {
         throw GraphQLException([
-          GraphQLExceptionError(
+          GraphQLError(
             e.message,
             locations: GraphQLErrorLocation.listFromSource(e.span?.start),
           )
@@ -200,7 +200,7 @@ class GraphQL {
           }
           return GraphQLException([
             ...errors.map(
-              (e) => GraphQLExceptionError(
+              (e) => GraphQLError(
                 e.message ?? 'Invalid operation.',
                 locations: GraphQLErrorLocation.listFromSource(
                   e.node?.span?.start,
@@ -296,7 +296,7 @@ class GraphQL {
       );
 
       if (!GraphQLFieldInput.isInputType(type)) {
-        throw GraphQLExceptionError(
+        throw GraphQLError(
           'Variable "$variableName" expected value of type "$type"'
           ' which cannot be used as an input type.',
           locations: locations,
@@ -324,7 +324,7 @@ class GraphQL {
           if (!validation.successful) {
             throw GraphQLException(
               validation.errors
-                  .map((e) => GraphQLExceptionError(e, locations: locations))
+                  .map((e) => GraphQLError(e, locations: locations))
                   .toList(),
             );
           } else {
@@ -622,7 +622,7 @@ class GraphQL {
     );
 
     if (groupedFieldSet.isEmpty && validate) {
-      throw GraphQLExceptionError(
+      throw GraphQLError(
         'Must select some fields in object ${objectType.name}.',
         locations: GraphQLErrorLocation.listFromSource(
           selectionSet.span?.start,
@@ -649,7 +649,7 @@ class GraphQL {
         );
         if (objectField == null) {
           if (validate) {
-            throw GraphQLExceptionError(
+            throw GraphQLError(
               'Unknown field name $fieldName for type ${objectType.name}.',
               locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
               path: fieldPath,
@@ -661,7 +661,7 @@ class GraphQL {
         if (validate &&
             objectField.type.realType is GraphQLScalarType &&
             (field.selectionSet?.selections.isNotEmpty ?? false)) {
-          throw GraphQLExceptionError(
+          throw GraphQLError(
             'Can´t have fields on scalar $fieldName (${objectField.type})'
             ' of object type ${objectType.name}.',
             locations: GraphQLErrorLocation.listFromSource(fieldSpan?.start),
@@ -749,7 +749,7 @@ class GraphQL {
     final fieldName = field.name.value;
     final desiredField = objectType.fields.firstWhere(
       (f) => f.name == fieldName,
-      orElse: () => throw GraphQLExceptionError(
+      orElse: () => throw GraphQLError(
         '${objectType.name} has no field named "$fieldName".',
         locations: GraphQLErrorLocation.listFromSource(
             (field.span ?? field.name.span)?.start),
@@ -828,8 +828,8 @@ class GraphQL {
                 argumentValue.name.span?.start,
           );
           if (!validation.successful) {
-            final errors = <GraphQLExceptionError>[
-              GraphQLExceptionError(
+            final errors = <GraphQLError>[
+              GraphQLError(
                 'Type coercion error for argument "$argumentName" ($argumentType)'
                 ' of field "$fieldName". Got value $value.',
                 locations: locations,
@@ -838,7 +838,7 @@ class GraphQL {
 
             for (final error in validation.errors) {
               errors.add(
-                GraphQLExceptionError(
+                GraphQLError(
                   error,
                   locations: locations,
                 ),
@@ -1188,7 +1188,7 @@ class GraphQL {
       );
     }
 
-    final errors = <GraphQLExceptionError>[];
+    final errors = <GraphQLError>[];
 
     // Try to match with the type's generic
     final matchingTypes =
@@ -1220,7 +1220,7 @@ class GraphQL {
         }
 
         errors.addAll(validation.errors.map(
-          (m) => GraphQLExceptionError(m),
+          (m) => GraphQLError(m),
         ));
       } on GraphQLException catch (e) {
         errors.addAll(e.errors);
@@ -1229,7 +1229,7 @@ class GraphQL {
 
     errors.insert(
       0,
-      GraphQLExceptionError(
+      GraphQLError(
         'Cannot convert value $result to type $type.',
       ),
     );

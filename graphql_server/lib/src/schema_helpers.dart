@@ -136,7 +136,7 @@ GraphQLType convertType(
         default:
           return customTypes.firstWhere(
             (t) => t.name == node.name.value,
-            orElse: () => throw GraphQLExceptionError(
+            orElse: () => throw GraphQLError(
               'Unknown GraphQL type: "${node.name.value}".',
               locations: GraphQLErrorLocation.listFromSource(
                 node.span?.start ?? node.name.span?.start,

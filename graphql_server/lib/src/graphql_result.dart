@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart' show DeepCollectionEquality;
-import 'package:graphql_schema/graphql_schema.dart' show GraphQLExceptionError;
+import 'package:graphql_schema/graphql_schema.dart' show GraphQLError;
 import 'package:meta/meta.dart';
 
 @immutable
@@ -14,7 +14,7 @@ class GraphQLResult {
 
   /// When [didExecute] is true, [data] is returned in the response
   final bool didExecute;
-  final List<GraphQLExceptionError> errors;
+  final List<GraphQLError> errors;
   final Map<String, Object?>? extensions;
 
   /// [errors] should not be empty when [didExecute] is false
@@ -28,7 +28,7 @@ class GraphQLResult {
 
   GraphQLResult copyWith({
     Object? data,
-    List<GraphQLExceptionError>? errors,
+    List<GraphQLError>? errors,
     bool? didExecute,
     Map<String, Object?>? extensions,
   }) {

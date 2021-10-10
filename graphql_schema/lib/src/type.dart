@@ -45,7 +45,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
       return value;
     } else if (value is! Value) {
       throw GraphQLException([
-        GraphQLExceptionError(
+        GraphQLError(
           'Cannot convert value $value of $Value to type $Serialized.'
           ' In $name ($runtimeType)',
         )

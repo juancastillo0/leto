@@ -89,7 +89,7 @@ class PossibleSelectionsObject {
 }
 
 class ResolveCtx {
-  final errors = <GraphQLExceptionError>[];
+  final errors = <GraphQLError>[];
   final GraphQLSchema schema;
   SerdeCtx get serdeCtx => schema.serdeCtx;
   final DocumentNode document;
