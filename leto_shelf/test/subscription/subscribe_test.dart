@@ -142,27 +142,22 @@ class TestSubs {
       (event) {
         final index = ++resolvedIndex;
         getCompleter(index).complete(
-          Future.delayed(
-            Duration.zero,
-            () => {
-              'done': done && index == events.length - 1,
-              'value': identical(event, _closeResult) ? null : event.toJson()
-            },
-          ),
+          {
+            'done': done && index == events.length - 1,
+            'value': identical(event, _closeResult) ? null : event.toJson()
+          },
         );
       },
       onError: (Object error, StackTrace stackTrace) {
         final comp = getCompleter(++resolvedIndex);
-        Future.delayed(
-          Duration.zero,
-          () => comp.completeError(
-            error,
-            stackTrace,
-          ),
+        comp.completeError(
+          error,
+          stackTrace,
         );
       },
       onDone: () {
         done = true;
+        close();
       },
     );
   }
@@ -192,7 +187,6 @@ class TestSubs {
   Future<Map<String, Object?>> singleValue() {
     return next().then(
       (value) {
-        assert(done);
         return value['value']! as Map<String, Object?>;
       },
     );
