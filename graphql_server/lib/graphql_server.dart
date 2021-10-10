@@ -16,6 +16,38 @@ export 'src/build_schema.dart';
 export 'src/extension.dart';
 export 'src/graphql_result.dart';
 
+class GraphQLConfig {
+  /// Any custom types to include in introspection information.
+  final List<GraphQLType> customTypes;
+
+  /// Extensions implement additional funcionalities to the
+  /// server's parsing, validation and execution.
+  /// For example, extensions for tracing [GraphQLTracingExtension],
+  /// logging, error handling or caching [GraphQLPersistedQueries]
+  final List<GraphQLExtension> extensionList;
+
+  /// An optional callback that can be used to resolve fields
+  /// from objects that are not [Map]s, when the related field has no resolver.
+  final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
+
+  /// If validate is false, a parsed document is executed without
+  /// being validated with the provided schema
+  final bool? validate;
+
+  final bool? introspect;
+
+  final Map<Object, Object?>? globalVariables;
+
+  const GraphQLConfig({
+    this.introspect,
+    this.validate,
+    this.defaultFieldResolver,
+    this.extensionList = const <GraphQLExtension>[],
+    this.customTypes = const <GraphQLType>[],
+    this.globalVariables,
+  });
+}
+
 /// A Dart implementation of a GraphQL server.
 class GraphQL {
   /// Any custom types to include in introspection information.
@@ -29,12 +61,11 @@ class GraphQL {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object parent, String fieldName, ReqCtx)?
-      defaultFieldResolver;
+  final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
 
   GraphQLSchema _schema;
 
-  final Map<Object, Object?> initialGlobalVariables;
+  final Map<Object, Object?> baseGlobalVariables;
 
   late final DocumentNode schemaNode = () {
     final schemaStr = printSchema(_schema);
@@ -46,42 +77,58 @@ class GraphQL {
   /// being validated with the provided schema
   final bool validate;
 
+  final bool introspect;
+
   GraphQL(
     GraphQLSchema schema, {
-    bool introspect = true,
-    this.validate = true,
+    bool? introspect,
+    bool? validate,
     this.defaultFieldResolver,
     this.extensionList = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
     Map<Object, Object?>? globalVariables,
-  })  : initialGlobalVariables = globalVariables ?? const {},
-        _schema = schema {
-    if (customTypes.isNotEmpty) {
-      this.customTypes.addAll(customTypes);
-    }
+  })  : baseGlobalVariables = globalVariables ?? const {},
+        _schema = schema,
+        introspect = introspect ?? true,
+        validate = validate ?? true {
+    this.customTypes.addAll(customTypes);
+    _init();
+  }
 
+  void _init() {
     if (introspect) {
-      final allTypes = fetchAllTypes(schema, this.customTypes);
+      final allTypes = fetchAllTypes(_schema, customTypes);
 
       _schema = reflectSchema(_schema, allTypes);
 
       for (final type in allTypes.toSet()) {
-        if (!this.customTypes.contains(type)) {
-          this.customTypes.add(type);
+        if (!customTypes.contains(type)) {
+          customTypes.add(type);
         }
       }
     }
 
     if (_schema.queryType != null) {
-      this.customTypes.add(_schema.queryType!);
+      customTypes.add(_schema.queryType!);
     }
     if (_schema.mutationType != null) {
-      this.customTypes.add(_schema.mutationType!);
+      customTypes.add(_schema.mutationType!);
     }
     if (_schema.subscriptionType != null) {
-      this.customTypes.add(_schema.subscriptionType!);
+      customTypes.add(_schema.subscriptionType!);
     }
   }
+
+  factory GraphQL.fromConfig(GraphQLSchema schema, GraphQLConfig config) =>
+      GraphQL(
+        schema,
+        validate: config.validate,
+        introspect: config.introspect,
+        customTypes: config.customTypes,
+        defaultFieldResolver: config.defaultFieldResolver,
+        extensionList: config.extensionList,
+        globalVariables: config.globalVariables,
+      );
 
   /// Parses the GraphQLDocument in [text] and executes [operationName]
   /// or the only operation in the document if not given.
@@ -99,7 +146,7 @@ class GraphQL {
     Map<Object, Object?>? globalVariables,
   }) async {
     final _globalVariables = globalVariables ?? <Object, Object?>{};
-    for (final e in initialGlobalVariables.entries) {
+    for (final e in baseGlobalVariables.entries) {
       _globalVariables.putIfAbsent(e.key, () => e.value);
     }
 
@@ -995,7 +1042,6 @@ class GraphQL {
       if (defaultFieldResolver != null) {
         final value = await defaultFieldResolver!(
           objectValue,
-          fieldName,
           fieldCtx,
         );
         return value as T?;
