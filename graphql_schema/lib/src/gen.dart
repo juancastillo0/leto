@@ -7,12 +7,16 @@ GraphQLObjectType<P> objectType<P extends Object>(
   bool isInterface = false,
   Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
   Map<String, GraphQLObjectField<Object, Object, P>>? fieldsMap,
+  ResolveType<GraphQLObjectType<P>>? resolveType,
+  IsTypeOf<P>? isTypeOf,
   Iterable<GraphQLObjectType> interfaces = const [],
 }) {
   return GraphQLObjectType<P>(
     name,
     description: description,
     isInterface: isInterface,
+    resolveType: resolveType,
+    isTypeOf: isTypeOf,
     fields: fieldsMap == null
         ? fields
         : fieldsMap.entries

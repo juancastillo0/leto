@@ -12,15 +12,18 @@ class GraphQLUnionType<P extends Object>
   final String name;
 
   /// A list of all types that conform to this union.
-  final List<GraphQLObjectType<P>> possibleTypes = [];
+  final List<GraphQLObjectType> possibleTypes = [];
 
   @override
   final String? description;
 
+  final ResolveType<GraphQLUnionType<P>>? resolveType;
+
   GraphQLUnionType(
     this.name,
-    Iterable<GraphQLObjectType<P>> possibleTypes, {
+    Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
+    this.resolveType,
   })
   // TODO:
   // : assert(
@@ -63,7 +66,7 @@ class GraphQLUnionType<P extends Object>
   ) {
     for (final type in possibleTypes) {
       try {
-        return type.deserialize(serdeCtx, serialized);
+        return type.deserialize(serdeCtx, serialized) as P;
       } catch (_) {}
     }
 

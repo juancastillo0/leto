@@ -1059,7 +1059,27 @@ class GraphQL {
         if (fieldType is GraphQLObjectType && !fieldType.isInterface) {
           objectType = fieldType;
         } else {
-          objectType = resolveAbstractType(fieldName, fieldType, result);
+          // if (validate && fieldType is GraphQLObjectType) {
+          //   final selected = fields.map((e) => e.name.value).toSet();
+          //   final delta = selected
+          //       .difference(fieldType.fields.map((e) => e.name).toSet());
+          //   if (delta.isNotEmpty) {
+          //     throw GraphQLError(
+          //       'Selected unknown fields $delta in interface $fieldType.',
+          //       locations: [
+          //         ...delta.map((e) {
+          //           final _field = fields.firstWhere((f) => f.name.value == e);
+          //           final span = (_field.span ??
+          //               _field.alias?.span ??
+          //               _field.name.span)!;
+          //           return GraphQLErrorLocation.fromSourceLocation(span.start);
+          //         })
+          //       ],
+          //       path: path,
+          //     );
+          //   }
+          // }
+          objectType = resolveAbstractType(ctx, fieldName, fieldType, result!);
         }
 
         if (validate &&
@@ -1168,27 +1188,53 @@ class GraphQL {
   }
 
   GraphQLObjectType resolveAbstractType(
+    ResolveObjectCtx ctx,
     String fieldName,
     GraphQLType type,
-    Object? result,
+    Object result,
   ) {
     final List<GraphQLObjectType> possibleTypes;
+    final String? resolvedTypeName;
 
     if (type is GraphQLObjectType) {
       if (type.isInterface) {
         possibleTypes = type.possibleTypes;
+        resolvedTypeName = type.resolveType?.call(result, type, ctx);
       } else {
         return type;
       }
     } else if (type is GraphQLUnionType) {
       possibleTypes = type.possibleTypes;
+      resolvedTypeName = type.resolveType?.call(result, type, ctx);
     } else {
       throw ArgumentError(
         'abtract type should be an Object or Union. Received $type.',
       );
     }
+    if (resolvedTypeName != null) {
+      return possibleTypes.firstWhere((t) => t.name == resolvedTypeName);
+    }
 
     final errors = <GraphQLError>[];
+
+    /// Try to match with the objects' [isType] methods
+    final matchingIsOfTypes = possibleTypes.where((t) {
+      final isTypeOf = t.isTypeOf;
+      return isTypeOf != null && isTypeOf.call(result, t, ctx);
+    });
+    // If there is only one match, return it,
+    if (matchingIsOfTypes.length == 1) {
+      return matchingIsOfTypes.first;
+    }
+
+    // Try to match match by the "__typename" property
+    if (result is Map && result['__typename'] is String) {
+      final _typename = result['__typename'] as String;
+      final t = possibleTypes.firstWhereOrNull((t) => t.name == _typename);
+      if (t != null) {
+        return t;
+      }
+    }
 
     // Try to match with the type's generic
     final matchingTypes =
@@ -1197,13 +1243,7 @@ class GraphQL {
     if (matchingTypes.length == 1) {
       return matchingTypes.first;
     }
-    if (result is Map && result['__typename'] is String) {
-      final _typename = result['__typename'] as String;
-      final t = possibleTypes.firstWhereOrNull((t) => t.name == _typename);
-      if (t != null) {
-        return t;
-      }
-    }
+
     // No match or multiple found, try each one and validate the output
     for (final t in possibleTypes) {
       try {

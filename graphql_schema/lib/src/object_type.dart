@@ -1,5 +1,20 @@
 part of graphql_schema.src.schema;
 
+typedef ResolveType<P extends GraphQLType> = String Function(
+    Object, P, ResolveObjectCtx);
+
+typedef IsTypeOf<P extends Object> = bool Function(
+    Object, GraphQLObjectType<P>, ResolveObjectCtx);
+
+class _IsTypeOf<P extends Object> {
+  final IsTypeOf<P> func;
+
+  _IsTypeOf(this.func);
+
+  bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
+      func(value, type, ctx);
+}
+
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
 class GraphQLObjectType<P extends Object>
@@ -35,13 +50,19 @@ class GraphQLObjectType<P extends Object>
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
+  final ResolveType<GraphQLObjectType<P>>? resolveType;
+
+  final _IsTypeOf<P>? isTypeOf;
+
   GraphQLObjectType(
     this.name, {
     this.description,
     this.isInterface = false,
+    this.resolveType,
+    IsTypeOf<P>? isTypeOf,
     Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
-  }) {
+  }) : isTypeOf = isTypeOf == null ? null : _IsTypeOf(isTypeOf) {
     this.fields.addAll(fields);
 
     inheritFromMany(interfaces);
