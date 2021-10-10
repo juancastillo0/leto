@@ -32,8 +32,8 @@ void main() {
       Iterable<Object> listField() sync* {
         yield 'one';
         // TODO: allow numbers or boolean as String?
-        yield 2;
-        yield true;
+        yield '2';
+        yield 'true';
       }
 
       expect(await complete(listField), {

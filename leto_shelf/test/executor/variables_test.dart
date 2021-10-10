@@ -60,7 +60,7 @@ final TestInputObject = GraphQLInputObjectType(
   ],
 );
 
-final TestNestedInputObject = GraphQLInputObjectType(
+final TestNestedInputObject = GraphQLInputObjectType<Map<String, Object?>>(
   'TestNestedInputObject',
   inputFields: [
     GraphQLFieldInput('na', TestInputObject.nonNull()),
@@ -148,7 +148,8 @@ final TestType = GraphQLObjectType(
     fieldWithInputArg(
       'fieldWithNestedInputObject',
       TestNestedInputObject,
-      defaultValue: 'Hello World',
+      // TODO: was 'Hello World',
+      defaultValue: <String, Object?>{},
     ),
     fieldWithInputArg('list', listOf(graphQLString)),
     fieldWithInputArg(
@@ -1194,10 +1195,11 @@ Future<void> main() async {
         },
         'errors': [
           {
-            'message': stringContainsInOrder(['WRONG_TYPE', '"String"']),
+            'message':
+                stringContainsInOrder(['"input"', 'String', 'WRONG_TYPE']),
             // 'Argument "input" has invalid value WRONG_TYPE.',
             'locations': [
-              {'line': 1, 'column': 47}
+              {'line': 1, 'column': 40}
             ],
             'path': ['fieldWithDefaultArgumentValue'],
           },

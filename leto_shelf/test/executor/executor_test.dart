@@ -466,11 +466,9 @@ void main() {
           // TODO: didn't throw
           return [
             'sync0',
-            () => throw GraphQLError(
-                'Error getting syncReturnErrorList1'),
+            () => throw GraphQLError('Error getting syncReturnErrorList1'),
             'sync2',
-            () => throw GraphQLError(
-                'Error getting syncReturnErrorList3'),
+            () => throw GraphQLError('Error getting syncReturnErrorList3'),
           ];
         },
         'async': () {
@@ -478,8 +476,7 @@ void main() {
         },
         'asyncReject': () {
           return Future<Object>.microtask(
-            () => Future.error(
-                GraphQLError('Error getting asyncReject')),
+            () => Future.error(GraphQLError('Error getting asyncReject')),
           );
         },
         'asyncRawReject': () {
@@ -1164,7 +1161,7 @@ void main() {
       final result = await GraphQL(
         schema,
         introspect: false,
-        defaultFieldResolver: (obj, fieldName, ctx) => fieldName,
+        defaultFieldResolver: (obj, ctx) => ctx.field.name,
       ).parseAndExecute('{ foo }');
 
       expect(result.toJson(), {
