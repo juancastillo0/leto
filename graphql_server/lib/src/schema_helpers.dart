@@ -7,7 +7,8 @@ Object? computeValue(
   ValueNode node,
   Map<String, dynamic>? values,
 ) =>
-    node.accept(GraphQLValueComputer(targetType, values));
+    valueFromAst(null, node, values);
+// node.accept(GraphQLValueComputer(targetType, values));
 
 class GraphQLValueComputer extends SimpleVisitor<Object> {
   final GraphQLType? targetType;
