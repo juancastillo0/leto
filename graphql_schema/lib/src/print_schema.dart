@@ -386,8 +386,9 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
       final serialized = type.serialize(value);
       return astFromUntypedValue(serialized);
     },
-    input: (input) =>
-        astFromObject(input.serializeSafe(value), input.inputFields),
+    input: (input) {
+      return astFromObject(input.serializeSafe(value), input.inputFields);
+    },
     object: (object) {
       throw ArgumentError('astFromValue can only be called with input types.');
       // TODO: should we support this?
@@ -406,6 +407,103 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
     },
     nonNullable: (nonNullable) => astFromValue(value, nonNullable.ofType),
   );
+}
+
+Object? valueFromAst(
+  GraphQLType? type,
+  ast.ValueNode node,
+  Map<String, Object?>? variables, {
+  FileSpan? span,
+  String key = 'value',
+}) {
+  final _span = node.span ?? span;
+  final value = node.when(
+    string: (string) => string.value,
+    int_: (int_) => int.parse(int_.value),
+    float: (float) => double.parse(float.value),
+    boolean: (boolean) => boolean.value,
+    object: (object) {
+      GraphQLType<Object, Object>? _type = type;
+      if (_type is GraphQLNonNullType) _type = _type.ofType;
+      if (_type is GraphQLScalarType) _type = null;
+      if (_type != null && _type is! GraphQLInputObjectType) {
+        throw GraphQLError(
+          'Expected value to be a $_type. Got: ${printAST(object)}.',
+          locations: GraphQLErrorLocation.listFromSource(_span?.start),
+        );
+      }
+      final _objType = _type as GraphQLInputObjectType?;
+      return Map.fromEntries(
+        object.fields.map(
+          (e) {
+            final fieldName = e.name.value;
+            final _fieldSpan = e.span ?? e.value.span ?? e.name.span ?? _span;
+            final _type = _objType?.inputFields
+                .firstWhereOrNull((f) => f.name == fieldName);
+
+            return MapEntry(
+              fieldName,
+              valueFromAst(
+                _type?.type,
+                e.value,
+                variables,
+                span: _fieldSpan,
+                key: '$key["$fieldName"]',
+              ),
+            );
+          },
+        ),
+      );
+    },
+    list: (list) {
+      GraphQLType<Object, Object>? _type = type;
+      if (_type is GraphQLNonNullType) _type = _type.ofType;
+      if (_type is GraphQLScalarType) _type = null;
+      if (_type != null && _type is! GraphQLListType) {
+        throw GraphQLError(
+          'Expected value to be a $_type. Got: ${printAST(list)}.',
+          locations: GraphQLErrorLocation.listFromSource(_span?.start),
+        );
+      }
+      return List.from(
+        list.values.mapIndexed(
+          (index, v) => valueFromAst(
+            (_type as GraphQLListType?)?.ofType,
+            v,
+            variables,
+            span: _span,
+            key: '$key[$index]',
+          ),
+        ),
+      );
+    },
+    enum_: (enum_) => EnumValue(enum_.name.value),
+    null_: (null_) => null,
+    variable: (variable) => variables?[variable.name],
+  );
+
+  if (type != null) {
+    if (value == null) {
+      if (type.isNonNullable) {
+        throw GraphQLError(
+          'Expected a non-null value of type $type int $key.',
+          locations: GraphQLErrorLocation.listFromSource(_span?.start),
+        );
+      }
+      return null;
+    }
+    // TODO: validate shallow (not nested properties, since they where already validated)
+    final result = type.validate(key, value);
+    if (result.successful) {
+      return result.value;
+    } else {
+      throw GraphQLError(
+        result.errors.first,
+        locations: GraphQLErrorLocation.listFromSource(_span?.start),
+      );
+    }
+  }
+  return value;
 }
 
 ast.ValueNode astFromUntypedValue(Object value) {
@@ -478,7 +576,9 @@ String printBlockString(
 }
 
 List<GraphQLType> fetchAllTypes(
-    GraphQLSchema schema, List<GraphQLType> specifiedTypes) {
+  GraphQLSchema schema,
+  List<GraphQLType> specifiedTypes,
+) {
   final data = <GraphQLType>{
     if (schema.queryType != null) schema.queryType!,
     if (schema.mutationType != null) schema.mutationType!,
@@ -558,5 +658,31 @@ class CollectTypes {
         }
       },
     );
+  }
+}
+
+extension ValueNodeWhen on ast.ValueNode {
+  T when<T>({
+    required T Function(ast.StringValueNode) string,
+    required T Function(ast.IntValueNode) int_,
+    required T Function(ast.FloatValueNode) float,
+    required T Function(ast.BooleanValueNode) boolean,
+    required T Function(ast.ObjectValueNode) object,
+    required T Function(ast.ListValueNode) list,
+    required T Function(ast.EnumValueNode) enum_,
+    required T Function(ast.NullValueNode) null_,
+    required T Function(ast.VariableNode) variable,
+  }) {
+    final v = this;
+    if (v is ast.StringValueNode) return string(v);
+    if (v is ast.IntValueNode) return int_(v);
+    if (v is ast.FloatValueNode) return float(v);
+    if (v is ast.BooleanValueNode) return boolean(v);
+    if (v is ast.ObjectValueNode) return object(v);
+    if (v is ast.ListValueNode) return list(v);
+    if (v is ast.EnumValueNode) return enum_(v);
+    if (v is ast.NullValueNode) return null_(v);
+    if (v is ast.VariableNode) return variable(v);
+    throw Error();
   }
 }

@@ -60,8 +60,10 @@ class GraphQLEnumType<Value extends Object>
   }
 
   @override
-  ValidationResult<String> validate(String key, Object? input) {
-    if (input == null) {
+  // ignore: avoid_renaming_method_parameters
+  ValidationResult<String> validate(String key, Object? _input) {
+    final input = _input is EnumValue ? _input.value : _input;
+    if (input is! String) {
       return ValidationResult<String>.failure(
           ['The enum "$name" does not accept null values.']);
     }
@@ -79,6 +81,16 @@ class GraphQLEnumType<Value extends Object>
 
   @override
   GraphQLType<Value, String> coerceToInputObject() => this;
+}
+
+/// Enum value parsed from the ast.
+/// Useful for distinguishing between enum and string values.
+class EnumValue {
+  final String value;
+  const EnumValue(this.value);
+
+  @override
+  String toString() => 'EnumValue($value)';
 }
 
 /// A known value of a [GraphQLEnumType].
