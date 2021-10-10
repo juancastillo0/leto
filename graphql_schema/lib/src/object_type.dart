@@ -133,7 +133,7 @@ class GraphQLObjectType<P extends Object>
             .add('Unexpected field "$k" encountered in $key. Accepted values on'
                 ' type $name: ${fields.map((f) => f.name).toList()}');
       } else {
-        final result = field.type.validate(k.toString(), v);
+        final result = field.type.validate(k, v);
 
         if (!result.successful) {
           errors.addAll(result.errors.map((s) => '$key: $s'));
@@ -146,7 +146,7 @@ class GraphQLObjectType<P extends Object>
     if (errors.isNotEmpty) {
       return ValidationResult.failure(errors);
     } else {
-      return ValidationResult.ok(_foldToStringDynamic(out));
+      return ValidationResult.ok(out);
     }
   }
 
@@ -199,13 +199,6 @@ class GraphQLObjectType<P extends Object>
         interfaces,
         possibleTypes
       ];
-}
-
-Map<String, Object?> _foldToStringDynamic(Map<Object, Object?> map) {
-  return map.keys.fold(
-    <String, Object?>{},
-    (out, k) => out..[k.toString()] = map[k],
-  );
 }
 
 /// A special [GraphQLType] that specifies the shape of an object that can only
@@ -272,7 +265,7 @@ class GraphQLInputObjectType<Value extends Object>
             'Unexpected field "$k" encountered in $key. Accepted values on '
             'type $name: ${inputFields.map((f) => f.name).toList()}');
       } else {
-        final result = field.type.validate(k.toString(), v);
+        final result = field.type.validate(k, v);
 
         if (!result.successful) {
           errors.addAll(result.errors.map((s) => '$key: $s'));
@@ -285,7 +278,7 @@ class GraphQLInputObjectType<Value extends Object>
     if (errors.isNotEmpty) {
       return ValidationResult.failure(errors);
     } else {
-      return ValidationResult.ok(_foldToStringDynamic(out));
+      return ValidationResult.ok(out);
     }
   }
 
