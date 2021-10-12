@@ -64,14 +64,9 @@ class GraphQL {
   final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
 
   GraphQLSchema _schema;
+  GraphQLSchema get schema => _schema;
 
   final Map<Object, Object?> baseGlobalVariables;
-
-  late final DocumentNode schemaNode = () {
-    final schemaStr = printSchema(_schema);
-    final node = gql.parseString(schemaStr);
-    return node;
-  }();
 
   /// If validate is false, a parsed document is executed without
   /// being validated with the provided schema
@@ -241,7 +236,7 @@ class GraphQL {
         (n, e) => e.validate(n, schema, document, globalVariables, extensions),
         () {
           // final gqlSchema = gql_schema.GraphQLSchema.fromNode(node);
-          final errors = gql_doc.validateRequest(schemaNode, document);
+          final errors = gql_doc.validateRequest(schema.schemaNode, document);
           if (errors.isEmpty) {
             return null;
           }
