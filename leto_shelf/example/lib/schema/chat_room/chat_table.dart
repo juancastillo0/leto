@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/chat_room.dart/sql_utils.dart';
+import 'package:shelf_graphql_example/schema/chat_room/sql_utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'chat_table.g.dart';

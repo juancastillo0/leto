@@ -1,6 +1,6 @@
 // ignore: depend_on_referenced_packages
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:shelf_graphql_example/schema/chat_room.dart/chat_table.dart';
+import 'package:shelf_graphql_example/schema/chat_room/chat_table.dart';
 import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
 import 'package:shelf_graphql_example/schema/generator_test.dart';
 import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
