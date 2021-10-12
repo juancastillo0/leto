@@ -101,15 +101,15 @@ ${allClasses.map((e) => "import '${cleanImport(basePath, e.source.uri)}';").toSe
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()..addAll([$_serializers]),
   queryType: objectType(
-    'Queries',
+    'Query',
     fields: [${queries.join()}],
   ),
   mutationType: objectType(
-    'Mutations',
+    'Mutation',
     fields: [${mutations.join()}],
   ),
   subscriptionType: objectType(
-    'Subscriptions',
+    'Subscription',
     fields: [${subscriptions.join()}],
   ),
 );
