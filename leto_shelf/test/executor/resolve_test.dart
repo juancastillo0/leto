@@ -10,7 +10,7 @@ class Adder {
 
   const Adder(this._num);
 
-  int test(Map<String, Object?> args, Map<Object, Object?> context) {
+  int test(Map<String, Object?> args, ScopedMap context) {
     return _num + (args['addend1'] as int) + (context['addend2'] as int);
   }
 }
@@ -34,7 +34,7 @@ void main() {
     GraphQLSchema schema,
     String query, {
     Map<String, Object?>? variableValues,
-    Map<String, Object?>? globalVariables,
+    ScopedMap? globalVariables,
     Object? rootValue,
   }) async {
     final values = await GraphQL(schema).parseAndExecute(
@@ -89,7 +89,7 @@ void main() {
         resolve: (obj, ctx) => obj.test(ctx.args, ctx.globals),
       ),
     );
-    final contextValue = {'addend2': 9};
+    final contextValue = ScopedMap({'addend2': 9});
     const document = '{ test(addend1: 80) }';
 
     final result = await execute(

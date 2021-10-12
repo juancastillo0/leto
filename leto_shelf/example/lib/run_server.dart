@@ -1,12 +1,10 @@
 import 'dart:io';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/books.controller.dart';
-import 'package:shelf_graphql_example/schema/chat_room.dart/chat_table.dart';
 import 'package:shelf_plus/shelf_plus.dart';
 
 import 'schema/api_schema.dart' show makeApiSchema, pathRelativeToScript;
-import 'schema/files.controller.dart';
+import 'schema/files/files.controller.dart';
 
 void main() {
   runServer();
@@ -22,7 +20,7 @@ Future<void> runServer() async {
 }
 
 class ServerConfig {
-  final Map<Object, Object?>? globalVariables;
+  final ScopedMap? globalVariables;
   final List<GraphQLExtension>? extensionList;
 
   const ServerConfig({
@@ -52,11 +50,8 @@ Handler serverHandler({ServerConfig? config}) {
 }
 
 void setUpGraphQL(Router app, {ServerConfig? config}) {
-  final globalVariables = config?.globalVariables ?? {};
+  final globalVariables = config?.globalVariables;
   final filesController = FilesController();
-
-  booksControllerRef.getFromGlobals(globalVariables);
-  chatControllerRef.getFromGlobals(globalVariables);
 
   app.get(
     '/files/<filepath|.*>',
@@ -66,7 +61,6 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
   final graphQL = GraphQL(
     schema,
     introspect: true,
-    globalVariables: globalVariables,
     extensionList: config?.extensionList ??
         [GraphQLTracingExtension(), GraphQLPersistedQueries()],
   );

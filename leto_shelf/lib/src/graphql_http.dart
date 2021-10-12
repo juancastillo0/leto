@@ -18,12 +18,12 @@ Request extractRequest(ReqCtx ctx) {
   return ctx.globals[requestCtxKey]! as Request;
 }
 
-Handler graphqlHttp(GraphQL graphQL, {Map<Object, Object?>? globalVariables}) {
+Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
   return (request) async {
-    final _globalVariables = <Object, Object?>{
-      requestCtxKey: request,
-      if (globalVariables != null) ...globalVariables,
-    };
+    final _nested = <Object, Object?>{requestCtxKey: request};
+    final _globalVariables = globalVariables != null
+        ? globalVariables.child(_nested)
+        : ScopedMap(_nested);
 
     try {
       final GraphQLRequest gqlQuery;

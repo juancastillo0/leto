@@ -600,7 +600,7 @@ void main() {
     final schema2 = GraphQLSchema(queryType: PersonType2);
     const document = '{ name, friends { name } }';
     final rootValue = Person('John', [], [liz]);
-    final contextValue = <Object, Object?>{'authToken': '123abc'};
+    final contextValue = ScopedMap({'authToken': '123abc'});
 
     final result = await GraphQL(
       schema2,

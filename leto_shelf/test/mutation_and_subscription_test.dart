@@ -2,23 +2,20 @@ import 'package:gql/language.dart' as gql;
 import 'package:gql_exec/gql_exec.dart' as gql_exec;
 import 'package:gql_link/gql_link.dart' as gql_link;
 import 'package:gql_websocket_link/gql_websocket_link.dart';
-import 'package:shelf_graphql_example/schema/books.controller.dart';
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/schema/books/books.controller.dart';
 import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';
 
 Future<void> main() async {
-  final globals = <Object, Object?>{};
   final _streamCallbacks = StreamCallbacks();
-
-  booksControllerRef.set(
-    globals,
-    BooksController(bookAddedCallbacks: _streamCallbacks),
-  );
-
+  final _globals = ScopedMap({
+    booksControllerRef: BooksController(bookAddedCallbacks: _streamCallbacks)
+  });
   final _server = await testServer(ServerConfig(
-    globalVariables: globals,
+    globalVariables: _globals,
   ));
 
   test('subscription test', () async {

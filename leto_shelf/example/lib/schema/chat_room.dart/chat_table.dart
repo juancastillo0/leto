@@ -5,7 +5,6 @@ import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/books.controller.dart';
 import 'package:shelf_graphql_example/schema/chat_room.dart/sql_utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -16,8 +15,8 @@ final chatRoomDatabase = GlobalRef('ChatRoomDatabase');
 
 final chatControllerRef = RefWithDefault(
   'ChatController',
-  (globals) => ChatController.create(
-    db: globals[chatRoomDatabase] as Database?,
+  (holder) => ChatController.create(
+    db: holder.globals[chatRoomDatabase] as Database?,
   ),
 );
 

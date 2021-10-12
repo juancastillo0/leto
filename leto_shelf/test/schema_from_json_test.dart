@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:gql/language.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/safe_json.dart';
 import 'package:shelf_graphql_example/schema/schema_from_json.dart';
+import 'package:shelf_graphql_example/types/safe_json.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -79,7 +79,7 @@ void main() {
       queryType: objectType('Query', fields: [field]),
     );
     final gqlServer = GraphQL(schema, introspect: false);
-    final schemaStr = printNode(gqlServer.schemaNode);
+    final schemaStr = printNode(gqlServer.schema.schemaNode);
 
     expect(schemaStr, '''
 type Query {

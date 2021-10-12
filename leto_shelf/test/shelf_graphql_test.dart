@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:graphql_server/graphql_server.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
 import 'package:shelf_graphql_example/schema/generator_test.dart';
 import 'package:test/test.dart';
@@ -27,12 +28,10 @@ Future<void> main() async {
     ),
   ];
 
-  final globalVariables = <Object, Object?>{
-    testUnionModelsTestKey: _testUnionModels,
-  };
-
   final _server = await testServer(ServerConfig(
-    globalVariables: globalVariables,
+    globalVariables: ScopedMap({
+      testUnionModelsTestKey: _testUnionModels,
+    }),
     extensionList: [GraphQLPersistedQueries()],
   ));
   final url = _server.url;

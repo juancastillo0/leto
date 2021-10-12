@@ -4,23 +4,20 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-import 'package:shelf_graphql_example/schema/books.controller.dart';
+import 'package:shelf_graphql_example/schema/books/books.controller.dart';
 import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';
 
 Future<void> main() async {
-  final globals = <Object, Object?>{};
   final _streamCallbacks = StreamCallbacks();
-
-  final books = booksControllerRef.set(
-    globals,
-    BooksController(bookAddedCallbacks: _streamCallbacks),
-  );
+  final books = BooksController(bookAddedCallbacks: _streamCallbacks);
 
   final server = await testServer(ServerConfig(
-    globalVariables: globals,
+    globalVariables: ScopedMap({
+      booksControllerRef: books,
+    }),
     extensionList: [GraphQLTracingExtension(), GraphQLPersistedQueries()],
   ));
 
