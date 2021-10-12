@@ -25,11 +25,11 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) async {
     final tracing = TracingBuilder(version: 1);
-    globals[ref] = tracing;
+    globals.setScoped(ref, tracing);
 
     final result = await next();
 
@@ -45,7 +45,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
     String query,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) {
     final tracing = globals[ref]! as TracingBuilder;
@@ -60,7 +60,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     GraphQLException? Function() next,
     GraphQLSchema schema,
     DocumentNode document,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) {
     final tracing = globals[ref]! as TracingBuilder;
@@ -77,7 +77,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     GraphQLObjectField field,
     String fieldAlias,
   ) async {
-    final tracing = ctx.globalVariables[ref] as TracingBuilder;
+    final tracing = ctx.globalVariables[ref]! as TracingBuilder;
 
     final endTracing = tracing.execution.start(ResolverTracing(
       path: [...ctx.path, fieldAlias],
@@ -96,7 +96,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   FutureOr<GraphQLResult> executeSubscriptionEvent(
     FutureOr<GraphQLResult> Function() next,
     ResolveCtx ctx,
-    Map<Object, Object?> parentGlobals,
+    ScopedMap parentGlobals,
   ) async {
     return executeRequest(
       next,

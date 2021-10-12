@@ -143,11 +143,11 @@ class GraphQL {
     Map<String, Object?>? variableValues,
     Map<String, Object?>? extensions,
     Object? initialValue,
-    Map<Object, Object?>? globalVariables,
+    ScopedMap? globalVariables,
   }) async {
-    final _globalVariables = globalVariables ?? <Object, Object?>{};
+    final _globalVariables = globalVariables ?? ScopedMap.empty();
     for (final e in baseGlobalVariables.entries) {
-      _globalVariables.putIfAbsent(e.key, () => e.value);
+      _globalVariables.putScopedIfAbsent(e.key, () => e.value);
     }
 
     return withExtensions(
@@ -206,7 +206,7 @@ class GraphQL {
     String text, {
     dynamic sourceUrl,
     Map<String, Object?>? extensions,
-    required Map<Object, Object?> globals,
+    required ScopedMap globals,
   }) {
     return withExtensions(
         (next, ext) => ext.getDocumentNode(next, text, globals, extensions),
@@ -233,7 +233,7 @@ class GraphQL {
     String? operationName,
     Map<String, dynamic>? variableValues,
     required Object initialValue,
-    required Map<Object, Object?> globalVariables,
+    required ScopedMap globalVariables,
     Map<String, dynamic>? extensions,
   }) async {
     if (validate) {
@@ -507,7 +507,7 @@ class GraphQL {
           operation: baseCtx.operation,
           extensions: baseCtx.extensions,
           rootValue: baseCtx.rootValue,
-          globalVariables: <Object, Object?>{...baseCtx.globalVariables},
+          globalVariables: baseCtx.globalVariables.child(),
           schema: baseCtx.schema,
           variableValues: baseCtx.variableValues,
         );

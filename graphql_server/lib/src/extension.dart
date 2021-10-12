@@ -12,7 +12,7 @@ abstract class GraphQLExtension {
 
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) =>
       next();
@@ -20,7 +20,7 @@ abstract class GraphQLExtension {
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
     String query,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) =>
       next();
@@ -29,7 +29,7 @@ abstract class GraphQLExtension {
     GraphQLException? Function() next,
     GraphQLSchema schema,
     DocumentNode document,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) =>
       next();
@@ -45,7 +45,7 @@ abstract class GraphQLExtension {
   FutureOr<GraphQLResult> executeSubscriptionEvent(
     FutureOr<GraphQLResult> Function() next,
     ResolveCtx ctx,
-    Map<Object, Object?> parentGlobals,
+    ScopedMap parentGlobals,
   ) =>
       next();
 

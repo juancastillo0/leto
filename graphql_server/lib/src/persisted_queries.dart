@@ -5,7 +5,7 @@ import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart' show DocumentNode;
-import 'package:graphql_schema/graphql_schema.dart' show GraphQLException;
+import 'package:graphql_schema/graphql_schema.dart' show GraphQLException, ScopedMap;
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/src/extension.dart' show GraphQLExtension;
 
@@ -32,7 +32,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
     String query,
-    Map<Object, Object?> globals,
+    ScopedMap globals,
     Map<String, Object?>? extensions,
   ) {
     // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'

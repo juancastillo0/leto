@@ -8,8 +8,9 @@ class GlobalRef {
 
 final _responseHeadersCtxKey = GlobalRef('response.headers');
 
-class ReqCtx<P extends Object> {
-  final Map<Object, Object?> globals;
+class ReqCtx<P extends Object> implements GlobalsHolder {
+  @override
+  final ScopedMap globals;
   final Map<String, Object?> args;
   final P object;
   ResolveCtx get baseCtx => parentCtx.base;
@@ -49,16 +50,14 @@ class ReqCtx<P extends Object> {
   // TODO: headersAll Map<String, List<String>>
   // TODO: should we leave it to the implementors?
   Map<String, String> get responseHeaders {
-    return globals.putIfAbsent(
+    return globals.putScopedIfAbsent(
       _responseHeadersCtxKey,
       () => <String, String>{},
     )! as Map<String, String>;
   }
 
-  static Map<String, String>? headersFromGlobals(
-    Map<Object, Object?> globals,
-  ) =>
-      globals[_responseHeadersCtxKey] as Map<String, String>?;
+  static Map<String, String>? headersFromGlobals(GlobalsHolder holder) =>
+      holder.globals[_responseHeadersCtxKey] as Map<String, String>?;
 }
 
 class PossibleSelections {
@@ -96,7 +95,7 @@ class ResolveCtx {
   final OperationDefinitionNode operation;
   final Object rootValue;
   final Map<String, dynamic> variableValues;
-  final Map<Object, dynamic> globalVariables;
+  final ScopedMap globalVariables;
   final Map<String, dynamic>? extensions;
 
   ResolveCtx({
@@ -115,7 +114,7 @@ class ResolveObjectCtx<P extends Object> {
 
   SerdeCtx get serdeCtx => base.serdeCtx;
   Map<String, dynamic> get variableValues => base.variableValues;
-  Map<Object, dynamic> get globalVariables => base.globalVariables;
+  ScopedMap get globalVariables => base.globalVariables;
   DocumentNode get document => base.document;
 
   final GraphQLObjectType<P> objectType;
@@ -162,4 +161,79 @@ class ResolveObjectCtx<P extends Object> {
     }
     return _serializedObject;
   }
+}
+
+class RefWithDefault<T> {
+  final String name;
+  final T Function(GlobalsHolder holder) create;
+
+  RefWithDefault(this.name, this.create);
+
+  T set(GlobalsHolder holder, T value) {
+    holder.globals.setGlobal(this, value);
+    return value;
+  }
+
+  T get(GlobalsHolder holder) {
+    return holder.globals.putGlobalIfAbsent(this, () => create(holder)) as T;
+  }
+}
+
+abstract class GlobalsHolder {
+  ScopedMap get globals;
+}
+
+class ScopedMap implements GlobalsHolder {
+  final ScopedMap? parent;
+  final Map<Object, Object?> values;
+
+  ScopedMap(this.values, [this.parent]);
+
+  ScopedMap child([Map<Object, Object?>? values]) =>
+      ScopedMap(values ?? {}, this);
+
+  factory ScopedMap.empty([ScopedMap? parent]) => ScopedMap({}, parent);
+
+  bool containsScoped(Object key) => values.containsKey(key);
+
+  bool containsGlobal(Object key) {
+    final _hasScoped = containsScoped(key);
+    return _hasScoped || (parent?.containsGlobal(key) ?? false);
+  }
+
+  Object? get(Object key) {
+    if (containsScoped(key)) {
+      return values[key];
+    }
+    return parent?.get(key);
+  }
+
+  Object? operator [](Object key) => get(key);
+
+  void setScoped(Object key, Object? value) {
+    values[key] = value;
+  }
+
+  void setGlobal(Object key, Object? value) {
+    values[key] = value;
+    parent?.setGlobal(key, value);
+  }
+
+  Object? putScopedIfAbsent(Object key, Object? Function() ifAbsent) =>
+      values.putIfAbsent(key, ifAbsent);
+
+  Object? putGlobalIfAbsent(Object key, Object? Function() ifAbsent) {
+    if (containsGlobal(key)) {
+      return get(key);
+    }
+    final value = ifAbsent();
+    setGlobal(key, value);
+    return value;
+  }
+
+  @override
+  ScopedMap get globals => this;
+
+  Map<String, Object?> toJson() =>
+      values.map((key, value) => MapEntry(key.toString(), value));
 }
