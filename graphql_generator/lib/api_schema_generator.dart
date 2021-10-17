@@ -93,11 +93,13 @@ class ValidatorsLibGenerator implements Builder {
       final queries = _resolverStr(Query);
       final mutations = _resolverStr(Mutation);
       final subscriptions = _resolverStr(Subscription);
+      final allElements =
+          allResolvers.values.expand((el) => el).followedBy(allClasses);
 
       String out = '''
 // ignore: depend_on_referenced_packages
 import 'package:graphql_schema/graphql_schema.dart';
-${allClasses.map((e) => "import '${cleanImport(basePath, e.source.uri)}';").toSet().join()}
+${allElements.map((e) => "import '${cleanImport(basePath, e.source!.uri)}';").toSet().join()}
 
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()..addAll([$_serializers]),
