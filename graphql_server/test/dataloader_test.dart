@@ -8,7 +8,7 @@
 
 import 'dart:async';
 
-import 'package:graphql_server/src/dataloader.dart';
+import 'package:graphql_server/dataloader.dart';
 import 'package:graphql_server/src/persisted_queries.dart';
 import 'package:test/test.dart';
 
