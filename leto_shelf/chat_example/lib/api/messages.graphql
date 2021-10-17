@@ -1,0 +1,38 @@
+query getMessages($chatId: Int!) {
+  getMessage(chatId: $chatId) {
+    ...FullMessage
+  }
+}
+
+mutation sendMessage(
+  $chatId: Int!
+  $message: String!
+  $referencedMessageId: Int
+) {
+  sendMessage(
+    chatId: $chatId
+    message: $message
+    referencedMessageId: $referencedMessageId
+  ) {
+    ...FullMessage
+  }
+}
+
+subscription onMessageSent($chatId: Int!) {
+  onMessageSent(chatId: $chatId) {
+    ...FullMessage
+  }
+}
+
+fragment FullMessage on ChatMessage {
+  id
+  chatId
+  message
+  createdAt
+  referencedMessage {
+    id
+    message
+    createdAt
+    chatId
+  }
+}
