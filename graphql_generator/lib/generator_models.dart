@@ -41,6 +41,7 @@ Future<List<UnionVarianInfo>> freezedFields(
 
     return UnionVarianInfo(
       isInterface: isInterface(clazz),
+      typeParams: clazz.typeParameters,
       hasFrezzed: true,
       isUnion: isUnion,
       interfaces: getGraphqlInterfaces(clazz),
@@ -185,6 +186,7 @@ class UnionVarianInfo {
   final bool hasFrezzed;
   final bool isInput;
   final bool isUnion;
+  final List<TypeParameterElement> typeParams;
 
   const UnionVarianInfo({
     required this.typeName,
@@ -198,11 +200,12 @@ class UnionVarianInfo {
     required this.hasFrezzed,
     required this.isInput,
     required this.isUnion,
+    required this.typeParams,
   });
 
   Code serializer() {
     return Code(
-      isInterface
+      isInterface || typeParams.isNotEmpty
           ? ''
           : serializerDefinitionCode(
               typeName,
@@ -226,33 +229,64 @@ class UnionVarianInfo {
   //   );
   // }
 
-  String fieldCode() {
-    final _type = 'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName>';
-    return '''
-$_type? _$fieldName;
-/// Auto-generated from [$typeName].
-$_type get $fieldName {
-  if (_$fieldName != null) return _$fieldName!;
+  String _typeList({bool ext = false}) {
+    final _ext = ext ? ' extends Object' : '';
+    return typeParams.isNotEmpty
+        ? '<${typeParams.map((e) {
+            return '${e.getDisplayString(withNullability: false)}$_ext';
+          }).join(',')}>'
+        : '';
+  }
 
-  _$fieldName = ${expression().accept(DartEmitter())};
-  _$fieldName!.${isInput ? 'inputFields' : 'fields'}.addAll(${literalList(
+  String fieldCode() {
+    final hasTypeParams = typeParams.isNotEmpty;
+    final _typeParamsStr = typeParams.map((e) {
+      final _t = e.getDisplayString(withNullability: false);
+      return 'GraphQLType<$_t, Object> ${ReCase(_t).camelCase}$graphqlTypeSuffix,';
+    }).join();
+
+    final _type =
+        'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName${_typeList()}>';
+
+    final _typeNoExt = 'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName>';
+    final _chacheGetter = hasTypeParams ? '_$fieldName[__name]' : '_$fieldName';
+
+    return '''
+${hasTypeParams ? 'Map<String, $_typeNoExt> _$fieldName = {}' : '$_type? _$fieldName'};
+/// Auto-generated from [$typeName].
+$_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 'get $fieldName'} {
+  final __name = '$graphQLTypeName';
+  if ($_chacheGetter != null) return $_chacheGetter! as $_type;
+
+  final __$fieldName = ${expression().accept(DartEmitter())};
+  $_chacheGetter = __$fieldName;
+  __$fieldName.${isInput ? 'inputFields' : 'fields'}.addAll(${literalList(
       fields
           .where((e) => e.fieldAnnot.omit != true)
           .map((e) => e.expression(isInput: isInput))
           .followedBy([if (isUnion) refer(unionKeyName)]),
     ).accept(DartEmitter())},);
 
-  return _$fieldName!;
+  return __$fieldName;
 }
 ''';
   }
+
+  String get graphQLTypeName => '$typeName${typeParams.map((t) {
+        final _t = t.getDisplayString(withNullability: false);
+        final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
+        return '\${$ts is GraphQLTypeWrapper ? ($ts as GraphQLTypeWrapper).ofType: $ts}';
+      }).join()}';
 
   String get unionKeyName =>
       '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
 
   Expression expression() {
-    return refer(isInput ? 'inputObjectType' : 'objectType').call(
-      [literalString(typeName)],
+    return refer(isInput
+            ? 'inputObjectType<$typeName${_typeList()}>'
+            : 'objectType<$typeName${_typeList()}>')
+        .call(
+      [literalString(graphQLTypeName)],
       {
         if (!isInput) 'isInterface': literalBool(isInterface),
         if (!isInput) 'interfaces': literalList(interfaces),

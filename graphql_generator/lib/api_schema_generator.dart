@@ -74,7 +74,8 @@ class ValidatorsLibGenerator implements Builder {
 
     try {
       final _serializers = allClasses
-          .where((element) => !element.isAbstract)
+          .where((element) =>
+              !element.isAbstract && element.typeParameters.isEmpty)
           .map((e) {
             final typeName =
                 e.thisType.getDisplayString(withNullability: false);

@@ -125,6 +125,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
 
       final classInfo = UnionVarianInfo(
         isInterface: isInterface(clazz),
+        typeParams: clazz.typeParameters,
         hasFrezzed: false,
         isUnion: false,
         isInput: isInputType(clazz),

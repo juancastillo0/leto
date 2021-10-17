@@ -71,7 +71,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                 '''
                 field(
                   '${element.name}', 
-                  $returnGqlType,
+                  $returnGqlType as GraphQLType<$returnType, Object>,
                   description: ${desc == null ? 'null' : 'r"$desc"'},
                   $funcDef,
                   ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
