@@ -2,6 +2,12 @@ import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:graphql_schema/graphql_schema.dart' show GraphQLError;
 import 'package:meta/meta.dart';
 
+class Val<T> {
+  final T inner;
+
+  const Val(this.inner);
+}
+
 @immutable
 class GraphQLResult {
   /// A Stream<GraphQLResult> for subscriptions
@@ -27,25 +33,26 @@ class GraphQLResult {
   }) : assert(data == null || didExecute);
 
   GraphQLResult copyWith({
-    Object? data,
+    Val<Object?>? data,
     List<GraphQLError>? errors,
     bool? didExecute,
-    Map<String, Object?>? extensions,
+    Val<Map<String, Object?>?>? extensions,
   }) {
     return GraphQLResult(
-      data ?? this.data,
+      data != null ? data.inner : this.data,
       errors: errors ?? this.errors,
       didExecute: didExecute ?? this.didExecute,
-      extensions: extensions ?? this.extensions,
+      extensions: extensions != null ? extensions.inner : this.extensions,
     );
   }
 
   GraphQLResult copyWithExtension(String key, Object? value) {
     final extensions = this.extensions;
-    return copyWith(extensions: {
+    return copyWith(
+        extensions: Val({
       if (extensions != null) ...extensions,
       key: value,
-    });
+    }));
   }
 
   Map<String, Object?> toJson() {
