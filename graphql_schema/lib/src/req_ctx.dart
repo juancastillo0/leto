@@ -6,8 +6,6 @@ class GlobalRef {
   GlobalRef(this.name);
 }
 
-final _responseHeadersCtxKey = GlobalRef('response.headers');
-
 class ReqCtx<P extends Object> implements GlobalsHolder {
   @override
   final ScopedMap globals;
@@ -46,18 +44,6 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
       lookahead: lookahead,
     );
   }
-
-  // TODO: headersAll Map<String, List<String>>
-  // TODO: should we leave it to the implementors?
-  Map<String, String> get responseHeaders {
-    return globals.putScopedIfAbsent(
-      _responseHeadersCtxKey,
-      () => <String, String>{},
-    )! as Map<String, String>;
-  }
-
-  static Map<String, String>? headersFromGlobals(GlobalsHolder holder) =>
-      holder.globals[_responseHeadersCtxKey] as Map<String, String>?;
 }
 
 class PossibleSelections {
