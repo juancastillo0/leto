@@ -1,0 +1,24 @@
+targets:
+  $default:
+    builders:
+      gql_build|schema_builder:
+        enabled: true
+      gql_build|ast_builder:
+        enabled: true
+      gql_build|data_builder:
+        enabled: true
+        options:
+          schema: chat_example|lib/api_schema.graphql
+      gql_build|var_builder:
+        enabled: true
+        options:
+          schema: chat_example|lib/api_schema.graphql
+      gql_build|serializer_builder:
+        enabled: true
+        options:
+          schema: chat_example|lib/api_schema.graphql
+
+      ferry_generator|req_builder:
+        enabled: true
+        options:
+          schema: chat_example|lib/api_schema.graphql
