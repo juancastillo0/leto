@@ -4,6 +4,7 @@ import 'package:gql/ast.dart' show DocumentNode;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
 
+export 'cache_extension.dart';
 export 'persisted_queries.dart';
 export 'tracing.dart';
 
