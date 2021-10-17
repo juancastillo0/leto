@@ -152,15 +152,25 @@ class ResolveObjectCtx<P extends Object> {
 class RefWithDefault<T> {
   final String name;
   final T Function(GlobalsHolder holder) create;
+  final bool scoped;
 
-  RefWithDefault(this.name, this.create);
+  RefWithDefault(this.name, this.create, {required this.scoped});
+  RefWithDefault.scoped(this.name, this.create) : scoped = true;
+  RefWithDefault.global(this.name, this.create) : scoped = false;
 
   T set(GlobalsHolder holder, T value) {
+    if (scoped) {
+      holder.globals.setScoped(this, value);
+      return value;
+    }
     holder.globals.setGlobal(this, value);
     return value;
   }
 
   T get(GlobalsHolder holder) {
+    if (scoped) {
+      return holder.globals.putScopedIfAbsent(this, () => create(holder)) as T;
+    }
     return holder.globals.putGlobalIfAbsent(this, () => create(holder)) as T;
   }
 }
