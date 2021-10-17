@@ -1,0 +1,101 @@
+type Query {
+  getMessage(chatId: Int): [ChatMessage!]!
+  getChatRooms: [ChatRoom!]!
+}
+
+type ChatMessage {
+  id: Int!
+  chatId: Int!
+  message: String!
+  referencedMessageId: Int
+  createdAt: Date!
+  referencedMessage: ChatMessage
+}
+
+"""An ISO-8601 Date."""
+scalar Date
+
+type ChatRoom {
+  id: Int!
+  name: String!
+  createdAt: Date!
+  messages: [ChatMessage!]!
+  users: [ChatRoomUser!]!
+}
+
+type ChatRoomUser {
+  user: User!
+  userId: Int!
+  chatId: Int!
+  role: ChatRoomUserRole!
+}
+
+type User {
+  sessions: [UserSession!]!
+  id: Int!
+  name: String!
+  createdAt: Date!
+}
+
+type UserSession {
+  id: ID!
+  userId: Int!
+  userAgent: String
+  platform: String
+  appVersion: String
+  isActive: Boolean!
+  createdAt: Date!
+}
+
+enum ChatRoomUserRole {
+  admin
+  peer
+}
+
+type Mutation {
+  refreshAuthToken: String
+  signUp(name: String!, password: String!): TokenWithUser
+  signIn(name: String, password: String): ResultTokenWithUserErrCSignInError!
+  signOut: String
+  sendMessage(chatId: Int!, message: String!, referencedMessageId: Int): ChatMessage
+  createChatRoom(name: String!): ChatRoom
+}
+
+type TokenWithUser {
+  refreshToken: String!
+  durableToken: String!
+  expiresInSecs: Int!
+  user: User!
+}
+
+"""
+TokenWithUser when the operation was successful or ErrCSignInError when an error was encountered.
+"""
+union ResultTokenWithUserErrCSignInError = TokenWithUser | ErrCSignInError
+
+type ErrCSignInError {
+  message: String
+  value: SignInError!
+}
+
+enum SignInError {
+  wrong
+  unknown
+  alreadySignedIn
+}
+
+type Subscription {
+  onMessageSent(chatId: Int!): [ChatMessage!]!
+  onMessageEvent(type: EventType!): DBEvent!
+}
+
+type DBEvent {
+  id: Int!
+  type: EventType!
+  data: String!
+  createdAt: Date!
+}
+
+enum EventType {
+  messageSent
+}
