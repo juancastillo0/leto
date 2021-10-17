@@ -1,0 +1,27 @@
+# import './messages.graphql'
+
+mutation createRoom($name: String!) {
+  createChatRoom(name: $name) {
+    ...BaseChatRoom
+  }
+}
+
+query getRooms {
+  getChatRooms {
+    ...BaseChatRoom
+    messages {
+      ...FullMessage
+    }
+    users {
+      userId
+      chatId
+      role
+    }
+  }
+}
+
+fragment BaseChatRoom on ChatRoom {
+  id
+  name
+  createdAt
+}
