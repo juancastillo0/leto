@@ -1,0 +1,46 @@
+mutation refreshAuthToken {
+  refreshAuthToken
+}
+
+mutation signIn($name: String, $password: String) {
+  signIn(name: $name, password: $password) {
+    ... on ErrCSignInError {
+      message
+      value
+    }
+    ... on TokenWithUser {
+      ...STokenWithUser
+    }
+  }
+}
+
+mutation signUp($name: String!, $password: String!) {
+  signUp(name: $name, password: $password) {
+    ... on ErrCSignUpError {
+      message
+      value
+    }
+    ... on TokenWithUser {
+      ...STokenWithUser
+    }
+  }
+}
+
+mutation signOut {
+  signOut
+}
+
+fragment AUser on User {
+  id
+  name
+  createdAt
+}
+
+fragment STokenWithUser on TokenWithUser {
+  refreshToken
+  accessToken
+  expiresInSecs
+  user {
+    ...AUser
+  }
+}
