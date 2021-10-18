@@ -324,17 +324,17 @@ class ChatRoomList extends StatelessWidget {
         }
 
         final result = roomsStreamValue.data;
-        if (result == null) {
+        if (result != null && result.hasErrors == true) {
+          return _errorWidget(
+            'Error ${result.linkException ?? result.graphqlErrors}',
+          );
+        }
+        if (result == null || result.data == null) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        if (result.hasErrors) {
-          return _errorWidget(
-            'Error ${result.linkException ?? result.graphqlErrors}',
-          );
-        }
         final value = result.data!.getChatRooms;
 
         return Column(
@@ -558,7 +558,10 @@ final roomsProvider = StateNotifierProvider<
 
 final roomsStreamProvider = StreamProvider((ref) {
   final client = ref.read(clientProvider);
-  return client.request(GgetRoomsReq());
+  final _req = GgetRoomsReq((b) => b..executeOnListen = false);
+  final stream = client.request(_req);
+  client.requestController.add(_req);
+  return stream;
 });
 
 final createRoomProvider = Provider((ref) {
