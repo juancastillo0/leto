@@ -107,4 +107,9 @@ class SqliteRow extends SqlRow
   @override
   List<Object?>? get columnsValues =>
       Iterable.generate(row.keys.length, columnAt).toList();
+
+  @override
+  Map<String?, Map<String, dynamic>> toTableColumnMap() {
+    return row.toTableColumnMap()!;
+  }
 }

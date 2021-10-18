@@ -106,4 +106,14 @@ class PostgresRow extends SqlRow
 
   @override
   List<Object?>? get columnsValues => row;
+
+  @override
+  Map<String?, Map<String, dynamic>> toTableColumnMap() {
+    return row.toTableColumnMap().map(
+          (key, value) => MapEntry(
+            key == '' ? null : key,
+            value,
+          ),
+        );
+  }
 }

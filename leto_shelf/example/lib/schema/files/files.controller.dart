@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collection/src/iterable_extensions.dart';
+import 'package:collection/collection.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:shelf_graphql/shelf_graphql.dart' show UploadedFileMeta;
 

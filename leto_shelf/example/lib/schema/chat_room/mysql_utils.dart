@@ -97,4 +97,10 @@ class MySqlRow extends SqlRow
 
   @override
   List<Object?>? get columnsValues => row.values;
+
+  @override
+  Map<String?, Map<String, dynamic>> toTableColumnMap() {
+    // TODO: implement toTableColumnMap
+    throw UnimplementedError();
+  }
 }
