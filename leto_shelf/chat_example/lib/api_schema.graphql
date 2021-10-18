@@ -33,7 +33,7 @@ type ChatRoomUser {
 type User {
   sessions: [UserSession!]!
   id: Int!
-  name: String!
+  name: String
   createdAt: Date!
 }
 
@@ -54,18 +54,34 @@ enum ChatRoomUserRole {
 
 type Mutation {
   refreshAuthToken: String
-  signUp(name: String!, password: String!): TokenWithUser
+  signUp(name: String!, password: String!): ResultTokenWithUserErrCSignUpError!
   signIn(name: String, password: String): ResultTokenWithUserErrCSignInError!
   signOut: String
   sendMessage(chatId: Int!, message: String!, referencedMessageId: Int): ChatMessage
   createChatRoom(name: String!): ChatRoom
 }
 
+"""
+TokenWithUser when the operation was successful or ErrCSignUpError when an error was encountered.
+"""
+union ResultTokenWithUserErrCSignUpError = TokenWithUser | ErrCSignUpError
+
 type TokenWithUser {
+  accessToken: String!
   refreshToken: String!
-  durableToken: String!
   expiresInSecs: Int!
   user: User!
+}
+
+type ErrCSignUpError {
+  message: String
+  value: SignUpError!
+}
+
+enum SignUpError {
+  nameTaken
+  alreadySignedUp
+  unknown
 }
 
 """

@@ -169,7 +169,7 @@ const User = _i1.ObjectTypeDefinitionNode(
           directives: [],
           args: [],
           type: _i1.NamedTypeNode(
-              name: _i1.NameNode(value: 'String'), isNonNull: true)),
+              name: _i1.NameNode(value: 'String'), isNonNull: false)),
       _i1.FieldDefinitionNode(
           name: _i1.NameNode(value: 'createdAt'),
           directives: [],
@@ -263,7 +263,8 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
                 defaultValue: null)
           ],
           type: _i1.NamedTypeNode(
-              name: _i1.NameNode(value: 'TokenWithUser'), isNonNull: false)),
+              name: _i1.NameNode(value: 'ResultTokenWithUserErrCSignUpError'),
+              isNonNull: true)),
       _i1.FieldDefinitionNode(
           name: _i1.NameNode(value: 'signIn'),
           directives: [],
@@ -329,19 +330,28 @@ const Mutation = _i1.ObjectTypeDefinitionNode(
           type: _i1.NamedTypeNode(
               name: _i1.NameNode(value: 'ChatRoom'), isNonNull: false))
     ]);
+const ResultTokenWithUserErrCSignUpError = _i1.UnionTypeDefinitionNode(
+    name: _i1.NameNode(value: 'ResultTokenWithUserErrCSignUpError'),
+    directives: [],
+    types: [
+      _i1.NamedTypeNode(
+          name: _i1.NameNode(value: 'TokenWithUser'), isNonNull: false),
+      _i1.NamedTypeNode(
+          name: _i1.NameNode(value: 'ErrCSignUpError'), isNonNull: false)
+    ]);
 const TokenWithUser = _i1.ObjectTypeDefinitionNode(
     name: _i1.NameNode(value: 'TokenWithUser'),
     directives: [],
     interfaces: [],
     fields: [
       _i1.FieldDefinitionNode(
-          name: _i1.NameNode(value: 'refreshToken'),
+          name: _i1.NameNode(value: 'accessToken'),
           directives: [],
           args: [],
           type: _i1.NamedTypeNode(
               name: _i1.NameNode(value: 'String'), isNonNull: true)),
       _i1.FieldDefinitionNode(
-          name: _i1.NameNode(value: 'durableToken'),
+          name: _i1.NameNode(value: 'refreshToken'),
           directives: [],
           args: [],
           type: _i1.NamedTypeNode(
@@ -358,6 +368,35 @@ const TokenWithUser = _i1.ObjectTypeDefinitionNode(
           args: [],
           type: _i1.NamedTypeNode(
               name: _i1.NameNode(value: 'User'), isNonNull: true))
+    ]);
+const ErrCSignUpError = _i1.ObjectTypeDefinitionNode(
+    name: _i1.NameNode(value: 'ErrCSignUpError'),
+    directives: [],
+    interfaces: [],
+    fields: [
+      _i1.FieldDefinitionNode(
+          name: _i1.NameNode(value: 'message'),
+          directives: [],
+          args: [],
+          type: _i1.NamedTypeNode(
+              name: _i1.NameNode(value: 'String'), isNonNull: false)),
+      _i1.FieldDefinitionNode(
+          name: _i1.NameNode(value: 'value'),
+          directives: [],
+          args: [],
+          type: _i1.NamedTypeNode(
+              name: _i1.NameNode(value: 'SignUpError'), isNonNull: true))
+    ]);
+const SignUpError = _i1.EnumTypeDefinitionNode(
+    name: _i1.NameNode(value: 'SignUpError'),
+    directives: [],
+    values: [
+      _i1.EnumValueDefinitionNode(
+          name: _i1.NameNode(value: 'nameTaken'), directives: []),
+      _i1.EnumValueDefinitionNode(
+          name: _i1.NameNode(value: 'alreadySignedUp'), directives: []),
+      _i1.EnumValueDefinitionNode(
+          name: _i1.NameNode(value: 'unknown'), directives: [])
     ]);
 const ResultTokenWithUserErrCSignInError = _i1.UnionTypeDefinitionNode(
     name: _i1.NameNode(value: 'ResultTokenWithUserErrCSignInError'),
@@ -478,7 +517,10 @@ const document = _i1.DocumentNode(definitions: [
   UserSession,
   ChatRoomUserRole,
   Mutation,
+  ResultTokenWithUserErrCSignUpError,
   TokenWithUser,
+  ErrCSignUpError,
+  SignUpError,
   ResultTokenWithUserErrCSignInError,
   ErrCSignInError,
   SignInError,

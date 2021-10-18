@@ -34,6 +34,20 @@ class GChatRoomUserRole extends EnumClass {
       _$gChatRoomUserRoleValueOf(name);
 }
 
+class GSignUpError extends EnumClass {
+  const GSignUpError._(String name) : super(name);
+
+  static const GSignUpError nameTaken = _$gSignUpErrornameTaken;
+
+  static const GSignUpError alreadySignedUp = _$gSignUpErroralreadySignedUp;
+
+  static const GSignUpError unknown = _$gSignUpErrorunknown;
+
+  static Serializer<GSignUpError> get serializer => _$gSignUpErrorSerializer;
+  static BuiltSet<GSignUpError> get values => _$gSignUpErrorValues;
+  static GSignUpError valueOf(String name) => _$gSignUpErrorValueOf(name);
+}
+
 class GSignInError extends EnumClass {
   const GSignInError._(String name) : super(name);
 

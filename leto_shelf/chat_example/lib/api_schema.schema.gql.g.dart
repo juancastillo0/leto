@@ -28,6 +28,31 @@ final BuiltSet<GChatRoomUserRole> _$gChatRoomUserRoleValues =
   _$gChatRoomUserRolepeer,
 ]);
 
+const GSignUpError _$gSignUpErrornameTaken = const GSignUpError._('nameTaken');
+const GSignUpError _$gSignUpErroralreadySignedUp =
+    const GSignUpError._('alreadySignedUp');
+const GSignUpError _$gSignUpErrorunknown = const GSignUpError._('unknown');
+
+GSignUpError _$gSignUpErrorValueOf(String name) {
+  switch (name) {
+    case 'nameTaken':
+      return _$gSignUpErrornameTaken;
+    case 'alreadySignedUp':
+      return _$gSignUpErroralreadySignedUp;
+    case 'unknown':
+      return _$gSignUpErrorunknown;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<GSignUpError> _$gSignUpErrorValues =
+    new BuiltSet<GSignUpError>(const <GSignUpError>[
+  _$gSignUpErrornameTaken,
+  _$gSignUpErroralreadySignedUp,
+  _$gSignUpErrorunknown,
+]);
+
 const GSignInError _$gSignInErrorwrong = const GSignInError._('wrong');
 const GSignInError _$gSignInErrorunknown = const GSignInError._('unknown');
 const GSignInError _$gSignInErroralreadySignedIn =
@@ -71,6 +96,8 @@ final BuiltSet<GEventType> _$gEventTypeValues =
 
 Serializer<GChatRoomUserRole> _$gChatRoomUserRoleSerializer =
     new _$GChatRoomUserRoleSerializer();
+Serializer<GSignUpError> _$gSignUpErrorSerializer =
+    new _$GSignUpErrorSerializer();
 Serializer<GSignInError> _$gSignInErrorSerializer =
     new _$GSignInErrorSerializer();
 Serializer<GEventType> _$gEventTypeSerializer = new _$GEventTypeSerializer();
@@ -91,6 +118,23 @@ class _$GChatRoomUserRoleSerializer
   GChatRoomUserRole deserialize(Serializers serializers, Object serialized,
           {FullType specifiedType = FullType.unspecified}) =>
       GChatRoomUserRole.valueOf(serialized as String);
+}
+
+class _$GSignUpErrorSerializer implements PrimitiveSerializer<GSignUpError> {
+  @override
+  final Iterable<Type> types = const <Type>[GSignUpError];
+  @override
+  final String wireName = 'GSignUpError';
+
+  @override
+  Object serialize(Serializers serializers, GSignUpError object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  GSignUpError deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      GSignUpError.valueOf(serialized as String);
 }
 
 class _$GSignInErrorSerializer implements PrimitiveSerializer<GSignInError> {
