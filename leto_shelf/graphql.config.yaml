@@ -1,0 +1,8 @@
+projects:
+  chat_example:
+    schema: chat_example/lib/api_schema.graphql
+    documents: chat_example/lib/api/**/*.{graphql,gql}
+    extensions:
+      endpoints:
+        default:
+          url: http://localhost:8060/graphql
