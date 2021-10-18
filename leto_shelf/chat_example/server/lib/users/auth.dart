@@ -1,5 +1,9 @@
+import 'dart:convert' show base64;
 import 'dart:io';
+import 'dart:math' show Random;
+import 'dart:typed_data' show Uint8List;
 
+import 'package:argon2/argon2.dart';
 import 'package:jose/jose.dart';
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -113,4 +117,76 @@ String createJwt(Map<String, Object?> claimsMap) {
 
   // output the compact serialization
   return jws.toCompactSerialization();
+}
+
+Uint8List getRandomBytes([int length = 16]) {
+  final _random = Random.secure();
+  return Uint8List.fromList(
+    List<int>.generate(length, (i) => _random.nextInt(256)),
+  );
+}
+
+String hashFromPassword(String password, {Argon2Parameters? params}) {
+  // // use Salt(List<int> bytes) for a salt from an Integer list
+  // final s = Salt.newSalt();
+  // // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
+  // // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
+  // final result = await argon2.hashPasswordString(password, salt: s);
+  // final stringEncoded = result.encodedString;
+
+  final _params = params ??
+      Argon2Parameters(
+        Argon2Parameters.ARGON2_id,
+        getRandomBytes(),
+        version: Argon2Parameters.ARGON2_VERSION_13,
+        iterations: 3,
+        memoryPowerOf2: 16,
+        lanes: 2,
+      );
+  final argon2 = Argon2BytesGenerator();
+  argon2.init(_params);
+
+  final result = Uint8List(32);
+  argon2.generateBytesFromString(password, result, 0, result.length);
+  // final hash = result.toHexString();
+  final encoded =
+      '\$argon2${['d', 'i', 'id'][_params.type]}\$v=${_params.version}'
+      '\$m=${_params.memory},t=${_params.iterations},p=${_params.lanes}'
+      '\$${base64.encode(_params.salt).replaceAll('=', '')}'
+      '\$${base64.encode(result).replaceAll('=', '')}';
+  print(encoded);
+  return encoded;
+}
+
+bool verifyPasswordFromHash(String password, String realHash) {
+  // use Salt(List<int> bytes) for a salt from an Integer list
+  // final s = Salt.newSalt();
+  // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
+  // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
+  // final result = await argon2.hashPasswordString(password, salt: s);
+  // final stringEncoded = result.encodedString;
+  try {
+    final split = realHash.split('\$');
+    final version = int.parse(split[2].substring(2));
+    final compluteParams =
+        split[3].split(',').map((v) => int.parse(v.substring(2))).toList();
+    final saltStrUnpadded = split[4];
+    final salt =
+        base64.decode('$saltStrUnpadded${'=' * (saltStrUnpadded.length % 4)}');
+
+    final parameters = Argon2Parameters(
+      const {'d': 0, 'i': 1, 'id': 2}[split[1].substring(6)]!,
+      salt,
+      version: version,
+      memory: compluteParams[0],
+      iterations: compluteParams[1],
+      lanes: compluteParams[2],
+    );
+    final hash = hashFromPassword(password, params: parameters);
+
+    return hash == realHash;
+  } catch (e) {
+    print(e);
+    return false;
+  }
 }

@@ -296,79 +296,6 @@ Future<String?> refreshAuthToken(
   );
 }
 
-Uint8List getRandomBytes([int length = 16]) {
-  final _random = Random.secure();
-  return Uint8List.fromList(
-    List<int>.generate(length, (i) => _random.nextInt(256)),
-  );
-}
-
-String hashFromPassword(String password, {Argon2Parameters? params}) {
-  // // use Salt(List<int> bytes) for a salt from an Integer list
-  // final s = Salt.newSalt();
-  // // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
-  // // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
-  // final result = await argon2.hashPasswordString(password, salt: s);
-  // final stringEncoded = result.encodedString;
-
-  final _params = params ??
-      Argon2Parameters(
-        Argon2Parameters.ARGON2_id,
-        getRandomBytes(),
-        version: Argon2Parameters.ARGON2_VERSION_13,
-        iterations: 3,
-        memoryPowerOf2: 16,
-        lanes: 2,
-      );
-  final argon2 = Argon2BytesGenerator();
-  argon2.init(_params);
-
-  final passwordBytes = _params.converter.convert(password);
-  final result = Uint8List(32);
-  argon2.generateBytes(passwordBytes, result, 0, result.length);
-  // final hash = result.toHexString();
-  final encoded =
-      '\$argon2${['d', 'i', 'id'][_params.type]}\$v=${_params.version}'
-      '\$m=${_params.memory},t=${_params.iterations},p=${_params.lanes}'
-      '\$${base64Encode(_params.salt).replaceAll('=', '')}'
-      '\$${base64Encode(result).replaceAll('=', '')}';
-  print(encoded);
-  return encoded;
-}
-
-bool verifyHashFromPassword(String password, String realHash) {
-  // use Salt(List<int> bytes) for a salt from an Integer list
-  // final s = Salt.newSalt();
-  // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
-  // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
-  // final result = await argon2.hashPasswordString(password, salt: s);
-  // final stringEncoded = result.encodedString;
-  try {
-    final split = realHash.split('\$');
-    final version = int.parse(split[2]);
-    final compluteParams =
-        split[3].split(',').map((v) => int.parse(v.substring(2))).toList();
-    final saltStrUnpadded = split[4];
-    final salt =
-        base64Decode('$saltStrUnpadded${'=' * (saltStrUnpadded.length % 4)}');
-
-    final parameters = Argon2Parameters(
-      const {'d': 0, 'i': 1, 'id': 2}[split[1].substring(6)]!,
-      salt,
-      version: version,
-      memory: compluteParams[0],
-      iterations: compluteParams[1],
-      lanes: compluteParams[2],
-    );
-    final hash = hashFromPassword(password, params: parameters);
-
-    return hash == realHash;
-  } catch (e) {
-    print(e);
-    return false;
-  }
-}
-
 @GraphQLClass()
 enum SignUpError {
   nameTaken,
@@ -387,7 +314,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
   final userWithName = await userTableRef.get(ctx).getByName(name);
   if (userWithName != null) {
     final verified = userWithName.passwordHash != null &&
-        verifyHashFromPassword(password, userWithName.passwordHash!);
+        verifyPasswordFromHash(password, userWithName.passwordHash!);
     if (!verified) {
       return Err(ErrC(SignUpError.nameTaken));
     }
@@ -479,7 +406,7 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
       return Err(ErrC(SignInError.wrong));
     }
     // Verify password (returns true/false), uses default type (Argon2Type.i)
-    final verified = verifyHashFromPassword(password, user.passwordHash!);
+    final verified = verifyPasswordFromHash(password, user.passwordHash!);
     if (!verified) {
       return Err(ErrC(SignInError.wrong));
     }
