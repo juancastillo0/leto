@@ -1,6 +1,6 @@
 import 'package:chat_example/api/auth_store.dart';
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/chats.dart';
+import 'package:chat_example/chat_rooms/chat_rooms_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

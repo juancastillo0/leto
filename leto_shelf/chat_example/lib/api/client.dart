@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:chat_example/api/auth_store.dart';
 import 'package:chat_example/api/http_auth_link.dart';
 import 'package:chat_example/api/user.data.gql.dart';
-import 'package:chat_example/chats.dart';
+import 'package:chat_example/chat_rooms/chat_rooms_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gql_http_link/gql_http_link.dart';
 import 'package:ferry/ferry.dart';
