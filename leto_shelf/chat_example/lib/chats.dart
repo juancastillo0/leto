@@ -1,12 +1,12 @@
+import 'package:chat_example/api/api_utils.dart';
 import 'package:chat_example/api/auth_store.dart';
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/messages.data.gql.dart';
-import 'package:chat_example/api/messages.req.gql.dart';
-import 'package:chat_example/api/messages.var.gql.dart';
 import 'package:chat_example/api/room.data.gql.dart';
 import 'package:chat_example/api/room.req.gql.dart';
 import 'package:chat_example/api/room.var.gql.dart';
 import 'package:chat_example/auth_ui.dart';
+import 'package:chat_example/messages/messages_store.dart';
+import 'package:chat_example/messages/messages_ui.dart';
 import 'package:ferry/ferry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -136,118 +136,6 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 }
 
-class MessageList extends HookConsumerWidget {
-  const MessageList({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return HookConsumer(
-      builder: (context, ref, _) {
-        final chat = ref.watch(selectedChat);
-        final messages = ref.watch(selectedChatMessages);
-        if (chat == null) {
-          return const Center(child: Text('Select a chat'));
-        }
-
-        Widget _errorWidget(String message) {
-          return ErrorWidget(
-            message: message,
-            refresh: () {
-              ref.read(clientProvider).requestController.add(
-                    // TODO: use refresh from store
-                    GgetMessagesReq((b) => b..vars.chatId = chat.id),
-                  );
-            },
-          );
-        }
-
-        return messages.map(
-          error: (error) => _errorWidget(error.toString()),
-          loading: (loading) => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          data: (data) {
-            final value = data.value;
-            if (value.hasErrors) {
-              _errorWidget(
-                (value.linkException ?? value.graphqlErrors).toString(),
-              );
-            }
-            final messages = value.data!.getMessage;
-
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final GFullMessage message = messages[index];
-                      return MessageItem(message: message);
-                    },
-                  ),
-                ),
-                HookConsumer(
-                  builder: (context, ref, _) {
-                    final textController = useTextEditingController();
-                    final focusNode = useFocusNode();
-                    useEffect(() {
-                      focusNode.requestFocus();
-                    });
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            focusNode: focusNode,
-                          ),
-                        ),
-                        IconButton(
-                          splashRadius: 24,
-                          tooltip: 'Attach',
-                          onPressed: () {},
-                          icon: const Icon(Icons.attach_file),
-                        ),
-                        IconButton(
-                          splashRadius: 24,
-                          tooltip: 'Send',
-                          onPressed: () {
-                            final message = textController.text;
-                            final optimisticResponse =
-                                (GsendMessageData_sendMessageBuilder()
-                                  ..chatId = chat.id
-                                  ..message = message
-                                  ..createdAt.value =
-                                      DateTime.now().toIso8601String()
-                                  ..id = -1);
-                            ref
-                                .read(clientProvider)
-                                .request(
-                                  GsendMessageReq(
-                                    (b) => b
-                                      ..vars.chatId = chat.id
-                                      ..vars.message = message
-                                      ..updateResult
-                                      ..optimisticResponse.sendMessage =
-                                          optimisticResponse,
-                                  ),
-                                )
-                                .listen((event) {});
-                          },
-                          icon: const Icon(Icons.send),
-                        ),
-                      ],
-                    );
-                  },
-                )
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
 class CreateRoomForm extends StatelessWidget {
   const CreateRoomForm({
     Key? key,
@@ -336,7 +224,7 @@ class ChatRoomList extends StatelessWidget {
         final roomsStreamValue = useStream(roomsStream);
 
         Widget _errorWidget(String message) {
-          return ErrorWidget(message: message, refresh: store.refresh);
+          return CustomErrorWidget(message: message, refresh: store.refresh);
         }
 
         final error = roomsStreamValue.error;
@@ -417,8 +305,8 @@ class ChatRoomList extends StatelessWidget {
   }
 }
 
-class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({
+class CustomErrorWidget extends StatelessWidget {
+  const CustomErrorWidget({
     Key? key,
     required this.message,
     required this.refresh,
@@ -444,106 +332,8 @@ class ErrorWidget extends StatelessWidget {
   }
 }
 
-final selectedChatId = StateProvider<int?>((ref) => null);
-
-final selectedChat = Provider(
-  (ref) {
-    final chatId = ref.watch(selectedChatId).state;
-    if (chatId == null) {
-      return null;
-    }
-    return ref.read(clientProvider).cache.readFragment(
-          GBaseChatRoomReq(
-            (b) => b..idFields = <String, Object?>{'id': chatId},
-          ),
-        );
-  },
-);
-
-final selectedChatMessages =
-    StreamProvider<OperationResponse<GgetMessagesData, GgetMessagesVars>>(
-  (ref) {
-    final chat = ref.watch(selectedChat);
-    if (chat == null) {
-      return const Stream.empty();
-    }
-    return ref.read(clientProvider).request(
-          // TODO:
-          // ..requestId = 'getMessages'
-          GgetMessagesReq((b) => b..vars.chatId = chat.id),
-        );
-  },
-);
-
-class MessageItem extends StatelessWidget {
-  const MessageItem({
-    Key? key,
-    required this.message,
-  }) : super(key: key);
-
-  final GFullMessage message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: FractionallySizedBox(
-        widthFactor: 0.8,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            color: Theme.of(context).primaryColor,
-          ),
-          padding: const EdgeInsetsDirectional.all(6),
-          child: Column(
-            children: [
-              Text(message.message),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(message.createdAt.value),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RequestState<TData, TVars>
-    extends StateNotifier<Stream<OperationResponse<TData, TVars>>> {
-  RequestState(this._read, this.request)
-      : super(_read(clientProvider).request(request)) {
-    _setup();
-  }
-
-  OperationResponse<TData, TVars>? lastResponse;
-  DateTime? lastResponseTime;
-
-  void _setup() {
-    state.map((event) {
-      lastResponse = event;
-      lastResponseTime = DateTime.now();
-    });
-  }
-
-  final OperationRequest<TData, TVars> request;
-  final T Function<T>(ProviderBase<T> provider) _read;
-
-  void refresh() {
-    _read(clientProvider).requestController.add(request);
-  }
-}
-
-class UpdateCacheObj<TData, TVars> {
-  final String name;
-  final UpdateCacheHandler<TData, TVars> handler;
-
-  const UpdateCacheObj(this.name, this.handler);
-}
-
-final createReviewHandler = UpdateCacheObj<GcreateRoomData, GcreateRoomVars>(
-  'createReviewHandler',
+final createChatRoomHandler = UpdateCacheObj<GcreateRoomData, GcreateRoomVars>(
+  'createChatRoomHandler',
   (
     proxy,
     response,
@@ -568,8 +358,6 @@ final createReviewHandler = UpdateCacheObj<GcreateRoomData, GcreateRoomVars>(
   },
 );
 
-class RoomStore {}
-
 final roomsProvider = StateNotifierProvider<
     RequestState<GgetRoomsData, GgetRoomsVars>,
     Stream<OperationResponse<GgetRoomsData, GgetRoomsVars>>>((ref) {
@@ -591,7 +379,7 @@ final createRoomProvider = Provider((ref) {
         GcreateRoomReq(
           (b) => b
             ..vars.name = name
-            ..updateCacheHandlerKey = createReviewHandler.name,
+            ..updateCacheHandlerKey = createChatRoomHandler.name,
         ),
       );
 });

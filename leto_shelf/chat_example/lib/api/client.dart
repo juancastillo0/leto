@@ -129,7 +129,7 @@ Future<ProviderContainer> initClient() async {
     'ws://localhost:8060/graphql-subscription',
   );
 
-  final _list = [createReviewHandler];
+  final _list = [createChatRoomHandler];
   final _cacheHandlers = Map.fromEntries(
     _list.map((e) => MapEntry(e.name, e.handler)),
   );
