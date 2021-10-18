@@ -28,7 +28,7 @@ Middleware jsonParse() {
   return (handler) {
     return (__request) async {
       Request request = __request;
-      if (request.mimeType == 'application/json') {
+      if (request.method != 'GET' && request.mimeType == 'application/json') {
         final str = await request.readAsString();
         final updateContext = <String, Object?>{
           extractJsonKey: jsonDecode(str)

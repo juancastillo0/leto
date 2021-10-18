@@ -1,22 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/graphql_server.dart';
 import 'package:shelf/shelf.dart';
-import 'package:shelf_graphql/src/middlewares.dart';
-import 'package:shelf_graphql/src/multipart_shelf.dart';
-import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-
-final requestCtxKey = GlobalRef('__request');
-
-extension ReqCtxShelf on ReqCtx {
-  Request get request => extractRequest(this);
-}
-
-Request extractRequest(ReqCtx ctx) {
-  return ctx.globals[requestCtxKey]! as Request;
-}
+import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql/src/multipart_shelf.dart'
+    show extractMultiPartData;
+import 'package:shelf_graphql/src/server_utils/graphql_request.dart'
+    show GraphQLRequest;
 
 Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
   return (request) async {
@@ -77,11 +67,18 @@ Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
         responseBody = resultList.first.toJson();
       }
 
-      final headers = ReqCtx.headersFromGlobals(_globalVariables);
-      final response = Response.ok(jsonEncode(responseBody), headers: {
-        HttpHeaders.contentTypeHeader: 'application/json',
-        if (headers != null) ...headers,
-      });
+      Response response =
+          _globalVariables[responseCtxKey] as Response? ?? Response.ok(null);
+      if (response.statusCode != 200 || !response.isEmpty) {
+        return response;
+      }
+      // ignore: join_return_with_assignment
+      response = response.change(
+        body: jsonEncode(responseBody),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      );
       return response;
     } on Response catch (e) {
       return e;
