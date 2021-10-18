@@ -1,3 +1,4 @@
+import 'package:chat_example/api/auth_store.dart';
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/api/messages.data.gql.dart';
 import 'package:chat_example/api/messages.req.gql.dart';
@@ -5,7 +6,7 @@ import 'package:chat_example/api/messages.var.gql.dart';
 import 'package:chat_example/api/room.data.gql.dart';
 import 'package:chat_example/api/room.req.gql.dart';
 import 'package:chat_example/api/room.var.gql.dart';
-import 'package:chat_example/api_schema.schema.gql.dart';
+import 'package:chat_example/auth_ui.dart';
 import 'package:ferry/ferry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -19,8 +20,6 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  ChatRoom? chatRoom;
-  List<ChatRoom> chatRooms = [];
   final searchController = TextEditingController();
 
   @override
@@ -28,6 +27,11 @@ class _ChatsPageState extends State<ChatsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Grafos Chat'),
+        actions: [
+          HookConsumer(builder: (context, ref, _) {
+            return const AuthForm(smallForm: true);
+          })
+        ],
       ),
       body: Row(
         children: [
@@ -78,8 +82,25 @@ class _ChatsPageState extends State<ChatsPage> {
             child: HookConsumer(
               builder: (context, ref, _) {
                 final chat = ref.watch(selectedChat);
+                final state = ref.watch(authStoreProv);
+
                 if (chat == null) {
-                  return const Center(child: Text('Select a chat'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Select a chat'),
+                        ),
+                        if (state.isAnonymous)
+                          const SizedBox(
+                            width: 300,
+                            child: AuthForm(smallForm: false),
+                          ),
+                      ],
+                    ),
+                  );
                 }
 
                 return Column(
@@ -574,54 +595,3 @@ final createRoomProvider = Provider((ref) {
         ),
       );
 });
-
-class ChatRoom {
-  final String code;
-  final String name;
-  final String ownerCode;
-  final List<Peer> peers;
-  final List<Message> messages;
-  final DateTime createdAt;
-
-  ChatRoom({
-    required this.code,
-    required this.name,
-    required this.ownerCode,
-    required this.peers,
-    required this.messages,
-    required this.createdAt,
-  });
-}
-
-class Peer {
-  final String code;
-  final String name;
-
-  Peer({
-    required this.code,
-    required this.name,
-  });
-}
-
-enum MessageType {
-  text,
-  file,
-}
-
-class Message {
-  final String code;
-  final String text;
-  final String? referencedMessageCode;
-  final MessageType type;
-  final DateTime createdAt;
-  final String senderCode;
-
-  Message({
-    required this.code,
-    required this.text,
-    this.referencedMessageCode,
-    required this.type,
-    required this.createdAt,
-    required this.senderCode,
-  });
-}

@@ -35,7 +35,7 @@ dependencies:
   ferry_flutter: 
   hive: 
   hive_flutter: 
-
+  shared_preferences:
   freezed_annotation:
 
   flutter_hooks: ^0.18.0
