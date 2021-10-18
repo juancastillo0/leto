@@ -17,28 +17,38 @@ class GraphQLUnionType<P extends Object>
   @override
   final String? description;
 
-  final ResolveType<GraphQLUnionType<P>>? resolveType;
+  final _ResolveType<GraphQLUnionType<P>>? resolveType;
 
   GraphQLUnionType(
     this.name,
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
-    this.resolveType,
-  })
-  // TODO:
-  // : assert(
-  //           possibleTypes.every((t) => t.whenMaybe(
-  //               object: (obj) => !obj.isInterface, orElse: (_) => false)),
-  //           'The member types of a Union type must all be Object base types; '
-  //           'Scalar, Interface and Union types must not be member types '
-  //           'of a Union. Similarly, wrapping types must not be member '
-  //           'types of a Union.'),
+    ResolveType<GraphQLUnionType<P>>? resolveType,
+    Object Function(P)? extractInner,
+  })  : _extractInner = extractInner,
+        resolveType = resolveType == null ? null : _ResolveType(resolveType),
+        assert(
+            possibleTypes.every((t) => t.whenMaybe(
+                object: (obj) => !obj.isInterface, orElse: (_) => false)),
+            'The member types of a Union type must all be Object base types; '
+            'Scalar, Interface and Union types must not be member types '
+            'of a Union. Similarly, wrapping types must not be member '
+            'types of a Union.')
   //       assert(possibleTypes.isNotEmpty,
   //           'A Union type must define one or more member types.')
   {
     for (final t in possibleTypes.toSet()) {
       this.possibleTypes.add(t);
     }
+  }
+
+  final Object Function(P)? _extractInner;
+
+  Object extractInner(P p) {
+    if (_extractInner != null) {
+      return _extractInner!.call(p);
+    }
+    return p;
   }
 
   @override

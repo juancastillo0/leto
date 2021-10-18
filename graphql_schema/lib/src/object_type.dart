@@ -3,6 +3,15 @@ part of graphql_schema.src.schema;
 typedef ResolveType<P extends GraphQLType> = String Function(
     Object, P, ResolveObjectCtx);
 
+class _ResolveType<T extends GraphQLType<Object, Object>> {
+  final ResolveType<T> func;
+
+  const _ResolveType(this.func);
+
+  String call(Object result, T type, ResolveObjectCtx ctx) =>
+      func(result, type, ctx);
+}
+
 typedef IsTypeOf<P extends Object> = bool Function(
     Object, GraphQLObjectType<P>, ResolveObjectCtx);
 
@@ -50,7 +59,7 @@ class GraphQLObjectType<P extends Object>
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
-  final ResolveType<GraphQLObjectType<P>>? resolveType;
+  final _ResolveType<GraphQLObjectType<P>>? resolveType;
 
   final _IsTypeOf<P>? isTypeOf;
 
@@ -58,11 +67,12 @@ class GraphQLObjectType<P extends Object>
     this.name, {
     this.description,
     this.isInterface = false,
-    this.resolveType,
+    ResolveType<GraphQLObjectType<P>>? resolveType,
     IsTypeOf<P>? isTypeOf,
     Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
-  }) : isTypeOf = isTypeOf == null ? null : _IsTypeOf(isTypeOf) {
+  })  : isTypeOf = isTypeOf == null ? null : _IsTypeOf(isTypeOf),
+        resolveType = resolveType == null ? null : _ResolveType(resolveType) {
     this.fields.addAll(fields);
 
     inheritFromMany(interfaces);

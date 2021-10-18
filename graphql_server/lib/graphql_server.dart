@@ -1123,19 +1123,24 @@ class GraphQL {
           objectType = resolveAbstractType(ctx, fieldName, fieldType, result!);
         }
 
+        Object _result = result!;
+        if (fieldType is GraphQLUnionType) {
+          _result = fieldType.extractInner(_result);
+        }
+
         if (validate &&
-            result is! Map<String, dynamic> &&
-            !objectType.generic.isValueOfType(result)) {
+            _result is! Map<String, dynamic> &&
+            !objectType.generic.isValueOfType(_result)) {
           throw GraphQLException.fromMessage(
             'Expected value of type "$objectType" for'
-            ' field "${ctx.objectType}.$fieldName", but got $result.',
+            ' field "${ctx.objectType}.$fieldName", but got $_result.',
             path: path,
           );
         }
 
         final subSelectionSet = mergeSelectionSets(fields);
         return executeSelectionSet(
-            ctx.base, subSelectionSet, objectType, result!,
+            ctx.base, subSelectionSet, objectType, _result,
             serial: false, parentCtx: ctx, pathItem: pathItem);
       }
 
