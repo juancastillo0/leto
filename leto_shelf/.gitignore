@@ -9,3 +9,4 @@ build/
 doc/api/
 .fvm/flutter_sdk
 .vscode/settings.json
+chat_example/macos/Flutter/GeneratedPluginRegistrant.swift
