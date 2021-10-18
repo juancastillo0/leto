@@ -39,9 +39,11 @@ import 'package:chat_example/api/room.var.gql.dart'
 import 'package:chat_example/api/user.data.gql.dart'
     show
         GsignInData_signIn,
+        GsignUpData_signUp,
         GAUserData,
         GSTokenWithUserData,
         GSTokenWithUserData_user,
+        GrefreshAuthTokenData,
         GsignInData,
         GsignInData_signIn__asErrCSignInError,
         GsignInData_signIn__asTokenWithUser,
@@ -49,19 +51,28 @@ import 'package:chat_example/api/user.data.gql.dart'
         GsignInData_signIn__base,
         GsignOutData,
         GsignUpData,
-        GsignUpData_signUp,
-        GsignUpData_signUp_user;
+        GsignUpData_signUp__asErrCSignUpError,
+        GsignUpData_signUp__asTokenWithUser,
+        GsignUpData_signUp__asTokenWithUser_user,
+        GsignUpData_signUp__base;
 import 'package:chat_example/api/user.req.gql.dart'
-    show GAUserReq, GSTokenWithUserReq, GsignInReq, GsignOutReq, GsignUpReq;
+    show
+        GAUserReq,
+        GSTokenWithUserReq,
+        GrefreshAuthTokenReq,
+        GsignInReq,
+        GsignOutReq,
+        GsignUpReq;
 import 'package:chat_example/api/user.var.gql.dart'
     show
         GAUserVars,
         GSTokenWithUserVars,
+        GrefreshAuthTokenVars,
         GsignInVars,
         GsignOutVars,
         GsignUpVars;
 import 'package:chat_example/api_schema.schema.gql.dart'
-    show GChatRoomUserRole, GDate, GEventType, GSignInError;
+    show GChatRoomUserRole, GDate, GEventType, GSignInError, GSignUpError;
 import 'package:gql_code_builder/src/serializers/operation_serializer.dart'
     show OperationSerializer;
 
@@ -70,6 +81,7 @@ part 'serializers.gql.g.dart';
 final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   ..add(OperationSerializer())
   ..add(GsignInData_signIn.serializer)
+  ..add(GsignUpData_signUp.serializer)
   ..addPlugin(StandardJsonPlugin());
 @SerializersFor([
   GAUserData,
@@ -90,6 +102,7 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GSTokenWithUserReq,
   GSTokenWithUserVars,
   GSignInError,
+  GSignUpError,
   GcreateRoomData,
   GcreateRoomData_createChatRoom,
   GcreateRoomReq,
@@ -111,6 +124,9 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GonMessageSentData_onMessageSent_referencedMessage,
   GonMessageSentReq,
   GonMessageSentVars,
+  GrefreshAuthTokenData,
+  GrefreshAuthTokenReq,
+  GrefreshAuthTokenVars,
   GsendMessageData,
   GsendMessageData_sendMessage,
   GsendMessageData_sendMessage_referencedMessage,
@@ -127,8 +143,10 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GsignOutReq,
   GsignOutVars,
   GsignUpData,
-  GsignUpData_signUp,
-  GsignUpData_signUp_user,
+  GsignUpData_signUp__asErrCSignUpError,
+  GsignUpData_signUp__asTokenWithUser,
+  GsignUpData_signUp__asTokenWithUser_user,
+  GsignUpData_signUp__base,
   GsignUpReq,
   GsignUpVars
 ])
