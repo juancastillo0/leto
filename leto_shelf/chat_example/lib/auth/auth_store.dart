@@ -154,12 +154,6 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
     );
     signIn(name: null, password: null);
     return comp.future.then((_) => cancel());
-
-    // final result = await _read(clientProvider)
-    //     .request(GsignInReq())
-    //     .map((event) => event)
-    //     .toList();
-    // _onSingIn(result.last);
   }
 
   void _onSingIn(OperationResponse<GsignInData, GsignInVars> event) {

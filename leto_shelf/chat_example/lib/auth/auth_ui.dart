@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:chat_example/api/auth_store.dart';
+import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/utils/text_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
