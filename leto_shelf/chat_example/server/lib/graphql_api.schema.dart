@@ -31,6 +31,7 @@ final graphqlApiSchema = GraphQLSchema(
       signOutGraphQLField,
       sendMessageGraphQLField,
       createChatRoomGraphQLField,
+      deleteChatRoomGraphQLField,
     ],
   ),
   subscriptionType: objectType(

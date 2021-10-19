@@ -93,6 +93,25 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
   deprecationReason: null,
 );
 
+final GraphQLObjectField<bool, Object, Object> deleteChatRoomGraphQLField =
+    field(
+  'deleteChatRoom',
+  graphQLBoolean.nonNull() as GraphQLType<bool, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return deleteChatRoom(ctx, (args["id"] as int));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "id",
+      graphQLInt.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
 final GraphQLObjectField<List<ChatRoom?>, Object, Object>
     getChatRoomsGraphQLField = field(
   'getChatRooms',

@@ -38,6 +38,23 @@ CREATE TABLE chatRoomUser (
     FOREIGN KEY (userId) REFERENCES user (id),
     FOREIGN KEY (chatId) REFERENCES chat (id)
 );''',
+// add ON DELETE CASCADE on references
+        'ALTER TABLE $tableName RENAME TO tmp_$tableName;',
+        '''
+CREATE TABLE $tableName (
+    userId INT NOT NULL,
+    chatId INT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('admin', 'peer')),
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (userId, chatId),
+    FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (chatId) REFERENCES chat (id) ON DELETE CASCADE
+);''',
+        '''
+INSERT INTO $tableName(userId, chatId, role, createdAt) 
+SELECT userId, chatId, role, createdAt
+FROM tmp_$tableName;''',
+        'DROP TABLE tmp_$tableName;',
       ],
     );
     print('migrated $tableName $migrated');
@@ -46,7 +63,7 @@ CREATE TABLE chatRoomUser (
   Future<bool> insert(ChatRoomUser user) async {
     final result = await conn.query(
       'insert into chatRoomUser(userId, chatId, role, createdAt)'
-      ' values (?, ?, ? CURRENT_TIMESTAMP)',
+      ' values (?, ?, ?, CURRENT_TIMESTAMP)',
       [
         user.userId,
         user.chatId,
@@ -68,6 +85,17 @@ CREATE TABLE chatRoomUser (
       ],
     );
     return (result.affectedRows ?? 0) >= 1;
+  }
+
+  Future<ChatRoomUser?> get({
+    required int chatId,
+    required int userId,
+  }) async {
+    final result = await conn.query(
+      'select * from chatRoomUser where chatId = ? and userId = ?;',
+      [chatId, userId],
+    );
+    return result.isEmpty ? null : ChatRoomUser.fromJson(result.first);
   }
 
   Future<List<ChatRoomUser>?> getForChat(int id) async {
