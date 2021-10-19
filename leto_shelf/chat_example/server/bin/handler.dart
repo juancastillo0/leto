@@ -40,7 +40,8 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     introspect: true,
     extensionList: config?.extensionList ??
         [
-          GraphQLTracingExtension(),
+          if (Platform.environment['TRACING'] == 'true')
+            GraphQLTracingExtension(),
           GraphQLPersistedQueries(),
           CacheExtension(cache: LruCacheSimple(10)),
         ],

@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/database/models/connection_models.dart';
@@ -17,7 +18,11 @@ part 'chat_table.freezed.dart';
 
 final chatRoomDatabase = RefWithDefault<TableConnection>.global(
   'ChatRoomDatabase',
-  (scope) => SqliteConnection(sqlite3.open('chat_room.sqlite')),
+  (scope) => SqliteConnection(
+    Platform.environment['SQLITE_MEMORY'] == 'true'
+        ? sqlite3.openInMemory()
+        : sqlite3.open('chat_room.sqlite'),
+  ),
 );
 
 final chatControllerRef = RefWithDefault.global(
@@ -81,6 +86,23 @@ class ChatTable {
     });
   }
 
+  Future<bool> delete({
+    required int chatId,
+    required int userId,
+  }) async {
+    return db.transaction((db) async {
+      final result = await db.query(
+        'DELETE chat from chat INNER JOIN'
+        ' chatRoomUser on chatRoomUser.chatId = chat.id'
+        ' where chat.id = ? and chatRoomUser.userId = ?'
+        " and chatRoomUser.role in ('admin');",
+        [chatId, userId],
+      );
+
+      return (result.affectedRows ?? 0) > 0;
+    });
+  }
+
   Future<ChatRoom?> get(int chatId) async {
     final result = await db.query(
       'SELECT * FROM chat WHERE id = ?;',
@@ -110,14 +132,6 @@ ${withMessages ? 'LEFT JOIN message ON chat.id = message.chatId' : ''}
       'message': ['id'],
     });
     return values;
-  }
-
-  Future<bool> delete(int chatId) async {
-    final result = await db.query(
-      'DELETE FROM chat WHERE id = ?;',
-      [chatId],
-    );
-    return (result.affectedRows ?? 0) >= 1;
   }
 
   Future<void> setup() async {
@@ -175,16 +189,25 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
   Future<ChatMessage?> insert(
     int chatId,
     String message, {
+    required int userId,
     int? referencedMessageId,
   }) async {
     ChatMessage? messageModel;
     await db.transaction((db) async {
+      final chatUser = await UserChatsTable(db).get(
+        userId: userId,
+        chatId: chatId,
+      );
+      if (chatUser == null) {
+        throw unauthorizedError;
+      }
       if (referencedMessageId != null) {
         final referencedMessage =
             await ChatMessageTable(db).get(referencedMessageId);
         if (referencedMessage == null) {
           throw Exception(
-              'Chat message with id $referencedMessageId not found.');
+            'Chat message with id $referencedMessageId not found.',
+          );
         } else if (referencedMessage.chatId != chatId) {
           throw Exception('Can only reference messages within the same chat.');
         }
@@ -192,9 +215,15 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
       final createdAt = DateTime.now();
 
       final insertResult = await db.query(
-        '''INSERT INTO message(chatId, message, referencedMessageId, createdAt)
-              VALUES (?, ?, ?, ?)''',
-        [chatId, message, referencedMessageId, createdAt.toIso8601String()],
+        '''INSERT INTO message(chatId, message, referencedMessageId, userId, createdAt)
+              VALUES (?, ?, ?, ?, ?)''',
+        [
+          chatId,
+          message,
+          referencedMessageId,
+          userId,
+          createdAt.toIso8601String()
+        ],
       );
       final _messageModel = ChatMessage(
         chatId: chatId,
@@ -263,6 +292,21 @@ FROM tmp_$tableName;''',
         '''
 ALTER TABLE $tableName ADD referencedMessageId INT NULL
 REFERENCES $tableName (id);''',
+
+        /// Add userId column and add ON DELETE CASCADE FOR chat
+        '''DROP TABLE $tableName;''',
+        '''
+CREATE TABLE $tableName (
+  id INTEGER NOT NULL,
+  chatId INTEGER NOT NULL,
+  userId INTEGER NOT NULL,
+  message TEXT NOT NULL,
+  referencedMessageId INT NULL REFERENCES $tableName (id),
+  createdAt DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (userId) REFERENCES user (id),
+  FOREIGN KEY (chatId) REFERENCES chat (id) ON DELETE CASCADE
+);''',
       ],
     );
     print('migrated $tableName $migrated');
@@ -545,11 +589,13 @@ Future<ChatMessage?> sendMessage(
   String message,
   int? referencedMessageId,
 ) async {
+  final userClaims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
   return controller.messages.insert(
     chatId,
     message,
     referencedMessageId: referencedMessageId,
+    userId: userClaims.userId,
   );
 }
 
@@ -582,12 +628,19 @@ Future<ChatRoom?> createChatRoom(
   ReqCtx<Object> ctx,
   String name,
 ) async {
-  final claims = await getUserClaims(ctx);
-  if (claims == null) {
-    return null;
-  }
+  final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
   return controller.chats.insert(name, claims.userId);
+}
+
+@Mutation()
+Future<bool> deleteChatRoom(
+  ReqCtx<Object> ctx,
+  int id,
+) async {
+  final claims = await getUserClaimsUnwrap(ctx);
+  final controller = await chatControllerRef.get(ctx);
+  return controller.chats.delete(chatId: id, userId: claims.userId);
 }
 
 @Query()
