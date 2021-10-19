@@ -23,6 +23,9 @@ void setAuthCookie(ReqCtx ctx, String token, int maxAgeSecs) {
   );
 }
 
+final unauthenticatedError = GraphQLError('Unauthenticated');
+final unauthorizedError = GraphQLError('Unauthorized');
+
 class UserClaims {
   final int userId;
   final String sessionId;
@@ -31,6 +34,20 @@ class UserClaims {
     required this.userId,
     required this.sessionId,
   });
+}
+
+Future<UserClaims> getUserClaimsUnwrap(
+  ReqCtx ctx, {
+  bool isRefreshToken = false,
+}) async {
+  final authToken = await getUserClaims(
+    ctx,
+    isRefreshToken: isRefreshToken,
+  );
+  if (authToken != null) {
+    return authToken;
+  }
+  throw unauthenticatedError;
 }
 
 Future<UserClaims?> getUserClaims(
