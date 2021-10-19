@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:server/api_schema.dart' show makeApiSchema;
+import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -35,6 +37,42 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     staticFilesWithController(),
   );
   final schema = makeApiSchema();
+
+  const bool kReleaseMode = bool.fromEnvironment(
+    'dart.vm.product',
+    defaultValue: false,
+  );
+  if (!kReleaseMode) {
+    schema.queryType!.fields.add(
+      graphQLString.field(
+        'testSqlRawQuery',
+        inputs: [
+          GraphQLFieldInput('query', graphQLString.nonNull()),
+          GraphQLFieldInput('params', listOf(graphQLString)),
+        ],
+        resolve: (_, ctx) async {
+          final query = ctx.args['query']! as String;
+          final params = ctx.args['params'] as List<String?>?;
+          final result = await chatRoomDatabase.get(ctx).query(query, params);
+          if (result.affectedRows != null) {
+            return jsonEncode({
+              'affectedRows': result.affectedRows,
+              'insertId': result.insertId
+            });
+          }
+          return jsonEncode(
+            result
+                .map(
+                  (e) => e
+                      .toTableColumnMap()
+                      .map((key, value) => MapEntry(key ?? '', value)),
+                )
+                .toList(),
+          );
+        },
+      ),
+    );
+  }
   final graphQL = GraphQL(
     schema,
     introspect: true,
