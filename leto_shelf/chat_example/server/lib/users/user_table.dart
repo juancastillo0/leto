@@ -218,7 +218,7 @@ class UserSession {
   });
 
   factory UserSession.create(int userId, Request request) {
-    final uuid = base64Encode(const Uuid().v4obj().toBytes());
+    final uuid = base64UrlEncode(const Uuid().v4obj().toBytes());
     return UserSession(
       isActive: true,
       createdAt: DateTime.now(),
