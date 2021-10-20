@@ -353,9 +353,6 @@ class _$GsignInData_signIn__asTokenWithUser_userSerializer
           specifiedType: const FullType(String)),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(int)),
-      'createdAt',
-      serializers.serialize(object.createdAt,
-          specifiedType: const FullType(_i3.GDate)),
     ];
     Object? value;
     value = object.name;
@@ -391,10 +388,6 @@ class _$GsignInData_signIn__asTokenWithUser_userSerializer
         case 'name':
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
-          break;
-        case 'createdAt':
-          result.createdAt.replace(serializers.deserialize(value,
-              specifiedType: const FullType(_i3.GDate))! as _i3.GDate);
           break;
       }
     }
@@ -659,9 +652,6 @@ class _$GsignUpData_signUp__asTokenWithUser_userSerializer
           specifiedType: const FullType(String)),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(int)),
-      'createdAt',
-      serializers.serialize(object.createdAt,
-          specifiedType: const FullType(_i3.GDate)),
     ];
     Object? value;
     value = object.name;
@@ -697,10 +687,6 @@ class _$GsignUpData_signUp__asTokenWithUser_userSerializer
         case 'name':
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
-          break;
-        case 'createdAt':
-          result.createdAt.replace(serializers.deserialize(value,
-              specifiedType: const FullType(_i3.GDate))! as _i3.GDate);
           break;
       }
     }
@@ -776,9 +762,6 @@ class _$GAUserDataSerializer implements StructuredSerializer<GAUserData> {
           specifiedType: const FullType(String)),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(int)),
-      'createdAt',
-      serializers.serialize(object.createdAt,
-          specifiedType: const FullType(_i3.GDate)),
     ];
     Object? value;
     value = object.name;
@@ -813,10 +796,6 @@ class _$GAUserDataSerializer implements StructuredSerializer<GAUserData> {
         case 'name':
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
-          break;
-        case 'createdAt':
-          result.createdAt.replace(serializers.deserialize(value,
-              specifiedType: const FullType(_i3.GDate))! as _i3.GDate);
           break;
       }
     }
@@ -920,9 +899,6 @@ class _$GSTokenWithUserData_userSerializer
           specifiedType: const FullType(String)),
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(int)),
-      'createdAt',
-      serializers.serialize(object.createdAt,
-          specifiedType: const FullType(_i3.GDate)),
     ];
     Object? value;
     value = object.name;
@@ -958,10 +934,6 @@ class _$GSTokenWithUserData_userSerializer
         case 'name':
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
-          break;
-        case 'createdAt':
-          result.createdAt.replace(serializers.deserialize(value,
-              specifiedType: const FullType(_i3.GDate))! as _i3.GDate);
           break;
       }
     }
@@ -1544,8 +1516,6 @@ class _$GsignInData_signIn__asTokenWithUser_user
   final int id;
   @override
   final String? name;
-  @override
-  final _i3.GDate createdAt;
 
   factory _$GsignInData_signIn__asTokenWithUser_user(
           [void Function(GsignInData_signIn__asTokenWithUser_userBuilder)?
@@ -1554,17 +1524,12 @@ class _$GsignInData_signIn__asTokenWithUser_user
           .build();
 
   _$GsignInData_signIn__asTokenWithUser_user._(
-      {required this.G__typename,
-      required this.id,
-      this.name,
-      required this.createdAt})
+      {required this.G__typename, required this.id, this.name})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         G__typename, 'GsignInData_signIn__asTokenWithUser_user', 'G__typename');
     BuiltValueNullFieldError.checkNotNull(
         id, 'GsignInData_signIn__asTokenWithUser_user', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        createdAt, 'GsignInData_signIn__asTokenWithUser_user', 'createdAt');
   }
 
   @override
@@ -1583,15 +1548,13 @@ class _$GsignInData_signIn__asTokenWithUser_user
     return other is GsignInData_signIn__asTokenWithUser_user &&
         G__typename == other.G__typename &&
         id == other.id &&
-        name == other.name &&
-        createdAt == other.createdAt;
+        name == other.name;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode),
-        createdAt.hashCode));
+    return $jf(
+        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode));
   }
 
   @override
@@ -1600,8 +1563,7 @@ class _$GsignInData_signIn__asTokenWithUser_user
             'GsignInData_signIn__asTokenWithUser_user')
           ..add('G__typename', G__typename)
           ..add('id', id)
-          ..add('name', name)
-          ..add('createdAt', createdAt))
+          ..add('name', name))
         .toString();
   }
 }
@@ -1624,11 +1586,6 @@ class GsignInData_signIn__asTokenWithUser_userBuilder
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  _i3.GDateBuilder? _createdAt;
-  _i3.GDateBuilder get createdAt =>
-      _$this._createdAt ??= new _i3.GDateBuilder();
-  set createdAt(_i3.GDateBuilder? createdAt) => _$this._createdAt = createdAt;
-
   GsignInData_signIn__asTokenWithUser_userBuilder() {
     GsignInData_signIn__asTokenWithUser_user._initializeBuilder(this);
   }
@@ -1639,7 +1596,6 @@ class GsignInData_signIn__asTokenWithUser_userBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _name = $v.name;
-      _createdAt = $v.createdAt.toBuilder();
       _$v = null;
     }
     return this;
@@ -1659,29 +1615,13 @@ class GsignInData_signIn__asTokenWithUser_userBuilder
 
   @override
   _$GsignInData_signIn__asTokenWithUser_user build() {
-    _$GsignInData_signIn__asTokenWithUser_user _$result;
-    try {
-      _$result = _$v ??
-          new _$GsignInData_signIn__asTokenWithUser_user._(
-              G__typename: BuiltValueNullFieldError.checkNotNull(G__typename,
-                  'GsignInData_signIn__asTokenWithUser_user', 'G__typename'),
-              id: BuiltValueNullFieldError.checkNotNull(
-                  id, 'GsignInData_signIn__asTokenWithUser_user', 'id'),
-              name: name,
-              createdAt: createdAt.build());
-    } catch (_) {
-      late String _$failedField;
-      try {
-        _$failedField = 'createdAt';
-        createdAt.build();
-      } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            'GsignInData_signIn__asTokenWithUser_user',
-            _$failedField,
-            e.toString());
-      }
-      rethrow;
-    }
+    final _$result = _$v ??
+        new _$GsignInData_signIn__asTokenWithUser_user._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(G__typename,
+                'GsignInData_signIn__asTokenWithUser_user', 'G__typename'),
+            id: BuiltValueNullFieldError.checkNotNull(
+                id, 'GsignInData_signIn__asTokenWithUser_user', 'id'),
+            name: name);
     replace(_$result);
     return _$result;
   }
@@ -2164,8 +2104,6 @@ class _$GsignUpData_signUp__asTokenWithUser_user
   final int id;
   @override
   final String? name;
-  @override
-  final _i3.GDate createdAt;
 
   factory _$GsignUpData_signUp__asTokenWithUser_user(
           [void Function(GsignUpData_signUp__asTokenWithUser_userBuilder)?
@@ -2174,17 +2112,12 @@ class _$GsignUpData_signUp__asTokenWithUser_user
           .build();
 
   _$GsignUpData_signUp__asTokenWithUser_user._(
-      {required this.G__typename,
-      required this.id,
-      this.name,
-      required this.createdAt})
+      {required this.G__typename, required this.id, this.name})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         G__typename, 'GsignUpData_signUp__asTokenWithUser_user', 'G__typename');
     BuiltValueNullFieldError.checkNotNull(
         id, 'GsignUpData_signUp__asTokenWithUser_user', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        createdAt, 'GsignUpData_signUp__asTokenWithUser_user', 'createdAt');
   }
 
   @override
@@ -2203,15 +2136,13 @@ class _$GsignUpData_signUp__asTokenWithUser_user
     return other is GsignUpData_signUp__asTokenWithUser_user &&
         G__typename == other.G__typename &&
         id == other.id &&
-        name == other.name &&
-        createdAt == other.createdAt;
+        name == other.name;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode),
-        createdAt.hashCode));
+    return $jf(
+        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode));
   }
 
   @override
@@ -2220,8 +2151,7 @@ class _$GsignUpData_signUp__asTokenWithUser_user
             'GsignUpData_signUp__asTokenWithUser_user')
           ..add('G__typename', G__typename)
           ..add('id', id)
-          ..add('name', name)
-          ..add('createdAt', createdAt))
+          ..add('name', name))
         .toString();
   }
 }
@@ -2244,11 +2174,6 @@ class GsignUpData_signUp__asTokenWithUser_userBuilder
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  _i3.GDateBuilder? _createdAt;
-  _i3.GDateBuilder get createdAt =>
-      _$this._createdAt ??= new _i3.GDateBuilder();
-  set createdAt(_i3.GDateBuilder? createdAt) => _$this._createdAt = createdAt;
-
   GsignUpData_signUp__asTokenWithUser_userBuilder() {
     GsignUpData_signUp__asTokenWithUser_user._initializeBuilder(this);
   }
@@ -2259,7 +2184,6 @@ class GsignUpData_signUp__asTokenWithUser_userBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _name = $v.name;
-      _createdAt = $v.createdAt.toBuilder();
       _$v = null;
     }
     return this;
@@ -2279,29 +2203,13 @@ class GsignUpData_signUp__asTokenWithUser_userBuilder
 
   @override
   _$GsignUpData_signUp__asTokenWithUser_user build() {
-    _$GsignUpData_signUp__asTokenWithUser_user _$result;
-    try {
-      _$result = _$v ??
-          new _$GsignUpData_signUp__asTokenWithUser_user._(
-              G__typename: BuiltValueNullFieldError.checkNotNull(G__typename,
-                  'GsignUpData_signUp__asTokenWithUser_user', 'G__typename'),
-              id: BuiltValueNullFieldError.checkNotNull(
-                  id, 'GsignUpData_signUp__asTokenWithUser_user', 'id'),
-              name: name,
-              createdAt: createdAt.build());
-    } catch (_) {
-      late String _$failedField;
-      try {
-        _$failedField = 'createdAt';
-        createdAt.build();
-      } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            'GsignUpData_signUp__asTokenWithUser_user',
-            _$failedField,
-            e.toString());
-      }
-      rethrow;
-    }
+    final _$result = _$v ??
+        new _$GsignUpData_signUp__asTokenWithUser_user._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(G__typename,
+                'GsignUpData_signUp__asTokenWithUser_user', 'G__typename'),
+            id: BuiltValueNullFieldError.checkNotNull(
+                id, 'GsignUpData_signUp__asTokenWithUser_user', 'id'),
+            name: name);
     replace(_$result);
     return _$result;
   }
@@ -2406,22 +2314,15 @@ class _$GAUserData extends GAUserData {
   final int id;
   @override
   final String? name;
-  @override
-  final _i3.GDate createdAt;
 
   factory _$GAUserData([void Function(GAUserDataBuilder)? updates]) =>
       (new GAUserDataBuilder()..update(updates)).build();
 
-  _$GAUserData._(
-      {required this.G__typename,
-      required this.id,
-      this.name,
-      required this.createdAt})
+  _$GAUserData._({required this.G__typename, required this.id, this.name})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         G__typename, 'GAUserData', 'G__typename');
     BuiltValueNullFieldError.checkNotNull(id, 'GAUserData', 'id');
-    BuiltValueNullFieldError.checkNotNull(createdAt, 'GAUserData', 'createdAt');
   }
 
   @override
@@ -2437,15 +2338,13 @@ class _$GAUserData extends GAUserData {
     return other is GAUserData &&
         G__typename == other.G__typename &&
         id == other.id &&
-        name == other.name &&
-        createdAt == other.createdAt;
+        name == other.name;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode),
-        createdAt.hashCode));
+    return $jf(
+        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode));
   }
 
   @override
@@ -2453,8 +2352,7 @@ class _$GAUserData extends GAUserData {
     return (newBuiltValueToStringHelper('GAUserData')
           ..add('G__typename', G__typename)
           ..add('id', id)
-          ..add('name', name)
-          ..add('createdAt', createdAt))
+          ..add('name', name))
         .toString();
   }
 }
@@ -2474,11 +2372,6 @@ class GAUserDataBuilder implements Builder<GAUserData, GAUserDataBuilder> {
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  _i3.GDateBuilder? _createdAt;
-  _i3.GDateBuilder get createdAt =>
-      _$this._createdAt ??= new _i3.GDateBuilder();
-  set createdAt(_i3.GDateBuilder? createdAt) => _$this._createdAt = createdAt;
-
   GAUserDataBuilder() {
     GAUserData._initializeBuilder(this);
   }
@@ -2489,7 +2382,6 @@ class GAUserDataBuilder implements Builder<GAUserData, GAUserDataBuilder> {
       _G__typename = $v.G__typename;
       _id = $v.id;
       _name = $v.name;
-      _createdAt = $v.createdAt.toBuilder();
       _$v = null;
     }
     return this;
@@ -2508,26 +2400,12 @@ class GAUserDataBuilder implements Builder<GAUserData, GAUserDataBuilder> {
 
   @override
   _$GAUserData build() {
-    _$GAUserData _$result;
-    try {
-      _$result = _$v ??
-          new _$GAUserData._(
-              G__typename: BuiltValueNullFieldError.checkNotNull(
-                  G__typename, 'GAUserData', 'G__typename'),
-              id: BuiltValueNullFieldError.checkNotNull(id, 'GAUserData', 'id'),
-              name: name,
-              createdAt: createdAt.build());
-    } catch (_) {
-      late String _$failedField;
-      try {
-        _$failedField = 'createdAt';
-        createdAt.build();
-      } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            'GAUserData', _$failedField, e.toString());
-      }
-      rethrow;
-    }
+    final _$result = _$v ??
+        new _$GAUserData._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(
+                G__typename, 'GAUserData', 'G__typename'),
+            id: BuiltValueNullFieldError.checkNotNull(id, 'GAUserData', 'id'),
+            name: name);
     replace(_$result);
     return _$result;
   }
@@ -2701,24 +2579,17 @@ class _$GSTokenWithUserData_user extends GSTokenWithUserData_user {
   final int id;
   @override
   final String? name;
-  @override
-  final _i3.GDate createdAt;
 
   factory _$GSTokenWithUserData_user(
           [void Function(GSTokenWithUserData_userBuilder)? updates]) =>
       (new GSTokenWithUserData_userBuilder()..update(updates)).build();
 
   _$GSTokenWithUserData_user._(
-      {required this.G__typename,
-      required this.id,
-      this.name,
-      required this.createdAt})
+      {required this.G__typename, required this.id, this.name})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         G__typename, 'GSTokenWithUserData_user', 'G__typename');
     BuiltValueNullFieldError.checkNotNull(id, 'GSTokenWithUserData_user', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        createdAt, 'GSTokenWithUserData_user', 'createdAt');
   }
 
   @override
@@ -2736,15 +2607,13 @@ class _$GSTokenWithUserData_user extends GSTokenWithUserData_user {
     return other is GSTokenWithUserData_user &&
         G__typename == other.G__typename &&
         id == other.id &&
-        name == other.name &&
-        createdAt == other.createdAt;
+        name == other.name;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode),
-        createdAt.hashCode));
+    return $jf(
+        $jc($jc($jc(0, G__typename.hashCode), id.hashCode), name.hashCode));
   }
 
   @override
@@ -2752,8 +2621,7 @@ class _$GSTokenWithUserData_user extends GSTokenWithUserData_user {
     return (newBuiltValueToStringHelper('GSTokenWithUserData_user')
           ..add('G__typename', G__typename)
           ..add('id', id)
-          ..add('name', name)
-          ..add('createdAt', createdAt))
+          ..add('name', name))
         .toString();
   }
 }
@@ -2775,11 +2643,6 @@ class GSTokenWithUserData_userBuilder
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  _i3.GDateBuilder? _createdAt;
-  _i3.GDateBuilder get createdAt =>
-      _$this._createdAt ??= new _i3.GDateBuilder();
-  set createdAt(_i3.GDateBuilder? createdAt) => _$this._createdAt = createdAt;
-
   GSTokenWithUserData_userBuilder() {
     GSTokenWithUserData_user._initializeBuilder(this);
   }
@@ -2790,7 +2653,6 @@ class GSTokenWithUserData_userBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _name = $v.name;
-      _createdAt = $v.createdAt.toBuilder();
       _$v = null;
     }
     return this;
@@ -2809,27 +2671,13 @@ class GSTokenWithUserData_userBuilder
 
   @override
   _$GSTokenWithUserData_user build() {
-    _$GSTokenWithUserData_user _$result;
-    try {
-      _$result = _$v ??
-          new _$GSTokenWithUserData_user._(
-              G__typename: BuiltValueNullFieldError.checkNotNull(
-                  G__typename, 'GSTokenWithUserData_user', 'G__typename'),
-              id: BuiltValueNullFieldError.checkNotNull(
-                  id, 'GSTokenWithUserData_user', 'id'),
-              name: name,
-              createdAt: createdAt.build());
-    } catch (_) {
-      late String _$failedField;
-      try {
-        _$failedField = 'createdAt';
-        createdAt.build();
-      } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            'GSTokenWithUserData_user', _$failedField, e.toString());
-      }
-      rethrow;
-    }
+    final _$result = _$v ??
+        new _$GSTokenWithUserData_user._(
+            G__typename: BuiltValueNullFieldError.checkNotNull(
+                G__typename, 'GSTokenWithUserData_user', 'G__typename'),
+            id: BuiltValueNullFieldError.checkNotNull(
+                id, 'GSTokenWithUserData_user', 'id'),
+            name: name);
     replace(_$result);
     return _$result;
   }

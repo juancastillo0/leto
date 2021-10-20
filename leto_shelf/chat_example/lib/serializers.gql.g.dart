@@ -16,6 +16,11 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(GChatRoomUserRole.serializer)
       ..add(GDate.serializer)
       ..add(GEventType.serializer)
+      ..add(GFullChatRoomData.serializer)
+      ..add(GFullChatRoomData_users.serializer)
+      ..add(GFullChatRoomData_users_user.serializer)
+      ..add(GFullChatRoomReq.serializer)
+      ..add(GFullChatRoomVars.serializer)
       ..add(GFullMessageData.serializer)
       ..add(GFullMessageData_referencedMessage.serializer)
       ..add(GFullMessageReq.serializer)
@@ -26,10 +31,25 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(GSTokenWithUserVars.serializer)
       ..add(GSignInError.serializer)
       ..add(GSignUpError.serializer)
+      ..add(GUserChatData.serializer)
+      ..add(GUserChatData_user.serializer)
+      ..add(GUserChatReq.serializer)
+      ..add(GUserChatVars.serializer)
+      ..add(GaddChatRoomUserData.serializer)
+      ..add(GaddChatRoomUserData_addChatRoomUser.serializer)
+      ..add(GaddChatRoomUserData_addChatRoomUser_user.serializer)
+      ..add(GaddChatRoomUserReq.serializer)
+      ..add(GaddChatRoomUserVars.serializer)
       ..add(GcreateRoomData.serializer)
       ..add(GcreateRoomData_createChatRoom.serializer)
       ..add(GcreateRoomReq.serializer)
       ..add(GcreateRoomVars.serializer)
+      ..add(GdeleteChatRoomUserData.serializer)
+      ..add(GdeleteChatRoomUserReq.serializer)
+      ..add(GdeleteChatRoomUserVars.serializer)
+      ..add(GdeleteRoomData.serializer)
+      ..add(GdeleteRoomReq.serializer)
+      ..add(GdeleteRoomVars.serializer)
       ..add(GgetMessagesData.serializer)
       ..add(GgetMessagesData_getMessage.serializer)
       ..add(GgetMessagesData_getMessage_referencedMessage.serializer)
@@ -37,9 +57,8 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(GgetMessagesVars.serializer)
       ..add(GgetRoomsData.serializer)
       ..add(GgetRoomsData_getChatRooms.serializer)
-      ..add(GgetRoomsData_getChatRooms_messages.serializer)
-      ..add(GgetRoomsData_getChatRooms_messages_referencedMessage.serializer)
       ..add(GgetRoomsData_getChatRooms_users.serializer)
+      ..add(GgetRoomsData_getChatRooms_users_user.serializer)
       ..add(GgetRoomsReq.serializer)
       ..add(GgetRoomsVars.serializer)
       ..add(GonMessageSentData.serializer)
@@ -50,6 +69,10 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(GrefreshAuthTokenData.serializer)
       ..add(GrefreshAuthTokenReq.serializer)
       ..add(GrefreshAuthTokenVars.serializer)
+      ..add(GsearchUserData.serializer)
+      ..add(GsearchUserData_searchUser.serializer)
+      ..add(GsearchUserReq.serializer)
+      ..add(GsearchUserVars.serializer)
       ..add(GsendMessageData.serializer)
       ..add(GsendMessageData_sendMessage.serializer)
       ..add(GsendMessageData_sendMessage_referencedMessage.serializer)
@@ -74,6 +97,10 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(GsignUpVars.serializer)
       ..addBuilderFactory(
           const FullType(
+              BuiltList, const [const FullType(GFullChatRoomData_users)]),
+          () => new ListBuilder<GFullChatRoomData_users>())
+      ..addBuilderFactory(
+          const FullType(
               BuiltList, const [const FullType(GgetMessagesData_getMessage)]),
           () => new ListBuilder<GgetMessagesData_getMessage>())
       ..addBuilderFactory(
@@ -82,16 +109,16 @@ Serializers _$serializers = (new Serializers().toBuilder()
           () => new ListBuilder<GgetRoomsData_getChatRooms>())
       ..addBuilderFactory(
           const FullType(BuiltList,
-              const [const FullType(GgetRoomsData_getChatRooms_messages)]),
-          () => new ListBuilder<GgetRoomsData_getChatRooms_messages>())
-      ..addBuilderFactory(
-          const FullType(BuiltList,
               const [const FullType(GgetRoomsData_getChatRooms_users)]),
           () => new ListBuilder<GgetRoomsData_getChatRooms_users>())
       ..addBuilderFactory(
           const FullType(BuiltList,
               const [const FullType(GonMessageSentData_onMessageSent)]),
-          () => new ListBuilder<GonMessageSentData_onMessageSent>()))
+          () => new ListBuilder<GonMessageSentData_onMessageSent>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltList, const [const FullType(GsearchUserData_searchUser)]),
+          () => new ListBuilder<GsearchUserData_searchUser>()))
     .build();
 
 // ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

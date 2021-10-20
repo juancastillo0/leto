@@ -169,7 +169,6 @@ abstract class GsignInData_signIn__asTokenWithUser_user
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   static Serializer<GsignInData_signIn__asTokenWithUser_user> get serializer =>
       _$gsignInDataSignInAsTokenWithUserUserSerializer;
   Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
@@ -319,7 +318,6 @@ abstract class GsignUpData_signUp__asTokenWithUser_user
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   static Serializer<GsignUpData_signUp__asTokenWithUser_user> get serializer =>
       _$gsignUpDataSignUpAsTokenWithUserUserSerializer;
   Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
@@ -355,7 +353,6 @@ abstract class GAUser {
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   Map<String, dynamic> toJson();
 }
 
@@ -371,7 +368,6 @@ abstract class GAUserData
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   static Serializer<GAUserData> get serializer => _$gAUserDataSerializer;
   Map<String, dynamic> toJson() =>
       (_i1.serializers.serializeWith(GAUserData.serializer, this)
@@ -393,7 +389,6 @@ abstract class GSTokenWithUser_user implements GAUser {
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   Map<String, dynamic> toJson();
 }
 
@@ -440,7 +435,6 @@ abstract class GSTokenWithUserData_user
   String get G__typename;
   int get id;
   String? get name;
-  _i3.GDate get createdAt;
   static Serializer<GSTokenWithUserData_user> get serializer =>
       _$gSTokenWithUserDataUserSerializer;
   Map<String, dynamic> toJson() =>

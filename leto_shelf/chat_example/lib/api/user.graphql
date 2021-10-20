@@ -33,7 +33,6 @@ mutation signOut {
 fragment AUser on User {
   id
   name
-  createdAt
 }
 
 fragment STokenWithUser on TokenWithUser {

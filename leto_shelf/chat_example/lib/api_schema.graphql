@@ -1,33 +1,7 @@
 type Query {
+  searchUser(name: String!): [User!]!
   getMessage(chatId: Int): [ChatMessage!]!
   getChatRooms: [ChatRoom!]!
-}
-
-type ChatMessage {
-  id: Int!
-  chatId: Int!
-  message: String!
-  referencedMessageId: Int
-  createdAt: Date!
-  referencedMessage: ChatMessage
-}
-
-"""An ISO-8601 Date."""
-scalar Date
-
-type ChatRoom {
-  id: Int!
-  name: String!
-  createdAt: Date!
-  messages: [ChatMessage!]!
-  users: [ChatRoomUser!]!
-}
-
-type ChatRoomUser {
-  user: User!
-  userId: Int!
-  chatId: Int!
-  role: ChatRoomUserRole!
 }
 
 type User {
@@ -47,6 +21,34 @@ type UserSession {
   createdAt: Date!
 }
 
+"""An ISO-8601 Date."""
+scalar Date
+
+type ChatMessage {
+  id: Int!
+  chatId: Int!
+  userId: Int!
+  message: String!
+  referencedMessageId: Int
+  createdAt: Date!
+  referencedMessage: ChatMessage
+}
+
+type ChatRoom {
+  id: Int!
+  name: String!
+  createdAt: Date!
+  messages: [ChatMessage!]!
+  users: [ChatRoomUser!]!
+}
+
+type ChatRoomUser {
+  user: User!
+  userId: Int!
+  chatId: Int!
+  role: ChatRoomUserRole!
+}
+
 enum ChatRoomUserRole {
   admin
   peer
@@ -57,8 +59,11 @@ type Mutation {
   signUp(name: String!, password: String!): ResultTokenWithUserErrCSignUpError!
   signIn(name: String, password: String): ResultTokenWithUserErrCSignInError!
   signOut: String
+  addChatRoomUser(chatId: Int!, userId: Int!, role: ChatRoomUserRole! = peer): ChatRoomUser
+  deleteChatRoomUser(chatId: Int!, userId: Int!): Boolean!
   sendMessage(chatId: Int!, message: String!, referencedMessageId: Int): ChatMessage
   createChatRoom(name: String!): ChatRoom
+  deleteChatRoom(id: Int!): Boolean!
 }
 
 """
