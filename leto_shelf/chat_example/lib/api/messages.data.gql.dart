@@ -45,6 +45,7 @@ abstract class GgetMessagesData_getMessage
   String get G__typename;
   int get id;
   int get chatId;
+  int get userId;
   String get message;
   _i2.GDate get createdAt;
   GgetMessagesData_getMessage_referencedMessage? get referencedMessage;
@@ -77,6 +78,7 @@ abstract class GgetMessagesData_getMessage_referencedMessage
   String get message;
   _i2.GDate get createdAt;
   int get chatId;
+  int get userId;
   static Serializer<GgetMessagesData_getMessage_referencedMessage>
       get serializer => _$ggetMessagesDataGetMessageReferencedMessageSerializer;
   Map<String, dynamic> toJson() => (_i1.serializers.serializeWith(
@@ -126,6 +128,7 @@ abstract class GsendMessageData_sendMessage
   String get G__typename;
   int get id;
   int get chatId;
+  int get userId;
   String get message;
   _i2.GDate get createdAt;
   GsendMessageData_sendMessage_referencedMessage? get referencedMessage;
@@ -158,6 +161,7 @@ abstract class GsendMessageData_sendMessage_referencedMessage
   String get message;
   _i2.GDate get createdAt;
   int get chatId;
+  int get userId;
   static Serializer<GsendMessageData_sendMessage_referencedMessage>
       get serializer =>
           _$gsendMessageDataSendMessageReferencedMessageSerializer;
@@ -208,6 +212,7 @@ abstract class GonMessageSentData_onMessageSent
   String get G__typename;
   int get id;
   int get chatId;
+  int get userId;
   String get message;
   _i2.GDate get createdAt;
   GonMessageSentData_onMessageSent_referencedMessage? get referencedMessage;
@@ -242,6 +247,7 @@ abstract class GonMessageSentData_onMessageSent_referencedMessage
   String get message;
   _i2.GDate get createdAt;
   int get chatId;
+  int get userId;
   static Serializer<GonMessageSentData_onMessageSent_referencedMessage>
       get serializer =>
           _$gonMessageSentDataOnMessageSentReferencedMessageSerializer;
@@ -258,6 +264,7 @@ abstract class GFullMessage {
   String get G__typename;
   int get id;
   int get chatId;
+  int get userId;
   String get message;
   _i2.GDate get createdAt;
   GFullMessage_referencedMessage? get referencedMessage;
@@ -270,6 +277,7 @@ abstract class GFullMessage_referencedMessage {
   String get message;
   _i2.GDate get createdAt;
   int get chatId;
+  int get userId;
   Map<String, dynamic> toJson();
 }
 
@@ -286,6 +294,7 @@ abstract class GFullMessageData
   String get G__typename;
   int get id;
   int get chatId;
+  int get userId;
   String get message;
   _i2.GDate get createdAt;
   GFullMessageData_referencedMessage? get referencedMessage;
@@ -317,6 +326,7 @@ abstract class GFullMessageData_referencedMessage
   String get message;
   _i2.GDate get createdAt;
   int get chatId;
+  int get userId;
   static Serializer<GFullMessageData_referencedMessage> get serializer =>
       _$gFullMessageDataReferencedMessageSerializer;
   Map<String, dynamic> toJson() => (_i1.serializers

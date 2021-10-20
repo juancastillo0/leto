@@ -27,6 +27,7 @@ subscription onMessageSent($chatId: Int!) {
 fragment FullMessage on ChatMessage {
   id
   chatId
+  userId
   message
   createdAt
   referencedMessage {
@@ -34,5 +35,6 @@ fragment FullMessage on ChatMessage {
     message
     createdAt
     chatId
+    userId
   }
 }

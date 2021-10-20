@@ -109,6 +109,8 @@ class _$GgetMessagesData_getMessageSerializer
       serializers.serialize(object.id, specifiedType: const FullType(int)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
       'message',
       serializers.serialize(object.message,
           specifiedType: const FullType(String)),
@@ -150,6 +152,10 @@ class _$GgetMessagesData_getMessageSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
         case 'message':
@@ -202,6 +208,8 @@ class _$GgetMessagesData_getMessage_referencedMessageSerializer
           specifiedType: const FullType(_i2.GDate)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
     ];
 
     return result;
@@ -237,6 +245,10 @@ class _$GgetMessagesData_getMessage_referencedMessageSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
       }
@@ -322,6 +334,8 @@ class _$GsendMessageData_sendMessageSerializer
       serializers.serialize(object.id, specifiedType: const FullType(int)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
       'message',
       serializers.serialize(object.message,
           specifiedType: const FullType(String)),
@@ -363,6 +377,10 @@ class _$GsendMessageData_sendMessageSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
         case 'message':
@@ -415,6 +433,8 @@ class _$GsendMessageData_sendMessage_referencedMessageSerializer
           specifiedType: const FullType(_i2.GDate)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
     ];
 
     return result;
@@ -450,6 +470,10 @@ class _$GsendMessageData_sendMessage_referencedMessageSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
       }
@@ -534,6 +558,8 @@ class _$GonMessageSentData_onMessageSentSerializer
       serializers.serialize(object.id, specifiedType: const FullType(int)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
       'message',
       serializers.serialize(object.message,
           specifiedType: const FullType(String)),
@@ -575,6 +601,10 @@ class _$GonMessageSentData_onMessageSentSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
         case 'message':
@@ -628,6 +658,8 @@ class _$GonMessageSentData_onMessageSent_referencedMessageSerializer
           specifiedType: const FullType(_i2.GDate)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
     ];
 
     return result;
@@ -666,6 +698,10 @@ class _$GonMessageSentData_onMessageSent_referencedMessageSerializer
           result.chatId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
       }
     }
 
@@ -691,6 +727,8 @@ class _$GFullMessageDataSerializer
       serializers.serialize(object.id, specifiedType: const FullType(int)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
       'message',
       serializers.serialize(object.message,
           specifiedType: const FullType(String)),
@@ -731,6 +769,10 @@ class _$GFullMessageDataSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
         case 'message':
@@ -782,6 +824,8 @@ class _$GFullMessageData_referencedMessageSerializer
           specifiedType: const FullType(_i2.GDate)),
       'chatId',
       serializers.serialize(object.chatId, specifiedType: const FullType(int)),
+      'userId',
+      serializers.serialize(object.userId, specifiedType: const FullType(int)),
     ];
 
     return result;
@@ -817,6 +861,10 @@ class _$GFullMessageData_referencedMessageSerializer
           break;
         case 'chatId':
           result.chatId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
           break;
       }
@@ -946,6 +994,8 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
   @override
   final int chatId;
   @override
+  final int userId;
+  @override
   final String message;
   @override
   final _i2.GDate createdAt;
@@ -960,6 +1010,7 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
       {required this.G__typename,
       required this.id,
       required this.chatId,
+      required this.userId,
       required this.message,
       required this.createdAt,
       this.referencedMessage})
@@ -970,6 +1021,8 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
         id, 'GgetMessagesData_getMessage', 'id');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GgetMessagesData_getMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GgetMessagesData_getMessage', 'userId');
     BuiltValueNullFieldError.checkNotNull(
         message, 'GgetMessagesData_getMessage', 'message');
     BuiltValueNullFieldError.checkNotNull(
@@ -992,6 +1045,7 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
         G__typename == other.G__typename &&
         id == other.id &&
         chatId == other.chatId &&
+        userId == other.userId &&
         message == other.message &&
         createdAt == other.createdAt &&
         referencedMessage == other.referencedMessage;
@@ -1002,8 +1056,10 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                    chatId.hashCode),
+                $jc(
+                    $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                        chatId.hashCode),
+                    userId.hashCode),
                 message.hashCode),
             createdAt.hashCode),
         referencedMessage.hashCode));
@@ -1015,6 +1071,7 @@ class _$GgetMessagesData_getMessage extends GgetMessagesData_getMessage {
           ..add('G__typename', G__typename)
           ..add('id', id)
           ..add('chatId', chatId)
+          ..add('userId', userId)
           ..add('message', message)
           ..add('createdAt', createdAt)
           ..add('referencedMessage', referencedMessage))
@@ -1039,6 +1096,10 @@ class GgetMessagesData_getMessageBuilder
   int? _chatId;
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
+
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
 
   String? _message;
   String? get message => _$this._message;
@@ -1068,6 +1129,7 @@ class GgetMessagesData_getMessageBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _referencedMessage = $v.referencedMessage?.toBuilder();
@@ -1099,6 +1161,8 @@ class GgetMessagesData_getMessageBuilder
                   id, 'GgetMessagesData_getMessage', 'id'),
               chatId: BuiltValueNullFieldError.checkNotNull(
                   chatId, 'GgetMessagesData_getMessage', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId, 'GgetMessagesData_getMessage', 'userId'),
               message: BuiltValueNullFieldError.checkNotNull(
                   message, 'GgetMessagesData_getMessage', 'message'),
               createdAt: createdAt.build(),
@@ -1133,6 +1197,8 @@ class _$GgetMessagesData_getMessage_referencedMessage
   final _i2.GDate createdAt;
   @override
   final int chatId;
+  @override
+  final int userId;
 
   factory _$GgetMessagesData_getMessage_referencedMessage(
           [void Function(GgetMessagesData_getMessage_referencedMessageBuilder)?
@@ -1146,7 +1212,8 @@ class _$GgetMessagesData_getMessage_referencedMessage
       required this.id,
       required this.message,
       required this.createdAt,
-      required this.chatId})
+      required this.chatId,
+      required this.userId})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(G__typename,
         'GgetMessagesData_getMessage_referencedMessage', 'G__typename');
@@ -1158,6 +1225,8 @@ class _$GgetMessagesData_getMessage_referencedMessage
         'GgetMessagesData_getMessage_referencedMessage', 'createdAt');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GgetMessagesData_getMessage_referencedMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GgetMessagesData_getMessage_referencedMessage', 'userId');
   }
 
   @override
@@ -1178,17 +1247,20 @@ class _$GgetMessagesData_getMessage_referencedMessage
         id == other.id &&
         message == other.message &&
         createdAt == other.createdAt &&
-        chatId == other.chatId;
+        chatId == other.chatId &&
+        userId == other.userId;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                message.hashCode),
-            createdAt.hashCode),
-        chatId.hashCode));
+            $jc(
+                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                    message.hashCode),
+                createdAt.hashCode),
+            chatId.hashCode),
+        userId.hashCode));
   }
 
   @override
@@ -1199,7 +1271,8 @@ class _$GgetMessagesData_getMessage_referencedMessage
           ..add('id', id)
           ..add('message', message)
           ..add('createdAt', createdAt)
-          ..add('chatId', chatId))
+          ..add('chatId', chatId)
+          ..add('userId', userId))
         .toString();
   }
 }
@@ -1231,6 +1304,10 @@ class GgetMessagesData_getMessage_referencedMessageBuilder
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
 
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
+
   GgetMessagesData_getMessage_referencedMessageBuilder() {
     GgetMessagesData_getMessage_referencedMessage._initializeBuilder(this);
   }
@@ -1243,6 +1320,7 @@ class GgetMessagesData_getMessage_referencedMessageBuilder
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _$v = null;
     }
     return this;
@@ -1277,7 +1355,9 @@ class GgetMessagesData_getMessage_referencedMessageBuilder
                   'GgetMessagesData_getMessage_referencedMessage', 'message'),
               createdAt: createdAt.build(),
               chatId: BuiltValueNullFieldError.checkNotNull(chatId,
-                  'GgetMessagesData_getMessage_referencedMessage', 'chatId'));
+                  'GgetMessagesData_getMessage_referencedMessage', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(userId,
+                  'GgetMessagesData_getMessage_referencedMessage', 'userId'));
     } catch (_) {
       late String _$failedField;
       try {
@@ -1414,6 +1494,8 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
   @override
   final int chatId;
   @override
+  final int userId;
+  @override
   final String message;
   @override
   final _i2.GDate createdAt;
@@ -1428,6 +1510,7 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
       {required this.G__typename,
       required this.id,
       required this.chatId,
+      required this.userId,
       required this.message,
       required this.createdAt,
       this.referencedMessage})
@@ -1438,6 +1521,8 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
         id, 'GsendMessageData_sendMessage', 'id');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GsendMessageData_sendMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GsendMessageData_sendMessage', 'userId');
     BuiltValueNullFieldError.checkNotNull(
         message, 'GsendMessageData_sendMessage', 'message');
     BuiltValueNullFieldError.checkNotNull(
@@ -1460,6 +1545,7 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
         G__typename == other.G__typename &&
         id == other.id &&
         chatId == other.chatId &&
+        userId == other.userId &&
         message == other.message &&
         createdAt == other.createdAt &&
         referencedMessage == other.referencedMessage;
@@ -1470,8 +1556,10 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                    chatId.hashCode),
+                $jc(
+                    $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                        chatId.hashCode),
+                    userId.hashCode),
                 message.hashCode),
             createdAt.hashCode),
         referencedMessage.hashCode));
@@ -1483,6 +1571,7 @@ class _$GsendMessageData_sendMessage extends GsendMessageData_sendMessage {
           ..add('G__typename', G__typename)
           ..add('id', id)
           ..add('chatId', chatId)
+          ..add('userId', userId)
           ..add('message', message)
           ..add('createdAt', createdAt)
           ..add('referencedMessage', referencedMessage))
@@ -1507,6 +1596,10 @@ class GsendMessageData_sendMessageBuilder
   int? _chatId;
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
+
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
 
   String? _message;
   String? get message => _$this._message;
@@ -1536,6 +1629,7 @@ class GsendMessageData_sendMessageBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _referencedMessage = $v.referencedMessage?.toBuilder();
@@ -1567,6 +1661,8 @@ class GsendMessageData_sendMessageBuilder
                   id, 'GsendMessageData_sendMessage', 'id'),
               chatId: BuiltValueNullFieldError.checkNotNull(
                   chatId, 'GsendMessageData_sendMessage', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId, 'GsendMessageData_sendMessage', 'userId'),
               message: BuiltValueNullFieldError.checkNotNull(
                   message, 'GsendMessageData_sendMessage', 'message'),
               createdAt: createdAt.build(),
@@ -1601,6 +1697,8 @@ class _$GsendMessageData_sendMessage_referencedMessage
   final _i2.GDate createdAt;
   @override
   final int chatId;
+  @override
+  final int userId;
 
   factory _$GsendMessageData_sendMessage_referencedMessage(
           [void Function(GsendMessageData_sendMessage_referencedMessageBuilder)?
@@ -1614,7 +1712,8 @@ class _$GsendMessageData_sendMessage_referencedMessage
       required this.id,
       required this.message,
       required this.createdAt,
-      required this.chatId})
+      required this.chatId,
+      required this.userId})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(G__typename,
         'GsendMessageData_sendMessage_referencedMessage', 'G__typename');
@@ -1626,6 +1725,8 @@ class _$GsendMessageData_sendMessage_referencedMessage
         'GsendMessageData_sendMessage_referencedMessage', 'createdAt');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GsendMessageData_sendMessage_referencedMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GsendMessageData_sendMessage_referencedMessage', 'userId');
   }
 
   @override
@@ -1647,17 +1748,20 @@ class _$GsendMessageData_sendMessage_referencedMessage
         id == other.id &&
         message == other.message &&
         createdAt == other.createdAt &&
-        chatId == other.chatId;
+        chatId == other.chatId &&
+        userId == other.userId;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                message.hashCode),
-            createdAt.hashCode),
-        chatId.hashCode));
+            $jc(
+                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                    message.hashCode),
+                createdAt.hashCode),
+            chatId.hashCode),
+        userId.hashCode));
   }
 
   @override
@@ -1668,7 +1772,8 @@ class _$GsendMessageData_sendMessage_referencedMessage
           ..add('id', id)
           ..add('message', message)
           ..add('createdAt', createdAt)
-          ..add('chatId', chatId))
+          ..add('chatId', chatId)
+          ..add('userId', userId))
         .toString();
   }
 }
@@ -1700,6 +1805,10 @@ class GsendMessageData_sendMessage_referencedMessageBuilder
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
 
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
+
   GsendMessageData_sendMessage_referencedMessageBuilder() {
     GsendMessageData_sendMessage_referencedMessage._initializeBuilder(this);
   }
@@ -1712,6 +1821,7 @@ class GsendMessageData_sendMessage_referencedMessageBuilder
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _$v = null;
     }
     return this;
@@ -1746,7 +1856,9 @@ class GsendMessageData_sendMessage_referencedMessageBuilder
                   'GsendMessageData_sendMessage_referencedMessage', 'message'),
               createdAt: createdAt.build(),
               chatId: BuiltValueNullFieldError.checkNotNull(chatId,
-                  'GsendMessageData_sendMessage_referencedMessage', 'chatId'));
+                  'GsendMessageData_sendMessage_referencedMessage', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(userId,
+                  'GsendMessageData_sendMessage_referencedMessage', 'userId'));
     } catch (_) {
       late String _$failedField;
       try {
@@ -1890,6 +2002,8 @@ class _$GonMessageSentData_onMessageSent
   @override
   final int chatId;
   @override
+  final int userId;
+  @override
   final String message;
   @override
   final _i2.GDate createdAt;
@@ -1904,6 +2018,7 @@ class _$GonMessageSentData_onMessageSent
       {required this.G__typename,
       required this.id,
       required this.chatId,
+      required this.userId,
       required this.message,
       required this.createdAt,
       this.referencedMessage})
@@ -1914,6 +2029,8 @@ class _$GonMessageSentData_onMessageSent
         id, 'GonMessageSentData_onMessageSent', 'id');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GonMessageSentData_onMessageSent', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GonMessageSentData_onMessageSent', 'userId');
     BuiltValueNullFieldError.checkNotNull(
         message, 'GonMessageSentData_onMessageSent', 'message');
     BuiltValueNullFieldError.checkNotNull(
@@ -1936,6 +2053,7 @@ class _$GonMessageSentData_onMessageSent
         G__typename == other.G__typename &&
         id == other.id &&
         chatId == other.chatId &&
+        userId == other.userId &&
         message == other.message &&
         createdAt == other.createdAt &&
         referencedMessage == other.referencedMessage;
@@ -1946,8 +2064,10 @@ class _$GonMessageSentData_onMessageSent
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                    chatId.hashCode),
+                $jc(
+                    $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                        chatId.hashCode),
+                    userId.hashCode),
                 message.hashCode),
             createdAt.hashCode),
         referencedMessage.hashCode));
@@ -1959,6 +2079,7 @@ class _$GonMessageSentData_onMessageSent
           ..add('G__typename', G__typename)
           ..add('id', id)
           ..add('chatId', chatId)
+          ..add('userId', userId)
           ..add('message', message)
           ..add('createdAt', createdAt)
           ..add('referencedMessage', referencedMessage))
@@ -1983,6 +2104,10 @@ class GonMessageSentData_onMessageSentBuilder
   int? _chatId;
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
+
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
 
   String? _message;
   String? get message => _$this._message;
@@ -2012,6 +2137,7 @@ class GonMessageSentData_onMessageSentBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _referencedMessage = $v.referencedMessage?.toBuilder();
@@ -2043,6 +2169,8 @@ class GonMessageSentData_onMessageSentBuilder
                   id, 'GonMessageSentData_onMessageSent', 'id'),
               chatId: BuiltValueNullFieldError.checkNotNull(
                   chatId, 'GonMessageSentData_onMessageSent', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId, 'GonMessageSentData_onMessageSent', 'userId'),
               message: BuiltValueNullFieldError.checkNotNull(
                   message, 'GonMessageSentData_onMessageSent', 'message'),
               createdAt: createdAt.build(),
@@ -2077,6 +2205,8 @@ class _$GonMessageSentData_onMessageSent_referencedMessage
   final _i2.GDate createdAt;
   @override
   final int chatId;
+  @override
+  final int userId;
 
   factory _$GonMessageSentData_onMessageSent_referencedMessage(
           [void Function(
@@ -2091,7 +2221,8 @@ class _$GonMessageSentData_onMessageSent_referencedMessage
       required this.id,
       required this.message,
       required this.createdAt,
-      required this.chatId})
+      required this.chatId,
+      required this.userId})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(G__typename,
         'GonMessageSentData_onMessageSent_referencedMessage', 'G__typename');
@@ -2103,6 +2234,8 @@ class _$GonMessageSentData_onMessageSent_referencedMessage
         'GonMessageSentData_onMessageSent_referencedMessage', 'createdAt');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GonMessageSentData_onMessageSent_referencedMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GonMessageSentData_onMessageSent_referencedMessage', 'userId');
   }
 
   @override
@@ -2125,17 +2258,20 @@ class _$GonMessageSentData_onMessageSent_referencedMessage
         id == other.id &&
         message == other.message &&
         createdAt == other.createdAt &&
-        chatId == other.chatId;
+        chatId == other.chatId &&
+        userId == other.userId;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                message.hashCode),
-            createdAt.hashCode),
-        chatId.hashCode));
+            $jc(
+                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                    message.hashCode),
+                createdAt.hashCode),
+            chatId.hashCode),
+        userId.hashCode));
   }
 
   @override
@@ -2146,7 +2282,8 @@ class _$GonMessageSentData_onMessageSent_referencedMessage
           ..add('id', id)
           ..add('message', message)
           ..add('createdAt', createdAt)
-          ..add('chatId', chatId))
+          ..add('chatId', chatId)
+          ..add('userId', userId))
         .toString();
   }
 }
@@ -2178,6 +2315,10 @@ class GonMessageSentData_onMessageSent_referencedMessageBuilder
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
 
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
+
   GonMessageSentData_onMessageSent_referencedMessageBuilder() {
     GonMessageSentData_onMessageSent_referencedMessage._initializeBuilder(this);
   }
@@ -2190,6 +2331,7 @@ class GonMessageSentData_onMessageSent_referencedMessageBuilder
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _$v = null;
     }
     return this;
@@ -2218,8 +2360,8 @@ class GonMessageSentData_onMessageSent_referencedMessageBuilder
                   G__typename,
                   'GonMessageSentData_onMessageSent_referencedMessage',
                   'G__typename'),
-              id: BuiltValueNullFieldError.checkNotNull(id,
-                  'GonMessageSentData_onMessageSent_referencedMessage', 'id'),
+              id: BuiltValueNullFieldError.checkNotNull(
+                  id, 'GonMessageSentData_onMessageSent_referencedMessage', 'id'),
               message: BuiltValueNullFieldError.checkNotNull(
                   message,
                   'GonMessageSentData_onMessageSent_referencedMessage',
@@ -2228,7 +2370,11 @@ class GonMessageSentData_onMessageSent_referencedMessageBuilder
               chatId: BuiltValueNullFieldError.checkNotNull(
                   chatId,
                   'GonMessageSentData_onMessageSent_referencedMessage',
-                  'chatId'));
+                  'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId,
+                  'GonMessageSentData_onMessageSent_referencedMessage',
+                  'userId'));
     } catch (_) {
       late String _$failedField;
       try {
@@ -2255,6 +2401,8 @@ class _$GFullMessageData extends GFullMessageData {
   @override
   final int chatId;
   @override
+  final int userId;
+  @override
   final String message;
   @override
   final _i2.GDate createdAt;
@@ -2269,6 +2417,7 @@ class _$GFullMessageData extends GFullMessageData {
       {required this.G__typename,
       required this.id,
       required this.chatId,
+      required this.userId,
       required this.message,
       required this.createdAt,
       this.referencedMessage})
@@ -2277,6 +2426,7 @@ class _$GFullMessageData extends GFullMessageData {
         G__typename, 'GFullMessageData', 'G__typename');
     BuiltValueNullFieldError.checkNotNull(id, 'GFullMessageData', 'id');
     BuiltValueNullFieldError.checkNotNull(chatId, 'GFullMessageData', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(userId, 'GFullMessageData', 'userId');
     BuiltValueNullFieldError.checkNotNull(
         message, 'GFullMessageData', 'message');
     BuiltValueNullFieldError.checkNotNull(
@@ -2298,6 +2448,7 @@ class _$GFullMessageData extends GFullMessageData {
         G__typename == other.G__typename &&
         id == other.id &&
         chatId == other.chatId &&
+        userId == other.userId &&
         message == other.message &&
         createdAt == other.createdAt &&
         referencedMessage == other.referencedMessage;
@@ -2308,8 +2459,10 @@ class _$GFullMessageData extends GFullMessageData {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                    chatId.hashCode),
+                $jc(
+                    $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                        chatId.hashCode),
+                    userId.hashCode),
                 message.hashCode),
             createdAt.hashCode),
         referencedMessage.hashCode));
@@ -2321,6 +2474,7 @@ class _$GFullMessageData extends GFullMessageData {
           ..add('G__typename', G__typename)
           ..add('id', id)
           ..add('chatId', chatId)
+          ..add('userId', userId)
           ..add('message', message)
           ..add('createdAt', createdAt)
           ..add('referencedMessage', referencedMessage))
@@ -2343,6 +2497,10 @@ class GFullMessageDataBuilder
   int? _chatId;
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
+
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
 
   String? _message;
   String? get message => _$this._message;
@@ -2371,6 +2529,7 @@ class GFullMessageDataBuilder
       _G__typename = $v.G__typename;
       _id = $v.id;
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _referencedMessage = $v.referencedMessage?.toBuilder();
@@ -2402,6 +2561,8 @@ class GFullMessageDataBuilder
                   id, 'GFullMessageData', 'id'),
               chatId: BuiltValueNullFieldError.checkNotNull(
                   chatId, 'GFullMessageData', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId, 'GFullMessageData', 'userId'),
               message: BuiltValueNullFieldError.checkNotNull(
                   message, 'GFullMessageData', 'message'),
               createdAt: createdAt.build(),
@@ -2436,6 +2597,8 @@ class _$GFullMessageData_referencedMessage
   final _i2.GDate createdAt;
   @override
   final int chatId;
+  @override
+  final int userId;
 
   factory _$GFullMessageData_referencedMessage(
           [void Function(GFullMessageData_referencedMessageBuilder)?
@@ -2448,7 +2611,8 @@ class _$GFullMessageData_referencedMessage
       required this.id,
       required this.message,
       required this.createdAt,
-      required this.chatId})
+      required this.chatId,
+      required this.userId})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         G__typename, 'GFullMessageData_referencedMessage', 'G__typename');
@@ -2460,6 +2624,8 @@ class _$GFullMessageData_referencedMessage
         createdAt, 'GFullMessageData_referencedMessage', 'createdAt');
     BuiltValueNullFieldError.checkNotNull(
         chatId, 'GFullMessageData_referencedMessage', 'chatId');
+    BuiltValueNullFieldError.checkNotNull(
+        userId, 'GFullMessageData_referencedMessage', 'userId');
   }
 
   @override
@@ -2479,17 +2645,20 @@ class _$GFullMessageData_referencedMessage
         id == other.id &&
         message == other.message &&
         createdAt == other.createdAt &&
-        chatId == other.chatId;
+        chatId == other.chatId &&
+        userId == other.userId;
   }
 
   @override
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
-                message.hashCode),
-            createdAt.hashCode),
-        chatId.hashCode));
+            $jc(
+                $jc($jc($jc(0, G__typename.hashCode), id.hashCode),
+                    message.hashCode),
+                createdAt.hashCode),
+            chatId.hashCode),
+        userId.hashCode));
   }
 
   @override
@@ -2499,7 +2668,8 @@ class _$GFullMessageData_referencedMessage
           ..add('id', id)
           ..add('message', message)
           ..add('createdAt', createdAt)
-          ..add('chatId', chatId))
+          ..add('chatId', chatId)
+          ..add('userId', userId))
         .toString();
   }
 }
@@ -2531,6 +2701,10 @@ class GFullMessageData_referencedMessageBuilder
   int? get chatId => _$this._chatId;
   set chatId(int? chatId) => _$this._chatId = chatId;
 
+  int? _userId;
+  int? get userId => _$this._userId;
+  set userId(int? userId) => _$this._userId = userId;
+
   GFullMessageData_referencedMessageBuilder() {
     GFullMessageData_referencedMessage._initializeBuilder(this);
   }
@@ -2543,6 +2717,7 @@ class GFullMessageData_referencedMessageBuilder
       _message = $v.message;
       _createdAt = $v.createdAt.toBuilder();
       _chatId = $v.chatId;
+      _userId = $v.userId;
       _$v = null;
     }
     return this;
@@ -2574,7 +2749,9 @@ class GFullMessageData_referencedMessageBuilder
                   message, 'GFullMessageData_referencedMessage', 'message'),
               createdAt: createdAt.build(),
               chatId: BuiltValueNullFieldError.checkNotNull(
-                  chatId, 'GFullMessageData_referencedMessage', 'chatId'));
+                  chatId, 'GFullMessageData_referencedMessage', 'chatId'),
+              userId: BuiltValueNullFieldError.checkNotNull(
+                  userId, 'GFullMessageData_referencedMessage', 'userId'));
     } catch (_) {
       late String _$failedField;
       try {
