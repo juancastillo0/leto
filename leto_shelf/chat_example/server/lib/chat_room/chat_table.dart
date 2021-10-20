@@ -229,6 +229,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
         chatId: chatId,
         createdAt: createdAt,
         id: insertResult.insertId!,
+        userId: userId,
         message: message,
         referencedMessageId: referencedMessageId,
       );
@@ -564,6 +565,7 @@ class ChatMessage with _$ChatMessage {
   const factory ChatMessage({
     required int id,
     required int chatId,
+    required int userId,
     required String message,
     int? referencedMessageId,
     required DateTime createdAt,
