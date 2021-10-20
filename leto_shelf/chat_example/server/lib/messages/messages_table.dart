@@ -40,6 +40,35 @@ class ChatMessage with _$ChatMessage {
   }
 }
 
+@GraphQLClass()
+@freezed
+class ChatMessageEvent with _$ChatMessageEvent implements DBEventDataKeyed {
+  const ChatMessageEvent._();
+  const factory ChatMessageEvent.sent({
+    required ChatMessage message,
+  }) = ChatMessageSentEvent;
+
+  const factory ChatMessageEvent.deleted({
+    required int id,
+  }) = ChatMessageSeletedEvent;
+
+  const factory ChatMessageEvent.updated({
+    required ChatMessage message,
+  }) = ChatMessageUpdatedInEvent;
+
+  factory ChatMessageEvent.fromJson(Map<String, Object?> map) =>
+      _$ChatMessageEventFromJson(map);
+
+  @override
+  @GraphQLField(omit: true)
+  MapEntry<EventType, String> get eventKey {
+    return map(
+      sent: (e) => MapEntry(EventType.messageSent, '${e.message.id}'),
+      deleted: (e) => MapEntry(EventType.messageDeleted, '${e.id}'),
+      updated: (e) => MapEntry(EventType.messageUpdated, '${e.message.id}'),
+    );
+  }
+}
 
 class ChatMessageTable {
   final TableConnection db;

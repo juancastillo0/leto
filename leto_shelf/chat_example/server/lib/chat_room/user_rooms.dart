@@ -4,12 +4,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/data_utils/sql_utils.dart';
+import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
 
 part 'user_rooms.g.dart';
+part 'user_rooms.freezed.dart';
 
 final userChatsRef = RefWithDefault.global(
   'UserChatsTable',
@@ -17,6 +19,38 @@ final userChatsRef = RefWithDefault.global(
     chatRoomDatabase.get(scope),
   ),
 );
+
+@GraphQLClass()
+@freezed
+class UserChatEvent with _$UserChatEvent implements DBEventDataKeyed {
+  const UserChatEvent._();
+  const factory UserChatEvent.added({
+    required ChatRoomUser chatUser,
+  }) = UserChatAddedEvent;
+
+  const factory UserChatEvent.removed({
+    required int chatId,
+    required int userId,
+  }) = UserChatRemovedEvent;
+
+  factory UserChatEvent.fromJson(Map<String, Object?> map) =>
+      _$UserChatEventFromJson(map);
+
+  @override
+  @GraphQLField(omit: true)
+  MapEntry<EventType, String> get eventKey {
+    return map(
+      added: (e) => MapEntry(
+        EventType.userChatAdded,
+        '${e.chatUser.chatId}/${e.chatUser.userId}',
+      ),
+      removed: (e) => MapEntry(
+        EventType.userChatRemoved,
+        '${e.chatId}/${e.userId}',
+      ),
+    );
+  }
+}
 
 class UserChatsTable {
   final TableConnection conn;
@@ -136,7 +170,7 @@ class ChatRoomUser {
   });
 
   FutureOr<User> user(ReqCtx ctx) async {
-    final _user = await userDataloaderRef.get(ctx).load(userId);
+    final _user = await userDataLoaderRef.get(ctx).load(userId);
     return _user!;
   }
 

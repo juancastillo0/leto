@@ -1,7 +1,6 @@
 // ignore_for_file: leading_newlines_in_multiline_strings
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -31,6 +30,32 @@ final chatControllerRef = RefWithDefault.global(
   'ChatController',
   (scope) => ChatController.create(chatRoomDatabase.get(scope)),
 );
+
+@GraphQLClass()
+@freezed
+class ChatEvent with _$ChatEvent implements DBEventDataKeyed {
+  const ChatEvent._();
+  const factory ChatEvent.created({
+    required ChatRoom chat,
+    required int ownerId,
+  }) = ChatCreatedEvent;
+
+  const factory ChatEvent.deleted({
+    required int chatId,
+  }) = ChatDeletedEvent;
+
+  factory ChatEvent.fromJson(Map<String, Object?> map) =>
+      _$ChatEventFromJson(map);
+
+  @override
+  @GraphQLField(omit: true)
+  MapEntry<EventType, String> get eventKey {
+    return map(
+      created: (e) => MapEntry(EventType.chatCreated, '${e.chat.id}'),
+      deleted: (e) => MapEntry(EventType.chatDeleted, '${e.chatId}'),
+    );
+  }
+}
 
 class ChatController {
   final ChatTable chats;

@@ -64,6 +64,99 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
 // _GraphQLGenerator
 // **************************************************************************
 
+final userChatAddedEventSerializer = SerializerValue<UserChatAddedEvent>(
+  fromJson: _$$UserChatAddedEventFromJson,
+  toJson: (m) => _$$UserChatAddedEventToJson(m as _$UserChatAddedEvent),
+);
+GraphQLObjectType<UserChatAddedEvent>? _userChatAddedEventGraphQlType;
+
+/// Auto-generated from [UserChatAddedEvent].
+GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQlType {
+  final __name = 'UserChatAddedEvent';
+  if (_userChatAddedEventGraphQlType != null)
+    return _userChatAddedEventGraphQlType!
+        as GraphQLObjectType<UserChatAddedEvent>;
+
+  final __userChatAddedEventGraphQlType = objectType<UserChatAddedEvent>(
+      'UserChatAddedEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userChatAddedEventGraphQlType = __userChatAddedEventGraphQlType;
+  __userChatAddedEventGraphQlType.fields.addAll(
+    [
+      field('chatUser', chatRoomUserGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.chatUser,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userChatEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userChatAddedEventGraphQlType;
+}
+
+final userChatRemovedEventSerializer = SerializerValue<UserChatRemovedEvent>(
+  fromJson: _$$UserChatRemovedEventFromJson,
+  toJson: (m) => _$$UserChatRemovedEventToJson(m as _$UserChatRemovedEvent),
+);
+GraphQLObjectType<UserChatRemovedEvent>? _userChatRemovedEventGraphQlType;
+
+/// Auto-generated from [UserChatRemovedEvent].
+GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQlType {
+  final __name = 'UserChatRemovedEvent';
+  if (_userChatRemovedEventGraphQlType != null)
+    return _userChatRemovedEventGraphQlType!
+        as GraphQLObjectType<UserChatRemovedEvent>;
+
+  final __userChatRemovedEventGraphQlType = objectType<UserChatRemovedEvent>(
+      'UserChatRemovedEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userChatRemovedEventGraphQlType = __userChatRemovedEventGraphQlType;
+  __userChatRemovedEventGraphQlType.fields.addAll(
+    [
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userChatEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userChatRemovedEventGraphQlType;
+}
+
+final userChatEventSerializer = SerializerValue<UserChatEvent>(
+  fromJson: _$UserChatEventFromJson,
+  toJson: (m) => _$UserChatEventToJson(m as UserChatEvent),
+);
+
+Map<String, Object?> _$UserChatEventToJson(UserChatEvent instance) =>
+    instance.toJson();
+
+GraphQLObjectField<String, String, P>
+    userChatEventGraphQlTypeDiscriminant<P extends UserChatEvent>() => field(
+          'runtimeType',
+          enumTypeFromStrings('UserChatEventType', ["added", "removed"]),
+        );
+
+GraphQLUnionType<UserChatEvent>? _userChatEventGraphQlType;
+GraphQLUnionType<UserChatEvent> get userChatEventGraphQlType {
+  return _userChatEventGraphQlType ??= GraphQLUnionType(
+    'UserChatEvent',
+    [userChatAddedEventGraphQlType, userChatRemovedEventGraphQlType],
+  );
+}
+
 final chatRoomUserSerializer = SerializerValue<ChatRoomUser>(
   fromJson: _$ChatRoomUserFromJson,
   toJson: (m) => _$ChatRoomUserToJson(m as ChatRoomUser),
@@ -159,3 +252,28 @@ const _$ChatRoomUserRoleEnumMap = {
   ChatRoomUserRole.admin: 'admin',
   ChatRoomUserRole.peer: 'peer',
 };
+
+_$UserChatAddedEvent _$$UserChatAddedEventFromJson(Map<String, dynamic> json) =>
+    _$UserChatAddedEvent(
+      chatUser: ChatRoomUser.fromJson(json['chatUser'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$UserChatAddedEventToJson(
+        _$UserChatAddedEvent instance) =>
+    <String, dynamic>{
+      'chatUser': instance.chatUser,
+    };
+
+_$UserChatRemovedEvent _$$UserChatRemovedEventFromJson(
+        Map<String, dynamic> json) =>
+    _$UserChatRemovedEvent(
+      chatId: json['chatId'] as int,
+      userId: json['userId'] as int,
+    );
+
+Map<String, dynamic> _$$UserChatRemovedEventToJson(
+        _$UserChatRemovedEvent instance) =>
+    <String, dynamic>{
+      'chatId': instance.chatId,
+      'userId': instance.userId,
+    };

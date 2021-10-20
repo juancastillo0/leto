@@ -7,12 +7,14 @@ import 'package:oxidized/oxidized.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/data_utils/sql_utils.dart';
+import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:uuid/uuid.dart';
 import 'package:valida/validate/validate_annotations.dart';
 
 part 'user_table.g.dart';
+part 'user_table.freezed.dart';
 
 final userTableRef = RefWithDefault.global(
   'UserTable',
@@ -28,8 +30,8 @@ final userSessionRef = RefWithDefault.global(
   ),
 );
 
-final userDataloaderRef = RefWithDefault.global(
-  'UserChatsTable',
+final userDataLoaderRef = RefWithDefault.global(
+  'UserDataLoader',
   (scope) {
     final table = userTableRef.get(scope);
     return DataLoader<int, User?, int>(
@@ -37,6 +39,41 @@ final userDataloaderRef = RefWithDefault.global(
     );
   },
 );
+
+@GraphQLClass()
+@freezed
+class UserEvent with _$UserEvent implements DBEventDataKeyed {
+  const UserEvent._();
+  const factory UserEvent.created({
+    required User user,
+  }) = UserCreatedEvent;
+
+  const factory UserEvent.signedUp({
+    required UserSession session,
+  }) = UserSignedUpEvent;
+
+  const factory UserEvent.signedIn({
+    required UserSession session,
+  }) = UserSignedInEvent;
+
+  const factory UserEvent.signedOut({
+    required String sessionId,
+  }) = UserSignedOutEvent;
+
+  factory UserEvent.fromJson(Map<String, Object?> map) =>
+      _$UserEventFromJson(map);
+
+  @override
+  @GraphQLField(omit: true)
+  MapEntry<EventType, String> get eventKey {
+    return map(
+      created: (e) => MapEntry(EventType.userCreated, '${e.user.id}'),
+      signedUp: (e) => MapEntry(EventType.userSessionSignedUp, e.session.id),
+      signedIn: (e) => MapEntry(EventType.userSessionSignedIn, e.session.id),
+      signedOut: (e) => MapEntry(EventType.userSessionSignedOut, e.sessionId),
+    );
+  }
+}
 
 class UserTable {
   final TableConnection conn;

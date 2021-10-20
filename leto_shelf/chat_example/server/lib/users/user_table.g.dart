@@ -108,6 +108,164 @@ final GraphQLObjectField<String, Object, Object> signOutGraphQLField = field(
 // _GraphQLGenerator
 // **************************************************************************
 
+final userCreatedEventSerializer = SerializerValue<UserCreatedEvent>(
+  fromJson: _$$UserCreatedEventFromJson,
+  toJson: (m) => _$$UserCreatedEventToJson(m as _$UserCreatedEvent),
+);
+GraphQLObjectType<UserCreatedEvent>? _userCreatedEventGraphQlType;
+
+/// Auto-generated from [UserCreatedEvent].
+GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQlType {
+  final __name = 'UserCreatedEvent';
+  if (_userCreatedEventGraphQlType != null)
+    return _userCreatedEventGraphQlType! as GraphQLObjectType<UserCreatedEvent>;
+
+  final __userCreatedEventGraphQlType = objectType<UserCreatedEvent>(
+      'UserCreatedEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userCreatedEventGraphQlType = __userCreatedEventGraphQlType;
+  __userCreatedEventGraphQlType.fields.addAll(
+    [
+      field('user', userGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.user,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userCreatedEventGraphQlType;
+}
+
+final userSignedUpEventSerializer = SerializerValue<UserSignedUpEvent>(
+  fromJson: _$$UserSignedUpEventFromJson,
+  toJson: (m) => _$$UserSignedUpEventToJson(m as _$UserSignedUpEvent),
+);
+GraphQLObjectType<UserSignedUpEvent>? _userSignedUpEventGraphQlType;
+
+/// Auto-generated from [UserSignedUpEvent].
+GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQlType {
+  final __name = 'UserSignedUpEvent';
+  if (_userSignedUpEventGraphQlType != null)
+    return _userSignedUpEventGraphQlType!
+        as GraphQLObjectType<UserSignedUpEvent>;
+
+  final __userSignedUpEventGraphQlType = objectType<UserSignedUpEvent>(
+      'UserSignedUpEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userSignedUpEventGraphQlType = __userSignedUpEventGraphQlType;
+  __userSignedUpEventGraphQlType.fields.addAll(
+    [
+      field('session', userSessionGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.session,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userSignedUpEventGraphQlType;
+}
+
+final userSignedInEventSerializer = SerializerValue<UserSignedInEvent>(
+  fromJson: _$$UserSignedInEventFromJson,
+  toJson: (m) => _$$UserSignedInEventToJson(m as _$UserSignedInEvent),
+);
+GraphQLObjectType<UserSignedInEvent>? _userSignedInEventGraphQlType;
+
+/// Auto-generated from [UserSignedInEvent].
+GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQlType {
+  final __name = 'UserSignedInEvent';
+  if (_userSignedInEventGraphQlType != null)
+    return _userSignedInEventGraphQlType!
+        as GraphQLObjectType<UserSignedInEvent>;
+
+  final __userSignedInEventGraphQlType = objectType<UserSignedInEvent>(
+      'UserSignedInEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userSignedInEventGraphQlType = __userSignedInEventGraphQlType;
+  __userSignedInEventGraphQlType.fields.addAll(
+    [
+      field('session', userSessionGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.session,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userSignedInEventGraphQlType;
+}
+
+final userSignedOutEventSerializer = SerializerValue<UserSignedOutEvent>(
+  fromJson: _$$UserSignedOutEventFromJson,
+  toJson: (m) => _$$UserSignedOutEventToJson(m as _$UserSignedOutEvent),
+);
+GraphQLObjectType<UserSignedOutEvent>? _userSignedOutEventGraphQlType;
+
+/// Auto-generated from [UserSignedOutEvent].
+GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQlType {
+  final __name = 'UserSignedOutEvent';
+  if (_userSignedOutEventGraphQlType != null)
+    return _userSignedOutEventGraphQlType!
+        as GraphQLObjectType<UserSignedOutEvent>;
+
+  final __userSignedOutEventGraphQlType = objectType<UserSignedOutEvent>(
+      'UserSignedOutEvent',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _userSignedOutEventGraphQlType = __userSignedOutEventGraphQlType;
+  __userSignedOutEventGraphQlType.fields.addAll(
+    [
+      field('sessionId', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.sessionId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      userEventGraphQlTypeDiscriminant()
+    ],
+  );
+
+  return __userSignedOutEventGraphQlType;
+}
+
+final userEventSerializer = SerializerValue<UserEvent>(
+  fromJson: _$UserEventFromJson,
+  toJson: (m) => _$UserEventToJson(m as UserEvent),
+);
+
+Map<String, Object?> _$UserEventToJson(UserEvent instance) => instance.toJson();
+
+GraphQLObjectField<String, String, P>
+    userEventGraphQlTypeDiscriminant<P extends UserEvent>() => field(
+          'runtimeType',
+          enumTypeFromStrings('UserEventType',
+              ["created", "signedUp", "signedIn", "signedOut"]),
+        );
+
+GraphQLUnionType<UserEvent>? _userEventGraphQlType;
+GraphQLUnionType<UserEvent> get userEventGraphQlType {
+  return _userEventGraphQlType ??= GraphQLUnionType(
+    'UserEvent',
+    [
+      userCreatedEventGraphQlType,
+      userSignedUpEventGraphQlType,
+      userSignedInEventGraphQlType,
+      userSignedOutEventGraphQlType
+    ],
+  );
+}
+
 final userSessionSerializer = SerializerValue<UserSession>(
   fromJson: _$UserSessionFromJson,
   toJson: (m) => _$UserSessionToJson(m as UserSession),
@@ -375,4 +533,45 @@ Map<String, dynamic> _$ErrCToJson<T>(
     <String, dynamic>{
       'message': instance.message,
       'value': toJsonT(instance.value),
+    };
+
+_$UserCreatedEvent _$$UserCreatedEventFromJson(Map<String, dynamic> json) =>
+    _$UserCreatedEvent(
+      user: User.fromJson(json['user'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$UserCreatedEventToJson(_$UserCreatedEvent instance) =>
+    <String, dynamic>{
+      'user': instance.user,
+    };
+
+_$UserSignedUpEvent _$$UserSignedUpEventFromJson(Map<String, dynamic> json) =>
+    _$UserSignedUpEvent(
+      session: UserSession.fromJson(json['session'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$UserSignedUpEventToJson(_$UserSignedUpEvent instance) =>
+    <String, dynamic>{
+      'session': instance.session,
+    };
+
+_$UserSignedInEvent _$$UserSignedInEventFromJson(Map<String, dynamic> json) =>
+    _$UserSignedInEvent(
+      session: UserSession.fromJson(json['session'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$UserSignedInEventToJson(_$UserSignedInEvent instance) =>
+    <String, dynamic>{
+      'session': instance.session,
+    };
+
+_$UserSignedOutEvent _$$UserSignedOutEventFromJson(Map<String, dynamic> json) =>
+    _$UserSignedOutEvent(
+      sessionId: json['sessionId'] as String,
+    );
+
+Map<String, dynamic> _$$UserSignedOutEventToJson(
+        _$UserSignedOutEvent instance) =>
+    <String, dynamic>{
+      'sessionId': instance.sessionId,
     };
