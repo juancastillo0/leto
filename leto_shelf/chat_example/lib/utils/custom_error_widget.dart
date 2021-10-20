@@ -14,7 +14,10 @@ class CustomErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(message),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(message),
+        ),
         ElevatedButton.icon(
           onPressed: () {
             refresh();
