@@ -1,9 +1,11 @@
-import 'package:chat_example/api/auth_store.dart';
-import 'package:chat_example/auth_ui.dart';
+import 'package:chat_example/auth/auth_store.dart';
+import 'package:chat_example/auth/auth_ui.dart';
+import 'package:chat_example/chat_rooms/chat_room_users_ui.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_ui.dart';
 import 'package:chat_example/messages/messages_store.dart';
 import 'package:chat_example/messages/messages_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatsPage extends StatefulWidget {
@@ -75,7 +77,8 @@ class _ChatsPageState extends State<ChatsPage> {
           Expanded(
             child: HookConsumer(
               builder: (context, ref, _) {
-                final chat = ref.watch(selectedChat);
+                final showInfo = useState(false);
+                final chat = ref.watch(selectedChat).asData?.value;
                 final state = ref.watch(authStoreProv);
 
                 if (chat == null) {
@@ -97,29 +100,72 @@ class _ChatsPageState extends State<ChatsPage> {
                   );
                 }
 
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(chat.name),
+                return ClipRect(
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).canvasColor,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 2,
+                              spreadRadius: 1,
+                            )
+                          ],
                         ),
-                        IconButton(
-                          splashRadius: 24,
-                          tooltip: 'Delete',
-                          onPressed: () {},
-                          icon: const Icon(Icons.delete),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                chat.name,
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Icon(Icons.search),
+                                ),
+                                SizedBox(
+                                  width: 130,
+                                  child: showInfo.value
+                                      ? TextButton.icon(
+                                          onPressed: () {
+                                            showInfo.value = false;
+                                          },
+                                          icon: const Icon(Icons.message),
+                                          label: const Text('Messages'),
+                                        )
+                                      : TextButton.icon(
+                                          onPressed: () {
+                                            showInfo.value = true;
+                                          },
+                                          icon: const Icon(Icons.info),
+                                          label: const Text('Info'),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: MessageList(),
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: showInfo.value
+                                ? ChatRoomUsers(room: chat)
+                                : const MessageList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
