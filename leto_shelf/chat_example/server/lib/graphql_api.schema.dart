@@ -1,7 +1,7 @@
 // ignore: depend_on_referenced_packages
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:server/chat_room/chat_table.dart';
 import 'package:server/users/user_table.dart';
+import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart';
 
 final graphqlApiSchema = GraphQLSchema(
@@ -18,6 +18,7 @@ final graphqlApiSchema = GraphQLSchema(
   queryType: objectType(
     'Query',
     fields: [
+      searchUserGraphQLField,
       getMessageGraphQLField,
       getChatRoomsGraphQLField,
     ],
@@ -29,6 +30,8 @@ final graphqlApiSchema = GraphQLSchema(
       signUpGraphQLField,
       signInGraphQLField,
       signOutGraphQLField,
+      addChatRoomUserGraphQLField,
+      deleteChatRoomUserGraphQLField,
       sendMessageGraphQLField,
       createChatRoomGraphQLField,
       deleteChatRoomGraphQLField,

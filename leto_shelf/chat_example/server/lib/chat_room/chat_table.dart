@@ -6,15 +6,15 @@ import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/database/models/connection_models.dart';
-import 'package:server/chat_room/sql_utils.dart';
 import 'package:server/chat_room/user_rooms.dart';
-import 'package:server/chat_room/sqlite_utils.dart';
+import 'package:server/data_utils/sql_utils.dart';
+import 'package:server/data_utils/sqlite_utils.dart';
 import 'package:server/users/auth.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-part 'chat_table.g.dart';
 part 'chat_table.freezed.dart';
+part 'chat_table.g.dart';
 
 final chatRoomDatabase = RefWithDefault<TableConnection>.global(
   'ChatRoomDatabase',
@@ -92,10 +92,10 @@ class ChatTable {
   }) async {
     return db.transaction((db) async {
       final result = await db.query(
-        'DELETE chat from chat INNER JOIN'
+        'DELETE FROM chat WHERE id IN (select chat.id from chat INNER JOIN'
         ' chatRoomUser on chatRoomUser.chatId = chat.id'
         ' where chat.id = ? and chatRoomUser.userId = ?'
-        " and chatRoomUser.role in ('admin');",
+        " and chatRoomUser.role in ('admin'));",
         [chatId, userId],
       );
 

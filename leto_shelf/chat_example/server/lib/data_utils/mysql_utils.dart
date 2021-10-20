@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:query_builder/query_builder.dart';
-import 'package:server/chat_room/mapped_iterator.dart';
+import 'package:server/data_utils/mapped_iterator.dart';
 
 class MySqlConn extends TableConnection {
   final MySqlConnection _db;

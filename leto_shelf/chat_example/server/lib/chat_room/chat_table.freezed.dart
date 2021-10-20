@@ -279,12 +279,14 @@ class _$ChatMessageTearOff {
   _ChatMessage call(
       {required int id,
       required int chatId,
+      required int userId,
       required String message,
       int? referencedMessageId,
       required DateTime createdAt}) {
     return _ChatMessage(
       id: id,
       chatId: chatId,
+      userId: userId,
       message: message,
       referencedMessageId: referencedMessageId,
       createdAt: createdAt,
@@ -303,6 +305,7 @@ const $ChatMessage = _$ChatMessageTearOff();
 mixin _$ChatMessage {
   int get id => throw _privateConstructorUsedError;
   int get chatId => throw _privateConstructorUsedError;
+  int get userId => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
   int? get referencedMessageId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -321,6 +324,7 @@ abstract class $ChatMessageCopyWith<$Res> {
   $Res call(
       {int id,
       int chatId,
+      int userId,
       String message,
       int? referencedMessageId,
       DateTime createdAt});
@@ -338,6 +342,7 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
   $Res call({
     Object? id = freezed,
     Object? chatId = freezed,
+    Object? userId = freezed,
     Object? message = freezed,
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
@@ -350,6 +355,10 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
+              as int,
+      userId: userId == freezed
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
       message: message == freezed
           ? _value.message
@@ -377,6 +386,7 @@ abstract class _$ChatMessageCopyWith<$Res>
   $Res call(
       {int id,
       int chatId,
+      int userId,
       String message,
       int? referencedMessageId,
       DateTime createdAt});
@@ -396,6 +406,7 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? chatId = freezed,
+    Object? userId = freezed,
     Object? message = freezed,
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
@@ -408,6 +419,10 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
+              as int,
+      userId: userId == freezed
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
       message: message == freezed
           ? _value.message
@@ -431,6 +446,7 @@ class _$_ChatMessage extends _ChatMessage {
   const _$_ChatMessage(
       {required this.id,
       required this.chatId,
+      required this.userId,
       required this.message,
       this.referencedMessageId,
       required this.createdAt})
@@ -444,6 +460,8 @@ class _$_ChatMessage extends _ChatMessage {
   @override
   final int chatId;
   @override
+  final int userId;
+  @override
   final String message;
   @override
   final int? referencedMessageId;
@@ -452,7 +470,7 @@ class _$_ChatMessage extends _ChatMessage {
 
   @override
   String toString() {
-    return 'ChatMessage(id: $id, chatId: $chatId, message: $message, referencedMessageId: $referencedMessageId, createdAt: $createdAt)';
+    return 'ChatMessage(id: $id, chatId: $chatId, userId: $userId, message: $message, referencedMessageId: $referencedMessageId, createdAt: $createdAt)';
   }
 
   @override
@@ -463,6 +481,8 @@ class _$_ChatMessage extends _ChatMessage {
                 const DeepCollectionEquality().equals(other.id, id)) &&
             (identical(other.chatId, chatId) ||
                 const DeepCollectionEquality().equals(other.chatId, chatId)) &&
+            (identical(other.userId, userId) ||
+                const DeepCollectionEquality().equals(other.userId, userId)) &&
             (identical(other.message, message) ||
                 const DeepCollectionEquality()
                     .equals(other.message, message)) &&
@@ -479,6 +499,7 @@ class _$_ChatMessage extends _ChatMessage {
       runtimeType.hashCode ^
       const DeepCollectionEquality().hash(id) ^
       const DeepCollectionEquality().hash(chatId) ^
+      const DeepCollectionEquality().hash(userId) ^
       const DeepCollectionEquality().hash(message) ^
       const DeepCollectionEquality().hash(referencedMessageId) ^
       const DeepCollectionEquality().hash(createdAt);
@@ -498,6 +519,7 @@ abstract class _ChatMessage extends ChatMessage {
   const factory _ChatMessage(
       {required int id,
       required int chatId,
+      required int userId,
       required String message,
       int? referencedMessageId,
       required DateTime createdAt}) = _$_ChatMessage;
@@ -510,6 +532,8 @@ abstract class _ChatMessage extends ChatMessage {
   int get id => throw _privateConstructorUsedError;
   @override
   int get chatId => throw _privateConstructorUsedError;
+  @override
+  int get userId => throw _privateConstructorUsedError;
   @override
   String get message => throw _privateConstructorUsedError;
   @override

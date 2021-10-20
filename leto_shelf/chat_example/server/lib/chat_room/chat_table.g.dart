@@ -269,6 +269,11 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('message', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.message,
           inputs: [],
@@ -372,6 +377,7 @@ _$_ChatMessage _$$_ChatMessageFromJson(Map<String, dynamic> json) =>
     _$_ChatMessage(
       id: json['id'] as int,
       chatId: json['chatId'] as int,
+      userId: json['userId'] as int,
       message: json['message'] as String,
       referencedMessageId: json['referencedMessageId'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -381,6 +387,7 @@ Map<String, dynamic> _$$_ChatMessageToJson(_$_ChatMessage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'chatId': instance.chatId,
+      'userId': instance.userId,
       'message': instance.message,
       'referencedMessageId': instance.referencedMessageId,
       'createdAt': instance.createdAt.toIso8601String(),

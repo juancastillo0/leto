@@ -6,7 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
-import 'package:server/chat_room/sql_utils.dart';
+import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/users/auth.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:uuid/uuid.dart';
