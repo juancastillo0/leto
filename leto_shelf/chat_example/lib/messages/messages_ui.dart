@@ -1,6 +1,7 @@
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/api/messages.data.gql.dart';
 import 'package:chat_example/api/messages.req.gql.dart';
+import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/messages/messages_store.dart';
 import 'package:chat_example/utils/custom_error_widget.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class MessageList extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return HookConsumer(
       builder: (context, ref, _) {
-        final chat = ref.watch(selectedChat);
+        final chat = ref.watch(selectedChat).asData?.value;
         final messages = ref.watch(selectedChatMessages);
         if (chat == null) {
           return const Center(child: Text('Select a chat'));
@@ -117,11 +118,13 @@ class MessageList extends HookConsumerWidget {
                           splashRadius: 24,
                           tooltip: 'Send',
                           onPressed: () {
+                            final user = ref.read(authStoreProv).user!;
                             final message = textController.text;
                             final optimisticResponse =
                                 (GsendMessageData_sendMessageBuilder()
                                   ..chatId = chat.id
                                   ..message = message
+                                  ..userId = user.id
                                   ..createdAt.value =
                                       DateTime.now().toIso8601String()
                                   ..id = -1);
