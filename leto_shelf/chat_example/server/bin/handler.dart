@@ -42,7 +42,8 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     'dart.vm.product',
     defaultValue: false,
   );
-  if (!kReleaseMode) {
+  if (!kReleaseMode &&
+      schema.queryType!.fields.every((f) => f.name != 'testSqlRawQuery')) {
     schema.queryType!.fields.add(
       graphQLString.field(
         'testSqlRawQuery',
@@ -81,7 +82,7 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
           if (Platform.environment['TRACING'] == 'true')
             GraphQLTracingExtension(),
           GraphQLPersistedQueries(),
-          CacheExtension(cache: LruCacheSimple(10)),
+          CacheExtension(cache: LruCacheSimple(50)),
         ],
   );
   await userTableRef.get(globalVariables).setup();

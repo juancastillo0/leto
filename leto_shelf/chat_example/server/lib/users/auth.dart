@@ -40,12 +40,12 @@ Future<UserClaims> getUserClaimsUnwrap(
   ReqCtx ctx, {
   bool isRefreshToken = false,
 }) async {
-  final authToken = await getUserClaims(
+  final claims = await getUserClaims(
     ctx,
     isRefreshToken: isRefreshToken,
   );
-  if (authToken != null) {
-    return authToken;
+  if (claims != null) {
+    return claims;
   }
   throw unauthenticatedError;
 }
