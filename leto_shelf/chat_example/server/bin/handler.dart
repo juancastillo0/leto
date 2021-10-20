@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
+import 'package:server/users/auth.dart' show setWebSocketAuth;
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -93,8 +94,26 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
   const httpPath = '/graphql';
   const wsPath = '/graphql-subscription';
 
-  app.all(httpPath, graphqlHttp(graphQL, globalVariables: globalVariables));
-  app.get(wsPath, graphqlWebSocket(graphQL, globalVariables: globalVariables));
+  app.all(
+    httpPath,
+    graphqlHttp(
+      graphQL,
+      globalVariables: globalVariables,
+    ),
+  );
+  app.get(
+    wsPath,
+    graphqlWebSocket(
+      graphQL,
+      globalVariables: globalVariables,
+      validateIncomingConnection: (map) {
+        if (map != null) {
+          setWebSocketAuth(map, globalVariables);
+        }
+        return true;
+      },
+    ),
+  );
 
   setUpGraphQLSchemaDefinition(app, schema);
   setUpGraphQLUi(

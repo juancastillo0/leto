@@ -10,6 +10,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
+final webSocketAuthClaimsRef = GlobalRef('webSocketAuthClaimsRef');
 
 String? getAuthToken(ReqCtx ctx) {
   return getCookie(ctx.request, AUTH_COOKIE_KEY) ??
@@ -21,6 +22,25 @@ void setAuthCookie(ReqCtx ctx, String token, int maxAgeSecs) {
     HttpHeaders.setCookieHeader,
     '$AUTH_COOKIE_KEY=$token; HttpOnly; SameSite=Lax; Max-Age=$maxAgeSecs',
   );
+}
+
+Future<void> setWebSocketAuth(
+  Map<String, Object?> map,
+  GlobalsHolder holder,
+) async {
+  final refreshToken = map['refreshToken'];
+  if (refreshToken is String) {
+    final claims = await _getUserClaimsFromToken(
+      refreshToken,
+      isRefreshToken: true,
+    );
+    if (claims != null) {
+      holder.globals.setScoped(
+        webSocketAuthClaimsRef,
+        claims,
+      );
+    }
+  }
 }
 
 final unauthenticatedError = GraphQLError('Unauthenticated');
@@ -54,27 +74,42 @@ Future<UserClaims?> getUserClaims(
   ReqCtx ctx, {
   bool isRefreshToken = false,
 }) async {
+  final webSocketClaims =
+      ctx.globals.get(webSocketAuthClaimsRef) as UserClaims?;
+  if (webSocketClaims != null) {
+    return webSocketClaims;
+  }
   final authToken = getAuthToken(ctx);
   if (authToken != null) {
-    final jwt = await parseJwt(authToken);
-    if (jwt.isVerified == true) {
-      final userIdStr = jwt.claims.subject ?? '';
-      final userId = int.tryParse(userIdStr);
-      final sessionId = jwt.claims.getTyped<String?>('sessionId');
-      final isRefresh = jwt.claims.getTyped<bool?>('isRefresh');
-
-      if (sessionId != null &&
-          userId != null &&
-          (isRefreshToken && isRefresh == true ||
-              !isRefreshToken && isRefresh == false)) {
-        return UserClaims(
-          userId: userId,
-          sessionId: sessionId,
-        );
-      }
-    }
+    return _getUserClaimsFromToken(
+      authToken,
+      isRefreshToken: isRefreshToken,
+    );
   }
   return null;
+}
+
+Future<UserClaims?> _getUserClaimsFromToken(
+  String authToken, {
+  bool isRefreshToken = false,
+}) async {
+  final jwt = await parseJwt(authToken);
+  if (jwt.isVerified == true) {
+    final userIdStr = jwt.claims.subject ?? '';
+    final userId = int.tryParse(userIdStr);
+    final sessionId = jwt.claims.getTyped<String?>('sessionId');
+    final isRefresh = jwt.claims.getTyped<bool?>('isRefresh');
+
+    if (sessionId != null &&
+        userId != null &&
+        (isRefreshToken && isRefresh == true ||
+            !isRefreshToken && isRefresh == false)) {
+      return UserClaims(
+        userId: userId,
+        sessionId: sessionId,
+      );
+    }
+  }
 }
 
 String createAuthToken({
