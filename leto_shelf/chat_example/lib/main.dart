@@ -1,4 +1,4 @@
-import 'package:chat_example/api/auth_store.dart';
+import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_page.dart';
 import 'package:flutter/material.dart';

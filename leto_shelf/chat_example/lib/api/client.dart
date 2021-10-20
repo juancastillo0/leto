@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:chat_example/api/auth_store.dart';
+import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/api/http_auth_link.dart';
 import 'package:chat_example/api/user.data.gql.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_store.dart';
@@ -129,9 +129,14 @@ Future<ProviderContainer> initClient() async {
     'ws://localhost:8060/graphql-subscription',
   );
 
-  final _list = [createChatRoomHandler];
+  final _list = [
+    createChatRoomHandler,
+    deleteChatRoomHandler,
+    addChatRoomUserHandler,
+    deleteChatRoomUserHandler,
+  ];
   final _cacheHandlers = Map.fromEntries(
-    _list.map((e) => MapEntry(e.name, e.handler)),
+    _list.map((e) => MapEntry<String, Function>(e.name, e.rawHandler)),
   );
   assert(_list.length == _cacheHandlers.length);
 

@@ -31,5 +31,7 @@ class UpdateCacheObj<TData, TVars> {
   final String name;
   final UpdateCacheHandler<TData, TVars> handler;
 
+  Function get rawHandler => handler;
+
   const UpdateCacheObj(this.name, this.handler);
 }
