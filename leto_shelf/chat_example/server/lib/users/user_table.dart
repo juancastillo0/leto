@@ -123,6 +123,18 @@ CREATE TABLE $tableName (
     );
     return result.isEmpty ? null : User.fromJson(result.first);
   }
+
+  Future<List<User>> searchByName(String name) async {
+    final _escaped = name.replaceAllMapped(
+      RegExp('[%_]'),
+      (match) => '\\${match.input.substring(match.start, match.end)}',
+    );
+    final result = await conn.query(
+      "select * from user where name LIKE ? ESCAPE '\\';",
+      ['%$_escaped%'],
+    );
+    return result.map((e) => User.fromJson(e)).toList();
+  }
 }
 
 class UserSessionTable {
@@ -257,6 +269,11 @@ class User {
 
   Map<String, Object?> toJson() => _$UserToJson(this);
   factory User.fromJson(Map<String, Object?> json) => _$UserFromJson(json);
+}
+
+@Query()
+Future<List<User>> searchUser(ReqCtx ctx, String name) {
+  return userTableRef.get(ctx).searchByName(name);
 }
 
 @GraphQLClass()

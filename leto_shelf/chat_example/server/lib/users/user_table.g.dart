@@ -6,6 +6,26 @@ part of 'user_table.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
+final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
+    field(
+  'searchUser',
+  listOf(userGraphQlType.nonNull()).nonNull()
+      as GraphQLType<List<User?>, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return searchUser(ctx, (args["name"] as String));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "name",
+      graphQLString.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
 final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
     field(
   'refreshAuthToken',
