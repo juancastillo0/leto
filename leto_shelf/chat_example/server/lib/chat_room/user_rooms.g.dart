@@ -6,6 +6,64 @@ part of 'user_rooms.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
+final GraphQLObjectField<ChatRoomUser, Object, Object>
+    addChatRoomUserGraphQLField = field(
+  'addChatRoomUser',
+  chatRoomUserGraphQlType as GraphQLType<ChatRoomUser, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return addChatRoomUser(
+        ctx, (args["chatId"] as int), (args["userId"] as int),
+        role: (args["role"] as ChatRoomUserRole));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "chatId",
+      graphQLInt.nonNull().coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "userId",
+      graphQLInt.nonNull().coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "role",
+      chatRoomUserRoleGraphQlType.nonNull().coerceToInputObject(),
+      defaultValue: ChatRoomUserRole.peer,
+    )
+  ],
+  deprecationReason: null,
+);
+
+final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
+    field(
+  'deleteChatRoomUser',
+  graphQLBoolean.nonNull() as GraphQLType<bool, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return deleteChatRoomUser(
+        ctx, (args["chatId"] as int), (args["userId"] as int));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "chatId",
+      graphQLInt.nonNull().coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "userId",
+      graphQLInt.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
+// **************************************************************************
+// _GraphQLGenerator
+// **************************************************************************
+
 final chatRoomUserSerializer = SerializerValue<ChatRoomUser>(
   fromJson: _$ChatRoomUserFromJson,
   toJson: (m) => _$ChatRoomUserToJson(m as ChatRoomUser),

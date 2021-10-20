@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
-import 'package:server/chat_room/sql_utils.dart';
+import 'package:server/data_utils/sql_utils.dart';
+import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
 
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -141,4 +142,59 @@ class ChatRoomUser {
 
   factory ChatRoomUser.fromJson(Map<String, Object?> json) =>
       _$ChatRoomUserFromJson(json);
+}
+
+Future<ChatRoomUser> validateEditPermission(
+  ReqCtx ctx, {
+  required int chatId,
+  required int? userId,
+}) async {
+  final claims = await getUserClaimsUnwrap(ctx);
+  final currentChatUser = await userChatsRef.get(ctx).get(
+        chatId: chatId,
+        userId: claims.userId,
+      );
+
+  if (currentChatUser == null ||
+      (currentChatUser.userId != userId &&
+          !const [ChatRoomUserRole.admin].contains(currentChatUser.role))) {
+    throw unauthorizedError;
+  }
+  return currentChatUser;
+}
+
+@Mutation()
+Future<ChatRoomUser?> addChatRoomUser(
+  ReqCtx ctx,
+  int chatId,
+  int userId, {
+  ChatRoomUserRole role = ChatRoomUserRole.peer,
+}) async {
+  await validateEditPermission(
+    ctx,
+    chatId: chatId,
+    userId: null,
+  );
+  final chatUser = ChatRoomUser(
+    chatId: chatId,
+    userId: userId,
+    role: role,
+  );
+  final success = await userChatsRef.get(ctx).insert(chatUser);
+  if (!success) {
+    return null;
+  }
+
+  return chatUser;
+}
+
+@Mutation()
+Future<bool> deleteChatRoomUser(
+  ReqCtx ctx,
+  int chatId,
+  int userId,
+) async {
+  await validateEditPermission(ctx, chatId: chatId, userId: userId);
+
+  return userChatsRef.get(ctx).delete(userId: userId, chatId: chatId);
 }
