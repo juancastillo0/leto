@@ -11,6 +11,9 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 part 'uploaded_file.g.dart';
 
+GraphQLType<UploadedFile, UploadedFile> get uploadedFileGraphQlType =>
+    graphQLUpload;
+
 /// Reads information about a binary chunk uploaded to the server.
 class UploadedFile {
   /// The underlying `form-data` item.
