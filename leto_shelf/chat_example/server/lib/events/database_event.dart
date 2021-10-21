@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/query_builder.dart';
@@ -85,7 +86,7 @@ class EventTable {
 
   EventTable(this.db);
 
-  final subs = <EventType, Set<StreamSubscription>>{};
+  final subs = <String, Set<StreamSubscription>>{};
   Timer? _subsTimer;
   int subsLastEventId = -1;
   late final controller = StreamController<List<DBEvent>>.broadcast(
@@ -103,7 +104,7 @@ class EventTable {
     _subsTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       final _subsLastEventId = subsLastEventId;
       // maybe compare the last id without filtering by type?
-      final events = await getAllAfter(_subsLastEventId, types: subs.keys);
+      final events = await getAllAfter(_subsLastEventId);
       if (events.isNotEmpty && subsLastEventId == _subsLastEventId) {
         subsLastEventId =
             events.map((e) => e.id).reduce((v, e) => v > e ? v : e);
@@ -112,10 +113,11 @@ class EventTable {
     });
   }
 
-  Future<int> insert(EventType type, String data) async {
+  Future<int> insert(DBEventData data) async {
+    final eventKey = data.eventKey;
     final result = await db.query(
       'INSERT INTO event(type, data) VALUES (?, ?)',
-      [type.toJson(), data],
+      [eventKey.key.toJson(), jsonEncode(data.toJson())],
     );
 
     return result.insertId!;
@@ -146,29 +148,30 @@ class EventTable {
     return values;
   }
 
-  Future<Stream<DBEvent>> subscribeToChanges(EventType type) async {
+  Future<Stream<DBEvent>> subscribeToChanges(UserClaims claims) async {
+    final key = claims.sessionId;
+
     StreamSubscription<DBEvent>? _localSubs;
     late final StreamController<DBEvent> _controller;
     _controller = StreamController(
       onListen: () {
         _localSubs = controller.stream
             .expand((element) => element)
-            .where((event) => event.type == type)
             .listen(_controller.add);
-        if (subs.containsKey(type)) {
-          subs[type]!.add(_localSubs!);
+        if (subs.containsKey(key)) {
+          subs[key]!.add(_localSubs!);
         } else {
-          subs[type] = {_localSubs!};
+          subs[key] = {_localSubs!};
           setUpSubscription();
         }
       },
       onCancel: () async {
         if (_localSubs != null) {
-          final typeSubs = subs[type];
+          final typeSubs = subs[key];
           if (typeSubs != null) {
             typeSubs.remove(_localSubs);
             if (typeSubs.isEmpty) {
-              subs.remove(type);
+              subs.remove(key);
               setUpSubscription();
             }
           }
@@ -202,8 +205,73 @@ CREATE TABLE $tableName (
 }
 
 @Subscription()
-Future<Stream<DBEvent>> onMessageEvent(ReqCtx<Object> ctx) async {
+Future<Stream<DBEvent>> onEvent(ReqCtx<Object> ctx) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
-  return controller.events.subscribeToChanges(EventType.messageSent);
+  final stream = await controller.events.subscribeToChanges(claims);
+
+  final chatsCollector = _UserChatsCollector(ctx, userId: claims.userId);
+
+  return stream.asyncMap((event) async {
+    await chatsCollector.consume(event);
+    return event;
+  }).where(
+    (event) => event.data.when(
+      chat: (event) => chatsCollector.containsChat(event.chatId),
+      message: (event) => chatsCollector.containsChat(event.chatId),
+      user: (event) => event.userId == claims.userId,
+      userChat: (event) => chatsCollector.containsChat(event.chatId),
+    ),
+  );
+}
+
+@Subscription()
+Future<Stream<DBEvent>> onMessageEvent(ReqCtx<Object> ctx) async {
+  final stream = await onEvent(ctx);
+
+  return stream.where(
+    (event) => event.data.maybeWhen(
+      message: (_) => true,
+      orElse: () => false,
+    ),
+  );
+}
+
+class _UserChatsCollector {
+  Set<int>? chatIds;
+  final GlobalsHolder ctx;
+  final int userId;
+
+  _UserChatsCollector(
+    this.ctx, {
+    required this.userId,
+  });
+
+  bool containsChat(int chatId) {
+    return chatIds!.contains(chatId);
+  }
+
+  Future<void> consume(DBEvent event) async {
+    if (chatIds == null) {
+      final userChats = await userChatsRef.get(ctx).getForUser(userId);
+      chatIds = userChats.map((e) => e.chatId).toSet();
+    }
+
+    event.data.whenOrNull(
+      userChat: (e) {
+        e.map(
+          added: (added) {
+            if (added.chatUser.userId == userId) {
+              chatIds!.add(added.chatUser.chatId);
+            }
+          },
+          removed: (removed) {
+            if (removed.userId == userId) {
+              chatIds!.remove(removed.chatId);
+            }
+          },
+        );
+      },
+    );
+  }
 }

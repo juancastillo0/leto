@@ -164,8 +164,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
         referencedMessageId: referencedMessageId,
       );
       await EventTable(db).insert(
-        EventType.messageSent,
-        jsonEncode(_messageModel.toJson()),
+        DBEventData.message(ChatMessageEvent.sent(message: _messageModel)),
       );
 
       messageModel = _messageModel;

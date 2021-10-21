@@ -6,6 +6,18 @@ part of 'database_event.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
+final GraphQLObjectField<DBEvent, Object, Object> onEventGraphQLField = field(
+  'onEvent',
+  dBEventGraphQlType.nonNull() as GraphQLType<DBEvent, Object>,
+  description: null,
+  subscribe: (obj, ctx) {
+    final args = ctx.args;
+
+    return onEvent(ctx);
+  },
+  deprecationReason: null,
+);
+
 final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
     field(
   'onMessageEvent',
