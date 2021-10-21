@@ -316,9 +316,11 @@ class _$ChatMessageEventTearOff {
     );
   }
 
-  ChatMessageSeletedEvent deleted({required int id}) {
+  ChatMessageSeletedEvent deleted(
+      {required int chatId, required int messageId}) {
     return ChatMessageSeletedEvent(
-      id: id,
+      chatId: chatId,
+      messageId: messageId,
     );
   }
 
@@ -341,21 +343,21 @@ mixin _$ChatMessageEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(ChatMessage message) sent,
-    required TResult Function(int id) deleted,
+    required TResult Function(int chatId, int messageId) deleted,
     required TResult Function(ChatMessage message) updated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
     required TResult orElse(),
   }) =>
@@ -481,7 +483,7 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(ChatMessage message) sent,
-    required TResult Function(int id) deleted,
+    required TResult Function(int chatId, int messageId) deleted,
     required TResult Function(ChatMessage message) updated,
   }) {
     return sent(message);
@@ -491,7 +493,7 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
   }) {
     return sent?.call(message);
@@ -501,7 +503,7 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
     required TResult orElse(),
   }) {
@@ -570,7 +572,7 @@ abstract class $ChatMessageSeletedEventCopyWith<$Res> {
   factory $ChatMessageSeletedEventCopyWith(ChatMessageSeletedEvent value,
           $Res Function(ChatMessageSeletedEvent) then) =
       _$ChatMessageSeletedEventCopyWithImpl<$Res>;
-  $Res call({int id});
+  $Res call({int chatId, int messageId});
 }
 
 /// @nodoc
@@ -586,12 +588,17 @@ class _$ChatMessageSeletedEventCopyWithImpl<$Res>
 
   @override
   $Res call({
-    Object? id = freezed,
+    Object? chatId = freezed,
+    Object? messageId = freezed,
   }) {
     return _then(ChatMessageSeletedEvent(
-      id: id == freezed
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
+      chatId: chatId == freezed
+          ? _value.chatId
+          : chatId // ignore: cast_nullable_to_non_nullable
+              as int,
+      messageId: messageId == freezed
+          ? _value.messageId
+          : messageId // ignore: cast_nullable_to_non_nullable
               as int,
     ));
   }
@@ -600,30 +607,39 @@ class _$ChatMessageSeletedEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
-  const _$ChatMessageSeletedEvent({required this.id}) : super._();
+  const _$ChatMessageSeletedEvent(
+      {required this.chatId, required this.messageId})
+      : super._();
 
   factory _$ChatMessageSeletedEvent.fromJson(Map<String, dynamic> json) =>
       _$$ChatMessageSeletedEventFromJson(json);
 
   @override
-  final int id;
+  final int chatId;
+  @override
+  final int messageId;
 
   @override
   String toString() {
-    return 'ChatMessageEvent.deleted(id: $id)';
+    return 'ChatMessageEvent.deleted(chatId: $chatId, messageId: $messageId)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is ChatMessageSeletedEvent &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)));
+            (identical(other.chatId, chatId) ||
+                const DeepCollectionEquality().equals(other.chatId, chatId)) &&
+            (identical(other.messageId, messageId) ||
+                const DeepCollectionEquality()
+                    .equals(other.messageId, messageId)));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(id);
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(chatId) ^
+      const DeepCollectionEquality().hash(messageId);
 
   @JsonKey(ignore: true)
   @override
@@ -635,32 +651,32 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(ChatMessage message) sent,
-    required TResult Function(int id) deleted,
+    required TResult Function(int chatId, int messageId) deleted,
     required TResult Function(ChatMessage message) updated,
   }) {
-    return deleted(id);
+    return deleted(chatId, messageId);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
   }) {
-    return deleted?.call(id);
+    return deleted?.call(chatId, messageId);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
     required TResult orElse(),
   }) {
     if (deleted != null) {
-      return deleted(id);
+      return deleted(chatId, messageId);
     }
     return orElse();
   }
@@ -706,14 +722,16 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
 }
 
 abstract class ChatMessageSeletedEvent extends ChatMessageEvent {
-  const factory ChatMessageSeletedEvent({required int id}) =
-      _$ChatMessageSeletedEvent;
+  const factory ChatMessageSeletedEvent(
+      {required int chatId,
+      required int messageId}) = _$ChatMessageSeletedEvent;
   const ChatMessageSeletedEvent._() : super._();
 
   factory ChatMessageSeletedEvent.fromJson(Map<String, dynamic> json) =
       _$ChatMessageSeletedEvent.fromJson;
 
-  int get id => throw _privateConstructorUsedError;
+  int get chatId => throw _privateConstructorUsedError;
+  int get messageId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $ChatMessageSeletedEventCopyWith<ChatMessageSeletedEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -799,7 +817,7 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(ChatMessage message) sent,
-    required TResult Function(int id) deleted,
+    required TResult Function(int chatId, int messageId) deleted,
     required TResult Function(ChatMessage message) updated,
   }) {
     return updated(message);
@@ -809,7 +827,7 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
   }) {
     return updated?.call(message);
@@ -819,7 +837,7 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(ChatMessage message)? sent,
-    TResult Function(int id)? deleted,
+    TResult Function(int chatId, int messageId)? deleted,
     TResult Function(ChatMessage message)? updated,
     required TResult orElse(),
   }) {

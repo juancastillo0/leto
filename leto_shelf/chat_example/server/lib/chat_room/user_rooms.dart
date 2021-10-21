@@ -50,6 +50,13 @@ class UserChatEvent with _$UserChatEvent implements DBEventDataKeyed {
       ),
     );
   }
+
+  int get chatId {
+    return map(
+      added: (e) => e.chatUser.chatId,
+      removed: (e) => e.chatId,
+    );
+  }
 }
 
 class UserChatsTable {
@@ -141,7 +148,7 @@ FROM tmp_$tableName;''',
     return result.map((e) => ChatRoomUser.fromJson(e)).toList();
   }
 
-  Future<List<ChatRoomUser>?> getForUser(int id) async {
+  Future<List<ChatRoomUser>> getForUser(int id) async {
     final result = await conn.query(
       'select * from chatRoomUser where userId = ?',
       [id],

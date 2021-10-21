@@ -190,6 +190,11 @@ GraphQLObjectType<ChatMessageSentEvent> get chatMessageSentEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       chatMessageEventGraphQlTypeDiscriminant()
     ],
   );
@@ -219,8 +224,18 @@ GraphQLObjectType<ChatMessageSeletedEvent>
   _chatMessageSeletedEventGraphQlType = __chatMessageSeletedEventGraphQlType;
   __chatMessageSeletedEventGraphQlType.fields.addAll(
     [
-      field('id', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.id,
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('messageId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.messageId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
           inputs: [],
           description: null,
           deprecationReason: null),
@@ -257,6 +272,11 @@ GraphQLObjectType<ChatMessageUpdatedInEvent>
     [
       field('message', chatMessageGraphQlType.nonNull(),
           resolve: (obj, ctx) => obj.message,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
           inputs: [],
           description: null,
           deprecationReason: null),
@@ -334,13 +354,15 @@ Map<String, dynamic> _$$ChatMessageSentEventToJson(
 _$ChatMessageSeletedEvent _$$ChatMessageSeletedEventFromJson(
         Map<String, dynamic> json) =>
     _$ChatMessageSeletedEvent(
-      id: json['id'] as int,
+      chatId: json['chatId'] as int,
+      messageId: json['messageId'] as int,
     );
 
 Map<String, dynamic> _$$ChatMessageSeletedEventToJson(
         _$ChatMessageSeletedEvent instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'chatId': instance.chatId,
+      'messageId': instance.messageId,
     };
 
 _$ChatMessageUpdatedInEvent _$$ChatMessageUpdatedInEventFromJson(

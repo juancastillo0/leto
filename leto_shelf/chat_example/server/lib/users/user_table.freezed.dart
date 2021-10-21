@@ -52,8 +52,10 @@ class _$UserEventTearOff {
     );
   }
 
-  UserSignedOutEvent signedOut({required String sessionId}) {
+  UserSignedOutEvent signedOut(
+      {required int userId, required String sessionId}) {
     return UserSignedOutEvent(
+      userId: userId,
       sessionId: sessionId,
     );
   }
@@ -73,7 +75,7 @@ mixin _$UserEvent {
     required TResult Function(User user) created,
     required TResult Function(UserSession session) signedUp,
     required TResult Function(UserSession session) signedIn,
-    required TResult Function(String sessionId) signedOut,
+    required TResult Function(int userId, String sessionId) signedOut,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -81,7 +83,7 @@ mixin _$UserEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -89,7 +91,7 @@ mixin _$UserEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -206,7 +208,7 @@ class _$UserCreatedEvent extends UserCreatedEvent {
     required TResult Function(User user) created,
     required TResult Function(UserSession session) signedUp,
     required TResult Function(UserSession session) signedIn,
-    required TResult Function(String sessionId) signedOut,
+    required TResult Function(int userId, String sessionId) signedOut,
   }) {
     return created(user);
   }
@@ -217,7 +219,7 @@ class _$UserCreatedEvent extends UserCreatedEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
   }) {
     return created?.call(user);
   }
@@ -228,7 +230,7 @@ class _$UserCreatedEvent extends UserCreatedEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
     required TResult orElse(),
   }) {
     if (created != null) {
@@ -364,7 +366,7 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
     required TResult Function(User user) created,
     required TResult Function(UserSession session) signedUp,
     required TResult Function(UserSession session) signedIn,
-    required TResult Function(String sessionId) signedOut,
+    required TResult Function(int userId, String sessionId) signedOut,
   }) {
     return signedUp(session);
   }
@@ -375,7 +377,7 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
   }) {
     return signedUp?.call(session);
   }
@@ -386,7 +388,7 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
     required TResult orElse(),
   }) {
     if (signedUp != null) {
@@ -523,7 +525,7 @@ class _$UserSignedInEvent extends UserSignedInEvent {
     required TResult Function(User user) created,
     required TResult Function(UserSession session) signedUp,
     required TResult Function(UserSession session) signedIn,
-    required TResult Function(String sessionId) signedOut,
+    required TResult Function(int userId, String sessionId) signedOut,
   }) {
     return signedIn(session);
   }
@@ -534,7 +536,7 @@ class _$UserSignedInEvent extends UserSignedInEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
   }) {
     return signedIn?.call(session);
   }
@@ -545,7 +547,7 @@ class _$UserSignedInEvent extends UserSignedInEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
     required TResult orElse(),
   }) {
     if (signedIn != null) {
@@ -616,7 +618,7 @@ abstract class $UserSignedOutEventCopyWith<$Res> {
   factory $UserSignedOutEventCopyWith(
           UserSignedOutEvent value, $Res Function(UserSignedOutEvent) then) =
       _$UserSignedOutEventCopyWithImpl<$Res>;
-  $Res call({String sessionId});
+  $Res call({int userId, String sessionId});
 }
 
 /// @nodoc
@@ -632,9 +634,14 @@ class _$UserSignedOutEventCopyWithImpl<$Res>
 
   @override
   $Res call({
+    Object? userId = freezed,
     Object? sessionId = freezed,
   }) {
     return _then(UserSignedOutEvent(
+      userId: userId == freezed
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as int,
       sessionId: sessionId == freezed
           ? _value.sessionId
           : sessionId // ignore: cast_nullable_to_non_nullable
@@ -646,23 +653,28 @@ class _$UserSignedOutEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedOutEvent extends UserSignedOutEvent {
-  const _$UserSignedOutEvent({required this.sessionId}) : super._();
+  const _$UserSignedOutEvent({required this.userId, required this.sessionId})
+      : super._();
 
   factory _$UserSignedOutEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserSignedOutEventFromJson(json);
 
   @override
+  final int userId;
+  @override
   final String sessionId;
 
   @override
   String toString() {
-    return 'UserEvent.signedOut(sessionId: $sessionId)';
+    return 'UserEvent.signedOut(userId: $userId, sessionId: $sessionId)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is UserSignedOutEvent &&
+            (identical(other.userId, userId) ||
+                const DeepCollectionEquality().equals(other.userId, userId)) &&
             (identical(other.sessionId, sessionId) ||
                 const DeepCollectionEquality()
                     .equals(other.sessionId, sessionId)));
@@ -670,7 +682,9 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(sessionId);
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(userId) ^
+      const DeepCollectionEquality().hash(sessionId);
 
   @JsonKey(ignore: true)
   @override
@@ -683,9 +697,9 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
     required TResult Function(User user) created,
     required TResult Function(UserSession session) signedUp,
     required TResult Function(UserSession session) signedIn,
-    required TResult Function(String sessionId) signedOut,
+    required TResult Function(int userId, String sessionId) signedOut,
   }) {
-    return signedOut(sessionId);
+    return signedOut(userId, sessionId);
   }
 
   @override
@@ -694,9 +708,9 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
   }) {
-    return signedOut?.call(sessionId);
+    return signedOut?.call(userId, sessionId);
   }
 
   @override
@@ -705,11 +719,11 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
     TResult Function(User user)? created,
     TResult Function(UserSession session)? signedUp,
     TResult Function(UserSession session)? signedIn,
-    TResult Function(String sessionId)? signedOut,
+    TResult Function(int userId, String sessionId)? signedOut,
     required TResult orElse(),
   }) {
     if (signedOut != null) {
-      return signedOut(sessionId);
+      return signedOut(userId, sessionId);
     }
     return orElse();
   }
@@ -758,13 +772,14 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
 }
 
 abstract class UserSignedOutEvent extends UserEvent {
-  const factory UserSignedOutEvent({required String sessionId}) =
-      _$UserSignedOutEvent;
+  const factory UserSignedOutEvent(
+      {required int userId, required String sessionId}) = _$UserSignedOutEvent;
   const UserSignedOutEvent._() : super._();
 
   factory UserSignedOutEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedOutEvent.fromJson;
 
+  int get userId => throw _privateConstructorUsedError;
   String get sessionId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $UserSignedOutEventCopyWith<UserSignedOutEvent> get copyWith =>

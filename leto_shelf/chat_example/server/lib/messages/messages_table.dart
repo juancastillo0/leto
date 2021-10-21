@@ -49,7 +49,8 @@ class ChatMessageEvent with _$ChatMessageEvent implements DBEventDataKeyed {
   }) = ChatMessageSentEvent;
 
   const factory ChatMessageEvent.deleted({
-    required int id,
+    required int chatId,
+    required int messageId,
   }) = ChatMessageSeletedEvent;
 
   const factory ChatMessageEvent.updated({
@@ -63,9 +64,19 @@ class ChatMessageEvent with _$ChatMessageEvent implements DBEventDataKeyed {
   @GraphQLField(omit: true)
   MapEntry<EventType, String> get eventKey {
     return map(
-      sent: (e) => MapEntry(EventType.messageSent, '${e.message.id}'),
-      deleted: (e) => MapEntry(EventType.messageDeleted, '${e.id}'),
-      updated: (e) => MapEntry(EventType.messageUpdated, '${e.message.id}'),
+      sent: (e) => MapEntry(EventType.messageSent, '$chatId/${e.message.id}'),
+      deleted: (e) =>
+          MapEntry(EventType.messageDeleted, '$chatId/${e.messageId}'),
+      updated: (e) =>
+          MapEntry(EventType.messageUpdated, '$chatId/${e.message.id}'),
+    );
+  }
+
+  int get chatId {
+    return map(
+      sent: (e) => e.message.chatId,
+      deleted: (e) => e.chatId,
+      updated: (e) => e.message.chatId,
     );
   }
 }

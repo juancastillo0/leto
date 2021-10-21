@@ -90,6 +90,11 @@ GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       userChatEventGraphQlTypeDiscriminant()
     ],
   );
@@ -125,6 +130,11 @@ GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQlType {
           deprecationReason: null),
       field('userId', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('chatId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.chatId,
           inputs: [],
           description: null,
           deprecationReason: null),

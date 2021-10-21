@@ -133,6 +133,11 @@ GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       userEventGraphQlTypeDiscriminant()
     ],
   );
@@ -163,6 +168,11 @@ GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQlType {
     [
       field('session', userSessionGraphQlType.nonNull(),
           resolve: (obj, ctx) => obj.session,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
           inputs: [],
           description: null,
           deprecationReason: null),
@@ -199,6 +209,11 @@ GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       userEventGraphQlTypeDiscriminant()
     ],
   );
@@ -227,8 +242,18 @@ GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQlType {
   _userSignedOutEventGraphQlType = __userSignedOutEventGraphQlType;
   __userSignedOutEventGraphQlType.fields.addAll(
     [
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('sessionId', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.sessionId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
           inputs: [],
           description: null,
           deprecationReason: null),
@@ -567,11 +592,13 @@ Map<String, dynamic> _$$UserSignedInEventToJson(_$UserSignedInEvent instance) =>
 
 _$UserSignedOutEvent _$$UserSignedOutEventFromJson(Map<String, dynamic> json) =>
     _$UserSignedOutEvent(
+      userId: json['userId'] as int,
       sessionId: json['sessionId'] as String,
     );
 
 Map<String, dynamic> _$$UserSignedOutEventToJson(
         _$UserSignedOutEvent instance) =>
     <String, dynamic>{
+      'userId': instance.userId,
       'sessionId': instance.sessionId,
     };

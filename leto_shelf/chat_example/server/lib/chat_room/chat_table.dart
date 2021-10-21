@@ -51,8 +51,15 @@ class ChatEvent with _$ChatEvent implements DBEventDataKeyed {
   @GraphQLField(omit: true)
   MapEntry<EventType, String> get eventKey {
     return map(
-      created: (e) => MapEntry(EventType.chatCreated, '${e.chat.id}'),
-      deleted: (e) => MapEntry(EventType.chatDeleted, '${e.chatId}'),
+      created: (e) => MapEntry(EventType.chatCreated, '$chatId'),
+      deleted: (e) => MapEntry(EventType.chatDeleted, '$chatId'),
+    );
+  }
+
+  int get chatId {
+    return map(
+      created: (e) => e.chat.id,
+      deleted: (e) => e.chatId,
     );
   }
 }

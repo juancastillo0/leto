@@ -57,6 +57,7 @@ class UserEvent with _$UserEvent implements DBEventDataKeyed {
   }) = UserSignedInEvent;
 
   const factory UserEvent.signedOut({
+    required int userId,
     required String sessionId,
   }) = UserSignedOutEvent;
 
@@ -68,11 +69,27 @@ class UserEvent with _$UserEvent implements DBEventDataKeyed {
   MapEntry<EventType, String> get eventKey {
     return map(
       created: (e) => MapEntry(EventType.userCreated, '${e.user.id}'),
-      signedUp: (e) => MapEntry(EventType.userSessionSignedUp, e.session.id),
-      signedIn: (e) => MapEntry(EventType.userSessionSignedIn, e.session.id),
-      signedOut: (e) => MapEntry(EventType.userSessionSignedOut, e.sessionId),
+      signedUp: (e) => MapEntry(
+        EventType.userSessionSignedUp,
+        '${e.session.userId}/${e.session.id}',
+      ),
+      signedIn: (e) => MapEntry(
+        EventType.userSessionSignedIn,
+        '${e.session.userId}/${e.session.id}',
+      ),
+      signedOut: (e) => MapEntry(
+        EventType.userSessionSignedOut,
+        '${e.userId}/${e.sessionId}',
+      ),
     );
   }
+
+  int get userId => map(
+        created: (e) => e.user.id,
+        signedUp: (e) => e.session.userId,
+        signedIn: (e) => e.session.userId,
+        signedOut: (e) => e.userId,
+      );
 }
 
 class UserTable {
