@@ -43,8 +43,8 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     'dart.vm.product',
     defaultValue: false,
   );
-  if (!kReleaseMode &&
-      schema.queryType!.fields.every((f) => f.name != 'testSqlRawQuery')) {
+  if (!kReleaseMode) {
+    schema.queryType!.fields.removeWhere((f) => f.name != 'testSqlRawQuery');
     schema.queryType!.fields.add(
       graphQLString.field(
         'testSqlRawQuery',
@@ -106,9 +106,9 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     graphqlWebSocket(
       graphQL,
       globalVariables: globalVariables,
-      validateIncomingConnection: (map) {
+      validateIncomingConnection: (map, server) {
         if (map != null) {
-          setWebSocketAuth(map, globalVariables);
+          setWebSocketAuth(map, globalVariables, server);
         }
         return true;
       },

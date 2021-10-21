@@ -48,6 +48,7 @@ final graphqlApiSchema = GraphQLSchema(
   subscriptionType: objectType(
     'Subscription',
     fields: [
+      onEventGraphQLField,
       onMessageEventGraphQLField,
       onMessageSentGraphQLField,
     ],
