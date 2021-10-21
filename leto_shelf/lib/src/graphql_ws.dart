@@ -27,7 +27,10 @@ Handler graphqlWebSocket(
   Duration? pingInterval,
   Duration? connectionInitWaitTimeout,
   ScopedMap? globalVariables,
-  FutureOr<bool> Function(Map<String, Object?>? payload)?
+  FutureOr<bool> Function(
+    Map<String, Object?>? payload,
+    GraphQLWebSocketServer server,
+  )?
       validateIncomingConnection,
 }) {
   return (request) {
@@ -38,12 +41,16 @@ Handler graphqlWebSocket(
           channel.sink.close,
           channel.protocol ?? 'graphql-ws',
         );
+        final _requestVariables = ScopedMap(
+          {requestCtxKey: request},
+          globalVariables,
+        );
         final server = GraphQLWebSocketServer(
           client,
           graphQL,
           request,
           validateIncomingConnection: validateIncomingConnection,
-          globalVariables: globalVariables,
+          globalVariables: _requestVariables,
           keepAliveInterval: keepAliveInterval,
           connectionInitWaitTimeout: connectionInitWaitTimeout,
         );
@@ -60,16 +67,18 @@ Handler graphqlWebSocket(
 class GraphQLWebSocketServer extends stw.Server {
   final GraphQL graphQL;
   final Request request;
-  final ScopedMap? globalVariables;
-  final FutureOr<bool> Function(Map<String, Object?>? payload)?
-      validateIncomingConnection;
+  final ScopedMap globalVariables;
+  final FutureOr<bool> Function(
+    Map<String, Object?>? payload,
+    GraphQLWebSocketServer server,
+  )? validateIncomingConnection;
 
   GraphQLWebSocketServer(
     stw.RemoteClient client,
     this.graphQL,
     this.request, {
     this.validateIncomingConnection,
-    this.globalVariables,
+    required this.globalVariables,
     Duration? keepAliveInterval,
     Duration? connectionInitWaitTimeout,
   }) : super(
@@ -84,7 +93,7 @@ class GraphQLWebSocketServer extends stw.Server {
     Map<String, Object?>? connectionParams,
   ]) {
     if (validateIncomingConnection != null) {
-      return validateIncomingConnection!(connectionParams);
+      return validateIncomingConnection!(connectionParams, this);
     }
     return true;
   }
@@ -97,10 +106,7 @@ class GraphQLWebSocketServer extends stw.Server {
     String? operationName,
     Map<String, Object?>? extensions,
   ]) async {
-    final _nested = <Object, Object?>{requestCtxKey: request};
-    final _globalVariables = globalVariables != null
-        ? globalVariables!.child(_nested)
-        : ScopedMap(_nested);
+    final _globalVariables = globalVariables.child();
     return graphQL.parseAndExecute(
       query,
       operationName: operationName,

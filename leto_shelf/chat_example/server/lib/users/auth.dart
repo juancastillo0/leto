@@ -11,6 +11,10 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
 final webSocketAuthClaimsRef = GlobalRef('webSocketAuthClaimsRef');
+final webSocketSessionsRef = RefWithDefault.scoped(
+  'webSocketSessionsRef',
+  (h) => <String, Set<GraphQLWebSocketServer>>{},
+);
 
 String? getAuthToken(ReqCtx ctx) {
   return getCookie(ctx.request, AUTH_COOKIE_KEY) ??
@@ -27,6 +31,7 @@ void setAuthCookie(ReqCtx ctx, String token, int maxAgeSecs) {
 Future<void> setWebSocketAuth(
   Map<String, Object?> map,
   GlobalsHolder holder,
+  GraphQLWebSocketServer server,
 ) async {
   final refreshToken = map['refreshToken'];
   if (refreshToken is String) {
@@ -35,10 +40,25 @@ Future<void> setWebSocketAuth(
       isRefreshToken: true,
     );
     if (claims != null) {
-      holder.globals.setScoped(
+      server.globalVariables.setScoped(
         webSocketAuthClaimsRef,
         claims,
       );
+      final set = webSocketSessionsRef.get(holder).putIfAbsent(
+            claims.sessionId,
+            () => {},
+          );
+      set.add(server);
+
+      void _onDone(Object? _) {
+        set.remove(server);
+        if (set.isEmpty) {
+          webSocketSessionsRef.get(holder).remove(claims.sessionId);
+        }
+      }
+
+      // ignore: unawaited_futures
+      server.done.then(_onDone).catchError(_onDone);
     }
   }
 }
