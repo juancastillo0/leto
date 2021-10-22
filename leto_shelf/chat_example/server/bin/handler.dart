@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
+import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart' show setWebSocketAuth;
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
@@ -44,7 +45,7 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     defaultValue: false,
   );
   if (!kReleaseMode) {
-    schema.queryType!.fields.removeWhere((f) => f.name != 'testSqlRawQuery');
+    schema.queryType!.fields.removeWhere((f) => f.name == 'testSqlRawQuery');
     schema.queryType!.fields.add(
       graphQLString.field(
         'testSqlRawQuery',
@@ -80,10 +81,12 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     introspect: true,
     extensionList: config?.extensionList ??
         [
-          if (Platform.environment['TRACING'] == 'true')
-            GraphQLTracingExtension(),
+          if (const bool.fromEnvironment('TRACING')) GraphQLTracingExtension(),
           GraphQLPersistedQueries(),
           CacheExtension(cache: LruCacheSimple(50)),
+          LoggingExtension((log) {
+            print(log.message);
+          }),
         ],
   );
   await userTableRef.get(globalVariables).setup();

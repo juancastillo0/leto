@@ -2,7 +2,7 @@ import 'package:shelf_plus/shelf_plus.dart';
 
 import 'handler.dart';
 
-void main(List<String> args) async {
+Future<void> main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   // final ip = InternetAddress.anyIPv4;
 
