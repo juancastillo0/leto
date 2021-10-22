@@ -10,7 +10,10 @@ class HttpAuthLink extends Link {
   final Future<void> Function() refreshAuthToken;
 
   HttpAuthLink(this.getToken, this.refreshAuthToken) {
-    _errorLink = ErrorLink(onException: handleException);
+    _errorLink = ErrorLink(
+      onException: handleException,
+      onGraphQLError: onGraphQLError,
+    );
   }
 
   late final ErrorLink _errorLink;
@@ -19,18 +22,32 @@ class HttpAuthLink extends Link {
     await refreshAuthToken();
   }
 
+  Stream<Response>? onGraphQLError(
+    Request request,
+    Stream<Response> Function(Request) forward,
+    Response response,
+  ) async* {
+    final isUnauthenticated = response.errors!.any(
+      (err) => err.message == 'Unauthenticated',
+    );
+    if (isUnauthenticated) {
+      await updateToken();
+      yield* forward(request);
+      return;
+    }
+
+    yield response;
+  }
+
   Stream<Response> handleException(
     Request request,
     NextLink forward,
     LinkException exception,
   ) async* {
     if (exception is HttpLinkServerException &&
-        exception.response.statusCode == 401 &&
-        exception.response.body == 'JWT') {
+        exception.response.statusCode == 401) {
       await updateToken();
-
       yield* forward(request);
-
       return;
     }
 
@@ -40,6 +57,7 @@ class HttpAuthLink extends Link {
   Request transformRequest(Request request) {
     final _token = getToken();
     if (_token != null) {
+      // RequestExtensionsThunk
       return request.updateContextEntry<HttpLinkHeaders>(
         (headers) => HttpLinkHeaders(
           headers: <String, String>{
