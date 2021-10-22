@@ -10,8 +10,8 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
-final webSocketAuthClaimsRef = GlobalRef('webSocketAuthClaimsRef');
-final webSocketSessionsRef = RefWithDefault.scoped(
+final _webSocketAuthClaimsRef = GlobalRef('webSocketAuthClaimsRef');
+final _webSocketSessionsRef = RefWithDefault.scoped(
   'webSocketSessionsRef',
   (h) => <String, Set<GraphQLWebSocketServer>>{},
 );
@@ -41,10 +41,10 @@ Future<void> setWebSocketAuth(
     );
     if (claims != null) {
       server.globalVariables.setScoped(
-        webSocketAuthClaimsRef,
+        _webSocketAuthClaimsRef,
         claims,
       );
-      final set = webSocketSessionsRef.get(holder).putIfAbsent(
+      final set = _webSocketSessionsRef.get(holder).putIfAbsent(
             claims.sessionId,
             () => {},
           );
@@ -53,7 +53,7 @@ Future<void> setWebSocketAuth(
       void _onDone(Object? _) {
         set.remove(server);
         if (set.isEmpty) {
-          webSocketSessionsRef.get(holder).remove(claims.sessionId);
+          _webSocketSessionsRef.get(holder).remove(claims.sessionId);
         }
       }
 
@@ -95,7 +95,7 @@ Future<UserClaims?> getUserClaims(
   bool isRefreshToken = false,
 }) async {
   final webSocketClaims =
-      ctx.globals.get(webSocketAuthClaimsRef) as UserClaims?;
+      ctx.globals.get(_webSocketAuthClaimsRef) as UserClaims?;
   if (webSocketClaims != null) {
     return webSocketClaims;
   }
@@ -138,10 +138,10 @@ String createAuthToken({
   required Duration duration,
   required bool isRefresh,
 }) {
-  final issuedAt = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-  final expiresAt = issuedAt + duration.inSeconds;
+  final int issuedAt = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  final int expiresAt = issuedAt + duration.inSeconds;
 
-  return createJwt({
+  return _createJwt({
     'exp': expiresAt,
     'iat': issuedAt,
     'iss': 'shelf-graphql-chat',
@@ -157,10 +157,10 @@ const _JWT_KEY = <String, String>{
   'k': 'AyM1SysPp75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow'
 };
 
-final keyStore = JsonWebKeyStore()..addKey(JsonWebKey.fromJson(_JWT_KEY));
+final _keyStore = JsonWebKeyStore()..addKey(JsonWebKey.fromJson(_JWT_KEY));
 
 Future<JsonWebToken> parseJwt(String encoded) async {
-  final jwt = await JsonWebToken.decodeAndVerify(encoded, keyStore);
+  final jwt = await JsonWebToken.decodeAndVerify(encoded, _keyStore);
 
   // validate the claims
   // final violations = jwt.claims.validate(issuer: Uri.parse("alice"));
@@ -168,7 +168,7 @@ Future<JsonWebToken> parseJwt(String encoded) async {
   return jwt;
 }
 
-String createJwt(Map<String, Object?> claimsMap) {
+String _createJwt(Map<String, Object?> claimsMap) {
   final claims = JsonWebTokenClaims.fromJson(claimsMap);
 
   // create a builder, decoding the JWT in a JWS, so using a
@@ -226,7 +226,6 @@ String hashFromPassword(String password, {Argon2Parameters? params}) {
       '\$m=${_params.memory},t=${_params.iterations},p=${_params.lanes}'
       '\$${base64.encode(_params.salt).replaceAll('=', '')}'
       '\$${base64.encode(result).replaceAll('=', '')}';
-  print(encoded);
   return encoded;
 }
 
@@ -257,8 +256,7 @@ bool verifyPasswordFromHash(String password, String realHash) {
     final hash = hashFromPassword(password, params: parameters);
 
     return hash == realHash;
-  } catch (e) {
-    print(e);
+  } catch (_) {
     return false;
   }
 }
