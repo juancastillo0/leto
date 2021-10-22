@@ -34,8 +34,9 @@ class _ChatsPageState extends State<ChatsPage> {
           Container(
             width: 250,
             padding: const EdgeInsets.only(
-              left: 12,
-              right: 12,
+              top: 8,
+              left: 8,
+              right: 8,
               bottom: 12,
             ),
             child: Column(
@@ -73,6 +74,10 @@ class _ChatsPageState extends State<ChatsPage> {
                 )
               ],
             ),
+          ),
+          Container(
+            width: 1,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
           ),
           Expanded(
             child: HookConsumer(
@@ -154,14 +159,11 @@ class _ChatsPageState extends State<ChatsPage> {
                         ),
                       ),
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: showInfo.value
-                                ? ChatRoomUsers(room: chat)
-                                : const MessageList(),
-                          ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: showInfo.value
+                              ? ChatRoomUsers(room: chat)
+                              : const MessageList(),
                         ),
                       ),
                     ],

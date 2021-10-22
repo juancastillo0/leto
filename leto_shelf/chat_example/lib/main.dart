@@ -24,6 +24,17 @@ class MyApp extends StatelessWidget {
       title: 'GraphQL Chat Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+          isDense: true,
+          contentPadding: const EdgeInsets.only(
+            top: 13,
+            bottom: 12,
+            left: 6,
+            right: 6,
+          ),
+          labelStyle: TextStyle(height: 0.5),
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: Consumer(builder: (context, ref, _) {

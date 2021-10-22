@@ -1,7 +1,6 @@
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/api/messages.data.gql.dart';
 import 'package:chat_example/api/messages.req.gql.dart';
-import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/messages/messages_store.dart';
 import 'package:chat_example/utils/custom_error_widget.dart';
 import 'package:flutter/material.dart';
@@ -22,20 +21,26 @@ class MessageItem extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: FractionallySizedBox(
         widthFactor: 0.8,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            color: Theme.of(context).primaryColor,
-          ),
-          padding: const EdgeInsetsDirectional.all(6),
-          child: Column(
-            children: [
-              Text(message.message),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(message.createdAt.value),
-              )
-            ],
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              color: Theme.of(context).primaryColor,
+            ),
+            padding: const EdgeInsetsDirectional.all(8),
+            margin: const EdgeInsetsDirectional.all(3),
+            child: Column(
+              children: [
+                Text(message.message),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(message.createdAt.value),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -50,6 +55,7 @@ class MessageList extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return HookConsumer(
       builder: (context, ref, _) {
+        ref.read(messageStoreProvider);
         final chat = ref.watch(selectedChat).asData?.value;
         final messages = ref.watch(selectedChatMessages);
         if (chat == null) {
@@ -86,67 +92,61 @@ class MessageList extends HookConsumerWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
+                    primary: false,
+                    reverse: true,
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      final GFullMessage message = messages[index];
-                      return MessageItem(message: message);
+                      final GFullMessage message =
+                          messages[messages.length - index - 1];
+                      return MessageItem(
+                        message: message,
+                        key: ValueKey(message.id),
+                      );
                     },
                   ),
                 ),
-                HookConsumer(
-                  builder: (context, ref, _) {
-                    final textController = useTextEditingController();
-                    final focusNode = useFocusNode();
-                    useEffect(() {
-                      focusNode.requestFocus();
-                    });
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            focusNode: focusNode,
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 8.0,
+                    left: 4,
+                    right: 4,
+                    top: 4,
+                  ),
+                  child: HookConsumer(
+                    builder: (context, ref, _) {
+                      final textController = useTextEditingController();
+                      final focusNode = useFocusNode();
+                      useEffect(() {
+                        focusNode.requestFocus();
+                      });
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: textController,
+                              focusNode: focusNode,
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          splashRadius: 24,
-                          tooltip: 'Attach',
-                          onPressed: () {},
-                          icon: const Icon(Icons.attach_file),
-                        ),
-                        IconButton(
-                          splashRadius: 24,
-                          tooltip: 'Send',
-                          onPressed: () {
-                            final user = ref.read(authStoreProv).user!;
-                            final message = textController.text;
-                            final optimisticResponse =
-                                (GsendMessageData_sendMessageBuilder()
-                                  ..chatId = chat.id
-                                  ..message = message
-                                  ..userId = user.id
-                                  ..createdAt.value =
-                                      DateTime.now().toIso8601String()
-                                  ..id = -1);
-                            ref
-                                .read(clientProvider)
-                                .request(
-                                  GsendMessageReq(
-                                    (b) => b
-                                      ..vars.chatId = chat.id
-                                      ..vars.message = message
-                                      ..updateResult
-                                      ..optimisticResponse.sendMessage =
-                                          optimisticResponse,
-                                  ),
-                                )
-                                .listen((event) {});
-                          },
-                          icon: const Icon(Icons.send),
-                        ),
-                      ],
-                    );
-                  },
+                          IconButton(
+                            splashRadius: 24,
+                            tooltip: 'Attach',
+                            onPressed: () {},
+                            icon: const Icon(Icons.attach_file),
+                          ),
+                          IconButton(
+                            splashRadius: 24,
+                            tooltip: 'Send',
+                            onPressed: () {
+                              ref
+                                  .read(messageStoreProvider)
+                                  .sendMessage(textController.text, chat.id);
+                            },
+                            icon: const Icon(Icons.send),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 )
               ],
             );
