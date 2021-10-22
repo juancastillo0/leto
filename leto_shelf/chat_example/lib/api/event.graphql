@@ -1,0 +1,109 @@
+# import './messages.graphql'
+# import './user.graphql'
+# import './room.graphql'
+
+subscription onEvent {
+  onEvent {
+    ...BaseEvent
+  }
+}
+
+fragment BaseEvent on DBEvent {
+  id
+  type
+  createdAt
+  data {
+    ... on ChatDBEventData {
+      ...BaseChatDBEventData
+    }
+    ... on ChatMessageDBEventData {
+      ...BaseChatMessageDBEventData
+    }
+    ... on UserChatDBEventData {
+      ...BaseUserChatDBEventData
+    }
+    ... on UserDBEventData {
+      ...BaseUserDBEventData
+    }
+  }
+}
+
+# TODO: Stack Overflow in codegen
+# fragment BaseEventData on DBEventData {
+#   ... on ChatDBEventData {
+#     ...BaseChatDBEventData
+#   }
+#   ... on ChatMessageDBEventData {
+#     ...BaseChatMessageDBEventData
+#   }
+#   ... on UserChatDBEventData {
+#     ...BaseUserChatDBEventData
+#   }
+#   ... on UserDBEventData {
+#     ...BaseUserDBEventData
+#   }
+# }
+
+fragment BaseChatDBEventData on ChatDBEventData {
+  value {
+    ... on ChatCreatedEvent {
+      ownerId
+      chat {
+        ...BaseChatRoom
+      }
+    }
+    ... on ChatDeletedEvent {
+      chatId
+    }
+  }
+}
+
+fragment BaseChatMessageDBEventData on ChatMessageDBEventData {
+  value {
+    ... on ChatMessageSentEvent {
+      message {
+        ...FullMessage
+      }
+    }
+    ... on ChatMessageDeletedEvent {
+      messageId
+      chatId
+    }
+    ... on ChatMessageUpdatedEvent {
+      message {
+        ...FullMessage
+      }
+    }
+  }
+}
+
+fragment BaseUserChatDBEventData on UserChatDBEventData {
+  value {
+    ... on UserChatAddedEvent {
+      chatUser {
+        userId
+        chatId
+        role
+      }
+    }
+    ... on UserChatRemovedEvent {
+      userId
+      chatId
+    }
+  }
+}
+
+fragment BaseUserDBEventData on UserDBEventData {
+  value {
+    ... on UserSignedInEvent {
+      userId
+      session {
+        ...FSession
+      }
+    }
+    ... on UserSignedOutEvent {
+      userId
+      sessionId
+    }
+  }
+}

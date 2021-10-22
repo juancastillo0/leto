@@ -43,3 +43,14 @@ fragment STokenWithUser on TokenWithUser {
     ...AUser
   }
 }
+
+fragment FSession on UserSession {
+  id
+  userId
+  userAgent
+  platform
+  appVersion
+  isActive
+  endedAt
+  createdAt
+}

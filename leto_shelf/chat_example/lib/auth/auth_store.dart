@@ -37,14 +37,15 @@ final authStoreProv = Provider<AuthStore>((ref) {
   );
 });
 
+final userIdProvider = Provider((ref) => ref.watch(authStoreProv).user?.id);
+
 class AuthStore extends StateNotifier<GSTokenWithUserData?> {
   final T Function<T>(ProviderBase<T> provider) _read;
   AuthStore(this._read, [GSTokenWithUserData? state]) : super(state) {
     this.addListener((state) {
       print('AuthStore state $state');
-      if (state != null) {
-        _read(authStorageProv).set(state);
-      } else {
+      _read(authStorageProv).set(state);
+      if (state == null) {
         _read(clientProvider).cache.clear();
       }
     });
