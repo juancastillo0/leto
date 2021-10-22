@@ -26,6 +26,18 @@ final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
   deprecationReason: null,
 );
 
+final GraphQLObjectField<User, Object, Object> getUserGraphQLField = field(
+  'getUser',
+  userGraphQlType as GraphQLType<User, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getUser(ctx);
+  },
+  deprecationReason: null,
+);
+
 final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
     field(
   'refreshAuthToken',
@@ -252,11 +264,6 @@ GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
       userEventGraphQlTypeDiscriminant()
     ],
   );
@@ -340,6 +347,11 @@ GraphQLObjectType<UserSession> get userSessionGraphQlType {
           deprecationReason: null),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('endedAt', graphQLDate,
+          resolve: (obj, ctx) => obj.endedAt,
           inputs: [],
           description: null,
           deprecationReason: null)
@@ -499,6 +511,9 @@ UserSession _$UserSessionFromJson(Map<String, dynamic> json) => UserSession(
       userAgent: json['userAgent'] as String?,
       platform: json['platform'] as String?,
       appVersion: json['appVersion'] as String?,
+      endedAt: json['endedAt'] == null
+          ? null
+          : DateTime.parse(json['endedAt'] as String),
     );
 
 Map<String, dynamic> _$UserSessionToJson(UserSession instance) =>
@@ -510,6 +525,7 @@ Map<String, dynamic> _$UserSessionToJson(UserSession instance) =>
       'appVersion': instance.appVersion,
       'isActive': instance.isActive,
       'createdAt': instance.createdAt.toIso8601String(),
+      'endedAt': instance.endedAt?.toIso8601String(),
     };
 
 User _$UserFromJson(Map<String, dynamic> json) => User(

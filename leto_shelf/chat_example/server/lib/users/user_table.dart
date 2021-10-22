@@ -210,7 +210,8 @@ CREATE TABLE $tableName (
   platform TEXT NULL,
   userAgent TEXT NULL,
   appVersion TEXT NULL,
-  createdAt DATE NOT NULL DEFAULT CURRENT_DATE,
+  endedAt TIMESTAMP NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (userId) REFERENCES user (id)
 );''',
@@ -255,7 +256,8 @@ CREATE TABLE $tableName (
 
   Future<bool> deactivate(String id) async {
     final result = await conn.query(
-      'update userSession set isActive = false where id = ?',
+      'update userSession set isActive = false'
+      ' and endedAt = CURRENT_TIMESTAMP where id = ?',
       [id],
     );
     return (result.affectedRows ?? 0) >= 1;
@@ -272,6 +274,7 @@ class UserSession {
   final String? appVersion;
   final bool isActive;
   final DateTime createdAt;
+  final DateTime? endedAt;
 
   UserSession({
     required this.id,
@@ -281,6 +284,7 @@ class UserSession {
     this.userAgent,
     this.platform,
     this.appVersion,
+    this.endedAt,
   });
 
   factory UserSession.create(int userId, Request request) {
@@ -348,6 +352,12 @@ class TokenWithUser {
   Map<String, Object?> toJson() => _$TokenWithUserToJson(this);
   factory TokenWithUser.fromJson(Map<String, Object?> json) =>
       _$TokenWithUserFromJson(json);
+}
+
+@Query()
+Future<User?> getUser(ReqCtx ctx) async {
+  final claims = await getUserClaimsUnwrap(ctx);
+  return userTableRef.get(ctx).get(claims.userId);
 }
 
 @Mutation()
