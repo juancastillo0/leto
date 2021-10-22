@@ -1,7 +1,6 @@
 // ignore_for_file: leading_newlines_in_multiline_strings
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/database/models/connection_models.dart';
@@ -51,11 +50,11 @@ class ChatMessageEvent with _$ChatMessageEvent implements DBEventDataKeyed {
   const factory ChatMessageEvent.deleted({
     required int chatId,
     required int messageId,
-  }) = ChatMessageSeletedEvent;
+  }) = ChatMessageDeletedEvent;
 
   const factory ChatMessageEvent.updated({
     required ChatMessage message,
-  }) = ChatMessageUpdatedInEvent;
+  }) = ChatMessageUpdatedEvent;
 
   factory ChatMessageEvent.fromJson(Map<String, Object?> map) =>
       _$ChatMessageEventFromJson(map);
@@ -117,13 +116,13 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
   Future<ChatMessage?> insert(
     int chatId,
     String message, {
-    required int userId,
+    required UserClaims user,
     int? referencedMessageId,
   }) async {
     ChatMessage? messageModel;
     await db.transaction((db) async {
       final chatUser = await UserChatsTable(db).get(
-        userId: userId,
+        userId: user.userId,
         chatId: chatId,
       );
       if (chatUser == null) {
@@ -151,7 +150,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
           chatId,
           message,
           referencedMessageId,
-          userId,
+          user.userId,
           createdAt.toIso8601String()
         ],
       );
@@ -159,12 +158,13 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
         chatId: chatId,
         createdAt: createdAt,
         id: insertResult.insertId!,
-        userId: userId,
+        userId: user.userId,
         message: message,
         referencedMessageId: referencedMessageId,
       );
       await EventTable(db).insert(
         DBEventData.message(ChatMessageEvent.sent(message: _messageModel)),
+        user,
       );
 
       messageModel = _messageModel;
@@ -256,7 +256,7 @@ Future<ChatMessage?> sendMessage(
     chatId,
     message,
     referencedMessageId: referencedMessageId,
-    userId: userClaims.userId,
+    user: userClaims,
   );
 }
 
@@ -274,7 +274,7 @@ Future<ChatMessage?> sendFileMessage(
     // TODO:
     'message',
     referencedMessageId: referencedMessageId,
-    userId: userClaims.userId,
+    user: userClaims,
   );
 }
 

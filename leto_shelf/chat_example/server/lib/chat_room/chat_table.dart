@@ -100,30 +100,45 @@ class ChatTable {
 
   ChatTable(this.db);
 
-  Future<ChatRoom?> insert(String name, int userId) async {
+  Future<ChatRoom?> insert(String name, UserClaims user) async {
     return db.transaction((db) async {
+      final createdAt = DateTime.now();
       final result = await db.query(
-        'INSERT INTO chat(name) VALUES (?)',
-        [name],
+        'INSERT INTO chat(name, createdAt) VALUES (?, ?)',
+        [name, createdAt],
       );
 
-      if (result.insertId != null) {
-        await UserChatsTable(db).insert(
-          ChatRoomUser(
-            chatId: result.insertId!,
-            userId: userId,
-            role: ChatRoomUserRole.admin,
-            createdAt: DateTime.now(),
+      final chat = ChatRoom(
+        id: result.insertId!,
+        createdAt: createdAt,
+        name: name,
+      );
+      await EventTable(db).insert(
+        DBEventData.chat(
+          ChatEvent.created(
+            chat: chat,
+            ownerId: user.userId,
           ),
-        );
-      }
-      return ChatTable(db).get(result.insertId!);
+        ),
+        user,
+      );
+      await UserChatsTable(db).insert(
+        ChatRoomUser(
+          chatId: chat.id,
+          userId: user.userId,
+          role: ChatRoomUserRole.admin,
+          createdAt: DateTime.now(),
+        ),
+        user,
+      );
+
+      return chat;
     });
   }
 
   Future<bool> delete({
     required int chatId,
-    required int userId,
+    required UserClaims user,
   }) async {
     return db.transaction((db) async {
       final result = await db.query(
@@ -131,10 +146,16 @@ class ChatTable {
         ' chatRoomUser on chatRoomUser.chatId = chat.id'
         ' where chat.id = ? and chatRoomUser.userId = ?'
         " and chatRoomUser.role in ('admin'));",
-        [chatId, userId],
+        [chatId, user.userId],
       );
-
-      return (result.affectedRows ?? 0) > 0;
+      final deleted = (result.affectedRows ?? 0) > 0;
+      if (deleted) {
+        await EventTable(db).insert(
+          DBEventData.chat(ChatEvent.deleted(chatId: chatId)),
+          user,
+        );
+      }
+      return deleted;
     });
   }
 
@@ -298,7 +319,7 @@ Future<ChatRoom?> createChatRoom(
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
-  return controller.chats.insert(name, claims.userId);
+  return controller.chats.insert(name, claims);
 }
 
 @Mutation()
@@ -308,7 +329,7 @@ Future<bool> deleteChatRoom(
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
-  return controller.chats.delete(chatId: id, userId: claims.userId);
+  return controller.chats.delete(chatId: id, user: claims);
 }
 
 @Query()

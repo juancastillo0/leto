@@ -66,19 +66,31 @@ class DBEventData with _$DBEventData implements DBEventDataKeyed {
 @JsonSerializable()
 class DBEvent {
   final int id;
+  final int userId;
+  final String sessionId;
   final EventType type;
   final DBEventData data;
   final DateTime createdAt;
 
   const DBEvent({
     required this.id,
+    required this.userId,
+    required this.sessionId,
     required this.type,
     required this.data,
     required this.createdAt,
   });
 
-  factory DBEvent.fromJson(Map<String, Object?> json) =>
-      _$DBEventFromJson(json);
+  factory DBEvent.fromJson(Map<String, Object?> json) {
+    final data = json['data'];
+    if (data is String) {
+      return _$DBEventFromJson(<String, Object?>{
+        ...json,
+        'data': jsonDecode(data),
+      });
+    }
+    return _$DBEventFromJson(json);
+  }
 }
 
 class EventTable {
@@ -113,11 +125,16 @@ class EventTable {
     });
   }
 
-  Future<int> insert(DBEventData data) async {
+  Future<int> insert(DBEventData data, UserClaims claims) async {
     final eventKey = data.eventKey;
     final result = await db.query(
-      'INSERT INTO event(type, data) VALUES (?, ?)',
-      [eventKey.key.toJson(), jsonEncode(data.toJson())],
+      'INSERT INTO event(type, data, userId, sessionId) VALUES (?, ?, ?, ?)',
+      [
+        eventKey.key.toJson(),
+        jsonEncode(data.toJson()),
+        claims.userId,
+        claims.sessionId,
+      ],
     );
 
     return result.insertId!;
@@ -195,8 +212,12 @@ CREATE TABLE $tableName (
   id INTEGER NOT NULL,
   type TEXT NOT NULL,
   data TEXT NOT NULL,
+  userId INTEGER NOT NULL,
+  sessionId TEXT NOT NULL,
   createdAt DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  FOREIGN KEY (userId) REFERENCES user (id),
+  FOREIGN KEY (sessionId) REFERENCES userSession (id)
 );''',
       ],
     );

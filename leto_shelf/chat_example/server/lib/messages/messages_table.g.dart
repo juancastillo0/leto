@@ -202,27 +202,27 @@ GraphQLObjectType<ChatMessageSentEvent> get chatMessageSentEventGraphQlType {
   return __chatMessageSentEventGraphQlType;
 }
 
-final chatMessageSeletedEventSerializer =
-    SerializerValue<ChatMessageSeletedEvent>(
-  fromJson: _$$ChatMessageSeletedEventFromJson,
+final chatMessageDeletedEventSerializer =
+    SerializerValue<ChatMessageDeletedEvent>(
+  fromJson: _$$ChatMessageDeletedEventFromJson,
   toJson: (m) =>
-      _$$ChatMessageSeletedEventToJson(m as _$ChatMessageSeletedEvent),
+      _$$ChatMessageDeletedEventToJson(m as _$ChatMessageDeletedEvent),
 );
-GraphQLObjectType<ChatMessageSeletedEvent>? _chatMessageSeletedEventGraphQlType;
+GraphQLObjectType<ChatMessageDeletedEvent>? _chatMessageDeletedEventGraphQlType;
 
-/// Auto-generated from [ChatMessageSeletedEvent].
-GraphQLObjectType<ChatMessageSeletedEvent>
-    get chatMessageSeletedEventGraphQlType {
-  final __name = 'ChatMessageSeletedEvent';
-  if (_chatMessageSeletedEventGraphQlType != null)
-    return _chatMessageSeletedEventGraphQlType!
-        as GraphQLObjectType<ChatMessageSeletedEvent>;
+/// Auto-generated from [ChatMessageDeletedEvent].
+GraphQLObjectType<ChatMessageDeletedEvent>
+    get chatMessageDeletedEventGraphQlType {
+  final __name = 'ChatMessageDeletedEvent';
+  if (_chatMessageDeletedEventGraphQlType != null)
+    return _chatMessageDeletedEventGraphQlType!
+        as GraphQLObjectType<ChatMessageDeletedEvent>;
 
-  final __chatMessageSeletedEventGraphQlType =
-      objectType<ChatMessageSeletedEvent>('ChatMessageSeletedEvent',
+  final __chatMessageDeletedEventGraphQlType =
+      objectType<ChatMessageDeletedEvent>('ChatMessageDeletedEvent',
           isInterface: false, interfaces: [], description: null);
-  _chatMessageSeletedEventGraphQlType = __chatMessageSeletedEventGraphQlType;
-  __chatMessageSeletedEventGraphQlType.fields.addAll(
+  _chatMessageDeletedEventGraphQlType = __chatMessageDeletedEventGraphQlType;
+  __chatMessageDeletedEventGraphQlType.fields.addAll(
     [
       field('chatId', graphQLInt.nonNull(),
           resolve: (obj, ctx) => obj.chatId,
@@ -234,41 +234,34 @@ GraphQLObjectType<ChatMessageSeletedEvent>
           inputs: [],
           description: null,
           deprecationReason: null),
-      field('chatId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.chatId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
       chatMessageEventGraphQlTypeDiscriminant()
     ],
   );
 
-  return __chatMessageSeletedEventGraphQlType;
+  return __chatMessageDeletedEventGraphQlType;
 }
 
-final chatMessageUpdatedInEventSerializer =
-    SerializerValue<ChatMessageUpdatedInEvent>(
-  fromJson: _$$ChatMessageUpdatedInEventFromJson,
+final chatMessageUpdatedEventSerializer =
+    SerializerValue<ChatMessageUpdatedEvent>(
+  fromJson: _$$ChatMessageUpdatedEventFromJson,
   toJson: (m) =>
-      _$$ChatMessageUpdatedInEventToJson(m as _$ChatMessageUpdatedInEvent),
+      _$$ChatMessageUpdatedEventToJson(m as _$ChatMessageUpdatedEvent),
 );
-GraphQLObjectType<ChatMessageUpdatedInEvent>?
-    _chatMessageUpdatedInEventGraphQlType;
+GraphQLObjectType<ChatMessageUpdatedEvent>? _chatMessageUpdatedEventGraphQlType;
 
-/// Auto-generated from [ChatMessageUpdatedInEvent].
-GraphQLObjectType<ChatMessageUpdatedInEvent>
-    get chatMessageUpdatedInEventGraphQlType {
-  final __name = 'ChatMessageUpdatedInEvent';
-  if (_chatMessageUpdatedInEventGraphQlType != null)
-    return _chatMessageUpdatedInEventGraphQlType!
-        as GraphQLObjectType<ChatMessageUpdatedInEvent>;
+/// Auto-generated from [ChatMessageUpdatedEvent].
+GraphQLObjectType<ChatMessageUpdatedEvent>
+    get chatMessageUpdatedEventGraphQlType {
+  final __name = 'ChatMessageUpdatedEvent';
+  if (_chatMessageUpdatedEventGraphQlType != null)
+    return _chatMessageUpdatedEventGraphQlType!
+        as GraphQLObjectType<ChatMessageUpdatedEvent>;
 
-  final __chatMessageUpdatedInEventGraphQlType =
-      objectType<ChatMessageUpdatedInEvent>('ChatMessageUpdatedInEvent',
+  final __chatMessageUpdatedEventGraphQlType =
+      objectType<ChatMessageUpdatedEvent>('ChatMessageUpdatedEvent',
           isInterface: false, interfaces: [], description: null);
-  _chatMessageUpdatedInEventGraphQlType =
-      __chatMessageUpdatedInEventGraphQlType;
-  __chatMessageUpdatedInEventGraphQlType.fields.addAll(
+  _chatMessageUpdatedEventGraphQlType = __chatMessageUpdatedEventGraphQlType;
+  __chatMessageUpdatedEventGraphQlType.fields.addAll(
     [
       field('message', chatMessageGraphQlType.nonNull(),
           resolve: (obj, ctx) => obj.message,
@@ -284,7 +277,7 @@ GraphQLObjectType<ChatMessageUpdatedInEvent>
     ],
   );
 
-  return __chatMessageUpdatedInEventGraphQlType;
+  return __chatMessageUpdatedEventGraphQlType;
 }
 
 final chatMessageEventSerializer = SerializerValue<ChatMessageEvent>(
@@ -309,8 +302,8 @@ GraphQLUnionType<ChatMessageEvent> get chatMessageEventGraphQlType {
     'ChatMessageEvent',
     [
       chatMessageSentEventGraphQlType,
-      chatMessageSeletedEventGraphQlType,
-      chatMessageUpdatedInEventGraphQlType
+      chatMessageDeletedEventGraphQlType,
+      chatMessageUpdatedEventGraphQlType
     ],
   );
 }
@@ -351,28 +344,28 @@ Map<String, dynamic> _$$ChatMessageSentEventToJson(
       'message': instance.message,
     };
 
-_$ChatMessageSeletedEvent _$$ChatMessageSeletedEventFromJson(
+_$ChatMessageDeletedEvent _$$ChatMessageDeletedEventFromJson(
         Map<String, dynamic> json) =>
-    _$ChatMessageSeletedEvent(
+    _$ChatMessageDeletedEvent(
       chatId: json['chatId'] as int,
       messageId: json['messageId'] as int,
     );
 
-Map<String, dynamic> _$$ChatMessageSeletedEventToJson(
-        _$ChatMessageSeletedEvent instance) =>
+Map<String, dynamic> _$$ChatMessageDeletedEventToJson(
+        _$ChatMessageDeletedEvent instance) =>
     <String, dynamic>{
       'chatId': instance.chatId,
       'messageId': instance.messageId,
     };
 
-_$ChatMessageUpdatedInEvent _$$ChatMessageUpdatedInEventFromJson(
+_$ChatMessageUpdatedEvent _$$ChatMessageUpdatedEventFromJson(
         Map<String, dynamic> json) =>
-    _$ChatMessageUpdatedInEvent(
+    _$ChatMessageUpdatedEvent(
       message: ChatMessage.fromJson(json['message'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$ChatMessageUpdatedInEventToJson(
-        _$ChatMessageUpdatedInEvent instance) =>
+Map<String, dynamic> _$$ChatMessageUpdatedEventToJson(
+        _$ChatMessageUpdatedEvent instance) =>
     <String, dynamic>{
       'message': instance.message,
     };

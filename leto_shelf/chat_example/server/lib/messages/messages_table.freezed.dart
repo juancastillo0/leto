@@ -296,9 +296,9 @@ ChatMessageEvent _$ChatMessageEventFromJson(Map<String, dynamic> json) {
     case 'sent':
       return ChatMessageSentEvent.fromJson(json);
     case 'deleted':
-      return ChatMessageSeletedEvent.fromJson(json);
+      return ChatMessageDeletedEvent.fromJson(json);
     case 'updated':
-      return ChatMessageUpdatedInEvent.fromJson(json);
+      return ChatMessageUpdatedEvent.fromJson(json);
 
     default:
       throw CheckedFromJsonException(json, 'runtimeType', 'ChatMessageEvent',
@@ -316,16 +316,16 @@ class _$ChatMessageEventTearOff {
     );
   }
 
-  ChatMessageSeletedEvent deleted(
+  ChatMessageDeletedEvent deleted(
       {required int chatId, required int messageId}) {
-    return ChatMessageSeletedEvent(
+    return ChatMessageDeletedEvent(
       chatId: chatId,
       messageId: messageId,
     );
   }
 
-  ChatMessageUpdatedInEvent updated({required ChatMessage message}) {
-    return ChatMessageUpdatedInEvent(
+  ChatMessageUpdatedEvent updated({required ChatMessage message}) {
+    return ChatMessageUpdatedEvent(
       message: message,
     );
   }
@@ -365,22 +365,22 @@ mixin _$ChatMessageEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ChatMessageSentEvent value) sent,
-    required TResult Function(ChatMessageSeletedEvent value) deleted,
-    required TResult Function(ChatMessageUpdatedInEvent value) updated,
+    required TResult Function(ChatMessageDeletedEvent value) deleted,
+    required TResult Function(ChatMessageUpdatedEvent value) updated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -517,8 +517,8 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ChatMessageSentEvent value) sent,
-    required TResult Function(ChatMessageSeletedEvent value) deleted,
-    required TResult Function(ChatMessageUpdatedInEvent value) updated,
+    required TResult Function(ChatMessageDeletedEvent value) deleted,
+    required TResult Function(ChatMessageUpdatedEvent value) updated,
   }) {
     return sent(this);
   }
@@ -527,8 +527,8 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
   }) {
     return sent?.call(this);
   }
@@ -537,8 +537,8 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
     required TResult orElse(),
   }) {
     if (sent != null) {
@@ -568,30 +568,30 @@ abstract class ChatMessageSentEvent extends ChatMessageEvent {
 }
 
 /// @nodoc
-abstract class $ChatMessageSeletedEventCopyWith<$Res> {
-  factory $ChatMessageSeletedEventCopyWith(ChatMessageSeletedEvent value,
-          $Res Function(ChatMessageSeletedEvent) then) =
-      _$ChatMessageSeletedEventCopyWithImpl<$Res>;
+abstract class $ChatMessageDeletedEventCopyWith<$Res> {
+  factory $ChatMessageDeletedEventCopyWith(ChatMessageDeletedEvent value,
+          $Res Function(ChatMessageDeletedEvent) then) =
+      _$ChatMessageDeletedEventCopyWithImpl<$Res>;
   $Res call({int chatId, int messageId});
 }
 
 /// @nodoc
-class _$ChatMessageSeletedEventCopyWithImpl<$Res>
+class _$ChatMessageDeletedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageSeletedEventCopyWith<$Res> {
-  _$ChatMessageSeletedEventCopyWithImpl(ChatMessageSeletedEvent _value,
-      $Res Function(ChatMessageSeletedEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageSeletedEvent));
+    implements $ChatMessageDeletedEventCopyWith<$Res> {
+  _$ChatMessageDeletedEventCopyWithImpl(ChatMessageDeletedEvent _value,
+      $Res Function(ChatMessageDeletedEvent) _then)
+      : super(_value, (v) => _then(v as ChatMessageDeletedEvent));
 
   @override
-  ChatMessageSeletedEvent get _value => super._value as ChatMessageSeletedEvent;
+  ChatMessageDeletedEvent get _value => super._value as ChatMessageDeletedEvent;
 
   @override
   $Res call({
     Object? chatId = freezed,
     Object? messageId = freezed,
   }) {
-    return _then(ChatMessageSeletedEvent(
+    return _then(ChatMessageDeletedEvent(
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
@@ -606,13 +606,13 @@ class _$ChatMessageSeletedEventCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
-  const _$ChatMessageSeletedEvent(
+class _$ChatMessageDeletedEvent extends ChatMessageDeletedEvent {
+  const _$ChatMessageDeletedEvent(
       {required this.chatId, required this.messageId})
       : super._();
 
-  factory _$ChatMessageSeletedEvent.fromJson(Map<String, dynamic> json) =>
-      _$$ChatMessageSeletedEventFromJson(json);
+  factory _$ChatMessageDeletedEvent.fromJson(Map<String, dynamic> json) =>
+      _$$ChatMessageDeletedEventFromJson(json);
 
   @override
   final int chatId;
@@ -627,7 +627,7 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageSeletedEvent &&
+        (other is ChatMessageDeletedEvent &&
             (identical(other.chatId, chatId) ||
                 const DeepCollectionEquality().equals(other.chatId, chatId)) &&
             (identical(other.messageId, messageId) ||
@@ -643,8 +643,8 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageSeletedEventCopyWith<ChatMessageSeletedEvent> get copyWith =>
-      _$ChatMessageSeletedEventCopyWithImpl<ChatMessageSeletedEvent>(
+  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
+      _$ChatMessageDeletedEventCopyWithImpl<ChatMessageDeletedEvent>(
           this, _$identity);
 
   @override
@@ -685,8 +685,8 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ChatMessageSentEvent value) sent,
-    required TResult Function(ChatMessageSeletedEvent value) deleted,
-    required TResult Function(ChatMessageUpdatedInEvent value) updated,
+    required TResult Function(ChatMessageDeletedEvent value) deleted,
+    required TResult Function(ChatMessageUpdatedEvent value) updated,
   }) {
     return deleted(this);
   }
@@ -695,8 +695,8 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
   }) {
     return deleted?.call(this);
   }
@@ -705,8 +705,8 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
     required TResult orElse(),
   }) {
     if (deleted != null) {
@@ -717,53 +717,52 @@ class _$ChatMessageSeletedEvent extends ChatMessageSeletedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatMessageSeletedEventToJson(this)..['runtimeType'] = 'deleted';
+    return _$$ChatMessageDeletedEventToJson(this)..['runtimeType'] = 'deleted';
   }
 }
 
-abstract class ChatMessageSeletedEvent extends ChatMessageEvent {
-  const factory ChatMessageSeletedEvent(
+abstract class ChatMessageDeletedEvent extends ChatMessageEvent {
+  const factory ChatMessageDeletedEvent(
       {required int chatId,
-      required int messageId}) = _$ChatMessageSeletedEvent;
-  const ChatMessageSeletedEvent._() : super._();
+      required int messageId}) = _$ChatMessageDeletedEvent;
+  const ChatMessageDeletedEvent._() : super._();
 
-  factory ChatMessageSeletedEvent.fromJson(Map<String, dynamic> json) =
-      _$ChatMessageSeletedEvent.fromJson;
+  factory ChatMessageDeletedEvent.fromJson(Map<String, dynamic> json) =
+      _$ChatMessageDeletedEvent.fromJson;
 
   int get chatId => throw _privateConstructorUsedError;
   int get messageId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageSeletedEventCopyWith<ChatMessageSeletedEvent> get copyWith =>
+  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageUpdatedInEventCopyWith<$Res> {
-  factory $ChatMessageUpdatedInEventCopyWith(ChatMessageUpdatedInEvent value,
-          $Res Function(ChatMessageUpdatedInEvent) then) =
-      _$ChatMessageUpdatedInEventCopyWithImpl<$Res>;
+abstract class $ChatMessageUpdatedEventCopyWith<$Res> {
+  factory $ChatMessageUpdatedEventCopyWith(ChatMessageUpdatedEvent value,
+          $Res Function(ChatMessageUpdatedEvent) then) =
+      _$ChatMessageUpdatedEventCopyWithImpl<$Res>;
   $Res call({ChatMessage message});
 
   $ChatMessageCopyWith<$Res> get message;
 }
 
 /// @nodoc
-class _$ChatMessageUpdatedInEventCopyWithImpl<$Res>
+class _$ChatMessageUpdatedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageUpdatedInEventCopyWith<$Res> {
-  _$ChatMessageUpdatedInEventCopyWithImpl(ChatMessageUpdatedInEvent _value,
-      $Res Function(ChatMessageUpdatedInEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageUpdatedInEvent));
+    implements $ChatMessageUpdatedEventCopyWith<$Res> {
+  _$ChatMessageUpdatedEventCopyWithImpl(ChatMessageUpdatedEvent _value,
+      $Res Function(ChatMessageUpdatedEvent) _then)
+      : super(_value, (v) => _then(v as ChatMessageUpdatedEvent));
 
   @override
-  ChatMessageUpdatedInEvent get _value =>
-      super._value as ChatMessageUpdatedInEvent;
+  ChatMessageUpdatedEvent get _value => super._value as ChatMessageUpdatedEvent;
 
   @override
   $Res call({
     Object? message = freezed,
   }) {
-    return _then(ChatMessageUpdatedInEvent(
+    return _then(ChatMessageUpdatedEvent(
       message: message == freezed
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -781,11 +780,11 @@ class _$ChatMessageUpdatedInEventCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
-  const _$ChatMessageUpdatedInEvent({required this.message}) : super._();
+class _$ChatMessageUpdatedEvent extends ChatMessageUpdatedEvent {
+  const _$ChatMessageUpdatedEvent({required this.message}) : super._();
 
-  factory _$ChatMessageUpdatedInEvent.fromJson(Map<String, dynamic> json) =>
-      _$$ChatMessageUpdatedInEventFromJson(json);
+  factory _$ChatMessageUpdatedEvent.fromJson(Map<String, dynamic> json) =>
+      _$$ChatMessageUpdatedEventFromJson(json);
 
   @override
   final ChatMessage message;
@@ -798,7 +797,7 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageUpdatedInEvent &&
+        (other is ChatMessageUpdatedEvent &&
             (identical(other.message, message) ||
                 const DeepCollectionEquality().equals(other.message, message)));
   }
@@ -809,8 +808,8 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageUpdatedInEventCopyWith<ChatMessageUpdatedInEvent> get copyWith =>
-      _$ChatMessageUpdatedInEventCopyWithImpl<ChatMessageUpdatedInEvent>(
+  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
+      _$ChatMessageUpdatedEventCopyWithImpl<ChatMessageUpdatedEvent>(
           this, _$identity);
 
   @override
@@ -851,8 +850,8 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ChatMessageSentEvent value) sent,
-    required TResult Function(ChatMessageSeletedEvent value) deleted,
-    required TResult Function(ChatMessageUpdatedInEvent value) updated,
+    required TResult Function(ChatMessageDeletedEvent value) deleted,
+    required TResult Function(ChatMessageUpdatedEvent value) updated,
   }) {
     return updated(this);
   }
@@ -861,8 +860,8 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
   }) {
     return updated?.call(this);
   }
@@ -871,8 +870,8 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
-    TResult Function(ChatMessageSeletedEvent value)? deleted,
-    TResult Function(ChatMessageUpdatedInEvent value)? updated,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
     required TResult orElse(),
   }) {
     if (updated != null) {
@@ -883,21 +882,20 @@ class _$ChatMessageUpdatedInEvent extends ChatMessageUpdatedInEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatMessageUpdatedInEventToJson(this)
-      ..['runtimeType'] = 'updated';
+    return _$$ChatMessageUpdatedEventToJson(this)..['runtimeType'] = 'updated';
   }
 }
 
-abstract class ChatMessageUpdatedInEvent extends ChatMessageEvent {
-  const factory ChatMessageUpdatedInEvent({required ChatMessage message}) =
-      _$ChatMessageUpdatedInEvent;
-  const ChatMessageUpdatedInEvent._() : super._();
+abstract class ChatMessageUpdatedEvent extends ChatMessageEvent {
+  const factory ChatMessageUpdatedEvent({required ChatMessage message}) =
+      _$ChatMessageUpdatedEvent;
+  const ChatMessageUpdatedEvent._() : super._();
 
-  factory ChatMessageUpdatedInEvent.fromJson(Map<String, dynamic> json) =
-      _$ChatMessageUpdatedInEvent.fromJson;
+  factory ChatMessageUpdatedEvent.fromJson(Map<String, dynamic> json) =
+      _$ChatMessageUpdatedEvent.fromJson;
 
   ChatMessage get message => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageUpdatedInEventCopyWith<ChatMessageUpdatedInEvent> get copyWith =>
+  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -116,19 +116,31 @@ CREATE TABLE $tableName (
     print('migrated $tableName $migrated');
   }
 
-  Future<User?> insert({String? name, String? passwordHash}) async {
-    final result = await conn.query(
-      'insert into user(name, passwordHash, createdAt)'
-      ' values (?, ?, CURRENT_TIMESTAMP)',
-      [
-        name,
-        passwordHash,
-      ],
-    );
-    if (result.insertId == null) {
-      return null;
-    }
-    return get(result.insertId!);
+  Future<User> insert({String? name, String? passwordHash}) async {
+    return conn.transaction((conn) async {
+      final createdAt = DateTime.now();
+      final result = await conn.query(
+        'insert into user(name, passwordHash, createdAt)'
+        ' values (?, ?, ?)',
+        [
+          name,
+          passwordHash,
+          createdAt,
+        ],
+      );
+      final user = User(
+        id: result.insertId!,
+        name: name,
+        createdAt: createdAt,
+        passwordHash: passwordHash,
+      );
+      // await EventTable(conn).insert(
+      //   DBEventData.user(UserEvent.created(user: user)),
+      //   // TODO:
+      //   UserClaims(sessionId: '', userId: user.id),
+      // );
+      return user;
+    });
   }
 
   Future<User?> update(
@@ -136,18 +148,18 @@ CREATE TABLE $tableName (
     required String name,
     required String passwordHash,
   }) async {
-    final result = await conn.query(
-      'update user set name = ?, passwordHash = ? where id = ?;',
-      [
-        name,
-        passwordHash,
-        id,
-      ],
-    );
-    if ((result.affectedRows ?? 0) == 0) {
-      return null;
-    }
-    return get(id);
+    // TODO: EventTable
+    return conn.transaction((conn) async {
+      final result = await conn.query(
+        'update user set name = ?, passwordHash = ? where id = ?;',
+        [name, passwordHash, id],
+      );
+      final updated = (result.affectedRows ?? 0) > 0;
+      if (!updated) {
+        return null;
+      }
+      return get(id);
+    });
   }
 
   Future<User?> get(int id) async {
@@ -254,13 +266,27 @@ CREATE TABLE $tableName (
     return result.map((e) => UserSession.fromJson(e)).toList();
   }
 
-  Future<bool> deactivate(String id) async {
-    final result = await conn.query(
-      'update userSession set isActive = false'
-      ' and endedAt = CURRENT_TIMESTAMP where id = ?',
-      [id],
-    );
-    return (result.affectedRows ?? 0) >= 1;
+  Future<bool> deactivate(UserClaims claims) async {
+    return conn.transaction((conn) async {
+      final result = await conn.query(
+        'update userSession set isActive = false'
+        ' and endedAt = CURRENT_TIMESTAMP where id = ?',
+        [claims.sessionId],
+      );
+      final deactivated = (result.affectedRows ?? 0) >= 1;
+      if (deactivated) {
+        await EventTable(conn).insert(
+          DBEventData.user(
+            UserEvent.signedOut(
+              userId: claims.userId,
+              sessionId: claims.sessionId,
+            ),
+          ),
+          claims,
+        );
+      }
+      return deactivated;
+    });
   }
 }
 
@@ -321,7 +347,11 @@ class User {
     required this.passwordHash,
   });
 
-  Future<List<UserSession>> sessions(ReqCtx ctx) {
+  Future<List<UserSession>> sessions(ReqCtx ctx) async {
+    final claims = await getUserClaimsUnwrap(ctx);
+    if (claims.userId != id) {
+      throw unauthorizedError;
+    }
     return userSessionRef.get(ctx).getForUser(id);
   }
 
@@ -397,7 +427,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
       return Err(ErrC(SignUpError.nameTaken));
     }
     if (userClaims != null) {
-      await deactivateSession(ctx, userClaims.sessionId);
+      await deactivateSession(ctx, userClaims);
     }
     user = userWithName;
   } else {
@@ -407,7 +437,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
       if (currentUser!.name != null) {
         return Err(ErrC(SignUpError.alreadySignedUp));
       }
-      await deactivateSession(ctx, userClaims.sessionId);
+      await deactivateSession(ctx, userClaims);
     }
 
     final passwordHash = hashFromPassword(password);
@@ -490,7 +520,7 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
     }
     final userClaims = await getUserClaims(ctx);
     if (userClaims != null) {
-      await deactivateSession(ctx, userClaims.sessionId);
+      await deactivateSession(ctx, userClaims);
       // final currentUser = await userTableRef.get(ctx).get(userClaims.userId);
       // return currentUser == null ? Err(SignInError.unknown) : Ok(currentUser);
       // return Err(ErrC(SignInError.alreadySignedIn));
@@ -519,7 +549,7 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
 Future<String?> signOut(ReqCtx ctx) async {
   final claims = await getUserClaims(ctx);
   if (claims != null) {
-    final success = await deactivateSession(ctx, claims.sessionId);
+    final success = await deactivateSession(ctx, claims);
     if (!success) {
       return 'Error in sign out.';
     }
@@ -533,8 +563,8 @@ Future<String?> signOut(ReqCtx ctx) async {
   return null;
 }
 
-Future<bool> deactivateSession(ReqCtx ctx, String sessionId) {
-  return userSessionRef.get(ctx).deactivate(sessionId);
+Future<bool> deactivateSession(ReqCtx ctx, UserClaims claims) {
+  return userSessionRef.get(ctx).deactivate(claims);
 }
 
 const refreshDuration = Duration(hours: 1);

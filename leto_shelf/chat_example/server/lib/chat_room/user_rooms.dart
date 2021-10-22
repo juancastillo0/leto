@@ -102,32 +102,55 @@ FROM tmp_$tableName;''',
     print('migrated $tableName $migrated');
   }
 
-  Future<bool> insert(ChatRoomUser user) async {
-    final result = await conn.query(
-      'insert into chatRoomUser(userId, chatId, role, createdAt)'
-      ' values (?, ?, ?, ?)',
-      [
-        user.userId,
-        user.chatId,
-        user.role.toString().split('.')[1],
-        user.createdAt,
-      ],
-    );
-    return (result.affectedRows ?? 0) >= 1;
+  Future<bool> insert(ChatRoomUser user, UserClaims claims) async {
+    return conn.transaction((conn) async {
+      final result = await conn.query(
+        'insert into chatRoomUser(userId, chatId, role, createdAt)'
+        ' values (?, ?, ?, ?)',
+        [
+          user.userId,
+          user.chatId,
+          user.role.toString().split('.')[1],
+          user.createdAt,
+        ],
+      );
+      final inserted = (result.affectedRows ?? 0) >= 1;
+      if (inserted) {
+        await EventTable(conn).insert(
+          DBEventData.userChat(
+            UserChatEvent.added(chatUser: user),
+          ),
+          claims,
+        );
+      }
+      return inserted;
+    });
   }
 
   Future<bool> delete({
     required int userId,
     required int chatId,
+    required UserClaims claims,
   }) async {
-    final result = await conn.query(
-      'delete from chatRoomUser where userId = ? and chatId = ?',
-      [
-        userId,
-        chatId,
-      ],
-    );
-    return (result.affectedRows ?? 0) >= 1;
+    return conn.transaction((conn) async {
+      final result = await conn.query(
+        'delete from chatRoomUser where userId = ? and chatId = ?',
+        [userId, chatId],
+      );
+      final deleted = (result.affectedRows ?? 0) >= 1;
+      if (deleted) {
+        await EventTable(conn).insert(
+          DBEventData.userChat(
+            UserChatEvent.removed(
+              chatId: chatId,
+              userId: userId,
+            ),
+          ),
+          claims,
+        );
+      }
+      return deleted;
+    });
   }
 
   Future<ChatRoomUser?> get({
@@ -188,7 +211,7 @@ class ChatRoomUser {
       _$ChatRoomUserFromJson(json);
 }
 
-Future<ChatRoomUser> validateEditPermission(
+Future<_ValidatedUserChat> validateEditPermission(
   ReqCtx ctx, {
   required int chatId,
   required int? userId,
@@ -204,7 +227,14 @@ Future<ChatRoomUser> validateEditPermission(
           !const [ChatRoomUserRole.admin].contains(currentChatUser.role))) {
     throw unauthorizedError;
   }
-  return currentChatUser;
+  return _ValidatedUserChat(currentChatUser, claims);
+}
+
+class _ValidatedUserChat {
+  final ChatRoomUser chatUser;
+  final UserClaims userClaims;
+
+  _ValidatedUserChat(this.chatUser, this.userClaims);
 }
 
 @Mutation()
@@ -214,7 +244,7 @@ Future<ChatRoomUser?> addChatRoomUser(
   int userId, {
   ChatRoomUserRole role = ChatRoomUserRole.peer,
 }) async {
-  await validateEditPermission(
+  final user = await validateEditPermission(
     ctx,
     chatId: chatId,
     userId: null,
@@ -225,7 +255,10 @@ Future<ChatRoomUser?> addChatRoomUser(
     role: role,
     createdAt: DateTime.now(),
   );
-  final success = await userChatsRef.get(ctx).insert(chatUser);
+  final success = await userChatsRef.get(ctx).insert(
+        chatUser,
+        user.userClaims,
+      );
   if (!success) {
     return null;
   }
@@ -239,7 +272,15 @@ Future<bool> deleteChatRoomUser(
   int chatId,
   int userId,
 ) async {
-  await validateEditPermission(ctx, chatId: chatId, userId: userId);
+  final user = await validateEditPermission(
+    ctx,
+    chatId: chatId,
+    userId: userId,
+  );
 
-  return userChatsRef.get(ctx).delete(userId: userId, chatId: chatId);
+  return userChatsRef.get(ctx).delete(
+        userId: userId,
+        chatId: chatId,
+        claims: user.userClaims,
+      );
 }
