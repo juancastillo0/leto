@@ -85,7 +85,10 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
           GraphQLPersistedQueries(),
           CacheExtension(cache: LruCacheSimple(50)),
           LoggingExtension((log) {
-            print(log.message);
+            final message = log.message;
+            if (!message.startsWith('IntrospectionQuery')) {
+              print(message);
+            }
           }),
         ],
   );
