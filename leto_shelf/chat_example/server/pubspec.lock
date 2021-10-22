@@ -15,6 +15,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.6"
   argon2:
     dependency: "direct main"
     description:
@@ -43,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
+  blurhash_dart:
+    dependency: "direct main"
+    description:
+      name: blurhash_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -323,6 +337,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.8"
   io:
     dependency: transitive
     description:
@@ -554,6 +575,13 @@ packages:
       relative: true
     source: path
     version: "0.0.0"
+  shelf_graphql_example:
+    dependency: "direct main"
+    description:
+      path: "../../example"
+      relative: true
+    source: path
+    version: "0.0.0"
   shelf_hotreload:
     dependency: transitive
     description:
@@ -634,10 +662,10 @@ packages:
   sqlite3:
     dependency: "direct main"
     description:
-      path: "../../../sqlite3.dart/sqlite3"
-      relative: true
-    source: path
-    version: "1.2.0"
+      name: sqlite3
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.3.1"
   stack_trace:
     dependency: transitive
     description:
@@ -792,6 +820,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.2"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.3.1"
   yaml:
     dependency: transitive
     description:

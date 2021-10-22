@@ -196,7 +196,7 @@ GraphQLType<Connection<T>, Object> connectionGraphQlType<T extends Node>(
         'edges',
         resolve: (obj, ctx) => obj.edges,
       ),
-      pageInfoGraphQLType.nonNull().field(
+      pageInfoGraphQlType.nonNull().field(
             'pageInfo',
             resolve: (obj, ctx) => obj.pageInfo,
           ),
@@ -234,7 +234,7 @@ ConnectionDefinitions<T> connectionDefinitions<T extends Node>(
         'edges',
         resolve: (obj, ctx) => obj.edges,
       ),
-      pageInfoGraphQLType.nonNull().field(
+      pageInfoGraphQlType.nonNull().field(
             'pageInfo',
             resolve: (obj, ctx) => obj.pageInfo,
           ),

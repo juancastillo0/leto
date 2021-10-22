@@ -10,6 +10,7 @@ import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:shelf_graphql_example/types/page_info.dart';
 
 part 'database_event.freezed.dart';
 part 'database_event.g.dart';
@@ -176,6 +177,38 @@ class EventTable {
     return values;
   }
 
+  Future<List<DBEvent>> getPaginated({
+    required int? fromEventId,
+    required int numEvents,
+    int? userId,
+    String? sessionId,
+    bool ascending = true,
+    bool bringEvent = false,
+  }) async {
+    final String comparison;
+    if (ascending) {
+      comparison = bringEvent ? 'id >= ?' : 'id > ?';
+    } else {
+      comparison = bringEvent ? 'id <= ?' : 'id < ?';
+    }
+    final result = await db.query(
+      'SELECT * FROM event WHERE ${[
+        if (fromEventId != null) comparison,
+        if (userId != null) 'userId = ?',
+        if (sessionId != null) 'sessionId = ?',
+      ].join(' AND ')}'
+      ' ORDER BY id ${ascending ? 'ASC' : 'DESC'} LIMIT ?;',
+      [
+        if (fromEventId != null) fromEventId,
+        if (userId != null) userId,
+        if (sessionId != null) sessionId,
+        numEvents
+      ],
+    );
+    final values = result.map((e) => DBEvent.fromJson(e)).toList();
+    return values;
+  }
+
   Future<Stream<DBEvent>> subscribeToChanges(UserClaims claims) async {
     final key = claims.sessionId;
 
@@ -267,6 +300,61 @@ Future<Stream<DBEvent>> onMessageEvent(ReqCtx<Object> ctx) async {
       message: (_) => true,
       orElse: () => false,
     ),
+  );
+}
+
+// TODO: T extends Object
+@GraphQLClass()
+class Paginated<T> {
+  final List<T> values;
+  final PageInfo pageInfo;
+
+  const Paginated(this.values, this.pageInfo);
+}
+
+@Query()
+Future<Paginated<DBEvent>> getEvents(
+  ReqCtx<Object> ctx,
+  String? cursor,
+  int delta,
+) async {
+  // final user = await getUserClaimsUnwrap(ctx);
+  final numItems = delta.abs();
+  final isAscending = delta > 0;
+  final eventId = cursor == null ? null : int.tryParse(cursor);
+
+  if (cursor != null && eventId == null) {
+    throw 'Invalid cursor $cursor.';
+  } else if (numItems > 25) {
+    throw "Can't have the amount of items greater than 25.";
+  } else if (numItems == 0) {
+    throw "Can't have 0 number of elements.";
+  }
+  final controller = await chatControllerRef.get(ctx);
+  final value = await controller.events.getPaginated(
+    fromEventId: eventId,
+    numEvents: numItems + 1,
+    userId: 1,
+    ascending: isAscending,
+  );
+  final hasMore = value.length > numItems;
+  final selected = hasMore ? value.take(numItems).toList() : value;
+
+  return Paginated(
+    selected,
+    selected.isEmpty
+        ? PageInfo(
+            hasNextPage: !isAscending && cursor != null,
+            hasPreviousPage: isAscending && cursor != null,
+            endCursor: null,
+            startCursor: null,
+          )
+        : PageInfo(
+            hasNextPage: isAscending ? hasMore : cursor != null,
+            hasPreviousPage: !isAscending ? hasMore : cursor != null,
+            startCursor: selected.first.id.toString(),
+            endCursor: selected.last.id.toString(),
+          ),
   );
 }
 

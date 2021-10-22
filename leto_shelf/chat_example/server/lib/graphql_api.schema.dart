@@ -3,8 +3,8 @@ import 'package:graphql_schema/graphql_schema.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/user_table.dart';
 import 'package:server/chat_room/chat_table.dart';
-import 'package:server/chat_room/user_rooms.dart';
 import 'package:server/events/database_event.dart';
+import 'package:server/chat_room/user_rooms.dart';
 
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
@@ -29,6 +29,7 @@ final graphqlApiSchema = GraphQLSchema(
       searchUserGraphQLField,
       getUserGraphQLField,
       getChatRoomsGraphQLField,
+      getEventsGraphQLField,
     ],
   ),
   mutationType: objectType(

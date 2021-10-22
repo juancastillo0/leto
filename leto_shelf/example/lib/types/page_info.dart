@@ -11,7 +11,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 ///   endCursor: String
 /// }
 /// ```
-final pageInfoGraphQLType = objectType<PageInfo>(
+final pageInfoGraphQlType = objectType<PageInfo>(
   'PageInfo',
   description: 'Information about pagination in a connection.',
   fields: [

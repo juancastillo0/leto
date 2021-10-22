@@ -31,6 +31,30 @@ final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
   deprecationReason: null,
 );
 
+final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
+    getEventsGraphQLField = field(
+  'getEvents',
+  paginatedGraphQlType(dBEventGraphQlType.nonNull()).nonNull()
+      as GraphQLType<Paginated<DBEvent>, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getEvents(ctx, (args["cursor"] as String?), (args["delta"] as int));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "cursor",
+      graphQLString.coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "delta",
+      graphQLInt.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
@@ -244,6 +268,41 @@ GraphQLObjectType<DBEvent> get dBEventGraphQlType {
   );
 
   return __dBEventGraphQlType;
+}
+
+Map<String, GraphQLObjectType<Paginated>> _paginatedGraphQlType = {};
+
+/// Auto-generated from [Paginated].
+GraphQLObjectType<Paginated<T>> paginatedGraphQlType<T extends Object>(
+  GraphQLType<T, Object> tGraphQlType,
+) {
+  final __name =
+      'Paginated${tGraphQlType is GraphQLTypeWrapper ? (tGraphQlType as GraphQLTypeWrapper).ofType : tGraphQlType}';
+  if (_paginatedGraphQlType[__name] != null)
+    return _paginatedGraphQlType[__name]! as GraphQLObjectType<Paginated<T>>;
+
+  final __paginatedGraphQlType = objectType<Paginated<T>>(
+      'Paginated${tGraphQlType is GraphQLTypeWrapper ? (tGraphQlType as GraphQLTypeWrapper).ofType : tGraphQlType}',
+      isInterface: false,
+      interfaces: [],
+      description: null);
+  _paginatedGraphQlType[__name] = __paginatedGraphQlType;
+  __paginatedGraphQlType.fields.addAll(
+    [
+      field('values', listOf(tGraphQlType.nonNull()).nonNull(),
+          resolve: (obj, ctx) => obj.values,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('pageInfo', pageInfoGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.pageInfo,
+          inputs: [],
+          description: null,
+          deprecationReason: null)
+    ],
+  );
+
+  return __paginatedGraphQlType;
 }
 
 /// Auto-generated from [EventType].
