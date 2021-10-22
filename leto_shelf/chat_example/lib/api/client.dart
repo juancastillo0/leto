@@ -82,10 +82,14 @@ class AuthStorage {
     return state;
   }
 
-  Future<void> set(GSTokenWithUserData value) {
+  Future<void> set(GSTokenWithUserData? value) {
     state = value;
-    final valueStr = jsonEncode(value.toJson());
-    return sharedPreferences.setString('authStore', valueStr);
+    if (value == null) {
+      return sharedPreferences.remove('authStore');
+    } else {
+      final valueStr = jsonEncode(value.toJson());
+      return sharedPreferences.setString('authStore', valueStr);
+    }
   }
 }
 
@@ -103,7 +107,7 @@ Future<ProviderContainer> initClient() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   final authStorage = AuthStorage(sharedPreferences);
   final authState = await authStorage.get();
-  late final ProviderContainer ref;
+  late ProviderContainer ref;
 
   final link = Link.from([
     HttpAuthLink(
@@ -125,9 +129,6 @@ Future<ProviderContainer> initClient() async {
       },
     )
   ]);
-  final wsLink = WebSocketLink(
-    'ws://localhost:8060/graphql-subscription',
-  );
 
   final _list = [
     createChatRoomHandler,
@@ -155,9 +156,30 @@ Future<ProviderContainer> initClient() async {
     clientProvider.overrideWithValue(client),
     authStorageProv.overrideWithValue(authStorage),
   ]);
+  final authStore = ref.read(authStoreProv);
   if (authState?.accessToken == null) {
-    await ref.read(authStoreProv).signInAnnon();
+    await authStore.signInAnnon();
   }
+  final wsLink = WebSocketLink(
+    'ws://localhost:8060/graphql-subscription',
+    initialPayload: <String, Object?>{
+      'refreshToken': authStore.state!.refreshToken,
+    },
+  );
+  ref.dispose();
+  ref = ProviderContainer(overrides: [
+    clientProvider.overrideWithValue(Client(
+      link: wsLink,
+      cache: cache,
+      defaultFetchPolicies: {
+        OperationType.query: FetchPolicy.CacheAndNetwork,
+        OperationType.mutation: FetchPolicy.NetworkOnly,
+        OperationType.subscription: FetchPolicy.CacheAndNetwork,
+      },
+      updateCacheHandlers: _cacheHandlers,
+    )),
+    authStorageProv.overrideWithValue(authStorage),
+  ]);
 
   return ref;
 }
