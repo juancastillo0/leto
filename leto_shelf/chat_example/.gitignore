@@ -44,3 +44,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Generated ferry graphql client
+lib/**/*.ast.gql.dart
+lib/**/*.req.gql.dart
+lib/**/*.data.gql.dart
+lib/**/*.var.gql.dart
+lib/**/*.gql.g.dart
+lib/**/*.schema.gql.dart
+lib/serializers.gql.dart
