@@ -133,11 +133,6 @@ GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
-      field('chatId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.chatId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
       userChatEventGraphQlTypeDiscriminant()
     ],
   );
@@ -203,6 +198,11 @@ GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQlType {
           resolve: (obj, ctx) => obj.role,
           inputs: [],
           description: null,
+          deprecationReason: null),
+      field('createdAt', graphQLDate.nonNull(),
+          resolve: (obj, ctx) => obj.createdAt,
+          inputs: [],
+          description: null,
           deprecationReason: null)
     ],
   );
@@ -223,6 +223,7 @@ ChatRoomUser _$ChatRoomUserFromJson(Map<String, dynamic> json) => ChatRoomUser(
       userId: json['userId'] as int,
       chatId: json['chatId'] as int,
       role: _$enumDecode(_$ChatRoomUserRoleEnumMap, json['role']),
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$ChatRoomUserToJson(ChatRoomUser instance) =>
@@ -230,6 +231,7 @@ Map<String, dynamic> _$ChatRoomUserToJson(ChatRoomUser instance) =>
       'userId': instance.userId,
       'chatId': instance.chatId,
       'role': _$ChatRoomUserRoleEnumMap[instance.role],
+      'createdAt': instance.createdAt.toIso8601String(),
     };
 
 K _$enumDecode<K, V>(

@@ -105,11 +105,12 @@ FROM tmp_$tableName;''',
   Future<bool> insert(ChatRoomUser user) async {
     final result = await conn.query(
       'insert into chatRoomUser(userId, chatId, role, createdAt)'
-      ' values (?, ?, ?, CURRENT_TIMESTAMP)',
+      ' values (?, ?, ?, ?)',
       [
         user.userId,
         user.chatId,
         user.role.toString().split('.')[1],
+        user.createdAt,
       ],
     );
     return (result.affectedRows ?? 0) >= 1;
@@ -169,11 +170,13 @@ class ChatRoomUser {
   final int userId;
   final int chatId;
   final ChatRoomUserRole role;
+  final DateTime createdAt;
 
   ChatRoomUser({
     required this.userId,
     required this.chatId,
     required this.role,
+    required this.createdAt,
   });
 
   FutureOr<User> user(ReqCtx ctx) async {
@@ -220,6 +223,7 @@ Future<ChatRoomUser?> addChatRoomUser(
     chatId: chatId,
     userId: userId,
     role: role,
+    createdAt: DateTime.now(),
   );
   final success = await userChatsRef.get(ctx).insert(chatUser);
   if (!success) {

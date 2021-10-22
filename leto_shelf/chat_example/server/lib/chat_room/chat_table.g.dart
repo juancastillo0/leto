@@ -129,11 +129,6 @@ GraphQLObjectType<ChatDeletedEvent> get chatDeletedEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
-      field('chatId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.chatId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
       chatEventGraphQlTypeDiscriminant()
     ],
   );

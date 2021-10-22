@@ -20,7 +20,7 @@ part 'chat_table.g.dart';
 final chatRoomDatabase = RefWithDefault<TableConnection>.global(
   'ChatRoomDatabase',
   (scope) => SqliteConnection(
-    Platform.environment['SQLITE_MEMORY'] == 'true'
+    const bool.fromEnvironment('SQLITE_MEMORY')
         ? sqlite3.openInMemory()
         : sqlite3.open('chat_room.sqlite'),
   ),
@@ -113,6 +113,7 @@ class ChatTable {
             chatId: result.insertId!,
             userId: userId,
             role: ChatRoomUserRole.admin,
+            createdAt: DateTime.now(),
           ),
         );
       }
@@ -149,6 +150,7 @@ class ChatTable {
   }
 
   Future<List<ChatRoom>> getAll({
+    int? userId,
     bool withUsers = false,
     bool withMessages = false,
   }) async {
@@ -157,7 +159,12 @@ class ChatTable {
 SELECT chat.*${withUsers ? ', chatRoomUser.*' : ''}${withMessages ? ', message.*' : ''} FROM chat
 ${withUsers ? 'LEFT JOIN chatRoomUser ON chat.id = chatRoomUser.chatId' : ''}
 ${withMessages ? 'LEFT JOIN message ON chat.id = message.chatId' : ''}
-;''',
+${userId == null ? '' : '''WHERE EXISTS (
+  select chatRoomUser.userId from chatRoomUser 
+  where chatRoomUser.chatId = chat.id
+  and chatRoomUser.userId = ?
+)'''};''',
+      [if (userId != null) userId],
     );
 
     final values =
@@ -308,6 +315,7 @@ Future<bool> deleteChatRoom(
 Future<List<ChatRoom>> getChatRooms(
   ReqCtx<Object> ctx,
 ) async {
+  final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
   final possibleSelections = ctx.lookahead()!.asObject;
 
@@ -315,6 +323,7 @@ Future<List<ChatRoom>> getChatRooms(
   final withUsers = possibleSelections.contains('users');
 
   return controller.chats.getAll(
+    userId: claims.userId,
     withMessages: withMessages,
     withUsers: withUsers,
   );
