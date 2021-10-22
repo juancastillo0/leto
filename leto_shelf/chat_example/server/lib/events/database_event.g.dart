@@ -215,6 +215,16 @@ GraphQLObjectType<DBEvent> get dBEventGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('userId', graphQLInt.nonNull(),
+          resolve: (obj, ctx) => obj.userId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('sessionId', graphQLString.nonNull(),
+          resolve: (obj, ctx) => obj.sessionId,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('type', eventTypeGraphQlType.nonNull(),
           resolve: (obj, ctx) => obj.type,
           inputs: [],
@@ -258,6 +268,8 @@ final GraphQLEnumType<EventType> eventTypeGraphQlType =
 
 DBEvent _$DBEventFromJson(Map<String, dynamic> json) => DBEvent(
       id: json['id'] as int,
+      userId: json['userId'] as int,
+      sessionId: json['sessionId'] as String,
       type: _$enumDecode(_$EventTypeEnumMap, json['type']),
       data: DBEventData.fromJson(json['data'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -265,6 +277,8 @@ DBEvent _$DBEventFromJson(Map<String, dynamic> json) => DBEvent(
 
 Map<String, dynamic> _$DBEventToJson(DBEvent instance) => <String, dynamic>{
       'id': instance.id,
+      'userId': instance.userId,
+      'sessionId': instance.sessionId,
       'type': _$EventTypeEnumMap[instance.type],
       'data': instance.data,
       'createdAt': instance.createdAt.toIso8601String(),

@@ -100,22 +100,23 @@ class EventTable {
 
   final subs = <String, Set<StreamSubscription>>{};
   Timer? _subsTimer;
-  int subsLastEventId = -1;
+  int? subsLastEventId;
   late final controller = StreamController<List<DBEvent>>.broadcast(
     onListen: setUpSubscription,
     onCancel: () {
       _subsTimer?.cancel();
+      subsLastEventId = null;
     },
   );
 
-  void setUpSubscription() {
+  Future<void> setUpSubscription() async {
     _subsTimer?.cancel();
     if (subs.isEmpty) {
       return;
     }
-    _subsTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
-      final _subsLastEventId = subsLastEventId;
-      // maybe compare the last id without filtering by type?
+    subsLastEventId ??= await getLastId() ?? -1;
+    _subsTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      final _subsLastEventId = subsLastEventId!;
       final events = await getAllAfter(_subsLastEventId);
       if (events.isNotEmpty && subsLastEventId == _subsLastEventId) {
         subsLastEventId =
@@ -138,6 +139,16 @@ class EventTable {
     );
 
     return result.insertId!;
+  }
+
+  Future<int?> getLastId() async {
+    final result = await db.query(
+      'SELECT MAX(id) FROM event;',
+    );
+    if (result.isEmpty) {
+      return null;
+    }
+    return result.first.values.first as int;
   }
 
   Future<DBEvent?> get(int eventId) async {
@@ -189,6 +200,7 @@ class EventTable {
             typeSubs.remove(_localSubs);
             if (typeSubs.isEmpty) {
               subs.remove(key);
+              // ignore: unawaited_futures
               setUpSubscription();
             }
           }
