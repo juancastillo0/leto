@@ -327,8 +327,13 @@ class UserSession {
   }
 
   Map<String, Object?> toJson() => _$UserSessionToJson(this);
-  factory UserSession.fromJson(Map<String, Object?> json) =>
-      _$UserSessionFromJson(json);
+  factory UserSession.fromJson(Map<String, Object?> json) {
+    final isActive = json['isActive'];
+    return _$UserSessionFromJson(<String, Object?>{
+      ...json,
+      'isActive': isActive is int ? isActive != 0 : isActive! as bool
+    });
+  }
 }
 
 @GraphQLClass()
