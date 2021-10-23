@@ -33,6 +33,10 @@ class UserEventList extends HookConsumerWidget {
         }
       }
 
+      Future.delayed(Duration.zero, () {
+        _c();
+      });
+
       scrollController.addListener(_c);
       return () => scrollController.removeListener(_c);
     }, [scrollController]);
@@ -60,45 +64,51 @@ class UserEventList extends HookConsumerWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              controller: scrollController,
-              primary: false,
-              itemCount: events.length,
-              itemBuilder: (context, index) {
-                final event = events[index];
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 700),
-                    child: Card(
-                      elevation: 1.5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            Wrap(
-                              children: List.of([
-                                SelectableText('ID: ${event.id}'),
-                                SelectableText('Type: ${event.type.name}'),
-                                SelectableText('Session: ${event.sessionId}'),
-                                SelectableText(event.createdAt.value),
-                              ].map(
-                                (e) => Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: e,
-                                ),
-                              )),
+            child: events.isEmpty
+                ? const Center(
+                    child: Text('No Events'),
+                  )
+                : ListView.builder(
+                    controller: scrollController,
+                    primary: false,
+                    itemCount: events.length,
+                    itemBuilder: (context, index) {
+                      final event = events[index];
+                      return Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 700),
+                          child: Card(
+                            elevation: 1.5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                children: [
+                                  Wrap(
+                                    children: List.of([
+                                      SelectableText('ID: ${event.id}'),
+                                      SelectableText(
+                                          'Type: ${event.type.name}'),
+                                      SelectableText(
+                                          'Session: ${event.sessionId}'),
+                                      SelectableText(event.createdAt.value),
+                                    ].map(
+                                      (e) => Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: e,
+                                      ),
+                                    )),
+                                  ),
+                                  SelectableText(
+                                    event.data.toJson().toString(),
+                                  ),
+                                ],
+                              ),
                             ),
-                            SelectableText(
-                              event.data.toJson().toString(),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         )
       ],

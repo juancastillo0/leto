@@ -48,7 +48,7 @@ class ApiEventStore {
       (b) => b
         ..executeOnListen = false
         ..vars.cursor = cursor
-        ..vars.delta = -2,
+        ..vars.delta = -7,
     );
     _read(clientProvider).request(req).listen((event) {
       if (event.dataSource == DataSource.Link) {
