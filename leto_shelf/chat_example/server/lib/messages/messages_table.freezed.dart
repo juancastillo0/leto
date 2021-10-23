@@ -26,6 +26,9 @@ class _$ChatMessageTearOff {
       required int chatId,
       required int userId,
       required String message,
+      required MessageType type,
+      String? fileUrl,
+      @GraphQLField(omit: true) String? metadataJson,
       int? referencedMessageId,
       required DateTime createdAt}) {
     return _ChatMessage(
@@ -33,6 +36,9 @@ class _$ChatMessageTearOff {
       chatId: chatId,
       userId: userId,
       message: message,
+      type: type,
+      fileUrl: fileUrl,
+      metadataJson: metadataJson,
       referencedMessageId: referencedMessageId,
       createdAt: createdAt,
     );
@@ -52,6 +58,10 @@ mixin _$ChatMessage {
   int get chatId => throw _privateConstructorUsedError;
   int get userId => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
+  MessageType get type => throw _privateConstructorUsedError;
+  String? get fileUrl => throw _privateConstructorUsedError;
+  @GraphQLField(omit: true)
+  String? get metadataJson => throw _privateConstructorUsedError;
   int? get referencedMessageId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -71,6 +81,9 @@ abstract class $ChatMessageCopyWith<$Res> {
       int chatId,
       int userId,
       String message,
+      MessageType type,
+      String? fileUrl,
+      @GraphQLField(omit: true) String? metadataJson,
       int? referencedMessageId,
       DateTime createdAt});
 }
@@ -89,6 +102,9 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
     Object? chatId = freezed,
     Object? userId = freezed,
     Object? message = freezed,
+    Object? type = freezed,
+    Object? fileUrl = freezed,
+    Object? metadataJson = freezed,
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
@@ -109,6 +125,18 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
+      type: type == freezed
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      fileUrl: fileUrl == freezed
+          ? _value.fileUrl
+          : fileUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadataJson: metadataJson == freezed
+          ? _value.metadataJson
+          : metadataJson // ignore: cast_nullable_to_non_nullable
+              as String?,
       referencedMessageId: referencedMessageId == freezed
           ? _value.referencedMessageId
           : referencedMessageId // ignore: cast_nullable_to_non_nullable
@@ -133,6 +161,9 @@ abstract class _$ChatMessageCopyWith<$Res>
       int chatId,
       int userId,
       String message,
+      MessageType type,
+      String? fileUrl,
+      @GraphQLField(omit: true) String? metadataJson,
       int? referencedMessageId,
       DateTime createdAt});
 }
@@ -153,6 +184,9 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
     Object? chatId = freezed,
     Object? userId = freezed,
     Object? message = freezed,
+    Object? type = freezed,
+    Object? fileUrl = freezed,
+    Object? metadataJson = freezed,
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
@@ -173,6 +207,18 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
+      type: type == freezed
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as MessageType,
+      fileUrl: fileUrl == freezed
+          ? _value.fileUrl
+          : fileUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadataJson: metadataJson == freezed
+          ? _value.metadataJson
+          : metadataJson // ignore: cast_nullable_to_non_nullable
+              as String?,
       referencedMessageId: referencedMessageId == freezed
           ? _value.referencedMessageId
           : referencedMessageId // ignore: cast_nullable_to_non_nullable
@@ -193,6 +239,9 @@ class _$_ChatMessage extends _ChatMessage {
       required this.chatId,
       required this.userId,
       required this.message,
+      required this.type,
+      this.fileUrl,
+      @GraphQLField(omit: true) this.metadataJson,
       this.referencedMessageId,
       required this.createdAt})
       : super._();
@@ -209,13 +258,20 @@ class _$_ChatMessage extends _ChatMessage {
   @override
   final String message;
   @override
+  final MessageType type;
+  @override
+  final String? fileUrl;
+  @override
+  @GraphQLField(omit: true)
+  final String? metadataJson;
+  @override
   final int? referencedMessageId;
   @override
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'ChatMessage(id: $id, chatId: $chatId, userId: $userId, message: $message, referencedMessageId: $referencedMessageId, createdAt: $createdAt)';
+    return 'ChatMessage(id: $id, chatId: $chatId, userId: $userId, message: $message, type: $type, fileUrl: $fileUrl, metadataJson: $metadataJson, referencedMessageId: $referencedMessageId, createdAt: $createdAt)';
   }
 
   @override
@@ -231,6 +287,14 @@ class _$_ChatMessage extends _ChatMessage {
             (identical(other.message, message) ||
                 const DeepCollectionEquality()
                     .equals(other.message, message)) &&
+            (identical(other.type, type) ||
+                const DeepCollectionEquality().equals(other.type, type)) &&
+            (identical(other.fileUrl, fileUrl) ||
+                const DeepCollectionEquality()
+                    .equals(other.fileUrl, fileUrl)) &&
+            (identical(other.metadataJson, metadataJson) ||
+                const DeepCollectionEquality()
+                    .equals(other.metadataJson, metadataJson)) &&
             (identical(other.referencedMessageId, referencedMessageId) ||
                 const DeepCollectionEquality()
                     .equals(other.referencedMessageId, referencedMessageId)) &&
@@ -246,6 +310,9 @@ class _$_ChatMessage extends _ChatMessage {
       const DeepCollectionEquality().hash(chatId) ^
       const DeepCollectionEquality().hash(userId) ^
       const DeepCollectionEquality().hash(message) ^
+      const DeepCollectionEquality().hash(type) ^
+      const DeepCollectionEquality().hash(fileUrl) ^
+      const DeepCollectionEquality().hash(metadataJson) ^
       const DeepCollectionEquality().hash(referencedMessageId) ^
       const DeepCollectionEquality().hash(createdAt);
 
@@ -266,6 +333,9 @@ abstract class _ChatMessage extends ChatMessage {
       required int chatId,
       required int userId,
       required String message,
+      required MessageType type,
+      String? fileUrl,
+      @GraphQLField(omit: true) String? metadataJson,
       int? referencedMessageId,
       required DateTime createdAt}) = _$_ChatMessage;
   const _ChatMessage._() : super._();
@@ -281,6 +351,13 @@ abstract class _ChatMessage extends ChatMessage {
   int get userId => throw _privateConstructorUsedError;
   @override
   String get message => throw _privateConstructorUsedError;
+  @override
+  MessageType get type => throw _privateConstructorUsedError;
+  @override
+  String? get fileUrl => throw _privateConstructorUsedError;
+  @override
+  @GraphQLField(omit: true)
+  String? get metadataJson => throw _privateConstructorUsedError;
   @override
   int? get referencedMessageId => throw _privateConstructorUsedError;
   @override

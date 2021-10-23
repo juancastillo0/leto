@@ -42,8 +42,10 @@ final GraphQLObjectField<ChatMessage, Object, Object>
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return sendFileMessage(ctx, (args["chatId"] as int),
-        (args["file"] as UploadedFile), (args["referencedMessageId"] as int?));
+    return sendFileMessage(
+        ctx, (args["chatId"] as int), (args["file"] as UploadedFile),
+        referencedMessageId: (args["referencedMessageId"] as int?),
+        message: (args["message"] as String));
   },
   inputs: [
     GraphQLFieldInput(
@@ -57,6 +59,11 @@ final GraphQLObjectField<ChatMessage, Object, Object>
     GraphQLFieldInput(
       "referencedMessageId",
       graphQLInt.coerceToInputObject(),
+    ),
+    GraphQLFieldInput(
+      "message",
+      graphQLString.nonNull().coerceToInputObject(),
+      defaultValue: '',
     )
   ],
   deprecationReason: null,
@@ -143,6 +150,16 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
           inputs: [],
           description: null,
           deprecationReason: null),
+      field('type', messageTypeGraphQlType.nonNull(),
+          resolve: (obj, ctx) => obj.type,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
+      field('fileUrl', graphQLString,
+          resolve: (obj, ctx) => obj.fileUrl,
+          inputs: [],
+          description: null,
+          deprecationReason: null),
       field('referencedMessageId', graphQLInt,
           resolve: (obj, ctx) => obj.referencedMessageId,
           inputs: [],
@@ -157,6 +174,11 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQlType {
         final args = ctx.args;
 
         return obj.referencedMessage(ctx);
+      }, inputs: [], description: null, deprecationReason: null),
+      field('metadata', messageMetadataGraphQlType, resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return obj.metadata();
       }, inputs: [], description: null, deprecationReason: null)
     ],
   );
@@ -308,6 +330,10 @@ GraphQLUnionType<ChatMessageEvent> get chatMessageEventGraphQlType {
   );
 }
 
+/// Auto-generated from [MessageType].
+final GraphQLEnumType<MessageType> messageTypeGraphQlType = enumType(
+    'MessageType', const {'FILE': MessageType.FILE, 'TEXT': MessageType.TEXT});
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -318,6 +344,9 @@ _$_ChatMessage _$$_ChatMessageFromJson(Map<String, dynamic> json) =>
       chatId: json['chatId'] as int,
       userId: json['userId'] as int,
       message: json['message'] as String,
+      type: _$enumDecode(_$MessageTypeEnumMap, json['type']),
+      fileUrl: json['fileUrl'] as String?,
+      metadataJson: json['metadataJson'] as String?,
       referencedMessageId: json['referencedMessageId'] as int?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -328,9 +357,43 @@ Map<String, dynamic> _$$_ChatMessageToJson(_$_ChatMessage instance) =>
       'chatId': instance.chatId,
       'userId': instance.userId,
       'message': instance.message,
+      'type': _$MessageTypeEnumMap[instance.type],
+      'fileUrl': instance.fileUrl,
+      'metadataJson': instance.metadataJson,
       'referencedMessageId': instance.referencedMessageId,
       'createdAt': instance.createdAt.toIso8601String(),
     };
+
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+const _$MessageTypeEnumMap = {
+  MessageType.FILE: 'FILE',
+  MessageType.TEXT: 'TEXT',
+};
 
 _$ChatMessageSentEvent _$$ChatMessageSentEventFromJson(
         Map<String, dynamic> json) =>

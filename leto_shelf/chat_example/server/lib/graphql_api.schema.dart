@@ -5,6 +5,7 @@ import 'package:server/users/user_table.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/chat_room/user_rooms.dart';
+import 'package:server/messages/metadata.dart';
 
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
@@ -21,6 +22,10 @@ final graphqlApiSchema = GraphQLSchema(
       chatRoomSerializer,
       dBEventDataSerializer,
       dBEventSerializer,
+      messageMetadataSerializer,
+      linksMetadataSerializer,
+      linkMetadataSerializer,
+      fileMetadataSerializer,
     ]),
   queryType: objectType(
     'Query',

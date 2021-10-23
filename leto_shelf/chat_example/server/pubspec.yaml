@@ -12,7 +12,10 @@ dependencies:
   json_annotation: ^4.1.0
   json_path:
   oxidized: ^5.0.1
-  blurhash_dart:
+  blurhash_dart: ^1.0.2
+  metadata_fetch: ^0.4.1
+  linkify: ^4.1.0
+
   valida:
     path: ../../../valida/valida
 
@@ -25,6 +28,7 @@ dependencies:
 
   argon2: ^1.0.1
   jose: ^0.3.2
+
   uuid:
   collection:
 

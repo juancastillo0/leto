@@ -1,6 +1,8 @@
-// ignore_for_file: leading_newlines_in_multiline_strings
+// ignore_for_file: leading_newlines_in_multiline_strings, constant_identifier_names
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:query_builder/database/models/connection_models.dart';
@@ -8,11 +10,19 @@ import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart';
 import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
+import 'package:server/messages/metadata.dart';
 import 'package:server/users/auth.dart';
+import 'package:server/utilities.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 
 part 'messages_table.g.dart';
 part 'messages_table.freezed.dart';
+
+@GraphQLClass()
+enum MessageType {
+  FILE,
+  TEXT,
+}
 
 @GraphQLClass()
 @freezed
@@ -22,6 +32,9 @@ class ChatMessage with _$ChatMessage {
     required int chatId,
     required int userId,
     required String message,
+    required MessageType type,
+    String? fileUrl,
+    @GraphQLField(omit: true) String? metadataJson,
     int? referencedMessageId,
     required DateTime createdAt,
   }) = _ChatMessage;
@@ -35,7 +48,17 @@ class ChatMessage with _$ChatMessage {
       return null;
     }
     final controller = await chatControllerRef.get(ctx);
+    // TODO: use dataloader or cached
     return controller.messages.get(referencedMessageId!);
+  }
+
+  MessageMetadata? metadata() {
+    if (metadataJson == null) {
+      return null;
+    }
+    return MessageMetadata.fromJson(
+      jsonDecode(metadataJson!) as Map<String, Object?>,
+    );
   }
 }
 
@@ -113,16 +136,14 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
     return ChatMessage.fromJson(result.first);
   }
 
-  Future<ChatMessage?> insert(
-    int chatId,
-    String message, {
-    required UserClaims user,
-    int? referencedMessageId,
-  }) async {
-    ChatMessage? messageModel;
-    await db.transaction((db) async {
+  Future<void> validateInsert({
+    required int userId,
+    required int chatId,
+    required int? referencedMessageId,
+  }) {
+    return db.transaction((db) async {
       final chatUser = await UserChatsTable(db).get(
-        userId: user.userId,
+        userId: userId,
         chatId: chatId,
       );
       if (chatUser == null) {
@@ -139,19 +160,42 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
           throw Exception('Can only reference messages within the same chat.');
         }
       }
+    });
+  }
+
+  Future<ChatMessage?> insert(
+    int chatId,
+    String message, {
+    String? fileUrl,
+    required UserClaims user,
+    int? referencedMessageId,
+    required MessageMetadata metadata,
+  }) async {
+    ChatMessage? messageModel;
+    await db.transaction((db) async {
+      await ChatMessageTable(db).validateInsert(
+        userId: user.userId,
+        chatId: chatId,
+        referencedMessageId: referencedMessageId,
+      );
       final createdAt = DateTime.now();
+      final messageType = fileUrl == null ? MessageType.TEXT : MessageType.FILE;
 
       final insertResult = await db.query(
         '''
         INSERT INTO 
-        message(chatId, message, referencedMessageId, userId, createdAt)
-        VALUES (?, ?, ?, ?, ?)''',
+        message(chatId, message, referencedMessageId, 
+          userId, fileUrl, type, createdAt, metadataJson)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
         [
           chatId,
           message,
           referencedMessageId,
           user.userId,
-          createdAt.toIso8601String()
+          fileUrl,
+          messageType.toString().split('.').last,
+          createdAt.toIso8601String(),
+          jsonEncode(metadata.toJson()),
         ],
       );
       final _messageModel = ChatMessage(
@@ -159,6 +203,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
         createdAt: createdAt,
         id: insertResult.insertId!,
         userId: user.userId,
+        type: messageType,
         message: message,
         referencedMessageId: referencedMessageId,
       );
@@ -169,6 +214,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
 
       messageModel = _messageModel;
     });
+    // TODO:
     // } on SqliteException catch (e) {
     //   if (e.extendedResultCode == 787) {
     //     throw Exception('Chat room with id $chatId not found.');
@@ -237,6 +283,26 @@ CREATE TABLE $tableName (
   FOREIGN KEY (userId) REFERENCES user (id),
   FOREIGN KEY (chatId) REFERENCES chat (id) ON DELETE CASCADE
 );''',
+
+        /// Add type, fileUrl, metadataJson, isDeleted columns,
+        '''DROP TABLE $tableName;''',
+        '''
+CREATE TABLE $tableName (
+  id INTEGER NOT NULL,
+  chatId INTEGER NOT NULL,
+  userId INTEGER NOT NULL,
+  message TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('TEXT', 'FILE')),
+  fileUrl TEXT NULL CHECK (type = 'FILE' AND fileUrl is not null OR type = 'TEXT' AND fileUrl is null),
+  isDeleted BOOL NOT NULL DEFAULT 0,
+  metadataJson ${db.database == SqlDatabase.sqlite ? 'TEXT' : 'JSONB'} NULL,
+  referencedMessageId INT NULL,
+  createdAt DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (referencedMessageId) REFERENCES $tableName (id),
+  FOREIGN KEY (userId) REFERENCES user (id),
+  FOREIGN KEY (chatId) REFERENCES chat (id) ON DELETE CASCADE
+);''',
       ],
     );
     print('migrated $tableName $migrated');
@@ -252,11 +318,13 @@ Future<ChatMessage?> sendMessage(
 ) async {
   final userClaims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
+  final metadata = await MessageMetadata.fromMessage(message, null);
   return controller.messages.insert(
     chatId,
     message,
     referencedMessageId: referencedMessageId,
     user: userClaims,
+    metadata: metadata,
   );
 }
 
@@ -264,17 +332,44 @@ Future<ChatMessage?> sendMessage(
 Future<ChatMessage?> sendFileMessage(
   ReqCtx<Object> ctx,
   int chatId,
-  UploadedFile file,
+  UploadedFile file, {
   int? referencedMessageId,
-) async {
-  final userClaims = await getUserClaimsUnwrap(ctx);
+  String message = '',
+}) async {
+  final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
+  await controller.messages.validateInsert(
+    userId: claims.userId,
+    chatId: chatId,
+    referencedMessageId: referencedMessageId,
+  );
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final uuid = uuidBase64Url();
+
+  final fileName = file.filename ?? file.name ?? '';
+  final filePath = //
+      '/files/chats/$chatId/${claims.userId}/'
+      '$timestamp$uuid$fileName';
+  final ioFile = File('.$filePath');
+
+  // TODO: sizeLimit
+  final c = ioFile.openWrite();
+  await c.addStream(file.data);
+  await c.close();
+
+  // TODO: should we do it eventually after insert?
+  final metadata = await MessageMetadata.fromMessage(
+    message,
+    FileMetadata.fromUpload(file),
+  );
+
   return controller.messages.insert(
     chatId,
-    // TODO:
-    'message',
+    message,
     referencedMessageId: referencedMessageId,
-    user: userClaims,
+    user: claims,
+    fileUrl: filePath,
+    metadata: metadata,
   );
 }
 
@@ -285,6 +380,10 @@ Future<List<ChatMessage>> getMessage(
 ) async {
   final controller = await chatControllerRef.get(ctx);
   return controller.messages.getAll(chatId: chatId);
+}
+
+Future<LinksMetadata> getMessageLinksMetadata(String message) {
+  return LinksMetadata.fromMessage(message);
 }
 
 @Subscription()
