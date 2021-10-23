@@ -112,16 +112,16 @@ class ChatRoomUsers extends HookConsumerWidget {
           child: Row(
             children: [
               Text(
-                'Users',
+                'Members',
                 style: Theme.of(context).textTheme.headline6,
               ),
               if (canEdit)
                 Padding(
-                  padding: const EdgeInsets.only(left: 18.0),
+                  padding: const EdgeInsets.only(left: 24.0),
                   child: ElevatedButton.icon(
                     onPressed: _showAddUserDialog,
                     icon: const Icon(Icons.add),
-                    label: const Text('Add User'),
+                    label: const Text('Add Member'),
                   ),
                 ),
             ],

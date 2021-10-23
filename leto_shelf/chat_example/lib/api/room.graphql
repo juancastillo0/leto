@@ -3,7 +3,7 @@
 
 mutation createRoom($name: String!) {
   createChatRoom(name: $name) {
-    ...BaseChatRoom
+    ...FullChatRoom
   }
 }
 
