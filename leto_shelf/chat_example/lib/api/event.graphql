@@ -8,9 +8,25 @@ subscription onEvent {
   }
 }
 
+query getEvents($cursor: String, $delta: Int!) {
+  getEvents(cursor: $cursor, delta: $delta) {
+    values {
+      ...BaseEvent
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+  }
+}
+
 fragment BaseEvent on DBEvent {
   id
   type
+  userId
+  sessionId
   createdAt
   data {
     ... on ChatDBEventData {

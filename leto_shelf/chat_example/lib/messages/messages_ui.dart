@@ -98,9 +98,12 @@ class MessageList extends HookConsumerWidget {
                     itemBuilder: (context, index) {
                       final GFullMessage message =
                           messages[messages.length - index - 1];
-                      return MessageItem(
-                        message: message,
-                        key: ValueKey(message.id),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                        child: MessageItem(
+                          message: message,
+                          key: ValueKey(message.id),
+                        ),
                       );
                     },
                   ),
