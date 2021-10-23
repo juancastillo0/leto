@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
+import 'package:server/events/database_event.dart';
 import 'package:server/graphql/logging_extension.dart';
-import 'package:server/users/auth.dart' show setWebSocketAuth;
+import 'package:server/users/auth.dart'
+    show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -94,7 +96,15 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
   );
   await userTableRef.get(globalVariables).setup();
   await userSessionRef.get(globalVariables).setup();
+  final chatController = await chatControllerRef.get(globalVariables);
   await userChatsRef.get(globalVariables).setup();
+  chatController.events.controller.stream.listen((events) {
+    for (final event in events) {
+      if (event.type == EventType.userSessionSignedOut) {
+        closeWebSocketSessionConnections(globalVariables, event.sessionId);
+      }
+    }
+  });
 
   const port = 8060;
   const httpPath = '/graphql';
@@ -112,10 +122,9 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     graphqlWebSocket(
       graphQL,
       globalVariables: globalVariables,
-      validateIncomingConnection: (map, server) {
-        if (map != null) {
-          setWebSocketAuth(map, globalVariables, server);
-        }
+      validateIncomingConnection: (map, server) async {
+        await setWebSocketAuth(map, globalVariables, server);
+
         return true;
       },
     ),

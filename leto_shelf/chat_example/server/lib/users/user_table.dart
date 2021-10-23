@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -9,8 +8,8 @@ import 'package:server/chat_room/chat_table.dart';
 import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
+import 'package:server/utilities.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:uuid/uuid.dart';
 import 'package:valida/validate/validate_annotations.dart';
 
 part 'user_table.g.dart';
@@ -269,8 +268,8 @@ CREATE TABLE $tableName (
   Future<bool> deactivate(UserClaims claims) async {
     return conn.transaction((conn) async {
       final result = await conn.query(
-        'update userSession set isActive = false'
-        ' and endedAt = CURRENT_TIMESTAMP where id = ?',
+        'update userSession set isActive = false,'
+        ' endedAt = CURRENT_TIMESTAMP where id = ?;',
         [claims.sessionId],
       );
       final deactivated = (result.affectedRows ?? 0) >= 1;
@@ -313,16 +312,23 @@ class UserSession {
     this.endedAt,
   });
 
-  factory UserSession.create(int userId, Request request) {
-    final uuid = base64UrlEncode(const Uuid().v4obj().toBytes());
+  @GraphQLField(omit: true)
+  static const platformKey = 'sgqlc-platform';
+  @GraphQLField(omit: true)
+  static const appversionKey = 'sgqlc-appversion';
+
+  factory UserSession.create(int userId, ReqCtx ctx) {
+    final request = ctx.request;
+    final webSocketConn = WebSocketConnCtx.fromCtx(ctx);
+    final uuid = uuidBase64Url();
     return UserSession(
       isActive: true,
       createdAt: DateTime.now(),
       id: uuid,
       userId: userId,
-      platform: request.headers['sgqlc-platform'],
       userAgent: request.headers[HttpHeaders.userAgentHeader],
-      appVersion: request.headers['sgqlc-appversion'],
+      platform: request.headers[platformKey] ?? webSocketConn?.platform,
+      appVersion: request.headers[appversionKey] ?? webSocketConn?.appVersion,
     );
   }
 
@@ -504,7 +510,7 @@ class ErrC<T> {
 }
 
 @GraphQLClass()
-enum SignInError { wrong, unknown, alreadySignedIn }
+enum SignInError { wrong, alreadySignedIn }
 
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
@@ -543,9 +549,6 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
       user = await userTableRef.get(ctx).insert();
     }
   }
-  if (user == null) {
-    return Err(ErrC(SignInError.unknown));
-  }
   final payload = await signInUser(ctx, user);
   return Ok(payload);
 }
@@ -568,8 +571,9 @@ Future<String?> signOut(ReqCtx ctx) async {
   return null;
 }
 
-Future<bool> deactivateSession(ReqCtx ctx, UserClaims claims) {
-  return userSessionRef.get(ctx).deactivate(claims);
+Future<bool> deactivateSession(ReqCtx ctx, UserClaims claims) async {
+  final success = await userSessionRef.get(ctx).deactivate(claims);
+  return success;
 }
 
 const refreshDuration = Duration(hours: 1);
@@ -593,7 +597,7 @@ String setAuthToken(
 }
 
 Future<TokenWithUser> signInUser(ReqCtx ctx, User user) async {
-  final session = UserSession.create(user.id, ctx.request);
+  final session = UserSession.create(user.id, ctx);
   await userSessionRef.get(ctx).insert(session);
 
   final refreshToken = createAuthToken(

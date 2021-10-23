@@ -492,10 +492,9 @@ final GraphQLEnumType<SignUpError> signUpErrorGraphQlType =
 });
 
 /// Auto-generated from [SignInError].
-final GraphQLEnumType<SignInError> signInErrorGraphQlType =
-    enumType('SignInError', const {
+final GraphQLEnumType<SignInError> signInErrorGraphQlType = enumType(
+    'SignInError', const {
   'wrong': SignInError.wrong,
-  'unknown': SignInError.unknown,
   'alreadySignedIn': SignInError.alreadySignedIn
 });
 

@@ -10,11 +10,29 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
-final _webSocketAuthClaimsRef = GlobalRef('webSocketAuthClaimsRef');
+final _webSocketConnCtxRef = GlobalRef('webSocketConnCtxRef');
 final _webSocketSessionsRef = RefWithDefault.scoped(
   'webSocketSessionsRef',
   (h) => <String, Set<GraphQLWebSocketServer>>{},
 );
+
+final unauthenticatedError = GraphQLError('Unauthenticated');
+final unauthorizedError = GraphQLError('Unauthorized');
+
+class WebSocketConnCtx {
+  final UserClaims? claims;
+  final String? platform;
+  final String? appVersion;
+
+  const WebSocketConnCtx({
+    this.claims,
+    this.platform,
+    this.appVersion,
+  });
+
+  static WebSocketConnCtx? fromCtx(ReqCtx ctx) =>
+      ctx.globals[_webSocketConnCtxRef] as WebSocketConnCtx?;
+}
 
 String? getAuthToken(ReqCtx ctx) {
   return getCookie(ctx.request, AUTH_COOKIE_KEY) ??
@@ -28,43 +46,63 @@ void setAuthCookie(ReqCtx ctx, String token, int maxAgeSecs) {
   );
 }
 
-Future<void> setWebSocketAuth(
-  Map<String, Object?> map,
-  GlobalsHolder holder,
-  GraphQLWebSocketServer server,
-) async {
-  final refreshToken = map['refreshToken'];
-  if (refreshToken is String) {
-    final claims = await _getUserClaimsFromToken(
-      refreshToken,
-      isRefreshToken: true,
-    );
-    if (claims != null) {
-      server.globalVariables.setScoped(
-        _webSocketAuthClaimsRef,
-        claims,
-      );
-      final set = _webSocketSessionsRef.get(holder).putIfAbsent(
-            claims.sessionId,
-            () => {},
-          );
-      set.add(server);
-
-      void _onDone(Object? _) {
-        set.remove(server);
-        if (set.isEmpty) {
-          _webSocketSessionsRef.get(holder).remove(claims.sessionId);
-        }
-      }
-
-      // ignore: unawaited_futures
-      server.done.then(_onDone).catchError(_onDone);
+void closeWebSocketSessionConnections(GlobalsHolder ctx, String sessionId) {
+  final connections = _webSocketSessionsRef.get(ctx)[sessionId];
+  if (connections != null) {
+    for (final conn in connections) {
+      // TODO: Unauthorized
+      // conn.client.closeWithReason(4401, 'Session ended.');
+      conn.client.close();
     }
   }
 }
 
-final unauthenticatedError = GraphQLError('Unauthenticated');
-final unauthorizedError = GraphQLError('Unauthorized');
+Future<void> setWebSocketAuth(
+  Map<String, Object?>? map,
+  GlobalsHolder holder,
+  GraphQLWebSocketServer server,
+) async {
+  late final WebSocketConnCtx connCtx;
+  if (map == null) {
+    connCtx = const WebSocketConnCtx();
+  } else {
+    final refreshToken = map['refreshToken'];
+    UserClaims? claims;
+    if (refreshToken is String) {
+      claims = await _getUserClaimsFromToken(
+        refreshToken,
+        isRefreshToken: true,
+      );
+      if (claims != null) {
+        final _connectionsMap = _webSocketSessionsRef.get(holder);
+        final set = _connectionsMap.putIfAbsent(
+          claims.sessionId,
+          () => {},
+        );
+        set.add(server);
+
+        void _onDone(Object? _) {
+          set.remove(server);
+          if (set.isEmpty) {
+            _connectionsMap.remove(claims!.sessionId);
+          }
+        }
+
+        // ignore: unawaited_futures
+        server.done.then(_onDone).catchError(_onDone);
+      }
+    }
+    connCtx = WebSocketConnCtx(
+      claims: claims,
+      platform: map[UserSession.platformKey] as String?,
+      appVersion: map[UserSession.appversionKey] as String?,
+    );
+  }
+  server.globalVariables.setScoped(
+    _webSocketConnCtxRef,
+    connCtx,
+  );
+}
 
 class UserClaims {
   final int userId;
@@ -94,8 +132,7 @@ Future<UserClaims?> getUserClaims(
   ReqCtx ctx, {
   bool isRefreshToken = false,
 }) async {
-  final webSocketClaims =
-      ctx.globals.get(_webSocketAuthClaimsRef) as UserClaims?;
+  final webSocketClaims = WebSocketConnCtx.fromCtx(ctx)?.claims;
   if (webSocketClaims != null) {
     return webSocketClaims;
   }
