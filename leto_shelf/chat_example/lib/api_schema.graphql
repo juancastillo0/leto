@@ -4,6 +4,7 @@ type Query {
   getUser: User
   getChatRooms: [ChatRoom!]!
   getEvents(cursor: String, delta: Int!): PaginatedDBEvent!
+  testSqlRawQuery(query: String!, params: [String]): String
 }
 
 type ChatMessage {
@@ -11,15 +12,55 @@ type ChatMessage {
   chatId: Int!
   userId: Int!
   message: String!
+  type: MessageType!
+  fileUrl: String
   referencedMessageId: Int
   createdAt: Date!
   referencedMessage: ChatMessage
+  metadata: MessageMetadata
+}
+
+enum MessageType {
+  FILE
+  TEXT
 }
 
 """
 An ISO-8601 Date.
 """
 scalar Date
+
+type MessageMetadata {
+  fileMetadata: FileMetadata
+  linksMetadata: LinksMetadata
+  computedAt: Date!
+}
+
+type FileMetadata {
+  sizeInBytes: Int!
+  mimeType: String!
+  fileName: String!
+  sha1Hash: String!
+  fileHashBlur: String
+}
+
+type LinksMetadata {
+  links: [LinkMetadata!]!
+  emails: [String!]!
+
+  """
+  TODO: bring user ids?
+  """
+  userTags: [String!]!
+  hasLinks: Boolean!
+}
+
+type LinkMetadata {
+  title: String
+  description: String
+  image: String
+  url: String
+}
 
 type User {
   sessions: [UserSession!]!
@@ -260,6 +301,7 @@ type Mutation {
     chatId: Int!
     file: Upload!
     referencedMessageId: Int
+    message: String! = ""
   ): ChatMessage
   refreshAuthToken: String
   signUp(name: String!, password: String!): ResultTokenWithUserErrCSignUpError!
@@ -318,7 +360,6 @@ type ErrCSignInError {
 
 enum SignInError {
   wrong
-  unknown
   alreadySignedIn
 }
 

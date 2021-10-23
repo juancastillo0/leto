@@ -18,6 +18,22 @@ mutation sendMessage(
   }
 }
 
+mutation sendFileMessage(
+  $chatId: Int!
+  $message: String
+  $file: Upload!
+  $referencedMessageId: Int
+) {
+  sendFileMessage(
+    chatId: $chatId
+    message: $message
+    file: $file
+    referencedMessageId: $referencedMessageId
+  ) {
+    ...FullMessage
+  }
+}
+
 subscription onMessageSent($chatId: Int!) {
   onMessageSent(chatId: $chatId) {
     ...FullMessage
@@ -25,16 +41,51 @@ subscription onMessageSent($chatId: Int!) {
 }
 
 fragment FullMessage on ChatMessage {
+  ...BaseMessage
+  referencedMessage {
+    ...BaseMessage
+  }
+}
+
+fragment BaseMessage on ChatMessage {
   id
   chatId
   userId
   message
-  createdAt
-  referencedMessage {
-    id
-    message
-    createdAt
-    chatId
-    userId
+  type
+  fileUrl
+  metadata {
+    ...MsgMetadata
   }
+  createdAt
+}
+
+fragment MsgMetadata on MessageMetadata {
+  fileMetadata {
+    ...MsgFileMetadata
+  }
+  linksMetadata {
+    ...MsgLinkMetadata
+  }
+  computedAt
+}
+
+fragment MsgFileMetadata on FileMetadata {
+  sizeInBytes
+  mimeType
+  fileName
+  sha1Hash
+  fileHashBlur
+}
+
+fragment MsgLinkMetadata on LinksMetadata {
+  links {
+    title
+    description
+    image
+    url
+  }
+  emails
+  userTags
+  hasLinks
 }

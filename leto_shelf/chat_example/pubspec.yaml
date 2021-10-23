@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -27,31 +27,38 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  gql_link: 
-  gql_http_link: 
+  gql_link:
+  gql_http_link:
   gql_websocket_link:
-  ferry: 
-  ferry_hive_store: 
-  ferry_flutter: 
-  hive: 
-  hive_flutter: 
+  ferry:
+  ferry_hive_store:
+  ferry_flutter:
+  hive:
+  hive_flutter:
   shared_preferences:
+
+  file_selector:
+  file_selector_macos:
+  file_selector_windows:
+  file_selector_linux:
+
   freezed_annotation:
 
   flutter_hooks: ^0.18.0
   hooks_riverpod: ^1.0.0-dev.11
-  
+
+  flutter_blurhash: ^0.6.0
+
   flutter:
     sdk: flutter
-
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
-  build_runner: 
-  ferry_generator: 
+  build_runner:
+  ferry_generator:
   freezed:
   flutter_test:
     sdk: flutter
@@ -68,7 +75,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

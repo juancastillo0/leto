@@ -9,16 +9,34 @@ targets:
         enabled: true
         options:
           schema: chat_example|lib/api_schema.graphql
+          type_overrides:
+            Upload:
+              name: MultipartFile
+              import: 'package:http/http.dart'
       gql_build|var_builder:
         enabled: true
         options:
           schema: chat_example|lib/api_schema.graphql
+          type_overrides:
+            Upload:
+              name: MultipartFile
+              import: 'package:http/http.dart'
       gql_build|serializer_builder:
         enabled: true
         options:
           schema: chat_example|lib/api_schema.graphql
-
+          custom_serializers:
+            - import: 'package:chat_example/api/upload_serializer.dart'
+              name: UploadSerializer
+          type_overrides:
+            Upload:
+              name: MultipartFile
+              import: 'package:http/http.dart'
       ferry_generator|req_builder:
         enabled: true
         options:
           schema: chat_example|lib/api_schema.graphql
+          type_overrides:
+            Upload:
+              name: MultipartFile
+              import: 'package:http/http.dart'

@@ -149,7 +149,9 @@ class _$ChatMessageSentEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ChatMessageSentEvent implements ChatMessageSentEvent {
+class _$ChatMessageSentEvent
+    with DiagnosticableTreeMixin
+    implements ChatMessageSentEvent {
   const _$ChatMessageSentEvent(this.value);
 
   @override
@@ -157,8 +159,16 @@ class _$ChatMessageSentEvent implements ChatMessageSentEvent {
       value;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'ChatMessageEvent.sent(value: $value)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'ChatMessageEvent.sent'))
+      ..add(DiagnosticsProperty('value', value));
   }
 
   @override
@@ -294,7 +304,9 @@ class _$ChatMessageDeletedEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ChatMessageDeletedEvent implements ChatMessageDeletedEvent {
+class _$ChatMessageDeletedEvent
+    with DiagnosticableTreeMixin
+    implements ChatMessageDeletedEvent {
   const _$ChatMessageDeletedEvent(this.value);
 
   @override
@@ -302,8 +314,16 @@ class _$ChatMessageDeletedEvent implements ChatMessageDeletedEvent {
       value;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'ChatMessageEvent.deleted(value: $value)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'ChatMessageEvent.deleted'))
+      ..add(DiagnosticsProperty('value', value));
   }
 
   @override
@@ -439,7 +459,9 @@ class _$ChatMessageUpdatedEventCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ChatMessageUpdatedEvent implements ChatMessageUpdatedEvent {
+class _$ChatMessageUpdatedEvent
+    with DiagnosticableTreeMixin
+    implements ChatMessageUpdatedEvent {
   const _$ChatMessageUpdatedEvent(this.value);
 
   @override
@@ -447,8 +469,16 @@ class _$ChatMessageUpdatedEvent implements ChatMessageUpdatedEvent {
       value;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'ChatMessageEvent.updated(value: $value)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'ChatMessageEvent.updated'))
+      ..add(DiagnosticsProperty('value', value));
   }
 
   @override

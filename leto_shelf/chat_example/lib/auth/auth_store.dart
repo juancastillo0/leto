@@ -168,11 +168,6 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
         case GSignInError.alreadySignedIn:
           alreadySignedError(data.message);
           break;
-
-        case GSignInError.unknown:
-          unknownError(data.message);
-          break;
-
         case GSignInError.wrong:
           wrongNameOrPasswordError(data.message);
           break;

@@ -124,7 +124,8 @@ Future<ProviderContainer> initClient() async {
   await Hive.initFlutter();
   final box = await Hive.openBox<Object?>('graphql');
 
-  final url = 'http://localhost:8060/graphql';
+  const url = 'http://localhost:8060/graphql';
+  const wsUrl = 'ws://localhost:8060/graphql-subscription';
   final httpClient = http.Client();
 
   final store = HiveStore(box);
@@ -137,12 +138,13 @@ Future<ProviderContainer> initClient() async {
 
   final link = Link.from([
     HttpAuthLink(
-      () => ref.read(authStoreProv).authToken, // authState?.accessToken,
+      () => ref.read(authStoreProv).authToken,
       () {
-        return ref.read(authStoreProv).refreshAuthToken(
-              url: url,
-              httpClient: httpClient,
-            );
+        final authStore = ref.read(authStoreProv);
+        return authStore.refreshAuthToken(
+          url: url,
+          httpClient: httpClient,
+        );
       },
     ),
     HttpLink(
@@ -153,7 +155,7 @@ Future<ProviderContainer> initClient() async {
     )
   ]);
 
-  final client = Client(
+  final httpGqlClient = Client(
     link: link,
     cache: cache,
     defaultFetchPolicies: _defaultFetchPolicies,
@@ -161,7 +163,8 @@ Future<ProviderContainer> initClient() async {
   );
 
   ref = ProviderContainer(overrides: [
-    clientProvider.overrideWithValue(client),
+    httpClientProvider.overrideWithValue(httpGqlClient),
+    clientProvider.overrideWithValue(httpGqlClient),
     authStorageProv.overrideWithValue(authStorage),
   ]);
   final authStore = ref.read(authStoreProv);
@@ -169,14 +172,16 @@ Future<ProviderContainer> initClient() async {
     await authStore.signInAnnon();
   }
   final wsLink = WebSocketLink(
-    'ws://localhost:8060/graphql-subscription',
+    wsUrl,
     initialPayload: <String, Object?>{
       ..._defaultHeaders,
       'refreshToken': authStore.state!.refreshToken,
     },
   );
   ref.dispose();
+
   ref = ProviderContainer(overrides: [
+    httpClientProvider.overrideWithValue(httpGqlClient),
     clientProvider.overrideWithValue(Client(
       link: wsLink,
       cache: cache,
@@ -189,5 +194,5 @@ Future<ProviderContainer> initClient() async {
   return ref;
 }
 
-/// Created in main.dart
 final clientProvider = Provider<Client>((_) => throw Error());
+final httpClientProvider = Provider<Client>((_) => throw Error());

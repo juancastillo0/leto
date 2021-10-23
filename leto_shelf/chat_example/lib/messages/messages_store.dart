@@ -1,5 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
+import 'dart:async';
+
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/api/event.data.gql.dart';
 import 'package:chat_example/api/event.req.gql.dart';
@@ -11,6 +13,9 @@ import 'package:chat_example/api/room.data.gql.dart';
 import 'package:chat_example/api/room.req.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:ferry/ferry.dart';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:file_selector/file_selector.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -103,29 +108,69 @@ class MessagesStore {
     });
   }
 
+  final errorController = StreamController<String>.broadcast();
+
   Client get client => _read(clientProvider);
   T Function<T>(ProviderBase<T> provider) _read;
 
-  void sendMessage(String message, int chatId) {
-    final user = _read(authStoreProv).user!;
-    final optimisticResponse = (GsendMessageData_sendMessageBuilder()
-      ..chatId = chatId
-      ..message = message
-      ..userId = user.id
-      ..createdAt.value = DateTime.now().toIso8601String()
-      ..id = -1);
+  void sendMessage(
+    String message,
+    int chatId,
+  ) async {
+    // final user = _read(authStoreProv).user!;
+    // final optimisticResponse = (GsendMessageData_sendMessageBuilder()
+    //   ..chatId = chatId
+    //   ..message = message
+    //   ..userId = user.id
+    //   ..createdAt.value = DateTime.now().toIso8601String()
+    //   ..id = -1);
+    final req = GsendMessageReq(
+      (b) => b
+        ..vars.chatId = chatId
+        ..vars.message = message
+        ..updateResult
+      // ..optimisticResponse.sendMessage = optimisticResponse
+      ,
+    );
+    client.request(req).listen((event) {});
+  }
 
-    client
-        .request(
-          GsendMessageReq(
-            (b) => b
-              ..vars.chatId = chatId
-              ..vars.message = message
-              ..updateResult
-              ..optimisticResponse.sendMessage = optimisticResponse,
-          ),
-        )
-        .listen((event) {});
+  void sendFileMessage(
+    String message,
+    int chatId,
+    XFile file,
+  ) async {
+    final sizeInBytes = await file.length();
+    if (sizeInBytes > 10e6) {
+      errorController.add('Maximum file size: 10MB');
+      return;
+    }
+
+    final http.MultipartFile multipart;
+    if (kIsWeb) {
+      final bytes = await file.readAsBytes();
+      multipart = http.MultipartFile.fromBytes(
+        '',
+        bytes,
+        filename: file.name,
+      );
+    } else {
+      multipart = await http.MultipartFile.fromPath(
+        '',
+        file.path,
+        filename: file.name,
+      );
+    }
+    final req = GsendFileMessageReq(
+      (b) => b
+        ..vars.chatId = chatId
+        ..vars.message = message
+        ..vars.file = multipart
+        ..updateResult
+      // ..optimisticResponse.sendMessage = optimisticResponse
+      ,
+    );
+    _read(httpClientProvider).request(req).listen((event) {});
   }
 }
 
