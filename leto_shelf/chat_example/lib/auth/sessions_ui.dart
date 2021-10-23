@@ -44,10 +44,10 @@ class UserProfile extends HookConsumerWidget {
               columnWidths: const {
                 0: FixedColumnWidth(220),
                 1: FixedColumnWidth(60),
-                2: FixedColumnWidth(120),
-                3: FixedColumnWidth(95),
-                4: FixedColumnWidth(80),
-                5: FixedColumnWidth(160),
+                2: FixedColumnWidth(80),
+                3: FixedColumnWidth(80),
+                4: FixedColumnWidth(160),
+                5: FixedColumnWidth(120),
               },
               border: TableBorder.all(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
@@ -63,11 +63,11 @@ class UserProfile extends HookConsumerWidget {
                   children: const [
                     Text('ID'),
                     Text('State'),
-                    Text('Ended At'),
-                    Text('App Version'),
+                    Text('Version'),
                     Text('Platform'),
                     Text('User Agent'),
                     Text('Created At'),
+                    Text('Ended At'),
                   ]
                       .map((e) => Padding(
                             padding: const EdgeInsets.symmetric(
@@ -83,11 +83,11 @@ class UserProfile extends HookConsumerWidget {
                     children: [
                       Text(session.id),
                       Text(session.isActive ? 'Active' : 'Ended'),
-                      Text(session.endedAt?.value ?? 'N/A'),
                       Text(session.appVersion ?? 'Unknown'),
                       Text(session.platform ?? 'Unknown'),
                       Text(session.userAgent ?? 'Unknown'),
                       Text(session.createdAt.value),
+                      Text(session.endedAt?.value ?? 'N/A'),
                     ]
                         .map((e) => Padding(
                               padding: const EdgeInsets.symmetric(
