@@ -48,6 +48,17 @@ final selectedChatMessages =
   },
 );
 
+final cachedChatMessages = StreamProvider.family<GgetMessagesData?, int>(
+  (ref, chatId) {
+    final cache = ref.read(clientProvider).cache;
+    return cache.watchQuery(
+      // TODO:
+      // ..requestId = 'getMessages'
+      GgetMessagesReq((b) => b..vars.chatId = chatId),
+    );
+  },
+);
+
 final userEvents =
     StreamProvider<OperationResponse<GonEventData, GonEventVars>>(
   (ref) {

@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:built_collection/src/list.dart';
 import 'package:chat_example/api/room.data.gql.dart';
 import 'package:chat_example/api/room.var.gql.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_store.dart';
@@ -134,43 +137,99 @@ class ChatRoomList extends StatelessWidget {
             Expanded(
               child: value.isEmpty
                   ? const Text('Empty')
-                  : HookConsumer(
-                      builder: (context, ref, _) {
-                        final _chatId = ref.watch(selectedChatId);
-
-                        return ListView.builder(
-                          itemCount: value.length,
-                          itemBuilder: (context, index) {
-                            final room = value[index];
-                            return InkWell(
-                              onTap: () {
-                                _chatId.state = room.id;
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    right: BorderSide(
-                                      width: 2.5,
-                                      color: _chatId.state == room.id
-                                          ? Colors.black
-                                          : Colors.transparent,
-                                    ),
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    Text(room.name),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                  : ChatItemsList(value: value),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class ChatItemsList extends HookConsumerWidget {
+  const ChatItemsList({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
+
+  final BuiltList<GgetRoomsData_getChatRooms> value;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _chatId = ref.watch(selectedChatId);
+
+    return ListView.builder(
+      itemCount: value.length,
+      itemBuilder: (context, index) {
+        final room = value[index];
+        return InkWell(
+          key: ValueKey(room.id),
+          onTap: () {
+            _chatId.state = room.id;
+          },
+          child: Consumer(builder: (context, ref, _) {
+            final messages = ref
+                .watch(cachedChatMessages(room.id))
+                .asData
+                ?.value
+                ?.getMessage;
+
+            return Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    width: 2.5,
+                    color: _chatId.state == room.id
+                        ? Colors.black
+                        : Colors.transparent,
+                  ),
+                ),
+              ),
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text(
+                      room.name,
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                  ),
+                  if (messages != null && messages.isNotEmpty)
+                    (() {
+                      final message = messages.last;
+
+                      String _simpleDate(String str) {
+                        final split = str.split('T');
+                        return '${split[0]} ${split[1].substring(0, 5)}';
+                      }
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              message.message.substring(
+                                0,
+                                min(
+                                  35,
+                                  message.message.length,
+                                ),
+                              ),
+                              style: Theme.of(context).textTheme.overline,
+                            ),
+                          ),
+                          Text(
+                            _simpleDate(message.createdAt.value),
+                            style: Theme.of(context).textTheme.overline,
+                          ),
+                        ],
+                      );
+                    })()
+                ],
+              ),
+            );
+          }),
         );
       },
     );
