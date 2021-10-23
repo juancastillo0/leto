@@ -25,6 +25,7 @@ String getPlatform() {
   if (Platform.isLinux) return 'LINUX';
   if (Platform.isMacOS) return 'MACOS';
   if (Platform.isWindows) return 'WINDOWS';
+  if (Platform.isFuchsia) return 'FUCHSIA';
   return 'OTHER';
 }
 
@@ -93,6 +94,31 @@ class AuthStorage {
   }
 }
 
+final _defaultHeaders = {
+  'sgqlc-appversion': getVersion(),
+  'sgqlc-platform': getPlatform(),
+};
+
+const _defaultFetchPolicies = {
+  OperationType.query: FetchPolicy.CacheAndNetwork,
+  OperationType.mutation: FetchPolicy.NetworkOnly,
+  OperationType.subscription: FetchPolicy.CacheAndNetwork,
+};
+
+final _cacheHandlers = (() {
+  final _list = [
+    createChatRoomHandler,
+    deleteChatRoomHandler,
+    addChatRoomUserHandler,
+    deleteChatRoomUserHandler,
+  ];
+  final _cacheHandlers = Map.fromEntries(
+    _list.map((e) => MapEntry<String, Function>(e.name, e.rawHandler)),
+  );
+  assert(_list.length == _cacheHandlers.length);
+  return _cacheHandlers;
+})();
+
 Future<ProviderContainer> initClient() async {
   Hive.init('hive_data');
   await Hive.initFlutter();
@@ -123,32 +149,14 @@ Future<ProviderContainer> initClient() async {
       url,
       httpClient: httpClient,
       useGETForQueries: true,
-      defaultHeaders: {
-        'sgqlc-appversion': getVersion(),
-        'sgqlc-platform': getPlatform(),
-      },
+      defaultHeaders: _defaultHeaders,
     )
   ]);
-
-  final _list = [
-    createChatRoomHandler,
-    deleteChatRoomHandler,
-    addChatRoomUserHandler,
-    deleteChatRoomUserHandler,
-  ];
-  final _cacheHandlers = Map.fromEntries(
-    _list.map((e) => MapEntry<String, Function>(e.name, e.rawHandler)),
-  );
-  assert(_list.length == _cacheHandlers.length);
 
   final client = Client(
     link: link,
     cache: cache,
-    defaultFetchPolicies: {
-      OperationType.query: FetchPolicy.CacheAndNetwork,
-      OperationType.mutation: FetchPolicy.NetworkOnly,
-      OperationType.subscription: FetchPolicy.CacheAndNetwork,
-    },
+    defaultFetchPolicies: _defaultFetchPolicies,
     updateCacheHandlers: _cacheHandlers,
   );
 
@@ -163,6 +171,7 @@ Future<ProviderContainer> initClient() async {
   final wsLink = WebSocketLink(
     'ws://localhost:8060/graphql-subscription',
     initialPayload: <String, Object?>{
+      ..._defaultHeaders,
       'refreshToken': authStore.state!.refreshToken,
     },
   );
@@ -171,11 +180,7 @@ Future<ProviderContainer> initClient() async {
     clientProvider.overrideWithValue(Client(
       link: wsLink,
       cache: cache,
-      defaultFetchPolicies: {
-        OperationType.query: FetchPolicy.CacheAndNetwork,
-        OperationType.mutation: FetchPolicy.NetworkOnly,
-        OperationType.subscription: FetchPolicy.CacheAndNetwork,
-      },
+      defaultFetchPolicies: _defaultFetchPolicies,
       updateCacheHandlers: _cacheHandlers,
     )),
     authStorageProv.overrideWithValue(authStorage),
