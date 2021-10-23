@@ -30,6 +30,20 @@ mutation signOut {
   signOut
 }
 
+query getUser {
+  getUser {
+    ...FullUser
+  }
+}
+
+fragment FullUser on User {
+  sessions {
+    ...FSession
+  }
+  createdAt
+  ...AUser
+}
+
 fragment AUser on User {
   id
   name
