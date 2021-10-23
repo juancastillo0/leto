@@ -209,6 +209,8 @@ class ChatRoomUser {
 
   factory ChatRoomUser.fromJson(Map<String, Object?> json) =>
       _$ChatRoomUserFromJson(json);
+
+  Map<String, Object?> toJson() => _$ChatRoomUserToJson(this);
 }
 
 Future<_ValidatedUserChat> validateEditPermission(

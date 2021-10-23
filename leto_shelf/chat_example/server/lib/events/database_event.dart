@@ -149,7 +149,7 @@ class EventTable {
     if (result.isEmpty) {
       return null;
     }
-    return result.first.values.first as int;
+    return result.first.values.first as int?;
   }
 
   Future<DBEvent?> get(int eventId) async {
