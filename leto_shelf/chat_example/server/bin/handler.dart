@@ -38,7 +38,7 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
 
   app.get(
     '/files/<filepath|.*>',
-    staticFilesWithController(),
+    staticFilesHandler(globalVariables),
   );
   final schema = makeApiSchema();
 
@@ -228,24 +228,36 @@ void setUpGraphQLUi(
   );
 }
 
-Handler staticFilesWithController() {
+Handler staticFilesHandler(GlobalsHolder globals) {
   final handler = createStaticHandler(
     pathRelativeToScript(['/']),
     listDirectories: true,
     useHeaderBytesForContentType: true,
   );
 
-  return (request) {
-    // final etag = request.headers[HttpHeaders.ifNoneMatchHeader];
-    // final filepath = request.routeParameter('filepath');
-    // if (etag != null && filepath is String) {
-    //   final decodedFilePath = Uri.decodeComponent(filepath);
-    //   final file = filesController.allFiles[decodedFilePath];
-    //   if (file != null && etag == '"${file.sha1Hash}"') {
-    //     return Response.notModified();
-    //   }
-    // }
-    return handler(request);
+  return (request) async {
+    final etag = request.headers[HttpHeaders.ifNoneMatchHeader];
+    String? fileHash;
+    final filepath = request.params['filepath']!;
+    if (filepath.startsWith('chats/')) {
+      final chatController = await chatControllerRef.get(globals);
+
+      final dbbPath = request.url.pathSegments.join('/');
+      // TODO: Authorization
+      final message = await chatController.messages.getByPath('/$dbbPath');
+      if (message == null) {
+        return Response.notFound(null);
+      }
+      final fileMetadata = message.metadata()?.fileMetadata;
+      if (fileMetadata != null) {
+        fileHash = '"${fileMetadata.sha1Hash}"';
+        if (fileHash == etag) {
+          return Response.notModified();
+        }
+      }
+    }
+    final response = await handler(request);
+    return fileHash != null ? setEtag(response, fileHash) : response;
   };
 }
 

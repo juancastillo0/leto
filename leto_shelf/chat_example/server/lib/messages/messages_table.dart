@@ -136,6 +136,17 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
     return ChatMessage.fromJson(result.first);
   }
 
+  Future<ChatMessage?> getByPath(String path) async {
+    final result = await db.query(
+      '''SELECT * FROM message WHERE fileUrl = ?;''',
+      [path],
+    );
+    if (result.isEmpty) {
+      return null;
+    }
+    return ChatMessage.fromJson(result.first);
+  }
+
   Future<void> validateInsert({
     required int userId,
     required int chatId,
@@ -180,7 +191,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
       );
       final createdAt = DateTime.now();
       final messageType = fileUrl == null ? MessageType.TEXT : MessageType.FILE;
-
+      final metadataJson = jsonEncode(metadata.toJson());
       final insertResult = await db.query(
         '''
         INSERT INTO 
@@ -195,7 +206,7 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
           fileUrl,
           messageType.toString().split('.').last,
           createdAt.toIso8601String(),
-          jsonEncode(metadata.toJson()),
+          metadataJson,
         ],
       );
       final _messageModel = ChatMessage(
@@ -204,6 +215,8 @@ SELECT * FROM message ${chatId == null ? '' : 'WHERE chatId = ?'};
         id: insertResult.insertId!,
         userId: user.userId,
         type: messageType,
+        fileUrl: fileUrl,
+        metadataJson: metadataJson,
         message: message,
         referencedMessageId: referencedMessageId,
       );
@@ -349,8 +362,8 @@ Future<ChatMessage?> sendFileMessage(
   final fileName = file.filename ?? file.name ?? '';
   final filePath = //
       '/files/chats/$chatId/${claims.userId}/'
-      '$timestamp$uuid$fileName';
-  final ioFile = File('.$filePath');
+      '$timestamp-$uuid-$fileName';
+  final ioFile = await File('./bin$filePath').create(recursive: true);
 
   // TODO: sizeLimit
   final c = ioFile.openWrite();
