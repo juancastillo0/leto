@@ -236,13 +236,6 @@ Uint8List getRandomBytes([int length = 16]) {
 }
 
 String hashFromPassword(String password, {Argon2Parameters? params}) {
-  // // use Salt(List<int> bytes) for a salt from an Integer list
-  // final s = Salt.newSalt();
-  // // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
-  // // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
-  // final result = await argon2.hashPasswordString(password, salt: s);
-  // final stringEncoded = result.encodedString;
-
   final _params = params ??
       Argon2Parameters(
         Argon2Parameters.ARGON2_id,
@@ -257,7 +250,7 @@ String hashFromPassword(String password, {Argon2Parameters? params}) {
 
   final result = Uint8List(32);
   argon2.generateBytesFromString(password, result, 0, result.length);
-  // final hash = result.toHexString();
+
   final encoded =
       '\$argon2${['d', 'i', 'id'][_params.type]}\$v=${_params.version}'
       '\$m=${_params.memory},t=${_params.iterations},p=${_params.lanes}'
@@ -267,12 +260,6 @@ String hashFromPassword(String password, {Argon2Parameters? params}) {
 }
 
 bool verifyPasswordFromHash(String password, String realHash) {
-  // use Salt(List<int> bytes) for a salt from an Integer list
-  // final s = Salt.newSalt();
-  // Hash with pre-set params (iterations: 32, memory: 256, parallelism: 2,
-  // length: 32, type: Argon2Type.i, version: Argon2Version.V13)
-  // final result = await argon2.hashPasswordString(password, salt: s);
-  // final stringEncoded = result.encodedString;
   try {
     final split = realHash.split('\$');
     final version = int.parse(split[2].substring(2));
