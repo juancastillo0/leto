@@ -84,7 +84,7 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     extensionList: config?.extensionList ??
         [
           if (const bool.fromEnvironment('TRACING')) GraphQLTracingExtension(),
-          GraphQLPersistedQueries(),
+          GraphQLPersistedQueries(returnExtensionMap: true),
           CacheExtension(cache: LruCacheSimple(50)),
           LoggingExtension((log) {
             final message = log.message;
