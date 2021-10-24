@@ -115,6 +115,9 @@ Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
     graphqlHttp(
       graphQL,
       globalVariables: globalVariables,
+      onEmptyGet: (_) {
+        return Response.ok(schema.schemaStr);
+      },
     ),
   );
   app.get(

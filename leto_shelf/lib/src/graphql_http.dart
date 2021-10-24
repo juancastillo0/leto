@@ -8,7 +8,12 @@ import 'package:shelf_graphql/src/multipart_shelf.dart'
 import 'package:shelf_graphql/src/server_utils/graphql_request.dart'
     show GraphQLRequest;
 
-Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
+Handler graphqlHttp(
+  GraphQL graphQL, {
+  ScopedMap? globalVariables,
+  Response Function(Request)? onEmptyGet,
+  Response Function(Request, Object, StackTrace)? onError,
+}) {
   return (request) async {
     final _nested = <Object, Object?>{requestCtxKey: request};
     final _globalVariables = globalVariables != null
@@ -17,35 +22,45 @@ Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
 
     try {
       final GraphQLRequest gqlQuery;
-      if (request.method == 'POST') {
-        if (request.mimeType == 'application/graphql') {
-          final text = await request.readAsString();
-          gqlQuery = GraphQLRequest(query: text);
-        } else if (request.mimeType == 'multipart/form-data') {
-          final data = await extractMultiPartData(request);
-          final parseQueryResult = GraphQLRequest.fromMultiPartFormData(data);
-          if (parseQueryResult.isErr()) {
-            return Response(
-              HttpStatus.badRequest,
-              body: parseQueryResult.unwrapErr(),
-            );
+      try {
+        if (request.method == 'POST') {
+          if (request.mimeType == 'application/graphql') {
+            final text = await request.readAsString();
+            gqlQuery = GraphQLRequest(query: text);
+          } else if (request.mimeType == 'multipart/form-data') {
+            final data = await extractMultiPartData(request);
+            final parseQueryResult = GraphQLRequest.fromMultiPartFormData(data);
+            if (parseQueryResult.isErr()) {
+              return Response(
+                HttpStatus.badRequest,
+                body: parseQueryResult.unwrapErr(),
+              );
+            }
+            gqlQuery = parseQueryResult.unwrap();
+          } else if (request.mimeType == 'application/json') {
+            final payload = extractJson(request);
+            if (payload is Map<String, Object?> && payload['query'] == null) {
+              payload['query'] = request.url.queryParameters['query'];
+            }
+            gqlQuery = GraphQLRequest.fromJson(payload);
+          } else {
+            return Response(HttpStatus.badRequest);
           }
-          gqlQuery = parseQueryResult.unwrap();
-        } else if (request.mimeType == 'application/json') {
-          final payload = extractJson(request);
-          if (payload is Map<String, Object?> && payload['query'] == null) {
-            payload['query'] = request.url.queryParameters['query'];
+        } else if (request.method == 'GET') {
+          final queryParams = request.url.queryParameters;
+          if (queryParams['query'] is String) {
+            // TODO: allow requests without query but with extensions, such us
+            // persisted queries
+            gqlQuery = GraphQLRequest.fromQueryParameters(queryParams);
+          } else {
+            return onEmptyGet?.call(request) ?? Response(HttpStatus.badRequest);
           }
-          gqlQuery = GraphQLRequest.fromJson(payload);
         } else {
-          return Response(HttpStatus.badRequest);
+          return Response.notFound('');
         }
-      } else if (request.method == 'GET') {
-        gqlQuery = GraphQLRequest.fromQueryParameters(
-          request.url.queryParameters,
-        );
-      } else {
-        return Response.notFound('');
+      } catch (e) {
+        if (e is Response) return e;
+        return Response(HttpStatus.badRequest, body: e.toString());
       }
 
       final results = gqlQuery.asIterable().map((gqlQuery) async {
@@ -84,7 +99,7 @@ Handler graphqlHttp(GraphQL graphQL, {ScopedMap? globalVariables}) {
       return e;
     } catch (e, s) {
       extractLog(request)?.call('$e $s');
-      return Response.internalServerError();
+      return onError?.call(request, e, s) ?? Response.internalServerError();
     }
   };
 }

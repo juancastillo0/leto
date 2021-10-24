@@ -318,7 +318,7 @@ Future<Paginated<DBEvent>> getEvents(
   String? cursor,
   int delta,
 ) async {
-  // final user = await getUserClaimsUnwrap(ctx);
+  final user = await getUserClaimsUnwrap(ctx);
   final numItems = delta.abs();
   final isAscending = delta > 0;
   final eventId = cursor == null ? null : int.tryParse(cursor);
@@ -334,7 +334,7 @@ Future<Paginated<DBEvent>> getEvents(
   final value = await controller.events.getPaginated(
     fromEventId: eventId,
     numEvents: numItems + 1,
-    userId: 1,
+    userId: user.userId,
     ascending: isAscending,
   );
   final hasMore = value.length > numItems;
