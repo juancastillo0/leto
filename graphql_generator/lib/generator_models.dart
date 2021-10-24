@@ -261,8 +261,12 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   final __$fieldName = ${expression().accept(DartEmitter())};
   $_chacheGetter = __$fieldName;
   __$fieldName.${isInput ? 'inputFields' : 'fields'}.addAll(${literalList(
-      fields
-          .where((e) => e.fieldAnnot.omit != true)
+      Map.fromEntries(
+        fields
+            .where((e) => e.fieldAnnot.omit != true)
+            .map((e) => MapEntry(e.name, e)),
+      )
+          .values
           .map((e) => e.expression(isInput: isInput))
           .followedBy([if (isUnion) refer(unionKeyName)]),
     ).accept(DartEmitter())},);
