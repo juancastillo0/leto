@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chat_example/api/cache_link.dart';
+import 'package:chat_example/api/ferry_client.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/api/http_auth_link.dart';
 import 'package:chat_example/api/user.data.gql.dart';
@@ -151,12 +153,14 @@ Future<ProviderContainer> initClient() async {
       url,
       httpClient: httpClient,
       useGETForQueries: true,
+      serializer: const CacheRequestSerializer(),
       defaultHeaders: _defaultHeaders,
     )
   ]);
 
-  final httpGqlClient = Client(
+  final httpGqlClient = CustomClient(
     link: link,
+    firstLink: CacheTypedLink(cache),
     cache: cache,
     defaultFetchPolicies: _defaultFetchPolicies,
     updateCacheHandlers: _cacheHandlers,
@@ -173,6 +177,7 @@ Future<ProviderContainer> initClient() async {
   }
   final wsLink = WebSocketLink(
     wsUrl,
+    serializer: const CacheRequestSerializer(),
     initialPayload: <String, Object?>{
       ..._defaultHeaders,
       'refreshToken': authStore.state!.refreshToken,
@@ -180,10 +185,12 @@ Future<ProviderContainer> initClient() async {
   );
   ref.dispose();
 
+  // ignore: join_return_with_assignment
   ref = ProviderContainer(overrides: [
     httpClientProvider.overrideWithValue(httpGqlClient),
-    clientProvider.overrideWithValue(Client(
+    clientProvider.overrideWithValue(CustomClient(
       link: wsLink,
+      firstLink: CacheTypedLink(cache),
       cache: cache,
       defaultFetchPolicies: _defaultFetchPolicies,
       updateCacheHandlers: _cacheHandlers,
