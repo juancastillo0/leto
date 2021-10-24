@@ -209,7 +209,8 @@ class CacheExtension extends GraphQLExtension {
         }
 
         return result.copyWith(
-          data: Val(computedData.key),
+          // TODO: websocket_link throws exception on null data
+          data: Val(computedData.key ?? <String, Object?>{}),
           extensions: Val({
             if (result.extensions != null) ...result.extensions!,
             mapKey: computedData.value.toJson(),
