@@ -1,11 +1,13 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart' show DocumentNode;
-import 'package:graphql_schema/graphql_schema.dart' show GraphQLException, ScopedMap;
+import 'package:graphql_schema/graphql_schema.dart'
+    show GlobalRef, GraphQLException, ScopedMap;
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/src/extension.dart' show GraphQLExtension;
 
@@ -13,10 +15,12 @@ import 'package:graphql_server/src/extension.dart' show GraphQLExtension;
 class GraphQLPersistedQueries extends GraphQLExtension {
   final String Function(String query) computeHash;
   final Cache<String, DocumentNode> persistedQueries;
+  final bool returnExtensionMap;
 
   GraphQLPersistedQueries({
     this.computeHash = defaultComputeHash,
     Cache<String, DocumentNode>? persistedQueries,
+    this.returnExtensionMap = false,
   }) : persistedQueries = persistedQueries ?? LruCacheSimple(100);
 
   static String defaultComputeHash(String query) =>
@@ -27,6 +31,25 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 
   @override
   String get mapKey => 'persistedQuery';
+
+  final _extensionResponseHash = GlobalRef('persistedQueryHash');
+
+  @override
+  FutureOr<GraphQLResult> executeRequest(
+    FutureOr<GraphQLResult> Function() next,
+    ScopedMap globals,
+    Map<String, Object?>? extensions,
+  ) async {
+    if (!returnExtensionMap) {
+      return next();
+    }
+    final response = await next();
+    final hash = globals.get(_extensionResponseHash) as String?;
+    if (hash != null) {
+      return response.copyWithExtension(mapKey, {'sha256Hash': hash});
+    }
+    return response;
+  }
 
   @override
   DocumentNode getDocumentNode(
@@ -76,6 +99,9 @@ class GraphQLPersistedQueries extends GraphQLExtension {
       } else {
         document = next();
         persistedQueries.set(digestHex, document);
+      }
+      if (returnExtensionMap && persistedQuery is Map<String, Object?>) {
+        globals.setScoped(_extensionResponseHash, digestHex);
       }
     }
 
