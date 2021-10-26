@@ -316,6 +316,8 @@ class UserSession {
   static const platformKey = 'sgqlc-platform';
   @GraphQLField(omit: true)
   static const appversionKey = 'sgqlc-appversion';
+  @GraphQLField(omit: true)
+  static const deviceidKey = 'sgqlc-deviceid';
 
   factory UserSession.create(int userId, ReqCtx ctx) {
     final request = ctx.request;

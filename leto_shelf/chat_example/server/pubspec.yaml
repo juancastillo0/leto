@@ -32,6 +32,7 @@ dependencies:
   uuid:
   collection:
 
+  shelf_cors_headers: ^0.1.2
   shelf_plus: ^0.0.2
   shelf_router: ^1.1.1
   shelf_static: ^1.1.0
