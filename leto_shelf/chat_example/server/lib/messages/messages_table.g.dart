@@ -89,6 +89,25 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
   deprecationReason: null,
 );
 
+final GraphQLObjectField<LinksMetadata, Object, Object>
+    getMessageLinksMetadataGraphQLField = field(
+  'getMessageLinksMetadata',
+  linksMetadataGraphQlType.nonNull() as GraphQLType<LinksMetadata, Object>,
+  description: null,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getMessageLinksMetadata((args["message"] as String));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "message",
+      graphQLString.nonNull().coerceToInputObject(),
+    )
+  ],
+  deprecationReason: null,
+);
+
 final GraphQLObjectField<List<ChatMessage?>, Object, Object>
     onMessageSentGraphQLField = field(
   'onMessageSent',

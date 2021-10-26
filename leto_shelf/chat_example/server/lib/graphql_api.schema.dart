@@ -10,6 +10,10 @@ import 'package:server/messages/metadata.dart';
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
     ..addAll([
+      messageMetadataSerializer,
+      linksMetadataSerializer,
+      linkMetadataSerializer,
+      fileMetadataSerializer,
       chatMessageSerializer,
       chatMessageEventSerializer,
       userEventSerializer,
@@ -22,15 +26,12 @@ final graphqlApiSchema = GraphQLSchema(
       chatRoomSerializer,
       dBEventDataSerializer,
       dBEventSerializer,
-      messageMetadataSerializer,
-      linksMetadataSerializer,
-      linkMetadataSerializer,
-      fileMetadataSerializer,
     ]),
   queryType: objectType(
     'Query',
     fields: [
       getMessageGraphQLField,
+      getMessageLinksMetadataGraphQLField,
       searchUserGraphQLField,
       getUserGraphQLField,
       getChatRoomsGraphQLField,

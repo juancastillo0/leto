@@ -395,6 +395,7 @@ Future<List<ChatMessage>> getMessage(
   return controller.messages.getAll(chatId: chatId);
 }
 
+@Query()
 Future<LinksMetadata> getMessageLinksMetadata(String message) {
   return LinksMetadata.fromMessage(message);
 }

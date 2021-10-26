@@ -66,8 +66,15 @@ class LinksMetadata with _$LinksMetadata {
     );
 
     final List<Metadata?> links = await Future.wait(
-      linkElements.whereType<UrlElement>().map((e) {
-        return MetadataFetch.extract(e.url);
+      linkElements.whereType<UrlElement>().map((e) async {
+        // https://github.com/Cretezy/linkify/issues/39
+        final url =
+            e.url.endsWith(')') ? e.url.substring(0, e.url.length - 1) : e.url;
+        final meta = await MetadataFetch.extract(url);
+        if (meta != null && meta.url == null) {
+          meta.url = url;
+        }
+        return meta;
       }),
     );
 
