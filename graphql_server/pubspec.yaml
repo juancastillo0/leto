@@ -20,4 +20,6 @@ dev_dependencies:
 
 dependency_overrides:
   graphql_schema:
-    path: ../graphql_schema
+    git:
+      url: https://github.com/juancastillo0/graphql_server
+      path: graphql_schema
