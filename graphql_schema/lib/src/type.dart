@@ -12,7 +12,23 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   const GraphQLType();
 
   /// The name of this type.
+  ///
+  /// Null for [GraphQLWrapperType] such us
+  /// [GraphQLNonNullType] and [GraphQLListType].
   String? get name;
+
+  /// The name of the this type with defaults for [GraphQLWrapperType]
+  String get printableName {
+    return when(
+      enum_: (t) => t.name,
+      scalar: (t) => t.name,
+      object: (t) => t.name,
+      input: (t) => t.name,
+      union: (t) => t.name,
+      list: (t) => '${t.ofType.printableName}List',
+      nonNullable: (t) => t.ofType.printableName,
+    );
+  }
 
   /// A description of this type, which, while optional, can be
   /// very useful in tools like GraphiQL.
@@ -51,12 +67,6 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
         )
       ]);
     } else {
-      // final v = this;
-      // if (value is List && v is GraphQLListType) {
-      //   return value
-      //       .map((e) => (v as GraphQLListType).ofType.serialize(e))
-      //       .toList() as Serialized;
-      // }
       return serialize(value);
     }
   }
@@ -205,10 +215,15 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
 /// Shorthand to create a [GraphQLListType].
 GraphQLListType<Value, Serialized>
     listOf<Value extends Object, Serialized extends Object>(
-            GraphQLType<Value, Serialized> innerType) =>
-        GraphQLListType<Value, Serialized>(innerType);
+  GraphQLType<Value, Serialized> innerType,
+) {
+  return GraphQLListType<Value, Serialized>(innerType);
+}
 
-abstract class GraphQLTypeWrapper {
+/// An object which wraps a GraphQL type
+///
+/// Examples: [GraphQLListType] and [GraphQLNonNullType]
+abstract class GraphQLWrapperType {
   GraphQLType<Object, Object> get ofType;
 }
 
@@ -217,20 +232,11 @@ abstract class GraphQLTypeWrapper {
 class GraphQLListType<Value extends Object, Serialized extends Object>
     extends GraphQLType<List<Value?>, List<Serialized?>>
     with _NonNullableMixin<List<Value?>, List<Serialized?>>
-    implements GraphQLTypeWrapper {
+    implements GraphQLWrapperType {
   @override
   final GraphQLType<Value, Serialized> ofType;
 
   GraphQLListType(this.ofType);
-
-  // @override
-  // List<Serialized> convert(Object? value) {
-  //   if (value is Iterable) {
-  //     return value.cast<Serialized>().toList();
-  //   } else {
-  //     return super.convert(value);
-  //   }
-  // }
 
   @override
   String? get name => null;
@@ -240,6 +246,7 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
+  // ignore: avoid_renaming_method_parameters
   ValidationResult<List<Serialized?>> validate(String key, Object? _input) {
     final input = _input != null && _input is! List ? [_input] : _input;
     if (input is! List)
@@ -311,14 +318,14 @@ mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
 /// A special [GraphQLType] that indicates that input values should both be
 /// non-null, and be valid when asserted against another type, named [ofType].
 class GraphQLNonNullType<Value extends Object, Serialized extends Object>
-    extends GraphQLType<Value, Serialized> implements GraphQLTypeWrapper {
+    extends GraphQLType<Value, Serialized> implements GraphQLWrapperType {
   @override
   final GraphQLType<Value, Serialized> ofType;
 
   const GraphQLNonNullType._(this.ofType);
 
   @override
-  String? get name => null; //innerType.name;
+  String? get name => null;
 
   @override
   String get description =>

@@ -20,6 +20,20 @@ final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
 final GraphQLScalarType<DateTime, int> graphQLTimestamp =
     _GraphQLTimestampType._();
 
+/// A signed integer.
+final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
+  'Int',
+  'A signed integer.',
+  'an integer',
+);
+
+/// A signed double-precision floating-point value.
+final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
+  'Float',
+  'A signed double-precision floating-point value.',
+  'a float',
+);
+
 final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
   name: 'Uri',
   description: 'A Uniform Resource Identifier (URI) is a compact sequence of'
@@ -32,20 +46,6 @@ final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
       : ValidationResult.failure(
           ['Expected "$key" to be a Uri. Got invalid value $input.'],
         ),
-);
-
-/// A signed 32‐bit integer.
-final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
-  'Int',
-  'A signed 64-bit integer.',
-  'an integer',
-);
-
-/// A signed double-precision floating-point value.
-final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
-  'Float',
-  'A signed double-precision floating-point value.',
-  'a float',
 );
 
 bool isSpecifiedScalarType(GraphQLType type) {
@@ -61,7 +61,8 @@ bool isSpecifiedScalarType(GraphQLType type) {
 abstract class GraphQLScalarType<Value extends Object,
         Serialized extends Object> extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
-  // const GraphQLScalarType();
+  @override
+  String get name;
 
   String? get specifiedByURL => null;
 
@@ -123,8 +124,6 @@ class GraphQLScalarTypeValue<Value extends Object, Serialized extends Object>
 }
 
 class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
-  // const _GraphQLBoolType();
-
   @override
   bool serialize(bool value) {
     return value;
@@ -237,6 +236,7 @@ class _GraphQLIDType extends GraphQLScalarType<String, Object> {
           ? ValidationResult.ok(input!)
           : ValidationResult.failure(
               [
+                // ignore: lines_longer_than_80_chars
                 'Expected "$key" to be a ID, string or int. Got invalid value $input.'
               ],
             );
@@ -323,35 +323,4 @@ class _GraphQLTimestampType extends GraphQLScalarType<DateTime, int>
 
   @override
   Iterable<Object?> get props => [];
-}
-
-class _GraphQLIdentityType<T extends Object> extends GraphQLScalarType<T, T>
-    with _NonNullableMixin<T, T> {
-  _GraphQLIdentityType(
-    this.name,
-    this.description,
-    this._validate,
-  );
-
-  @override
-  final String name;
-
-  @override
-  final String description;
-
-  final ValidationResult<T> Function(String key, Object? input) _validate;
-
-  @override
-  T serialize(T value) => value;
-
-  @override
-  T deserialize(SerdeCtx serdeCtx, T serialized) => serialized;
-
-  @override
-  ValidationResult<T> validate(String key, Object? input) {
-    return _validate(key, input);
-  }
-
-  @override
-  Iterable<Object?> get props => [name, description, _validate];
 }
