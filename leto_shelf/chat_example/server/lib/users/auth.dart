@@ -12,8 +12,8 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
 final _webSocketConnCtxRef = GlobalRef('webSocketConnCtxRef');
 final _webSocketSessionsRef = RefWithDefault.scoped(
-  'webSocketSessionsRef',
   (h) => <String, Set<GraphQLWebSocketServer>>{},
+  name: 'webSocketSessionsRef',
 );
 
 final unauthenticatedError = GraphQLError('Unauthenticated');

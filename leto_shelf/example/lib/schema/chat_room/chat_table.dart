@@ -14,10 +14,10 @@ part 'chat_table.freezed.dart';
 final chatRoomDatabase = GlobalRef('ChatRoomDatabase');
 
 final chatControllerRef = RefWithDefault.global(
-  'ChatController',
   (holder) => ChatController.create(
     db: holder.globals[chatRoomDatabase] as Database?,
   ),
+  name: 'ChatController',
 );
 
 class ChatController {

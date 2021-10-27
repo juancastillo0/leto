@@ -59,6 +59,6 @@ List<Map<String, Object?>> booksToJson(List<Book> books) {
 }
 
 final booksControllerRef = RefWithDefault.global(
-  'BooksController',
   (_) => BooksController(),
+  name: 'BooksController',
 );

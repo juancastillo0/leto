@@ -14,10 +14,10 @@ part 'user_rooms.g.dart';
 part 'user_rooms.freezed.dart';
 
 final userChatsRef = RefWithDefault.global(
-  'UserChatsTable',
   (scope) => UserChatsTable(
     chatRoomDatabase.get(scope),
   ),
+  name: 'UserChatsTable',
 );
 
 @GraphQLClass()

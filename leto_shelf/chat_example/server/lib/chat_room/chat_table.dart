@@ -18,17 +18,17 @@ part 'chat_table.freezed.dart';
 part 'chat_table.g.dart';
 
 final chatRoomDatabase = RefWithDefault<TableConnection>.global(
-  'ChatRoomDatabase',
   (scope) => SqliteConnection(
     const bool.fromEnvironment('SQLITE_MEMORY')
         ? sqlite3.openInMemory()
         : sqlite3.open('chat_room.sqlite'),
   ),
+  name: 'ChatRoomDatabase',
 );
 
 final chatControllerRef = RefWithDefault.global(
-  'ChatController',
   (scope) => ChatController.create(chatRoomDatabase.get(scope)),
+  name: 'ChatController',
 );
 
 @GraphQLClass()

@@ -16,27 +16,27 @@ part 'user_table.g.dart';
 part 'user_table.freezed.dart';
 
 final userTableRef = RefWithDefault.global(
-  'UserTable',
   (scope) => UserTable(
     chatRoomDatabase.get(scope),
   ),
+  name: 'UserTable',
 );
 
 final userSessionRef = RefWithDefault.global(
-  'UserSessionTable',
   (scope) => UserSessionTable(
     chatRoomDatabase.get(scope),
   ),
+  name: 'UserSessionTable',
 );
 
 final userDataLoaderRef = RefWithDefault.global(
-  'UserDataLoader',
   (scope) {
     final table = userTableRef.get(scope);
     return DataLoader<int, User?, int>(
       (ids) => table.getByIds(ids),
     );
   },
+  name: 'UserDataLoader',
 );
 
 @GraphQLClass()

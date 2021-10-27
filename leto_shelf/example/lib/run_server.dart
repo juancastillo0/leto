@@ -61,7 +61,7 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
   final graphQL = GraphQL(
     schema,
     introspect: true,
-    extensionList: config?.extensionList ??
+    extensions: config?.extensionList ??
         [GraphQLTracingExtension(), GraphQLPersistedQueries()],
   );
 
