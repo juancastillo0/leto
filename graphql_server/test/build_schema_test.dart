@@ -40,7 +40,7 @@ query {
 
     final result = await GraphQL(schema).parseAndExecute(
       document,
-      initialValue: rootValue,
+      rootValue: rootValue,
     );
     expect(result.toJson(), {
       'data': {'sync': 'bd', 'syncNest': null},

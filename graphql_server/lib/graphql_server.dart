@@ -24,7 +24,7 @@ class GraphQLConfig {
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
   /// logging, error handling or caching [GraphQLPersistedQueries]
-  final List<GraphQLExtension> extensionList;
+  final List<GraphQLExtension> extensions;
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
@@ -42,13 +42,16 @@ class GraphQLConfig {
     this.introspect,
     this.validate,
     this.defaultFieldResolver,
-    this.extensionList = const <GraphQLExtension>[],
+    this.extensions = const <GraphQLExtension>[],
     this.customTypes = const <GraphQLType>[],
     this.globalVariables,
   });
 }
 
 /// A Dart implementation of a GraphQL server.
+///
+/// Parses, validates and executes GraphQL requests using the
+/// provided [GraphQLSchema].
 class GraphQL {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes = [];
@@ -57,29 +60,34 @@ class GraphQL {
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
   /// logging, error handling or caching [GraphQLPersistedQueries]
-  final List<GraphQLExtension> extensionList;
+  final List<GraphQLExtension> extensions;
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
   final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
 
-  GraphQLSchema _schema;
-  GraphQLSchema get schema => _schema;
-
+  /// Variables passed to all executed requests
   final Map<Object, Object?> baseGlobalVariables;
 
   /// If validate is false, a parsed document is executed without
   /// being validated with the provided schema
   final bool validate;
 
+  /// Whether to introspect the [GraphQLSchema]
+  ///
+  /// This will change the Query type of the [schema] by adding
+  /// instrospection fields, useful for client code generators or other
+  /// tools like UI explorers.
   final bool introspect;
+
+  GraphQLSchema _schema;
 
   GraphQL(
     GraphQLSchema schema, {
     bool? introspect,
     bool? validate,
     this.defaultFieldResolver,
-    this.extensionList = const [],
+    this.extensions = const [],
     List<GraphQLType> customTypes = const <GraphQLType>[],
     Map<Object, Object?>? globalVariables,
   })  : baseGlobalVariables = globalVariables ?? const {},
@@ -121,7 +129,7 @@ class GraphQL {
         introspect: config.introspect,
         customTypes: config.customTypes,
         defaultFieldResolver: config.defaultFieldResolver,
-        extensionList: config.extensionList,
+        extensions: config.extensions,
         globalVariables: config.globalVariables,
       );
 
@@ -131,7 +139,6 @@ class GraphQL {
 
   /// Parses the GraphQLDocument in [text] and executes [operationName]
   /// or the only operation in the document if not given.
-  ///
   Future<GraphQLResult> parseAndExecute(
     String text, {
     String? operationName,
@@ -141,7 +148,7 @@ class GraphQL {
     dynamic sourceUrl,
     Map<String, Object?>? variableValues,
     Map<String, Object?>? extensions,
-    Object? initialValue,
+    Object? rootValue,
     ScopedMap? globalVariables,
   }) async {
     final _globalVariables = globalVariables ?? ScopedMap.empty();
@@ -167,7 +174,7 @@ class GraphQL {
             _schema,
             document,
             operationName: operationName,
-            initialValue: initialValue ?? _globalVariables,
+            initialValue: rootValue ?? _globalVariables,
             variableValues: variableValues,
             globalVariables: _globalVariables,
             extensions: extensions,
@@ -189,11 +196,11 @@ class GraphQL {
     T Function(T Function() next, GraphQLExtension) call,
     T Function() next,
   ) {
-    if (extensionList.isEmpty) {
+    if (extensions.isEmpty) {
       return next();
     } else {
       T Function() _next = next;
-      for (final e in extensionList) {
+      for (final e in extensions) {
         final _currNext = _next;
         _next = () => call(_currNext, e);
       }
@@ -1451,6 +1458,10 @@ class GraphQL {
   }
 }
 
+/// Wrapper around a value from a GraphQL Subscription Stream.
+///
+/// This type would be received in the resolve callback of a
+/// GraphQL subscription field.
 class SubscriptionEvent {
   final Object? value;
 
