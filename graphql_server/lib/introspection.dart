@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:graphql_schema/graphql_schema.dart';
 
-/// Performs introspection over a GraphQL [schema], and returns a one,
+/// Performs introspection over a GraphQL [schema], and returns one
 /// containing introspective information.
 ///
 /// [allTypes] should contain all types, not directly defined in the schema,
@@ -385,7 +385,8 @@ GraphQLObjectType<GraphQLDirective> _reflectDirectiveType() {
     '__Directive',
     description: '''
 A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
-In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
+In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, 
+such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
 ''',
     fields: [
       field(

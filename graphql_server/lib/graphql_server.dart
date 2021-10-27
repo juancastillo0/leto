@@ -78,6 +78,7 @@ class GraphQL {
   /// This will change the Query type of the [schema] by adding
   /// instrospection fields, useful for client code generators or other
   /// tools like UI explorers.
+  /// More infomation in: [reflectSchema]
   final bool introspect;
 
   GraphQLSchema _schema;
@@ -393,7 +394,8 @@ class GraphQL {
       if (variableType.isNonNull && coercedValues[variableName] == null) {
         throw GraphQLException.fromSourceSpan(
           coercedValues.containsKey(variableName)
-              ? 'Required variable "$variableName" of type $type must not be null.'
+              ? 'Required variable "$variableName" of'
+                  ' type $type must not be null.'
               : 'Missing required variable "$variableName" of type $type',
           span!,
         );
@@ -537,8 +539,6 @@ class GraphQL {
                 ctx,
                 selectionSet,
                 subscriptionType!,
-                // TODO: improve this. Send same level field for execution?
-                // maybe with [completeValue]
                 SubscriptionEvent._(event),
                 serial: false,
               );
@@ -930,14 +930,14 @@ class GraphQL {
 
       final possibleObjects = <GraphQLObjectType>[];
 
-      void _mapperType(GraphQLTypeWrapper nn) {
+      void _mapperType(GraphQLWrapperType nn) {
         final ofType = nn.ofType.realType;
         if (ofType is GraphQLObjectType) {
           possibleObjects.add(ofType);
         } else if (ofType is GraphQLUnionType) {
           possibleObjects.addAll(ofType.possibleTypes);
-        } else if (ofType is GraphQLTypeWrapper) {
-          _mapperType(ofType as GraphQLTypeWrapper);
+        } else if (ofType is GraphQLWrapperType) {
+          _mapperType(ofType as GraphQLWrapperType);
         }
       }
 
