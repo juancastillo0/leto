@@ -113,23 +113,28 @@ Middleware etag({
 }) {
   return (handler) {
     return (request) async {
-      if (request.headers[HttpHeaders.cacheControlHeader] == 'no-cache') {
-        return handler(request);
-      }
       final response = await handler(request);
       if (response.statusCode >= 300) {
         return response;
       }
 
       final ifNoneMatch = request.headers[HttpHeaders.ifNoneMatchHeader];
-      final _settedEtag = response.headers[HttpHeaders.etagHeader];
-      if (_settedEtag != null) {
-        if (ifNoneMatch == _settedEtag) {
-          return Response.notModified(headers: response.headersAll);
+      final settedEtag = response.headers[HttpHeaders.etagHeader];
+      if (settedEtag != null) {
+        // ETag already set
+        if (ifNoneMatch == settedEtag) {
+          // set ETag matches If-None-Match header
+          return Response.notModified(
+            headers: response.headersAll,
+            context: response.context,
+          );
         }
         return response;
       }
 
+      // Copy the body since `response.read` returns a single
+      // subscription stream, which can't be used in the response
+      // because we are using it to calculate the ETag hash
       final bodyCopy = <List<int>>[];
       final bodyStream = response.read().map((buf) {
         bodyCopy.add(buf);
@@ -141,13 +146,20 @@ Middleware etag({
         bodyHash = await hasher(bodyStream, response.encoding);
       } else {
         final digest = await bodyStream.transform(sha1).single;
-        // digest in Hex
+        // sha1 hash in HEX
         bodyHash = '"${digest.toString()}"';
       }
 
       if (bodyHash == ifNoneMatch) {
-        return Response.notModified(headers: response.headersAll);
+        // computed ETag matches If-None-Match header
+        return Response.notModified(
+          headers: response.headersAll,
+          context: response.context,
+        );
       }
+
+      // Return the response with the copied body
+      // and the computed ETag header
       return response.change(
         body: Stream.fromIterable(bodyCopy),
         headers: {HttpHeaders.etagHeader: bodyHash},
