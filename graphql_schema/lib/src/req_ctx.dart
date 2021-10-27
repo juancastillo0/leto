@@ -1,11 +1,5 @@
 part of graphql_schema.src.schema;
 
-class GlobalRef {
-  final String name;
-
-  GlobalRef(this.name);
-}
-
 class ReqCtx<P extends Object> implements GlobalsHolder {
   @override
   final ScopedMap globals;
@@ -16,7 +10,7 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
   final GraphQLObjectField<Object, Object, Object> field;
   final String pathItem;
 
-  List<Object> get path => parentCtx.path.followedBy([pathItem]).toList();
+  List<Object> get path => [...parentCtx.path, pathItem];
 
   final PossibleSelections? Function() lookahead;
 
@@ -57,7 +51,7 @@ class PossibleSelections {
 
   bool get isUnion => unionMap.length > 1;
 
-  PossibleSelections(
+  const PossibleSelections(
     this.unionMap,
     this.fieldNodes,
   );
@@ -66,14 +60,14 @@ class PossibleSelections {
 class PossibleSelectionsObject {
   final Map<String, PossibleSelections? Function()> map;
 
-  PossibleSelectionsObject(this.map);
+  const PossibleSelectionsObject(this.map);
 
   bool contains(String fieldName) => map.containsKey(fieldName);
 
   PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
 }
 
-class ResolveCtx {
+class ResolveCtx implements GlobalsHolder {
   final errors = <GraphQLError>[];
   final GraphQLSchema schema;
   SerdeCtx get serdeCtx => schema.serdeCtx;
@@ -81,7 +75,8 @@ class ResolveCtx {
   final OperationDefinitionNode operation;
   final Object rootValue;
   final Map<String, dynamic> variableValues;
-  final ScopedMap globalVariables;
+  @override
+  final ScopedMap globals;
   final Map<String, dynamic>? extensions;
 
   ResolveCtx({
@@ -90,17 +85,18 @@ class ResolveCtx {
     required this.operation,
     required this.rootValue,
     required this.variableValues,
-    required this.globalVariables,
+    required this.globals,
     required this.extensions,
   });
 }
 
-class ResolveObjectCtx<P extends Object> {
+class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
   final ResolveCtx base;
 
   SerdeCtx get serdeCtx => base.serdeCtx;
   Map<String, dynamic> get variableValues => base.variableValues;
-  ScopedMap get globalVariables => base.globalVariables;
+  @override
+  ScopedMap get globals => base.globals;
   DocumentNode get document => base.document;
 
   final GraphQLObjectType<P> objectType;
@@ -149,14 +145,20 @@ class ResolveObjectCtx<P extends Object> {
   }
 }
 
+class GlobalRef {
+  final String? name;
+
+  GlobalRef([this.name]);
+}
+
 class RefWithDefault<T> {
-  final String name;
+  final String? name;
   final T Function(GlobalsHolder holder) create;
   final bool scoped;
 
-  RefWithDefault(this.name, this.create, {required this.scoped});
-  RefWithDefault.scoped(this.name, this.create) : scoped = true;
-  RefWithDefault.global(this.name, this.create) : scoped = false;
+  RefWithDefault(this.create, {required this.scoped, this.name});
+  RefWithDefault.scoped(this.create, {this.name}) : scoped = true;
+  RefWithDefault.global(this.create, {this.name}) : scoped = false;
 
   T set(GlobalsHolder holder, T value) {
     if (scoped) {

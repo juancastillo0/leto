@@ -20,17 +20,6 @@ class SerdeCtx {
     if (json is T) {
       return json;
     } else {
-      // final itemFactory = _itemFactory ?? Globals.getFactory<T>();
-      // if (itemFactory != null) {
-      //   try {
-      //     final item = itemFactory();
-      //     if (item is SerializableItem && item.trySetFromJson(json)) {
-      //       return item;
-      //     } else {
-      //       throw Error();
-      //     }
-      //   } catch (_) {}
-      // }
       final serializer = of<T>();
       if (serializer == null) {
         throw Exception('No serializer found for type $T.');
@@ -135,7 +124,7 @@ class SerdeCtx {
     final v = _map[T] as Serializer<T>?;
     if (v != null) return [v];
     return _map.values
-        .where((serde) => serde.isType<T>())
+        .where((serde) => serde.generic.isEqualToType<T>())
         .map((s) => s as Serializer<T>)
         .toList();
   }
@@ -158,19 +147,13 @@ abstract class Serializable
 }
 
 abstract class Serializer<T> implements GenericHelpSingle<T> {
-  const Serializer(); // {
-  //   Serializers.add(this);
-  // }
+  const Serializer();
 
   T fromJson(Object? json);
   Object? toJson(T instance);
 
   @override
   GenericHelp<T> get generic => GenericHelp<T>();
-
-  // TODO: test
-  bool isType<O>() => O is T;
-  bool isOtherType<O>() => T is O;
 }
 
 class GenericHelpSingle<T> {
@@ -316,13 +299,13 @@ class SerializerValue<T> extends Serializer<T> {
   Map<String, dynamic> toJson(T instance) => _toJson(instance);
 }
 
-extension GenMap<K, V> on Map<K, V> {
+extension _GenMap<K, V> on Map<K, V> {
   Map<String, Object?> toJsonMap(SerdeCtx serdeCtx) {
     return serdeCtx.toJsonMap(this);
   }
 }
 
-extension GenIterable<V> on Iterable<V> {
+extension _GenIterable<V> on Iterable<V> {
   List<Object?> toJsonList(SerdeCtx serdeCtx) {
     return serdeCtx.toJsonList(this);
   }
