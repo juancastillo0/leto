@@ -8,20 +8,35 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:gql/ast.dart' show DocumentNode;
 import 'package:graphql_schema/graphql_schema.dart'
     show GlobalRef, GraphQLException, ScopedMap;
-import 'package:graphql_server/graphql_server.dart';
-import 'package:graphql_server/src/extension.dart' show GraphQLExtension;
+import 'package:graphql_server/graphql_server.dart'
+    show GraphQLExtension, GraphQLResult;
 
-/// https://www.apollographql.com/docs/apollo-server/performance/apq/
+/// Save network bandwith by storing GraphQL documents on the server and
+/// not requiring the client to send the full document String on each request.
+///
+/// More information: https://www.apollographql.com/docs/apollo-server/performance/apq/
 class GraphQLPersistedQueries extends GraphQLExtension {
+  /// Computes the sha256 hash of the document
   final String Function(String query) computeHash;
-  final Cache<String, DocumentNode> persistedQueries;
-  final bool returnExtensionMap;
+
+  /// Cache for persisted queries
+  ///
+  /// Provided implementations [MapCache] and [LruCacheSimple].
+  final Cache<String, DocumentNode> cache;
+
+  /// Whether to return the sha256 hash in the response extensions map
+  /// for new saved documents.
+  ///
+  /// Helpful for the client to know whether the document was saved
+  /// on the server and probably doesn't need to send the whole document
+  /// String again.
+  final bool returnHashInResponse;
 
   GraphQLPersistedQueries({
     this.computeHash = defaultComputeHash,
-    Cache<String, DocumentNode>? persistedQueries,
-    this.returnExtensionMap = false,
-  }) : persistedQueries = persistedQueries ?? LruCacheSimple(100);
+    Cache<String, DocumentNode>? cache,
+    this.returnHashInResponse = false,
+  }) : cache = cache ?? LruCacheSimple(100);
 
   static String defaultComputeHash(String query) =>
       sha256.convert(utf8.encode(query)).toString();
@@ -32,7 +47,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   String get mapKey => 'persistedQuery';
 
-  final _extensionResponseHash = GlobalRef('persistedQueryHash');
+  final _extensionResponseHashRef = GlobalRef('extensionResponseHash');
 
   @override
   FutureOr<GraphQLResult> executeRequest(
@@ -40,11 +55,11 @@ class GraphQLPersistedQueries extends GraphQLExtension {
     ScopedMap globals,
     Map<String, Object?>? extensions,
   ) async {
-    if (!returnExtensionMap) {
+    if (!returnHashInResponse) {
       return next();
     }
     final response = await next();
-    final hash = globals.get(_extensionResponseHash) as String?;
+    final hash = globals.get(_extensionResponseHashRef) as String?;
     if (hash != null) {
       return response.copyWithExtension(mapKey, {'sha256Hash': hash});
     }
@@ -72,7 +87,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 
       if (version == 1) {
         sha256Hash = persistedQuery['sha256Hash']! as String;
-        final doc = persistedQueries.get(sha256Hash);
+        final doc = cache.get(sha256Hash);
         if (doc != null) {
           if (query != sha256Hash &&
               query.isNotEmpty &&
@@ -87,21 +102,21 @@ class GraphQLPersistedQueries extends GraphQLExtension {
       }
     }
 
-    DocumentNode? document = persistedQueries.get(query);
+    DocumentNode? document = cache.get(query);
     if (document == null) {
       final digestHex = computeHash(query);
       if (sha256Hash != null && digestHex != sha256Hash) {
         throw GraphQLException.fromMessage(PERSISTED_QUERY_HASH_MISMATCH);
       }
-      final doc = persistedQueries.get(digestHex);
+      final doc = cache.get(digestHex);
       if (doc != null) {
         document = doc;
       } else {
         document = next();
-        persistedQueries.set(digestHex, document);
+        cache.set(digestHex, document);
       }
-      if (returnExtensionMap && persistedQuery is Map<String, Object?>) {
-        globals.setScoped(_extensionResponseHash, digestHex);
+      if (returnHashInResponse && persistedQuery is Map<String, Object?>) {
+        globals.setScoped(_extensionResponseHashRef, digestHex);
       }
     }
 
@@ -109,6 +124,9 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   }
 }
 
+/// Cache abstraction
+///
+/// Provided imeplementations [LruCacheSimple] and [MapCache].
 abstract class Cache<K, T> {
   // TODO: FutureOr
   T? get(K key);
@@ -117,6 +135,10 @@ abstract class Cache<K, T> {
   void clear();
 }
 
+/// Simple map cache using an in memory Map for its storage
+///
+/// No size limit, might want to use something like [LruCacheSimple]
+/// if you don't have full control over whats saved.
 class MapCache<K, V> implements Cache<K, V> {
   final Map<K, V> stash = {};
 
