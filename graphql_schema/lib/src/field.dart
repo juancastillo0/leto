@@ -39,6 +39,7 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object,
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 
   /// The name of this field in serialized input.
+  @override
   final String name;
 
   /// A function used to evaluate the [Value] of this field, with
@@ -51,6 +52,7 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object,
 
   /// The [GraphQLType] associated with values that this
   /// field's [resolve] callback returns.
+  @override
   final GraphQLType<Value, Serialized> type;
 
   /// An optional description of this field; useful for tools like GraphiQL.

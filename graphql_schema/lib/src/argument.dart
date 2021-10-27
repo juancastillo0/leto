@@ -6,6 +6,7 @@ part of graphql_schema.src.schema;
 class GraphQLFieldInput<Value extends Object, Serialized extends Object>
     implements ObjectField {
   /// The name of this field.
+  @override
   final String name;
 
   /// An optional description for this field.
@@ -14,6 +15,7 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
   final String? description;
 
   /// The type that input values must conform to.
+  @override
   final GraphQLType<Value, Serialized> type;
 
   /// An optional default value for this field.

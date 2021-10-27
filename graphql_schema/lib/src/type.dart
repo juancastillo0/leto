@@ -220,7 +220,7 @@ GraphQLListType<Value, Serialized>
   return GraphQLListType<Value, Serialized>(innerType);
 }
 
-/// An object which wraps a GraphQL type
+/// An object which wraps a [GraphQLType].
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
 abstract class GraphQLWrapperType {

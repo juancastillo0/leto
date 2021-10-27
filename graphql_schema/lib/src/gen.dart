@@ -117,7 +117,8 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
     );
   }
 
-  /// Shorthand for generating a [GraphQLObjectField].
+  /// Shorthand for generating a [GraphQLObjectField], without a name.
+  /// Useful in combination with [objectType]'s fieldsMap parameter.
   GraphQLObjectField<V, S, P> fieldSpec<P extends Object>({
     Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
     GraphQLFieldResolver<V, P>? resolve,

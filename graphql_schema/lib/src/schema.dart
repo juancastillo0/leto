@@ -30,10 +30,10 @@ part 'validation_result.dart';
 
 /// The schema against which queries, mutations, and subscriptions are executed.
 class GraphQLSchema {
-  /// The shape which all queries against the backend must take.
+  /// The shape which all queries against the server must take.
   final GraphQLObjectType<Object>? queryType;
 
-  /// The shape required for any query that changes the state of the backend.
+  /// The shape required for any query that changes the state of the server.
   final GraphQLObjectType<Object>? mutationType;
 
   /// A [GraphQLObjectType] describing the form of data sent to
@@ -45,14 +45,21 @@ class GraphQLSchema {
   /// subscriptions in its own way.
   final GraphQLObjectType<Object>? subscriptionType;
 
+  /// Optional description for the schema
   final String? description;
 
+  /// Supported directives in this schema.
+  ///
+  /// Default: [GraphQLDirective.specifiedDirectives]
   final List<GraphQLDirective> directives;
 
+  /// Serialization and deserialization context for [GraphQLType]
   final SerdeCtx serdeCtx;
 
+  /// The schema in Schema Definition Language (SDL) representation
   late final String schemaStr = printSchema(this);
 
+  /// The schema as a `package:gql` parsed node
   late final DocumentNode schemaNode = parseString(schemaStr);
 
   GraphQLSchema({
@@ -63,13 +70,7 @@ class GraphQLSchema {
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
-        directives = directives ?? GraphQLDirective.specifiedDirectives
-  // ,assert(
-  //   subscriptionType == null ||
-  //       subscriptionType.fields
-  //           .every((f) => f.subscribe != null || f.resolve != null),
-  // )
-  ;
+        directives = directives ?? GraphQLDirective.specifiedDirectives;
 }
 
 /// A default resolver that always returns `null`.

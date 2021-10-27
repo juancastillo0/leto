@@ -399,9 +399,11 @@ Map<String, Object?> _jsonFromValue(Object value) {
     map = value.cast();
   } else {
     try {
-      map = (value as dynamic).toJson() as Map<String, Object?>;
-    } catch (_) {
+      // ignore: avoid_dynamic_calls
       map = (value as dynamic).toMap() as Map<String, Object?>;
+    } catch (_) {
+      // ignore: avoid_dynamic_calls
+      map = (value as dynamic).toJson() as Map<String, Object?>;
     }
   }
   return map;

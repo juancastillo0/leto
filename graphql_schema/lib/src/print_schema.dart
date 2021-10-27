@@ -311,7 +311,7 @@ class SchemaPrinter {
     }
 
     final preferMultipleLines = description.length > 70;
-    final blockString = printBlockString(
+    final blockString = _printBlockString(
       description,
       preferMultipleLines: preferMultipleLines,
     );
@@ -549,7 +549,7 @@ ast.ValueNode astFromUntypedValue(Object value) {
 /// is a single-line, adding a leading blank line would strip that whitespace.
 ///
 /// @internal
-String printBlockString(
+String _printBlockString(
   String value, {
   bool preferMultipleLines = false,
 }) {
