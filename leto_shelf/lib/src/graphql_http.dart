@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:shelf/shelf.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql/src/multipart_shelf.dart'
     show extractMultiPartData;
-import 'package:shelf_graphql/src/server_utils/graphql_request.dart'
-    show GraphQLRequest;
 
 Handler graphqlHttp(
   GraphQL graphQL, {
@@ -15,18 +12,18 @@ Handler graphqlHttp(
   Response Function(Request, Object, StackTrace)? onError,
 }) {
   return (request) async {
-    final _nested = <Object, Object?>{requestCtxKey: request};
-    final _globalVariables = globalVariables != null
-        ? globalVariables.child(_nested)
-        : ScopedMap(_nested);
+    final requestVariables = ScopedMap(
+      {requestCtxKey: request},
+      globalVariables,
+    );
 
     try {
-      final GraphQLRequest gqlQuery;
+      final GraphQLRequest graphQLRequest;
       try {
         if (request.method == 'POST') {
           if (request.mimeType == 'application/graphql') {
             final text = await request.readAsString();
-            gqlQuery = GraphQLRequest(query: text);
+            graphQLRequest = GraphQLRequest(query: text);
           } else if (request.mimeType == 'multipart/form-data') {
             final data = await extractMultiPartData(request);
             final parseQueryResult = GraphQLRequest.fromMultiPartFormData(data);
@@ -36,13 +33,14 @@ Handler graphqlHttp(
                 body: parseQueryResult.unwrapErr(),
               );
             }
-            gqlQuery = parseQueryResult.unwrap();
+            graphQLRequest = parseQueryResult.unwrap();
           } else if (request.mimeType == 'application/json') {
+            // TODO: do not use extract json
             final payload = extractJson(request);
             if (payload is Map<String, Object?> && payload['query'] == null) {
               payload['query'] = request.url.queryParameters['query'];
             }
-            gqlQuery = GraphQLRequest.fromJson(payload);
+            graphQLRequest = GraphQLRequest.fromJson(payload);
           } else {
             return Response(HttpStatus.badRequest);
           }
@@ -51,7 +49,7 @@ Handler graphqlHttp(
           if (queryParams['query'] is String) {
             // TODO: allow requests without query but with extensions, such us
             // persisted queries
-            gqlQuery = GraphQLRequest.fromQueryParameters(queryParams);
+            graphQLRequest = GraphQLRequest.fromQueryParameters(queryParams);
           } else {
             return onEmptyGet?.call(request) ?? Response(HttpStatus.badRequest);
           }
@@ -63,27 +61,27 @@ Handler graphqlHttp(
         return Response(HttpStatus.badRequest, body: e.toString());
       }
 
-      final results = gqlQuery.asIterable().map((gqlQuery) async {
+      final results = graphQLRequest.asIterable().map((gqlQuery) async {
         // ignore: unnecessary_await_in_return
         return await graphQL.parseAndExecute(
           gqlQuery.query,
           operationName: gqlQuery.operationName,
           variableValues: gqlQuery.variables,
-          globalVariables: _globalVariables,
+          globalVariables: requestVariables,
           extensions: gqlQuery.extensions,
           sourceUrl: 'input',
         );
       });
       final resultList = await Future.wait(results);
       final Object? responseBody;
-      if (gqlQuery.isBatched) {
+      if (graphQLRequest.isBatched) {
         responseBody = resultList.map((e) => e.toJson()).toList();
       } else {
         responseBody = resultList.first.toJson();
       }
 
       Response response =
-          _globalVariables[responseCtxKey] as Response? ?? Response.ok(null);
+          requestVariables[responseCtxKey] as Response? ?? Response.ok(null);
       if (response.statusCode != 200 || !response.isEmpty) {
         return response;
       }
@@ -98,6 +96,7 @@ Handler graphqlHttp(
     } on Response catch (e) {
       return e;
     } catch (e, s) {
+      // TODO: do not use extractLog
       extractLog(request)?.call('$e $s');
       return onError?.call(request, e, s) ?? Response.internalServerError();
     }
