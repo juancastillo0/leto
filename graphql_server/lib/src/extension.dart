@@ -1,14 +1,24 @@
 import 'dart:async';
 
-import 'package:gql/ast.dart' show DocumentNode;
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
+
+export 'package:gql/ast.dart' show DocumentNode;
 
 export 'cache_extension.dart';
 export 'persisted_queries.dart';
 export 'tracing.dart';
 
+/// Extensions implement additional funcionalities to the
+/// server's parsing, validation and execution.
+///
+/// For example, extensions for tracing [GraphQLTracingExtension],
+/// logging, error handling or caching [GraphQLPersistedQueries],
+/// [CacheExtension].
 abstract class GraphQLExtension {
+  /// The key identifing this extension, used as the key for
+  /// the extensions map in GraphQLError or GraphQLResult.
+  /// Should be unique.
   String get mapKey;
 
   FutureOr<GraphQLResult> executeRequest(

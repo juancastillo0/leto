@@ -7,6 +7,9 @@ Object? computeValue(
   ValueNode node,
   Map<String, dynamic>? values,
 ) =>
+    // TODO: we can improve errors by passing targetType
+    // but we neet to be careful of potential performance
+    // problems
     valueFromAst(null, node, values);
 // node.accept(GraphQLValueComputer(targetType, values));
 

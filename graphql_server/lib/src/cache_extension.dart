@@ -2,9 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:crypto/crypto.dart';
+import 'package:crypto/crypto.dart' show sha1;
 import 'package:graphql_schema/graphql_schema.dart';
-
 import 'package:graphql_server/graphql_server.dart';
 
 CacheInfo? getCacheInfo(ReqCtx ctx) {

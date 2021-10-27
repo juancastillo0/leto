@@ -1,20 +1,30 @@
-// https://github.com/apollographql/apollo-tracing
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:gql/ast.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_server/graphql_server.dart';
-import 'package:graphql_server/src/extension.dart';
 import 'package:meta/meta.dart';
 
+/// Apollo Tracing is a GraphQL extension for performance tracing.
+///
+/// More information: https://github.com/apollographql/apollo-tracing
 class GraphQLTracingExtension extends GraphQLExtension {
   GraphQLTracingExtension({
     this.onExecute,
     this.returnInResponse = true,
   });
 
+  /// Allows you to access the tracing information for each
+  /// request and subscription event.
+  ///
+  /// Useful for logging the trace directly instead of returning
+  /// it in the response extensions.
   final void Function(TracingBuilder)? onExecute;
+
+  /// Whether the trace information should be retuned in the
+  /// response extensions.
+  ///
+  /// If false, you probably want to pass an [onExecute] callback.
   final bool returnInResponse;
 
   final ref = GlobalRef('GraphQLTracingExtension');

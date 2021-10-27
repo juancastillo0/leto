@@ -5,11 +5,10 @@ import 'dart:collection';
 import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:gql/ast.dart' show DocumentNode;
 import 'package:graphql_schema/graphql_schema.dart'
     show GlobalRef, GraphQLException, ScopedMap;
 import 'package:graphql_server/graphql_server.dart'
-    show GraphQLExtension, GraphQLResult;
+    show GraphQLExtension, GraphQLResult, DocumentNode;
 
 /// Save network bandwith by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.

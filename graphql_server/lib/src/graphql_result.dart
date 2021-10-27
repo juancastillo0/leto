@@ -2,12 +2,14 @@ import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:graphql_schema/graphql_schema.dart' show GraphQLError;
 import 'package:meta/meta.dart';
 
+/// Utility for nullable values in copyWith methods
 class Val<T> {
   final T inner;
 
   const Val(this.inner);
 }
 
+/// A result from a GraphQL request.
 @immutable
 class GraphQLResult {
   /// A Stream<GraphQLResult> for subscriptions
