@@ -2,7 +2,7 @@ part of graphql_schema.src.schema;
 
 class ReqCtx<P extends Object> implements GlobalsHolder {
   @override
-  final ScopedMap globals;
+  ScopedMap get globals => parentCtx.globals;
   final Map<String, Object?> args;
   final P object;
   ResolveCtx get baseCtx => parentCtx.base;
@@ -15,7 +15,6 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
   final PossibleSelections? Function() lookahead;
 
   const ReqCtx({
-    required this.globals,
     required this.args,
     required this.object,
     required this.parentCtx,
@@ -29,7 +28,6 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
       return this as ReqCtx<T>;
     }
     return ReqCtx(
-      globals: globals,
       args: args,
       object: object as T,
       parentCtx: parentCtx,

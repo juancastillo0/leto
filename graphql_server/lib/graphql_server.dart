@@ -138,7 +138,7 @@ class GraphQL {
   static ResolveCtx? getResolveCtx(ScopedMap map) =>
       map[_resolveCtxRef] as ResolveCtx?;
 
-  /// Parses the GraphQLDocument in [text] and executes [operationName]
+  /// Parses the GraphQL document in [text] and executes [operationName]
   /// or the only operation in the document if not given.
   Future<GraphQLResult> parseAndExecute(
     String text, {
@@ -175,7 +175,7 @@ class GraphQL {
             _schema,
             document,
             operationName: operationName,
-            initialValue: rootValue ?? _globalVariables,
+            rootValue: rootValue ?? _globalVariables,
             variableValues: variableValues,
             globalVariables: _globalVariables,
             extensions: extensions,
@@ -239,7 +239,7 @@ class GraphQL {
     DocumentNode document, {
     String? operationName,
     Map<String, dynamic>? variableValues,
-    required Object initialValue,
+    required Object rootValue,
     required ScopedMap globalVariables,
     Map<String, dynamic>? extensions,
   }) async {
@@ -275,25 +275,25 @@ class GraphQL {
     final ctx = ResolveCtx(
       document: document,
       operation: operation,
-      globalVariables: globalVariables,
+      globals: globalVariables,
       schema: schema,
       variableValues: coercedVariableValues,
       extensions: extensions,
-      rootValue: initialValue,
+      rootValue: rootValue,
     );
-    ctx.globalVariables.setScoped(_resolveCtxRef, ctx);
+    ctx.globals.setScoped(_resolveCtxRef, ctx);
 
     try {
       final Object? data;
       switch (operation.type) {
         case OperationType.query:
-          data = await executeQuery(ctx, operation, schema, initialValue);
+          data = await executeQuery(ctx, operation, schema, rootValue);
           break;
         case OperationType.subscription:
-          data = await subscribe(ctx, operation, schema, initialValue);
+          data = await subscribe(ctx, operation, schema, rootValue);
           break;
         case OperationType.mutation:
-          data = await executeMutation(ctx, operation, schema, initialValue);
+          data = await executeMutation(ctx, operation, schema, rootValue);
           break;
       }
       return GraphQLResult(data, errors: ctx.errors);
@@ -409,7 +409,7 @@ class GraphQL {
     ResolveCtx ctx,
     OperationDefinitionNode query,
     GraphQLSchema schema,
-    Object initialValue,
+    Object rootValue,
   ) async {
     final queryType = schema.queryType;
     final selectionSet = query.selectionSet;
@@ -417,7 +417,7 @@ class GraphQL {
       throw GraphQLException.fromMessage(
           'The schema does not define a query type.');
     }
-    return executeSelectionSet(ctx, selectionSet, queryType, initialValue,
+    return executeSelectionSet(ctx, selectionSet, queryType, rootValue,
         serial: false);
   }
 
@@ -425,7 +425,7 @@ class GraphQL {
     ResolveCtx ctx,
     OperationDefinitionNode mutation,
     GraphQLSchema schema,
-    Object initialValue,
+    Object rootValue,
   ) async {
     final mutationType = schema.mutationType;
 
@@ -435,7 +435,7 @@ class GraphQL {
     }
 
     final selectionSet = mutation.selectionSet;
-    return executeSelectionSet(ctx, selectionSet, mutationType, initialValue,
+    return executeSelectionSet(ctx, selectionSet, mutationType, rootValue,
         serial: true);
   }
 
@@ -443,19 +443,19 @@ class GraphQL {
     ResolveCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
-    Object initialValue,
+    Object rootValue,
   ) async {
-    final sourceStream = await createSourceEventStream(
-        baseCtx, subscription, schema, initialValue);
+    final sourceStream =
+        await createSourceEventStream(baseCtx, subscription, schema, rootValue);
     return mapSourceToResponseEvent(
-        baseCtx, sourceStream, subscription, schema, initialValue);
+        baseCtx, sourceStream, subscription, schema, rootValue);
   }
 
   Future<MapEntry<FieldNode, Stream<Object?>>> createSourceEventStream(
     ResolveCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
-    Object initialValue,
+    Object rootValue,
   ) async {
     final selectionSet = subscription.selectionSet;
     final subscriptionType = schema.subscriptionType;
@@ -478,7 +478,7 @@ class GraphQL {
       base: baseCtx,
       groupedFieldSet: groupedFieldSet,
       objectType: subscriptionType,
-      objectValue: initialValue,
+      objectValue: rootValue,
       parent: null,
       pathItem: null,
     );
@@ -489,7 +489,7 @@ class GraphQL {
     final stream = await resolveFieldEventStream(
       objCtx,
       subscriptionType,
-      initialValue,
+      rootValue,
       fieldNode,
       argumentValues,
     );
@@ -501,7 +501,7 @@ class GraphQL {
     MapEntry<FieldNode, Stream<Object?>> sourceStream,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
-    Object? initialValue,
+    Object rootValue,
   ) {
     // final fieldName = sourceStream.key.name.value;
     // final span = sourceStream.key.span ??
@@ -516,18 +516,18 @@ class GraphQL {
           operation: baseCtx.operation,
           extensions: baseCtx.extensions,
           rootValue: baseCtx.rootValue,
-          globalVariables: baseCtx.globalVariables.child(),
+          globals: baseCtx.globals.child(),
           schema: baseCtx.schema,
           variableValues: baseCtx.variableValues,
         );
-        ctx.globalVariables.setScoped(_resolveCtxRef, ctx);
+        ctx.globals.setScoped(_resolveCtxRef, ctx);
 
         // final _prev = prev;
         return withExtensions<Future<GraphQLResult>>(
           (next, p1) async => p1.executeSubscriptionEvent(
             next,
             ctx,
-            baseCtx.globalVariables,
+            baseCtx.globals,
           ),
           () async {
             /// ExecuteSubscriptionEvent
@@ -607,7 +607,6 @@ class GraphQL {
     final reqCtx = ReqCtx(
       args: argumentValues,
       object: rootValue,
-      globals: ctx.globalVariables,
       field: field,
       parentCtx: ctx,
       pathItem: pathItem,
@@ -849,7 +848,8 @@ class GraphQL {
               variableValues.containsKey(variableName)
                   ? 'Variable value for argument "$argumentName" of type $argumentType'
                       ' for field "$fieldName" must not be null.'
-                  : 'Missing variable "$variableName" for argument "$argumentName" of type $argumentType'
+                  : 'Missing variable "$variableName" for argument'
+                      ' "$argumentName" of type $argumentType'
                       ' for field "$fieldName".',
               location: span?.start,
             );
@@ -886,8 +886,8 @@ class GraphQL {
           if (!validation.successful) {
             final errors = <GraphQLError>[
               GraphQLError(
-                'Type coercion error for argument "$argumentName" ($argumentType)'
-                ' of field "$fieldName". Got value $value.',
+                'Type coercion error for argument "$argumentName"'
+                ' ($argumentType) of field "$fieldName". Got value $value.',
                 locations: locations,
               )
             ];
@@ -1019,7 +1019,6 @@ class GraphQL {
     final fieldCtx = ReqCtx<P>(
       args: argumentValues,
       object: objectValue,
-      globals: ctx.globalVariables,
       parentCtx: ctx,
       field: field,
       pathItem: pathItem,

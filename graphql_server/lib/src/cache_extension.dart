@@ -229,7 +229,7 @@ class CacheExtension extends GraphQLExtension {
     String fieldAlias,
   ) {
     if (cache != null) {
-      final rootInfo = getRootInfo(ctx.globalVariables);
+      final rootInfo = getRootInfo(ctx.globals);
       final path = ctx.path.followedBy([fieldAlias]).toList();
       final info = rootInfo?.getNested(path);
       final maxAgeSeconds = info?.maxAgeSeconds;

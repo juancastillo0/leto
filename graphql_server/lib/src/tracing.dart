@@ -87,7 +87,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     GraphQLObjectField field,
     String fieldAlias,
   ) async {
-    final tracing = ctx.globalVariables[ref]! as TracingBuilder;
+    final tracing = ctx.globals[ref]! as TracingBuilder;
 
     final endTracing = tracing.execution.start(ResolverTracing(
       path: [...ctx.path, fieldAlias],
@@ -110,7 +110,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   ) async {
     return executeRequest(
       next,
-      ctx.globalVariables,
+      ctx.globals,
       ctx.extensions,
     );
   }
