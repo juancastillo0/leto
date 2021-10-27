@@ -113,16 +113,19 @@ Middleware etag({
 }) {
   return (handler) {
     return (request) async {
+      if (!const ['GET', 'HEAD'].contains(request.method)) {
+        return handler(request);
+      }
       final response = await handler(request);
       if (response.statusCode >= 300) {
         return response;
       }
 
-      final ifNoneMatch = request.headers[HttpHeaders.ifNoneMatchHeader];
+      final ifNoneMatch = request.headersAll[HttpHeaders.ifNoneMatchHeader];
       final settedEtag = response.headers[HttpHeaders.etagHeader];
       if (settedEtag != null) {
         // ETag already set
-        if (ifNoneMatch == settedEtag) {
+        if (ifNoneMatch != null && ifNoneMatch.contains(settedEtag)) {
           // set ETag matches If-None-Match header
           return Response.notModified(
             headers: response.headersAll,
@@ -150,16 +153,15 @@ Middleware etag({
         bodyHash = '"${digest.toString()}"';
       }
 
-      if (bodyHash == ifNoneMatch) {
+      if (ifNoneMatch != null && ifNoneMatch.contains(bodyHash)) {
         // computed ETag matches If-None-Match header
         return Response.notModified(
-          headers: response.headersAll,
+          headers: {...response.headersAll, HttpHeaders.etagHeader: bodyHash},
           context: response.context,
         );
       }
 
-      // Return the response with the copied body
-      // and the computed ETag header
+      // Return the response with the copied body and the computed ETag header
       return response.change(
         body: Stream.fromIterable(bodyCopy),
         headers: {HttpHeaders.etagHeader: bodyHash},
