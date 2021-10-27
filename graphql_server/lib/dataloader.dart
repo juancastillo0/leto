@@ -20,7 +20,7 @@ typedef BatchLoadFn<K, V> = Future<List<V>> Function(List<K> keys);
 
 // Optionally turn off batching or caching or provide a cache key function or a
 // custom cache instance.
-class Options<K, V, C> {
+class DataLoaderOptions<K, V, C> {
   final bool? batch;
   final int? maxBatchSize;
   final void Function(void Function() callback)? batchScheduleFn;
@@ -28,7 +28,7 @@ class Options<K, V, C> {
   final C Function(K)? cacheKeyFn;
   final Cache<C, Future<V>>? cacheMap;
 
-  Options({
+  DataLoaderOptions({
     this.batch,
     this.maxBatchSize,
     this.batchScheduleFn,
@@ -38,26 +38,18 @@ class Options<K, V, C> {
   });
 }
 
-// If a custom cache is provided, it must be of this type (a subset of ES6 Map).
-// type CacheMap<K, V> = {
-//   get(key: K): V | void;
-//   set(key: K, value: V): any;
-//   delete(key: K): any;
-//   clear(): any;
-// };
-
 /// A `DataLoader` creates a public API for loading data from a particular
 /// data back-end with unique keys such as the `id` column of a SQL table or
 /// document name in a MongoDB database, given a batch loading function.
 ///
-/// Each `DataLoader` instance contains a unique memoized cache. Use caution when
-/// used in long-lived applications or those which serve many users with
+/// Each `DataLoader` instance contains a unique memoized cache. Use caution
+/// when used in long-lived applications or those which serve many users with
 /// different access permissions and consider creating a new instance per
 /// web request.
 class DataLoader<K extends Object, V, C> {
-  DataLoader(this._batchLoadFn, [Options<K, V, C>? options])
-      : _maxBatchSize = getValidMaxBatchSize(options),
-        _batchScheduleFn = getValidBatchScheduleFn(options),
+  DataLoader(this._batchLoadFn, [DataLoaderOptions<K, V, C>? options])
+      : _maxBatchSize = _getValidMaxBatchSize(options),
+        _batchScheduleFn = _getValidBatchScheduleFn(options),
         _cacheKeyFn = options?.cacheKeyFn ??
             (K == C
                 ? (k) => k as C
@@ -65,17 +57,11 @@ class DataLoader<K extends Object, V, C> {
                     'Must pass options.cacheKeyFn if the'
                     ' key type K $K is different from C $C.',
                   )),
-        _cacheMap = getValidCacheMap(options);
-  // if (typeof batchLoadFn != 'function') {
-  //   throw new TypeError(
-  //     'DataLoader must be constructed with a function which accepts ' +
-  //     `Array<key> and returns Promise<Array<value>>, but got: ${batchLoadFn}.`
-  //   );
-  // }
+        _cacheMap = _getValidCacheMap(options);
 
   static DataLoader<K, V, K> unmapped<K extends Object, V>(
     BatchLoadFn<K, V> _batchLoadFn, [
-    Options<K, V, K>? options,
+    DataLoaderOptions<K, V, K>? options,
   ]) =>
       DataLoader(_batchLoadFn, options);
 
@@ -85,18 +71,11 @@ class DataLoader<K extends Object, V, C> {
   final void Function(void Function() callback) _batchScheduleFn;
   final C Function(K) _cacheKeyFn;
   final Cache<C, FutureOr<V>>? _cacheMap;
-  Batch<K, V>? _batch;
+  _Batch<K, V>? _batch;
 
   /// Loads a key, returning a `Promise` for the value represented by that key.
   Future<V> load(K key) {
-    // if (key == null) {
-    //   throw new TypeError(
-    //     'The loader.load() function must be called with a value, ' +
-    //     `but got: ${String(key)}.`
-    //   );
-    // }
-
-    final batch = getCurrentBatch(this);
+    final batch = _getCurrentBatch(this);
     final cacheMap = this._cacheMap;
     final cacheKey = this._cacheKeyFn(key);
 
@@ -129,34 +108,31 @@ class DataLoader<K extends Object, V, C> {
   }
 
   /// Loads multiple keys, promising an array of values:
-  ///
-  ///     var [ a, b ] = await myLoader.loadMany([ 'a', 'b' ]);
+  /// ```dart
+  /// final loadedItems = await myLoader.loadMany([ 'a', 'b' ]);
+  /// ```
   ///
   /// This is similar to the more verbose:
   ///
-  ///     var [ a, b ] = await Promise.all([
+  /// ```dart
+  /// final loadedItems = await Future.wait([
   ///       myLoader.load('a'),
   ///       myLoader.load('b')
   ///     ]);
-  ///
-  /// However it is different in the case where any load fails. Where
-  /// Promise.all() would reject, loadMany() always resolves, however each result
-  /// is either a value or an Error instance.
-  ///
-  ///     var [ a, b, c ] = await myLoader.loadMany([ 'a', 'b', 'badkey' ]);
-  ///     // c instanceof Error
+  /// ```
   ///
   Future<List<V>> loadMany(List<K> keys) {
-    // if (!isArrayLike(keys)) {
-    //   throw new TypeError(
-    //     'The loader.loadMany() function must be called with Array<key> ' +
-    //     `but got: ${(keys: any)}.`
-    //   );
-    // }
     // Support ArrayLike by using only minimal property access
     final loadPromises = <Future<V>>[];
     for (var i = 0; i < keys.length; i++) {
       // TODO: this.load(keys[i]).catch(error => error)
+      /// However it is different in the case where any load fails. Where
+      /// Promise.all() would reject, loadMany() always resolves, however each
+      /// result is either a value or an Error instance.
+      ///
+      ///     var [ a, b, c ] = await myLoader.loadMany([ 'a', 'b', 'badkey' ]);
+      ///     // c instanceof Error
+      ///
       loadPromises.add(this.load(keys[i]));
     }
     return Future.wait(loadPromises);
@@ -186,8 +162,6 @@ class DataLoader<K extends Object, V, C> {
 
   /// Adds the provided key and value to the cache. If the key already
   /// exists, no change is made. Returns itself for method chaining.
-  ///
-  /// To prime the cache with an error at a key, provide an Error instance.
   DataLoader<K, V, C> prime(K key, V value) {
     final cacheMap = this._cacheMap;
     if (cacheMap != null) {
@@ -198,14 +172,7 @@ class DataLoader<K extends Object, V, C> {
         // Cache a rejected promise if the value is an Error, in order to match
         // the behavior of load(key).
         final Future<V> promise;
-        // if (value instanceof Error) {
-        // promise = Promise.reject(value);
-        // Since this is a case where an Error is intentionally being primed
-        // for a given key, we want to disable unhandled promise rejection.
-        // promise.catch(() => {});
-        // } else {
         promise = Future.value(value);
-        // }
         cacheMap.set(cacheKey, promise);
       }
     }
@@ -255,13 +222,13 @@ class DataLoader<K extends Object, V, C> {
 // var resolvedPromise;
 
 // Private: Describes a batch of requests
-class Batch<K, V> {
+class _Batch<K, V> {
   bool hasDispatched;
   final List<K> keys;
   final List<Completer<V>> callbacks;
   List<void Function()>? cacheHits;
 
-  Batch({
+  _Batch({
     required this.keys,
     required this.callbacks,
     this.hasDispatched = false,
@@ -271,7 +238,7 @@ class Batch<K, V> {
 
 // Private: Either returns the current batch, or creates and schedules a
 // dispatch of a new batch for the given loader.
-Batch<K, V> getCurrentBatch<K extends Object, V>(
+_Batch<K, V> _getCurrentBatch<K extends Object, V>(
     DataLoader<K, V, Object?> loader) {
   // If there is an existing batch which has not yet dispatched and is within
   // the limit of the batch size, then return it.
@@ -285,7 +252,7 @@ Batch<K, V> getCurrentBatch<K extends Object, V>(
   }
 
   // Otherwise, create a new batch for this loader.
-  final newBatch = Batch<K, V>(hasDispatched: false, keys: [], callbacks: []);
+  final newBatch = _Batch<K, V>(hasDispatched: false, keys: [], callbacks: []);
 
   // Store it on the loader so it may be reused.
   loader._batch = newBatch;
@@ -299,13 +266,15 @@ Batch<K, V> getCurrentBatch<K extends Object, V>(
 }
 
 void dispatchBatch<K extends Object, V>(
-    DataLoader<K, V, Object?> loader, Batch<K, V> batch) {
+  DataLoader<K, V, Object?> loader,
+  _Batch<K, V> batch,
+) {
   // Mark this batch as having been dispatched.
   batch.hasDispatched = true;
 
   // If there's nothing to load, resolve any cache hits and return early.
-  if (batch.keys.length == 0) {
-    resolveCacheHits(batch);
+  if (batch.keys.isEmpty) {
+    _resolveCacheHits(batch);
     return;
   }
 
@@ -313,25 +282,8 @@ void dispatchBatch<K extends Object, V>(
   // with the loader as the `this` context.
   final batchPromise = loader._batchLoadFn(batch.keys);
 
-  // Assert the expected response from batchLoadFn
-  // if (!batchPromise || typeof batchPromise.then != 'function') {
-  //   return failedDispatch(loader, batch, new TypeError(
-  //     'DataLoader must be constructed with a function which accepts ' +
-  //     'Array<key> and returns Promise<Array<value>>, but the function did ' +
-  //     `not return a Promise: ${String(batchPromise)}.`
-  //   ));
-  // }
-
   // Await the resolution of the call to batchLoadFn.
   batchPromise.then((values) {
-    // Assert the expected resolution from batchLoadFn.
-    // if (!isArrayLike(values)) {
-    //   throw new TypeError(
-    //     'DataLoader must be constructed with a function which accepts ' +
-    //     'Array<key> and returns Promise<Array<value>>, but the function did ' +
-    //     `not return a Promise of an Array: ${String(values)}.`
-    //   );
-    // }
     if (values.length != batch.keys.length) {
       throw StateError(
           'DataLoader must be constructed with a function which accepts '
@@ -343,31 +295,27 @@ void dispatchBatch<K extends Object, V>(
     }
 
     // Resolve all cache hits in the same micro-task as freshly loaded values.
-    resolveCacheHits(batch);
+    _resolveCacheHits(batch);
 
     // Step through values, resolving or rejecting each Future in the batch.
     for (var i = 0; i < batch.callbacks.length; i++) {
       final value = values[i];
-      // if (value instanceof Error) {
-      // batch.callbacks[i].reject(value);
-      // } else {
       batch.callbacks[i].complete(value);
-      // }
     }
   }).catchError((Object error) {
-    failedDispatch(loader, batch, error);
+    _failedDispatch(loader, batch, error);
   });
 }
 
 // Private: do not cache individual loads if the entire batch dispatch fails,
 // but still reject each request so they do not hang.
-void failedDispatch<K extends Object, V>(
+void _failedDispatch<K extends Object, V>(
   DataLoader<K, V, dynamic> loader,
-  Batch<K, V> batch,
+  _Batch<K, V> batch,
   Object error,
 ) {
   // Cache hits are resolved, even though the batch failed.
-  resolveCacheHits(batch);
+  _resolveCacheHits(batch);
   for (var i = 0; i < batch.keys.length; i++) {
     loader.clear(batch.keys[i]);
     batch.callbacks[i].completeError(error);
@@ -375,7 +323,7 @@ void failedDispatch<K extends Object, V>(
 }
 
 // Private: Resolves the Promises for any cache hits in this batch.
-void resolveCacheHits(Batch<dynamic, dynamic> batch) {
+void _resolveCacheHits(_Batch<dynamic, dynamic> batch) {
   final hits = batch.cacheHits;
   if (hits != null) {
     for (var i = 0; i < hits.length; i++) {
@@ -385,7 +333,8 @@ void resolveCacheHits(Batch<dynamic, dynamic> batch) {
 }
 
 // Private: given the DataLoader's options, produce a valid max batch size.
-int getValidMaxBatchSize(Options<dynamic, dynamic, dynamic>? options) {
+int _getValidMaxBatchSize(
+    DataLoaderOptions<dynamic, dynamic, dynamic>? options) {
   final shouldBatch = options == null || options.batch != false;
   if (!shouldBatch) {
     return 1;
@@ -403,8 +352,8 @@ int getValidMaxBatchSize(Options<dynamic, dynamic, dynamic>? options) {
 }
 
 // Private
-void Function(void Function()) getValidBatchScheduleFn(
-  Options<dynamic, dynamic, dynamic>? options,
+void Function(void Function()) _getValidBatchScheduleFn(
+  DataLoaderOptions<dynamic, dynamic, dynamic>? options,
 ) {
   final batchScheduleFn = options?.batchScheduleFn;
   if (batchScheduleFn == null) {
@@ -415,7 +364,8 @@ void Function(void Function()) getValidBatchScheduleFn(
 }
 
 // Private: given the DataLoader's options, produce a CacheMap to be used.
-Cache<C, FutureOr<V>>? getValidCacheMap<K, V, C>(Options<K, V, C>? options) {
+Cache<C, FutureOr<V>>? _getValidCacheMap<K, V, C>(
+    DataLoaderOptions<K, V, C>? options) {
   final shouldCache = options == null || options.cache != false;
   if (!shouldCache) {
     return null;
@@ -424,26 +374,5 @@ Cache<C, FutureOr<V>>? getValidCacheMap<K, V, C>(Options<K, V, C>? options) {
   if (cacheMap == null) {
     return MapCache();
   }
-  // if (cacheMap != null) {
-  //   var cacheFunctions = [ 'get', 'set', 'delete', 'clear' ];
-  //   var missingFunctions = cacheFunctions
-  //     .filter(fnName => cacheMap && typeof cacheMap[fnName] != 'function');
-  //   if (missingFunctions.length != 0) {
-  //     throw new TypeError(
-  //       'Custom cacheMap missing methods: ' + missingFunctions.join(', ')
-  //     );
-  //   }
-  // }
   return cacheMap;
 }
-
-// Private
-// bool isArrayLike(Object? x) {
-//   return (
-//     typeof x == 'object' &&
-//     x != null &&
-//     typeof x.length == 'number' &&
-//     (x.length == 0 ||
-//       (x.length > 0 && Object.prototype.hasOwnProperty.call(x, x.length - 1)))
-//   );
-// }

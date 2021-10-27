@@ -12,7 +12,7 @@ import 'package:graphql_server/dataloader.dart';
 import 'package:graphql_server/src/persisted_queries.dart';
 import 'package:test/test.dart';
 
-_Loader<K, K> idLoader<K extends Object>([Options<K, K, K>? options]) {
+_Loader<K, K> idLoader<K extends Object>([DataLoaderOptions<K, K, K>? options]) {
   final loadCalls = <List<K>>[];
   return _Loader(
     DataLoader(
@@ -26,7 +26,7 @@ _Loader<K, K> idLoader<K extends Object>([Options<K, K, K>? options]) {
   );
 }
 
-_Loader<K, C> idLoaderMapped<K extends Object, C>([Options<K, K, C>? options]) {
+_Loader<K, C> idLoaderMapped<K extends Object, C>([DataLoaderOptions<K, K, C>? options]) {
   final loadCalls = <List<K>>[];
   return _Loader(
     DataLoader(
@@ -74,7 +74,7 @@ void main() {
       Object? caughtError;
       try {
         final _ = DataLoader<Object, Object, Object>(
-            (keys) async => keys, Options(maxBatchSize: 0));
+            (keys) async => keys, DataLoaderOptions(maxBatchSize: 0));
       } catch (error) {
         caughtError = error;
       }
@@ -180,7 +180,7 @@ void main() {
     });
 
     test('batches multiple requests with max batch sizes', () async {
-      final _loader = idLoader<int>(Options(maxBatchSize: 2));
+      final _loader = idLoader<int>(DataLoaderOptions(maxBatchSize: 2));
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
 
@@ -260,7 +260,7 @@ void main() {
           comp.complete(keys);
         };
         return comp.future;
-      }, Options(maxBatchSize: 1));
+      }, DataLoaderOptions(maxBatchSize: 1));
 
       identityLoader.prime(1, 1);
 
@@ -320,7 +320,7 @@ void main() {
     });
 
     test('coalesces identical requests across sized batches', () async {
-      final _loader = idLoader<int>(Options(maxBatchSize: 2));
+      final _loader = idLoader<int>(DataLoaderOptions(maxBatchSize: 2));
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
 
@@ -741,7 +741,7 @@ void main() {
   group('Accepts options', () {
     // Note: mirrors 'batches multiple requests' above.
     test('May disable batching', () async {
-      final _loader = idLoader<int>(Options(batch: false));
+      final _loader = idLoader<int>(DataLoaderOptions(batch: false));
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
 
@@ -760,7 +760,7 @@ void main() {
 
     // Note: mirror's 'caches repeated requests' above.
     test('May disable caching', () async {
-      final _loader = idLoader<String>(Options(cache: false));
+      final _loader = idLoader<String>(DataLoaderOptions(cache: false));
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
 
@@ -803,7 +803,7 @@ void main() {
     });
 
     test('Keys are repeated in batch when cache disabled', () async {
-      final _loader = idLoader<String>(Options(cache: false));
+      final _loader = idLoader<String>(DataLoaderOptions(cache: false));
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
 
@@ -844,7 +844,7 @@ void main() {
       final cacheMap = MapCache<String, Future<String>>();
       cacheMap.set('X', promiseX);
       final _loader =
-          idLoader<String>(Options(cache: false, cacheMap: cacheMap));
+          idLoader<String>(DataLoaderOptions(cache: false, cacheMap: cacheMap));
       final identityLoader = _loader.identityLoader;
       identityLoader.prime('A', 'A');
       expect(cacheMap.get('A'), null);
@@ -897,7 +897,7 @@ void main() {
             DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
           identityLoadCalls.add(keys);
           return Future.value(keys);
-        }, Options(cacheKeyFn: cacheKey));
+        }, DataLoaderOptions(cacheKeyFn: cacheKey));
 
         final key1 = {'id': 123};
         final key2 = {'id': 123};
@@ -918,7 +918,7 @@ void main() {
             DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
           identityLoadCalls.add(keys);
           return Future.value(keys);
-        }, Options(cacheKeyFn: cacheKey));
+        }, DataLoaderOptions(cacheKeyFn: cacheKey));
 
         final key1 = {'id': 123};
         final key2 = {'id': 123};
@@ -941,7 +941,7 @@ void main() {
             DataLoader<Map<String, int>, Map<String, int>, String>((keys) {
           identityLoadCalls.add(keys);
           return Future.value(keys);
-        }, Options(cacheKeyFn: cacheKey));
+        }, DataLoaderOptions(cacheKeyFn: cacheKey));
 
         // Fetches as expected
 
@@ -963,7 +963,7 @@ void main() {
 
       test('Allows priming the cache with an object key', () async {
         final _loader = idLoaderMapped<Map<String, int>, String>(
-            Options(cacheKeyFn: cacheKey));
+            DataLoaderOptions(cacheKeyFn: cacheKey));
 
         final identityLoader = _loader.identityLoader;
 
@@ -988,7 +988,7 @@ void main() {
         final identityLoader = DataLoader<String, String, String>((keys) {
           identityLoadCalls.add(keys);
           return Future.value(keys);
-        }, Options(cacheMap: aCustomMap));
+        }, DataLoaderOptions(cacheMap: aCustomMap));
 
         // Fetches as expected
 
@@ -1060,7 +1060,7 @@ void main() {
       // }
 
       // final { schedule, dispatch } = createScheduler();
-      final _loader = idLoader<String>(Options(batchScheduleFn: schedule));
+      final _loader = idLoader<String>(DataLoaderOptions(batchScheduleFn: schedule));
 
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
