@@ -40,7 +40,7 @@ void main() {
     final values = await GraphQL(schema).parseAndExecute(
       query,
       variableValues: variableValues,
-      initialValue: rootValue,
+      rootValue: rootValue,
       globalVariables: globalVariables,
     );
     return values.toJson();

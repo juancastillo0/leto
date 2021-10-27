@@ -9,7 +9,7 @@ Future<Map<String, Object?>> executeQuery(
 }) async {
   final result = await GraphQL(schema).parseAndExecute(
     query,
-    initialValue: rootValue,
+    rootValue: rootValue,
     globalVariables: ScopedMap({'async': false}),
   );
   // const asyncResult = await execute({

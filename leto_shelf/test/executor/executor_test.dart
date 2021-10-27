@@ -40,7 +40,7 @@ void main() {
     final result = await GraphQL(schema, introspect: false, validate: false)
         .parseAndExecute(
       document,
-      initialValue: rootValue,
+      rootValue: rootValue,
       operationName: operationName,
     );
 
@@ -143,7 +143,7 @@ void main() {
       final result =
           await GraphQL(GraphQLSchema(queryType: DataType)).parseAndExecute(
         document,
-        initialValue: data,
+        rootValue: data,
         variableValues: {'size': 100},
       );
 
@@ -236,7 +236,7 @@ void main() {
       final variableValues = {'var': 'abc'};
 
       await GraphQL(schema, introspect: false).parseAndExecute(document,
-          initialValue: rootValue, variableValues: variableValues);
+          rootValue: rootValue, variableValues: variableValues);
 
       // TODO:
       // expect(resolvedInfo).to.have.all.keys(
@@ -330,7 +330,7 @@ void main() {
         }
       ''';
 
-      await GraphQL(schema).parseAndExecute(document, initialValue: rootValue);
+      await GraphQL(schema).parseAndExecute(document, rootValue: rootValue);
 
       expect(path, ['l1', 0, 'l2']);
 
@@ -370,7 +370,7 @@ void main() {
 
       await GraphQL(schema).parseAndExecute(
         'query Example { a }',
-        initialValue: rootValue,
+        rootValue: rootValue,
       );
 
       expect(resolvedRootValue, rootValue);
@@ -520,7 +520,7 @@ void main() {
       };
 
       final result = await GraphQL(schema)
-          .parseAndExecute(document, initialValue: rootValue);
+          .parseAndExecute(document, rootValue: rootValue);
 
       expect(result.toJson(), {
         'data': {
@@ -755,7 +755,7 @@ void main() {
 
       final result = await GraphQL(schema).parseAndExecute(
         '{ a }',
-        initialValue: rootValue,
+        rootValue: rootValue,
       );
       expect(result.toJson(), {
         'data': {'a': 'b'}
@@ -1067,7 +1067,7 @@ void main() {
 
       final result = await GraphQL(schema, introspect: false).parseAndExecute(
         '{ specials { value } }',
-        initialValue: rootValue,
+        rootValue: rootValue,
       );
       expect(result.toJson(), {
         'data': {
@@ -1221,7 +1221,7 @@ void main() {
 
       final result = await GraphQL(schema, introspect: false).parseAndExecute(
         document,
-        initialValue: rootValue,
+        rootValue: rootValue,
       );
       expect(result.toJson(), {
         'data': {

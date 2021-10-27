@@ -17,7 +17,7 @@ Future<void> startFileSpecTest(
     final values = await server.parseAndExecute(
       query,
       variableValues: variableValues,
-      initialValue: rootValue,
+      rootValue: rootValue,
     );
     return values.toJson();
   }

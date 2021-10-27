@@ -1,19 +1,4 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/mutations-test.ts
-// import { expect } from 'chai';
-// import { describe, it } from 'mocha';
-
-// import { expectJSON } from '../../__testUtils__/expectJSON';
-
-// import { resolveOnNextTick } from '../../__testUtils__/resolveOnNextTick';
-
-// import { parse } from '../../language/parser';
-
-// import { GraphQLInt } from '../../type/scalars';
-// import { GraphQLSchema } from '../../type/schema';
-// import { GraphQLObjectType } from '../../type/definition';
-
-// import { execute, executeSync } from '../execute';
-
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:test/test.dart';
 
@@ -117,7 +102,7 @@ void main() {
 
     final rootValue = Root(6);
     final mutationResult = await GraphQL(schema, introspect: false)
-        .parseAndExecute(document, initialValue: rootValue);
+        .parseAndExecute(document, rootValue: rootValue);
 
     expect(mutationResult.toJson(), {
       'data': {
@@ -170,7 +155,7 @@ void main() {
 
     final rootValue = Root(6);
     final result = await GraphQL(schema, introspect: false)
-        .parseAndExecute(document, initialValue: rootValue);
+        .parseAndExecute(document, rootValue: rootValue);
 
     expect(result.toJson(), {
       'data': {

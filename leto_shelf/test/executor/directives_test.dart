@@ -24,7 +24,7 @@ final rootValue = {
 
 Future<Map<String, Object?>> executeTestQuery(String document) {
   return GraphQL(schema)
-      .parseAndExecute(document, initialValue: rootValue)
+      .parseAndExecute(document, rootValue: rootValue)
       .then((r) => r.toJson());
 }
 

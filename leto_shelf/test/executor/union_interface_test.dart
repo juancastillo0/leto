@@ -198,7 +198,7 @@ void main() {
       validate: validate,
     ).parseAndExecute(
       document,
-      initialValue: rootValue,
+      rootValue: rootValue,
     );
     return result.toJson();
   }
@@ -607,7 +607,7 @@ void main() {
       introspect: false,
     ).parseAndExecute(
       document,
-      initialValue: rootValue,
+      rootValue: rootValue,
       globalVariables: contextValue,
     );
     expect(result.toJson(), {

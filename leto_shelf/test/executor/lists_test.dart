@@ -11,7 +11,7 @@ void main() {
           await GraphQL(buildSchema('type Query { listField: [String] }'))
               .parseAndExecute(
         '{ listField }',
-        initialValue: {'listField': listValue},
+        rootValue: {'listField': listValue},
       );
 
       return result.toJson();
@@ -85,7 +85,7 @@ void main() {
       Future<Map<String, Object?>> executeQuery(Object? listValue) {
         return GraphQL(schema).parseAndExecute(
           document,
-          initialValue: {
+          rootValue: {
             'listField': listValue,
           },
         ).then((v) => v.toJson());

@@ -129,7 +129,7 @@ Future<Map<String, Object?>> execute(
 }) async {
   final result = await GraphQL(schema, validate: validate).parseAndExecute(
     query,
-    initialValue: rootValue,
+    rootValue: rootValue,
     variableValues: variableValues,
   );
   return result.toJson();
@@ -141,7 +141,7 @@ Future<Map<String, Object?>> executeQuery(
 ) async {
   final result = await GraphQL(schema).parseAndExecute(
     query,
-    initialValue: rootValue,
+    rootValue: rootValue,
   );
   return result.toJson();
 }

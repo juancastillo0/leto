@@ -112,7 +112,7 @@ Future<TestSubs> subscribe(
   final stream = await GraphQL(schema, validate: false)
       .parseAndExecute(
         document,
-        initialValue: rootValue,
+        rootValue: rootValue,
         variableValues: variableValues,
       )
       .then(
