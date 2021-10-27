@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
-// https://github.com/dart-lang/build/blob/master/docs/writing_an_aggregate_builder.md
+/// https://github.com/dart-lang/build/blob/master/docs/writing_an_aggregate_builder.md
 
 Builder graphQLApiSchemaBuilder(BuilderOptions options) =>
     ValidatorsLibGenerator(options);
@@ -74,8 +74,9 @@ class ValidatorsLibGenerator implements Builder {
 
     try {
       final _serializers = allClasses
-          .where((element) =>
-              !element.isAbstract && element.typeParameters.isEmpty)
+          .where(
+            (element) => !element.isAbstract && element.typeParameters.isEmpty,
+          )
           .map((e) {
             final typeName =
                 e.thisType.getDisplayString(withNullability: false);
@@ -141,16 +142,3 @@ String cleanImport(String basePath, Uri uri) {
     return str;
   }
 }
-
-// class _ElementVisitor extends SimpleElementVisitor<Object?> {
-//   final functions = <FunctionElement>[];
-
-//   @override
-//   Object? visitFunctionElement(FunctionElement element) {
-//     print(element.name);
-//     if (const TypeChecker.fromRuntime(Mutation).hasAnnotationOfExact(element)
-//     ) {
-//       functions.add(element);
-//     }
-//   }
-// }
