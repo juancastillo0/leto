@@ -19,13 +19,13 @@ class RemoteClient extends StreamChannelMixin<OperationMessage> {
     StreamChannel<String> channel,
     CloseWithReason closeWithReason,
     String protocol,
-  ) : this.withoutJson(
+  ) : this.fromJsonChannel(
           const _JsonMapTransformer().bind(channel),
           closeWithReason,
           protocol,
         );
 
-  RemoteClient.withoutJson(
+  RemoteClient.fromJsonChannel(
     this.channel,
     this.closeWithReason,
     this.protocol,
@@ -43,9 +43,9 @@ class RemoteClient extends StreamChannelMixin<OperationMessage> {
   @override
   Stream<OperationMessage> get stream => _ctrl.foreign.stream;
 
-  void close() {
-    channel.sink.close();
-    _ctrl.local.sink.close();
+  Future<void> close() async {
+    await channel.sink.close();
+    await _ctrl.local.sink.close();
   }
 }
 

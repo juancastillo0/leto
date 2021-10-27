@@ -18,6 +18,11 @@ class ErrorReason {
   static const internalError = 1011;
 }
 
+/// A GraphQL Web Socket Server implementation supporting
+/// graphql-transport-ws and graphql-ws (apollo) subprotocols.
+///
+/// https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
+/// https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
 abstract class Server {
   static const supportedProtocols = ['graphql-transport-ws', 'graphql-ws'];
 
@@ -169,16 +174,17 @@ abstract class Server {
                   '${msg.type} payload must contain a string named "query".');
             }
             if (variables is! Map?) {
-              throw FormatException(
-                  '${msg.type} payload\'s "variables" field must be a map (object).');
+              throw FormatException('${msg.type} payload\'s "variables" field'
+                  ' must be a map (object).');
             }
             if (operationName is! String?) {
               throw FormatException(
-                  '${msg.type} payload\'s "operationName" field must be a string.');
+                  '${msg.type} payload\'s "operationName" field'
+                  ' must be a string.');
             }
             if (extensions is! Map?) {
-              throw FormatException(
-                  '${msg.type} payload\'s "extensions" field must be a map (object).');
+              throw FormatException('${msg.type} payload\'s "extensions" field'
+                  ' must be a map (object).');
             }
             final result = await onOperation(
               msg.id,

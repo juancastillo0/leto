@@ -1,4 +1,5 @@
-/// A basic message in the Apollo WebSocket protocol.
+/// A basic message in the Apollo WebSocket and
+/// graphql-transport-ws subprotocols.
 class OperationMessage {
   static const String gqlConnectionInit = 'connection_init',
       gqlConnectionAck = 'connection_ack',
