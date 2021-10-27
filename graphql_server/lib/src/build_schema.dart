@@ -1,9 +1,12 @@
-import 'package:gql/ast.dart';
+import 'package:gql/ast.dart' as ast;
+import 'package:gql/ast.dart' hide DirectiveLocation;
 import 'package:gql/language.dart' as gql;
 import 'package:graphql_schema/graphql_schema.dart';
 
 import 'schema_helpers.dart';
 
+/// Create a [GraphQLSchema] from a GraphQL Schema Definition
+/// Language (SDL) String [schemaStr].
 GraphQLSchema buildSchema(
   String schemaStr, {
   Map<String, Object?>? payload,
@@ -172,10 +175,50 @@ GraphQLSchema buildSchema(
     }
   }
 
+  final directives = List.of(
+    directiveDefs.map(
+      (e) => GraphQLDirective(
+        name: e.name.value,
+        description: e.description?.value,
+        isRepeatable: e.repeatable,
+        args: List.of(arguments(e.args)),
+        locations: List.of(
+          e.locations.map((e) => _mapDirectiveLocation[e]!),
+        ),
+      ),
+    ),
+  );
+
   return GraphQLSchema(
     queryType: queryType,
     mutationType: mutationType,
     subscriptionType: subscriptionType,
     serdeCtx: serdeCtx,
+    directives: directives,
   );
 }
+
+const _mapDirectiveLocation = {
+  ast.DirectiveLocation.query: DirectiveLocation.QUERY,
+  ast.DirectiveLocation.mutation: DirectiveLocation.MUTATION,
+  ast.DirectiveLocation.subscription: DirectiveLocation.SUBSCRIPTION,
+  ast.DirectiveLocation.field: DirectiveLocation.FIELD,
+  ast.DirectiveLocation.fragmentDefinition:
+      DirectiveLocation.FRAGMENT_DEFINITION,
+  ast.DirectiveLocation.fragmentSpread: DirectiveLocation.FRAGMENT_SPREAD,
+  ast.DirectiveLocation.inlineFragment: DirectiveLocation.INLINE_FRAGMENT,
+  ast.DirectiveLocation.schema: DirectiveLocation.SCHEMA,
+  ast.DirectiveLocation.scalar: DirectiveLocation.SCALAR,
+  ast.DirectiveLocation.object: DirectiveLocation.OBJECT,
+  ast.DirectiveLocation.fieldDefinition: DirectiveLocation.FIELD_DEFINITION,
+  ast.DirectiveLocation.argumentDefinition:
+      DirectiveLocation.ARGUMENT_DEFINITION,
+  ast.DirectiveLocation.interface: DirectiveLocation.INTERFACE,
+  ast.DirectiveLocation.union: DirectiveLocation.UNION,
+  ast.DirectiveLocation.enumDefinition: DirectiveLocation.ENUM,
+  ast.DirectiveLocation.enumValue: DirectiveLocation.ENUM_VALUE,
+  ast.DirectiveLocation.inputObject: DirectiveLocation.INPUT_OBJECT,
+  ast.DirectiveLocation.inputFieldDefinition:
+      DirectiveLocation.INPUT_FIELD_DEFINITION,
+  // TODO: VARIABLE_DEFINITION https://github.com/gql-dart/gql/pull/279
+};
