@@ -195,7 +195,7 @@ class SchemaPrinter {
   }
 
   String printInputObject(GraphQLInputObjectType type) {
-    final fields = type.inputFields.mapIndexed(
+    final fields = type.fields.mapIndexed(
       (i, f) =>
           printDescription(f.description, '  ', i == 0) +
           '  ' +
@@ -270,7 +270,7 @@ class SchemaPrinter {
     return printDescription(directive.description) +
         'directive @' +
         directive.name +
-        printArgs(directive.args) +
+        printArgs(directive.inputs) +
         (directive.isRepeatable ? ' repeatable' : '') +
         ' on ' +
         directive.locations.join(' | ');
@@ -387,7 +387,7 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
       return astFromUntypedValue(serialized);
     },
     input: (input) {
-      return astFromObject(input.serializeSafe(value), input.inputFields);
+      return astFromObject(input.serializeSafe(value), input.fields);
     },
     object: (object) {
       throw ArgumentError('astFromValue can only be called with input types.');
@@ -438,7 +438,7 @@ Object? valueFromAst(
           (e) {
             final fieldName = e.name.value;
             final _fieldSpan = e.span ?? e.value.span ?? e.name.span ?? _span;
-            final _type = _objType?.inputFields
+            final _type = _objType?.fields
                 .firstWhereOrNull((f) => f.name == fieldName);
 
             return MapEntry(
@@ -613,7 +613,7 @@ class CollectTypes {
       if (type is GraphQLObjectType) {
         _fetchAllTypesFromObject(type);
       } else if (type is GraphQLInputObjectType) {
-        for (final v in type.inputFields) {
+        for (final v in type.fields) {
           _fetchAllTypesFromType(v.type);
         }
       } else {
@@ -647,7 +647,7 @@ class CollectTypes {
       nonNullable: (type) => _fetchAllTypesFromType(type.ofType),
       input: (type) {
         traversedTypes.add(type);
-        for (final v in type.inputFields) {
+        for (final v in type.fields) {
           _fetchAllTypesFromType(v.type);
         }
       },

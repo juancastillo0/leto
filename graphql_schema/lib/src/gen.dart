@@ -26,19 +26,21 @@ GraphQLObjectType<P> objectType<P extends Object>(
   );
 }
 
+/// Return a [GraphQLObjectField] with [name] and all other
+/// properties copied from [field]
 GraphQLObjectField<V, S, P>
     copyFieldWithName<V extends Object, S extends Object, P extends Object>(
   String name,
-  GraphQLObjectField<V, S, P> f,
+  GraphQLObjectField<V, S, P> field,
 ) {
   return GraphQLObjectField(
     name,
-    f.type,
-    arguments: f.inputs,
-    resolve: f.resolve,
-    subscribe: f.subscribe,
-    description: f.description,
-    deprecationReason: f.deprecationReason,
+    field.type,
+    inputs: field.inputs,
+    resolve: field.resolve,
+    subscribe: field.subscribe,
+    description: field.description,
+    deprecationReason: field.deprecationReason,
   );
 }
 
@@ -56,7 +58,7 @@ GraphQLObjectField<T, Serialized, P>
   return GraphQLObjectField(
     name,
     type,
-    arguments: inputs,
+    inputs: inputs,
     resolve: resolve == null ? null : FieldResolver(resolve),
     subscribe: subscribe == null ? null : FieldSubscriptionResolver(subscribe),
     description: description,
@@ -68,12 +70,14 @@ GraphQLObjectField<T, Serialized, P>
 GraphQLInputObjectType<T> inputObjectType<T extends Object>(
   String name, {
   String? description,
-  Iterable<GraphQLFieldInput> inputFields = const [],
+  Iterable<GraphQLFieldInput> fields = const [],
+  T Function(Map<String, Object?>)? customDeserialize,
 }) {
   return GraphQLInputObjectType(
     name,
     description: description,
-    inputFields: inputFields,
+    fields: fields,
+    customDeserialize: customDeserialize,
   );
 }
 
@@ -97,6 +101,10 @@ GraphQLFieldInput<T, Serialized>
 
 extension GraphQLFieldTypeExt<V extends Object, S extends Object>
     on GraphQLType<V, S> {
+  /// Utility for creating an [GraphQLObjectField] with [type] == [this]
+  ///
+  /// Improved type inference, over `field(name, type)`
+  /// since [V] and [S] are already specified from [this]
   GraphQLObjectField<V, S, P> field<P extends Object>(
     String name, {
     String? deprecationReason,
@@ -108,28 +116,28 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
     return GraphQLObjectField(
       name,
       this,
+      inputs: inputs,
       resolve: resolve == null ? null : FieldResolver(resolve),
       subscribe:
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
-      arguments: inputs,
     );
   }
 
-  /// Shorthand for generating a [GraphQLObjectField], without a name.
+  /// Shorthand for generating a [GraphQLObjectField] without a name.
   /// Useful in combination with [objectType]'s fieldsMap parameter.
   GraphQLObjectField<V, S, P> fieldSpec<P extends Object>({
-    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
-    GraphQLFieldResolver<V, P>? resolve,
-    GraphQLSubscriptionFieldResolver<V>? subscribe,
     String? deprecationReason,
     String? description,
+    GraphQLFieldResolver<V, P>? resolve,
+    GraphQLSubscriptionFieldResolver<V>? subscribe,
+    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
   }) {
     return GraphQLObjectField(
       '',
       this,
-      arguments: inputs,
+      inputs: inputs,
       resolve: resolve == null ? null : FieldResolver(resolve),
       subscribe:
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),

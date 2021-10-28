@@ -115,7 +115,7 @@ GraphQLSchema buildSchema(
               e.name.value,
               convertType(e.type, types.values.map((e) => e.key)),
               description: e.description?.value,
-              arguments: arguments(e.args),
+              inputs: arguments(e.args),
             ),
           )
         ]);
@@ -129,7 +129,7 @@ GraphQLSchema buildSchema(
       },
       input: (input) {
         final v = value.value as InputObjectTypeDefinitionNode;
-        input.inputFields.addAll(arguments(v.fields));
+        input.fields.addAll(arguments(v.fields));
       },
       union: (union) {
         final v = value.value as UnionTypeDefinitionNode;
@@ -181,7 +181,7 @@ GraphQLSchema buildSchema(
         name: e.name.value,
         description: e.description?.value,
         isRepeatable: e.repeatable,
-        args: List.of(arguments(e.args)),
+        inputs: List.of(arguments(e.args)),
         locations: List.of(
           e.locations.map((e) => _mapDirectiveLocation[e]!),
         ),

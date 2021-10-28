@@ -269,8 +269,8 @@ GraphQLObjectType<GraphQLType> _createTypeType() {
       ],
       resolve: (obj, ctx) => obj.whenOrNull(
         input: (type) => ctx.args['includeDeprecated'] == true
-            ? type.inputFields
-            : type.inputFields
+            ? type.fields
+            : type.fields
                 .where((element) => element.deprecationReason == null)
                 .toList(),
       ),
@@ -413,8 +413,8 @@ such as conditionally including or skipping a field. Directives provide this by 
         'args',
         listOf(inputValueType.nonNull()).nonNull(),
         resolve: (obj, ctx) => ctx.args['includeDeprecated'] == true
-            ? obj.args
-            : obj.args.where((e) => e.deprecationReason == null).toList(),
+            ? obj.inputs
+            : obj.inputs.where((e) => e.deprecationReason == null).toList(),
         inputs: [
           GraphQLFieldInput(
             'includeDeprecated',

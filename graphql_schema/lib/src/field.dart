@@ -4,6 +4,9 @@ part of graphql_schema.src.schema;
 /// whether asynchronously or not.
 typedef GraphQLFieldResolver<Value, P extends Object> = FutureOr<Value?>
     Function(P parent, ReqCtx<P> ctx);
+
+/// Typedef for a function that resolves the [Stream] of [Value]s
+/// of a [GraphQLObjectField], whether asynchronously or not.
 typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
     Function(Object parent, ReqCtx<Object> ctx);
 
@@ -64,13 +67,13 @@ class GraphQLObjectField<Value extends Object, Serialized extends Object,
   GraphQLObjectField(
     this.name,
     this.type, {
-    Iterable<GraphQLFieldInput> arguments = const <GraphQLFieldInput>[],
+    Iterable<GraphQLFieldInput> inputs = const <GraphQLFieldInput>[],
     this.resolve,
     this.subscribe,
     this.deprecationReason,
     this.description,
   }) {
-    this.inputs.addAll(arguments);
+    this.inputs.addAll(inputs);
   }
 
   /// Returns `true` if this field has a [deprecationReason].

@@ -1,29 +1,5 @@
 part of graphql_schema.src.schema;
 
-typedef ResolveType<P extends GraphQLType> = String Function(
-    Object, P, ResolveObjectCtx);
-
-class _ResolveType<T extends GraphQLType<Object, Object>> {
-  final ResolveType<T> func;
-
-  const _ResolveType(this.func);
-
-  String call(Object result, T type, ResolveObjectCtx ctx) =>
-      func(result, type, ctx);
-}
-
-typedef IsTypeOf<P extends Object> = bool Function(
-    Object, GraphQLObjectType<P>, ResolveObjectCtx);
-
-class _IsTypeOf<P extends Object> {
-  final IsTypeOf<P> func;
-
-  _IsTypeOf(this.func);
-
-  bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
-      func(value, type, ctx);
-}
-
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
 class GraphQLObjectType<P extends Object>
@@ -59,8 +35,13 @@ class GraphQLObjectType<P extends Object>
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
+  /// When this is an interface ([isInterface] == true), this function
+  /// returns the name of the [GraphQLObjectType] in [possibleTypes] which
+  /// implements the resolved result passed in the parameter
   final _ResolveType<GraphQLObjectType<P>>? resolveType;
 
+  /// When provided, this function should return true for values
+  /// which are associated with this object type
   final _IsTypeOf<P>? isTypeOf;
 
   GraphQLObjectType(
@@ -87,11 +68,13 @@ class GraphQLObjectType<P extends Object>
   GraphQLInputObjectType<P> toInputObject(
     String name, {
     String? description,
+    P Function(Map<String, Object?>)? customDeserialize,
   }) {
     return GraphQLInputObjectType(
       name,
       description: description ?? this.description,
-      inputFields: fields.map(
+      customDeserialize: customDeserialize,
+      fields: fields.map(
         (f) => GraphQLFieldInput(
           f.name,
           f.type.coerceToInputObject(),
@@ -164,43 +147,7 @@ class GraphQLObjectType<P extends Object>
       return ValidationResult.failure(errors);
     }
 
-    final out = <String, Object?>{};
-    final List<String> errors = [];
-
-    errors.addAll(
-      fields.where((f) => f.type.isNonNullable && input[f.name] == null).map(
-          (field) =>
-              '$key: Field "${field.name}" of type ${field.type} cannot be null.'),
-    );
-
-    input.forEach((k, v) {
-      if (v == null) {
-        // already verified
-        out[k] = v;
-        return;
-      }
-      final field = fields.firstWhereOrNull((f) => f.name == k);
-
-      if (field == null) {
-        errors
-            .add('Unexpected field "$k" encountered in $key. Accepted values on'
-                ' type $name: ${fields.map((f) => f.name).toList()}');
-      } else {
-        final result = field.type.validate(k, v);
-
-        if (!result.successful) {
-          errors.addAll(result.errors.map((s) => '$key: $s'));
-        } else {
-          out[k] = result.value;
-        }
-      }
-    });
-
-    if (errors.isNotEmpty) {
-      return ValidationResult.failure(errors);
-    } else {
-      return ValidationResult.ok(out);
-    }
+    return _validateObject(this, fields, key, input);
   }
 
   @override
@@ -254,6 +201,30 @@ class GraphQLObjectType<P extends Object>
       ];
 }
 
+typedef ResolveType<P extends GraphQLType> = String Function(
+    Object, P, ResolveObjectCtx);
+
+class _ResolveType<T extends GraphQLType<Object, Object>> {
+  final ResolveType<T> func;
+
+  const _ResolveType(this.func);
+
+  String call(Object result, T type, ResolveObjectCtx ctx) =>
+      func(result, type, ctx);
+}
+
+typedef IsTypeOf<P extends Object> = bool Function(
+    Object, GraphQLObjectType<P>, ResolveObjectCtx);
+
+class _IsTypeOf<P extends Object> {
+  final IsTypeOf<P> func;
+
+  _IsTypeOf(this.func);
+
+  bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
+      func(value, type, ctx);
+}
+
 /// A special [GraphQLType] that specifies the shape of an object that can only
 /// be used as an input to a [GraphQLField].
 ///
@@ -275,70 +246,29 @@ class GraphQLInputObjectType<Value extends Object>
 
   /// A list of the fields that an input object of this
   /// type is expected to have.
-  final List<GraphQLFieldInput> inputFields = [];
+  final List<GraphQLFieldInput> fields = [];
 
+  /// A function which parses a JSON Map into the [Value] type
   final Value Function(Map<String, Object?>)? customDeserialize;
 
   GraphQLInputObjectType(
     this.name, {
     this.description,
-    Iterable<GraphQLFieldInput> inputFields = const [],
+    Iterable<GraphQLFieldInput> fields = const [],
     this.customDeserialize,
   }) {
-    this.inputFields.addAll(inputFields);
+    this.fields.addAll(fields);
   }
 
   @override
   ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
-    if (input is! Map<String, Object?>)
-      return ValidationResult.failure([
-        'Expected "$key" to be a Map of type $this. Got invalid value $input.'
-      ]);
-
-    final out = <String, Object?>{};
-    final List<String> errors = [];
-
-    errors.addAll(
-      inputFields
-          .where((f) => f.type.isNonNullable && input[f.name] == null)
-          .map((field) =>
-              '$key: Field "${field.name}" of type ${field.type} cannot be null.'),
-    );
-
-    input.forEach((k, v) {
-      if (v == null) {
-        // already verified
-        out[k] = v;
-        return;
-      }
-      final field = inputFields.firstWhereOrNull((f) => f.name == k);
-
-      if (field == null) {
-        errors.add(
-            'Unexpected field "$k" encountered in $key. Accepted values on '
-            'type $name: ${inputFields.map((f) => f.name).toList()}');
-      } else {
-        final result = field.type.validate(k, v);
-
-        if (!result.successful) {
-          errors.addAll(result.errors.map((s) => '$key: $s'));
-        } else {
-          out[k] = result.value;
-        }
-      }
-    });
-
-    if (errors.isNotEmpty) {
-      return ValidationResult.failure(errors);
-    } else {
-      return ValidationResult.ok(out);
-    }
+    return _validateObject(this, fields, key, input);
   }
 
   @override
   Map<String, dynamic> serialize(Value value) {
     final map = _jsonFromValue(value);
-    return _gqlFromJson(map, inputFields);
+    return _gqlFromJson(map, fields);
   }
 
   @override
@@ -346,7 +276,7 @@ class GraphQLInputObjectType<Value extends Object>
     if (customDeserialize != null) {
       return customDeserialize!(serialized);
     } else {
-      return _valueFromJson(serdeCtx, serialized, inputFields);
+      return _valueFromJson(serdeCtx, serialized, fields);
     }
     // return value.keys.fold(<String, dynamic>{}, (out, k) {
     //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
@@ -357,17 +287,70 @@ class GraphQLInputObjectType<Value extends Object>
   }
 
   @override
-  Iterable<Object?> get props =>
-      [name, description, customDeserialize, inputFields];
+  Iterable<Object?> get props => [name, description, customDeserialize, fields];
 
   @override
   GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;
 }
 
+/// Utility interface implemented by
+/// [GraphQLObjectField] and [GraphQLFieldInput]
 abstract class ObjectField {
+  /// The name of the field
   String get name;
 
+  /// The type of the field
   GraphQLType<Object, Object> get type;
+}
+
+ValidationResult<Map<String, dynamic>> _validateObject(
+  GraphQLType<Object, Map<String, Object?>> type,
+  List<ObjectField> fields,
+  String key,
+  Object? input,
+) {
+  if (input is! Map<String, Object?>)
+    return ValidationResult.failure([
+      'Expected "$key" to be a Map of type $type. Got invalid value $input.'
+    ]);
+
+  final out = <String, Object?>{};
+  final List<String> errors = [];
+
+  errors.addAll(
+    fields.where((f) => f.type.isNonNullable && input[f.name] == null).map(
+          (field) => '$key: Field "${field.name}" of'
+              ' type ${field.type} cannot be null.',
+        ),
+  );
+
+  input.forEach((k, v) {
+    if (v == null) {
+      // already verified
+      out[k] = v;
+      return;
+    }
+    final field = fields.firstWhereOrNull((f) => f.name == k);
+
+    if (field == null) {
+      errors.add('Unexpected field "$k" encountered in $key. Accepted values on'
+          ' type ${type.name}: ${fields.map((f) => f.name).toList()}');
+    } else {
+      final result = field.type.validate(k, v);
+
+      if (!result.successful) {
+        errors.addAll(result.errors.map((s) => '$key: $s'));
+      } else {
+        out[k] = result.value;
+      }
+    }
+  });
+
+  if (errors.isNotEmpty) {
+    return ValidationResult.failure(errors);
+  } else {
+    return ValidationResult.ok(out);
+  }
 }
 
 Value _valueFromJson<Value>(

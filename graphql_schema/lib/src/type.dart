@@ -220,7 +220,7 @@ GraphQLListType<Value, Serialized>
   return GraphQLListType<Value, Serialized>(innerType);
 }
 
-/// An object which wraps a [GraphQLType].
+/// An wrapper around a [GraphQLType].
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
 abstract class GraphQLWrapperType {
@@ -228,7 +228,7 @@ abstract class GraphQLWrapperType {
 }
 
 /// A special [GraphQLType] that indicates that input vales should
-/// be a list of another type, [ofType].
+/// be a list of another type [ofType].
 class GraphQLListType<Value extends Object, Serialized extends Object>
     extends GraphQLType<List<Value?>, List<Serialized?>>
     with _NonNullableMixin<List<Value?>, List<Serialized?>>
@@ -366,6 +366,10 @@ class GraphQLNonNullType<Value extends Object, Serialized extends Object>
     return ofType.coerceToInputObject().nonNull();
   }
 
+  /// Utility for creating an [GraphQLObjectField] with [type] == this
+  ///
+  /// Same as [GraphQLFieldTypeExt.field], but with [resolve] and [subscribe]
+  /// Returning non-nullable [Value].
   GraphQLObjectField<Value, Serialized, P> field<P extends Object>(
     String name, {
     String? deprecationReason,
@@ -373,17 +377,17 @@ class GraphQLNonNullType<Value extends Object, Serialized extends Object>
     FutureOr<Value> Function(P parent, ReqCtx<P> ctx)? resolve,
     FutureOr<Stream<Value>> Function(Object parent, ReqCtx<Object> ctx)?
         subscribe,
-    Iterable<GraphQLFieldInput> arguments = const [],
+    Iterable<GraphQLFieldInput> inputs = const [],
   }) {
     return GraphQLObjectField(
       name,
       this,
+      inputs: inputs,
       resolve: resolve == null ? null : FieldResolver(resolve),
       subscribe:
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
-      arguments: arguments,
     );
   }
 }

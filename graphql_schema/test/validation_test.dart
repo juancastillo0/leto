@@ -79,7 +79,7 @@ void main() {
   group('input object', () {
     final type = inputObjectType(
       'Foo',
-      inputFields: [
+      fields: [
         inputField('bar', graphQLString.nonNull()),
         inputField('baz', graphQLFloat.nonNull()),
       ],
