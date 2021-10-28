@@ -37,28 +37,32 @@ String? getDescription(
   Element element,
   String? docComment,
 ) {
-  String? docString = docComment;
+  final docString = getDocumentation(element)?.description ?? docComment;
 
-  if (docString == null && graphQLDocTypeChecker.hasAnnotationOf(element)) {
-    final ann = graphQLDocTypeChecker.firstAnnotationOf(element);
-    final cr = ConstantReader(ann);
-    docString = cr.peek('description')?.stringValue;
-  }
+  return docString == null ? null : cleanDocumentation(docString);
+}
 
-  if (docString != null) {
-    return cleanDocumentation(docString);
+GraphQLDocumentation? getDocumentation(Element element) {
+  final annot = graphQLDocTypeChecker.firstAnnotationOfExact(element);
+  if (annot != null) {
+    return GraphQLDocumentation(
+      description: annot.getField('description')?.toString(),
+      deprecationReason: annot.getField('deprecationReason')?.toString(),
+    );
   }
-  return null;
 }
 
 String? getDeprecationReason(Element element) {
+  final doc = getDocumentation(element);
+  if (doc?.deprecationReason != null) {
+    return doc?.deprecationReason;
+  }
   final depAnn =
       const TypeChecker.fromRuntime(Deprecated).firstAnnotationOf(element);
   if (depAnn != null) {
     final dep = ConstantReader(depAnn);
-    final reason = dep.peek('messages')?.stringValue ??
-        dep.peek('expires')?.stringValue ??
-        'Expires: ${deprecated.message}.';
+    final reason =
+        dep.peek('message')?.stringValue ?? 'Expires: ${deprecated.message}.';
     return reason;
   }
 }
