@@ -111,6 +111,14 @@ class GraphQLError implements Exception, GraphQLException {
 
   final StackTrace stackTrace;
 
+  /// An optional error Object to pass more information of the
+  /// source of the problem for logging or other purposes
+  final Object? sourceError;
+
+  /// Extensions return to the client
+  ///
+  /// This could be used to send more
+  /// information about the error
   final Map<String, Object?>? extensions;
 
   GraphQLError(
@@ -118,7 +126,9 @@ class GraphQLError implements Exception, GraphQLException {
     this.locations = const [],
     this.path,
     this.extensions,
-  }) : stackTrace = StackTrace.current;
+    StackTrace? stackTrace,
+    this.sourceError,
+  }) : stackTrace = stackTrace ?? StackTrace.current;
 
   @override
   Map<String, Object?> toJson() {
