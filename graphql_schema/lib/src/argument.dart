@@ -21,6 +21,10 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
   /// An optional default value for this field.
   final Value? defaultValue;
 
+  /// If this input is deprecated, this would be the deprecation reason.
+  ///
+  /// If it's an empty String, [DEFAULT_DEPRECATION_REASON]
+  /// "No longer supported" will be used.
   final String? deprecationReason;
 
   static bool isInputType(GraphQLType type) {
@@ -29,7 +33,7 @@ class GraphQLFieldInput<Value extends Object, Serialized extends Object>
       scalar: (type) => true,
       input: (type) => true,
       object: (type) => false,
-      union: (type) => false, // type.possibleTypes.every(isInputType),
+      union: (type) => false,
       list: (type) => isInputType(type.ofType),
       nonNullable: (type) => isInputType(type.ofType),
     );

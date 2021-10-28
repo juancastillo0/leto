@@ -1,24 +1,40 @@
 // ignore_for_file: constant_identifier_names
 part of graphql_schema.src.schema;
 
+/// Provides documentation, information or funcionalities over
+/// diferent aspects of a GraphQL parsing, validation, execution or
+/// interpretation of a [GraphQLSchema]
 class GraphQLDirective {
+  /// The name of this directive, should be unique
   final String name;
+
+  /// Provides documentention for this directive
   final String? description;
+
+  /// The places the a GraphQL document where this
+  /// directive can be used
   final List<DirectiveLocation> locations;
-  final List<GraphQLFieldInput> args;
+
+  /// The input arguments for this directive
+  final List<GraphQLFieldInput> inputs;
+
+  /// Whether this directive can be applied multiple types
   final bool isRepeatable;
+
   final Map<String, Object?>? extensions;
-  // ?DirectiveDefinitionNode astNode;
+
+  // DirectiveDefinitionNode? astNode;
 
   const GraphQLDirective({
     required this.name,
     this.description,
     required this.locations,
-    this.args = const [],
+    this.inputs = const [],
     this.isRepeatable = false,
     this.extensions,
   });
 
+  /// Default GraphQL directives
   static final specifiedDirectives = [
     graphQLIncludeDirective,
     graphQLSkipDirective,
@@ -72,7 +88,7 @@ final graphQLIncludeDirective = GraphQLDirective(
     DirectiveLocation.FRAGMENT_SPREAD,
     DirectiveLocation.INLINE_FRAGMENT,
   ],
-  args: [
+  inputs: [
     GraphQLFieldInput(
       'if',
       graphQLBoolean.nonNull(),
@@ -90,7 +106,7 @@ final graphQLSkipDirective = GraphQLDirective(
     DirectiveLocation.FRAGMENT_SPREAD,
     DirectiveLocation.INLINE_FRAGMENT,
   ],
-  args: [
+  inputs: [
     GraphQLFieldInput(
       'if',
       graphQLBoolean.nonNull(),
@@ -108,7 +124,7 @@ final graphQLDeprecatedDirective = GraphQLDirective(
     DirectiveLocation.INPUT_FIELD_DEFINITION,
     DirectiveLocation.ENUM_VALUE,
   ],
-  args: [
+  inputs: [
     GraphQLFieldInput(
       'reason',
       graphQLString,
@@ -123,7 +139,7 @@ final graphQLSpecifiedByDirective = GraphQLDirective(
   name: 'specifiedBy',
   description: 'Exposes a URL that specifies the behaviour of this scalar.',
   locations: [DirectiveLocation.SCALAR],
-  args: [
+  inputs: [
     GraphQLFieldInput(
       'url',
       graphQLString.nonNull(),
