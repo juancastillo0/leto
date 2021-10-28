@@ -1,8 +1,8 @@
 part of graphql_schema.src.schema;
 
-/// The canonical instance.
-const GraphQLClass graphQLClass = GraphQLClass();
-
+/// Base object decorator.
+///
+/// Use [GraphQLInput] or [GraphQLClass]
 class GraphQLObjectDec {
   const GraphQLObjectDec();
 }
@@ -14,28 +14,45 @@ class GraphQLInput extends GraphQLObjectDec {
 }
 
 /// Signifies that a class should statically generate a [GraphQLType].
-/// [GraphQLObjectType] for classes
-/// [GraphQLObjectType] with [isInterface] == true for abstract classes
-/// TODO: should we always require [GraphQLInput]? pass the input name as argument?
-/// [GraphQLInputObjectType] for classes
-/// [GraphQLEnumType] for enums
+///
+/// Generates a [GraphQLObjectType] for classes with
+/// [isInterface] == true for abstract classes,
+/// a [GraphQLEnumType] for enums
+/// and a [GraphQLUnionType] for freezed unions.
+///
+/// if [omitFields] is true, omits all fields by default, you would need to
+/// decorate explicitly with [GraphQLField]. No need to pass `omit: false`
+/// in [GraphQLField]'s constructor.
+/// [interfaces] are the getters of [GraphQLObjectType]
+/// implemented by this object.
 @Target({TargetKind.classType, TargetKind.enumType})
 class GraphQLClass extends GraphQLObjectDec {
   const GraphQLClass({
     this.interfaces = const [],
-    this.omit,
-    this.nullable,
+    this.omitFields,
+    this.nullableFields,
   });
   final List<String> interfaces;
-  final bool? omit;
-  final bool? nullable;
+  final bool? omitFields;
+  final bool? nullableFields;
 }
 
+/// An annotation for configuring a [GraphQLFieldInput] within a resolver
+///
+/// if [inline] is true, the properties of a [GraphQLInputObjectType] will be
+/// inlined into a resolver inputs.
 class GraphQLArg {
   const GraphQLArg({this.inline = false});
   final bool inline;
 }
 
+/// An annotation for configuring a GraphQL field
+///
+/// if [omit] is true, this field will be omited.
+/// if [nullable] is true, the type will be nullable even when the
+/// Dart type is non-nullable.
+/// [name] is the name of the [GraphQLObjectField].
+/// [type] is a String containing a getter for the [GraphQLType].
 class GraphQLField {
   const GraphQLField({
     this.name,
@@ -52,31 +69,49 @@ class GraphQLField {
 /// Signifies that a function should statically generate a [GraphQLObjectField].
 ///
 /// Use [Mutation], [Query] and [Subscription]
-/// ```dart
-/// @Mutation()
-/// String? someAction(ReqCtx ctx, {int? argSize}) {
-///    final value = ctx.globals[argSize];
-///    return value is String ? value : null;
-/// }
-/// /// @Subscription()
-/// Stream<String> performedActions(ReqCtx ctx, {int? argSize}) {
-///    final value = ctx.globals[argSize];
-///    return value is String ? value : null;
-/// }
-/// ```
 @Target({TargetKind.function, TargetKind.method})
 class GqlResolver {
   const GqlResolver._();
 }
 
+/// Signifies that a function should statically generate
+/// a [GraphQLObjectField] within the mutation type of a [GraphQLSchema].
+///
+/// ```dart
+/// @Mutation()
+/// String? someAction(ReqCtx ctx, {required DateTime createdAt}) {
+///    final value = ctx.globals[argSize];
+///    return value is String ? value : null;
+/// }
+/// ```
 class Mutation extends GqlResolver {
   const Mutation() : super._();
 }
 
+/// Signifies that a function should statically generate
+/// a [GraphQLObjectField] within the query type of a [GraphQLSchema].
+///
+/// ```dart
+/// @Query()
+/// Future<String> getName(ReqCtx ctx, {List<int>? ids}) {
+///    final value = ctx.globals[argSize];
+///    return value is String ? value : null;
+/// }
+/// ```
 class Query extends GqlResolver {
   const Query() : super._();
 }
 
+/// Signifies that a function should statically generate
+/// a [GraphQLObjectField] within the subscription type of a [GraphQLSchema].
+///
+/// ```dart
+/// /// @Subscription()
+/// Stream<String> onActionsPerformed(ReqCtx ctx, int? argSize) {
+///    final value = ctx.globals[argSize];
+///    return value is String ? value : null;
+/// }
+/// ```
 class Subscription extends GqlResolver {
   const Subscription() : super._();
 }
