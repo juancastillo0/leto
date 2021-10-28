@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert' show jsonEncode, jsonDecode;
 import 'dart:io' show HttpServer;
 
@@ -8,16 +9,40 @@ import 'package:shelf_router/shelf_router.dart' show Router;
 
 Future<void> main() async {
   final server = await runServer();
-  final url = Uri.parse('http://${server.address}:${server.port}/graphql');
+  final url = Uri.parse('http://${server.address.host}:${server.port}/graphql');
   await testServer(url);
 }
 
 /// Set up your state.
 /// This could be anything such as a database connection
-final stateRef = RefWithDefault<Model?>.global(
-  'State',
-  (scope) => Model('InitialState', DateTime.now()),
+final stateRef = RefWithDefault<ModelController>.global(
+  (scope) => ModelController(
+    Model('InitialState', DateTime.now()),
+  ),
 );
+
+class ModelController {
+  Model? _value;
+  Model? get value => _value;
+
+  final _streamController = StreamController<Model>.broadcast();
+  Stream<Model> get stream => _streamController.stream;
+
+  ModelController(this._value);
+
+  void setValue(Model newValue) {
+    if (newValue.state == 'InvalidState') {
+      // This will appear as an GraphQLError in the response.
+      // You can pass more information using custom extensions.
+      throw GraphQLError(
+        "Can't be in InvalidState.",
+        extensions: {'errorCodeExtension': 'INVALID_STATE'},
+      );
+    }
+    _value = newValue;
+    _streamController.add(newValue);
+  }
+}
 
 @GraphQLClass()
 class Model {
@@ -27,7 +52,7 @@ class Model {
   const Model(this.state, this.createdAt);
 }
 
-/// Create a GraphQLSchema executable schema
+/// Create a [GraphQLSchema]
 GraphQLSchema makeGraphQLSchema() {
   final GraphQLObjectType<Model> modelGraphqlType = objectType<Model>(
     'Model',
@@ -44,15 +69,18 @@ GraphQLSchema makeGraphQLSchema() {
   );
 
   const schemaString = '''
-schema {
-  query: Query
-  mutation: Mutation
-}
-
 type Query {
   """Get the current state"""
   getState: Model
 }
+
+type Model {
+  state: String!
+  createdAt: Date!
+}
+
+"""An ISO-8601 Date."""
+scalar Date
 
 type Mutation {
   setState(
@@ -61,17 +89,15 @@ type Mutation {
   ): Boolean!
 }
 
-type Model {
-  state: String!
-  createdAt: Date!
-}
-''';
+type Subscription {
+  onStateChange: Model!
+}''';
   final schema = GraphQLSchema(
     queryType: objectType('Query', fields: [
       modelGraphqlType.field(
         'getState',
         description: 'Get the current state',
-        resolve: (Object rootValue, ReqCtx ctx) => stateRef.get(ctx),
+        resolve: (Object rootValue, ReqCtx ctx) => stateRef.get(ctx).value,
       ),
     ]),
     mutationType: objectType('Mutation', fields: [
@@ -79,7 +105,7 @@ type Model {
         'setState',
         // TODO: arguments instead of inputs
         arguments: [
-          inputField(
+          GraphQLFieldInput(
             'newState',
             graphQLString.nonNull(),
             description: "The new state, can't be 'WrongState'!.",
@@ -90,10 +116,17 @@ type Model {
           if (newState == 'WrongState') {
             return false;
           }
-          stateRef.set(ctx, Model(newState, DateTime.now()));
+          stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
           return true;
         },
       ),
+    ]),
+    subscriptionType: objectType('Subscription', fields: [
+      modelGraphqlType.nonNull().field(
+            'onStateChange',
+            subscribe: (Object rootValue, ReqCtx ctx) =>
+                stateRef.get(ctx).stream,
+          )
     ]),
   );
   assert(schema.schemaStr == schemaString);
@@ -101,37 +134,69 @@ type Model {
 }
 
 Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
-  // you can override state with scopedMap.setGlobal/setScoped
+  // you can override state with ScopedMap.setGlobal/setScoped
   final ScopedMap scopedMap = globals ?? ScopedMap.empty();
   if (globals == null) {
     // if it wasn't overriten it should be the default
-    assert(stateRef.get(scopedMap)?.state == 'InitialState');
+    assert(stateRef.get(scopedMap).value?.state == 'InitialState');
   }
+  // Instantiate the GraphQLSchema
   final schema = makeGraphQLSchema();
-  // Instantiate the server, you can pass extensions and
-  // Decide whether you want to instronspect the schema
+  // Instantiate the GraphQL executor, you can pass extensions and
+  // decide whether you want to intronspect the schema
   // and validate the requests
   final letoGraphQL = GraphQL(
     schema,
-    extensionList: [],
+    extensions: [],
     introspect: true,
   );
 
   final port =
       serverPort ?? const int.fromEnvironment('PORT', defaultValue: 8080);
-  final endpoint = 'http://localhost:$port/graphql';
+  const graphqlPath = 'graphql';
+  const graphqlSubscriptionPath = 'graphql-subscription';
+  final endpoint = 'http://localhost:$port/$graphqlPath';
+  final subscriptionEndpoint = 'ws://localhost:$port/$graphqlSubscriptionPath';
 
   // Setup server endpoints
   final app = Router();
   // Main GraphQL HTTP handler
-  app.all('/graphql', graphqlHttp(letoGraphQL, globalVariables: scopedMap));
+  app.all(
+    '/$graphqlPath',
+    graphqlHttp(letoGraphQL, globalVariables: scopedMap),
+  );
+  // Main GraphQL WebSocket handler
+  app.all(
+    '/$graphqlSubscriptionPath',
+    graphqlWebSocket(
+      letoGraphQL,
+      globalVariables: scopedMap,
+      pingInterval: const Duration(seconds: 10),
+      validateIncomingConnection: (
+        Map<String, Object?>? initialPayload,
+        GraphQLWebSocketServer wsServer,
+      ) {
+        if (initialPayload != null) {
+          // you can authenticated an user with the initialPayload:
+          // final token = initialPayload['token']! as String;
+          // ...
+        }
+        return true;
+      },
+    ),
+  );
   // GraphQL schema and endpoint explorer web UI.
   // Available UI handlers: playgroundHandler, graphiqlHandler and altairHandler
   app.get(
     '/playground',
-    playgroundHandler(config: PlaygroundConfig(endpoint: endpoint)),
+    playgroundHandler(
+      config: PlaygroundConfig(
+        endpoint: endpoint,
+        subscriptionEndpoint: subscriptionEndpoint,
+      ),
+    ),
   );
-  // Simple endpoint to download the Schema as a SDL file.
+  // Simple endpoint to download the GraphQLSchema as a SDL file.
   // $ curl http://localhost:8080/graphql-schema > schema.graphql
   const downloadSchemaOnOpen = true;
   const schemaFilename = 'schema.graphql';
@@ -150,7 +215,21 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // Set up other shelf handlers such as static files
 
   // Start the server
-  final server = await shelf_io.serve(app, '0.0.0.0', port);
+  final server = await shelf_io.serve(
+    const Pipeline()
+        // Configure middlewares
+        .addMiddleware(customLog(log: (msg) {
+          // TODO:
+          if (!msg.contains('IntrospectionQuery')) {
+            print(msg);
+          }
+        }))
+        .addMiddleware(cors())
+        .addMiddleware(etag())
+        .addHandler(app),
+    '0.0.0.0',
+    port,
+  );
   print(
     'Serving GraphQL at $endpoint\n'
     'GraphQL Playground UI at http://localhost:$port/playground',
@@ -183,7 +262,9 @@ Future<void> testServer(Uri url) async {
 
   // Also works with GET
   final responseGet = await http.get(url.replace(
-    queryParameters: <String, String>{'query': '{ getState }'},
+    queryParameters: <String, String>{
+      'query': '{ getState { state createdAt } }'
+    },
   ));
   assert(responseGet.statusCode == 200);
   final bodyGet = jsonDecode(responseGet.body) as Map<String, Object?>;
@@ -192,8 +273,13 @@ Future<void> testServer(Uri url) async {
   final createdAt = DateTime.parse(dataGet['getState']['createdAt'] as String);
   assert(createdAt.isAfter(before));
   assert(createdAt.isBefore(DateTime.now()));
+
+  // To test subscriptions you can open the playground web UI at /playground
+  // or programatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
+  // an example can be found in test/mutation_and_subscription_test.dart
 }
 
+/// Code Generation
 /// Using leto_generator, [makeGraphQLSchema] could be generated
 /// with the following annotated functions and the [GraphQLClass]
 /// annotation over [Model]
@@ -201,7 +287,7 @@ Future<void> testServer(Uri url) async {
 /// Get the current state
 @Query()
 Model? getState(ReqCtx ctx) {
-  return stateRef.get(ctx);
+  return stateRef.get(ctx).value;
 }
 
 @Mutation()
@@ -214,6 +300,11 @@ bool setState(
     return false;
   }
 
-  stateRef.set(ctx, Model(newState, DateTime.now()));
+  stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
   return true;
+}
+
+@Subscription()
+Stream<Model> onStateChange(ReqCtx ctx) {
+  return stateRef.get(ctx).stream;
 }
