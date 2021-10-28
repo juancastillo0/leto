@@ -4,6 +4,8 @@ import 'package:analyzer/dart/ast/ast.dart' hide Expression;
 import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:graphql_generator/utils_graphql.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -11,15 +13,30 @@ export 'utils_graphql.dart';
 
 final _docCommentRegExp = RegExp('(^/// )|(^// )', multiLine: true);
 const graphQLDocTypeChecker = TypeChecker.fromRuntime(GraphQLDocumentation);
+const jsonSerializableTypeChecker = TypeChecker.fromRuntime(JsonSerializable);
+const freezedTypeChecker = TypeChecker.fromRuntime(Freezed);
+
+bool hasFromJson(ClassElement clazz) {
+  return clazz.constructors.any((f) => f.name == 'fromJson') ||
+      clazz.methods.any((m) => m.name == 'fromJson');
+}
+
+bool generateSerializer(ClassElement clazz) {
+  return !clazz.isAbstract &&
+          jsonSerializableTypeChecker.hasAnnotationOfExact(clazz) ||
+      hasFromJson(clazz) &&
+          (freezedTypeChecker.hasAnnotationOfExact(clazz) ||
+              isInputType(clazz));
+}
 
 String cleanDocumentation(String doc) {
   return doc.replaceAll(_docCommentRegExp, '').trim().replaceAll('\n', '\\n');
 }
 
 String? getDescription(
-  Element element, [
+  Element element,
   String? docComment,
-]) {
+) {
   String? docString = docComment;
 
   if (docString == null && graphQLDocTypeChecker.hasAnnotationOf(element)) {
@@ -31,6 +48,7 @@ String? getDescription(
   if (docString != null) {
     return cleanDocumentation(docString);
   }
+  return null;
 }
 
 String? getDeprecationReason(Element element) {

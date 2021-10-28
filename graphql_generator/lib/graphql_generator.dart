@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:graphql_generator/build_context.dart';
 import 'package:graphql_generator/generator_models.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -16,9 +14,6 @@ import 'package:source_gen/source_gen.dart';
 Builder graphQLBuilder(Object _) {
   return SharedPartBuilder([_GraphQLGenerator()], 'graphql_types');
 }
-
-const _jsonSerializableTypeChecker = TypeChecker.fromRuntime(JsonSerializable);
-const _freezedTypeChecker = TypeChecker.fromRuntime(Freezed);
 
 class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
   @override
@@ -67,7 +62,9 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
     ConstantReader ann,
     BuildStep buildStep,
   ) async {
-    final hasFrezzed = _freezedTypeChecker.hasAnnotationOfExact(clazz);
+    final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
+    final hasJsonAnnotation =
+        jsonSerializableTypeChecker.hasAnnotationOf(clazz);
 
     if (hasFrezzed) {
       return generateFromFreezed(clazz, buildStep);

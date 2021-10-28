@@ -10,7 +10,7 @@ import 'package:source_gen/source_gen.dart';
 const graphQLClassTypeChecker = TypeChecker.fromRuntime(GraphQLClass);
 
 String get serializerSuffix => 'Serializer';
-String get graphqlTypeSuffix => 'GraphQlType';
+String get graphqlTypeSuffix => 'GraphQLType';
 String get unionKeySuffix => 'Discriminant';
 String get graphQLFieldSuffix => 'GraphQLField';
 
