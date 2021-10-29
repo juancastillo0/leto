@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:graphql_generator/build_context.dart';
+import 'package:graphql_generator/config.dart';
 import 'package:graphql_generator/generator_models.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
@@ -11,11 +11,18 @@ import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Generates GraphQL schemas, statically.
-Builder graphQLBuilder(Object _) {
-  return SharedPartBuilder([_GraphQLGenerator()], 'graphql_types');
+Builder graphQLBuilder(BuilderOptions options) {
+  return SharedPartBuilder(
+    [_GraphQLGenerator(Config.fromJson(options.config))],
+    'graphql_types',
+  );
 }
 
 class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
+  final Config config;
+
+  _GraphQLGenerator(this.config);
+
   @override
   Future<String> generateForAnnotatedElement(
     Element element,
@@ -24,17 +31,17 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
   ) async {
     if (element is ClassElement) {
       try {
-        final ctx = element.isEnum
-            ? null
-            : await buildContext(
-                element,
-                annotation,
-                buildStep,
-                buildStep.resolver,
-                false, // TODO: serializableTypeChecker.hasAnnotationOf(element),
-              );
-        final lib =
-            await buildSchemaLibrary(element, ctx, annotation, buildStep);
+        final ctx = GeneratorCtx(buildStep: buildStep, config: config);
+        // element.isEnum
+        //     ? null
+        //     : await buildContext(
+        //         element,
+        //         annotation,
+        //         buildStep,
+        //         buildStep.resolver,
+        //         false, // TODO: serializableTypeChecker.hasAnnotationOf(element),
+        //       );
+        final lib = await buildSchemaLibrary(element, ctx, annotation);
         return lib.accept(DartEmitter()).toString();
       } catch (e, s) {
         print('$e $s');
@@ -58,16 +65,15 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
 
   Future<Library> buildSchemaLibrary(
     ClassElement clazz,
-    BuildContext? ctx,
+    GeneratorCtx ctx,
     ConstantReader ann,
-    BuildStep buildStep,
   ) async {
     final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
     final hasJsonAnnotation =
         jsonSerializableTypeChecker.hasAnnotationOf(clazz);
 
     if (hasFrezzed) {
-      return generateFromFreezed(clazz, buildStep);
+      return generateFromFreezed(clazz, ctx);
     } else if (clazz.isEnum) {
       return Library((b) {
         b.body.add(Field((b) {
@@ -129,10 +135,14 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         description: getDescription(clazz, clazz.documentationComment),
         deprecationReason: getDeprecationReason(clazz),
         fields: await Future.wait(
-          fieldsFromClass(clazz, buildStep),
+          fieldsFromClass(clazz, ctx),
         ),
       );
       return Library((l) {
+        // l.directives.addAll(
+        //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
+        // );
+
         l.body.add(classInfo.serializer());
         l.body.add(Code(classInfo.fieldCode()));
       });
@@ -142,19 +152,19 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
 
 Future<Library> generateFromFreezed(
   ClassElement clazz,
-  BuildStep buildStep,
+  GeneratorCtx ctx,
 ) async {
-  final _fields = await freezedFields(
-    clazz,
-    buildStep,
-  );
+  final variants = await freezedVariants(clazz, ctx);
 
   return Library((l) {
-    for (final variant in _fields) {
+    // l.directives.addAll(
+    //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
+    // );
+    for (final variant in variants) {
       l.body.add(variant.serializer());
       l.body.add(Code(variant.fieldCode()));
     }
-    if (_fields.length == 1) {
+    if (variants.length == 1) {
       return;
     }
 
@@ -170,7 +180,7 @@ GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeN
    => field(
   'runtimeType',
   enumTypeFromStrings('${typeName}Type', [
-    ${_fields.map((e) => '"${e.constructorName}"').join(',')}
+    ${variants.map((e) => '"${e.constructorName}"').join(',')}
   ]),
 );
 
@@ -179,7 +189,7 @@ GraphQLUnionType<$typeName> get $fieldName {
   return _$fieldName ??= GraphQLUnionType(
     '$typeName',
     [
-      ${_fields.map((e) => e.fieldName).join(',')}
+      ${variants.map((e) => e.fieldName).join(',')}
     ],
   );
 }

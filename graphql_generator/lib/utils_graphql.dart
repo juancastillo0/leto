@@ -3,6 +3,9 @@ import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
+import 'package:collection/collection.dart' show IterableExtension;
+import 'package:graphql_generator/config.dart';
+import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
@@ -79,6 +82,7 @@ bool isInputType(Element elem) =>
     const TypeChecker.fromRuntime(GraphQLInput).hasAnnotationOfExact(elem);
 
 Expression inferType(
+  List<CustomTypes> customTypes,
   String className,
   String name,
   DartType type, {
@@ -93,7 +97,7 @@ Expression inferType(
 
   final genericWhenAsync = genericTypeWhenFutureOrStream(type);
   if (genericWhenAsync != null) {
-    return inferType(className, name, genericWhenAsync);
+    return inferType(customTypes, className, name, genericWhenAsync);
   }
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
   Expression _wrapNullability(Expression exp) =>
@@ -122,19 +126,26 @@ Expression inferType(
       type.typeArguments.isNotEmpty &&
       const TypeChecker.fromRuntime(Iterable).isAssignableFromType(type)) {
     final arg = type.typeArguments[0];
-    final inner = inferType(className, name, arg);
+    final inner = inferType(customTypes, className, name, arg);
     return _wrapNullability(refer('listOf').call([inner]));
   } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
     return _wrapNullability(
       refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix').call([
-        ...type.typeArguments.map((e) => inferType(className, name, e)),
+        ...type.typeArguments
+            .map((e) => inferType(customTypes, className, name, e)),
       ]),
     );
   }
 
   final typeName = type.getDisplayString(withNullability: false);
+  final customType = customTypes.firstWhereOrNull((t) => t.name == typeName);
+  if (customType != null) {
+    return _wrapNullability(refer(customType.getter, customType.import));
+  }
+
   // Firstly, check if it's a GraphQL class.
-  if (type is! InterfaceType || !isGraphQLClass(type)) {
+  if (type is! InterfaceType ||
+      (!isGraphQLClass(type) && !isInputType(type.element))) {
     log.warning('Cannot infer the GraphQL type for '
         'field $className.$name (type=$type).');
   }

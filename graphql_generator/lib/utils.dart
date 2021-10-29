@@ -4,7 +4,9 @@ import 'package:analyzer/dart/ast/ast.dart' hide Expression;
 import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:graphql_generator/config.dart';
 import 'package:graphql_generator/utils_graphql.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:source_gen/source_gen.dart';
@@ -15,6 +17,16 @@ final _docCommentRegExp = RegExp('(^/// )|(^// )', multiLine: true);
 const graphQLDocTypeChecker = TypeChecker.fromRuntime(GraphQLDocumentation);
 const jsonSerializableTypeChecker = TypeChecker.fromRuntime(JsonSerializable);
 const freezedTypeChecker = TypeChecker.fromRuntime(Freezed);
+
+class GeneratorCtx {
+  final Config config;
+  final BuildStep buildStep;
+
+  GeneratorCtx({
+    required this.config,
+    required this.buildStep,
+  });
+}
 
 bool hasFromJson(ClassElement clazz) {
   return clazz.constructors.any((f) => f.name == 'fromJson') ||
