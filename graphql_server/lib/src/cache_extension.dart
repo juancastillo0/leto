@@ -76,6 +76,8 @@ class CacheInfo {
               (key, Object? value) => MapEntry(key.toString(), value),
             ),
           );
+
+    // Set<String>? listMapsKeys = _data is List ? {} : null;
     for (final nestedE in nested.entries) {
       // final Object? innerData = data is Map
       //     ? data[nestedE.key]
@@ -85,16 +87,45 @@ class CacheInfo {
 
       if (innerData != null) {
         final computedInner = nestedE.value.validate(innerData, valuesToCache);
-        data[nestedE.key] = computedInner.key;
+        final itemValue = computedInner.key;
+        data[nestedE.key] = itemValue;
         computedNested[nestedE.key] = computedInner.value;
+
+        // if (listMapsKeys != null) {
+        //   if (itemValue is Map<String, Object?>?) {
+        //     if (itemValue != null) {
+        //       listMapsKeys.addAll(itemValue.keys);
+        //     }
+        //   } else {
+        //     listMapsKeys = null;
+        //   }
+        // }
       }
     }
 
     if (_data is List) {
-      final listData = Iterable.generate(
+      // if (listMapsKeys != null) {
+      //   final mapOfCols =
+      //       Map<String, List<Object?>>.fromEntries(listMapsKeys.map(
+      //     (e) => MapEntry(e, []),
+      //   ));
+      //   final List<int> nullIndexes = [];
+      //   int i = 0;
+      //   for (final obj in data.values.cast<Map<String, Object?>?>()) {
+      //     if (obj == null) {
+      //       nullIndexes.add(i);
+      //     } else {
+      //       for (final e in mapOfCols.entries) {
+      //         e.value.add(obj[e.key]);
+      //       }
+      //     }
+      //     i += 1;
+      //   }
+      // }
+      final listData = List.generate(
         data.length,
         (index) => data[index.toString()],
-      ).toList();
+      );
       return MapEntry(listData, info);
     } else {
       return MapEntry(data, info);
