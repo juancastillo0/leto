@@ -215,7 +215,6 @@ class UnionVarianInfo {
     );
   }
 
-  // String get typeName => name;
   String get fieldName => '${ReCase(typeName).camelCase}$graphqlTypeSuffix';
 
   // Field field() {
@@ -260,7 +259,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
 
   final __$fieldName = ${expression().accept(DartEmitter())};
   $_chacheGetter = __$fieldName;
-  __$fieldName.${isInput ? 'inputFields' : 'fields'}.addAll(${literalList(
+  __$fieldName.fields.addAll(${literalList(
       Map.fromEntries(
         fields
             .where((e) => e.fieldAnnot.omit != true)
@@ -279,27 +278,24 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   String get graphQLTypeName => '$typeName${typeParams.map((t) {
         final _t = t.getDisplayString(withNullability: false);
         final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
-        return '\${$ts is GraphQLTypeWrapper ? ($ts as GraphQLTypeWrapper).ofType: $ts}';
+        return '\${$ts.printableName}';
       }).join()}';
 
   String get unionKeyName =>
       '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
 
   Expression expression() {
-    return refer(isInput
-            ? 'inputObjectType<$typeName${_typeList()}>'
-            : 'objectType<$typeName${_typeList()}>')
-        .call(
+    return refer(
+      isInput
+          ? 'inputObjectType<$typeName${_typeList()}>'
+          : 'objectType<$typeName${_typeList()}>',
+    ).call(
       [literalString(graphQLTypeName)],
       {
         if (!isInput) 'isInterface': literalBool(isInterface),
         if (!isInput) 'interfaces': literalList(interfaces),
-        'description': description == null || description!.isEmpty
-            ? literalNull
-            : literalString(description!),
-        // 'deprecationReason': deprecationReason == null
-        //     ? literalNull
-        //     : literalString(deprecationReason!)
+        if (description != null && description!.isNotEmpty)
+          'description': literalString(description!),
       },
     );
   }
@@ -315,11 +311,13 @@ class FieldInfo {
   final String? description;
   final GraphQLField fieldAnnot;
   final String? deprecationReason;
+  final String? defaultValueCode;
 
   const FieldInfo({
     required this.name,
     required this.getter,
     required this.isMethod,
+    required this.defaultValueCode,
     required this.nonNullable,
     required this.gqlType,
     required this.inputs,
@@ -347,13 +345,12 @@ class FieldInfo {
           ).genericClosure,
         if (!isInput) 'inputs': literalList(inputs.map(refer)),
         // TODO:
-        // if (isInput) 'defaultValue': literalList(inputs.map(refer)),
-        'description': description == null || description!.isEmpty
-            ? literalNull
-            : literalString(description!),
-        'deprecationReason': deprecationReason == null
-            ? literalNull
-            : literalString(deprecationReason!)
+        if (isInput && defaultValueCode != null)
+          'defaultValue': refer(defaultValueCode!),
+        if (description != null && description!.isNotEmpty)
+          'description': literalString(description!),
+        if (deprecationReason != null)
+          'deprecationReason': literalString(deprecationReason!)
       },
     );
   }

@@ -2,7 +2,9 @@ import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/analysis/session.dart';
 import 'package:analyzer/dart/ast/ast.dart' hide Expression;
 import 'package:analyzer/dart/ast/token.dart';
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -79,6 +81,23 @@ String? getDeprecationReason(Element element) {
   }
 }
 
+String? getDefaultValue(Element elem) {
+  if (elem is ParameterElement && elem.defaultValueCode != null) {
+    return elem.defaultValueCode;
+  }
+  final annotDefault = const TypeChecker.fromRuntime(Default)
+      .firstAnnotationOfExact(elem)
+      ?.getField('defaultValue');
+  final annotJsonKey = const TypeChecker.fromRuntime(JsonKey)
+      .firstAnnotationOfExact(elem)
+      ?.getField('defaultValue');
+
+  final annot = annotDefault ?? annotJsonKey;
+  if (annot != null) {
+    return dartObjectToString(annot);
+  }
+}
+
 // taken from https://github.com/rrousselGit/freezed/blob/be88e13288b9a5aaddc0e7d0e9ee570d20a8cccf/packages/freezed/lib/src/utils.dart
 Future<String> documentationOfParameter(
   ParameterElement parameter,
@@ -105,7 +124,7 @@ Future<AstNode> tryGetAstNodeForElement(
 
   while (true) {
     try {
-      final result = library.session.getParsedLibraryByElement2(library)
+      final result = library.session.getParsedLibraryByElement(library)
           as ParsedLibraryResult?;
 
       return result!.getElementDeclaration(element)!.node;
@@ -115,4 +134,42 @@ Future<AstNode> tryGetAstNodeForElement(
       );
     }
   }
+}
+
+/// taken from https://github.com/angel-dart-archive/serialize/blob/be6a3669cca34cd83d189a1169edf6f381101cd8/angel_serialize_generator/lib/angel_serialize_generator.dart#L77
+String dartObjectToString(DartObject v) {
+  final type = v.type;
+  if (v.isNull) return 'null';
+  if (v.toBoolValue() != null) return v.toBoolValue().toString();
+  if (v.toIntValue() != null) return v.toIntValue().toString();
+  if (v.toDoubleValue() != null) return v.toDoubleValue().toString();
+  if (v.toSymbolValue() != null) return '#' + v.toSymbolValue()!;
+  if (v.toTypeValue() != null)
+    return v.toTypeValue()!.getDisplayString(withNullability: true);
+  if (v.toListValue() != null) {
+    return 'const [${v.toListValue()!.map(dartObjectToString).join(', ')}]';
+  }
+  if (v.toMapValue() != null) {
+    return 'const {${v.toMapValue()!.entries.map((entry) {
+      final k = dartObjectToString(entry.key!);
+      final v = dartObjectToString(entry.value!);
+      return '$k: $v';
+    }).join(', ')}}';
+  }
+  if (v.toStringValue() != null) {
+    return literalString(v.toStringValue()!).accept(DartEmitter()).toString();
+  }
+  if (type is InterfaceType && type.element.isEnum) {
+    // Find the index of the enum, then find the member.
+    for (final field in type.element.fields) {
+      if (field.isEnumConstant && field.isStatic) {
+        final value = type.element.getField(field.name)!.computeConstantValue();
+        if (value == v) {
+          return '${type.name}.${field.name}';
+        }
+      }
+    }
+  }
+
+  throw ArgumentError(v.toString());
 }
