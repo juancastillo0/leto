@@ -78,8 +78,17 @@ DartType? genericTypeWhenFutureOrStream(DartType type) {
   return null;
 }
 
-bool isInputType(Element elem) =>
-    const TypeChecker.fromRuntime(GraphQLInput).hasAnnotationOfExact(elem);
+bool isInputType(Element elem) {
+  final _isInput =
+      const TypeChecker.fromRuntime(GraphQLInput).hasAnnotationOfExact(elem);
+  if (_isInput && (elem is! ClassElement || !hasFromJson(elem))) {
+    throw Exception(
+      'A class annotated with GraphQLInput'
+      ' should have a fromJson static method or constructor.',
+    );
+  }
+  return _isInput;
+}
 
 Expression inferType(
   List<CustomTypes> customTypes,

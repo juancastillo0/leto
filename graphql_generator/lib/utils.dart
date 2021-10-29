@@ -32,15 +32,11 @@ class GeneratorCtx {
 
 bool hasFromJson(ClassElement clazz) {
   return clazz.constructors.any((f) => f.name == 'fromJson') ||
-      clazz.methods.any((m) => m.name == 'fromJson');
+      clazz.methods.any((m) => m.isStatic && m.name == 'fromJson');
 }
 
 bool generateSerializer(ClassElement clazz) {
-  return !clazz.isAbstract &&
-          jsonSerializableTypeChecker.hasAnnotationOfExact(clazz) ||
-      hasFromJson(clazz) &&
-          (freezedTypeChecker.hasAnnotationOfExact(clazz) ||
-              isInputType(clazz));
+  return hasFromJson(clazz);
 }
 
 String cleanDocumentation(String doc) {

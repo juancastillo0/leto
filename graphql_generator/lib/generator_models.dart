@@ -357,7 +357,10 @@ class FieldInfo {
     return refer(isInput ? 'inputField' : 'field').call(
       [
         literalString(name),
-        isInput ? gqlType.property('coerceToInputObject').call([]) : gqlType,
+        if (isInput)
+          gqlType.property('coerceToInputObject').call([])
+        else
+          gqlType,
       ],
       {
         if (!isInput)
@@ -370,8 +373,8 @@ class FieldInfo {
               ..body = Code(isMethod ? getter : 'obj.$getter')
               ..lambda = !isMethod,
           ).genericClosure,
-        if (!isInput) 'inputs': literalList(inputs.map(refer)),
-        // TODO:
+        if (!isInput && inputs.isNotEmpty)
+          'inputs': literalList(inputs.map(refer)),
         if (isInput && defaultValueCode != null)
           'defaultValue': refer(defaultValueCode!),
         if (description != null && description!.isNotEmpty)

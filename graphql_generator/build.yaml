@@ -11,9 +11,7 @@ builders:
     builder_factories: [graphQLBuilder]
     auto_apply: dependents
     build_to: cache
-    build_extensions: {".dart": [".graphql_types.g.part"]}
-    # required_inputs:
-    #   - angel_serialize.g.part
+    build_extensions: { ".dart": [".graphql_types.g.part"] }
     applies_builders: [source_gen|combining_builder]
   graphql_resolvers:
     target: ":graphql_generator"
@@ -21,9 +19,7 @@ builders:
     builder_factories: [graphQLResolverBuilder]
     auto_apply: dependents
     build_to: cache
-    build_extensions: {".dart": [".graphql_resolvers.g.part"]}
-    # required_inputs:
-    #   - angel_serialize.g.part
+    build_extensions: { ".dart": [".graphql_resolvers.g.part"] }
     applies_builders: [source_gen|combining_builder]
   graphql_api_schema:
     # library URI containing the builder - maps to `lib/member_count_library_generator.dart`
@@ -31,7 +27,7 @@ builders:
     # Name of the function in the above library to call.
     builder_factories: ["graphQLApiSchemaBuilder"]
     # The mapping from the source extension to the generated file extension
-    build_extensions: {".dart": [".graphql_api_schema.dart"]}
+    build_extensions: { ".dart": [".graphql_api_schema.dart"] }
     # Will automatically run on any package that depends on it
     auto_apply: dependents
     # Generate the output directly into the package, not to a hidden cache dir
