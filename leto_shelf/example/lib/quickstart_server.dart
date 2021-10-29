@@ -161,12 +161,12 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
 
   // Setup server endpoints
   final app = Router();
-  // Main GraphQL HTTP handler
+  // GraphQL HTTP handler
   app.all(
     '/$graphqlPath',
     graphqlHttp(letoGraphQL, globalVariables: scopedMap),
   );
-  // Main GraphQL WebSocket handler
+  // GraphQL WebSocket handler
   app.all(
     '/$graphqlSubscriptionPath',
     graphqlWebSocket(
@@ -227,12 +227,15 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
         }))
         .addMiddleware(cors())
         .addMiddleware(etag())
+        .addMiddleware(jsonParse())
+        // Add Router handler
         .addHandler(app),
     '0.0.0.0',
     port,
   );
   print(
-    'Serving GraphQL at $endpoint\n'
+    'GraphQL Endpoint at $endpoint\n'
+    'GraphQL Subscriptions at $subscriptionEndpoint\n'
     'GraphQL Playground UI at http://localhost:$port/playground',
   );
 
