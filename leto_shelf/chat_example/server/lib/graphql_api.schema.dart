@@ -26,6 +26,9 @@ final graphqlApiSchema = GraphQLSchema(
       chatRoomSerializer,
       dBEventDataSerializer,
       dBEventSerializer,
+    ])
+    ..children.addAll([
+      errCSerdeCtx,
     ]),
   queryType: objectType(
     'Query',

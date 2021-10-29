@@ -70,7 +70,7 @@ class LoggingExtension extends GraphQLExtension {
     ResolveCtx ctx,
     ScopedMap parentGlobals,
   ) async {
-    final globals = ctx.globalVariables;
+    final globals = ctx.globals;
     try {
       final result = await next();
       logFunction(

@@ -427,8 +427,8 @@ enum SignUpError {
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
   ReqCtx ctx,
-  @ValidateString(minLength: 2) String name,
-  @ValidateString(minLength: 6) String password,
+  @ValidaString(minLength: 2) String name,
+  @ValidaString(minLength: 6) String password,
 ) async {
   final userClaims = await getUserClaims(ctx);
   final User? user;
@@ -475,7 +475,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
 }
 
 GraphQLType<Result<T, T2>, Map<String, Object?>>
-    resultGraphQlType<T extends Object, T2 extends Object>(
+    resultGraphQLType<T extends Object, T2 extends Object>(
   GraphQLType<T, Object> _t1,
   GraphQLType<T2, Object> _t2, {
   String? name,

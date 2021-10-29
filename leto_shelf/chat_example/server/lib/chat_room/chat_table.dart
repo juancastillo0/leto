@@ -338,7 +338,7 @@ Future<List<ChatRoom>> getChatRooms(
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
-  final possibleSelections = ctx.lookahead()!.asObject;
+  final possibleSelections = ctx.lookahead()!.forObject;
 
   final withMessages = possibleSelections.contains('messages');
   final withUsers = possibleSelections.contains('users');

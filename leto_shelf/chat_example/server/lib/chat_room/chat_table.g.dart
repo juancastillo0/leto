@@ -9,7 +9,7 @@ part of 'chat_table.dart';
 final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
     field(
   'createChatRoom',
-  chatRoomGraphQlType as GraphQLType<ChatRoom, Object>,
+  chatRoomGraphQLType as GraphQLType<ChatRoom, Object>,
   description: null,
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -47,7 +47,7 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomGraphQLField =
 final GraphQLObjectField<List<ChatRoom?>, Object, Object>
     getChatRoomsGraphQLField = field(
   'getChatRooms',
-  listOf(chatRoomGraphQlType.nonNull()).nonNull()
+  listOf(chatRoomGraphQLType.nonNull()).nonNull()
       as GraphQLType<List<ChatRoom?>, Object>,
   description: null,
   resolve: (obj, ctx) {
@@ -63,148 +63,129 @@ final GraphQLObjectField<List<ChatRoom?>, Object, Object>
 // **************************************************************************
 
 final chatCreatedEventSerializer = SerializerValue<ChatCreatedEvent>(
-  fromJson: _$$ChatCreatedEventFromJson,
-  toJson: (m) => _$$ChatCreatedEventToJson(m as _$ChatCreatedEvent),
+  fromJson: (ctx, json) =>
+      ChatCreatedEvent.fromJson(json), // _$$ChatCreatedEventFromJson,
+  // toJson: (m) => _$$ChatCreatedEventToJson(m as _$ChatCreatedEvent),
 );
-GraphQLObjectType<ChatCreatedEvent>? _chatCreatedEventGraphQlType;
+
+GraphQLObjectType<ChatCreatedEvent>? _chatCreatedEventGraphQLType;
 
 /// Auto-generated from [ChatCreatedEvent].
-GraphQLObjectType<ChatCreatedEvent> get chatCreatedEventGraphQlType {
+GraphQLObjectType<ChatCreatedEvent> get chatCreatedEventGraphQLType {
   final __name = 'ChatCreatedEvent';
-  if (_chatCreatedEventGraphQlType != null)
-    return _chatCreatedEventGraphQlType! as GraphQLObjectType<ChatCreatedEvent>;
+  if (_chatCreatedEventGraphQLType != null)
+    return _chatCreatedEventGraphQLType! as GraphQLObjectType<ChatCreatedEvent>;
 
-  final __chatCreatedEventGraphQlType = objectType<ChatCreatedEvent>(
+  final __chatCreatedEventGraphQLType = objectType<ChatCreatedEvent>(
       'ChatCreatedEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _chatCreatedEventGraphQlType = __chatCreatedEventGraphQlType;
-  __chatCreatedEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _chatCreatedEventGraphQLType = __chatCreatedEventGraphQLType;
+  __chatCreatedEventGraphQLType.fields.addAll(
     [
-      field('chat', chatRoomGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.chat,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('chat', chatRoomGraphQLType.nonNull(),
+          resolve: (obj, ctx) => obj.chat),
       field('ownerId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.ownerId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('chatId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.chatId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      chatEventGraphQlTypeDiscriminant()
+          resolve: (obj, ctx) => obj.ownerId),
+      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
+      chatEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __chatCreatedEventGraphQlType;
+  return __chatCreatedEventGraphQLType;
 }
 
 final chatDeletedEventSerializer = SerializerValue<ChatDeletedEvent>(
-  fromJson: _$$ChatDeletedEventFromJson,
-  toJson: (m) => _$$ChatDeletedEventToJson(m as _$ChatDeletedEvent),
+  fromJson: (ctx, json) =>
+      ChatDeletedEvent.fromJson(json), // _$$ChatDeletedEventFromJson,
+  // toJson: (m) => _$$ChatDeletedEventToJson(m as _$ChatDeletedEvent),
 );
-GraphQLObjectType<ChatDeletedEvent>? _chatDeletedEventGraphQlType;
+
+GraphQLObjectType<ChatDeletedEvent>? _chatDeletedEventGraphQLType;
 
 /// Auto-generated from [ChatDeletedEvent].
-GraphQLObjectType<ChatDeletedEvent> get chatDeletedEventGraphQlType {
+GraphQLObjectType<ChatDeletedEvent> get chatDeletedEventGraphQLType {
   final __name = 'ChatDeletedEvent';
-  if (_chatDeletedEventGraphQlType != null)
-    return _chatDeletedEventGraphQlType! as GraphQLObjectType<ChatDeletedEvent>;
+  if (_chatDeletedEventGraphQLType != null)
+    return _chatDeletedEventGraphQLType! as GraphQLObjectType<ChatDeletedEvent>;
 
-  final __chatDeletedEventGraphQlType = objectType<ChatDeletedEvent>(
+  final __chatDeletedEventGraphQLType = objectType<ChatDeletedEvent>(
       'ChatDeletedEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _chatDeletedEventGraphQlType = __chatDeletedEventGraphQlType;
-  __chatDeletedEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _chatDeletedEventGraphQLType = __chatDeletedEventGraphQLType;
+  __chatDeletedEventGraphQLType.fields.addAll(
     [
-      field('chatId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.chatId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      chatEventGraphQlTypeDiscriminant()
+      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
+      chatEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __chatDeletedEventGraphQlType;
+  return __chatDeletedEventGraphQLType;
 }
 
 final chatEventSerializer = SerializerValue<ChatEvent>(
-  fromJson: _$ChatEventFromJson,
-  toJson: (m) => _$ChatEventToJson(m as ChatEvent),
+  fromJson: (ctx, json) => ChatEvent.fromJson(json), // _$ChatEventFromJson,
+  // toJson: (m) => _$ChatEventToJson(m as ChatEvent),
 );
 
-Map<String, Object?> _$ChatEventToJson(ChatEvent instance) => instance.toJson();
+// Map<String, Object?> _$ChatEventToJson(ChatEvent instance) => instance.toJson();
 
 GraphQLObjectField<String, String, P>
-    chatEventGraphQlTypeDiscriminant<P extends ChatEvent>() => field(
+    chatEventGraphQLTypeDiscriminant<P extends ChatEvent>() => field(
           'runtimeType',
           enumTypeFromStrings('ChatEventType', ["created", "deleted"]),
         );
 
-GraphQLUnionType<ChatEvent>? _chatEventGraphQlType;
-GraphQLUnionType<ChatEvent> get chatEventGraphQlType {
-  return _chatEventGraphQlType ??= GraphQLUnionType(
+GraphQLUnionType<ChatEvent>? _chatEventGraphQLType;
+GraphQLUnionType<ChatEvent> get chatEventGraphQLType {
+  return _chatEventGraphQLType ??= GraphQLUnionType(
     'ChatEvent',
-    [chatCreatedEventGraphQlType, chatDeletedEventGraphQlType],
+    [chatCreatedEventGraphQLType, chatDeletedEventGraphQLType],
   );
 }
 
 final chatRoomSerializer = SerializerValue<ChatRoom>(
-  fromJson: _$$_ChatRoomFromJson,
-  toJson: (m) => _$$_ChatRoomToJson(m as _$_ChatRoom),
+  fromJson: (ctx, json) => ChatRoom.fromJson(json), // _$$_ChatRoomFromJson,
+  // toJson: (m) => _$$_ChatRoomToJson(m as _$_ChatRoom),
 );
-GraphQLObjectType<ChatRoom>? _chatRoomGraphQlType;
+
+GraphQLObjectType<ChatRoom>? _chatRoomGraphQLType;
 
 /// Auto-generated from [ChatRoom].
-GraphQLObjectType<ChatRoom> get chatRoomGraphQlType {
+GraphQLObjectType<ChatRoom> get chatRoomGraphQLType {
   final __name = 'ChatRoom';
-  if (_chatRoomGraphQlType != null)
-    return _chatRoomGraphQlType! as GraphQLObjectType<ChatRoom>;
+  if (_chatRoomGraphQLType != null)
+    return _chatRoomGraphQLType! as GraphQLObjectType<ChatRoom>;
 
-  final __chatRoomGraphQlType = objectType<ChatRoom>('ChatRoom',
-      isInterface: false, interfaces: [], description: null);
-  _chatRoomGraphQlType = __chatRoomGraphQlType;
-  __chatRoomGraphQlType.fields.addAll(
+  final __chatRoomGraphQLType =
+      objectType<ChatRoom>('ChatRoom', isInterface: false, interfaces: []);
+
+  _chatRoomGraphQLType = __chatRoomGraphQLType;
+  __chatRoomGraphQLType.fields.addAll(
     [
-      field('id', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('name', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('id', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.id),
+      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('messages', listOf(chatMessageGraphQlType.nonNull()).nonNull(),
+          resolve: (obj, ctx) => obj.createdAt),
+      field('messages', listOf(chatMessageGraphQLType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.messages(ctx);
-      }, inputs: [], description: null, deprecationReason: null),
-      field('users', listOf(chatRoomUserGraphQlType.nonNull()).nonNull(),
+      }),
+      field('users', listOf(chatRoomUserGraphQLType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.users(ctx);
-      }, inputs: [], description: null, deprecationReason: null)
+      })
     ],
   );
 
-  return __chatRoomGraphQlType;
+  return __chatRoomGraphQLType;
 }
 
 // **************************************************************************

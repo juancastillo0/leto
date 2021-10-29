@@ -10,7 +10,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
-final _webSocketConnCtxRef = GlobalRef('webSocketConnCtxRef');
+final _webSocketConnCtxRef = ScopeRef<WebSocketConnCtx>('webSocketConnCtxRef');
 final _webSocketSessionsRef = RefWithDefault.scoped(
   (h) => <String, Set<GraphQLWebSocketServer>>{},
   name: 'webSocketSessionsRef',
@@ -30,8 +30,7 @@ class WebSocketConnCtx {
     this.appVersion,
   });
 
-  static WebSocketConnCtx? fromCtx(ReqCtx ctx) =>
-      ctx.globals[_webSocketConnCtxRef] as WebSocketConnCtx?;
+  static WebSocketConnCtx? fromCtx(ReqCtx ctx) => _webSocketConnCtxRef.get(ctx);
 }
 
 String? getAuthToken(ReqCtx ctx) {
@@ -98,8 +97,8 @@ Future<void> setWebSocketAuth(
       appVersion: map[UserSession.appversionKey] as String?,
     );
   }
-  server.globalVariables.setScoped(
-    _webSocketConnCtxRef,
+  _webSocketConnCtxRef.setScoped(
+    server.globalVariables,
     connCtx,
   );
 }

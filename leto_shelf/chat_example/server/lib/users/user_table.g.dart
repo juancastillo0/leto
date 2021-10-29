@@ -9,7 +9,7 @@ part of 'user_table.dart';
 final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
     field(
   'searchUser',
-  listOf(userGraphQlType.nonNull()).nonNull()
+  listOf(userGraphQLType.nonNull()).nonNull()
       as GraphQLType<List<User?>, Object>,
   description: null,
   resolve: (obj, ctx) {
@@ -28,7 +28,7 @@ final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
 
 final GraphQLObjectField<User, Object, Object> getUserGraphQLField = field(
   'getUser',
-  userGraphQlType as GraphQLType<User, Object>,
+  userGraphQLType as GraphQLType<User, Object>,
   description: null,
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -54,8 +54,8 @@ final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
 final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
     Object> signUpGraphQLField = field(
   'signUp',
-  resultGraphQlType(tokenWithUserGraphQlType.nonNull(),
-              errCGraphQlType(signUpErrorGraphQlType.nonNull()).nonNull())
+  resultGraphQLType(tokenWithUserGraphQLType.nonNull(),
+              errCGraphQLType(signUpErrorGraphQLType.nonNull()).nonNull())
           .nonNull()
       as GraphQLType<Result<TokenWithUser, ErrC<SignUpError>>, Object>,
   description: null,
@@ -80,8 +80,8 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
 final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
     Object> signInGraphQLField = field(
   'signIn',
-  resultGraphQlType(tokenWithUserGraphQlType.nonNull(),
-              errCGraphQlType(signInErrorGraphQlType.nonNull()).nonNull())
+  resultGraphQLType(tokenWithUserGraphQLType.nonNull(),
+              errCGraphQLType(signInErrorGraphQLType.nonNull()).nonNull())
           .nonNull()
       as GraphQLType<Result<TokenWithUser, ErrC<SignInError>>, Object>,
   description: null,
@@ -121,370 +121,298 @@ final GraphQLObjectField<String, Object, Object> signOutGraphQLField = field(
 // **************************************************************************
 
 final userCreatedEventSerializer = SerializerValue<UserCreatedEvent>(
-  fromJson: _$$UserCreatedEventFromJson,
-  toJson: (m) => _$$UserCreatedEventToJson(m as _$UserCreatedEvent),
+  fromJson: (ctx, json) =>
+      UserCreatedEvent.fromJson(json), // _$$UserCreatedEventFromJson,
+  // toJson: (m) => _$$UserCreatedEventToJson(m as _$UserCreatedEvent),
 );
-GraphQLObjectType<UserCreatedEvent>? _userCreatedEventGraphQlType;
+
+GraphQLObjectType<UserCreatedEvent>? _userCreatedEventGraphQLType;
 
 /// Auto-generated from [UserCreatedEvent].
-GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQlType {
+GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQLType {
   final __name = 'UserCreatedEvent';
-  if (_userCreatedEventGraphQlType != null)
-    return _userCreatedEventGraphQlType! as GraphQLObjectType<UserCreatedEvent>;
+  if (_userCreatedEventGraphQLType != null)
+    return _userCreatedEventGraphQLType! as GraphQLObjectType<UserCreatedEvent>;
 
-  final __userCreatedEventGraphQlType = objectType<UserCreatedEvent>(
+  final __userCreatedEventGraphQLType = objectType<UserCreatedEvent>(
       'UserCreatedEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _userCreatedEventGraphQlType = __userCreatedEventGraphQlType;
-  __userCreatedEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _userCreatedEventGraphQLType = __userCreatedEventGraphQLType;
+  __userCreatedEventGraphQLType.fields.addAll(
     [
-      field('user', userGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.user,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      userEventGraphQlTypeDiscriminant()
+      field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) => obj.user),
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
+      userEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __userCreatedEventGraphQlType;
+  return __userCreatedEventGraphQLType;
 }
 
 final userSignedUpEventSerializer = SerializerValue<UserSignedUpEvent>(
-  fromJson: _$$UserSignedUpEventFromJson,
-  toJson: (m) => _$$UserSignedUpEventToJson(m as _$UserSignedUpEvent),
+  fromJson: (ctx, json) =>
+      UserSignedUpEvent.fromJson(json), // _$$UserSignedUpEventFromJson,
+  // toJson: (m) => _$$UserSignedUpEventToJson(m as _$UserSignedUpEvent),
 );
-GraphQLObjectType<UserSignedUpEvent>? _userSignedUpEventGraphQlType;
+
+GraphQLObjectType<UserSignedUpEvent>? _userSignedUpEventGraphQLType;
 
 /// Auto-generated from [UserSignedUpEvent].
-GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQlType {
+GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQLType {
   final __name = 'UserSignedUpEvent';
-  if (_userSignedUpEventGraphQlType != null)
-    return _userSignedUpEventGraphQlType!
+  if (_userSignedUpEventGraphQLType != null)
+    return _userSignedUpEventGraphQLType!
         as GraphQLObjectType<UserSignedUpEvent>;
 
-  final __userSignedUpEventGraphQlType = objectType<UserSignedUpEvent>(
+  final __userSignedUpEventGraphQLType = objectType<UserSignedUpEvent>(
       'UserSignedUpEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _userSignedUpEventGraphQlType = __userSignedUpEventGraphQlType;
-  __userSignedUpEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _userSignedUpEventGraphQLType = __userSignedUpEventGraphQLType;
+  __userSignedUpEventGraphQLType.fields.addAll(
     [
-      field('session', userSessionGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.session,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      userEventGraphQlTypeDiscriminant()
+      field('session', userSessionGraphQLType.nonNull(),
+          resolve: (obj, ctx) => obj.session),
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
+      userEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __userSignedUpEventGraphQlType;
+  return __userSignedUpEventGraphQLType;
 }
 
 final userSignedInEventSerializer = SerializerValue<UserSignedInEvent>(
-  fromJson: _$$UserSignedInEventFromJson,
-  toJson: (m) => _$$UserSignedInEventToJson(m as _$UserSignedInEvent),
+  fromJson: (ctx, json) =>
+      UserSignedInEvent.fromJson(json), // _$$UserSignedInEventFromJson,
+  // toJson: (m) => _$$UserSignedInEventToJson(m as _$UserSignedInEvent),
 );
-GraphQLObjectType<UserSignedInEvent>? _userSignedInEventGraphQlType;
+
+GraphQLObjectType<UserSignedInEvent>? _userSignedInEventGraphQLType;
 
 /// Auto-generated from [UserSignedInEvent].
-GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQlType {
+GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQLType {
   final __name = 'UserSignedInEvent';
-  if (_userSignedInEventGraphQlType != null)
-    return _userSignedInEventGraphQlType!
+  if (_userSignedInEventGraphQLType != null)
+    return _userSignedInEventGraphQLType!
         as GraphQLObjectType<UserSignedInEvent>;
 
-  final __userSignedInEventGraphQlType = objectType<UserSignedInEvent>(
+  final __userSignedInEventGraphQLType = objectType<UserSignedInEvent>(
       'UserSignedInEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _userSignedInEventGraphQlType = __userSignedInEventGraphQlType;
-  __userSignedInEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _userSignedInEventGraphQLType = __userSignedInEventGraphQLType;
+  __userSignedInEventGraphQLType.fields.addAll(
     [
-      field('session', userSessionGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.session,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      userEventGraphQlTypeDiscriminant()
+      field('session', userSessionGraphQLType.nonNull(),
+          resolve: (obj, ctx) => obj.session),
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
+      userEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __userSignedInEventGraphQlType;
+  return __userSignedInEventGraphQLType;
 }
 
 final userSignedOutEventSerializer = SerializerValue<UserSignedOutEvent>(
-  fromJson: _$$UserSignedOutEventFromJson,
-  toJson: (m) => _$$UserSignedOutEventToJson(m as _$UserSignedOutEvent),
+  fromJson: (ctx, json) =>
+      UserSignedOutEvent.fromJson(json), // _$$UserSignedOutEventFromJson,
+  // toJson: (m) => _$$UserSignedOutEventToJson(m as _$UserSignedOutEvent),
 );
-GraphQLObjectType<UserSignedOutEvent>? _userSignedOutEventGraphQlType;
+
+GraphQLObjectType<UserSignedOutEvent>? _userSignedOutEventGraphQLType;
 
 /// Auto-generated from [UserSignedOutEvent].
-GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQlType {
+GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQLType {
   final __name = 'UserSignedOutEvent';
-  if (_userSignedOutEventGraphQlType != null)
-    return _userSignedOutEventGraphQlType!
+  if (_userSignedOutEventGraphQLType != null)
+    return _userSignedOutEventGraphQLType!
         as GraphQLObjectType<UserSignedOutEvent>;
 
-  final __userSignedOutEventGraphQlType = objectType<UserSignedOutEvent>(
+  final __userSignedOutEventGraphQLType = objectType<UserSignedOutEvent>(
       'UserSignedOutEvent',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _userSignedOutEventGraphQlType = __userSignedOutEventGraphQlType;
-  __userSignedOutEventGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _userSignedOutEventGraphQLType = __userSignedOutEventGraphQLType;
+  __userSignedOutEventGraphQLType.fields.addAll(
     [
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
       field('sessionId', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.sessionId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      userEventGraphQlTypeDiscriminant()
+          resolve: (obj, ctx) => obj.sessionId),
+      userEventGraphQLTypeDiscriminant()
     ],
   );
 
-  return __userSignedOutEventGraphQlType;
+  return __userSignedOutEventGraphQLType;
 }
 
 final userEventSerializer = SerializerValue<UserEvent>(
-  fromJson: _$UserEventFromJson,
-  toJson: (m) => _$UserEventToJson(m as UserEvent),
+  fromJson: (ctx, json) => UserEvent.fromJson(json), // _$UserEventFromJson,
+  // toJson: (m) => _$UserEventToJson(m as UserEvent),
 );
 
-Map<String, Object?> _$UserEventToJson(UserEvent instance) => instance.toJson();
+// Map<String, Object?> _$UserEventToJson(UserEvent instance) => instance.toJson();
 
 GraphQLObjectField<String, String, P>
-    userEventGraphQlTypeDiscriminant<P extends UserEvent>() => field(
+    userEventGraphQLTypeDiscriminant<P extends UserEvent>() => field(
           'runtimeType',
           enumTypeFromStrings('UserEventType',
               ["created", "signedUp", "signedIn", "signedOut"]),
         );
 
-GraphQLUnionType<UserEvent>? _userEventGraphQlType;
-GraphQLUnionType<UserEvent> get userEventGraphQlType {
-  return _userEventGraphQlType ??= GraphQLUnionType(
+GraphQLUnionType<UserEvent>? _userEventGraphQLType;
+GraphQLUnionType<UserEvent> get userEventGraphQLType {
+  return _userEventGraphQLType ??= GraphQLUnionType(
     'UserEvent',
     [
-      userCreatedEventGraphQlType,
-      userSignedUpEventGraphQlType,
-      userSignedInEventGraphQlType,
-      userSignedOutEventGraphQlType
+      userCreatedEventGraphQLType,
+      userSignedUpEventGraphQLType,
+      userSignedInEventGraphQLType,
+      userSignedOutEventGraphQLType
     ],
   );
 }
 
 final userSessionSerializer = SerializerValue<UserSession>(
-  fromJson: _$UserSessionFromJson,
-  toJson: (m) => _$UserSessionToJson(m as UserSession),
+  fromJson: (ctx, json) => UserSession.fromJson(json), // _$UserSessionFromJson,
+  // toJson: (m) => _$UserSessionToJson(m as UserSession),
 );
-GraphQLObjectType<UserSession>? _userSessionGraphQlType;
+
+GraphQLObjectType<UserSession>? _userSessionGraphQLType;
 
 /// Auto-generated from [UserSession].
-GraphQLObjectType<UserSession> get userSessionGraphQlType {
+GraphQLObjectType<UserSession> get userSessionGraphQLType {
   final __name = 'UserSession';
-  if (_userSessionGraphQlType != null)
-    return _userSessionGraphQlType! as GraphQLObjectType<UserSession>;
+  if (_userSessionGraphQLType != null)
+    return _userSessionGraphQLType! as GraphQLObjectType<UserSession>;
 
-  final __userSessionGraphQlType = objectType<UserSession>('UserSession',
-      isInterface: false, interfaces: [], description: null);
-  _userSessionGraphQlType = __userSessionGraphQlType;
-  __userSessionGraphQlType.fields.addAll(
+  final __userSessionGraphQLType = objectType<UserSession>('UserSession',
+      isInterface: false, interfaces: []);
+
+  _userSessionGraphQLType = __userSessionGraphQLType;
+  __userSessionGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('userId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.userId,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('userAgent', graphQLString,
-          resolve: (obj, ctx) => obj.userAgent,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('platform', graphQLString,
-          resolve: (obj, ctx) => obj.platform,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('appVersion', graphQLString,
-          resolve: (obj, ctx) => obj.appVersion,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id),
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
+      field('userAgent', graphQLString, resolve: (obj, ctx) => obj.userAgent),
+      field('platform', graphQLString, resolve: (obj, ctx) => obj.platform),
+      field('appVersion', graphQLString, resolve: (obj, ctx) => obj.appVersion),
       field('isActive', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.isActive,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.isActive),
       field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('endedAt', graphQLDate,
-          resolve: (obj, ctx) => obj.endedAt,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.createdAt),
+      field('endedAt', graphQLDate, resolve: (obj, ctx) => obj.endedAt)
     ],
   );
 
-  return __userSessionGraphQlType;
+  return __userSessionGraphQLType;
 }
 
 final userSerializer = SerializerValue<User>(
-  fromJson: _$UserFromJson,
-  toJson: (m) => _$UserToJson(m as User),
+  fromJson: (ctx, json) => User.fromJson(json), // _$UserFromJson,
+  // toJson: (m) => _$UserToJson(m as User),
 );
-GraphQLObjectType<User>? _userGraphQlType;
+
+GraphQLObjectType<User>? _userGraphQLType;
 
 /// Auto-generated from [User].
-GraphQLObjectType<User> get userGraphQlType {
+GraphQLObjectType<User> get userGraphQLType {
   final __name = 'User';
-  if (_userGraphQlType != null)
-    return _userGraphQlType! as GraphQLObjectType<User>;
+  if (_userGraphQLType != null)
+    return _userGraphQLType! as GraphQLObjectType<User>;
 
-  final __userGraphQlType = objectType<User>('User',
-      isInterface: false, interfaces: [], description: null);
-  _userGraphQlType = __userGraphQlType;
-  __userGraphQlType.fields.addAll(
+  final __userGraphQLType =
+      objectType<User>('User', isInterface: false, interfaces: []);
+
+  _userGraphQLType = __userGraphQLType;
+  __userGraphQLType.fields.addAll(
     [
-      field('sessions', listOf(userSessionGraphQlType.nonNull()).nonNull(),
+      field('sessions', listOf(userSessionGraphQLType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.sessions(ctx);
-      }, inputs: [], description: null, deprecationReason: null),
-      field('id', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('name', graphQLString,
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      }),
+      field('id', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.id),
+      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
       field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.createdAt)
     ],
   );
 
-  return __userGraphQlType;
+  return __userGraphQLType;
 }
 
 final tokenWithUserSerializer = SerializerValue<TokenWithUser>(
-  fromJson: _$TokenWithUserFromJson,
-  toJson: (m) => _$TokenWithUserToJson(m as TokenWithUser),
+  fromJson: (ctx, json) =>
+      TokenWithUser.fromJson(json), // _$TokenWithUserFromJson,
+  // toJson: (m) => _$TokenWithUserToJson(m as TokenWithUser),
 );
-GraphQLObjectType<TokenWithUser>? _tokenWithUserGraphQlType;
+
+GraphQLObjectType<TokenWithUser>? _tokenWithUserGraphQLType;
 
 /// Auto-generated from [TokenWithUser].
-GraphQLObjectType<TokenWithUser> get tokenWithUserGraphQlType {
+GraphQLObjectType<TokenWithUser> get tokenWithUserGraphQLType {
   final __name = 'TokenWithUser';
-  if (_tokenWithUserGraphQlType != null)
-    return _tokenWithUserGraphQlType! as GraphQLObjectType<TokenWithUser>;
+  if (_tokenWithUserGraphQLType != null)
+    return _tokenWithUserGraphQLType! as GraphQLObjectType<TokenWithUser>;
 
-  final __tokenWithUserGraphQlType = objectType<TokenWithUser>('TokenWithUser',
-      isInterface: false, interfaces: [], description: null);
-  _tokenWithUserGraphQlType = __tokenWithUserGraphQlType;
-  __tokenWithUserGraphQlType.fields.addAll(
+  final __tokenWithUserGraphQLType = objectType<TokenWithUser>('TokenWithUser',
+      isInterface: false, interfaces: []);
+
+  _tokenWithUserGraphQLType = __tokenWithUserGraphQLType;
+  __tokenWithUserGraphQLType.fields.addAll(
     [
       field('accessToken', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.accessToken,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.accessToken),
       field('refreshToken', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.refreshToken,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.refreshToken),
       field('expiresInSecs', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.expiresInSecs,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('user', userGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.user,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.expiresInSecs),
+      field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) => obj.user)
     ],
   );
 
-  return __tokenWithUserGraphQlType;
+  return __tokenWithUserGraphQLType;
 }
 
-Map<String, GraphQLObjectType<ErrC>> _errCGraphQlType = {};
+final errCSerdeCtx = SerdeCtx();
+Map<String, GraphQLObjectType<ErrC>> _errCGraphQLType = {};
 
 /// Auto-generated from [ErrC].
-GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
-  GraphQLType<T, Object> tGraphQlType,
+GraphQLObjectType<ErrC<T>> errCGraphQLType<T extends Object>(
+  GraphQLType<T, Object> tGraphQLType,
 ) {
-  final __name =
-      'ErrC${tGraphQlType is GraphQLTypeWrapper ? (tGraphQlType as GraphQLTypeWrapper).ofType : tGraphQlType}';
-  if (_errCGraphQlType[__name] != null)
-    return _errCGraphQlType[__name]! as GraphQLObjectType<ErrC<T>>;
+  final __name = 'ErrC${tGraphQLType.printableName}';
+  if (_errCGraphQLType[__name] != null)
+    return _errCGraphQLType[__name]! as GraphQLObjectType<ErrC<T>>;
 
-  final __errCGraphQlType = objectType<ErrC<T>>(
-      'ErrC${tGraphQlType is GraphQLTypeWrapper ? (tGraphQlType as GraphQLTypeWrapper).ofType : tGraphQlType}',
+  final __errCGraphQLType = objectType<ErrC<T>>(
+      'ErrC${tGraphQLType.printableName}',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _errCGraphQlType[__name] = __errCGraphQlType;
-  __errCGraphQlType.fields.addAll(
+      interfaces: []);
+  errCSerdeCtx.add(
+    SerializerValue<ErrC<T>>(
+      fromJson: (ctx, json) => ErrC.fromJson(json, ctx.fromJson),
+    ),
+  );
+  _errCGraphQLType[__name] = __errCGraphQLType;
+  __errCGraphQLType.fields.addAll(
     [
-      field('message', graphQLString,
-          resolve: (obj, ctx) => obj.message,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('value', tGraphQlType.nonNull(),
-          resolve: (obj, ctx) => obj.value,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+      field('message', graphQLString, resolve: (obj, ctx) => obj.message),
+      field('value', tGraphQLType.nonNull(), resolve: (obj, ctx) => obj.value)
     ],
   );
 
-  return __errCGraphQlType;
+  return __errCGraphQLType;
 }
 
 /// Auto-generated from [SignUpError].
-final GraphQLEnumType<SignUpError> signUpErrorGraphQlType =
+final GraphQLEnumType<SignUpError> signUpErrorGraphQLType =
     enumType('SignUpError', const {
   'nameTaken': SignUpError.nameTaken,
   'alreadySignedUp': SignUpError.alreadySignedUp,
@@ -492,7 +420,7 @@ final GraphQLEnumType<SignUpError> signUpErrorGraphQlType =
 });
 
 /// Auto-generated from [SignInError].
-final GraphQLEnumType<SignInError> signInErrorGraphQlType = enumType(
+final GraphQLEnumType<SignInError> signInErrorGraphQLType = enumType(
     'SignInError', const {
   'wrong': SignInError.wrong,
   'alreadySignedIn': SignInError.alreadySignedIn

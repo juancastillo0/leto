@@ -7,178 +7,139 @@ part of 'metadata.dart';
 // **************************************************************************
 
 final messageMetadataSerializer = SerializerValue<MessageMetadata>(
-  fromJson: _$$_MessageMetadataFromJson,
-  toJson: (m) => _$$_MessageMetadataToJson(m as _$_MessageMetadata),
+  fromJson: (ctx, json) =>
+      MessageMetadata.fromJson(json), // _$$_MessageMetadataFromJson,
+  // toJson: (m) => _$$_MessageMetadataToJson(m as _$_MessageMetadata),
 );
-GraphQLObjectType<MessageMetadata>? _messageMetadataGraphQlType;
+
+GraphQLObjectType<MessageMetadata>? _messageMetadataGraphQLType;
 
 /// Auto-generated from [MessageMetadata].
-GraphQLObjectType<MessageMetadata> get messageMetadataGraphQlType {
+GraphQLObjectType<MessageMetadata> get messageMetadataGraphQLType {
   final __name = 'MessageMetadata';
-  if (_messageMetadataGraphQlType != null)
-    return _messageMetadataGraphQlType! as GraphQLObjectType<MessageMetadata>;
+  if (_messageMetadataGraphQLType != null)
+    return _messageMetadataGraphQLType! as GraphQLObjectType<MessageMetadata>;
 
-  final __messageMetadataGraphQlType = objectType<MessageMetadata>(
+  final __messageMetadataGraphQLType = objectType<MessageMetadata>(
       'MessageMetadata',
       isInterface: false,
-      interfaces: [],
-      description: null);
-  _messageMetadataGraphQlType = __messageMetadataGraphQlType;
-  __messageMetadataGraphQlType.fields.addAll(
+      interfaces: []);
+
+  _messageMetadataGraphQLType = __messageMetadataGraphQLType;
+  __messageMetadataGraphQLType.fields.addAll(
     [
-      field('fileMetadata', fileMetadataGraphQlType,
-          resolve: (obj, ctx) => obj.fileMetadata,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('linksMetadata', linksMetadataGraphQlType,
-          resolve: (obj, ctx) => obj.linksMetadata,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('fileMetadata', fileMetadataGraphQLType,
+          resolve: (obj, ctx) => obj.fileMetadata),
+      field('linksMetadata', linksMetadataGraphQLType,
+          resolve: (obj, ctx) => obj.linksMetadata),
       field('computedAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.computedAt,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.computedAt)
     ],
   );
 
-  return __messageMetadataGraphQlType;
+  return __messageMetadataGraphQLType;
 }
 
 final linksMetadataSerializer = SerializerValue<LinksMetadata>(
-  fromJson: _$$_LinksMetadataFromJson,
-  toJson: (m) => _$$_LinksMetadataToJson(m as _$_LinksMetadata),
+  fromJson: (ctx, json) =>
+      LinksMetadata.fromJson(json), // _$$_LinksMetadataFromJson,
+  // toJson: (m) => _$$_LinksMetadataToJson(m as _$_LinksMetadata),
 );
-GraphQLObjectType<LinksMetadata>? _linksMetadataGraphQlType;
+
+GraphQLObjectType<LinksMetadata>? _linksMetadataGraphQLType;
 
 /// Auto-generated from [LinksMetadata].
-GraphQLObjectType<LinksMetadata> get linksMetadataGraphQlType {
+GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType {
   final __name = 'LinksMetadata';
-  if (_linksMetadataGraphQlType != null)
-    return _linksMetadataGraphQlType! as GraphQLObjectType<LinksMetadata>;
+  if (_linksMetadataGraphQLType != null)
+    return _linksMetadataGraphQLType! as GraphQLObjectType<LinksMetadata>;
 
-  final __linksMetadataGraphQlType = objectType<LinksMetadata>('LinksMetadata',
-      isInterface: false, interfaces: [], description: null);
-  _linksMetadataGraphQlType = __linksMetadataGraphQlType;
-  __linksMetadataGraphQlType.fields.addAll(
+  final __linksMetadataGraphQLType = objectType<LinksMetadata>('LinksMetadata',
+      isInterface: false, interfaces: []);
+
+  _linksMetadataGraphQLType = __linksMetadataGraphQLType;
+  __linksMetadataGraphQLType.fields.addAll(
     [
-      field('links', listOf(linkMetadataGraphQlType.nonNull()).nonNull(),
-          resolve: (obj, ctx) => obj.links,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('links', listOf(linkMetadataGraphQLType.nonNull()).nonNull(),
+          resolve: (obj, ctx) => obj.links),
       field('emails', listOf(graphQLString.nonNull()).nonNull(),
-          resolve: (obj, ctx) => obj.emails,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.emails),
       field('userTags', listOf(graphQLString.nonNull()).nonNull(),
           resolve: (obj, ctx) => obj.userTags,
-          inputs: [],
-          description: 'TODO: bring user ids?',
-          deprecationReason: null),
+          description: 'TODO: bring user ids?'),
       field('hasLinks', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasLinks,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.hasLinks)
     ],
   );
 
-  return __linksMetadataGraphQlType;
+  return __linksMetadataGraphQLType;
 }
 
 final linkMetadataSerializer = SerializerValue<LinkMetadata>(
-  fromJson: _$$_LinkMetadataFromJson,
-  toJson: (m) => _$$_LinkMetadataToJson(m as _$_LinkMetadata),
+  fromJson: (ctx, json) =>
+      LinkMetadata.fromJson(json), // _$$_LinkMetadataFromJson,
+  // toJson: (m) => _$$_LinkMetadataToJson(m as _$_LinkMetadata),
 );
-GraphQLObjectType<LinkMetadata>? _linkMetadataGraphQlType;
+
+GraphQLObjectType<LinkMetadata>? _linkMetadataGraphQLType;
 
 /// Auto-generated from [LinkMetadata].
-GraphQLObjectType<LinkMetadata> get linkMetadataGraphQlType {
+GraphQLObjectType<LinkMetadata> get linkMetadataGraphQLType {
   final __name = 'LinkMetadata';
-  if (_linkMetadataGraphQlType != null)
-    return _linkMetadataGraphQlType! as GraphQLObjectType<LinkMetadata>;
+  if (_linkMetadataGraphQLType != null)
+    return _linkMetadataGraphQLType! as GraphQLObjectType<LinkMetadata>;
 
-  final __linkMetadataGraphQlType = objectType<LinkMetadata>('LinkMetadata',
-      isInterface: false, interfaces: [], description: null);
-  _linkMetadataGraphQlType = __linkMetadataGraphQlType;
-  __linkMetadataGraphQlType.fields.addAll(
+  final __linkMetadataGraphQLType = objectType<LinkMetadata>('LinkMetadata',
+      isInterface: false, interfaces: []);
+
+  _linkMetadataGraphQLType = __linkMetadataGraphQLType;
+  __linkMetadataGraphQLType.fields.addAll(
     [
-      field('title', graphQLString,
-          resolve: (obj, ctx) => obj.title,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('title', graphQLString, resolve: (obj, ctx) => obj.title),
       field('description', graphQLString,
-          resolve: (obj, ctx) => obj.description,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('image', graphQLString,
-          resolve: (obj, ctx) => obj.image,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('url', graphQLString,
-          resolve: (obj, ctx) => obj.url,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.description),
+      field('image', graphQLString, resolve: (obj, ctx) => obj.image),
+      field('url', graphQLString, resolve: (obj, ctx) => obj.url)
     ],
   );
 
-  return __linkMetadataGraphQlType;
+  return __linkMetadataGraphQLType;
 }
 
 final fileMetadataSerializer = SerializerValue<FileMetadata>(
-  fromJson: _$$_FileMetadataFromJson,
-  toJson: (m) => _$$_FileMetadataToJson(m as _$_FileMetadata),
+  fromJson: (ctx, json) =>
+      FileMetadata.fromJson(json), // _$$_FileMetadataFromJson,
+  // toJson: (m) => _$$_FileMetadataToJson(m as _$_FileMetadata),
 );
-GraphQLObjectType<FileMetadata>? _fileMetadataGraphQlType;
+
+GraphQLObjectType<FileMetadata>? _fileMetadataGraphQLType;
 
 /// Auto-generated from [FileMetadata].
-GraphQLObjectType<FileMetadata> get fileMetadataGraphQlType {
+GraphQLObjectType<FileMetadata> get fileMetadataGraphQLType {
   final __name = 'FileMetadata';
-  if (_fileMetadataGraphQlType != null)
-    return _fileMetadataGraphQlType! as GraphQLObjectType<FileMetadata>;
+  if (_fileMetadataGraphQLType != null)
+    return _fileMetadataGraphQLType! as GraphQLObjectType<FileMetadata>;
 
-  final __fileMetadataGraphQlType = objectType<FileMetadata>('FileMetadata',
-      isInterface: false, interfaces: [], description: null);
-  _fileMetadataGraphQlType = __fileMetadataGraphQlType;
-  __fileMetadataGraphQlType.fields.addAll(
+  final __fileMetadataGraphQLType = objectType<FileMetadata>('FileMetadata',
+      isInterface: false, interfaces: []);
+
+  _fileMetadataGraphQLType = __fileMetadataGraphQLType;
+  __fileMetadataGraphQLType.fields.addAll(
     [
       field('sizeInBytes', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.sizeInBytes,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.sizeInBytes),
       field('mimeType', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.mimeType,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.mimeType),
       field('fileName', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.fileName,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.fileName),
       field('sha1Hash', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.sha1Hash,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.sha1Hash),
       field('fileHashBlur', graphQLString,
-          resolve: (obj, ctx) => obj.fileHashBlur,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.fileHashBlur)
     ],
   );
 
-  return __fileMetadataGraphQlType;
+  return __fileMetadataGraphQLType;
 }
 
 // **************************************************************************
