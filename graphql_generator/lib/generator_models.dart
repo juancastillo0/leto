@@ -47,6 +47,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
       hasFrezzed: true,
       isUnion: isUnion,
       interfaces: getGraphqlInterfaces(clazz),
+      hasFromJson: hasFromJson(clazz),
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
@@ -185,8 +186,8 @@ String serializerDefinitionCode(
   return '''
 
 final ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
-  fromJson: $prefix\$${_constructorName}FromJson,
-  toJson: (m) => $prefix\$${_constructorName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$_constructorName),
+  fromJson: (ctx, json) => $typeName.fromJson(json), // $prefix\$${_constructorName}FromJson,
+  // toJson: (m) => $prefix\$${_constructorName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$_constructorName),
 );
 ''';
 }
@@ -199,6 +200,7 @@ class UnionVarianInfo {
   final String? deprecationReason;
   final List<FieldInfo> fields;
   final bool isInterface;
+  final bool hasFromJson;
   final List<Expression> interfaces;
   final bool hasFrezzed;
   final bool isInput;
@@ -213,6 +215,7 @@ class UnionVarianInfo {
     required this.description,
     required this.deprecationReason,
     required this.isInterface,
+    required this.hasFromJson,
     required this.interfaces,
     required this.hasFrezzed,
     required this.isInput,
@@ -222,7 +225,7 @@ class UnionVarianInfo {
 
   Code serializer() {
     return Code(
-      isInterface || typeParams.isNotEmpty
+      isInterface || typeParams.isNotEmpty || !hasFromJson
           ? ''
           : serializerDefinitionCode(
               typeName,
@@ -268,6 +271,7 @@ class UnionVarianInfo {
     final _chacheGetter = hasTypeParams ? '_$fieldName[__name]' : '_$fieldName';
 
     return '''
+${hasTypeParams && hasFromJson ? 'final ${ReCase(typeName).camelCase}SerdeCtx = SerdeCtx();' : ''}
 ${hasTypeParams ? 'Map<String, $_typeNoExt> _$fieldName = {}' : '$_type? _$fieldName'};
 /// Auto-generated from [$typeName].
 $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 'get $fieldName'} {
@@ -275,15 +279,21 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   if ($_chacheGetter != null) return $_chacheGetter! as $_type;
 
   final __$fieldName = ${expression().accept(DartEmitter())};
+  ${hasTypeParams && hasFromJson ? '''
+  ${ReCase(typeName).camelCase}SerdeCtx.add(
+    SerializerValue<$typeName${_typeList()}>(
+      fromJson: (ctx, json) => $typeName.fromJson(json, ${typeParams.map((p) => 'ctx.fromJson').join(',')}),
+    ),
+  );''' : ''}
   $_chacheGetter = __$fieldName;
   __$fieldName.fields.addAll(${literalList(
+      // deduplicate field names
       Map.fromEntries(
         fields
             .where((e) => e.fieldAnnot.omit != true)
             .map((e) => MapEntry(e.name, e)),
-      )
-          .values
-          .map((e) => e.expression(isInput: isInput))
+      ).values.map((e) => e.expression(isInput: isInput))
+          // add union discriminant key
           .followedBy([if (isUnion) refer(unionKeyName)]),
     ).accept(DartEmitter())},);
 

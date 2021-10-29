@@ -60,8 +60,8 @@ GraphQLDocumentation? getDocumentation(Element element) {
   final annot = graphQLDocTypeChecker.firstAnnotationOfExact(element);
   if (annot != null) {
     return GraphQLDocumentation(
-      description: annot.getField('description')?.toString(),
-      deprecationReason: annot.getField('deprecationReason')?.toString(),
+      description: annot.getField('description')?.toStringValue(),
+      deprecationReason: annot.getField('deprecationReason')?.toStringValue(),
     );
   }
 }

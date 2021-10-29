@@ -128,6 +128,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         hasFrezzed: false,
         isUnion: false,
         isInput: isInputType(clazz),
+        hasFromJson: hasFromJson(clazz),
         interfaces: getGraphqlInterfaces(clazz),
         typeName: className,
         constructorName: redirectedName.isEmpty ? className : redirectedName,
@@ -172,9 +173,9 @@ Future<Library> generateFromFreezed(
     final typeName = clazz.name;
 
     l.body.add(Code('''
-${serializerDefinitionCode(typeName, hasFrezzed: false)}
+${hasFromJson(clazz) ? serializerDefinitionCode(typeName, hasFrezzed: false) : ''}
 
-Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
+// Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
 
 GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeName>()
    => field(

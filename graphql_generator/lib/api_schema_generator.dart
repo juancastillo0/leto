@@ -75,12 +75,27 @@ class ValidatorsLibGenerator implements Builder {
     try {
       final _serializers = allClasses
           .where(
-            (element) => !element.isAbstract && element.typeParameters.isEmpty,
+            (element) {
+              return element.typeParameters.isEmpty &&
+                  generateSerializer(element);
+            },
           )
           .map((e) {
             final typeName =
                 e.thisType.getDisplayString(withNullability: false);
             return '${ReCase(typeName).camelCase}$serializerSuffix,';
+          })
+          .toSet()
+          .join();
+      final _genericSerializersCtx = allClasses
+          .where(
+            (element) =>
+                element.typeParameters.isNotEmpty &&
+                generateSerializer(element),
+          )
+          .map((e) {
+            final typeName = e.displayName;
+            return '${ReCase(typeName).camelCase}SerdeCtx,';
           })
           .toSet()
           .join();
@@ -103,7 +118,7 @@ import 'package:graphql_schema/graphql_schema.dart';
 ${allElements.map((e) => "import '${cleanImport(basePath, e.source!.uri)}';").toSet().join()}
 
 final graphqlApiSchema = GraphQLSchema(
-  serdeCtx: SerdeCtx()..addAll([$_serializers]),
+  serdeCtx: SerdeCtx()..addAll([$_serializers])..children.addAll([$_genericSerializersCtx]),
   queryType: objectType(
     'Query',
     fields: [${queries.join()}],
