@@ -6,7 +6,7 @@ import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:graphql_schema/graphql_schema.dart'
-    show GlobalRef, GraphQLException, ScopedMap;
+    show ScopeRef, GraphQLException, ScopedMap;
 import 'package:graphql_server/graphql_server.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;
 
@@ -46,7 +46,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   String get mapKey => 'persistedQuery';
 
-  final _extensionResponseHashRef = GlobalRef('extensionResponseHash');
+  final _extensionResponseHashRef = ScopeRef<String>('extensionResponseHash');
 
   @override
   FutureOr<GraphQLResult> executeRequest(
@@ -58,7 +58,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
       return next();
     }
     final response = await next();
-    final hash = globals.get(_extensionResponseHashRef) as String?;
+    final hash = _extensionResponseHashRef.get(globals);
     if (hash != null) {
       return response.copyWithExtension(mapKey, {'sha256Hash': hash});
     }
@@ -115,7 +115,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
         cache.set(digestHex, document);
       }
       if (returnHashInResponse && persistedQuery is Map<String, Object?>) {
-        globals.setScoped(_extensionResponseHashRef, digestHex);
+        _extensionResponseHashRef.setScoped(globals, digestHex);
       }
     }
 

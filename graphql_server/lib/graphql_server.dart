@@ -134,9 +134,9 @@ class GraphQL {
         globalVariables: config.globalVariables,
       );
 
-  static final _resolveCtxRef = GlobalRef('ResolveCtx');
-  static ResolveCtx? getResolveCtx(ScopedMap map) =>
-      map[_resolveCtxRef] as ResolveCtx?;
+  static final _resolveCtxRef = ScopeRef<ResolveCtx>('ResolveCtx');
+  static ResolveCtx? getResolveCtx(GlobalsHolder scope) =>
+      _resolveCtxRef.get(scope);
 
   /// Parses the GraphQL document in [text] and executes [operationName]
   /// or the only operation in the document if not given.
@@ -281,7 +281,7 @@ class GraphQL {
       extensions: extensions,
       rootValue: rootValue,
     );
-    ctx.globals.setScoped(_resolveCtxRef, ctx);
+    _resolveCtxRef.setScoped(ctx.globals, ctx);
 
     try {
       final Object? data;
@@ -520,7 +520,7 @@ class GraphQL {
           schema: baseCtx.schema,
           variableValues: baseCtx.variableValues,
         );
-        ctx.globals.setScoped(_resolveCtxRef, ctx);
+        _resolveCtxRef.setScoped(ctx.globals, ctx);
 
         // final _prev = prev;
         return withExtensions<Future<GraphQLResult>>(

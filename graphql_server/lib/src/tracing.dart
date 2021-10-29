@@ -27,7 +27,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   /// If false, you probably want to pass an [onExecute] callback.
   final bool returnInResponse;
 
-  final ref = GlobalRef('GraphQLTracingExtension');
+  final ref = ScopeRef<TracingBuilder>('GraphQLTracingExtension');
 
   @override
   String get mapKey => 'tracing';
@@ -39,7 +39,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     Map<String, Object?>? extensions,
   ) async {
     final tracing = TracingBuilder(version: 1);
-    globals.setScoped(ref, tracing);
+    ref.setScoped(globals, tracing);
 
     final result = await next();
 
@@ -58,7 +58,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     ScopedMap globals,
     Map<String, Object?>? extensions,
   ) {
-    final tracing = globals[ref]! as TracingBuilder;
+    final tracing = ref.get(globals)!;
     final endParsing = tracing.parsing.start();
     final document = next();
     endParsing();
@@ -73,7 +73,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     ScopedMap globals,
     Map<String, Object?>? extensions,
   ) {
-    final tracing = globals[ref]! as TracingBuilder;
+    final tracing = ref.get(globals)!;
     final endValidation = tracing.validation.start();
     final exception = next();
     endValidation();
@@ -87,7 +87,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     GraphQLObjectField field,
     String fieldAlias,
   ) async {
-    final tracing = ctx.globals[ref]! as TracingBuilder;
+    final tracing = ref.get(ctx)!;
 
     final endTracing = tracing.execution.start(ResolverTracing(
       path: [...ctx.path, fieldAlias],

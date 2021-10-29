@@ -166,7 +166,7 @@ class CacheEntry {
 }
 
 class CacheExtension extends GraphQLExtension {
-  static final ref = GlobalRef('CacheExtension');
+  static final ref = ScopeRef<CacheInfo>('CacheExtension');
 
   final Cache<String, CacheEntry>? cache;
 
@@ -177,7 +177,7 @@ class CacheExtension extends GraphQLExtension {
 
   static CacheInfo? getRootInfo(GlobalsHolder holder) {
     if (holder.globals.containsScoped(CacheExtension.ref)) {
-      return holder.globals.get(CacheExtension.ref)! as CacheInfo;
+      return CacheExtension.ref.get(holder);
     }
   }
 
@@ -192,7 +192,7 @@ class CacheExtension extends GraphQLExtension {
         [],
         extensions[mapKey]! as Map<String, Object?>,
       );
-      globals.setScoped(ref, state);
+      ref.setScoped(globals, state);
       final result = await next();
 
       if (!result.isSubscription && result.data != null) {

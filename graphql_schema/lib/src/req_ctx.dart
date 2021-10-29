@@ -169,42 +169,94 @@ class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
   }
 }
 
-class GlobalRef {
+class ScopeRef<T> {
   final String? name;
 
-  GlobalRef([this.name]);
+  ScopeRef([this.name]);
+
+  T? get(GlobalsHolder scope) => scope.globals.get(this) as T?;
+
+  void setScoped(GlobalsHolder scope, T value) =>
+      scope.globals.setScoped(this, value);
 }
 
+/// A reference to a scoped value of type [T]
+///
+/// It can be [scoped] (if true) or global.
+/// If it's scoped, one instace will be created for
+/// every scope and it's descendants.
+/// If it's global ([scoped] == false) one instace will
+/// be created for every scoped and all its parents. When the refence
+/// is created, it will be set to the scoped map and to every parent's
+/// scoped map.
+///
+/// ```dart
+///
+/// final valueRef = RefWithDefault<String>(
+///   (ScopedMap scope) => 'Value'
+/// );
+///
+/// /// [ctx] can be anything that implemnts [GlobalsHolder]
+/// /// For example, any of [ReqCtx], [ResolveCtx] or [ResolveObjectCtx]
+/// void makeAction(GlobalsHolder ctx) {
+///   final String value = valueRef.get(ctx);
+/// }
+/// ```
 class RefWithDefault<T> {
   final String? name;
-  final T Function(GlobalsHolder holder) create;
+  final T Function(ScopedMap scope) create;
   final bool scoped;
 
   RefWithDefault(this.create, {required this.scoped, this.name});
   RefWithDefault.scoped(this.create, {this.name}) : scoped = true;
   RefWithDefault.global(this.create, {this.name}) : scoped = false;
 
+  /// Set (overrides if present) the value in the [holder]'s
+  /// [ScopedMap] in the appropiate scope.
   T set(GlobalsHolder holder, T value) {
     if (scoped) {
       holder.globals.setScoped(this, value);
       return value;
+    } else {
+      holder.globals.setGlobal(this, value);
+      return value;
     }
-    holder.globals.setGlobal(this, value);
-    return value;
   }
 
+  /// Retrieves the value in the [holder]. If there aren't any
+  /// uses [create] to create a new one and set it into
+  /// the appropiate scope.
   T get(GlobalsHolder holder) {
     if (scoped) {
-      return holder.globals.putScopedIfAbsent(this, () => create(holder)) as T;
+      return holder.globals.putScopedIfAbsent(
+        this,
+        () => create(holder.globals),
+      ) as T;
+    } else {
+      return holder.globals.putGlobalIfAbsent(
+        this,
+        () => create(holder.globals),
+      ) as T;
     }
-    return holder.globals.putGlobalIfAbsent(this, () => create(holder)) as T;
   }
 }
 
+/// A Object which holds a scope
+///
+/// Many ctx implement [GlobalsHolder], for example
+/// [ReqCtx], [ResolveCtx], [ResolveObjectCtx]
+///
+/// Usually used with a [RefWithDefault] for typed values
+/// with default or a simple [ScopeRef]
 abstract class GlobalsHolder {
+  /// The tree of values for this scope
   ScopedMap get globals;
 }
 
+/// A map with values in different scopes
+///
+/// Each [ScopedMap] has some scoped [values], this values
+/// will be available to it's children, but not to it's [parent].
 class ScopedMap implements GlobalsHolder {
   final ScopedMap? parent;
   final Map<Object, Object?> values;
@@ -223,6 +275,7 @@ class ScopedMap implements GlobalsHolder {
     return _hasScoped || (parent?.containsGlobal(key) ?? false);
   }
 
+  /// Retrieves a value from itself or from its parent
   Object? get(Object key) {
     if (containsScoped(key)) {
       return values[key];
@@ -230,20 +283,29 @@ class ScopedMap implements GlobalsHolder {
     return parent?.get(key);
   }
 
+  /// Same as [get], retrieves a value from itself or from its parent
   Object? operator [](Object key) => get(key);
 
+  /// Set a value which will be available to itself and to its children
   void setScoped(Object key, Object? value) {
     values[key] = value;
   }
 
+  /// Set a value which will be available to every [ScopedMap] in the tree
   void setGlobal(Object key, Object? value) {
     values[key] = value;
     parent?.setGlobal(key, value);
   }
 
+  /// Puts a value for the [key] in the scope if there isn't any.
+  /// Returns the value if present or sets the value returned by [ifAbsent]
+  /// for [key] and returns that new value.
   Object? putScopedIfAbsent(Object key, Object? Function() ifAbsent) =>
       values.putIfAbsent(key, ifAbsent);
 
+  /// Puts a value for the [key] in the tree if there isn't any.
+  /// Returns the value if present in the tree or sets the value
+  /// returned by [ifAbsent] for [key] and returns that new value.
   Object? putGlobalIfAbsent(Object key, Object? Function() ifAbsent) {
     if (containsGlobal(key)) {
       return get(key);
