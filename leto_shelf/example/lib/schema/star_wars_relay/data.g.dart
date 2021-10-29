@@ -6,82 +6,85 @@ part of 'data.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-GraphQLObjectType<Node>? _nodeGraphQlType;
+GraphQLObjectType<Node>? _nodeGraphQLType;
 
 /// Auto-generated from [Node].
-GraphQLObjectType<Node> get nodeGraphQlType {
-  if (_nodeGraphQlType != null) return _nodeGraphQlType!;
+GraphQLObjectType<Node> get nodeGraphQLType {
+  final __name = 'Node';
+  if (_nodeGraphQLType != null)
+    return _nodeGraphQLType! as GraphQLObjectType<Node>;
 
-  _nodeGraphQlType = objectType('Node',
+  final __nodeGraphQLType = objectType<Node>('Node',
       isInterface: true,
       interfaces: [],
       description:
           'This defines a basic set of data for our Star Wars Schema.\n///\nThis data is hard coded for the sake of the demo, but you could imagine\nfetching this data from a backend service rather than from hardcoded\nJSON objects in a more complex demo.\nAn object with an ID');
-  _nodeGraphQlType!.fields.addAll(
-    [
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.id,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
-    ],
+
+  _nodeGraphQLType = __nodeGraphQLType;
+  __nodeGraphQLType.fields.addAll(
+    [field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id)],
   );
 
-  return _nodeGraphQlType!;
+  return __nodeGraphQLType;
 }
 
 final shipSerializer = SerializerValue<Ship>(
-  fromJson: _$ShipFromJson,
-  toJson: (m) => _$ShipToJson(m as Ship),
+  fromJson: (ctx, json) => Ship.fromJson(json), // _$ShipFromJson,
+  // toJson: (m) => _$ShipToJson(m as Ship),
 );
-GraphQLObjectType<Ship>? _shipGraphQlType;
+
+GraphQLObjectType<Ship>? _shipGraphQLType;
 
 /// Auto-generated from [Ship].
-GraphQLObjectType<Ship> get shipGraphQlType {
-  if (_shipGraphQlType != null) return _shipGraphQlType!;
+GraphQLObjectType<Ship> get shipGraphQLType {
+  final __name = 'Ship';
+  if (_shipGraphQLType != null)
+    return _shipGraphQLType! as GraphQLObjectType<Ship>;
 
-  _shipGraphQlType = objectType('Ship',
+  final __shipGraphQLType = objectType<Ship>('Ship',
       isInterface: false,
-      interfaces: [nodeGraphQlType],
+      interfaces: [nodeGraphQLType],
       description: 'A ship in the Star Wars saga');
-  _shipGraphQlType!.fields.addAll(
+
+  _shipGraphQLType = __shipGraphQLType;
+  __shipGraphQLType.fields.addAll(
     [
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: 'The name of the ship.',
-          deprecationReason: null),
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.idResolve,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          description: 'The name of the ship.'),
+      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.idResolve)
     ],
   );
 
-  return _shipGraphQlType!;
+  return __shipGraphQLType;
 }
 
 final factionSerializer = SerializerValue<Faction>(
-  fromJson: _$FactionFromJson,
-  toJson: (m) => _$FactionToJson(m as Faction),
+  fromJson: (ctx, json) => Faction.fromJson(json), // _$FactionFromJson,
+  // toJson: (m) => _$FactionToJson(m as Faction),
 );
-GraphQLObjectType<Faction>? _factionGraphQlType;
+
+GraphQLObjectType<Faction>? _factionGraphQLType;
 
 /// Auto-generated from [Faction].
-GraphQLObjectType<Faction> get factionGraphQlType {
-  if (_factionGraphQlType != null) return _factionGraphQlType!;
+GraphQLObjectType<Faction> get factionGraphQLType {
+  final __name = 'Faction';
+  if (_factionGraphQLType != null)
+    return _factionGraphQLType! as GraphQLObjectType<Faction>;
 
-  _factionGraphQlType = objectType('Faction',
+  final __factionGraphQLType = objectType<Faction>('Faction',
       isInterface: false,
-      interfaces: [nodeGraphQlType],
+      interfaces: [nodeGraphQLType],
       description: 'A faction in the Star Wars saga');
-  _factionGraphQlType!.fields.addAll(
+
+  _factionGraphQLType = __factionGraphQLType;
+  __factionGraphQLType.fields.addAll(
     [
-      field('ships', connectionGraphQlType(shipGraphQlType.nonNull()).nonNull(),
+      field('ships', connectionGraphQLType(shipGraphQLType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
-        final argsArg = connectionArgumentsSerializer.fromJson(args);
+        final argsArg =
+            connectionArgumentsSerializer.fromJson(ctx.baseCtx.serdeCtx, args);
         if (argsArg != null) {
           final argsValidationResult =
               validateConnectionArguments(argsArg as ConnectionArguments);
@@ -92,59 +95,55 @@ GraphQLObjectType<Faction> get factionGraphQlType {
 
         return obj.shipConnection(ctx, argsArg);
       },
-          inputs: [...connectionArgumentsGraphQlType.inputFields],
-          description: 'The ships used by the faction.',
-          deprecationReason: null),
+          inputs: [...connectionArgumentsGraphQLType.fields],
+          description: 'The ships used by the faction.'),
       field('name', graphQLString.nonNull(),
           resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: 'The name of the faction.',
-          deprecationReason: null),
-      field('id', graphQLId.nonNull(),
-          resolve: (obj, ctx) => obj.idResolve,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          description: 'The name of the faction.'),
+      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.idResolve)
     ],
   );
 
-  return _factionGraphQlType!;
+  return __factionGraphQLType;
 }
 
 final connectionArgumentsSerializer = SerializerValue<ConnectionArguments>(
-  fromJson: _$ConnectionArgumentsFromJson,
-  toJson: (m) => _$ConnectionArgumentsToJson(m as ConnectionArguments),
+  fromJson: (ctx, json) =>
+      ConnectionArguments.fromJson(json), // _$ConnectionArgumentsFromJson,
+  // toJson: (m) => _$ConnectionArgumentsToJson(m as ConnectionArguments),
 );
-GraphQLInputObjectType<ConnectionArguments>? _connectionArgumentsGraphQlType;
+
+GraphQLInputObjectType<ConnectionArguments>? _connectionArgumentsGraphQLType;
 
 /// Auto-generated from [ConnectionArguments].
-GraphQLInputObjectType<ConnectionArguments> get connectionArgumentsGraphQlType {
-  if (_connectionArgumentsGraphQlType != null)
-    return _connectionArgumentsGraphQlType!;
+GraphQLInputObjectType<ConnectionArguments> get connectionArgumentsGraphQLType {
+  final __name = 'ConnectionArguments';
+  if (_connectionArgumentsGraphQLType != null)
+    return _connectionArgumentsGraphQLType!
+        as GraphQLInputObjectType<ConnectionArguments>;
 
-  _connectionArgumentsGraphQlType = inputObjectType('ConnectionArguments',
+  final __connectionArgumentsGraphQLType = inputObjectType<ConnectionArguments>(
+      'ConnectionArguments',
       description:
           'Returns a GraphQLFieldConfigArgumentMap appropriate to include on a field\nwhose return type is a connection type with forward pagination.');
-  _connectionArgumentsGraphQlType!.inputFields.addAll(
+
+  _connectionArgumentsGraphQLType = __connectionArgumentsGraphQLType;
+  __connectionArgumentsGraphQLType.fields.addAll(
     [
       inputField('before', graphQLString.coerceToInputObject(),
           description:
-              'Returns the items in the list that come before the specified cursor.',
-          deprecationReason: null),
+              'Returns the items in the list that come before the specified cursor.'),
       inputField('after', graphQLString.coerceToInputObject(),
           description:
-              'Returns the items in the list that come after the specified cursor.',
-          deprecationReason: null),
+              'Returns the items in the list that come after the specified cursor.'),
       inputField('first', graphQLInt.coerceToInputObject(),
-          description: 'Returns the first n items from the list.',
-          deprecationReason: null),
+          description: 'Returns the first n items from the list.'),
       inputField('last', graphQLInt.coerceToInputObject(),
-          description: 'Returns the last n items from the list.',
-          deprecationReason: null)
+          description: 'Returns the last n items from the list.')
     ],
   );
 
-  return _connectionArgumentsGraphQlType!;
+  return __connectionArgumentsGraphQLType;
 }
 
 // **************************************************************************
@@ -201,10 +200,10 @@ enum ConnectionArgumentsField {
 
 class ConnectionArgumentsValidationFields {
   const ConnectionArgumentsValidationFields(this.errorsMap);
-  final Map<ConnectionArgumentsField, List<ValidationError>> errorsMap;
+  final Map<ConnectionArgumentsField, List<ValidaError>> errorsMap;
 
-  List<ValidationError> get first => errorsMap[ConnectionArgumentsField.first]!;
-  List<ValidationError> get last => errorsMap[ConnectionArgumentsField.last]!;
+  List<ValidaError> get first => errorsMap[ConnectionArgumentsField.first]!;
+  List<ValidaError> get last => errorsMap[ConnectionArgumentsField.last]!;
 }
 
 class ConnectionArgumentsValidation
@@ -212,7 +211,7 @@ class ConnectionArgumentsValidation
   ConnectionArgumentsValidation(this.errorsMap, this.value, this.fields)
       : super(errorsMap);
 
-  final Map<ConnectionArgumentsField, List<ValidationError>> errorsMap;
+  final Map<ConnectionArgumentsField, List<ValidaError>> errorsMap;
 
   final ConnectionArguments value;
 
@@ -221,16 +220,16 @@ class ConnectionArgumentsValidation
 
 ConnectionArgumentsValidation validateConnectionArguments(
     ConnectionArguments value) {
-  final errors = <ConnectionArgumentsField, List<ValidationError>>{};
+  final errors = <ConnectionArgumentsField, List<ValidaError>>{};
 
   if (value.first == null)
     errors[ConnectionArgumentsField.first] = [];
   else
     errors[ConnectionArgumentsField.first] = [
       if (value.first! < 1)
-        ValidationError(
+        ValidaError(
           message: r'Should be at a minimum 1',
-          errorCode: 'ValidateNum.min',
+          errorCode: 'ValidaNum.min',
           property: 'first',
           validationParam: 1,
           value: value.first!,
@@ -241,9 +240,9 @@ ConnectionArgumentsValidation validateConnectionArguments(
   else
     errors[ConnectionArgumentsField.last] = [
       if (value.last! < 1)
-        ValidationError(
+        ValidaError(
           message: r'Should be at a minimum 1',
-          errorCode: 'ValidateNum.min',
+          errorCode: 'ValidaNum.min',
           property: 'last',
           validationParam: 1,
           value: value.last!,

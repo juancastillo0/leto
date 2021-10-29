@@ -11,7 +11,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 
 part 'uploaded_file.g.dart';
 
-GraphQLType<UploadedFile, UploadedFile> get uploadedFileGraphQlType =>
+GraphQLType<UploadedFile, UploadedFile> get uploadedFileGraphQLType =>
     graphQLUpload;
 
 /// Reads information about a binary chunk uploaded to the server.
@@ -108,7 +108,7 @@ class UploadedFile {
 }
 
 @JsonSerializable()
-class UploadedFileMeta implements Serializable {
+class UploadedFileMeta {
   final int sizeInBytes;
   final String mimeType;
   final String filename;
@@ -128,8 +128,9 @@ class UploadedFileMeta implements Serializable {
   static UploadedFileMeta fromJson(Map<String, Object?> json) =>
       _$UploadedFileMetaFromJson(json);
 
-  @override
   Map<String, Object?> toJson() => _$UploadedFileMetaToJson(this);
 
-  static const serializer = SerializerFunc(fromJson: fromJson);
+  static final serializer = SerializerValue(
+    fromJson: (ctx, json) => UploadedFileMeta.fromJson(json),
+  );
 }

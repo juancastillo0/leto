@@ -286,7 +286,7 @@ final queryType = objectType<Object>(
       ],
       resolve: (_source, ctx) => getHero(ctx.args['episode'] as int?),
     ),
-    humanGraphQlType.field(
+    humanGraphQLType.field(
       'human',
       inputs: [
         GraphQLFieldInput(

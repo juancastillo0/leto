@@ -21,7 +21,7 @@ final testComplexScalar = TestComplexScalar();
 
 class TestComplexScalar extends GraphQLScalarType<String, String> {
   @override
-  String? get name => 'ComplexScalar';
+  String get name => 'ComplexScalar';
   @override
   String? get description => null;
 
@@ -52,7 +52,7 @@ class TestComplexScalar extends GraphQLScalarType<String, String> {
 
 final TestInputObject = GraphQLInputObjectType(
   'TestInputObject',
-  inputFields: [
+  fields: [
     GraphQLFieldInput('a', graphQLString),
     GraphQLFieldInput('b', listOf(graphQLString)),
     GraphQLFieldInput('c', graphQLString.nonNull()),
@@ -62,7 +62,7 @@ final TestInputObject = GraphQLInputObjectType(
 
 final TestNestedInputObject = GraphQLInputObjectType<Map<String, Object?>>(
   'TestNestedInputObject',
-  inputFields: [
+  fields: [
     GraphQLFieldInput('na', TestInputObject.nonNull()),
     GraphQLFieldInput('nb', graphQLString.nonNull()),
   ],

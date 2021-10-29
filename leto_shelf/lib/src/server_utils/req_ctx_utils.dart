@@ -1,7 +1,7 @@
 import 'package:shelf_graphql/shelf_graphql.dart';
 
-final requestCtxKey = GlobalRef('__request');
-final responseCtxKey = GlobalRef('__response');
+final requestCtxKey = ScopeRef<Request>('__request');
+final responseCtxKey = ScopeRef<Response>('__response');
 
 extension ReqCtxShelf on ReqCtx {
   Request get request => extractRequest(this);
@@ -28,11 +28,11 @@ extension ReqCtxShelf on ReqCtx {
 }
 
 Request extractRequest(ReqCtx ctx) {
-  return ctx.globals[requestCtxKey]! as Request;
+  return requestCtxKey.get(ctx)!;
 }
 
 Response extractResponse(ReqCtx ctx) {
-  return ctx.globals[responseCtxKey] as Response? ?? Response.ok(null);
+  return responseCtxKey.get(ctx) ?? Response.ok(null);
 }
 
 const _updateResponse = updateResponse;
@@ -40,6 +40,6 @@ const _updateResponse = updateResponse;
 Response updateResponse(ReqCtx ctx, Response Function(Response) update) {
   final prev = extractResponse(ctx);
   final response = update(prev);
-  ctx.globals.setScoped(responseCtxKey, response);
+  responseCtxKey.setScoped(ctx, response);
   return response;
 }

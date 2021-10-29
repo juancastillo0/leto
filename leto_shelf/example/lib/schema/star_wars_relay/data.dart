@@ -183,7 +183,7 @@ GraphQLType<Edge<T>, Object> edgeGraphQlType<T extends Node>(
   );
 }
 
-GraphQLType<Connection<T>, Object> connectionGraphQlType<T extends Node>(
+GraphQLType<Connection<T>, Object> connectionGraphQLType<T extends Node>(
   GraphQLType<T, Object> type,
 ) {
   final _name = type is GraphQLNonNullType
@@ -196,7 +196,7 @@ GraphQLType<Connection<T>, Object> connectionGraphQlType<T extends Node>(
         'edges',
         resolve: (obj, ctx) => obj.edges,
       ),
-      pageInfoGraphQlType.nonNull().field(
+      pageInfoGraphQLType.nonNull().field(
             'pageInfo',
             resolve: (obj, ctx) => obj.pageInfo,
           ),
@@ -234,7 +234,7 @@ ConnectionDefinitions<T> connectionDefinitions<T extends Node>(
         'edges',
         resolve: (obj, ctx) => obj.edges,
       ),
-      pageInfoGraphQlType.nonNull().field(
+      pageInfoGraphQLType.nonNull().field(
             'pageInfo',
             resolve: (obj, ctx) => obj.pageInfo,
           ),
@@ -246,7 +246,7 @@ ConnectionDefinitions<T> connectionDefinitions<T extends Node>(
   );
 }
 
-final nodeField = nodeGraphQlType.field<Object>(
+final nodeField = nodeGraphQLType.field<Object>(
   'node',
   resolve: (_, ctx) {
     final id = ctx.args['id']! as String;
@@ -269,7 +269,7 @@ final nodeField = nodeGraphQlType.field<Object>(
 );
 
 final shipConnection = connectionDefinitions(
-  shipGraphQlType,
+  shipGraphQLType,
 );
 
 /// A ship in the Star Wars saga
@@ -432,7 +432,7 @@ Connection<T> connectionFromEdges<T extends Node>(
 // ];
 
 @JsonSerializable()
-@Validate()
+@Valida()
 @GraphQLInput()
 class ConnectionArguments {
   /// Returns the items in the list that come before the specified cursor.
@@ -442,11 +442,11 @@ class ConnectionArguments {
   final String? after;
 
   /// Returns the first n items from the list.
-  @ValidateNum(min: 1)
+  @ValidaNum(min: 1)
   final int? first;
 
   /// Returns the last n items from the list.
-  @ValidateNum(min: 1)
+  @ValidaNum(min: 1)
   final int? last;
 
   const ConnectionArguments({
@@ -521,11 +521,11 @@ Faction getEmpire() {
 final queryType = objectType<Object>(
   'Queries',
   fields: [
-    factionGraphQlType.field(
+    factionGraphQLType.field(
       'rebels',
       resolve: (_, ctx) => getRebels(),
     ),
-    factionGraphQlType.field(
+    factionGraphQLType.field(
       'empire',
       resolve: (_, ctx) => getEmpire(),
     ),
@@ -575,7 +575,7 @@ GraphQLObjectField<V, Map<String, dynamic>, Object>
 ) {
   final inputType = GraphQLInputObjectType<MutationValue<Map<String, Object?>>>(
     '${config.name}Input',
-    inputFields: [
+    fields: [
       ...config.inputFields,
       GraphQLFieldInput('clientMutationId', graphQLString),
     ],
@@ -634,11 +634,11 @@ final shipMutation =
     inputField('factionId', graphQLId.nonNull()),
   ],
   outputFields: [
-    shipGraphQlType.field(
+    shipGraphQLType.field(
       'ship',
       resolve: (payload, _) => getShip(payload.shipId),
     ),
-    factionGraphQlType.field(
+    factionGraphQLType.field(
       'faction',
       resolve: (payload, _) => getFaction(payload.factionId),
     ),

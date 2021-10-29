@@ -7,6 +7,8 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_router/shelf_router.dart' show Router;
 
+part 'quickstart_server.g.dart';
+
 Future<void> main() async {
   final server = await runServer();
   final url = Uri.parse('http://${server.address.host}:${server.port}/graphql');
@@ -54,7 +56,7 @@ class Model {
 
 /// Create a [GraphQLSchema]
 GraphQLSchema makeGraphQLSchema() {
-  final GraphQLObjectType<Model> modelGraphqlType = objectType<Model>(
+  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
     'Model',
     fields: [
       graphQLString.nonNull().field(
@@ -94,7 +96,7 @@ type Subscription {
 }''';
   final schema = GraphQLSchema(
     queryType: objectType('Query', fields: [
-      modelGraphqlType.field(
+      modelGraphQLType.field(
         'getState',
         description: 'Get the current state',
         resolve: (Object rootValue, ReqCtx ctx) => stateRef.get(ctx).value,
@@ -103,8 +105,7 @@ type Subscription {
     mutationType: objectType('Mutation', fields: [
       graphQLBoolean.nonNull().field(
         'setState',
-        // TODO: arguments instead of inputs
-        arguments: [
+        inputs: [
           GraphQLFieldInput(
             'newState',
             graphQLString.nonNull(),
@@ -122,7 +123,7 @@ type Subscription {
       ),
     ]),
     subscriptionType: objectType('Subscription', fields: [
-      modelGraphqlType.nonNull().field(
+      modelGraphQLType.nonNull().field(
             'onStateChange',
             subscribe: (Object rootValue, ReqCtx ctx) =>
                 stateRef.get(ctx).stream,

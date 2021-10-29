@@ -109,7 +109,10 @@ void main() {
         GraphQLFieldInput('aStr', graphQLString),
         GraphQLFieldInput('aInt', graphQLInt),
       ],
-      resolve: (parent, ctx) => jsonEncode([parent, ctx.args]),
+      resolve: (parent, ctx) => jsonEncode([
+        if (parent is ScopedMap) null else parent,
+        ctx.args,
+      ]),
     ));
 
     expect(await execute(schema, '{ test }'), {
@@ -117,7 +120,7 @@ void main() {
         // TODO: in graphql-js it is 'test': '[null,{}]',
         // we restrict the parent as a non null value and
         // pass the global variables as the root object
-        'test': '[{},{}]',
+        'test': '[null,{}]',
       },
     });
 

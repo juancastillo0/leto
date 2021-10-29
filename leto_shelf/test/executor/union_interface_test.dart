@@ -582,7 +582,7 @@ void main() {
       ],
       isInterface: true,
       resolveType: (_source, type, ctx) {
-        encounteredContext = ctx.globalVariables;
+        encounteredContext = ctx.globals;
         encounteredSchema = ctx.base.schema;
         encounteredRootValue = ctx.base.rootValue;
         return 'Person';

@@ -6,14 +6,14 @@ part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
 @visibleForTesting
-final testUnionModelsTestKey = GlobalRef('testUnionModels');
+final testUnionModelsTestKey = ScopeRef<List<EventUnion?>>('testUnionModels');
 
 /// Custom doc
 @GraphQLClass()
 @JsonSerializable()
-@Validate()
+@Valida()
 class TestModel {
-  @ValidateString(minLength: 1, maxLength: 64)
+  @ValidaString(minLength: 1, maxLength: 64)
   final String name;
 
   /// Custom doc d
@@ -113,8 +113,8 @@ List<EventUnion?> testUnionModels(
   // pagination
   List<int?> positions = const [],
 }) {
-  final response = ctx.globals[testUnionModelsTestKey];
-  if (response is List<EventUnion?>) {
+  final response = testUnionModelsTestKey.get(ctx);
+  if (response != null) {
     return response;
   }
   return [

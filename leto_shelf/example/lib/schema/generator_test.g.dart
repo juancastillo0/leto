@@ -9,7 +9,7 @@ part of 'generator_test.dart';
 final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     field(
   'addTestModel',
-  testModelGraphQlType,
+  testModelGraphQLType as GraphQLType<TestModel, Object>,
   description: r"the function uses [value] to do stuff",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -33,7 +33,7 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     ),
     GraphQLFieldInput(
       "previous",
-      testModelGraphQlType.coerceToInputObject(),
+      testModelGraphQLType.coerceToInputObject(),
     ),
     GraphQLFieldInput(
       "name",
@@ -50,7 +50,8 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
 final GraphQLObjectField<List<TestModel?>, Object, Object>
     testModelsGraphQLField = field(
   'testModels',
-  listOf(testModelGraphQlType.nonNull()).nonNull(),
+  listOf(testModelGraphQLType.nonNull()).nonNull()
+      as GraphQLType<List<TestModel?>, Object>,
   description: r"Automatic documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -77,7 +78,8 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
 final GraphQLObjectField<List<EventUnion?>, Object, Object>
     testUnionModelsGraphQLField = field(
   'testUnionModels',
-  listOf(eventUnionGraphQlType).nonNull(),
+  listOf(eventUnionGraphQLType).nonNull()
+      as GraphQLType<List<EventUnion?>, Object>,
   description:
       r"testUnionModels documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
@@ -101,193 +103,157 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
 // **************************************************************************
 
 final testModelSerializer = SerializerValue<TestModel>(
-  fromJson: _$TestModelFromJson,
-  toJson: (m) => _$TestModelToJson(m as TestModel),
+  fromJson: (ctx, json) => TestModel.fromJson(json), // _$TestModelFromJson,
+  // toJson: (m) => _$TestModelToJson(m as TestModel),
 );
-GraphQLObjectType<TestModel>? _testModelGraphQlType;
+
+GraphQLObjectType<TestModel>? _testModelGraphQLType;
 
 /// Auto-generated from [TestModel].
-GraphQLObjectType<TestModel> get testModelGraphQlType {
-  if (_testModelGraphQlType != null) return _testModelGraphQlType!;
+GraphQLObjectType<TestModel> get testModelGraphQLType {
+  final __name = 'TestModel';
+  if (_testModelGraphQLType != null)
+    return _testModelGraphQLType! as GraphQLObjectType<TestModel>;
 
-  _testModelGraphQlType = objectType('TestModel',
+  final __testModelGraphQLType = objectType<TestModel>('TestModel',
       isInterface: false, interfaces: [], description: 'Custom doc');
-  _testModelGraphQlType!.fields.addAll(
+
+  _testModelGraphQLType = __testModelGraphQLType;
+  __testModelGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
-          resolve: (obj, ctx) => obj.description,
-          inputs: [],
-          description: 'Custom doc d',
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
       field('dates', listOf(graphQLDate.nonNull()),
-          resolve: (obj, ctx) => obj.dates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
-  return _testModelGraphQlType!;
+  return __testModelGraphQLType;
 }
 
-final testModelFreezedSerializer = SerializerValue<TestModelFreezed>(
-  fromJson: _$$_TestModelFreezedFromJson,
-  toJson: (m) => _$$_TestModelFreezedToJson(m as _$_TestModelFreezed),
-);
-GraphQLObjectType<TestModelFreezed>? _testModelFreezedGraphQlType;
+GraphQLObjectType<TestModelFreezed>? _testModelFreezedGraphQLType;
 
 /// Auto-generated from [TestModelFreezed].
-GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQlType {
-  if (_testModelFreezedGraphQlType != null)
-    return _testModelFreezedGraphQlType!;
+GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
+  final __name = 'TestModelFreezed';
+  if (_testModelFreezedGraphQLType != null)
+    return _testModelFreezedGraphQLType! as GraphQLObjectType<TestModelFreezed>;
 
-  _testModelFreezedGraphQlType = objectType('TestModelFreezed',
-      isInterface: false, interfaces: [], description: null);
-  _testModelFreezedGraphQlType!.fields.addAll(
+  final __testModelFreezedGraphQLType = objectType<TestModelFreezed>(
+      'TestModelFreezed',
+      isInterface: false,
+      interfaces: []);
+
+  _testModelFreezedGraphQLType = __testModelFreezedGraphQLType;
+  __testModelFreezedGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
-          resolve: (obj, ctx) => obj.description,
-          inputs: [],
-          description: 'Custom doc d',
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
       field('dates', listOf(graphQLDate.nonNull()),
-          resolve: (obj, ctx) => obj.dates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates,
-          inputs: [],
-          description: null,
-          deprecationReason: null)
+          resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
-  return _testModelFreezedGraphQlType!;
+  return __testModelFreezedGraphQLType;
 }
 
 final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
-  fromJson: _$$_EventUnionAddFromJson,
-  toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
+  fromJson: (ctx, json) =>
+      _EventUnionAdd.fromJson(json), // _$$_EventUnionAddFromJson,
+  // toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
 );
-GraphQLObjectType<_EventUnionAdd>? _eventUnionAddGraphQlType;
+
+GraphQLObjectType<_EventUnionAdd>? _eventUnionAddGraphQLType;
 
 /// Auto-generated from [_EventUnionAdd].
-GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQlType {
-  if (_eventUnionAddGraphQlType != null) return _eventUnionAddGraphQlType!;
+GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
+  final __name = '_EventUnionAdd';
+  if (_eventUnionAddGraphQLType != null)
+    return _eventUnionAddGraphQLType! as GraphQLObjectType<_EventUnionAdd>;
 
-  _eventUnionAddGraphQlType = objectType('_EventUnionAdd',
-      isInterface: false, interfaces: [], description: null);
-  _eventUnionAddGraphQlType!.fields.addAll(
+  final __eventUnionAddGraphQLType = objectType<_EventUnionAdd>(
+      '_EventUnionAdd',
+      isInterface: false,
+      interfaces: []);
+
+  _eventUnionAddGraphQLType = __eventUnionAddGraphQLType;
+  __eventUnionAddGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
-          resolve: (obj, ctx) => obj.description,
-          inputs: [],
-          description: 'Custom doc d',
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
       field('dates', listOf(graphQLDate.nonNull()),
-          resolve: (obj, ctx) => obj.dates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('models', listOf(testModelGraphQlType).nonNull(),
-          resolve: (obj, ctx) => obj.models,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.dates),
+      field('models', listOf(testModelGraphQLType).nonNull(),
+          resolve: (obj, ctx) => obj.models),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      eventUnionGraphQlTypeDiscriminant()
+          resolve: (obj, ctx) => obj.hasDates),
+      eventUnionGraphQLTypeDiscriminant()
     ],
   );
 
-  return _eventUnionAddGraphQlType!;
+  return __eventUnionAddGraphQLType;
 }
 
 final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
-  fromJson: _$$EventUnionDeleteFromJson,
-  toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
+  fromJson: (ctx, json) =>
+      EventUnionDelete.fromJson(json), // _$$EventUnionDeleteFromJson,
+  // toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
 );
-GraphQLObjectType<EventUnionDelete>? _eventUnionDeleteGraphQlType;
+
+GraphQLObjectType<EventUnionDelete>? _eventUnionDeleteGraphQLType;
 
 /// Auto-generated from [EventUnionDelete].
-GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQlType {
-  if (_eventUnionDeleteGraphQlType != null)
-    return _eventUnionDeleteGraphQlType!;
+GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
+  final __name = 'EventUnionDelete';
+  if (_eventUnionDeleteGraphQLType != null)
+    return _eventUnionDeleteGraphQLType! as GraphQLObjectType<EventUnionDelete>;
 
-  _eventUnionDeleteGraphQlType = objectType('EventUnionDelete',
-      isInterface: false, interfaces: [], description: null);
-  _eventUnionDeleteGraphQlType!.fields.addAll(
+  final __eventUnionDeleteGraphQLType = objectType<EventUnionDelete>(
+      'EventUnionDelete',
+      isInterface: false,
+      interfaces: []);
+
+  _eventUnionDeleteGraphQLType = __eventUnionDeleteGraphQLType;
+  __eventUnionDeleteGraphQLType.fields.addAll(
     [
-      field('name', graphQLString,
-          resolve: (obj, ctx) => obj.name,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      field('cost', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.cost,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
+      field('cost', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.cost),
       field('dates', listOf(graphQLDate.nonNull()),
-          resolve: (obj, ctx) => obj.dates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
+          resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates,
-          inputs: [],
-          description: null,
-          deprecationReason: null),
-      eventUnionGraphQlTypeDiscriminant()
+          resolve: (obj, ctx) => obj.hasDates),
+      eventUnionGraphQLTypeDiscriminant()
     ],
   );
 
-  return _eventUnionDeleteGraphQlType!;
+  return __eventUnionDeleteGraphQLType;
 }
 
 final eventUnionSerializer = SerializerValue<EventUnion>(
-  fromJson: _$EventUnionFromJson,
-  toJson: (m) => _$EventUnionToJson(m as EventUnion),
+  fromJson: (ctx, json) => EventUnion.fromJson(json), // _$EventUnionFromJson,
+  // toJson: (m) => _$EventUnionToJson(m as EventUnion),
 );
 
-Map<String, Object?> _$EventUnionToJson(EventUnion instance) =>
-    instance.toJson();
+// Map<String, Object?> _$EventUnionToJson(EventUnion instance) => instance.toJson();
 
 GraphQLObjectField<String, String, P>
-    eventUnionGraphQlTypeDiscriminant<P extends EventUnion>() => field(
+    eventUnionGraphQLTypeDiscriminant<P extends EventUnion>() => field(
           'runtimeType',
           enumTypeFromStrings('EventUnionType', ["add", "delete"]),
         );
 
-GraphQLUnionType<EventUnion>? _eventUnionGraphQlType;
-GraphQLUnionType<EventUnion> get eventUnionGraphQlType {
-  return _eventUnionGraphQlType ??= GraphQLUnionType(
+GraphQLUnionType<EventUnion>? _eventUnionGraphQLType;
+GraphQLUnionType<EventUnion> get eventUnionGraphQLType {
+  return _eventUnionGraphQLType ??= GraphQLUnionType(
     'EventUnion',
-    [eventUnionAddGraphQlType, eventUnionDeleteGraphQlType],
+    [eventUnionAddGraphQLType, eventUnionDeleteGraphQLType],
   );
 }
 
@@ -371,16 +337,16 @@ enum TestModelField {
 
 class TestModelValidationFields {
   const TestModelValidationFields(this.errorsMap);
-  final Map<TestModelField, List<ValidationError>> errorsMap;
+  final Map<TestModelField, List<ValidaError>> errorsMap;
 
-  List<ValidationError> get name => errorsMap[TestModelField.name]!;
+  List<ValidaError> get name => errorsMap[TestModelField.name]!;
 }
 
 class TestModelValidation extends Validation<TestModel, TestModelField> {
   TestModelValidation(this.errorsMap, this.value, this.fields)
       : super(errorsMap);
 
-  final Map<TestModelField, List<ValidationError>> errorsMap;
+  final Map<TestModelField, List<ValidaError>> errorsMap;
 
   final TestModel value;
 
@@ -388,21 +354,21 @@ class TestModelValidation extends Validation<TestModel, TestModelField> {
 }
 
 TestModelValidation validateTestModel(TestModel value) {
-  final errors = <TestModelField, List<ValidationError>>{};
+  final errors = <TestModelField, List<ValidaError>>{};
 
   errors[TestModelField.name] = [
     if (value.name.length < 1)
-      ValidationError(
+      ValidaError(
         message: r'Should be at a minimum 1 in length',
-        errorCode: 'ValidateString.minLength',
+        errorCode: 'ValidaString.minLength',
         property: 'name',
         validationParam: 1,
         value: value.name,
       ),
     if (value.name.length > 64)
-      ValidationError(
+      ValidaError(
         message: r'Should be at a maximum 64 in length',
-        errorCode: 'ValidateString.maxLength',
+        errorCode: 'ValidaString.maxLength',
         property: 'name',
         validationParam: 64,
         value: value.name,
