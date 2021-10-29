@@ -35,8 +35,7 @@ Handler graphqlHttp(
             }
             graphQLRequest = parseQueryResult.unwrap();
           } else if (request.mimeType == 'application/json') {
-            // TODO: do not use extract json
-            final payload = extractJson(request);
+            final payload = await extractJson(request);
             if (payload is Map<String, Object?> && payload['query'] == null) {
               payload['query'] = request.url.queryParameters['query'];
             }
@@ -47,8 +46,8 @@ Handler graphqlHttp(
         } else if (request.method == 'GET') {
           final queryParams = request.url.queryParameters;
           if (queryParams['query'] is String) {
-            // TODO: allow requests without query but with extensions, such us
-            // persisted queries
+            // TODO: allow requests without query but with extensions?
+            //  such us persisted queries
             graphQLRequest = GraphQLRequest.fromQueryParameters(queryParams);
           } else {
             return onEmptyGet?.call(request) ?? Response(HttpStatus.badRequest);
@@ -96,8 +95,6 @@ Handler graphqlHttp(
     } on Response catch (e) {
       return e;
     } catch (e, s) {
-      // TODO: do not use extractLog
-      extractLog(request)?.call('$e $s');
       return onError?.call(request, e, s) ?? Response.internalServerError();
     }
   };

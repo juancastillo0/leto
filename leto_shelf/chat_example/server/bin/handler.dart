@@ -9,7 +9,6 @@ import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
-import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
@@ -28,29 +27,7 @@ Future<Handler> serverHandler({GraphQLConfig? config}) async {
 
   return const Pipeline()
       .addMiddleware(_logMiddleware)
-      .addMiddleware(corsHeaders(
-        headers: {
-          ACCESS_CONTROL_MAX_AGE: '${60 * 60}',
-          ACCESS_CONTROL_EXPOSE_HEADERS: [
-            'etag',
-            'content-encoding',
-          ].join(','),
-          ACCESS_CONTROL_ALLOW_HEADERS: [
-            'accept',
-            'accept-language',
-            'accept-encoding',
-            'content-type',
-            'content-language',
-            'dnt',
-            'origin',
-            'user-agent',
-            'authorization',
-            UserSession.appversionKey,
-            UserSession.platformKey,
-            UserSession.deviceidKey,
-          ].join(','),
-        },
-      ))
+      .addMiddleware(cors())
       .addMiddleware(etag())
       .addMiddleware(jsonParse())
       .addHandler(app);

@@ -1,23 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'dart:convert' show Encoding, jsonDecode;
+import 'dart:io' show HttpHeaders;
 
 import 'package:crypto/crypto.dart' show sha1;
 import 'package:shelf/shelf.dart';
 
 const extractJsonKey = 'jsonParse.body';
-const extractLogKey = 'customLog.log';
 
-bool isJsonRequest(Request request) {
-  return request.mimeType == 'application/json';
-}
-
-Object? extractJson(Request request) {
-  return request.context[extractJsonKey];
-}
-
-void Function(String)? extractLog(Request request) {
-  return request.context[extractLogKey] as void Function(String)?;
+FutureOr<Object?> extractJson(Request request) {
+  if (request.context.containsKey(extractJsonKey)) {
+    return request.context[extractJsonKey];
+  }
+  if (!const ['GET', 'HEAD', 'OPTIONS'].contains(request.method) &&
+      (request.mimeType == 'application/json' ||
+          request.mimeType == 'application/graphql+json')) {
+    return request.readAsString().then(jsonDecode);
+  }
 }
 
 Object? extractJsonFromContext(Map<String, Object?> context) {
@@ -28,46 +26,87 @@ Middleware jsonParse() {
   return (handler) {
     return (__request) async {
       Request request = __request;
-      if (request.method != 'GET' && request.mimeType == 'application/json') {
-        final str = await request.readAsString();
-        final updateContext = <String, Object?>{
-          extractJsonKey: jsonDecode(str)
-        };
+      final jsonValue = await extractJson(request);
+      final updateContext = <String, Object?>{extractJsonKey: jsonValue};
 
-        request = request.change(context: updateContext);
-        final response = await handler(request);
-        return response.change(context: updateContext);
-      }
-      return handler(request);
+      request = request.change(context: updateContext);
+      final response = await handler(request);
+      return response.change(context: updateContext);
     };
   };
 }
 
-Middleware cors() {
-  final _headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Max-Age': (30 * 60).toString(),
+const List<String> _defaultAllowMethods = [
+  'GET',
+  'HEAD',
+  'PUT',
+  'PATCH',
+  'POST',
+  'DELETE',
+  'OPTIONS',
+];
+
+bool _defaultAllowOrigin(String origin) => true;
+
+Middleware cors({
+  FutureOr<bool> Function(String) allowOrigin = _defaultAllowOrigin,
+  bool allowCredentials = true,
+  List<String> exposeHeaders = const [
+    HttpHeaders.etagHeader,
+    HttpHeaders.contentLengthHeader,
+    HttpHeaders.contentEncodingHeader,
+    HttpHeaders.dateHeader,
+  ],
+  // Default: 30 minutes
+  int maxAgeSecs = 30 * 60,
+  // Default: the headers in the request's Access-Control-Request-Headers header
+  List<String>? allowHeaders,
+  List<String> allowMethods = _defaultAllowMethods,
+  int optionsSuccessStatusCode = 204,
+}) {
+  final baseHeaders = <String, List<String>>{
+    if (allowCredentials)
+      HttpHeaders.accessControlAllowCredentialsHeader: ['true'],
+    HttpHeaders.accessControlMaxAgeHeader: [maxAgeSecs.toString()],
+    HttpHeaders.accessControlExposeHeadersHeader: exposeHeaders,
+    HttpHeaders.accessControlAllowMethodsHeader: allowMethods,
   };
   return (handler) {
     return (request) async {
+      final origin = request.headers['origin'];
+      if (origin == null || !await allowOrigin(origin)) {
+        return handler(request);
+      }
+      final _allowHeaders = allowHeaders ??
+          request.headersAll[HttpHeaders.accessControlRequestHeadersHeader] ??
+          [];
+      final _headers = {
+        ...baseHeaders,
+        HttpHeaders.accessControlAllowOriginHeader: [origin],
+        HttpHeaders.accessControlAllowHeadersHeader: _allowHeaders
+      };
       if (request.method == 'OPTIONS') {
-        return Response.ok(null, headers: _headers);
+        return Response(optionsSuccessStatusCode, headers: _headers);
       }
       final response = await handler(request);
-
-      return response.change(headers: _headers);
+      return response.change(
+        headers: _headers
+          ..removeWhere(
+            (key, _) => const [
+              HttpHeaders.accessControlMaxAgeHeader,
+              HttpHeaders.accessControlAllowMethodsHeader,
+              HttpHeaders.accessControlAllowHeadersHeader,
+            ].contains(key),
+          ),
+      );
     };
   };
 }
 
 Middleware customLog({void Function(String)? log}) {
   return (handler) {
-    return (__request) async {
+    return (request) async {
       final _log = log ?? print;
-
-      final request = __request.change(
-        context: {extractLogKey: _log},
-      );
       final startTime = DateTime.now();
       final watch = Stopwatch()..start();
       final response = await handler(request);
@@ -80,9 +119,9 @@ Middleware customLog({void Function(String)? log}) {
           payload.length > 50 ? '${payload.substring(0, 50)}...' : payload;
 
       final message =
-          '$startTime ${paddedString(durationMs, 5)} ${request.method}'
+          '$startTime ${_paddedString(durationMs, 5)} ${request.method}'
           ' ${request.mimeType}'
-          ' ${request.contentLength} ${response.mimeType}'
+          ' ${request.contentLength} -> ${response.mimeType}'
           ' ${response.contentLength} ${response.statusCode} /${request.url}'
           ' $payloadStr';
       _log(message);
@@ -92,7 +131,7 @@ Middleware customLog({void Function(String)? log}) {
   };
 }
 
-String paddedString(
+String _paddedString(
   String str,
   int minLength, {
   bool rightPadded = false,
