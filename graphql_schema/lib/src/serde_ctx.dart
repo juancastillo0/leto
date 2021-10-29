@@ -9,6 +9,7 @@ class SerdeCtx {
     num: const _SerializerIdentity<num>(),
     String: const _SerializerIdentity<String>(),
     bool: const _SerializerIdentity<bool>(),
+    Uri: const _SerializerUri(),
     // ignore: prefer_void_to_null
     // Null: const _SerializerIdentity<Null>(),
     DateTime: const _SerializerDateTime(),
@@ -16,7 +17,7 @@ class SerdeCtx {
 
   Map<Type, Serializer<Object>> get map => _map;
 
-  T fromJson<T>(Object? json, [T Function()? _itemFactory]) {
+  T fromJson<T>(Object? json) {
     if (json is T) {
       return json;
     } else {
@@ -49,10 +50,8 @@ class SerdeCtx {
     );
   }
 
-  List<V> fromJsonList<V>(Iterable json, [V Function()? itemFactory]) {
-    return json
-        .map((Object? value) => fromJson<V>(value, itemFactory))
-        .toList();
+  List<V> fromJsonList<V>(Iterable json) {
+    return json.map((Object? value) => fromJson<V>(value)).toList();
   }
 
   List<Object?> toJsonList<V>(Iterable<V> list) {
@@ -249,6 +248,21 @@ class _SerializerDateTime extends Serializer<DateTime> {
   Object? toJson(DateTime instance) {
     return instance.toIso8601String();
   }
+}
+
+class _SerializerUri extends Serializer<Uri> {
+  const _SerializerUri();
+
+  @override
+  Uri fromJson(Object? json) {
+    if (json is String) {
+      return Uri.parse(json);
+    }
+    throw Error();
+  }
+
+  @override
+  Object? toJson(Uri instance) => instance.toString();
 }
 
 class SerializerFuncGeneric<T extends SerializableGeneric<S>, S>
