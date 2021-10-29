@@ -3,40 +3,10 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart' show sha256, sha1;
 import 'package:ferry/ferry.dart';
-import 'package:normalize/normalize.dart';
 import 'package:gql/language.dart' as gql;
 import 'package:gql_exec/gql_exec.dart';
-import 'package:gql_link/gql_link.dart';
-
-class CacheResponseParser extends ResponseParser {
-  const CacheResponseParser();
-
-  /// Parses the response body
-  ///
-  /// Extend this to add non-standard behavior
-  @override
-  Response parseResponse(Map<String, dynamic> body) {
-    final extensions = body['extensions'] as Map<String, Object?>?;
-    var data = body['data'] as Map<String, dynamic>?;
-    if (data == null &&
-        extensions != null &&
-        extensions.containsKey('cacheResponse')) {
-      // TODO: this is no longer necessary
-      data = <String, dynamic>{};
-    }
-    return Response(
-      errors: (body['errors'] as List?)
-          ?.map((dynamic error) => parseError(
-                error as Map<String, dynamic>,
-              ))
-          .toList(),
-      data: data,
-      context: const Context().withEntry(
-        ResponseExtensions(extensions),
-      ),
-    );
-  }
-}
+import 'package:normalize/normalize.dart';
+import 'package:normalize/utils.dart';
 
 class CacheRequestSerializer implements RequestSerializer {
   const CacheRequestSerializer();
@@ -52,9 +22,8 @@ class CacheRequestSerializer implements RequestSerializer {
     Map<String, Object?>? extensionsMap;
     if (extensions is Map<String, Object?>) {
       final Object? persistedQuery = extensions['persistedQuery'];
-      if (persistedQuery is Map<String, Object?> &&
-          persistedQuery['isSaved'] == true) {
-        isSaved = true;
+      if (persistedQuery is Map<String, Object?>) {
+        isSaved = persistedQuery['isSaved'] == true;
         extensionsMap = {
           ...extensions,
           'persistedQuery': Map.fromEntries(
@@ -84,6 +53,7 @@ class CacheTypedLink extends Link {
     Request request, {
     required String? dataHash,
     required String documentHash,
+    bool setCacheResponse = true,
   }) {
     return request.updateContextEntry<RequestExtensionsThunk>(
       (thunk) => RequestExtensionsThunk(
@@ -93,9 +63,10 @@ class CacheTypedLink extends Link {
 
           return <String, Object?>{
             if (prev != null) ...prev,
-            'cacheResponse': {
-              'hash': dataHash ?? '',
-            },
+            if (setCacheResponse)
+              'cacheResponse': {
+                'hash': dataHash ?? '',
+              },
             'persistedQuery': {
               'version': 1,
               'sha256Hash': documentHash,
@@ -112,21 +83,30 @@ class CacheTypedLink extends Link {
     Request request, [
     Stream<Response> Function(Request)? forward,
   ]) {
-    final json = denormalizeOperation(
-      // TODO: optimistic ? optimisticReader :
-      read: (dataId) => cache.store.get(dataId),
-      document: request.operation.document,
-      addTypename: cache.addTypename,
-      operationName: request.operation.operationName,
-      variables: request.variables,
-      typePolicies: cache.typePolicies,
-      dataIdFromObject: cache.dataIdFromObject,
-    );
+    final isQuery = OperationType.query ==
+        getOperationDefinition(
+          request.operation.document,
+          request.operation.operationName,
+        ).type;
+
+    final json = isQuery
+        ? denormalizeOperation(
+            // TODO: optimistic ? optimisticReader :
+            read: (dataId) => cache.store.get(dataId),
+            document: request.operation.document,
+            addTypename: cache.addTypename,
+            operationName: request.operation.operationName,
+            variables: request.variables,
+            typePolicies: cache.typePolicies,
+            dataIdFromObject: cache.dataIdFromObject,
+          )
+        : null;
     final hashes = makeRequestHashes(json, request.operation);
     final _request = transformRequest(
       request,
       dataHash: hashes.dataHash,
       documentHash: hashes.documentHash,
+      setCacheResponse: isQuery,
     );
 
     // TODO: handle PERSISTED_QUERY_NOT_FOUND
