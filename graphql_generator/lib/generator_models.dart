@@ -4,9 +4,8 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:collection/collection.dart' show IterableExtension;
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:graphql_generator/resolver_generator.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
@@ -15,23 +14,26 @@ import 'package:source_gen/source_gen.dart';
 
 Iterable<Future<FieldInfo>> fieldsFromClass(
   ClassElement clazz,
-  BuildStep buildStep,
+  GeneratorCtx ctx,
 ) {
   return clazz.methods
-      .where((element) => element.name != 'toJson')
-      .map((m) => fieldFromElement(m, m.returnType, buildStep))
-      .followedBy(
-          clazz.fields.map((m) => fieldFromElement(m, m.type, buildStep)));
+      .where(
+        (element) => element.name != 'toJson' && element.name != 'fromJson',
+      )
+      .map((m) => fieldFromElement(m, m.returnType, ctx))
+      .followedBy(clazz.fields.map((m) {
+    return fieldFromElement(m, m.type, ctx);
+  }));
 }
 
-Future<List<UnionVarianInfo>> freezedFields(
+Future<List<UnionVarianInfo>> freezedVariants(
   ClassElement clazz,
-  BuildStep buildStep,
+  GeneratorCtx ctx,
 ) async {
   final isUnion =
       clazz.constructors.where(isFreezedVariantConstructor).length > 1;
   final className = ReCase(clazz.name).pascalCase;
-  final _unionClassFields = fieldsFromClass(clazz, buildStep);
+  final _unionClassFields = fieldsFromClass(clazz, ctx);
 
   return Future.wait(
       clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
@@ -53,7 +55,7 @@ Future<List<UnionVarianInfo>> freezedFields(
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
         con.parameters
-            .map((p) => fieldFromParam(p, buildStep))
+            .map((p) => fieldFromParam(ctx, p))
             .followedBy(_unionClassFields),
       ),
     );
@@ -115,19 +117,26 @@ bool isFreezedVariantConstructor(ConstructorElement con) =>
 Future<FieldInfo> fieldFromElement(
   Element method,
   DartType type,
-  BuildStep buildStep,
+  GeneratorCtx ctx,
 ) async {
   final annot = getFieldAnnot(method);
   return FieldInfo(
     gqlType: annot.type != null
         ? refer(annot.type!)
-        : inferType('', method.name!, type, nullable: annot.nullable),
+        : inferType(
+            ctx.config.customTypes,
+            '',
+            method.name!,
+            type,
+            nullable: annot.nullable,
+          ),
     name: annot.name ?? method.name!,
+    defaultValueCode: getDefaultValue(method),
     getter: method is MethodElement
         ? resolverFunctionBodyFromElement(method)
         : method.name!,
     inputs: method is MethodElement
-        ? await inputsFromElement(method, buildStep)
+        ? await inputsFromElement(ctx, method)
         : const [],
     isMethod: method is MethodElement,
     nonNullable: annot.nullable != true &&
@@ -139,21 +148,29 @@ Future<FieldInfo> fieldFromElement(
 }
 
 Future<FieldInfo> fieldFromParam(
+  GeneratorCtx ctx,
   ParameterElement param,
-  BuildStep buildStep,
 ) async {
   final annot = getFieldAnnot(param);
+
   return FieldInfo(
     gqlType: annot.type != null
         ? refer(annot.type!)
-        : inferType('', param.name, param.type, nullable: annot.nullable),
+        : inferType(
+            ctx.config.customTypes,
+            '',
+            param.name,
+            param.type,
+            nullable: annot.nullable,
+          ),
     name: annot.name ?? param.name,
+    defaultValueCode: getDefaultValue(param),
     getter: param.name,
     isMethod: false,
     inputs: [],
     nonNullable: annot.nullable != true && param.isNotOptional,
     fieldAnnot: annot,
-    description: await documentationOfParameter(param, buildStep),
+    description: await documentationOfParameter(param, ctx.buildStep),
     deprecationReason: getDeprecationReason(param),
   );
 }

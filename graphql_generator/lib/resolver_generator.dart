@@ -4,6 +4,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
+import 'package:graphql_generator/config.dart';
 import 'package:graphql_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:recase/recase.dart';
@@ -11,8 +12,11 @@ import 'package:source_gen/source_gen.dart';
 import 'package:valida/valida.dart';
 
 /// Generates GraphQL schemas, statically.
-Builder graphQLResolverBuilder(Object _) {
-  return SharedPartBuilder([_GraphQLGenerator()], 'graphql_resolvers');
+Builder graphQLResolverBuilder(BuilderOptions options) {
+  return SharedPartBuilder(
+    [_GraphQLGenerator(Config.fromJson(options.config))],
+    'graphql_resolvers',
+  );
 }
 
 const _validateTypeChecker = TypeChecker.fromRuntime(Validate);
@@ -22,6 +26,10 @@ bool isReqCtx(DartType type) =>
     const TypeChecker.fromRuntime(ReqCtx).isAssignableFromType(type);
 
 class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
+  final Config config;
+
+  _GraphQLGenerator(this.config);
+
   @override
   Future<String> generateForAnnotatedElement(
     Element element,
@@ -33,8 +41,9 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
     }
     try {
       final _dartEmitter = DartEmitter();
+      final ctx = GeneratorCtx(buildStep: buildStep, config: config);
 
-      final inputs = await inputsFromElement(element, buildStep);
+      final inputs = await inputsFromElement(ctx, element);
 
       final desc = getDescription(element, element.documentationComment);
 
@@ -57,10 +66,12 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
           returnType = '${returnType.substring(0, returnType.length - 1)}?>';
         }
 
-        final returnGqlType =
-            inferType(element.name, element.name, element.returnType)
-                .accept(_dartEmitter)
-                .toString();
+        final returnGqlType = inferType(
+          config.customTypes,
+          element.name,
+          element.name,
+          element.returnType,
+        ).accept(_dartEmitter).toString();
 
         final funcDef = resolverFunctionFromElement(element);
 
@@ -97,28 +108,32 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
 }
 
 Future<List<String>> inputsFromElement(
+  GeneratorCtx ctx,
   ExecutableElement element,
-  BuildStep buildStep,
 ) async {
   final _dartEmitter = DartEmitter();
   final inputMaybe = await Future.wait(element.parameters.map((e) async {
     final argInfo = argInfoFromElement(e);
-    final type =
-        inferType(element.name, e.name, e.type, nullable: argInfo.inline)
-            .accept(_dartEmitter);
+    final type = inferType(
+      ctx.config.customTypes,
+      element.name,
+      e.name,
+      e.type,
+      nullable: argInfo.inline,
+    ).accept(_dartEmitter);
 
     if (isReqCtx(e.type)) {
       return null;
     } else if (argInfo.inline) {
       // TODO; Check e.type is InputType?
-      return '...$type.inputFields';
+      return '...$type.fields';
     } else {
       final defaultValue =
           e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
 
       final isInput = e.type.element != null && isInputType(e.type.element!);
 
-      final docs = await documentationOfParameter(e, buildStep);
+      final docs = await documentationOfParameter(e, ctx.buildStep);
       return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
           ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
     }
