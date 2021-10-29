@@ -1,14 +1,76 @@
-# Leto GraphQL
+# Leto GraphQL <!-- omit in toc -->
 
 A GraphQL server implementation written in Dart.
 
 Inspired by graphql-js, async-graphql and type-graphql. First version of the codebase was forked from angel-graphql. Many tests and utilities (Dataloader, printSchema) were ported from graphql-js.
 
+## Table of Contents <!-- omit in toc -->
+- [Quickstart](#quickstart)
+    - [Install](#install)
+    - [Create a `GraphQLSchema`](#create-a-graphqlschema)
+    - [Start the server](#start-the-server)
+    - [Test the server](#test-the-server)
+- [Examples](#examples)
+  - [Fullstack Dart Chat](#fullstack-dart-chat)
+    - [Chat functionalities](#chat-functionalities)
+  - [Server example](#server-example)
+- [Packages](#packages)
+- [Documentation](#documentation)
+- [GraphQL Schema Types](#graphql-schema-types)
+  - [Scalars](#scalars)
+  - [Objects](#objects)
+    - [Interfaces](#interfaces)
+  - [Inputs and Input Objects](#inputs-and-input-objects)
+    - [InputObject.fromJson](#inputobjectfromjson)
+  - [Enums](#enums)
+  - [Unions](#unions)
+    - [Freezed Unions](#freezed-unions)
+  - [Abstract Types](#abstract-types)
+    - [resolveType](#resolvetype)
+    - [Generics](#generics)
+    - [isTypeOf](#istypeof)
+    - [\_\_typename](#__typename)
+    - [Serialize and validate](#serialize-and-validate)
+  - [Advanced Types](#advanced-types)
+    - [Cyclic Types](#cyclic-types)
+    - [Custom Scalars](#custom-scalars)
+    - [Generic Types](#generic-types)
+- [Subscriptions](#subscriptions)
+    - [Examples](#examples-1)
+- [Miscelaneous](#miscelaneous)
+  - [`ScopedMap`](#scopedmap)
+  - [Error Handling](#error-handling)
+  - [Input Validation](#input-validation)
+  - [Query Complexity (Not implemented, yet)](#query-complexity-not-implemented-yet)
+- [Web integrations](#web-integrations)
+  - [Server integrations](#server-integrations)
+    - [Shelf](#shelf)
+  - [Web UI Explorers](#web-ui-explorers)
+    - [GraphiQL](#graphiql)
+    - [Playground](#playground)
+    - [Altair](#altair)
+  - [Clients](#clients)
+- [Solving the N+1 problem](#solving-the-n1-problem)
+  - [Lookahead](#lookahead)
+  - [DataLoader](#dataloader)
+- [Extensions](#extensions)
+  - [Persisted Queries](#persisted-queries)
+  - [Apollo Tracing](#apollo-tracing)
+  - [Response Cache](#response-cache)
+  - [Custom Extensions](#custom-extensions)
+- [Directives](#directives)
+- [Utilities](#utilities)
+    - [`buildSchema`](#buildschema)
+    - [`printSchema`](#printschema)
+    - [`mergeSchema`](#mergeschema)
+
 # Quickstart
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this readme or looking at the tests and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
 
-### Add dependencies to your pubspec.yaml
+### Install
+
+Add dependencies to your pubspec.yaml
 
 ```yaml
 dependencies:
@@ -44,7 +106,7 @@ class Model {
 final modelGraphqlType = objectType<Model>(
     'Model',
     fields: [
-        graphQLString.nonNull().field('stringField',resolve: (ReqCtx ctx, Model m)
+       graphQLString.nonNull().field('stringField',resolve: (ReqCtx ctx, Model m)
         => m.intField,),
         field('intField', graphqlInt, resolve: (ReqCtx ctx, Model m)
         => m.intField,
@@ -99,7 +161,7 @@ which generates the same `modelGraphqlType` in `model.g.dart` and `apiSchema` in
 
 # Examples
 
-## Fullstack Dart Chat:
+## Fullstack Dart Chat
 
 A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example.
 
@@ -123,7 +185,7 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 - View complete usage history with events for the most important mutations
 - View all user sessions
 
-## Server example:
+## Server example
 
 A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
 
@@ -147,9 +209,9 @@ Standartd GraphQLScalarTypes: String, Int, Float, Boolean and Date types are alr
 
 Other types are also provided:
 
-- Json: raw JSON value
+- Json: a raw JSON value.
 - Timestamp: same as Date, but serialized as an UNIX timestamp.
-- Uri: Dart's Uri class
+- Uri: Dart's Uri class.
 - Time: // TODO:
 - Upload: a file upload.
 
@@ -195,11 +257,14 @@ This would generate graphql_api.schema.dart
 
 ```
 
-`inheritFrom`
 
-## GraphQLFieldInput
+### Interfaces
 
-## Input Objects
+- inheritFrom
+
+dwad
+
+## Inputs and Input Objects
 
 ```dart
 final inputModel = GraphQLInputObjectType(
@@ -211,56 +276,230 @@ final inputModel = GraphQLInputObjectType(
 );
 ```
 
-## Unions
+Field inputs (or Arguments) can be used in multiple places:
+
+- `GraphQLObjectType.fields.inputs`: Inputs/Arguments in field resolvers
+
+- `GraphQLInputObjectType.fields`: Fields in Input Objects
+
+- `GraphQLDirective.inputs`: Inputs/Arguments in directives
+
+Not all types can be input types, in particular, object types and union types can't be input types nor part of a `GraphQLInputObjectType`.
 
 ```dart
+static bool isInputType(GraphQLType type) {
+  return type.when(
+    enum_: (type) => true,
+    scalar: (type) => true,
+    input: (type) => true,
+    object: (type) => false,
+    union: (type) => false,
+    list: (type) => isInputType(type.ofType),
+    nonNullable: (type) => isInputType(type.ofType),
+  );
+}
+```
 
-final variantA = objectType(
+### Example <!-- omit in toc -->
 
-);
+```graphql
+input ComplexInput {
+    value: String!
+}
 
-final union = GraphQLUnionType(
-    'UnionName',
-    [
-
-    ],
-
+# The fields:
+(
+    """The amount"""
+    @deprecated
+    amount: Int = 2
+    names: [String!]
+    complex: ComplexInput!
 )
 ```
 
-Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types can only be GraphQLObjectType.
+```dart
+
+@GraphQLInput()
+class ComplexInput {
+    const ComplexInput({required this.value});
+    /// The value
+    final String value;
+
+    factory ComplexInput.fromJson(Map<String, Object?> json) =>
+        ComplexInput(
+            value: json['value']! as String,
+        );
+}
+
+final fields = [
+    GraphQLFieldInput(
+        'amount',
+        graphQLInt,
+        defaultValue: 2,
+        description: 'The amount',
+        // an empty String will use the default deprecation reason
+        deprecationReason: '',
+    ),
+    GraphQLFieldInput(
+        'names',
+        listOf(graphQLString.nonNull()),
+    ),
+    GraphQLFieldInput(
+        'complex',
+        compleInputGraphQLInputType.nonNull(),
+    ),
+];
+
+// can be used in:
+// - `GraphQLObjectType.fields.inputs`
+// - `GraphQLInputObjectType.fields`
+// - 'GraphQLDirective.inputs'
+
+final object = GraphQLObjectType(
+    'ObjectName',
+    fields: [
+        stringGraphQLType.field(
+            'someField',
+            inputs: fields,
+            resolve: (_, ReqCtx ctx) {
+                final Map<String, Object?> args ctx.args;
+                assert(args.containKey('complex'));
+                assert(args['names'] is List<String>?);
+                assert(args['amount'] is int?);
+                return '';
+            }
+        )
+    ]
+);
+
+final objectInput = GraphQLInputObjectType(
+    'InputObjectName',
+    fields: fields,
+    // ...
+);
+
+final directive = GraphQLDirective(
+    name: 'DirectiveName',
+    inputs: fields,
+    // ...
+);
+```
+
+### InputObject.fromJson
+
+dw
+
+## Enums
+
+Similar in behaviour to scalars, are text values which are restricted to a set of predefined variants.
+
+```graphql
+"""The error reason on a failed sign up attempt"""
+enum SignUpError {
+    usernameTooShort,
+    usernameNotFound,
+    wrongPassword,
+    passwordTooSimple,
+}
+```
+
+```dart
+import 'package:leto/leto.dart';
+
+final signUpErrorGraphQLType = enumTypeFromStrings(
+    'SignUpError', ['usernameTooShort',
+'usernameNotFound',
+'wrongPassword',
+'passwordTooSimple',]
+description: 'The error reason on a failed sign up attempt',
+);
+
+
+// Or with code generation
+
+/// The error reason on a failed sign up attempt
+@GraphQLClass()
+enum SignUpError {
+    usernameTooShort,
+    usernameNotFound,
+    wrongPassword,
+    passwordTooSimple,
+}
+
+```
+
+## Unions
+
+Similar to enums, Unions are restricted to a set of predefined variants, however the possible types are always the more complex `GraphQLObjectType`.
+
+Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types can only be `GraphQLObjectType`.
+
+```dart
+final model = objectType(
+    'Model',
+    fields: [
+        graphQLIdType.nonNull().field('id'),
+    ],
+);
+final modelAddedGraphQLType = objectType(
+    'ModelAdded',
+    fields: [model.nonNull().field('model')],
+);
+final modelRemovedGraphQLType = objectType(
+    'ModelRemoved',
+    fields: [graphQLIdType.nonNull().field('modelId')],
+);
+
+final union = GraphQLUnionType(
+    'Model',
+    // possibleTypes
+    [
+       modelAddedGraphQLType,
+       modelRemovedGraphQLType,
+    ],
+);
+```
+
 
 - `extractInner`
 
 When the members of the union type are not
 
-## Abstract types
+### Freezed Unions
 
-Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of utility funciontions. `GraphQL.resolveAbstractType`
+Unions with [freezed](https://github.com/rrousselGit/freezed) also work without trouble.
 
-- resolveType
+```dart
+```
 
-`String Function(Object result, T abstractType, ResolveObjectCtx ctx)`. Given a resolved result, the type itself and the ObjectCtx, return the name of the type asociated with result.
+## Abstract Types
 
-- \_\_typename
+Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of tools. You can read the code in package:leto `GraphQL.resolveAbstractType`
 
-If the resolved result is a `Map` and contains a key "\_\_typename", we will use it to resolve the type by comparing it with possible types names. If there is a match, we use the matched type in the next steps of execution.
+### resolveType
 
-- Generics
+`String Function(Object result, T abstractType, ResolveObjectCtx ctx)`. Given a resolved result, the abstract type itself and the ObjectCtx, return the name of the type associated with the result value.
 
-Similar to \_\_typeName, we compare the resolved result's type with the possible types `GraphQLType<Value, Serialized>`'s `Value` generic if there is only one match, that will be the resolved type (this happens very often, specially with code generation).
+### Generics
+
+Similar to \_\_typeName, we compare the resolved result's type with the possible types `GraphQLType<Value, Serialized>`'s `Value` generic, if there is only one match, that will be the resolved type (this happens very often, specially with code generation).
 
 This can't be used with Union types which are wrappers over the inner types (like `Result<V, E>`), since the `Value` generic (inner type) will not match the wrapper type. For this cases you will need to provide a `resolveType` and `extractInner`. With freezed-like union you don't have to do that since the variants extend the union type.
 
-- isTypeOf
+### isTypeOf
 
 If any of the previous fail, you can provide a `isTypeOf` callback for objects, which determine whether a given values is an instance of that `GraphQLObjectType`.
 
-- Serialize and validate
 
-# Advanced types
+### \_\_typename
 
-## Cyclic Types
+If the resolved result is a `Map` and contains a key "\_\_typename", we will use it to resolve the type by comparing it with possible types names. If there is a match, we use the matched type in the next steps of execution.
+
+### Serialize and validate
+
+## Advanced Types
+
+### Cyclic Types
 
 Types which use themselves in their definition have to reuse previously created instances. The type's field lists are mutable, which allow you to instantiate the type and then modify the fields of the type. For example, an User with friends:
 
@@ -290,7 +529,7 @@ GraphQLObjectType<User> get userGraphQLType {
 
 Code generation already does it, so you don't have to worry about it when using it.
 
-## Custom scalars
+### Custom Scalars
 
 You can extend the `GraphQLScalarType` or create an instance directly with `GraphQLScalarTypeValue`. For example, to support the `Decimal` type in https://github.com/a14n/dart-decimal you can use the following code:
 
@@ -314,7 +553,7 @@ final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
 
 ```
 
-For code generation you need to provide `customTypes` in the build.yaml file of you project:
+For code generation you need to provide `customTypes` in the [build.yaml](https://github.com/dart-lang/build/blob/master/docs/faq.md) file of you project:
 
 ```yaml
 target:
@@ -329,7 +568,7 @@ target:
 
 ```
 
-## Generics
+### Generic Types
 
 Work in progress
 
@@ -421,7 +660,7 @@ GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
 
 ```
 
-## Subscriptions
+# Subscriptions
 
 `GraphQLObjectField` contains a subscribe function `Stream<T> Function(ReqCtx<P> ctx, P parent)`
 
@@ -470,6 +709,7 @@ For usage in the server you can use any of the [web server integrations](#web-se
 
 For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto_graphql/chat_example) in particular the // TODO:
 
+# Miscelaneous
 ## `ScopedMap`
 
 da
@@ -478,30 +718,53 @@ da
 
 daw
 
-## Clients
+## Input Validation
 
-For a complete GraphQL client you probably want to use:
+daw
 
-- Ferry (https://github.com/gql-dart/ferry)
-- Artemis (https://github.com/comigor/artemis)
-- or raw GQL Links (https://github.com/gql-dart/gql/tree/master/links)
+## Query Complexity (Not implemented, yet)
 
-# Web server integrations
+dwd
 
-## Shelf (https://github.com/juancastillo0/leto_graphql/leto_shelf)
 
-- [HTTP](https://graphql.org/learn/serving-over-http/) POST, GET
+
+
+# Web integrations
+
+## Server integrations
+
+### [Shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)
+
+- [HTTP](https://graphql.org/learn/serving-over-http/) POST and GET
 - [Mutipart requests](https://github.com/jaydenseric/graphql-multipart-request-spec) for file Upload.
 - Subscriptions through WebSockets. Supporting [graphql-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) and [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) subprotocols
 - Batched queries
 - TODO: HTTP/2
 - TODO: [Server-Sent Events](https://the-guild.dev/blog/graphql-over-sse)
 
-# Web UI Explorers
+## Web UI Explorers
 
-- [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme) with `graphiqlHandler`.
-- [Playground](https://github.com/graphql/graphql-playground) with `playgroundHandler`.
-- [Altair](https://github.com/altair-graphql/altair) with `altairHandler`.
+### [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme)
+
+with `graphiqlHandler`.
+### [Playground](https://github.com/graphql/graphql-playground)
+
+with `playgroundHandler`.
+### [Altair](https://github.com/altair-graphql/altair)
+
+with `altairHandler`.
+
+
+## Clients
+
+For a complete GraphQL client you probably want to use:
+
+- Ferry (https://github.com/gql-dart/ferry)
+- Artemis (https://github.com/comigor/artemis)
+- or raw gql Links (https://github.com/gql-dart/gql/tree/master/links)
+  
+  gql Links are used by Ferry and Artemis, both of which provide additional functionalities over raw gql Links like serialization and deserialization, code generation, type safety, normalized caching and more.
+
 
 # Solving the N+1 problem
 
@@ -572,9 +835,9 @@ query getModelsBase {
 
 `ModelRepo.getModels` will receive `true` in the `withNested` param for the `getModelsWithNested` query since `lookaheadObj.contains('nested')` will be `true` and the `withNested` param will be `false` for the `getModelsBase` query since the "nested" field was not selected.
 
-## Dataloader
+## DataLoader
 
-An easier to implement but probably less performant way of solving the N+1 problem is by using a `Dataloader`.
+An easier to implement but probably less performant way of solving the N+1 problem is by using a `DataLoader`.
 
 ```dart
 
@@ -638,16 +901,23 @@ To save state scoped to a single request you can use the `ScopedMap.setScoped(ke
 
 The Persisted Queries and Response Cache extensions are implemented in this way.
 
+
+# Directives
+
+`GraphQLSchema.directives`
+
+
+
 # Utilities
 
-- [`buildSchema`](https://github.com/juancastillo0/leto_graphql/leto_shelf)
+### [`buildSchema`](https://github.com/juancastillo0/leto_graphql/leto_shelf)
 
 Create a `GraphQLSchema` from a GraphQL Schema Definition String.
 
-- `printSchema`
+### `printSchema`
 
 Trasform a `GraphQLSchema` into a GraphQL Schema Definition String.
 
-- `mergeSchema`
+### `mergeSchema`
 
 Merge multiple `GraphQLSchema`. The output `GraphQLSchema` contains all the query, mutations and subscription fields from the input schemas. Nested objects are also merged.
