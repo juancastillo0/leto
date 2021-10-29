@@ -15,17 +15,19 @@ class SerdeCtx {
     DateTime: const _SerializerDateTime(),
   };
 
+  final Set<SerdeCtx> children = {};
+
   Map<Type, Serializer<Object>> get map => _map;
 
   T fromJson<T>(Object? json) {
     if (json is T) {
       return json;
     } else {
-      final serializer = of<T>();
+      final Serializer<T>? serializer = of<T>();
       if (serializer == null) {
         throw Exception('No serializer found for type $T.');
       }
-      return serializer.fromJson(json);
+      return serializer.fromJson(this, json);
     }
   }
 
@@ -112,8 +114,20 @@ class SerdeCtx {
   }
 
   Serializer<T>? of<T>() {
-    final v = _map[T] as Serializer<T>?;
-    if (v != null) return v;
+    final serializer = _map[T] as Serializer<T>?;
+    if (serializer != null) return serializer;
+
+    final Set<SerdeCtx> processed = {this};
+    for (final child in children) {
+      if (processed.contains(child)) {
+        continue;
+      }
+      processed.add(child);
+      final _serielizer = child.of<T>();
+      if (_serielizer != null) {
+        return _serielizer;
+      }
+    }
     return _map.values.firstWhereOrNull(
       (serde) => serde.generic.isEqualToType<T>(),
     ) as Serializer<T>?;
@@ -148,8 +162,8 @@ abstract class Serializable
 abstract class Serializer<T> implements GenericHelpSingle<T> {
   const Serializer();
 
-  T fromJson(Object? json);
-  Object? toJson(T instance);
+  T fromJson(SerdeCtx ctx, Object? json);
+  // Object? toJson(T instance);
 
   @override
   GenericHelp<T> get generic => GenericHelp<T>();
@@ -221,7 +235,7 @@ class _SerializerIdentity<T> extends Serializer<T> {
   const _SerializerIdentity();
 
   @override
-  T fromJson(Object? json) {
+  T fromJson(SerdeCtx ctx, Object? json) {
     return json as T;
   }
 
@@ -235,7 +249,7 @@ class _SerializerDateTime extends Serializer<DateTime> {
   const _SerializerDateTime();
 
   @override
-  DateTime fromJson(Object? json) {
+  DateTime fromJson(SerdeCtx ctx, Object? json) {
     if (json is int) {
       return DateTime.fromMillisecondsSinceEpoch(json);
     } else if (json is String) {
@@ -254,7 +268,7 @@ class _SerializerUri extends Serializer<Uri> {
   const _SerializerUri();
 
   @override
-  Uri fromJson(Object? json) {
+  Uri fromJson(SerdeCtx ctx, Object? json) {
     if (json is String) {
       return Uri.parse(json);
     }
@@ -297,20 +311,20 @@ class SerializerFunc<T extends Serializable> extends Serializer<T> {
 
 class SerializerValue<T> extends Serializer<T> {
   const SerializerValue({
-    required T Function(Map<String, dynamic> json) fromJson,
-    required Map<String, dynamic> Function(T value) toJson,
+    required T Function(SerdeCtx, Map<String, dynamic> json) fromJson,
+    // required Map<String, dynamic> Function(T value) toJson,
   })  : _fromJson = fromJson,
-        _toJson = toJson,
+        // _toJson = toJson,
         super();
 
-  final T Function(Map<String, dynamic> json) _fromJson;
-  final Map<String, dynamic> Function(T value) _toJson;
+  final T Function(SerdeCtx, Map<String, dynamic> json) _fromJson;
+  // final Map<String, dynamic> Function(T value) _toJson;
 
   @override
-  T fromJson(Object? json) =>
-      json is T ? json : _fromJson(json! as Map<String, dynamic>);
-  @override
-  Map<String, dynamic> toJson(T instance) => _toJson(instance);
+  T fromJson(SerdeCtx ctx, Object? json) =>
+      json is T ? json : _fromJson(ctx, json! as Map<String, dynamic>);
+  // @override
+  // Map<String, dynamic> toJson(T instance) => _toJson(instance);
 }
 
 extension _GenMap<K, V> on Map<K, V> {
