@@ -45,7 +45,7 @@ void main() {
   });
 }
 
-class Todo implements Serializable {
+class Todo {
   final String? text;
   final bool? completed;
   final DateTime time;
@@ -79,7 +79,7 @@ class Todo implements Serializable {
     );
   }
 
-  static final serializer = SerializerFunc<Todo>(
-    fromJson: (j) => Todo.fromJson(j!),
+  static final serializer = SerializerValue(
+    fromJson: (ctx, json) => Todo.fromJson(json),
   );
 }

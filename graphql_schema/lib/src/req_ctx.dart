@@ -147,20 +147,29 @@ class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
   Map<String, Object?>? serializedObject() {
     if (!_didSerialized) {
       try {
+        // try {
+        //   final serializer = serdeCtx.ofValue(objectType.generic.type);
+        //   if (serializer != null) {
+        //     _serializedObject =
+        //         serializer.toJson(objectValue)! as Map<String, dynamic>;
+        //   } else {
+        //     _serializedObject =
+        //         serdeCtx.toJson(objectValue)! as Map<String, dynamic>;
+        //   }
+        // } catch (e) {
+        // _serializedObject = objectType.serializeSafe(
+        //   objectValue,
+        //   nested: false,
+        // );
+        // }
         try {
-          final serializer = serdeCtx.ofValue(objectType.generic.type);
-          if (serializer != null) {
-            _serializedObject =
-                serializer.toJson(objectValue)! as Map<String, dynamic>;
-          } else {
-            _serializedObject =
-                serdeCtx.toJson(objectValue)! as Map<String, dynamic>;
-          }
-        } catch (e) {
-          _serializedObject = objectType.serializeSafe(
-            objectValue,
-            nested: false,
-          );
+          _serializedObject =
+              // ignore: avoid_dynamic_calls
+              (objectValue as dynamic).toMap() as Map<String, Object?>;
+        } catch (_) {
+          _serializedObject =
+              // ignore: avoid_dynamic_calls
+              (objectValue as dynamic).toJson() as Map<String, Object?>;
         }
       } catch (_) {}
       _didSerialized = true;
@@ -317,7 +326,4 @@ class ScopedMap implements GlobalsHolder {
 
   @override
   ScopedMap get globals => this;
-
-  Map<String, Object?> toJson() =>
-      values.map((key, value) => MapEntry(key.toString(), value));
 }

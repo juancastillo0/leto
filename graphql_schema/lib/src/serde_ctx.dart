@@ -43,63 +43,63 @@ class SerdeCtx {
     throw Error();
   }
 
-  Map<String, Object?> toJsonMap<K, V>(Map<K, V> map) {
-    return map.map(
-      (key, value) => MapEntry(
-        toJson<K>(key).toString(),
-        toJson<V>(value),
-      ),
-    );
-  }
+  // Map<String, Object?> toJsonMap<K, V>(Map<K, V> map) {
+  //   return map.map(
+  //     (key, value) => MapEntry(
+  //       toJson<K>(key).toString(),
+  //       toJson<V>(value),
+  //     ),
+  //   );
+  // }
 
   List<V> fromJsonList<V>(Iterable json) {
     return json.map((Object? value) => fromJson<V>(value)).toList();
   }
 
-  List<Object?> toJsonList<V>(Iterable<V> list) {
-    return list.map((value) => toJson<V>(value)).toList();
-  }
+  // List<Object?> toJsonList<V>(Iterable<V> list) {
+  //   return list.map((value) => toJson<V>(value)).toList();
+  // }
 
-  Object? toJson<T>(T instance) {
-    final serializer = of<T>();
-    if (serializer != null) {
-      return serializer.toJson(instance);
-    }
-    if (instance is Map) {
-      return instance.toJsonMap(this);
-    } else if (instance is List || instance is Set) {
-      return (instance as Iterable).toJsonList(this);
-    } else if (instance == null) {
-      return null;
-    } else {
-      try {
-        // ignore: avoid_dynamic_calls
-        return (instance as dynamic).toJson();
-      } catch (_) {}
-      try {
-        // ignore: avoid_dynamic_calls
-        return (instance as dynamic).toMap();
-      } catch (_) {}
+  // Object? toJson<T>(T instance) {
+  //   final serializer = of<T>();
+  //   if (serializer != null) {
+  //     return serializer.toJson(instance);
+  //   }
+  //   if (instance is Map) {
+  //     return instance.toJsonMap(this);
+  //   } else if (instance is List || instance is Set) {
+  //     return (instance as Iterable).toJsonList(this);
+  //   } else if (instance == null) {
+  //     return null;
+  //   } else {
+  //     try {
+  //       // ignore: avoid_dynamic_calls
+  //       return (instance as dynamic).toJson();
+  //     } catch (_) {}
+  //     try {
+  //       // ignore: avoid_dynamic_calls
+  //       return (instance as dynamic).toMap();
+  //     } catch (_) {}
 
-      final value = map.values
-          .map((s) {
-            if (s.generic.isValueOfType(instance)) {
-              try {
-                return _V(s.toJson(instance));
-              } catch (_) {}
-            }
-            return null;
-          })
-          .whereType<_V>()
-          .firstOrNull;
-      if (value == null) {
-        throw Exception(
-          'Could not find a serializer of type $T for $instance.',
-        );
-      }
-      return value.inner;
-    }
-  }
+  //     final value = map.values
+  //         .map((s) {
+  //           if (s.generic.isValueOfType(instance)) {
+  //             try {
+  //               return _V(s.toJson(instance));
+  //             } catch (_) {}
+  //           }
+  //           return null;
+  //         })
+  //         .whereType<_V>()
+  //         .firstOrNull;
+  //     if (value == null) {
+  //       throw Exception(
+  //         'Could not find a serializer of type $T for $instance.',
+  //       );
+  //     }
+  //     return value.inner;
+  //   }
+  // }
 
   void addAll(Iterable<Serializer<Object>> serializers) {
     serializers.forEach(add);
@@ -143,21 +143,21 @@ class SerdeCtx {
   }
 }
 
-class _V<T> {
-  final T inner;
+// class _V<T> {
+//   final T inner;
 
-  _V(this.inner);
-}
+//   _V(this.inner);
+// }
 
-abstract class SerializableGeneric<S> {
-  S toJson();
-}
+// abstract class SerializableGeneric<S> {
+//   S toJson();
+// }
 
-abstract class Serializable
-    implements SerializableGeneric<Map<String, dynamic>> {
-  @override
-  Map<String, dynamic> toJson();
-}
+// abstract class Serializable
+//     implements SerializableGeneric<Map<String, dynamic>> {
+//   @override
+//   Map<String, dynamic> toJson();
+// }
 
 abstract class Serializer<T> implements GenericHelpSingle<T> {
   const Serializer();
@@ -279,35 +279,53 @@ class _SerializerUri extends Serializer<Uri> {
   Object? toJson(Uri instance) => instance.toString();
 }
 
-class SerializerFuncGeneric<T extends SerializableGeneric<S>, S>
-    extends Serializer<T> {
-  SerializerFuncGeneric({
-    required T Function(S json) fromJson,
-  })  : _fromJson = fromJson,
-        super();
+// class SerializerFuncGeneric<T extends SerializableGeneric<S>, S>
+//     extends Serializer<T> {
+//   SerializerFuncGeneric({
+//     required T Function(S json) fromJson,
+//   })  : _fromJson = fromJson,
+//         super();
 
-  final T Function(S json) _fromJson;
+//   final T Function(S json) _fromJson;
 
-  @override
-  T fromJson(Object? json) => _fromJson(json as S);
-  @override
-  S toJson(T instance) => instance.toJson();
-}
+//   @override
+//   T fromJson(SerdeCtx ctx, Object? json) => _fromJson(json as S);
+//   @override
+//   S toJson(T instance) => instance.toJson();
+// }
 
-class SerializerFunc<T extends Serializable> extends Serializer<T> {
-  const SerializerFunc({
-    required T Function(Map<String, dynamic> json) fromJson,
-  })  : _fromJson = fromJson,
-        super();
+// class SerializerFunc<T extends Serializable> extends Serializer<T> {
+//   const SerializerFunc({
+//     required T Function(Map<String, dynamic> json) fromJson,
+//   })  : _fromJson = fromJson,
+//         super();
 
-  final T Function(Map<String, dynamic> json) _fromJson;
+//   final T Function(Map<String, dynamic> json) _fromJson;
 
-  @override
-  T fromJson(Object? json) =>
-      json is T ? json : _fromJson(json! as Map<String, dynamic>);
-  @override
-  Map<String, dynamic> toJson(T instance) => instance.toJson();
-}
+//   @override
+//   T fromJson(SerdeCtx ctx, Object? json) =>
+//       json is T ? json : _fromJson(json! as Map<String, dynamic>);
+//   @override
+//   Map<String, dynamic> toJson(T instance) => instance.toJson();
+// }
+
+// class SerializerValue<T> extends Serializer<T> {
+//   const SerializerValue({
+//     required T Function(Map<String, dynamic> json) fromJson,
+//     // required Map<String, dynamic> Function(T value) toJson,
+//   })  : _fromJson = fromJson,
+//         // _toJson = toJson,
+//         super();
+
+//   final T Function(Map<String, dynamic> json) _fromJson;
+//   // final Map<String, dynamic> Function(T value) _toJson;
+
+//   @override
+//   T fromJson(SerdeCtx ctx, Object? json) =>
+//       json is T ? json : _fromJson(json! as Map<String, dynamic>);
+//   // @override
+//   // Map<String, dynamic> toJson(T instance) => _toJson(instance);
+// }
 
 class SerializerValue<T> extends Serializer<T> {
   const SerializerValue({
@@ -327,14 +345,14 @@ class SerializerValue<T> extends Serializer<T> {
   // Map<String, dynamic> toJson(T instance) => _toJson(instance);
 }
 
-extension _GenMap<K, V> on Map<K, V> {
-  Map<String, Object?> toJsonMap(SerdeCtx serdeCtx) {
-    return serdeCtx.toJsonMap(this);
-  }
-}
+// extension _GenMap<K, V> on Map<K, V> {
+//   Map<String, Object?> toJsonMap(SerdeCtx serdeCtx) {
+//     return serdeCtx.toJsonMap(this);
+//   }
+// }
 
-extension _GenIterable<V> on Iterable<V> {
-  List<Object?> toJsonList(SerdeCtx serdeCtx) {
-    return serdeCtx.toJsonList(this);
-  }
-}
+// extension _GenIterable<V> on Iterable<V> {
+//   List<Object?> toJsonList(SerdeCtx serdeCtx) {
+//     return serdeCtx.toJsonList(this);
+//   }
+// }

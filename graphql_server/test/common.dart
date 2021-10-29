@@ -10,7 +10,7 @@ final Matcher throwsAGraphQLException = throwsA(
 );
 
 @immutable
-class Todo implements Serializable {
+class Todo {
   final String? text;
   final bool? completed;
   final DateTime time;
@@ -45,7 +45,9 @@ class Todo implements Serializable {
     );
   }
 
-  static const serializer = SerializerFunc(fromJson: fromJson);
+  static final serializer = SerializerValue(
+    fromJson: (ctx, json) => fromJson(json),
+  );
 
   Todo copyWith({
     String? text,
@@ -86,7 +88,7 @@ class Todo implements Serializable {
 }
 
 @immutable
-class User implements Serializable {
+class User {
   final String name;
   final int? age;
 
@@ -120,7 +122,9 @@ class User implements Serializable {
     );
   }
 
-  static const serializer = SerializerFunc(fromJson: fromJson);
+  static final serializer = SerializerValue(
+    fromJson: (ctx, json) => fromJson(json),
+  );
 
   @override
   String toString() => 'User(name: $name, age: $age)';
