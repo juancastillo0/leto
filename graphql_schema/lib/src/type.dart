@@ -34,10 +34,12 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   /// very useful in tools like GraphiQL.
   String? get description;
 
-  /// Serializes an arbitrary input value.
+  /// Serializes a [value].
   Serialized serialize(Value value);
 
   /// Deserializes a serialized value.
+  ///
+  /// [serdeCtx] can be used to deserialize nested values.
   Value deserialize(SerdeCtx serdeCtx, Serialized serialized);
 
   // /// Attempts to cast a dynamic [value] into a [Serialized] instance.
@@ -125,11 +127,17 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   @override
   String toString() => name!;
 
+  /// Utility for working with the [Value] Generic type
   GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
 
+  /// true when the type can not be null
   bool get isNonNullable => this is GraphQLNonNullType;
+
+  /// true when the type can be null
   bool get isNullable => !isNonNullable;
 
+  /// Executes any of the provided function with [this] as argument.
+  /// The function executed depends on the type of [this]
   O when<O>({
     required O Function(GraphQLEnumType<Value>) enum_,
     required O Function(GraphQLScalarType<Value, Serialized>) scalar,
@@ -162,6 +170,9 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     }
   }
 
+  /// Similar to [when], but with optional arguments and
+  /// a required default case [orElse], which is executed when none of
+  /// the provided functions match [this]
   O whenMaybe<O>({
     O Function(GraphQLEnumType<Value>)? enum_,
     O Function(GraphQLScalarType<Value, Serialized>)? scalar,
@@ -183,6 +194,8 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     );
   }
 
+  /// Similar to [when], but with optional arguments. Returns null
+  /// when none of the provided functions match [this]
   O? whenOrNull<O>({
     O? Function(GraphQLEnumType<Value>)? enum_,
     O? Function(GraphQLScalarType<Value, Serialized>)? scalar,
@@ -216,7 +229,7 @@ GraphQLListType<Value, Serialized>
   return GraphQLListType<Value, Serialized>(innerType);
 }
 
-/// An wrapper around a [GraphQLType].
+/// A wrapper around a [GraphQLType].
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
 abstract class GraphQLWrapperType {

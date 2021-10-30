@@ -12,8 +12,6 @@ class ValidationResult<Value> {
   /// A list of errors that caused validation to fail.
   final List<String> errors;
 
-  // ValidationResult._(this.successful, this.value, this.errors);
-
   const ValidationResult.ok(Value _value)
       : errors = const [],
         value = _value,

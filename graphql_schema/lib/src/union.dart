@@ -17,13 +17,29 @@ class GraphQLUnionType<P extends Object>
   @override
   final String? description;
 
+  /// Used to provide type resolution at runtime
+  ///
+  /// Should return the name of the type in [possibleTypes] which is
+  /// associated with the resolved result passed as parameter
   final _ResolveType<GraphQLUnionType<P>>? resolveType;
+
+  /// When the union type is a wrapper around the real types associated to
+  /// [possibleTypes], this function extracts that value from the wrapper
+  final Object Function(P)? _extractInner;
+
+  Object extractInner(P p) {
+    if (_extractInner != null) {
+      return _extractInner!.call(p);
+    }
+    return p;
+  }
 
   GraphQLUnionType(
     this.name,
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
     ResolveType<GraphQLUnionType<P>>? resolveType,
+    /// dawda
     Object Function(P)? extractInner,
   })  : _extractInner = extractInner,
         resolveType = resolveType == null ? null : _ResolveType(resolveType),
@@ -40,15 +56,6 @@ class GraphQLUnionType<P extends Object>
     for (final t in possibleTypes.toSet()) {
       this.possibleTypes.add(t);
     }
-  }
-
-  final Object Function(P)? _extractInner;
-
-  Object extractInner(P p) {
-    if (_extractInner != null) {
-      return _extractInner!.call(p);
-    }
-    return p;
   }
 
   @override
