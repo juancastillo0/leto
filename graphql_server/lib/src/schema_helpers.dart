@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:gql/ast.dart';
 import 'package:graphql_schema/graphql_schema.dart';
+import 'package:graphql_schema/utilities.dart' show valueFromAst;
 
 Object? computeValue(
   GraphQLType? targetType,

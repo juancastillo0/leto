@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:graphql_schema/graphql_schema.dart';
+import 'package:graphql_schema/utilities.dart' show astFromValue, printAST;
 
 /// Performs introspection over a GraphQL [schema], and returns one
 /// containing introspective information.

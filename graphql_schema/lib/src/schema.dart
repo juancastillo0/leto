@@ -6,11 +6,11 @@ import 'package:collection/collection.dart';
 import 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode;
 
-import 'package:gql/ast.dart' as ast;
-import 'package:gql/language.dart' show printNode, parseString;
+import 'package:gql/language.dart' show parseString;
+import 'package:graphql_schema/utilities.dart' show printSchema;
 import 'package:meta/meta.dart';
-import 'package:meta/meta_meta.dart';
-import 'package:source_span/source_span.dart';
+import 'package:meta/meta_meta.dart' show Target, TargetKind;
+import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
 
 part 'argument.dart';
 part 'decorators.dart';
@@ -20,7 +20,6 @@ part 'error.dart';
 part 'field.dart';
 part 'gen.dart';
 part 'object_type.dart';
-part 'print_schema.dart';
 part 'req_ctx.dart';
 part 'scalar.dart';
 part 'serde_ctx.dart';

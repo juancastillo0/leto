@@ -1,4 +1,4 @@
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:graphql_schema/utilities.dart';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:test/test.dart';
 
