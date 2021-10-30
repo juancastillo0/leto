@@ -8,14 +8,12 @@ part of 'main.dart';
 
 final GraphQLObjectField<String, Object, Object> getNameGraphQLField = field(
   'getName',
-  graphQLString.nonNull() as GraphQLType<String, Object>,
-  description: null,
+  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getName();
   },
-  deprecationReason: null,
 );
 
 // **************************************************************************

@@ -58,6 +58,20 @@ class ErrCodeInterfaceNE<T> {
   const ErrCodeInterfaceNE(this.code, [this.message]);
 }
 
+@GraphQLClass()
+abstract class ErrCode {
+  String get value;
+  int get id;
+}
+
+@GraphQLClass()
+class ErrCodeInterfaceNEE<T extends ErrCode> {
+  final String? message;
+  final T code;
+
+  const ErrCodeInterfaceNEE(this.code, [this.message]);
+}
+
 @Mutation()
 Result<int, String?> getInt() {
   return const Ok(3);

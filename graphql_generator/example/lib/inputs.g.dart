@@ -8,8 +8,7 @@ part of 'inputs.dart';
 
 final GraphQLObjectField<int, Object, Object> testInputGenGraphQLField = field(
   'testInputGen',
-  graphQLInt.nonNull() as GraphQLType<int, Object>,
-  description: null,
+  graphQLInt.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -21,7 +20,6 @@ final GraphQLObjectField<int, Object, Object> testInputGenGraphQLField = field(
       inputGenGraphQLType(graphQLInt.nonNull()).nonNull(),
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

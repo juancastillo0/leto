@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
@@ -48,23 +49,27 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
       final desc = getDescription(element, element.documentationComment);
 
       final lib = Library((b) {
-        final deprecationReasons = const TypeChecker.fromRuntime(Deprecated)
-            .annotationsOf(element, throwOnUnresolved: false);
-
-        final deprecationReason = deprecationReasons.isEmpty
-            ? 'null'
-            : '"${deprecationReasons.map((e) {
-                return e.getField('message')!.toStringValue();
-              }).join('.\n')}"';
+        final deprecationReason = getDeprecationReason(element);
 
         final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
             element.returnType;
-        String returnType = _retType.getDisplayString(withNullability: false);
-        if (_retType.isDartCoreList && returnType.endsWith('>')) {
-          // TODO: probably not the best way of getting a list with its
-          // type param nullable
-          returnType = '${returnType.substring(0, returnType.length - 1)}?>';
+        String _getReturnType(DartType _retType) {
+          if (_retType is ParameterizedType &&
+              _retType.typeArguments.isNotEmpty) {
+            if (_retType.isDartCoreList) {
+              final param = _retType.typeArguments.first;
+              final _nullability =
+                  param.nullabilitySuffix == NullabilitySuffix.none ? '?' : '';
+              return 'List<${_getReturnType(param)}$_nullability>';
+            } else {
+              return '${_retType.element!.name}'
+                  '<${_retType.typeArguments.map(_getReturnType).join(',')}>';
+            }
+          }
+          return _retType.getDisplayString(withNullability: true);
         }
+
+        final returnType = _getReturnType(_retType);
 
         final returnGqlType = inferType(
           config.customTypes,
@@ -82,11 +87,11 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
                 '''
                 field(
                   '${element.name}', 
-                  $returnGqlType as GraphQLType<$returnType, Object>,
-                  description: ${desc == null ? 'null' : 'r"$desc"'},
+                  $returnGqlType,
+                  ${desc == null ? '' : 'description: r"$desc",'}
                   $funcDef,
                   ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
-                  deprecationReason: $deprecationReason,
+                  ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
                   )
                  ''',
               )
