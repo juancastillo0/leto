@@ -714,7 +714,7 @@ class GraphQL {
           }
         }
         if (validate &&
-            objectField.type.realType is GraphQLScalarType &&
+            objectField.type is GraphQLScalarType &&
             (field.selectionSet?.selections.isNotEmpty ?? false)) {
           throw GraphQLError(
             'Can´t have fields on scalar $fieldName (${objectField.type})'
@@ -931,7 +931,7 @@ class GraphQL {
       final possibleObjects = <GraphQLObjectType>[];
 
       void _mapperType(GraphQLWrapperType nn) {
-        final ofType = nn.ofType.realType;
+        final ofType = nn.ofType;
         if (ofType is GraphQLObjectType) {
           possibleObjects.add(ofType);
         } else if (ofType is GraphQLUnionType) {

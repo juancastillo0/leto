@@ -25,8 +25,8 @@ class GraphQLValueComputer extends SimpleVisitor<Object> {
   @override
   Object? visitEnumValueNode(EnumValueNode node) {
     final span = (node.span ?? node.name.span)!;
-    final _targetType = targetType?.whenOrNull(nonNullable: (v) => v.ofType) ??
-        targetType?.realType;
+    final _targetType =
+        targetType?.whenOrNull(nonNullable: (v) => v.ofType) ?? targetType;
 
     if (_targetType == null) {
       throw GraphQLException.fromSourceSpan(

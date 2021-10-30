@@ -109,7 +109,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
       assert(
         () {
           final other = _used[key]!;
-          final areEqual = other == this || other.realType == realType;
+          final areEqual = other == this;
           return areEqual;
         }(),
         'GraphQLTypes with the same name are different:'
@@ -127,11 +127,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
 
   GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
 
-  GraphQLType<Value, Serialized> get realType {
-    return this;
-  }
-
-  bool get isNonNullable => realType is GraphQLNonNullType;
+  bool get isNonNullable => this is GraphQLNonNullType;
   bool get isNullable => !isNonNullable;
 
   O when<O>({
@@ -143,7 +139,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
     required O Function(GraphQLListType) list,
     required O Function(GraphQLNonNullType<Value, Serialized>) nonNullable,
   }) {
-    final GraphQLType type = realType;
+    final GraphQLType type = this;
 
     if (type is GraphQLEnumType<Value>) {
       return enum_(type);

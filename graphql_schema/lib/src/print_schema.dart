@@ -609,7 +609,7 @@ class CollectTypes {
     traversedTypes.add(objectType);
 
     for (final field in objectType.fields) {
-      final type = field.type.realType;
+      final type = field.type;
       if (type is GraphQLObjectType) {
         _fetchAllTypesFromObject(type);
       } else if (type is GraphQLInputObjectType) {
@@ -634,7 +634,7 @@ class CollectTypes {
   }
 
   void _fetchAllTypesFromType(GraphQLType _type) {
-    final type = _type.realType;
+    final type = _type;
     if (traversedTypes.contains(type)) {
       return;
     }
