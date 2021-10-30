@@ -123,9 +123,9 @@ class SerdeCtx {
         continue;
       }
       processed.add(child);
-      final _serielizer = child.of<T>();
-      if (_serielizer != null) {
-        return _serielizer;
+      final _serializer = child.of<T>();
+      if (_serializer != null) {
+        return _serializer;
       }
     }
     return _map.values.firstWhereOrNull(

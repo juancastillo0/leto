@@ -48,7 +48,7 @@ class GraphQLArg {
 
 /// An annotation for configuring a GraphQL field
 ///
-/// if [omit] is true, this field will be omited.
+/// if [omit] is true, this field will be omitted.
 /// if [nullable] is true, the type will be nullable even when the
 /// Dart type is non-nullable.
 /// [name] is the name of the [GraphQLObjectField].

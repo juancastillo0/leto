@@ -48,7 +48,7 @@ class PossibleSelections {
 
   /// The selection field nodes which reference this selection
   ///
-  /// Since [PossibleSelectionsObject] has its fields un-alised,
+  /// Since [PossibleSelectionsObject] has its fields un-aliased,
   /// this could be used in cases where you require aliased fields.
   final List<FieldNode> fieldNodes;
 
@@ -71,7 +71,7 @@ class PossibleSelections {
 }
 
 class PossibleSelectionsObject {
-  /// A map of un-alised fields to a function which calculates
+  /// A map of un-aliased fields to a function which calculates
   /// the selected properties for that field.
   final Map<String, PossibleSelections? Function()> map;
 
@@ -192,10 +192,10 @@ class ScopeRef<T> {
 /// A reference to a scoped value of type [T]
 ///
 /// It can be [scoped] (if true) or global.
-/// If it's scoped, one instace will be created for
+/// If it's scoped, one instance will be created for
 /// every scope and it's descendants.
-/// If it's global ([scoped] == false) one instace will
-/// be created for every scoped and all its parents. When the refence
+/// If it's global ([scoped] == false) one instance will
+/// be created for every scoped and all its parents. When the reference
 /// is created, it will be set to the scoped map and to every parent's
 /// scoped map.
 ///
@@ -205,7 +205,7 @@ class ScopeRef<T> {
 ///   (ScopedMap scope) => 'Value'
 /// );
 ///
-/// /// [ctx] can be anything that implemnts [GlobalsHolder]
+/// /// [ctx] can be anything that implements [GlobalsHolder]
 /// /// For example, any of [ReqCtx], [ResolveCtx] or [ResolveObjectCtx]
 /// void makeAction(GlobalsHolder ctx) {
 ///   final String value = valueRef.get(ctx);
@@ -221,7 +221,7 @@ class RefWithDefault<T> {
   RefWithDefault.global(this.create, {this.name}) : scoped = false;
 
   /// Set (overrides if present) the value in the [holder]'s
-  /// [ScopedMap] in the appropiate scope.
+  /// [ScopedMap] in the appropriate scope.
   T set(GlobalsHolder holder, T value) {
     if (scoped) {
       holder.globals.setScoped(this, value);
@@ -234,7 +234,7 @@ class RefWithDefault<T> {
 
   /// Retrieves the value in the [holder]. If there aren't any
   /// uses [create] to create a new one and set it into
-  /// the appropiate scope.
+  /// the appropriate scope.
   T get(GlobalsHolder holder) {
     if (scoped) {
       return holder.globals.putScopedIfAbsent(

@@ -1,14 +1,14 @@
 // ignore_for_file: constant_identifier_names
 part of graphql_schema.src.schema;
 
-/// Provides documentation, information or funcionalities over
-/// diferent aspects of a GraphQL parsing, validation, execution or
+/// Provides documentation, information or functionalities over
+/// different aspects of a GraphQL parsing, validation, execution or
 /// interpretation of a [GraphQLSchema]
 class GraphQLDirective {
   /// The name of this directive, should be unique
   final String name;
 
-  /// Provides documentention for this directive
+  /// Provides documentation for this directive
   final String? description;
 
   /// The places the a GraphQL document where this

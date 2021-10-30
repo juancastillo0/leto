@@ -99,21 +99,21 @@ class GraphQLObjectType<P extends Object>
 
   void inheritFromMany(
     Iterable<GraphQLObjectType> others, {
-    Set<GraphQLObjectType>? transveresed,
+    Set<GraphQLObjectType>? alreadyInherited,
   }) {
-    final initial = transveresed == null;
-    final _transveresed = transveresed ?? {};
+    final initial = alreadyInherited == null;
+    final _alreadyInherited = alreadyInherited ?? {};
 
     for (final other in others) {
       if (!_interfaces.contains(other)) {
         _interfaces.add(other);
-        _transveresed.add(other);
-        inheritFromMany(other._interfaces, transveresed: _transveresed);
+        _alreadyInherited.add(other);
+        inheritFromMany(other._interfaces, alreadyInherited: _alreadyInherited);
       }
     }
 
     if (initial) {
-      for (final other in _transveresed) {
+      for (final other in _alreadyInherited) {
         if (!other._possibleTypes.contains(this)) {
           other._possibleTypes.add(this);
         }
