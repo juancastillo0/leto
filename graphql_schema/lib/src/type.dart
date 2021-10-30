@@ -26,7 +26,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
       input: (t) => t.name,
       union: (t) => t.name,
       list: (t) => '${t.ofType.printableName}List',
-      nonNullable: (t) => t.ofType.printableName,
+      nonNullable: (t) => '${t.ofType.printableName}Req',
     );
   }
 

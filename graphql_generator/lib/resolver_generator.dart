@@ -26,7 +26,7 @@ const _validationTypeChecker = TypeChecker.fromRuntime(Validation);
 bool isReqCtx(DartType type) =>
     const TypeChecker.fromRuntime(ReqCtx).isAssignableFromType(type);
 
-class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
+class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
   final Config config;
 
   _GraphQLGenerator(this.config);
@@ -38,7 +38,8 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
     BuildStep buildStep,
   ) async {
     if (element is! FunctionElement) {
-      throw UnsupportedError('@GqlResolver() is only supported on functions.');
+      throw UnsupportedError(
+          '@GraphQLResolver() is only supported on functions.');
     }
     try {
       final _dartEmitter = DartEmitter();
@@ -53,32 +54,23 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
 
         final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
             element.returnType;
-        String _getReturnType(DartType _retType) {
-          if (_retType is ParameterizedType &&
-              _retType.typeArguments.isNotEmpty) {
-            if (_retType.isDartCoreList) {
-              final param = _retType.typeArguments.first;
-              final _nullability =
-                  param.nullabilitySuffix == NullabilitySuffix.none ? '?' : '';
-              return 'List<${_getReturnType(param)}$_nullability>';
-            } else {
-              return '${_retType.element!.name}'
-                  '<${_retType.typeArguments.map(_getReturnType).join(',')}>';
-            }
-          }
-          return _retType.getDisplayString(withNullability: true);
-        }
 
-        final _returnType = _getReturnType(_retType);
+        final _returnType = getReturnType(_retType);
         final returnType = _returnType.endsWith('?')
             ? _returnType.substring(0, _returnType.length - 1)
             : _returnType;
+
+        final genericTypeName = const TypeChecker.fromRuntime(GraphQLResolver)
+            .firstAnnotationOf(element)
+            ?.getField('genericTypeName')
+            ?.toStringValue();
 
         final returnGqlType = inferType(
           config.customTypes,
           element.name,
           element.name,
           element.returnType,
+          genericTypeName: genericTypeName,
         ).accept(_dartEmitter).toString();
 
         final funcDef = resolverFunctionFromElement(element);
@@ -121,29 +113,31 @@ Future<List<String>> inputsFromElement(
 ) async {
   final _dartEmitter = DartEmitter();
   final inputMaybe = await Future.wait(element.parameters.map((e) async {
-    final argInfo = argInfoFromElement(e);
-    final type = inferType(
-      ctx.config.customTypes,
-      element.name,
-      e.name,
-      e.type,
-      nullable: argInfo.inline,
-    ).accept(_dartEmitter);
-
     if (isReqCtx(e.type)) {
       return null;
-    } else if (argInfo.inline) {
-      // TODO; Check e.type is InputType?
-      return '...$type.fields';
     } else {
-      final defaultValue =
-          e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
+      final argInfo = argInfoFromElement(e);
+      final type = inferType(
+        ctx.config.customTypes,
+        element.name,
+        e.name,
+        e.type,
+        nullable: argInfo.inline,
+      ).accept(_dartEmitter);
 
-      final isInput = e.type.element != null && isInputType(e.type.element!);
+      if (argInfo.inline) {
+        // TODO; Check e.type is InputType?
+        return '...$type.fields';
+      } else {
+        final defaultValue =
+            e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
 
-      final docs = await documentationOfParameter(e, ctx.buildStep);
-      return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
-          ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
+        final isInput = e.type.element != null && isInputType(e.type.element!);
+
+        final docs = await documentationOfParameter(e, ctx.buildStep);
+        return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
+            ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
+      }
     }
   }));
   return inputMaybe.whereType<String>().toList();

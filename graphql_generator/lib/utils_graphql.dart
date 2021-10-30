@@ -96,6 +96,7 @@ Expression inferType(
   String name,
   DartType type, {
   bool? nullable,
+  String? genericTypeName,
 }) {
   // Next, check if this is the "id" field of a `Model`.
   // TODO:
@@ -142,6 +143,10 @@ Expression inferType(
       refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix').call([
         ...type.typeArguments
             .map((e) => inferType(customTypes, className, name, e)),
+      ], {
+        if (genericTypeName != null) 'name': literalString(genericTypeName)
+      }, [
+        ...type.typeArguments.map(getReturnType).map(refer)
       ]),
     );
   }
@@ -168,4 +173,19 @@ Expression inferType(
   // Nothing else is allowed.
   // throw 'Cannot infer the GraphQL type for '
   //     'field $className.$name (type=$type).';
+}
+
+String getReturnType(DartType _retType) {
+  if (_retType is ParameterizedType && _retType.typeArguments.isNotEmpty) {
+    if (_retType.isDartCoreList) {
+      final param = _retType.typeArguments.first;
+      final _nullability =
+          param.nullabilitySuffix == NullabilitySuffix.none ? '?' : '';
+      return 'List<${getReturnType(param)}$_nullability>';
+    } else {
+      return '${_retType.element!.name}'
+          '<${_retType.typeArguments.map((t) => getReturnType(t)).join(',')}>';
+    }
+  }
+  return _retType.getDisplayString(withNullability: true);
 }

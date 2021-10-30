@@ -3,14 +3,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'inputs.g.dart';
 
-// InputM derializeFrom(SerdeCtx ctx, Object? value) {
-//   if (value is! Map<String, Object?>) throw const FormatException();
-//   return InputM(
-//     name: ctx.fromJson(value['name']),
-//     nested: value['nested'] == null ? null : ctx.fromJson(value['nested']),
-//   );
-// }
-
 @GraphQLInput()
 @JsonSerializable()
 class InputM {
