@@ -20,7 +20,7 @@ class GraphQLConfig {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes;
 
-  /// Extensions implement additional funcionalities to the
+  /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
   /// logging, error handling or caching [GraphQLPersistedQueries]
@@ -56,7 +56,7 @@ class GraphQL {
   /// Any custom types to include in introspection information.
   final List<GraphQLType> customTypes = [];
 
-  /// Extensions implement additional funcionalities to the
+  /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
   /// logging, error handling or caching [GraphQLPersistedQueries]
@@ -76,9 +76,9 @@ class GraphQL {
   /// Whether to introspect the [GraphQLSchema]
   ///
   /// This will change the Query type of the [schema] by adding
-  /// instrospection fields, useful for client code generators or other
+  /// introspection fields, useful for client code generators or other
   /// tools like UI explorers.
-  /// More infomation in: [reflectSchema]
+  /// More information in: [reflectSchema]
   final bool introspect;
 
   GraphQLSchema _schema;
@@ -1042,9 +1042,9 @@ class GraphQL {
       // TODO: support functions with more params?
       return await _extractResult(value) as T?;
     } else {
-      final serealized = ctx.serializedObject();
-      if (serealized != null && serealized.containsKey(fieldName)) {
-        final value = serealized[fieldName];
+      final serialized = ctx.serializedObject();
+      if (serialized != null && serialized.containsKey(fieldName)) {
+        final value = serialized[fieldName];
         return await _extractResult(value) as T?;
       }
       if (defaultFieldResolver != null) {
@@ -1267,7 +1267,7 @@ class GraphQL {
       resolvedTypeName = type.resolveType?.call(result, type, ctx);
     } else {
       throw ArgumentError(
-        'abtract type should be an Object or Union. Received $type.',
+        'abstract type should be an Object or Union. Received $type.',
       );
     }
     if (resolvedTypeName != null) {

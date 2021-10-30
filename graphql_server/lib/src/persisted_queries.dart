@@ -10,7 +10,7 @@ import 'package:graphql_schema/graphql_schema.dart'
 import 'package:graphql_server/graphql_server.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;
 
-/// Save network bandwith by storing GraphQL documents on the server and
+/// Save network bandwidth by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.
 ///
 /// More information: https://www.apollographql.com/docs/apollo-server/performance/apq/
@@ -125,7 +125,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 
 /// Cache abstraction
 ///
-/// Provided imeplementations [LruCacheSimple] and [MapCache].
+/// Provided implementations [LruCacheSimple] and [MapCache].
 abstract class Cache<K, T> {
   // TODO: FutureOr
   T? get(K key);

@@ -21,7 +21,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   /// it in the response extensions.
   final void Function(TracingBuilder)? onExecute;
 
-  /// Whether the trace information should be retuned in the
+  /// Whether the trace information should be returned in the
   /// response extensions.
   ///
   /// If false, you probably want to pass an [onExecute] callback.
