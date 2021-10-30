@@ -1,18 +1,29 @@
 part of graphql_schema.src.schema;
 
 class ReqCtx<P extends Object> implements GlobalsHolder {
+  /// The arguments passed as input
+  final Map<String, Object?> args;
+
+  /// The parent object value
+  final P object;
+
   @override
   ScopedMap get globals => parentCtx.globals;
-  final Map<String, Object?> args;
-  final P object;
-  ResolveCtx get baseCtx => parentCtx.base;
+
+  /// The parent object context
   final ResolveObjectCtx<Object> parentCtx;
+
+  /// The field associated with this resolve context
   final GraphQLObjectField<Object, Object, Object> field;
-  final String pathItem;
 
   List<Object> get path => [...parentCtx.path, pathItem];
+  final String pathItem;
 
+  /// Function that computes the selected fields of the object or union
+  /// associated with this context
   final PossibleSelections? Function() lookahead;
+
+  ResolveCtx get baseCtx => parentCtx.base;
 
   const ReqCtx({
     required this.args,
@@ -23,6 +34,7 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
     required this.lookahead,
   });
 
+  /// Cast the [P] parent type into a generic [T]
   ReqCtx<T> cast<T extends Object>() {
     if (this is ReqCtx<T>) {
       return this as ReqCtx<T>;
@@ -92,15 +104,31 @@ class PossibleSelectionsObject {
 }
 
 class ResolveCtx implements GlobalsHolder {
+  /// The errors populated through out the processing of a GraphQL request
   final errors = <GraphQLError>[];
+
+  /// The schema used to execute the operation
   final GraphQLSchema schema;
+
+  /// The deseralization context, containing functions for creating objects
+  /// from serialized values
   SerdeCtx get serdeCtx => schema.serdeCtx;
+
+  /// The GraphQL document of the GraphQL request
   final DocumentNode document;
+
+  /// The specific operation from the [document] of the GraphQL request
   final OperationDefinitionNode operation;
+
+  /// The value passed as root value in the execution of the request
   final Object rootValue;
+
+  /// The variables passes as arguments to the parameters in the [operation]
   final Map<String, dynamic> variableValues;
   @override
   final ScopedMap globals;
+
+  /// this map contains custom values passed in the GraphQL request
   final Map<String, dynamic>? extensions;
 
   ResolveCtx({
@@ -115,20 +143,31 @@ class ResolveCtx implements GlobalsHolder {
 }
 
 class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
+  /// The base context for this request
   final ResolveCtx base;
 
-  SerdeCtx get serdeCtx => base.serdeCtx;
-  Map<String, dynamic> get variableValues => base.variableValues;
   @override
   ScopedMap get globals => base.globals;
+  SerdeCtx get serdeCtx => base.serdeCtx;
+  Map<String, dynamic> get variableValues => base.variableValues;
   DocumentNode get document => base.document;
 
+  /// The type associated with this resolve context
   final GraphQLObjectType<P> objectType;
+
+  /// The resolved value for this object's context
   final P objectValue;
+
+  /// The parent object context if any
   final ResolveObjectCtx<Object>? parent;
+
+  /// The item of this object in [path]
   final Object? pathItem;
+
+  /// Aliased selections for this object
   final Map<String, List<FieldNode>> groupedFieldSet;
 
+  /// The path of execution including this object
   Iterable<Object> get path => parent == null
       ? [if (pathItem != null) pathItem!]
       : parent!.path.followedBy([if (pathItem != null) pathItem!]);
@@ -144,6 +183,11 @@ class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
 
   bool _didSerialized = false;
   Map<String, dynamic>? _serializedObject;
+
+  /// The serialized value of this object, using `toJson` or `toMap`
+  ///
+  /// Used as last tool if the [objectType] have some fields with no resolvers
+  /// they may be resolved if the object is first serialized as a map.
   Map<String, Object?>? serializedObject() {
     if (!_didSerialized) {
       try {
@@ -178,7 +222,9 @@ class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
   }
 }
 
+/// A reference to a value of type [T] in a [ScopedMap]
 class ScopeRef<T> {
+  /// A name primarily used for debugging
   final String? name;
 
   ScopeRef([this.name]);
