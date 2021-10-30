@@ -69,7 +69,10 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GqlResolver> {
           return _retType.getDisplayString(withNullability: true);
         }
 
-        final returnType = _getReturnType(_retType);
+        final _returnType = _getReturnType(_retType);
+        final returnType = _returnType.endsWith('?')
+            ? _returnType.substring(0, _returnType.length - 1)
+            : _returnType;
 
         final returnGqlType = inferType(
           config.customTypes,
