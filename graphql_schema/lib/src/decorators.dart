@@ -8,6 +8,10 @@ class GraphQLObjectDec {
 }
 
 /// Signifies that a class should statically generate a [GraphQLInputObjectType]
+///
+/// The class should have a `fromJson` constructor or static method.
+/// For generic type parameters, `fromJson` should have other positional
+/// parameters with functions that receive a Object? and return the generic type
 @Target({TargetKind.classType})
 class GraphQLInput extends GraphQLObjectDec {
   const GraphQLInput();
@@ -15,14 +19,14 @@ class GraphQLInput extends GraphQLObjectDec {
 
 /// Signifies that a class should statically generate a [GraphQLType].
 ///
-/// Generates a [GraphQLObjectType] for classes with
-/// [isInterface] == true for abstract classes,
+/// Generates a [GraphQLObjectType] for classes
+/// with [GraphQLObjectType.isInterface] == true for abstract classes,
 /// a [GraphQLEnumType] for enums
 /// and a [GraphQLUnionType] for freezed unions.
 ///
 /// if [omitFields] is true, omits all fields by default, you would need to
-/// decorate explicitly with [GraphQLField]. No need to pass `omit: false`
-/// in [GraphQLField]'s constructor.
+/// decorate explicitly with [GraphQLField]. No need to pass
+/// `omit: false` in [GraphQLField]'s constructor.
 /// [interfaces] are the getters of [GraphQLObjectType]
 /// implemented by this object.
 @Target({TargetKind.classType, TargetKind.enumType})
@@ -40,7 +44,57 @@ class GraphQLClass extends GraphQLObjectDec {
 /// An annotation for configuring a [GraphQLFieldInput] within a resolver
 ///
 /// if [inline] is true, the properties of a [GraphQLInputObjectType] will be
-/// inlined into a resolver inputs.
+/// inlined into the resolver inputs.
+///
+/// Example:
+///
+/// ```dart
+/// @GraphQLInput()
+/// class InputModel {
+///   final String name;
+///   final DateTime? birthDate;
+///
+///   const InputModel(this.name, this.birthDate);
+///
+///   factory InputModel.fromJson(Map<String, Object?> json)
+///      => InputModel(
+///           json['name']! as String,
+///           json['birthDate'] == null
+///               ? null : DateTime.parse(json['birthDate']! as String)
+///         );
+/// }
+///
+/// @Mutation()
+/// bool createModel(
+///   ReqCtx ctx,
+///   @GraphQLArg(inline: true) InputModel model,
+///   // The amount!
+///   int amount = 24,
+/// ) {
+///    final String name = model.name;
+///    final DateTime? birthDate = model.birthDate;
+///
+///    return birthDate == null || DateTime.now().isAfter(birthDate);
+/// }
+/// ```
+///
+/// Results in the following schema:
+///
+/// ```graphql
+/// input InputModel {
+///   name: String!
+///   birthDate: Date
+/// }
+///
+/// type Mutation {
+///   createModel(
+///     name: String!,
+///     birthDate: Date,
+///     """The amount!"""
+///     amount: Int! = 24
+///   ) : Boolean!
+/// }
+/// ```
 class GraphQLArg {
   const GraphQLArg({this.inline = false});
   final bool inline;
@@ -49,8 +103,8 @@ class GraphQLArg {
 /// An annotation for configuring a GraphQL field
 ///
 /// if [omit] is true, this field will be omitted.
-/// if [nullable] is true, the type will be nullable even when the
-/// Dart type is non-nullable.
+/// if [nullable] is true, the type will be nullable
+/// even when the Dart type is non-nullable.
 /// [name] is the name of the [GraphQLObjectField].
 /// [type] is a String containing a getter for the [GraphQLType].
 class GraphQLField {
@@ -70,8 +124,11 @@ class GraphQLField {
 ///
 /// Use [Mutation], [Query] and [Subscription]
 @Target({TargetKind.function, TargetKind.method})
-class GqlResolver {
-  const GqlResolver._();
+abstract class GraphQLResolver {
+  String? get name;
+  String? get genericTypeName;
+
+  const GraphQLResolver._();
 }
 
 /// Signifies that a function should statically generate
@@ -84,8 +141,16 @@ class GqlResolver {
 ///    return value is String ? value : null;
 /// }
 /// ```
-class Mutation extends GqlResolver {
-  const Mutation() : super._();
+class Mutation implements GraphQLResolver {
+  @override
+  final String? name;
+  @override
+  final String? genericTypeName;
+
+  const Mutation({
+    this.name,
+    this.genericTypeName,
+  });
 }
 
 /// Signifies that a function should statically generate
@@ -98,8 +163,16 @@ class Mutation extends GqlResolver {
 ///    return value is String ? value : null;
 /// }
 /// ```
-class Query extends GqlResolver {
-  const Query() : super._();
+class Query implements GraphQLResolver {
+  @override
+  final String? name;
+  @override
+  final String? genericTypeName;
+
+  const Query({
+    this.name,
+    this.genericTypeName,
+  });
 }
 
 /// Signifies that a function should statically generate
@@ -112,8 +185,16 @@ class Query extends GqlResolver {
 ///    return value is String ? value : null;
 /// }
 /// ```
-class Subscription extends GqlResolver {
-  const Subscription() : super._();
+class Subscription implements GraphQLResolver {
+  @override
+  final String? name;
+  @override
+  final String? genericTypeName;
+
+  const Subscription({
+    this.name,
+    this.genericTypeName,
+  });
 }
 
 typedef GraphDocumentationTypeProvider = GraphQLType Function();
