@@ -12,7 +12,9 @@ import 'package:graphql_server/dataloader.dart';
 import 'package:graphql_server/src/persisted_queries.dart';
 import 'package:test/test.dart';
 
-_Loader<K, K> idLoader<K extends Object>([DataLoaderOptions<K, K, K>? options]) {
+_Loader<K, K> idLoader<K extends Object>([
+  DataLoaderOptions<K, K, K>? options,
+]) {
   final loadCalls = <List<K>>[];
   return _Loader(
     DataLoader(
@@ -26,7 +28,9 @@ _Loader<K, K> idLoader<K extends Object>([DataLoaderOptions<K, K, K>? options]) 
   );
 }
 
-_Loader<K, C> idLoaderMapped<K extends Object, C>([DataLoaderOptions<K, K, C>? options]) {
+_Loader<K, C> idLoaderMapped<K extends Object, C>([
+  DataLoaderOptions<K, K, C>? options,
+]) {
   final loadCalls = <List<K>>[];
   return _Loader(
     DataLoader(
@@ -1060,7 +1064,9 @@ void main() {
       // }
 
       // final { schedule, dispatch } = createScheduler();
-      final _loader = idLoader<String>(DataLoaderOptions(batchScheduleFn: schedule));
+      final _loader = idLoader<String>(
+        DataLoaderOptions(batchScheduleFn: schedule),
+      );
 
       final identityLoader = _loader.identityLoader;
       final loadCalls = _loader.loadCalls;
