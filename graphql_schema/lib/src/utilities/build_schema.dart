@@ -209,75 +209,75 @@ Object? computeValue(
     valueFromAst(null, node, values);
 // node.accept(GraphQLValueComputer(targetType, values));
 
-class GraphQLValueComputer extends SimpleVisitor<Object> {
-  final GraphQLType? targetType;
-  final Map<String, dynamic>? variableValues;
+// class GraphQLValueComputer extends SimpleVisitor<Object> {
+//   final GraphQLType? targetType;
+//   final Map<String, dynamic>? variableValues;
 
-  GraphQLValueComputer(this.targetType, this.variableValues);
+//   GraphQLValueComputer(this.targetType, this.variableValues);
 
-  @override
-  Object visitBooleanValueNode(BooleanValueNode node) => node.value;
+//   @override
+//   Object visitBooleanValueNode(BooleanValueNode node) => node.value;
 
-  @override
-  Object? visitEnumValueNode(EnumValueNode node) {
-    final span = (node.span ?? node.name.span)!;
-    final _targetType =
-        targetType?.whenOrNull(nonNullable: (v) => v.ofType) ?? targetType;
+//   @override
+//   Object? visitEnumValueNode(EnumValueNode node) {
+//     final span = (node.span ?? node.name.span)!;
+//     final _targetType =
+//         targetType?.whenOrNull(nonNullable: (v) => v.ofType) ?? targetType;
 
-    if (_targetType == null) {
-      throw GraphQLException.fromSourceSpan(
-        'An enum value was given, but in this context,'
-        ' its type cannot be deduced.',
-        span,
-      );
-    } else if (_targetType is! GraphQLEnumType) {
-      throw GraphQLException.fromSourceSpan(
-          'An enum value (${node.name.value}) was given, but the expected type'
-          ' "$targetType" is not an enum.',
-          span);
-    } else {
-      final matchingValue =
-          _targetType.values.firstWhereOrNull((v) => v.name == node.name.value);
-      if (matchingValue == null) {
-        throw GraphQLException.fromSourceSpan(
-          'The enum "$_targetType" has no'
-          ' member named "${node.name.value}".',
-          span,
-        );
-      } else {
-        return matchingValue.name;
-      }
-    }
-  }
+//     if (_targetType == null) {
+//       throw GraphQLException.fromSourceSpan(
+//         'An enum value was given, but in this context,'
+//         ' its type cannot be deduced.',
+//         span,
+//       );
+//     } else if (_targetType is! GraphQLEnumType) {
+//       throw GraphQLException.fromSourceSpan(
+//           'An enum value (${node.name.value}) was given, but the expected type'
+//           ' "$targetType" is not an enum.',
+//           span);
+//     } else {
+//       final matchingValue =
+//           _targetType.values.firstWhereOrNull((v) => v.name == node.name.value);
+//       if (matchingValue == null) {
+//         throw GraphQLException.fromSourceSpan(
+//           'The enum "$_targetType" has no'
+//           ' member named "${node.name.value}".',
+//           span,
+//         );
+//       } else {
+//         return matchingValue.name;
+//       }
+//     }
+//   }
 
-  @override
-  Object visitFloatValueNode(FloatValueNode node) => double.parse(node.value);
+//   @override
+//   Object visitFloatValueNode(FloatValueNode node) => double.parse(node.value);
 
-  @override
-  Object visitIntValueNode(IntValueNode node) => int.parse(node.value);
+//   @override
+//   Object visitIntValueNode(IntValueNode node) => int.parse(node.value);
 
-  @override
-  Object visitListValueNode(ListValueNode node) {
-    return node.values.map((v) => v.accept(this)).toList();
-  }
+//   @override
+//   Object visitListValueNode(ListValueNode node) {
+//     return node.values.map((v) => v.accept(this)).toList();
+//   }
 
-  @override
-  Object visitObjectValueNode(ObjectValueNode node) {
-    return Map.fromEntries(node.fields.map((f) {
-      return MapEntry(f.name.value, f.value.accept(this));
-    }));
-  }
+//   @override
+//   Object visitObjectValueNode(ObjectValueNode node) {
+//     return Map.fromEntries(node.fields.map((f) {
+//       return MapEntry(f.name.value, f.value.accept(this));
+//     }));
+//   }
 
-  @override
-  Object? visitNullValueNode(NullValueNode node) => null;
+//   @override
+//   Object? visitNullValueNode(NullValueNode node) => null;
 
-  @override
-  Object visitStringValueNode(StringValueNode node) => node.value;
+//   @override
+//   Object visitStringValueNode(StringValueNode node) => node.value;
 
-  @override
-  Object? visitVariableNode(VariableNode node) =>
-      variableValues?[node.name.value];
-}
+//   @override
+//   Object? visitVariableNode(VariableNode node) =>
+//       variableValues?[node.name.value];
+// }
 
 Object? getDirectiveValue(
   String name,
