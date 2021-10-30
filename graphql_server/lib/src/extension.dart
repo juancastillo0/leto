@@ -15,12 +15,21 @@ export 'tracing.dart';
 /// For example, extensions for tracing [GraphQLTracingExtension],
 /// logging, error handling or caching [GraphQLPersistedQueries],
 /// [CacheExtension].
+///
+/// If an extension is for logging or tracing (do not affect the execution
+/// behavior), it should be the first in the [GraphQL.extensions] list.
 abstract class GraphQLExtension {
   /// The key identifying this extension, used as the key for
   /// the extensions map in GraphQLError or GraphQLResult.
   /// Should be unique.
   String get mapKey;
 
+  /// The entry point for each request, this is the first method
+  /// executed in a [GraphQLExtension] for each request
+  ///
+  /// Subscriptions execute this once and then execute
+  /// [executeSubscriptionEvent] for every
+  /// [GraphQLResult.subscriptionStream] event
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
     ScopedMap globals,
@@ -28,6 +37,8 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  /// Parser or retrieves the GraphQL [DocumentNode]
+  /// from [query] or [extensions]
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
     String query,
@@ -36,6 +47,8 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  /// Executes validations given a schema,
+  /// and the operation to perform
   GraphQLException? validate(
     GraphQLException? Function() next,
     GraphQLSchema schema,
@@ -45,6 +58,8 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  /// Parses argument values and a executes a [field] in [ctx]
+  /// TODO: should we create a method only for resolving with the [ReqCtx]?
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
@@ -53,6 +68,7 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  /// Called for every [GraphQLResult.subscriptionStream] event
   FutureOr<GraphQLResult> executeSubscriptionEvent(
     FutureOr<GraphQLResult> Function() next,
     ResolveCtx ctx,
@@ -60,6 +76,7 @@ abstract class GraphQLExtension {
   ) =>
       next();
 
+  /// Maps a resolved value into a serialized value
   FutureOr<Object?> completeValue(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
