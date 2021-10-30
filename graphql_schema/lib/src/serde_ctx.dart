@@ -1,5 +1,7 @@
 part of graphql_schema.src.schema;
 
+/// Deserialization context with [Serializer]s for creating
+/// objects from serialized values
 class SerdeCtx {
   SerdeCtx();
 
@@ -15,10 +17,15 @@ class SerdeCtx {
     DateTime: const _SerializerDateTime(),
   };
 
+  /// Other context associated with this context
+  ///
+  /// Useful if the children wants to add [Serializer]s with out having
+  /// a direct reference to the parent
   final Set<SerdeCtx> children = {};
 
   Map<Type, Serializer<Object>> get map => _map;
 
+  /// Parses [json] into a value of type [T]
   T fromJson<T>(Object? json) {
     if (json is T) {
       return json;
@@ -31,6 +38,7 @@ class SerdeCtx {
     }
   }
 
+  /// Parses [json] into a [Map] with keys [K] and values [V]
   Map<K, V> fromJsonMap<K, V>(Object? json) {
     if (json is Map) {
       return json.map(
@@ -52,6 +60,7 @@ class SerdeCtx {
   //   );
   // }
 
+  /// Parses [json] into a [List] with elements of type [V]
   List<V> fromJsonList<V>(Iterable json) {
     return json.map((Object? value) => fromJson<V>(value)).toList();
   }
@@ -101,17 +110,19 @@ class SerdeCtx {
   //   }
   // }
 
+  /// Adds multiple [serializers] into this context
   void addAll(Iterable<Serializer<Object>> serializers) {
     serializers.forEach(add);
   }
 
+  /// Adds a [serializer] into this context
   void add(Serializer<Object> serializer) {
     _map[serializer.generic.type] = serializer;
   }
 
-  Serializer<Object>? ofValue(Type T) {
-    return _map[T];
-  }
+  // Serializer<Object>? ofValue(Type T) {
+  //   return _map[T];
+  // }
 
   Serializer<T>? of<T>() {
     final serializer = _map[T] as Serializer<T>?;
@@ -133,14 +144,14 @@ class SerdeCtx {
     ) as Serializer<T>?;
   }
 
-  List<Serializer<T>> manyOf<T>() {
-    final v = _map[T] as Serializer<T>?;
-    if (v != null) return [v];
-    return _map.values
-        .where((serde) => serde.generic.isEqualToType<T>())
-        .map((s) => s as Serializer<T>)
-        .toList();
-  }
+  // List<Serializer<T>> manyOf<T>() {
+  //   final v = _map[T] as Serializer<T>?;
+  //   if (v != null) return [v];
+  //   return _map.values
+  //       .where((serde) => serde.generic.isEqualToType<T>())
+  //       .map((s) => s as Serializer<T>)
+  //       .toList();
+  // }
 }
 
 // class _V<T> {
