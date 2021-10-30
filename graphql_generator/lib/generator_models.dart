@@ -249,10 +249,15 @@ class UnionVarianInfo {
   // }
 
   String _typeList({bool ext = false}) {
-    final _ext = ext ? ' extends Object' : '';
     return typeParams.isNotEmpty
         ? '<${typeParams.map((e) {
-            return '${e.getDisplayString(withNullability: false)}$_ext';
+            final _e = ext
+                ? e.bound == null
+                    ? ' extends Object'
+                    : ' extends ${e.bound!.getDisplayString(withNullability: false)}'
+                : '';
+
+            return '${e.displayName}$_e';
           }).join(',')}>'
         : '';
   }
@@ -260,7 +265,7 @@ class UnionVarianInfo {
   String fieldCode() {
     final hasTypeParams = typeParams.isNotEmpty;
     final _typeParamsStr = typeParams.map((e) {
-      final _t = e.getDisplayString(withNullability: false);
+      final _t = e.displayName;
       return 'GraphQLType<$_t, Object> ${ReCase(_t).camelCase}$graphqlTypeSuffix,';
     }).join();
 
@@ -303,7 +308,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   }
 
   String get graphQLTypeName => '$typeName${typeParams.map((t) {
-        final _t = t.getDisplayString(withNullability: false);
+        final _t = t.displayName;
         final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
         return '\${$ts.printableName}';
       }).join()}';
