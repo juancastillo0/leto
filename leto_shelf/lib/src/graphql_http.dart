@@ -34,7 +34,8 @@ Handler graphqlHttp(
               );
             }
             graphQLRequest = parseQueryResult.unwrap();
-          } else if (request.mimeType == 'application/json') {
+          } else if (request.mimeType == 'application/json' ||
+              request.mimeType == 'application/graphql+json') {
             final payload = await extractJson(request);
             if (payload is Map<String, Object?> && payload['query'] == null) {
               payload['query'] = request.url.queryParameters['query'];
