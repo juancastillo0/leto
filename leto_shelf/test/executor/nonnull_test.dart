@@ -1,6 +1,7 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/nonnull-test.ts
 import 'dart:convert';
 
+import 'package:graphql_schema/utilities.dart' show buildSchema;
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:test/test.dart';
 

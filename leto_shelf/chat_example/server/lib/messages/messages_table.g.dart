@@ -9,8 +9,7 @@ part of 'messages_table.dart';
 final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
     field(
   'sendMessage',
-  chatMessageGraphQLType as GraphQLType<ChatMessage, Object>,
-  description: null,
+  chatMessageGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -31,14 +30,12 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
       graphQLInt.coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<ChatMessage, Object, Object>
     sendFileMessageGraphQLField = field(
   'sendFileMessage',
-  chatMessageGraphQLType as GraphQLType<ChatMessage, Object>,
-  description: null,
+  chatMessageGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -66,15 +63,12 @@ final GraphQLObjectField<ChatMessage, Object, Object>
       defaultValue: '',
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatMessage?>, Object, Object>
     getMessageGraphQLField = field(
   'getMessage',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatMessage?>, Object>,
-  description: null,
+  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -86,14 +80,12 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
       graphQLInt.coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<LinksMetadata, Object, Object>
     getMessageLinksMetadataGraphQLField = field(
   'getMessageLinksMetadata',
-  linksMetadataGraphQLType.nonNull() as GraphQLType<LinksMetadata, Object>,
-  description: null,
+  linksMetadataGraphQLType.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -105,15 +97,12 @@ final GraphQLObjectField<LinksMetadata, Object, Object>
       graphQLString.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatMessage?>, Object, Object>
     onMessageSentGraphQLField = field(
   'onMessageSent',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatMessage?>, Object>,
-  description: null,
+  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -125,7 +114,6 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
       graphQLInt.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

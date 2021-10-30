@@ -9,8 +9,7 @@ part of 'chat_table.dart';
 final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
     field(
   'createChatRoom',
-  chatRoomGraphQLType as GraphQLType<ChatRoom, Object>,
-  description: null,
+  chatRoomGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -22,14 +21,12 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
       graphQLString.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<bool, Object, Object> deleteChatRoomGraphQLField =
     field(
   'deleteChatRoom',
-  graphQLBoolean.nonNull() as GraphQLType<bool, Object>,
-  description: null,
+  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -41,21 +38,17 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomGraphQLField =
       graphQLInt.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatRoom?>, Object, Object>
     getChatRoomsGraphQLField = field(
   'getChatRooms',
-  listOf(chatRoomGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatRoom?>, Object>,
-  description: null,
+  listOf(chatRoomGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getChatRooms(ctx);
   },
-  deprecationReason: null,
 );
 
 // **************************************************************************

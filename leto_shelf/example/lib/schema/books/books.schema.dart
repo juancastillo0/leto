@@ -3,7 +3,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'books.controller.dart';
 
 GraphQLSchema makeBooksSchema() {
-  BooksController books(ReqCtx<Object> ctx) => booksControllerRef.get(ctx);
+  BooksController books(ReqCtx ctx) => booksControllerRef.get(ctx);
 
   final _bookType = bookType();
 

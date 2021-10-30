@@ -9,8 +9,7 @@ part of 'user_rooms.dart';
 final GraphQLObjectField<ChatRoomUser, Object, Object>
     addChatRoomUserGraphQLField = field(
   'addChatRoomUser',
-  chatRoomUserGraphQLType as GraphQLType<ChatRoomUser, Object>,
-  description: null,
+  chatRoomUserGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -33,14 +32,12 @@ final GraphQLObjectField<ChatRoomUser, Object, Object>
       defaultValue: ChatRoomUserRole.peer,
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
     field(
   'deleteChatRoomUser',
-  graphQLBoolean.nonNull() as GraphQLType<bool, Object>,
-  description: null,
+  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -57,7 +54,6 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
       graphQLInt.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

@@ -50,7 +50,7 @@ class TestComplexScalar extends GraphQLScalarType<String, String> {
   Iterable<Object?> get props => [];
 }
 
-final TestInputObject = GraphQLInputObjectType(
+final TestInputObject = GraphQLInputObjectType<Object>(
   'TestInputObject',
   fields: [
     GraphQLFieldInput('a', graphQLString),

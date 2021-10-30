@@ -9,8 +9,7 @@ part of 'chat_table.dart';
 final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
     field(
   'sendMessage',
-  chatMessageGraphQLType as GraphQLType<ChatMessage, Object>,
-  description: null,
+  chatMessageGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -31,15 +30,12 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
       graphQLInt.coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatMessage?>, Object, Object>
     getMessageGraphQLField = field(
   'getMessage',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatMessage?>, Object>,
-  description: null,
+  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -51,15 +47,12 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
       graphQLInt.coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatMessage?>, Object, Object>
     onMessageSentGraphQLField = field(
   'onMessageSent',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatMessage?>, Object>,
-  description: null,
+  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -71,14 +64,12 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
       graphQLInt.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
     field(
   'createChatRoom',
-  chatRoomGraphQLType as GraphQLType<ChatRoom, Object>,
-  description: null,
+  chatRoomGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -90,28 +81,23 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
       graphQLString.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<ChatRoom?>, Object, Object>
     getChatRoomsGraphQLField = field(
   'getChatRooms',
-  listOf(chatRoomGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<ChatRoom?>, Object>,
-  description: null,
+  listOf(chatRoomGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getChatRooms(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
     field(
   'onMessageEvent',
-  dBEventGraphQLType.nonNull() as GraphQLType<DBEvent, Object>,
-  description: null,
+  dBEventGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -123,7 +109,6 @@ final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
       eventTypeGraphQLType.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

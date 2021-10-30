@@ -80,7 +80,8 @@ GraphQLObjectType<Faction> get factionGraphQLType {
   _factionGraphQLType = __factionGraphQLType;
   __factionGraphQLType.fields.addAll(
     [
-      field('ships', connectionGraphQLType(shipGraphQLType.nonNull()).nonNull(),
+      field('ships',
+          connectionGraphQLType<Ship>(shipGraphQLType.nonNull()).nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
         final argsArg =

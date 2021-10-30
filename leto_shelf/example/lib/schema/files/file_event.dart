@@ -60,7 +60,7 @@ GraphQLUnionType<FileEvent> fileEventType() {
       'many',
     ]),
   );
-  _fileEventType!.possibleTypes.addAll([
+  _fileEventType!.possibleTypes.addAll(<GraphQLObjectType<FileEvent>>[
     objectType(
       'FileEventAdded',
       fields: [

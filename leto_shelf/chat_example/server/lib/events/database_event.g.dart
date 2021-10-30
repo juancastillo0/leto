@@ -8,35 +8,29 @@ part of 'database_event.dart';
 
 final GraphQLObjectField<DBEvent, Object, Object> onEventGraphQLField = field(
   'onEvent',
-  dBEventGraphQLType.nonNull() as GraphQLType<DBEvent, Object>,
-  description: null,
+  dBEventGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
     return onEvent(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
     field(
   'onMessageEvent',
-  dBEventGraphQLType.nonNull() as GraphQLType<DBEvent, Object>,
-  description: null,
+  dBEventGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
     return onMessageEvent(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
     getEventsGraphQLField = field(
   'getEvents',
-  paginatedGraphQLType(dBEventGraphQLType.nonNull()).nonNull()
-      as GraphQLType<Paginated<DBEvent>, Object>,
-  description: null,
+  paginatedGraphQLType<DBEvent>(dBEventGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -52,7 +46,6 @@ final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
       graphQLInt.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************
@@ -251,7 +244,7 @@ GraphQLObjectType<DBEvent> get dBEventGraphQLType {
 Map<String, GraphQLObjectType<Paginated>> _paginatedGraphQLType = {};
 
 /// Auto-generated from [Paginated].
-GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T extends Object>(
+GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'Paginated${tGraphQLType.printableName}';

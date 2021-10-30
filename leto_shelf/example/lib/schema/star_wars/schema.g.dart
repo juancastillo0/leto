@@ -8,8 +8,7 @@ part of 'schema.dart';
 
 final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
   'droid',
-  droidGraphQLType as GraphQLType<Droid, Object>,
-  description: null,
+  droidGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -22,7 +21,6 @@ final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
       description: r"id of the droid",
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

@@ -9,9 +9,7 @@ part of 'user_table.dart';
 final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
     field(
   'searchUser',
-  listOf(userGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<User?>, Object>,
-  description: null,
+  listOf(userGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -23,42 +21,37 @@ final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
       graphQLString.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<User, Object, Object> getUserGraphQLField = field(
   'getUser',
-  userGraphQLType as GraphQLType<User, Object>,
-  description: null,
+  userGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getUser(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
     field(
   'refreshAuthToken',
-  graphQLString as GraphQLType<String, Object>,
-  description: null,
+  graphQLString,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return refreshAuthToken(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
     Object> signUpGraphQLField = field(
   'signUp',
-  resultGraphQLType(tokenWithUserGraphQLType.nonNull(),
-              errCGraphQLType(signUpErrorGraphQLType.nonNull()).nonNull())
-          .nonNull()
-      as GraphQLType<Result<TokenWithUser, ErrC<SignUpError>>, Object>,
-  description: null,
+  resultGraphQLType<TokenWithUser, ErrC<SignUpError>>(
+          tokenWithUserGraphQLType.nonNull(),
+          errCGraphQLType<SignUpError>(signUpErrorGraphQLType.nonNull())
+              .nonNull())
+      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -74,17 +67,16 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
       graphQLString.nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
     Object> signInGraphQLField = field(
   'signIn',
-  resultGraphQLType(tokenWithUserGraphQLType.nonNull(),
-              errCGraphQLType(signInErrorGraphQLType.nonNull()).nonNull())
-          .nonNull()
-      as GraphQLType<Result<TokenWithUser, ErrC<SignInError>>, Object>,
-  description: null,
+  resultGraphQLType<TokenWithUser, ErrC<SignInError>>(
+          tokenWithUserGraphQLType.nonNull(),
+          errCGraphQLType<SignInError>(signInErrorGraphQLType.nonNull())
+              .nonNull())
+      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -101,19 +93,16 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
       graphQLString.coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<String, Object, Object> signOutGraphQLField = field(
   'signOut',
-  graphQLString as GraphQLType<String, Object>,
-  description: null,
+  graphQLString,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return signOut(ctx);
   },
-  deprecationReason: null,
 );
 
 // **************************************************************************
@@ -384,7 +373,7 @@ final errCSerdeCtx = SerdeCtx();
 Map<String, GraphQLObjectType<ErrC>> _errCGraphQLType = {};
 
 /// Auto-generated from [ErrC].
-GraphQLObjectType<ErrC<T>> errCGraphQLType<T extends Object>(
+GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'ErrC${tGraphQLType.printableName}';

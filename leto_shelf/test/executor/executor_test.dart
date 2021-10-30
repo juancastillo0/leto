@@ -299,7 +299,7 @@ void main() {
           ),
         ],
       );
-      final someUnion = GraphQLUnionType(
+      final someUnion = GraphQLUnionType<Object>(
         'SomeUnion',
         [someObject],
         // TODO:
@@ -519,8 +519,8 @@ void main() {
         },
       };
 
-      final result = await GraphQL(schema)
-          .parseAndExecute(document, rootValue: rootValue);
+      final result =
+          await GraphQL(schema).parseAndExecute(document, rootValue: rootValue);
 
       expect(result.toJson(), {
         'data': {
@@ -675,7 +675,7 @@ void main() {
 
     test('Full response path is included for non-nullable fields', () async {
       GraphQLObjectType<Object> A = () {
-        final A = objectType('A');
+        final A = objectType<Object>('A');
         A.fields.addAll([
           field(
             'nullableA',
@@ -985,7 +985,7 @@ void main() {
     test('ignores missing sub selections on fields', () async {
       await simpleTest(
         {
-          'a': objectType(
+          'a': objectType<Object>(
             'SomeType',
             fields: fieldsFromMap({'b': graphQLString}),
           )

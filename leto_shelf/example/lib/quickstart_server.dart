@@ -99,7 +99,7 @@ type Subscription {
       modelGraphQLType.field(
         'getState',
         description: 'Get the current state',
-        resolve: (Object rootValue, ReqCtx ctx) => stateRef.get(ctx).value,
+        resolve: (Object? rootValue, ReqCtx ctx) => stateRef.get(ctx).value,
       ),
     ]),
     mutationType: objectType('Mutation', fields: [
@@ -112,7 +112,7 @@ type Subscription {
             description: "The new state, can't be 'WrongState'!.",
           ),
         ],
-        resolve: (Object rootValue, ReqCtx ctx) {
+        resolve: (Object? rootValue, ReqCtx ctx) {
           final newState = ctx.args['newState']! as String;
           if (newState == 'WrongState') {
             return false;

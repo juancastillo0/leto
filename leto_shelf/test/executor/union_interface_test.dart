@@ -69,7 +69,7 @@ final NamedType = objectType<Object>(
 );
 
 final LifeType = () {
-  final LifeType = objectType(
+  final LifeType = objectType<Object>(
     'Life',
     isInterface: true,
   );
@@ -80,7 +80,7 @@ final LifeType = () {
 }();
 
 final MammalType = () {
-  final MammalType = objectType(
+  final MammalType = objectType<Object>(
     'Mammal',
     isInterface: true,
     interfaces: [LifeType],
@@ -128,7 +128,7 @@ final CatType = () {
   return CatType;
 }();
 
-final PetType = GraphQLUnionType(
+final PetType = GraphQLUnionType<Object>(
   'Pet',
   [DogType, CatType],
   // resolveType(value) {

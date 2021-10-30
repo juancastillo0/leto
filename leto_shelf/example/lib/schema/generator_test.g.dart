@@ -9,7 +9,7 @@ part of 'generator_test.dart';
 final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     field(
   'addTestModel',
-  testModelGraphQLType as GraphQLType<TestModel, Object>,
+  testModelGraphQLType,
   description: r"the function uses [value] to do stuff",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -44,14 +44,12 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
       listOf(graphQLInt.nonNull()).nonNull().coerceToInputObject(),
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<TestModel?>, Object, Object>
     testModelsGraphQLField = field(
   'testModels',
-  listOf(testModelGraphQLType.nonNull()).nonNull()
-      as GraphQLType<List<TestModel?>, Object>,
+  listOf(testModelGraphQLType.nonNull()).nonNull(),
   description: r"Automatic documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -72,14 +70,12 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
       description: r"pagination",
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<List<EventUnion?>, Object, Object>
     testUnionModelsGraphQLField = field(
   'testUnionModels',
-  listOf(eventUnionGraphQLType).nonNull()
-      as GraphQLType<List<EventUnion?>, Object>,
+  listOf(eventUnionGraphQLType).nonNull(),
   description:
       r"testUnionModels documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
@@ -95,7 +91,6 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
       description: r"pagination",
     )
   ],
-  deprecationReason: null,
 );
 
 // **************************************************************************

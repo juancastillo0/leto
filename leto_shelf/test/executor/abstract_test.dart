@@ -1,4 +1,5 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/abstract-test.ts
+import 'package:graphql_schema/utilities.dart' show buildSchema;
 import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:test/test.dart';
 
@@ -246,7 +247,7 @@ void main() {
       },
     );
 
-    final PetType = GraphQLUnionType(
+    final PetType = GraphQLUnionType<Object>(
       'Pet',
       [DogType, CatType],
     );

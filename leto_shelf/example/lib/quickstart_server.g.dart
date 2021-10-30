@@ -8,7 +8,7 @@ part of 'quickstart_server.dart';
 
 final GraphQLObjectField<Model, Object, Object> getStateGraphQLField = field(
   'getState',
-  modelGraphQLType as GraphQLType<Model, Object>,
+  modelGraphQLType,
   description:
       r"Code Generation\nUsing leto_generator, [makeGraphQLSchema] could be generated\nwith the following annotated functions and the [GraphQLClass]\nannotation over [Model]\nGet the current state",
   resolve: (obj, ctx) {
@@ -16,13 +16,11 @@ final GraphQLObjectField<Model, Object, Object> getStateGraphQLField = field(
 
     return getState(ctx);
   },
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<bool, Object, Object> setStateGraphQLField = field(
   'setState',
-  graphQLBoolean.nonNull() as GraphQLType<bool, Object>,
-  description: null,
+  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -35,20 +33,17 @@ final GraphQLObjectField<bool, Object, Object> setStateGraphQLField = field(
       description: r"The new state, can't be 'WrongState'!.",
     )
   ],
-  deprecationReason: null,
 );
 
 final GraphQLObjectField<Model, Object, Object> onStateChangeGraphQLField =
     field(
   'onStateChange',
-  modelGraphQLType.nonNull() as GraphQLType<Model, Object>,
-  description: null,
+  modelGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
     return onStateChange(ctx);
   },
-  deprecationReason: null,
 );
 
 // **************************************************************************
