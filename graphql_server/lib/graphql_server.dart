@@ -135,8 +135,16 @@ class GraphQL {
       );
 
   static final _resolveCtxRef = ScopeRef<ResolveCtx>('ResolveCtx');
+
+  /// Gets the [ResolveCtx] of a request from a [scope]
   static ResolveCtx? getResolveCtx(GlobalsHolder scope) =>
       _resolveCtxRef.get(scope);
+
+  static final _graphQLExecutorRef = ScopeRef<GraphQL>('GraphQLExecutor');
+
+  /// Gets the [GraphQL] executor from a [scope]
+  static GraphQL? fromCtx(GlobalsHolder scope) =>
+      _graphQLExecutorRef.get(scope);
 
   /// Parses the GraphQL document in [text] and executes [operationName]
   /// or the only operation in the document if not given.
@@ -156,6 +164,7 @@ class GraphQL {
     for (final e in baseGlobalVariables.entries) {
       _globalVariables.putScopedIfAbsent(e.key, () => e.value);
     }
+    _graphQLExecutorRef.setScoped(_globalVariables, this);
 
     return withExtensions(
       (next, p1) => p1.executeRequest(
@@ -1045,33 +1054,38 @@ class GraphQL {
       ),
     );
 
-    if (objectValue is SubscriptionEvent) {
-      if (field.resolve != null) {
-        return field.resolve!(objectValue, fieldCtx);
-      }
-      return objectValue.value as T?;
-    } else if (field.resolve != null) {
-      return await field.resolve!(objectValue, fieldCtx);
-    } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
-      final Object? value = objectValue[fieldName];
-      // TODO: support functions with more params?
-      return await _extractResult(value) as T?;
-    } else {
-      final serialized = ctx.serializedObject();
-      if (serialized != null && serialized.containsKey(fieldName)) {
-        final value = serialized[fieldName];
-        return await _extractResult(value) as T?;
-      }
-      if (defaultFieldResolver != null) {
-        final value = await defaultFieldResolver!(
-          objectValue,
-          fieldCtx,
-        );
-        return value as T?;
-      }
+    return withExtensions(
+      (next, p1) => p1.resolveField(next, fieldCtx),
+      () async {
+        if (objectValue is SubscriptionEvent) {
+          if (field.resolve != null) {
+            return field.resolve!(objectValue, fieldCtx);
+          }
+          return objectValue.value as T?;
+        } else if (field.resolve != null) {
+          return await field.resolve!(objectValue, fieldCtx);
+        } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
+          final Object? value = objectValue[fieldName];
+          // TODO: support functions with more params?
+          return await _extractResult(value) as T?;
+        } else {
+          final serialized = ctx.serializedObject();
+          if (serialized != null && serialized.containsKey(fieldName)) {
+            final value = serialized[fieldName];
+            return await _extractResult(value) as T?;
+          }
+          if (defaultFieldResolver != null) {
+            final value = await defaultFieldResolver!(
+              objectValue,
+              fieldCtx,
+            );
+            return value as T?;
+          }
 
-      return null;
-    }
+          return null;
+        }
+      },
+    );
   }
 
   FutureOr<Object?> _extractResult(Object? result) {

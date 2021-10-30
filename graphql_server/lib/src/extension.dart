@@ -59,12 +59,18 @@ abstract class GraphQLExtension {
       next();
 
   /// Parses argument values and a executes a [field] in [ctx]
-  /// TODO: should we create a method only for resolving with the [ReqCtx]?
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
     ResolveObjectCtx ctx,
     GraphQLObjectField field,
     String fieldAlias,
+  ) =>
+      next();
+
+  /// Resolves a field with [ctx]
+  FutureOr<T> resolveField<T>(
+    FutureOr<T> Function() next,
+    ReqCtx ctx,
   ) =>
       next();
 
