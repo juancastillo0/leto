@@ -12,12 +12,18 @@ class GraphQLException implements Exception {
     String message, {
     List<Object>? path,
     SourceLocation? location,
+    Object? sourceError,
+    StackTrace? stackTrace,
+    Map<String, Object?>? extensions,
   }) {
     return GraphQLException([
       GraphQLError(
         message,
         path: path,
         locations: GraphQLErrorLocation.listFromSource(location),
+        sourceError: sourceError,
+        stackTrace: stackTrace,
+        extensions: extensions,
       ),
     ]);
   }
@@ -39,40 +45,36 @@ class GraphQLException implements Exception {
   }
 
   factory GraphQLException.fromException(
-    Object e,
+    Object error,
+    StackTrace stackTrace,
     List<Object> path, {
     FileSpan? span,
+    Map<String, Object?>? extensions,
   }) {
-    if (e is GraphQLException) {
+    if (error is GraphQLException) {
       return GraphQLException([
-        ...e.errors.map(
+        ...error.errors.map(
           (e) => GraphQLError(
             e.message,
             locations: e.locations.isNotEmpty || span == null
                 ? e.locations
                 : [GraphQLErrorLocation.fromSourceLocation(span.start)],
             path: e.path ?? path,
-            extensions: e.extensions,
+            extensions: e.extensions ?? extensions,
+            sourceError: e.sourceError ?? error,
+            stackTrace: e.stackTrace ?? stackTrace,
           ),
         ),
       ]);
-    } else if (e is GraphQLError) {
-      return GraphQLException([
-        GraphQLError(
-          e.message,
-          locations: e.locations.isNotEmpty || span == null
-              ? e.locations
-              : [GraphQLErrorLocation.fromSourceLocation(span.start)],
-          path: e.path ?? path,
-          extensions: e.extensions,
-        ),
-      ]);
     }
-    final message = e.toString();
+    final message = error.toString();
     return GraphQLException.fromMessage(
       message,
       path: path,
       location: span?.start,
+      sourceError: error,
+      stackTrace: stackTrace,
+      extensions: extensions,
     );
   }
 
@@ -109,7 +111,7 @@ class GraphQLError implements Exception, GraphQLException {
   /// List of field names with aliased names or 0‐indexed integers for list
   final List<Object>? path;
 
-  final StackTrace stackTrace;
+  final StackTrace? stackTrace;
 
   /// An optional error Object to pass more information of the
   /// source of the problem for logging or other purposes
@@ -126,9 +128,9 @@ class GraphQLError implements Exception, GraphQLException {
     this.locations = const [],
     this.path,
     this.extensions,
-    StackTrace? stackTrace,
+    this.stackTrace,
     this.sourceError,
-  }) : stackTrace = stackTrace ?? StackTrace.current;
+  });
 
   @override
   Map<String, Object?> toJson() {

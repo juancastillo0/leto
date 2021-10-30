@@ -68,4 +68,14 @@ abstract class GraphQLExtension {
     Object? result,
   ) =>
       next();
+
+  /// Executes a callback for a [ThrownError] during execution
+  ///
+  /// Can be used for logging or mapping a resolver exception
+  /// into a user friendly error.
+  GraphQLException mapException(
+    GraphQLException Function() next,
+    ThrownError error,
+  ) =>
+      next();
 }

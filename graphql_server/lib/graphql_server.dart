@@ -631,11 +631,17 @@ class GraphQL {
           'Could not resolve subscription field event stream for $fieldName.',
         );
       }
-    } catch (e) {
-      throw GraphQLException.fromException(
-        e,
-        [fieldNode.alias?.value ?? fieldName],
-        span: fieldNode.span ?? fieldNode.alias?.span ?? fieldNode.name.span,
+    } catch (e, s) {
+      throw mapException(
+        ThrownError(
+          error: e,
+          stackTrace: s,
+          path: [pathItem],
+          span: fieldNode.span ?? fieldNode.alias?.span ?? fieldNode.name.span,
+          objectCtx: reqCtx.parentCtx,
+          type: reqCtx.field.type,
+          location: ThrownErrorLocation.subscribe,
+        ),
       );
     }
 
@@ -734,9 +740,18 @@ class GraphQL {
               objectCtx,
               objectField,
             );
-          } catch (e) {
-            final err =
-                GraphQLException.fromException(e, fieldPath, span: fieldSpan);
+          } catch (e, s) {
+            final err = mapException(
+              ThrownError(
+                error: e,
+                stackTrace: s,
+                path: fieldPath,
+                span: fieldSpan,
+                objectCtx: objectCtx,
+                type: objectField.type,
+                location: ThrownErrorLocation.executeField,
+              ),
+            );
             if (objectField.type.isNullable) {
               // TODO: add only one error?
               baseCtx.errors.add(err.errors.first);
@@ -1198,7 +1213,7 @@ class GraphQL {
           final listCtx = ResolveObjectCtx(
             base: ctx.base,
             pathItem: pathItem,
-            // TODO: objectType, objectValue, groupedFieldSet do not apply for lists
+            // TODO: objectType, objectValue, groupedFieldSet do not apply to lists
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
             groupedFieldSet: ctx.groupedFieldSet,
@@ -1219,16 +1234,20 @@ class GraphQL {
                     resultItem,
                     pathItem: _i,
                   );
-                } catch (error) {
+                } catch (error, s) {
                   final field = fields.first;
                   final fieldSpan = field is FieldNode
                       ? field.span ?? field.alias?.span ?? field.name.span
                       : field.span;
-                  final err = GraphQLException.fromException(
-                    error,
-                    [...path, _i],
+                  final err = mapException(ThrownError(
+                    error: error,
+                    stackTrace: s,
+                    path: [...path, _i],
                     span: fieldSpan,
-                  );
+                    objectCtx: listCtx,
+                    type: innerType,
+                    location: ThrownErrorLocation.completeListItem,
+                  ));
                   if (innerType.isNullable) {
                     ctx.base.errors.add(err.errors.first);
                     return null;
@@ -1244,6 +1263,20 @@ class GraphQL {
         },
       );
     });
+  }
+
+  GraphQLException mapException(ThrownError error) {
+    return withExtensions(
+      (next, p1) => p1.mapException(next, error),
+      () {
+        return GraphQLException.fromException(
+          error.error,
+          error.stackTrace,
+          error.path,
+          span: error.span,
+        );
+      },
+    );
   }
 
   GraphQLObjectType resolveAbstractType(
@@ -1488,4 +1521,47 @@ extension DirectiveExtension on SelectionNode {
     if (selection is InlineFragmentNode) return inlineFragment(selection);
     throw Error();
   }
+}
+
+/// The execution location where this exception was thrown
+enum ThrownErrorLocation {
+  subscribe,
+  executeField,
+  completeListItem,
+}
+
+/// An error throw during the processing of a GraphQL request
+class ThrownError {
+  /// The source error
+  final Object error;
+
+  /// The source stack trace
+  final StackTrace stackTrace;
+
+  /// The path of execution
+  final List<Object> path;
+
+  /// The span in the query document associated with the error
+  final FileSpan? span;
+
+  /// The execution location
+  final ThrownErrorLocation location;
+
+  /// The object context
+  final ResolveObjectCtx<Object> objectCtx;
+
+  /// The type associated with the resolved field
+  /// for [ThrownErrorLocation.executeField] or [ThrownErrorLocation.subscribe]
+  /// and the inner type for [ThrownErrorLocation.completeListItem]
+  final GraphQLType type;
+
+  const ThrownError({
+    required this.error,
+    required this.stackTrace,
+    required this.path,
+    required this.span,
+    required this.location,
+    required this.type,
+    required this.objectCtx,
+  });
 }
