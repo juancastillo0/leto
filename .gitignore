@@ -58,3 +58,4 @@ fabric.properties
 .vscode/settings.json
 .vscode/launch.json
 .DS_Store
+chat_example/server/chat_room.sqlite

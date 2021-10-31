@@ -1,6 +1,5 @@
+import 'package:server/handler.dart';
 import 'package:shelf_plus/shelf_plus.dart';
-
-import 'handler.dart';
 
 Future<void> main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).

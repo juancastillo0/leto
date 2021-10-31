@@ -13,14 +13,24 @@ import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
+import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 
-Future<Handler> serverHandler({GraphQLConfig? config}) async {
+Future<HttpServer> startServer({
+  ScopedMap? scope,
+  GraphQLConfig? config,
+}) async {
+  final handle = await serverHandler(config: config, scope: scope);
+  final server = await shelf_io.serve(handle, '0.0.0.0', 0);
+  return server;
+}
+
+Future<Handler> serverHandler({ScopedMap? scope, GraphQLConfig? config}) async {
   final app = Router();
   app.get('/echo', _echoHandler);
 
-  await setUpGraphQL(app, config: config);
+  await setUpGraphQL(app, config: config, scope: scope);
 
   final _logMiddleware = customLog(log: (msg) {
     if (!msg.contains('IntrospectionQuery')) {
@@ -36,8 +46,12 @@ Future<Handler> serverHandler({GraphQLConfig? config}) async {
       .addHandler(app);
 }
 
-Future<void> setUpGraphQL(Router app, {GraphQLConfig? config}) async {
-  final globalVariables = ScopedMap.empty();
+Future<void> setUpGraphQL(
+  Router app, {
+  ScopedMap? scope,
+  GraphQLConfig? config,
+}) async {
+  final globalVariables = scope ?? ScopedMap.empty();
 
   app.get(
     '/files/<filepath|.*>',
