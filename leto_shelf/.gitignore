@@ -17,3 +17,4 @@ example/.DS_Store
 example/chat_room.sqlite
 chat_example/server/chat_room.sqlite
 chat_room.sqlite
+chat_example/server/Dockerfile

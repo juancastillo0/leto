@@ -17,5 +17,7 @@ COPY --from=build /runtime/ /
 COPY --from=build /app/bin/server /app/bin/
 
 # Start server.
-EXPOSE 8080
+EXPOSE 8060
+ENV SQLITE_MEMORY=true
+ENV SHELF_PORT=8060
 CMD ["/app/bin/server"]

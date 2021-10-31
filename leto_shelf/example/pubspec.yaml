@@ -26,6 +26,10 @@ dependencies:
   shelf_static: ^1.1.0
   shelf_graphql:
     path: ..
+  graphql_schema:
+    path: ../../graphql_server/graphql_schema
+  graphql_server:
+    path: ../../graphql_server/graphql_server
 
 dev_dependencies:
   build_runner: ^2.1.1
@@ -44,3 +48,7 @@ dev_dependencies:
 dependency_overrides:
   graphql_schema:
     path: ../../graphql_server/graphql_schema
+  query_builder:
+    path: ../../query_builder
+  valida:
+    path: ../../valida/valida

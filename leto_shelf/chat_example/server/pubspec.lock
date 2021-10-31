@@ -275,7 +275,7 @@ packages:
     source: path
     version: "1.0.0+1"
   graphql_schema:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../../../graphql_server/graphql_schema"
       relative: true
@@ -812,7 +812,7 @@ packages:
       path: "../../../valida/valida"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   valida_generator:
     dependency: "direct dev"
     description:
