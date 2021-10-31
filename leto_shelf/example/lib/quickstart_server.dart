@@ -140,13 +140,13 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // you can override state with ScopedMap.setGlobal/setScoped
   final ScopedMap scopedMap = globals ?? ScopedMap.empty();
   if (globals == null) {
-    // if it wasn't overriten it should be the default
+    // if it wasn't overridden it should be the default
     assert(stateRef.get(scopedMap).value?.state == 'InitialState');
   }
   // Instantiate the GraphQLSchema
   final schema = makeGraphQLSchema();
   // Instantiate the GraphQL executor, you can pass extensions and
-  // decide whether you want to intronspect the schema
+  // decide whether you want to introspect the schema
   // and validate the requests
   final letoGraphQL = GraphQL(
     schema,

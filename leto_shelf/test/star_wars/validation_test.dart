@@ -90,7 +90,8 @@ void main() {
         }
       ''';
         return expect(await validationErrors(query), hasLength(greaterThan(0)));
-      });
+        // TODO:
+      }, skip: 'Implement fields on interfaces validation');
 
       test('Allows object fields in fragments', () async {
         const query = '''
