@@ -46,6 +46,16 @@ const List<String> _defaultAllowMethods = [
   'OPTIONS',
 ];
 
+class CorsHeaders {
+  static const allowCredentials = 'access-control-allow-credentials';
+  static const maxAge = 'access-control-max-age';
+  static const exposeHeaders = 'access-control-expose-headers';
+  static const allowMethods = 'access-control-allow-methods';
+  static const requestHeaders = 'access-control-request-headers';
+  static const allowOrigin = 'access-control-allow-origin';
+  static const allowHeaders = 'access-control-allow-headers';
+}
+
 bool _defaultAllowOrigin(String origin) => true;
 
 Middleware cors({
@@ -65,11 +75,10 @@ Middleware cors({
   int optionsSuccessStatusCode = 204,
 }) {
   final baseHeaders = <String, List<String>>{
-    if (allowCredentials)
-      HttpHeaders.accessControlAllowCredentialsHeader: ['true'],
-    HttpHeaders.accessControlMaxAgeHeader: [maxAgeSecs.toString()],
-    HttpHeaders.accessControlExposeHeadersHeader: exposeHeaders,
-    HttpHeaders.accessControlAllowMethodsHeader: allowMethods,
+    if (allowCredentials) CorsHeaders.allowCredentials: ['true'],
+    CorsHeaders.maxAge: [maxAgeSecs.toString()],
+    CorsHeaders.exposeHeaders: exposeHeaders,
+    CorsHeaders.allowMethods: allowMethods,
   };
   return (handler) {
     return (request) async {
@@ -77,13 +86,12 @@ Middleware cors({
       if (origin == null || !await allowOrigin(origin)) {
         return handler(request);
       }
-      final _allowHeaders = allowHeaders ??
-          request.headersAll[HttpHeaders.accessControlRequestHeadersHeader] ??
-          [];
+      final _allowHeaders =
+          allowHeaders ?? request.headersAll[CorsHeaders.requestHeaders] ?? [];
       final _headers = {
         ...baseHeaders,
-        HttpHeaders.accessControlAllowOriginHeader: [origin],
-        HttpHeaders.accessControlAllowHeadersHeader: _allowHeaders
+        CorsHeaders.allowOrigin: [origin],
+        CorsHeaders.allowHeaders: _allowHeaders
       };
       if (request.method == 'OPTIONS') {
         return Response(optionsSuccessStatusCode, headers: _headers);
@@ -93,9 +101,9 @@ Middleware cors({
         headers: _headers
           ..removeWhere(
             (key, _) => const [
-              HttpHeaders.accessControlMaxAgeHeader,
-              HttpHeaders.accessControlAllowMethodsHeader,
-              HttpHeaders.accessControlAllowHeadersHeader,
+              CorsHeaders.maxAge,
+              CorsHeaders.allowMethods,
+              CorsHeaders.allowHeaders,
             ].contains(key),
           ),
       );
