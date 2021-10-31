@@ -1,5 +1,20 @@
 part of graphql_schema.src.schema;
 
+class GraphQLTypeSet {
+  final Map<String, GraphQLType> types = {};
+
+  Iterable<GraphQLType> get allTypes => types.values;
+
+  void add(GraphQLType type) {
+    final prev = types[type.toString()];
+    if (prev == null) {
+      types[type.toString()] = type;
+    } else {
+      assert(prev == type);
+    }
+  }
+}
+
 /// Strictly dictates the structure of some input data in a GraphQL query.
 ///
 /// GraphQL's rigid type system is primarily implemented in Dart using
@@ -8,7 +23,7 @@ part of graphql_schema.src.schema;
 /// A [GraphQLType] represents values of type [Value] as
 /// values of type [Serialized]; for example, a
 /// [GraphQLType] that serializes objects into `String`s.
-abstract class GraphQLType<Value extends Object, Serialized extends Object> {
+abstract class GraphQLType<Value, Serialized> {
   const GraphQLType();
 
   /// The name of this type.
@@ -128,7 +143,8 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
   String toString() => name!;
 
   /// Utility for working with the [Value] Generic type
-  GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
+  // GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
+  GenericHelp<Value> get generic => GenericHelp();
 
   /// true when the type can not be null
   bool get isNonNullable => this is GraphQLNonNullType;
@@ -222,8 +238,7 @@ abstract class GraphQLType<Value extends Object, Serialized extends Object> {
 }
 
 /// Shorthand to create a [GraphQLListType].
-GraphQLListType<Value, Serialized>
-    listOf<Value extends Object, Serialized extends Object>(
+GraphQLListType<Value, Serialized> listOf<Value, Serialized>(
   GraphQLType<Value, Serialized> innerType,
 ) {
   return GraphQLListType<Value, Serialized>(innerType);
@@ -233,12 +248,12 @@ GraphQLListType<Value, Serialized>
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
 abstract class GraphQLWrapperType {
-  GraphQLType<Object, Object> get ofType;
+  GraphQLType<Object?, Object?> get ofType;
 }
 
 /// A special [GraphQLType] that indicates that input vales should
 /// be a list of another type [ofType].
-class GraphQLListType<Value extends Object, Serialized extends Object>
+class GraphQLListType<Value, Serialized>
     extends GraphQLType<List<Value?>, List<Serialized?>>
     with _NonNullableMixin<List<Value?>, List<Serialized?>>
     implements GraphQLWrapperType {
@@ -315,8 +330,7 @@ class GraphQLListType<Value extends Object, Serialized extends Object>
       GraphQLListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
-mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
-    on GraphQLType<Value, Serialized> {
+mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
   GraphQLNonNullType<Value, Serialized>? _nonNullableCache;
 
   @override
@@ -326,7 +340,7 @@ mixin _NonNullableMixin<Value extends Object, Serialized extends Object>
 
 /// A special [GraphQLType] that indicates that input values should both be
 /// non-null, and be valid when asserted against another type, named [ofType].
-class GraphQLNonNullType<Value extends Object, Serialized extends Object>
+class GraphQLNonNullType<Value, Serialized>
     extends GraphQLType<Value, Serialized> implements GraphQLWrapperType {
   @override
   final GraphQLType<Value, Serialized> ofType;
@@ -379,14 +393,14 @@ class GraphQLNonNullType<Value extends Object, Serialized extends Object>
   ///
   /// Same as [GraphQLFieldTypeExt.field], but with [resolve] and [subscribe]
   /// Returning non-nullable [Value].
-  GraphQLObjectField<Value, Serialized, P> field<P extends Object>(
+  GraphQLObjectField<Value, Serialized, P> field<P>(
     String name, {
     String? deprecationReason,
     String? description,
     FutureOr<Value> Function(P parent, ReqCtx<P> ctx)? resolve,
     FutureOr<Stream<Value>> Function(Object parent, ReqCtx<Object> ctx)?
         subscribe,
-    Iterable<GraphQLFieldInput> inputs = const [],
+    Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
   }) {
     return GraphQLObjectField(
       name,

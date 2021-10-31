@@ -28,7 +28,8 @@ class GraphQLConfig {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
+  final FutureOr<Object?> Function(Object? parent, ReqCtx)?
+      defaultFieldResolver;
 
   /// If validate is false, a parsed document is executed without
   /// being validated with the provided schema
@@ -64,7 +65,8 @@ class GraphQL {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object parent, ReqCtx)? defaultFieldResolver;
+  final FutureOr<Object?> Function(Object? parent, ReqCtx)?
+      defaultFieldResolver;
 
   /// Variables passed to all executed requests
   final Map<Object, Object?> baseGlobalVariables;
@@ -392,9 +394,10 @@ class GraphQL {
                   .toList(),
             );
           } else {
-            final coercedValue = type.deserialize(
+            final Object? coercedValue = type.deserialize(
               schema.serdeCtx,
-              validation.value!,
+              // Nullability change was validation.value!
+              validation.value,
             );
             coercedValues[variableName] = coercedValue;
           }
@@ -667,7 +670,7 @@ class GraphQL {
   Future<Map<String, dynamic>> executeSelectionSet(
     ResolveCtx baseCtx,
     SelectionSetNode selectionSet,
-    GraphQLObjectType<Object> objectType,
+    GraphQLObjectType<Object?> objectType,
     Object objectValue, {
     required bool serial,
     ResolveObjectCtx? parentCtx,
@@ -786,10 +789,10 @@ class GraphQL {
   /// Returns the serialized value of type [objectField] for the object [ctx]
   /// by [coerceArgumentValues], executing the resolver [resolveFieldValue]
   /// and serializing the result [completeValue]
-  Future<T?> executeField<T extends Object, P extends Object>(
+  Future<T> executeField<T, P>(
     List<FieldNode> fields,
     ResolveObjectCtx<P> ctx,
-    GraphQLObjectField<T, Object, P> objectField,
+    GraphQLObjectField<T, Object?, P> objectField,
   ) async {
     final field = fields.first;
     final fieldName = field.name.value;
@@ -814,7 +817,7 @@ class GraphQL {
       fields,
       resolvedValue,
       pathItem: pathItem,
-    ) as T?;
+    ) as T;
   }
 
   Map<String, dynamic> coerceArgumentValues(
@@ -927,7 +930,8 @@ class GraphQL {
 
             throw GraphQLException(errors);
           } else {
-            final serialized = validation.value!;
+            // Nullability change was validation.value!
+            final Object? serialized = validation.value;
             coercedValue = argumentDefinition.type.deserialize(
               serdeCtx,
               serialized,
@@ -1032,9 +1036,9 @@ class GraphQL {
     };
   }
 
-  Future<T?> resolveFieldValue<T extends Object, P extends Object>(
+  Future<T?> resolveFieldValue<T, P>(
     ResolveObjectCtx<P> ctx,
-    GraphQLObjectField<T, Object, P> field,
+    GraphQLObjectField<T, Object?, P> field,
     String pathItem,
     Map<String, dynamic> argumentValues,
   ) async {
@@ -1224,7 +1228,7 @@ class GraphQL {
           final innerType = fieldType.ofType;
           final futureOut = <Future<Object?> Function()>[];
 
-          final listCtx = ResolveObjectCtx(
+          final listCtx = ResolveObjectCtx<Object?>(
             base: ctx.base,
             pathItem: pathItem,
             // TODO: objectType, objectValue, groupedFieldSet do not apply to lists
@@ -1562,7 +1566,7 @@ class ThrownError {
   final ThrownErrorLocation location;
 
   /// The object context
-  final ResolveObjectCtx<Object> objectCtx;
+  final ResolveObjectCtx<Object?> objectCtx;
 
   /// The type associated with the resolved field
   /// for [ThrownErrorLocation.executeField] or [ThrownErrorLocation.subscribe]

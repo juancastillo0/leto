@@ -1,6 +1,6 @@
 part of graphql_schema.src.schema;
 
-class ReqCtx<P extends Object> implements GlobalsHolder {
+class ReqCtx<P> implements GlobalsHolder {
   /// The arguments passed as input
   final Map<String, Object?> args;
 
@@ -11,10 +11,10 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
   ScopedMap get globals => parentCtx.globals;
 
   /// The parent object context
-  final ResolveObjectCtx<Object> parentCtx;
+  final ResolveObjectCtx<Object?> parentCtx;
 
   /// The field associated with this resolve context
-  final GraphQLObjectField<Object, Object, Object> field;
+  final GraphQLObjectField<Object?, Object?, Object?> field;
 
   List<Object> get path => [...parentCtx.path, pathItem];
   final String pathItem;
@@ -35,7 +35,7 @@ class ReqCtx<P extends Object> implements GlobalsHolder {
   });
 
   /// Cast the [P] parent type into a generic [T]
-  ReqCtx<T> cast<T extends Object>() {
+  ReqCtx<T> cast<T>() {
     if (this is ReqCtx<T>) {
       return this as ReqCtx<T>;
     }
@@ -142,7 +142,7 @@ class ResolveCtx implements GlobalsHolder {
   });
 }
 
-class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
+class ResolveObjectCtx<P> implements GlobalsHolder {
   /// The base context for this request
   final ResolveCtx base;
 
@@ -159,7 +159,7 @@ class ResolveObjectCtx<P extends Object> implements GlobalsHolder {
   final P objectValue;
 
   /// The parent object context if any
-  final ResolveObjectCtx<Object>? parent;
+  final ResolveObjectCtx<Object?>? parent;
 
   /// The item of this object in [path]
   final Object? pathItem;

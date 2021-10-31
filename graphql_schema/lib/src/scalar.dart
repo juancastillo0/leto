@@ -58,8 +58,8 @@ bool isSpecifiedScalarType(GraphQLType type) {
   ].contains(type.name);
 }
 
-abstract class GraphQLScalarType<Value extends Object,
-        Serialized extends Object> extends GraphQLType<Value, Serialized>
+abstract class GraphQLScalarType<Value, Serialized>
+    extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
   @override
   String get name;
@@ -70,7 +70,7 @@ abstract class GraphQLScalarType<Value extends Object,
   GraphQLType<Value, Serialized> coerceToInputObject() => this;
 }
 
-class GraphQLScalarTypeValue<Value extends Object, Serialized extends Object>
+class GraphQLScalarTypeValue<Value, Serialized>
     extends GraphQLScalarType<Value, Serialized> {
   @override
   final String name;

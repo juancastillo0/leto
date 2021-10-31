@@ -88,7 +88,7 @@ Object? valueFromAst(
     float: (float) => double.parse(float.value),
     boolean: (boolean) => boolean.value,
     object: (object) {
-      GraphQLType<Object, Object>? _type = type;
+      GraphQLType<Object?, Object?>? _type = type;
       if (_type is GraphQLNonNullType) _type = _type.ofType;
       if (_type is GraphQLScalarType) _type = null;
       if (_type != null && _type is! GraphQLInputObjectType) {
@@ -121,7 +121,7 @@ Object? valueFromAst(
       );
     },
     list: (list) {
-      GraphQLType<Object, Object>? _type = type;
+      GraphQLType<Object?, Object?>? _type = type;
       if (_type is GraphQLNonNullType) _type = _type.ofType;
       if (_type is GraphQLScalarType) _type = null;
       if (_type != null && _type is! GraphQLListType) {
@@ -171,8 +171,10 @@ Object? valueFromAst(
   return value;
 }
 
-ast.ValueNode astFromUntypedValue(Object value) {
-  if (value is String) {
+ast.ValueNode astFromUntypedValue(Object? value) {
+  if (value == null) {
+    return const ast.NullValueNode();
+  } else if (value is String) {
     return ast.StringValueNode(
       value: value,
       isBlock: value.length > 100,
@@ -191,18 +193,14 @@ ast.ValueNode astFromUntypedValue(Object value) {
             name: ast.NameNode(
               value: e.key,
             ),
-            value: e.value == null
-                ? const ast.NullValueNode()
-                : astFromUntypedValue(e.value!),
+            value: astFromUntypedValue(e.value),
           );
         },
       ),
     ]);
   } else if (value is List<Object?>) {
     return ast.ListValueNode(values: [
-      ...value.map(
-        (e) => e == null ? const ast.NullValueNode() : astFromUntypedValue(e),
-      ),
+      ...value.map(astFromUntypedValue),
     ]);
   }
   // TODO:

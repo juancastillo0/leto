@@ -1,12 +1,12 @@
 part of graphql_schema.src.schema;
 
 /// Shorthand for generating a [GraphQLObjectType].
-GraphQLObjectType<P> objectType<P extends Object>(
+GraphQLObjectType<P> objectType<P>(
   String name, {
   String? description,
   bool isInterface = false,
-  Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
-  Map<String, GraphQLObjectField<Object, Object, P>>? fieldsMap,
+  Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
+  Map<String, GraphQLObjectField<Object?, Object?, P>>? fieldsMap,
   ResolveType<GraphQLObjectType<P>>? resolveType,
   IsTypeOf<P>? isTypeOf,
   Iterable<GraphQLObjectType> interfaces = const [],
@@ -28,8 +28,7 @@ GraphQLObjectType<P> objectType<P extends Object>(
 
 /// Return a [GraphQLObjectField] with [name] and all other
 /// properties copied from [field]
-GraphQLObjectField<V, S, P>
-    copyFieldWithName<V extends Object, S extends Object, P extends Object>(
+GraphQLObjectField<V, S, P> copyFieldWithName<V, S, P>(
   String name,
   GraphQLObjectField<V, S, P> field,
 ) {
@@ -45,11 +44,10 @@ GraphQLObjectField<V, S, P>
 }
 
 /// Shorthand for generating a [GraphQLObjectField].
-GraphQLObjectField<T, Serialized, P>
-    field<T extends Object, Serialized extends Object, P extends Object>(
+GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
   String name,
   GraphQLType<T, Serialized> type, {
-  Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
+  Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
   GraphQLFieldResolver<T, P>? resolve,
   GraphQLSubscriptionFieldResolver<T>? subscribe,
   String? deprecationReason,
@@ -67,7 +65,7 @@ GraphQLObjectField<T, Serialized, P>
 }
 
 /// Shorthand for generating a [GraphQLInputObjectType].
-GraphQLInputObjectType<T> inputObjectType<T extends Object>(
+GraphQLInputObjectType<T> inputObjectType<T>(
   String name, {
   String? description,
   Iterable<GraphQLFieldInput> fields = const [],
@@ -82,8 +80,7 @@ GraphQLInputObjectType<T> inputObjectType<T extends Object>(
 }
 
 /// Shorthand for generating a [GraphQLFieldInput].
-GraphQLFieldInput<T, Serialized>
-    inputField<T extends Object, Serialized extends Object>(
+GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
   String name,
   GraphQLType<T, Serialized> type, {
   String? description,
@@ -99,13 +96,12 @@ GraphQLFieldInput<T, Serialized>
   );
 }
 
-extension GraphQLFieldTypeExt<V extends Object, S extends Object>
-    on GraphQLType<V, S> {
+extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
   /// Utility for creating an [GraphQLObjectField] with [type] == [this]
   ///
   /// Improved type inference, over `field(name, type)`
   /// since [V] and [S] are already specified from [this]
-  GraphQLObjectField<V, S, P> field<P extends Object>(
+  GraphQLObjectField<V, S, P> field<P>(
     String name, {
     String? deprecationReason,
     String? description,
@@ -127,7 +123,7 @@ extension GraphQLFieldTypeExt<V extends Object, S extends Object>
 
   /// Shorthand for generating a [GraphQLObjectField] without a name.
   /// Useful in combination with [objectType]'s fieldsMap parameter.
-  GraphQLObjectField<V, S, P> fieldSpec<P extends Object>({
+  GraphQLObjectField<V, S, P> fieldSpec<P>({
     String? deprecationReason,
     String? description,
     GraphQLFieldResolver<V, P>? resolve,

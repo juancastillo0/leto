@@ -61,7 +61,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     _reflectEnumValueType(),
   ]);
 
-  final fields = <GraphQLObjectField<Object, Object, Object>>[
+  final fields = <GraphQLObjectField<Object?, Object?, Object?>>[
     field(
       '__schema',
       schemaType,
@@ -144,7 +144,7 @@ GraphQLObjectType<GraphQLType> _reflectSchemaTypes() {
 
     final fieldType = _reflectFields();
     final inputValueType = _reflectInputValueType();
-    GraphQLObjectField<Object, Object, Object>? typeField =
+    GraphQLObjectField? typeField =
         fieldType.fields.firstWhereOrNull((f) => f.name == 'type');
 
     if (typeField == null) {

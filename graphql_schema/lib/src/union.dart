@@ -4,8 +4,7 @@ part of graphql_schema.src.schema;
 /// be valid against one or more [possibleTypes].
 ///
 /// All provided types must be [GraphQLObjectType]s.
-class GraphQLUnionType<P extends Object>
-    extends GraphQLType<P, Map<String, dynamic>>
+class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
     with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
@@ -31,7 +30,7 @@ class GraphQLUnionType<P extends Object>
     if (_extractInner != null) {
       return _extractInner!.call(p);
     }
-    return p;
+    return p!;
   }
 
   GraphQLUnionType(
@@ -39,7 +38,8 @@ class GraphQLUnionType<P extends Object>
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
     ResolveType<GraphQLUnionType<P>>? resolveType,
-    /// dawda
+
+    /// TODO:
     Object Function(P)? extractInner,
   })  : _extractInner = extractInner,
         resolveType = resolveType == null ? null : _ResolveType(resolveType),

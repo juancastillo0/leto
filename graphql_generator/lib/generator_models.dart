@@ -251,10 +251,8 @@ class UnionVarianInfo {
   String _typeList({bool ext = false}) {
     return typeParams.isNotEmpty
         ? '<${typeParams.map((e) {
-            final _e = ext
-                ? e.bound == null
-                    ? ' extends Object'
-                    : ' extends ${e.bound!.getDisplayString(withNullability: false)}'
+            final _e = ext && e.bound != null
+                ? ' extends ${e.bound!.getDisplayString(withNullability: true)}'
                 : '';
 
             return '${e.displayName}$_e';

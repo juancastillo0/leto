@@ -2,8 +2,8 @@ part of graphql_schema.src.schema;
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 /// whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, P extends Object> = FutureOr<Value?>
-    Function(P parent, ReqCtx<P> ctx);
+typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
+    P parent, ReqCtx<P> ctx);
 
 /// Typedef for a function that resolves the [Stream] of [Value]s
 /// of a [GraphQLObjectField], whether asynchronously or not.
@@ -12,7 +12,7 @@ typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
 
 /// Wrapper class for [GraphQLFieldResolver]
 /// necessary for type casting.
-class FieldResolver<Value, P extends Object> {
+class FieldResolver<Value, P> {
   final GraphQLFieldResolver<Value, P> resolve;
 
   const FieldResolver(this.resolve);
@@ -36,8 +36,7 @@ class FieldSubscriptionResolver<Value> {
 /// It can have input values and additional documentation, and explicitly
 /// declares it shape within the schema.
 @immutable
-class GraphQLObjectField<Value extends Object, Serialized extends Object,
-    P extends Object> implements ObjectField {
+class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// The list of input values this field accepts, if any.
   final List<GraphQLFieldInput> inputs = <GraphQLFieldInput>[];
 

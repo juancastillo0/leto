@@ -2,8 +2,7 @@ part of graphql_schema.src.schema;
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType<P extends Object>
-    extends GraphQLType<P, Map<String, dynamic>>
+class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
@@ -14,7 +13,7 @@ class GraphQLObjectType<P extends Object>
   final String? description;
 
   /// The list of fields that an object of this type is expected to have.
-  final List<GraphQLObjectField<Object, Object, P>> fields = [];
+  final List<GraphQLObjectField<Object?, Object?, P>> fields = [];
 
   /// `true` if this type should be treated as an *interface*,
   /// which child types can [inheritFrom].
@@ -50,7 +49,7 @@ class GraphQLObjectType<P extends Object>
     this.isInterface = false,
     ResolveType<GraphQLObjectType<P>>? resolveType,
     IsTypeOf<P>? isTypeOf,
-    Iterable<GraphQLObjectField<Object, Object, P>> fields = const [],
+    Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
   })  : isTypeOf = isTypeOf == null ? null : _IsTypeOf(isTypeOf),
         resolveType = resolveType == null ? null : _ResolveType(resolveType) {
@@ -152,7 +151,7 @@ class GraphQLObjectType<P extends Object>
 
   @override
   Map<String, dynamic> serialize(P value) {
-    final map = _jsonFromValue(value);
+    final map = _jsonFromValue(value!);
     return _gqlFromJson(map, fields);
     // return map.keys.fold(<String, dynamic>{}, (out, k) {
     //   final field = fields.firstWhereOrNull((f) => f.name == k);
@@ -204,7 +203,7 @@ class GraphQLObjectType<P extends Object>
 typedef ResolveType<P extends GraphQLType> = String Function(
     Object, P, ResolveObjectCtx);
 
-class _ResolveType<T extends GraphQLType<Object, Object>> {
+class _ResolveType<T extends GraphQLType<Object?, Object?>> {
   final ResolveType<T> func;
 
   const _ResolveType(this.func);
@@ -213,10 +212,10 @@ class _ResolveType<T extends GraphQLType<Object, Object>> {
       func(result, type, ctx);
 }
 
-typedef IsTypeOf<P extends Object> = bool Function(
+typedef IsTypeOf<P> = bool Function(
     Object, GraphQLObjectType<P>, ResolveObjectCtx);
 
-class _IsTypeOf<P extends Object> {
+class _IsTypeOf<P> {
   final IsTypeOf<P> func;
 
   _IsTypeOf(this.func);
@@ -233,7 +232,7 @@ class _IsTypeOf<P extends Object> {
 /// and are overall more limiter in utility, because their only purpose is to
 /// reduce the number of parameters to a given field, and to potentially
 /// reuse an input structure across multiple fields in the hierarchy.
-class GraphQLInputObjectType<Value extends Object>
+class GraphQLInputObjectType<Value>
     extends GraphQLType<Value, Map<String, dynamic>>
     with _NonNullableMixin<Value, Map<String, dynamic>> {
   /// The name of this type.
@@ -254,7 +253,7 @@ class GraphQLInputObjectType<Value extends Object>
   GraphQLInputObjectType(
     this.name, {
     this.description,
-    Iterable<GraphQLFieldInput> fields = const [],
+    Iterable<GraphQLFieldInput<Object?, Object?>> fields = const [],
     this.customDeserialize,
   }) {
     this.fields.addAll(fields);
@@ -267,7 +266,7 @@ class GraphQLInputObjectType<Value extends Object>
 
   @override
   Map<String, dynamic> serialize(Value value) {
-    final map = _jsonFromValue(value);
+    final map = _jsonFromValue(value!);
     return _gqlFromJson(map, fields);
   }
 
@@ -300,11 +299,11 @@ abstract class ObjectField {
   String get name;
 
   /// The type of the field
-  GraphQLType<Object, Object> get type;
+  GraphQLType<Object?, Object?> get type;
 }
 
 ValidationResult<Map<String, dynamic>> _validateObject(
-  GraphQLType<Object, Map<String, Object?>> type,
+  GraphQLType<Object?, Map<String, Object?>> type,
   List<ObjectField> fields,
   String key,
   Object? input,

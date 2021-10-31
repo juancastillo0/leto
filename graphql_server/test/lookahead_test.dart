@@ -25,7 +25,7 @@ void main() {
           .field('nestedNonNullListNonNull'),
     ]);
 
-    late ReqCtx<Object> resolveCtx;
+    late ReqCtx resolveCtx;
     final schema = GraphQLSchema(
       queryType: objectType(
         'Query',
@@ -147,7 +147,7 @@ fragment All on NestedModel {
       ],
     );
 
-    final modelUnionType = GraphQLUnionType(
+    final modelUnionType = GraphQLUnionType<Map<String, Object?>>(
       'ModelUnion',
       [
         model1Type,
@@ -166,7 +166,7 @@ fragment All on NestedModel {
           .field('nestedNonNullListNonNull'),
     ]);
 
-    late ReqCtx<Object> resolveCtx;
+    late ReqCtx resolveCtx;
     final schema = GraphQLSchema(
       queryType: objectType(
         'Query',

@@ -80,7 +80,7 @@ GraphQLSchema buildSchema(
     types[name] = MapEntry(type, def);
   }
 
-  Iterable<GraphQLFieldInput<Object, Object>> arguments(
+  Iterable<GraphQLFieldInput<Object?, Object?>> arguments(
       List<InputValueDefinitionNode> args) {
     return args.map(
       (e) {
@@ -315,7 +315,7 @@ GraphQLType convertType(
 ) {
   GraphQLType _type() {
     if (node is ListTypeNode) {
-      return GraphQLListType<Object, Object>(
+      return GraphQLListType<Object?, Object?>(
         convertType(node.type, customTypes),
       );
     } else if (node is NamedTypeNode) {
