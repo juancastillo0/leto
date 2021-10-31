@@ -1,5 +1,5 @@
-# graphql_generator
-[![Pub](https://img.shields.io/pub/v/graphql_generator.svg)](https://pub.dartlang.org/packages/graphql_generator)
+# leto_generator
+[![Pub](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dartlang.org/packages/leto_generator)
 [![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
 
 Generates `package:graphql_schema` schemas for

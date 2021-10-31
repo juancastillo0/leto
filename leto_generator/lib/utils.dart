@@ -8,8 +8,8 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:graphql_generator/config.dart';
-import 'package:graphql_generator/utils_graphql.dart';
+import 'package:leto_generator/config.dart';
+import 'package:leto_generator/utils_graphql.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:source_gen/source_gen.dart';
 

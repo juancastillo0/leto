@@ -225,13 +225,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.13.0"
-  graphql_generator:
-    dependency: "direct dev"
-    description:
-      path: "../../graphql_generator"
-      relative: true
-    source: path
-    version: "1.0.0+1"
   graphql_schema:
     dependency: "direct main"
     description:
@@ -330,6 +323,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
+  leto_generator:
+    dependency: "direct dev"
+    description:
+      path: "../../leto_generator"
+      relative: true
+    source: path
+    version: "1.0.0+1"
   lint:
     dependency: "direct dev"
     description:

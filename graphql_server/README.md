@@ -122,6 +122,6 @@ first having to serialize them:
 https://pub.dartlang.org/documentation/graphql_server/latest/graphql_server.mirrors/mirrorsFieldResolver.html
 
 You can also use `convertDartType` to convert a concrete Dart type into a `GraphQLType`. However,
-the ideal choice is `package:graphql_generator`.
+the ideal choice is `package:leto_generator`.
 * https://pub.dartlang.org/documentation/graphql_server/latest/graphql_server.mirrors/convertDartType.html
-* https://pub.dartlang.org/packages/graphql_generator
+* https://pub.dartlang.org/packages/leto_generator

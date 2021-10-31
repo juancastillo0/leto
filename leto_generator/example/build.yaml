@@ -14,7 +14,7 @@ targets:
           generic_argument_factories: false
           ignore_unannotated: false
           include_if_null: true
-      graphql_generator|graphql_types:
+      leto_generator|graphql_types:
         options:
           serializerSuffix: Serializer
           graphqlTypeSuffix: GraphQLType
@@ -24,5 +24,5 @@ targets:
           omitFields: false
           customTypes:
             - name: Decimal
-              import: "package:graphql_generator_example/decimal.dart"
+              import: "package:leto_generator_example/decimal.dart"
               getter: "decimalGraphQLType"

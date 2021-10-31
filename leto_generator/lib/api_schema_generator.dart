@@ -4,7 +4,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart' show DartFormatter;
 import 'package:glob/glob.dart' show Glob;
-import 'package:graphql_generator/utils.dart';
+import 'package:leto_generator/utils.dart';
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';

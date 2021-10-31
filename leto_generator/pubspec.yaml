@@ -1,4 +1,4 @@
-name: graphql_generator
+name: leto_generator
 version: 1.0.0+1
 description: Generates GraphQL schemas from Dart classes, for use with pkg:graphql_server.
 author: Tobe O <thosakwe@gmail.com>

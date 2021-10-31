@@ -51,8 +51,8 @@ dev_dependencies:
   lint: ^1.0.0
   test_process: ^2.0.0
   test: ^1.14.4
-  graphql_generator:
-    path: ../../graphql_generator
+  leto_generator:
+    path: ../../leto_generator
   valida_generator:
   query_builder_generator:
     git: 
@@ -102,10 +102,10 @@ dependency_overrides:
 #   lint: ^1.0.0
 #   test_process: ^2.0.0
 #   test: ^1.14.4
-#   graphql_generator:
+#   leto_generator:
 #     git:
 #       url: https://github.com/juancastillo0/graphql_server
-#       path: graphql_generator
+#       path: leto_generator
 #   valida_generator:
 #     git:
 #       url: https://github.com/juancastillo0/valida

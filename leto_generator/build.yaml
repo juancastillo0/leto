@@ -1,21 +1,21 @@
 targets:
   $default:
     builders:
-      graphql_generator|graphql_types:
+      leto_generator|graphql_types:
         enabled: true
 
 builders:
   graphql_types:
-    target: ":graphql_generator"
-    import: "package:graphql_generator/graphql_generator.dart"
+    target: ":leto_generator"
+    import: "package:leto_generator/leto_generator.dart"
     builder_factories: [graphQLBuilder]
     auto_apply: dependents
     build_to: cache
     build_extensions: { ".dart": [".graphql_types.g.part"] }
     applies_builders: [source_gen|combining_builder]
   graphql_resolvers:
-    target: ":graphql_generator"
-    import: "package:graphql_generator/resolver_generator.dart"
+    target: ":leto_generator"
+    import: "package:leto_generator/resolver_generator.dart"
     builder_factories: [graphQLResolverBuilder]
     auto_apply: dependents
     build_to: cache
@@ -23,7 +23,7 @@ builders:
     applies_builders: [source_gen|combining_builder]
   graphql_api_schema:
     # library URI containing the builder - maps to `lib/member_count_library_generator.dart`
-    import: "package:graphql_generator/api_schema_generator.dart"
+    import: "package:leto_generator/api_schema_generator.dart"
     # Name of the function in the above library to call.
     builder_factories: ["graphQLApiSchemaBuilder"]
     # The mapping from the source extension to the generated file extension

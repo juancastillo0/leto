@@ -1,6 +1,6 @@
-name: graphql_generator_example
+name: leto_generator_example
 version: 1.0.0+1
-description: Example for graphql_generator
+description: Example for leto_generator
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
@@ -23,14 +23,14 @@ dev_dependencies:
   lint: ^1.0.0
   freezed:
   json_serializable:
-  graphql_generator:
+  leto_generator:
   valida_generator:
     git:
       url: https://github.com/juancastillo0/valida
       path: valida_generator
 
 dependency_overrides:
-  graphql_generator:
+  leto_generator:
     path: ../
   graphql_schema:
     path: ../../graphql_schema
