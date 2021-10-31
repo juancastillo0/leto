@@ -2,7 +2,7 @@
 
 A GraphQL server implementation written in Dart.
 
-Inspired by graphql-js, async-graphql and type-graphql. First version of the codebase was forked from angel-graphql. Many tests and utilities (Dataloader, printSchema) were ported from graphql-js.
+Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql](https://github.com/async-graphql/async-graphql) and [type-graphql](https://github.com/MichalLytek/type-graphql). First version of the codebase was forked from [angel-graphql](https://github.com/angel-dart-archive/graphql). Many tests and utilities ([DataLoader](https://github.com/graphql/dataloader), [printSchema](https://github.com/graphql/graphql-js/blob/10c1c3d6cd8e165501fb1471b5babfabd1be1eb1/src/utilities/printSchema.ts)) were ported from graphql-js.
 
 ## Table of Contents <!-- omit in toc -->
 - [Quickstart](#quickstart)
@@ -66,7 +66,7 @@ Inspired by graphql-js, async-graphql and type-graphql. First version of the cod
 
 # Quickstart
 
-This provides a simple introduction to Leto, you can explore more in the following sections of this readme or looking at the tests and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
+This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
 
 ### Install
 
