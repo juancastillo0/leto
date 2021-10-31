@@ -249,14 +249,14 @@ packages:
   graphql_schema:
     dependency: "direct overridden"
     description:
-      path: "../graphql_server/graphql_schema"
+      path: "../graphql_schema"
       relative: true
     source: path
     version: "1.0.4"
   graphql_server:
     dependency: "direct main"
     description:
-      path: "../graphql_server/graphql_server"
+      path: "../graphql_server"
       relative: true
     source: path
     version: "2.0.0-beta"
@@ -466,9 +466,11 @@ packages:
   query_builder:
     dependency: transitive
     description:
-      path: "../query_builder"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "94733533846c6de7c5850424ba63dfcdb2efd6b9"
+      url: "https://github.com/juancastillo0/query_builder"
+    source: git
     version: "1.0.0"
   quiver:
     dependency: transitive
@@ -704,10 +706,10 @@ packages:
   valida:
     dependency: transitive
     description:
-      path: "../valida/valida"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: valida
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   validators:
     dependency: transitive
     description:

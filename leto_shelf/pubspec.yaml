@@ -12,7 +12,7 @@ dependencies:
 
   gql: ^0.13.0
   graphql_server:
-    path: ../graphql_server/graphql_server
+    path: ../graphql_server
   http_parser: ^4.0.0
   http_server: ^1.0.0
 
@@ -43,4 +43,4 @@ dev_dependencies:
 
 dependency_overrides:
   graphql_schema:
-    path: ../graphql_server/graphql_schema
+    path: ../graphql_schema
