@@ -141,14 +141,14 @@ List<EventUnion?> testUnionModels(
 /// nested Resolvers in classes (potentially empty classes)
 /// nested Resolvers (Query, Mutation...) in libraries
 /// pagination (types with generics)
-/// 
+///
 /// Limit query complexity/depth
 /// persisted queries
 /// logging
 /// other types uuid/url/Uri/duration/validation/json/decimal
-/// 
+///
 /// execution https://github.com/graphql/graphql-js/tree/main/src/execution/__tests__
 /// subscription https://github.com/graphql/graphql-js/tree/main/src/subscription/__tests__
 /// type https://github.com/graphql/graphql-js/tree/main/src/type/__tests__
 /// valueFromAST https://github.com/graphql/graphql-js/blob/main/src/utilities/valueFromAST.ts
-/// 
+///

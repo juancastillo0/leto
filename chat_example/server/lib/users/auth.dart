@@ -17,8 +17,8 @@ final _webSocketSessionsRef = RefWithDefault.scoped(
   name: 'webSocketSessionsRef',
 );
 
-final unauthenticatedError = GraphQLError('Unauthenticated');
-final unauthorizedError = GraphQLError('Unauthorized');
+const unauthenticatedError = GraphQLError('Unauthenticated');
+const unauthorizedError = GraphQLError('Unauthorized');
 
 class WebSocketConnCtx {
   final UserClaims? claims;
@@ -181,7 +181,7 @@ String createAuthToken({
   return _createJwt({
     'exp': expiresAt,
     'iat': issuedAt,
-    'iss': 'shelf-graphql-chat',
+    'iss': 'leto-shelf-chat',
     'sub': userId.toString(),
     'sessionId': sessionId,
     'isRefresh': isRefresh,

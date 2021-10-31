@@ -96,6 +96,7 @@ class ISettings with _$ISettings {
         required bool tracingtracingSupported,
     @JsonKey(name: 'editor.fontSize') required int editorfontSize,
     @JsonKey(name: 'editor.fontFamily') required String editorfontFamily,
+
     /// 'omit' | 'include' | 'same-origin'
     @JsonKey(name: 'request.credentials') required String requestcredentials,
     @JsonKey(name: 'request.globalHeaders')
