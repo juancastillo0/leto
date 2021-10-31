@@ -411,9 +411,11 @@ packages:
   gql_websocket_link:
     dependency: "direct main"
     description:
-      path: "/Users/juanmanuelcastillo/Desktop/flutter/gql/links/gql_websocket_link"
-      relative: false
-    source: path
+      path: "links/gql_websocket_link"
+      ref: "813d52423ed1bff6db17e9c1dbe47cf489f06266"
+      resolved-ref: "813d52423ed1bff6db17e9c1dbe47cf489f06266"
+      url: "https://github.com/juancastillo0/gql"
+    source: git
     version: "0.3.1"
   graphs:
     dependency: transitive

@@ -33,7 +33,10 @@ dependencies:
   gql_link:
   gql_http_link:
   gql_websocket_link:
-    path: ../../gql/links/gql_websocket_link
+    git: 
+      url: https://github.com/juancastillo0/gql
+      path: links/gql_websocket_link
+      ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266
   ferry: ^0.10.5-dev.2
   ferry_hive_store:
   ferry_flutter:

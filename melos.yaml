@@ -11,3 +11,60 @@ packages:
     "chat_example/*",
     "chat_example/server/*",
   ]
+
+scripts:
+  lint:all:
+    run: melos run analyze && melos run format
+    description: |
+      Run all static analysis checks
+      - Analyze the project for Dart analysis issues.
+
+  analyze:
+    run: |
+      melos exec -c 5 -- \
+        dart analyze .
+    description: |
+      Run `dart analyze` in all packages.
+       - Note: you can also rely on your IDEs Dart Analysis / Issues window.
+
+  format:
+    run: |
+      melos exec -c 5 -- \
+        dart format .
+    description: |
+      Runs `dart format` in all packages.
+
+  test:all:
+    run: melos run test --no-select
+    description: Run all tests available
+
+  test:
+    run: |
+      melos exec -c 6 --fail-fast -- \
+        "flutter test --no-pub"
+    description: Run `flutter test` for a specific package.
+    select-package:
+      dir-exists:
+        - test
+
+  # Coverage
+  coverage: >
+    melos exec -c 1 --fail-fast --dir-exists=test --ignore="*example*" -- \
+      flutter test --coverage
+
+  # Check pubspecs are valid and publishable in each package.
+  lint:pub: >
+    melos exec -c 5 --fail-fast --no-private --ignore="*example*" -- \
+      pub publish --dry-run
+
+  # Clean things very deeply, can be used to establish "pristine checkout" status
+  clean:deep: >
+    git clean -x -d -f -q
+
+  # Run all targets generally expected in CI for a full local quality check
+  qualitycheck: >
+    melos run clean:deep && melos clean && melos bootstrap && melos run lint:all && melos run test:all
+
+  # Additional cleanup lifecycle script, executed when `melos clean` is ran.
+  postclean: >
+    melos exec -c 6 -- "flutter clean"
