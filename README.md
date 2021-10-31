@@ -72,6 +72,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [`buildSchema`](#buildschema)
     - [`printSchema`](#printschema)
     - [`mergeSchema`](#mergeschema)
+- [Contributing](#contributing)
 
 # Quickstart
 
@@ -930,3 +931,25 @@ Trasform a `GraphQLSchema` into a GraphQL Schema Definition String.
 ### `mergeSchema`
 
 Merge multiple `GraphQLSchema`. The output `GraphQLSchema` contains all the query, mutations and subscription fields from the input schemas. Nested objects are also merged.
+
+# Contributing
+
+Thanks for considering making a contribution! Every issue or question helps!
+
+This package uses [melos](https://github.com/invertase/melos) to manage dependencies. To install it run:
+
+```
+pub global activate melos
+```
+
+Then, to link the local packages run:
+
+```
+melos bootstrap
+```
+
+If using fvm, you may need to run:
+
+```
+fvm flutter pub global run melos bootstrap
+```

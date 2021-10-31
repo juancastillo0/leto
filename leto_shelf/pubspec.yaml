@@ -1,6 +1,6 @@
 name: leto_shelf
 description: A sample command-line application.
-# version: 1.0.0
+version: 0.0.1
 # homepage: https://www.example.com
 
 environment:
@@ -42,7 +42,3 @@ dev_dependencies:
     path: ./example
 
   test: ^1.14.4
-
-dependency_overrides:
-  leto_schema:
-    path: ../leto_schema

@@ -411,8 +411,8 @@ packages:
   gql_websocket_link:
     dependency: "direct main"
     description:
-      path: "../../gql/links/gql_websocket_link"
-      relative: true
+      path: "/Users/juanmanuelcastillo/Desktop/flutter/gql/links/gql_websocket_link"
+      relative: false
     source: path
     version: "0.3.1"
   graphs:

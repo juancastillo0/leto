@@ -336,14 +336,14 @@ packages:
       path: "../leto"
       relative: true
     source: path
-    version: "2.0.0-beta"
+    version: "0.0.1"
   leto_schema:
     dependency: "direct main"
     description:
       path: "../leto_schema"
       relative: true
     source: path
-    version: "1.0.4"
+    version: "0.0.1"
   leto_shelf_example:
     dependency: "direct dev"
     description:

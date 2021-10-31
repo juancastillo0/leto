@@ -1,0 +1,13 @@
+name: leto
+repository: https://github.com/juancastillo0/graphql_server
+packages:
+  [
+    "leto/*",
+    "leto_schema/*",
+    "leto_generator/*",
+    "leto_generator/example/*",
+    "leto_shelf/*",
+    "leto_shelf/example/*",
+    "chat_example/*",
+    "chat_example/server/*",
+  ]

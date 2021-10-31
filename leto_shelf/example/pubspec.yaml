@@ -1,7 +1,5 @@
 name: leto_shelf_example
 description: A sample dart graphql server using shelf_graphq.
-# version: 1.0.0
-# homepage: https://www.example.com
 
 environment:
   sdk: ">=2.14.0 <3.0.0"
@@ -41,10 +39,6 @@ dev_dependencies:
     path: ../../leto_generator
   valida_generator:
   query_builder_generator:
-    git: 
+    git:
       url: https://github.com/juancastillo0/query_builder
       path: query_builder_generator
-
-dependency_overrides:
-  leto_schema:
-    path: ../../leto_schema
