@@ -1,0 +1,59 @@
+# import './messages.graphql'
+# import './user.graphql'
+
+mutation createRoom($name: String!) {
+  createChatRoom(name: $name) {
+    ...FullChatRoom
+  }
+}
+
+mutation deleteRoom($id: Int!) {
+  deleteChatRoom(id: $id)
+}
+
+query getRooms {
+  getChatRooms {
+    ...FullChatRoom
+  }
+}
+
+query searchUser($name: String!) {
+  searchUser(name: $name) {
+    ...AUser
+  }
+}
+
+mutation addChatRoomUser(
+  $role: ChatRoomUserRole
+  $chatId: Int!
+  $userId: Int!
+) {
+  addChatRoomUser(chatId: $chatId, userId: $userId, role: $role) {
+    ...UserChat
+  }
+}
+
+mutation deleteChatRoomUser($chatId: Int!, $userId: Int!) {
+  deleteChatRoomUser(chatId: $chatId, userId: $userId)
+}
+
+fragment UserChat on ChatRoomUser {
+  userId
+  chatId
+  role
+  user {
+    ...AUser
+  }
+}
+
+fragment FullChatRoom on ChatRoom {
+  ...BaseChatRoom
+  users {
+    ...UserChat
+  }
+}
+fragment BaseChatRoom on ChatRoom {
+  id
+  name
+  createdAt
+}

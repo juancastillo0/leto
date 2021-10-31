@@ -1,0 +1,11 @@
+description = "input variables"
+[[tests]]
+description = "using variables"
+query = '''
+query ($input: TestInputObject) {
+    fieldWithObjectInput(input: $input)
+}
+'''
+variables = { input = { a = "foo", b = ["bar"], c = "baz" } }
+[tests.expected.data]
+fieldWithObjectInput = { a = "foo", b = ["bar"], c = "baz" }

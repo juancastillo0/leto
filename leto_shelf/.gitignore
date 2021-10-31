@@ -1,0 +1,21 @@
+# Files and directories created by pub
+.dart_tool/
+.packages
+
+# Conventional directory for build outputs
+build/
+
+# Directory created by dartdoc
+doc/api/
+.fvm/flutter_sdk
+.vscode/settings.json
+chat_example/macos/Flutter/GeneratedPluginRegistrant.swift
+example/lib/.DS_Store
+example/lib/schema/.DS_Store
+example/.DS_Store
+.DS_Store
+example/chat_room.sqlite
+chat_example/server/chat_room.sqlite
+chat_room.sqlite
+chat_example/server/Dockerfile
+chat_example/server/bin/files/chats/**

@@ -1,0 +1,371 @@
+type Query {
+  getMessage(chatId: Int): [ChatMessage!]!
+  getMessageLinksMetadata(message: String!): LinksMetadata!
+  searchUser(name: String!): [User!]!
+  getUser: User
+  getChatRooms: [ChatRoom!]!
+  getEvents(cursor: String, delta: Int!): PaginatedDBEvent!
+  testSqlRawQuery(query: String!, params: [String]): String
+}
+
+type ChatMessage {
+  id: Int!
+  chatId: Int!
+  userId: Int!
+  message: String!
+  type: MessageType!
+  fileUrl: String
+  referencedMessageId: Int
+  createdAt: Date!
+  referencedMessage: ChatMessage
+  metadata: MessageMetadata
+}
+
+enum MessageType {
+  FILE
+  TEXT
+}
+
+"""
+An ISO-8601 Date.
+"""
+scalar Date
+
+type MessageMetadata {
+  fileMetadata: FileMetadata
+  linksMetadata: LinksMetadata
+  computedAt: Date!
+}
+
+type FileMetadata {
+  sizeInBytes: Int!
+  mimeType: String!
+  fileName: String!
+  sha1Hash: String!
+  fileHashBlur: String
+}
+
+type LinksMetadata {
+  links: [LinkMetadata!]!
+  emails: [String!]!
+
+  """
+  TODO: bring user ids?
+  """
+  userTags: [String!]!
+  hasLinks: Boolean!
+}
+
+type LinkMetadata {
+  title: String
+  description: String
+  image: String
+  url: String
+}
+
+type User {
+  sessions: [UserSession!]!
+  id: Int!
+  name: String
+  createdAt: Date!
+}
+
+type UserSession {
+  id: ID!
+  userId: Int!
+  userAgent: String
+  platform: String
+  appVersion: String
+  isActive: Boolean!
+  createdAt: Date!
+  endedAt: Date
+}
+
+type ChatRoom {
+  id: Int!
+  name: String!
+  createdAt: Date!
+  messages: [ChatMessage!]!
+  users: [ChatRoomUser!]!
+}
+
+type ChatRoomUser {
+  user: User!
+  userId: Int!
+  chatId: Int!
+  role: ChatRoomUserRole!
+  createdAt: Date!
+}
+
+enum ChatRoomUserRole {
+  admin
+  peer
+}
+
+type PaginatedDBEvent {
+  values: [DBEvent!]!
+  pageInfo: PageInfo!
+}
+
+type DBEvent {
+  id: Int!
+  userId: Int!
+  sessionId: String!
+  type: EventType!
+  data: DBEventData!
+  createdAt: Date!
+}
+
+enum EventType {
+  chatCreated
+  chatDeleted
+  userChatRemoved
+  userChatAdded
+  userCreated
+  userSessionSignedUp
+  userSessionSignedIn
+  userSessionSignedOut
+  messageSent
+  messageDeleted
+  messageUpdated
+}
+
+union DBEventData =
+    ChatDBEventData
+  | UserChatDBEventData
+  | UserDBEventData
+  | ChatMessageDBEventData
+
+type ChatDBEventData {
+  value: ChatEvent!
+  runtimeType: DBEventDataType
+}
+
+union ChatEvent = ChatCreatedEvent | ChatDeletedEvent
+
+type ChatCreatedEvent {
+  chat: ChatRoom!
+  ownerId: Int!
+  chatId: Int!
+  runtimeType: ChatEventType
+}
+
+enum ChatEventType {
+  created
+  deleted
+}
+
+type ChatDeletedEvent {
+  chatId: Int!
+  runtimeType: ChatEventType
+}
+
+enum DBEventDataType {
+  chat
+  userChat
+  user
+  message
+}
+
+type UserChatDBEventData {
+  value: UserChatEvent!
+  runtimeType: DBEventDataType
+}
+
+union UserChatEvent = UserChatAddedEvent | UserChatRemovedEvent
+
+type UserChatAddedEvent {
+  chatUser: ChatRoomUser!
+  chatId: Int!
+  runtimeType: UserChatEventType
+}
+
+enum UserChatEventType {
+  added
+  removed
+}
+
+type UserChatRemovedEvent {
+  chatId: Int!
+  userId: Int!
+  runtimeType: UserChatEventType
+}
+
+type UserDBEventData {
+  value: UserEvent!
+  runtimeType: DBEventDataType
+}
+
+union UserEvent =
+    UserCreatedEvent
+  | UserSignedUpEvent
+  | UserSignedInEvent
+  | UserSignedOutEvent
+
+type UserCreatedEvent {
+  user: User!
+  userId: Int!
+  runtimeType: UserEventType
+}
+
+enum UserEventType {
+  created
+  signedUp
+  signedIn
+  signedOut
+}
+
+type UserSignedUpEvent {
+  session: UserSession!
+  userId: Int!
+  runtimeType: UserEventType
+}
+
+type UserSignedInEvent {
+  session: UserSession!
+  userId: Int!
+  runtimeType: UserEventType
+}
+
+type UserSignedOutEvent {
+  userId: Int!
+  sessionId: String!
+  runtimeType: UserEventType
+}
+
+type ChatMessageDBEventData {
+  value: ChatMessageEvent!
+  runtimeType: DBEventDataType
+}
+
+union ChatMessageEvent =
+    ChatMessageSentEvent
+  | ChatMessageDeletedEvent
+  | ChatMessageUpdatedEvent
+
+type ChatMessageSentEvent {
+  message: ChatMessage!
+  chatId: Int!
+  runtimeType: ChatMessageEventType
+}
+
+enum ChatMessageEventType {
+  sent
+  deleted
+  updated
+}
+
+type ChatMessageDeletedEvent {
+  chatId: Int!
+  messageId: Int!
+  runtimeType: ChatMessageEventType
+}
+
+type ChatMessageUpdatedEvent {
+  message: ChatMessage!
+  chatId: Int!
+  runtimeType: ChatMessageEventType
+}
+
+"""
+Information about pagination in a connection.
+"""
+type PageInfo {
+  """
+  When paginating forwards, are there more items?
+  """
+  hasNextPage: Boolean!
+
+  """
+  When paginating backwards, are there more items?
+  """
+  hasPreviousPage: Boolean!
+
+  """
+  When paginating backwards, the cursor to continue.
+  """
+  startCursor: String
+
+  """
+  When paginating forwards, the cursor to continue.
+  """
+  endCursor: String
+}
+
+type Mutation {
+  sendMessage(
+    chatId: Int!
+    message: String!
+    referencedMessageId: Int
+  ): ChatMessage
+  sendFileMessage(
+    chatId: Int!
+    file: Upload!
+    referencedMessageId: Int
+    message: String! = ""
+  ): ChatMessage
+  refreshAuthToken: String
+  signUp(name: String!, password: String!): ResultTokenWithUserErrCSignUpError!
+  signIn(name: String, password: String): ResultTokenWithUserErrCSignInError!
+  signOut: String
+  addChatRoomUser(
+    chatId: Int!
+    userId: Int!
+    role: ChatRoomUserRole! = peer
+  ): ChatRoomUser
+  deleteChatRoomUser(chatId: Int!, userId: Int!): Boolean!
+  createChatRoom(name: String!): ChatRoom
+  deleteChatRoom(id: Int!): Boolean!
+}
+
+"""
+Represents a file from a `multipart/form-data` request.
+"""
+scalar Upload
+  @specifiedBy(
+    url: "https://github.com/jaydenseric/graphql-multipart-request-spec"
+  )
+
+"""
+TokenWithUser when the operation was successful or ErrCSignUpError when an error was encountered.
+"""
+union ResultTokenWithUserErrCSignUpError = TokenWithUser | ErrCSignUpError
+
+type TokenWithUser {
+  accessToken: String!
+  refreshToken: String!
+  expiresInSecs: Int!
+  user: User!
+}
+
+type ErrCSignUpError {
+  message: String
+  value: SignUpError!
+}
+
+enum SignUpError {
+  nameTaken
+  alreadySignedUp
+  unknown
+}
+
+"""
+TokenWithUser when the operation was successful or ErrCSignInError when an error was encountered.
+"""
+union ResultTokenWithUserErrCSignInError = TokenWithUser | ErrCSignInError
+
+type ErrCSignInError {
+  message: String
+  value: SignInError!
+}
+
+enum SignInError {
+  wrong
+  alreadySignedIn
+}
+
+type Subscription {
+  onMessageSent(chatId: Int!): [ChatMessage!]!
+  onEvent: DBEvent!
+  onMessageEvent: DBEvent!
+}

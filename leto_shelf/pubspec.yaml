@@ -1,0 +1,46 @@
+name: shelf_graphql
+description: A sample command-line application.
+# version: 1.0.0
+# homepage: https://www.example.com
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  crypto: ^3.0.0
+  freezed_annotation: ^0.14.3
+
+  gql: ^0.13.0
+  graphql_server:
+    path: ../graphql_server/graphql_server
+  http_parser: ^4.0.0
+  http_server: ^1.0.0
+
+  json_annotation: ^4.1.0
+  oxidized: ^5.0.1
+
+  shelf: ^1.2.0
+  shelf_web_socket: ^1.0.1
+
+dev_dependencies:
+  build_runner: ^2.1.1
+  freezed: ^0.14.5
+
+  gql_exec:
+  gql_link:
+  gql_websocket_link:
+
+  http: ^0.13.3
+  json_serializable: ^5.0.0
+  lint: ^1.0.0
+  # tests
+  toml: ^0.12.0
+
+  shelf_graphql_example:
+    path: ./example
+
+  test: ^1.14.4
+
+dependency_overrides:
+  graphql_schema:
+    path: ../graphql_server/graphql_schema

@@ -1,0 +1,97 @@
+query getMessages($chatId: Int!) {
+  getMessage(chatId: $chatId) {
+    ...FullMessage
+  }
+}
+
+mutation sendMessage(
+  $chatId: Int!
+  $message: String!
+  $referencedMessageId: Int
+) {
+  sendMessage(
+    chatId: $chatId
+    message: $message
+    referencedMessageId: $referencedMessageId
+  ) {
+    ...FullMessage
+  }
+}
+
+mutation sendFileMessage(
+  $chatId: Int!
+  $message: String
+  $file: Upload!
+  $referencedMessageId: Int
+) {
+  sendFileMessage(
+    chatId: $chatId
+    message: $message
+    file: $file
+    referencedMessageId: $referencedMessageId
+  ) {
+    ...FullMessage
+  }
+}
+
+query getMessageLinksMetadata($message: String!) {
+  getMessageLinksMetadata(message: $message) {
+    ...MsgLinkMetadata
+  }
+}
+
+subscription onMessageSent($chatId: Int!) {
+  onMessageSent(chatId: $chatId) {
+    ...FullMessage
+  }
+}
+
+fragment FullMessage on ChatMessage {
+  ...BaseMessage
+  referencedMessage {
+    ...BaseMessage
+  }
+}
+
+fragment BaseMessage on ChatMessage {
+  id
+  chatId
+  userId
+  message
+  type
+  fileUrl
+  metadata {
+    ...MsgMetadata
+  }
+  createdAt
+}
+
+fragment MsgMetadata on MessageMetadata {
+  fileMetadata {
+    ...MsgFileMetadata
+  }
+  linksMetadata {
+    ...MsgLinkMetadata
+  }
+  computedAt
+}
+
+fragment MsgFileMetadata on FileMetadata {
+  sizeInBytes
+  mimeType
+  fileName
+  sha1Hash
+  fileHashBlur
+}
+
+fragment MsgLinkMetadata on LinksMetadata {
+  links {
+    title
+    description
+    image
+    url
+  }
+  emails
+  userTags
+  hasLinks
+}

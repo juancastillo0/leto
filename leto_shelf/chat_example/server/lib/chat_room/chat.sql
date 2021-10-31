@@ -1,0 +1,18 @@
+
+CREATE TABLE chat (
+  id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE message (
+  id INTEGER NOT NULL,
+  chatId INTEGER NOT NULL,
+  message TEXT NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  referencedMessageId INT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (chatId) REFERENCES chat (id),
+  FOREIGN KEY (referencedMessageId) REFERENCES message (id)
+);
