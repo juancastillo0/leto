@@ -404,12 +404,12 @@ class GraphQL {
         }
       }
       if (variableType.isNonNull && coercedValues[variableName] == null) {
-        throw GraphQLException.fromSourceSpan(
+        throw GraphQLException.fromMessage(
           coercedValues.containsKey(variableName)
               ? 'Required variable "$variableName" of'
                   ' type $type must not be null.'
               : 'Missing required variable "$variableName" of type $type',
-          span!,
+          location: span?.start,
         );
       }
     }

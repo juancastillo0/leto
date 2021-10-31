@@ -299,9 +299,14 @@ Object? getDirectiveValue(
   if (value is VariableNode) {
     final vname = value.name.value;
     if (variableValues == null || !variableValues.containsKey(vname)) {
-      throw GraphQLException.fromSourceSpan(
+      // TODO: this probably should not be here?
+      throw GraphQLException.fromMessage(
         'Unknown variable: "$vname"',
-        (value.span ?? value.name.span ?? argument.span ?? argument.name.span)!,
+        location: (value.span ??
+                value.name.span ??
+                argument.span ??
+                argument.name.span)
+            ?.start,
       );
     }
     return variableValues[vname];

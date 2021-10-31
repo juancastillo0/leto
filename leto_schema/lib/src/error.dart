@@ -1,6 +1,8 @@
 part of leto_schema.src.schema;
 
 /// An exception that occurs during execution of a GraphQL query.
+///
+/// Its simply a List of [GraphQLError]
 class GraphQLException implements Exception {
   /// A list of all specific errors, with text representation,
   /// that caused this exception.
@@ -24,22 +26,6 @@ class GraphQLException implements Exception {
         sourceError: sourceError,
         stackTrace: stackTrace,
         extensions: extensions,
-      ),
-    ]);
-  }
-
-  factory GraphQLException.fromSourceSpan(
-    String message,
-    FileSpan span, {
-    List<Object>? path,
-  }) {
-    return GraphQLException([
-      GraphQLError(
-        message,
-        locations: [
-          GraphQLErrorLocation.fromSourceLocation(span.start),
-        ],
-        path: path,
       ),
     ]);
   }
@@ -93,8 +79,7 @@ class GraphQLException implements Exception {
 /// One of an arbitrary number of errors that may occur during the
 /// execution of a GraphQL query.
 ///
-/// This will almost always be passed to a [GraphQLException],
-///  as it is useless alone.
+/// This will almost always be passed to a [GraphQLException].
 class GraphQLError implements Exception, GraphQLException {
   /// The reason execution was halted, whether it is a syntax error,
   /// or a runtime error, or some other exception.
@@ -123,7 +108,7 @@ class GraphQLError implements Exception, GraphQLException {
   /// information about the error
   final Map<String, Object?>? extensions;
 
-  GraphQLError(
+  const GraphQLError(
     this.message, {
     this.locations = const [],
     this.path,
