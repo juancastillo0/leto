@@ -164,6 +164,19 @@ final TestType = GraphQLObjectType(
       'nnListNN',
       listOf(graphQLString.nonNull()).nonNull(),
     ),
+    // TODO:
+    // fieldWithInputArg(
+    //   'nnListE',
+    //   listOf(TestEnum).nonNull(),
+    // ),
+    // fieldWithInputArg(
+    //   'listENN',
+    //   listOf(TestEnum.nonNull()),
+    // ),
+    // fieldWithInputArg(
+    //   'nnListENN',
+    //   listOf(TestEnum.nonNull()).nonNull(),
+    // ),
   },
 );
 

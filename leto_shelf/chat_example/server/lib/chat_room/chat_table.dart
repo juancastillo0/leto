@@ -209,6 +209,10 @@ CREATE TABLE $tableName (
   createdAt DATE NOT NULL DEFAULT CURRENT_DATE,
   PRIMARY KEY (id)
 );''',
+// TODO:
+//         '''
+// ALTER TABLE $tableName ADD COLUMN lastMessageId INT NULL
+// ''',
       ],
     );
     print('migrated $tableName $migrated');
