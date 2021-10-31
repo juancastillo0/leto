@@ -102,6 +102,14 @@ class MessageList extends HookConsumerWidget {
                   useEffect(() {
                     focusNode.requestFocus();
                   });
+                  useListenableEffect(
+                    textController,
+                    () {
+                      ref
+                          .read(messageStoreProvider)
+                          .getMessageLinkMetadata(textController.text);
+                    },
+                  );
                   return Row(
                     children: [
                       Expanded(
@@ -174,7 +182,7 @@ class MessageItem extends StatelessWidget {
                       return const SizedBox();
                     }
                     final blurHash = fileMetadata.fileHashBlur;
-                    if (blurHash != null)
+                    if (blurHash != null) {
                       return Container(
                         constraints: const BoxConstraints(
                           maxHeight: 220,
@@ -184,6 +192,7 @@ class MessageItem extends StatelessWidget {
                           blurHash: blurHash,
                         ),
                       );
+                    }
 
                     return Container(
                       width: 250,
@@ -247,7 +256,9 @@ class ImageMessageView extends StatelessWidget {
       child: Consumer(builder: (context, ref, _) {
         return Image.network(
           'http://localhost:8060${message.fileUrl}',
-          headers: {'Authorization': ref.read(authStoreProv).authToken ?? ''},
+          headers: {
+            'Authorization': ref.read(authStoreProv)?.accessToken ?? ''
+          },
           fit: BoxFit.scaleDown,
           frameBuilder: (
             BuildContext context,
@@ -267,6 +278,25 @@ class ImageMessageView extends StatelessWidget {
       }),
     );
   }
+}
+
+void useListenableEffect(
+  Listenable listenable,
+  void Function() callback,
+) {
+  final callRef = useRef(callback);
+  callRef.value = callback;
+  useEffect(
+    () {
+      void _callback() {
+        callRef.value();
+      }
+
+      listenable.addListener(_callback);
+      return () => listenable.removeListener(_callback);
+    },
+    [listenable],
+  );
 }
 
 /// Widget that displays a text file in a dialog

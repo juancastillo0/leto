@@ -1,5 +1,6 @@
 type Query {
   getMessage(chatId: Int): [ChatMessage!]!
+  getMessageLinksMetadata(message: String!): LinksMetadata!
   searchUser(name: String!): [User!]!
   getUser: User
   getChatRooms: [ChatRoom!]!

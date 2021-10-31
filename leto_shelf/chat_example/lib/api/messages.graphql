@@ -34,6 +34,12 @@ mutation sendFileMessage(
   }
 }
 
+query getMessageLinksMetadata($message: String!) {
+  getMessageLinksMetadata(message: $message) {
+    ...MsgLinkMetadata
+  }
+}
+
 subscription onMessageSent($chatId: Int!) {
   onMessageSent(chatId: $chatId) {
     ...FullMessage

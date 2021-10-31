@@ -13,11 +13,11 @@ import 'package:chat_example/api/room.data.gql.dart';
 import 'package:chat_example/api/room.req.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:ferry/ferry.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 part 'messages_store.freezed.dart';
 
@@ -75,13 +75,13 @@ final userEvents =
 final messageStoreProvider = Provider(
   (ref) {
     ref.watch(userIdProvider);
-    return MessagesStore(ref.read);
+    return MessagesStore(ref);
   },
 );
 
 class MessagesStore {
-  MessagesStore(this._read) {
-    _read(userMessagesEvents.stream).listen((event) {
+  MessagesStore(this._ref) {
+    final sub = _read(userMessagesEvents.stream).listen((event) {
       event.when(
         sent: (sent) {
           final req = GgetMessagesReq(
@@ -106,12 +106,17 @@ class MessagesStore {
         updated: (updated) {},
       );
     });
+
+    _ref.onDispose(() {
+      sub.cancel();
+    });
   }
 
   final errorController = StreamController<String>.broadcast();
 
   Client get client => _read(clientProvider);
-  T Function<T>(ProviderBase<T> provider) _read;
+  final ProviderRef _ref;
+  T Function<T>(ProviderBase<T> provider) get _read => _ref.read;
 
   void sendMessage(
     String message,
@@ -166,11 +171,59 @@ class MessagesStore {
         ..vars.chatId = chatId
         ..vars.message = message
         ..vars.file = multipart
-        ..updateResult
       // ..optimisticResponse.sendMessage = optimisticResponse
       ,
     );
     _read(httpClientProvider).request(req).listen((event) {});
+  }
+
+  String? _lastSearchMessage;
+  Timer? searchTimer;
+  final messageLinks = StateProvider<
+      MapEntry<String,
+          GgetMessageLinksMetadataData_getMessageLinksMetadata>?>((_) => null);
+
+  void getMessageLinkMetadata(String message) {
+    if (message.isEmpty) {
+      return;
+    }
+    // final linkElements = linkify(
+    //   message,
+    //   options: const LinkifyOptions(),
+    //   linkifiers: [
+    //     const UrlLinkifier(),
+    //     const EmailLinkifier(),
+    //     const UserTagLinkifier(),
+    //   ],
+    // );
+    // if (linkElements.whereType<UrlElement>().isEmpty) {
+    //   return;
+    // }
+
+    // _read(loadingSearch).state = true;
+    _lastSearchMessage = message;
+    searchTimer ??= Timer(const Duration(seconds: 2), () async {
+      final _searchMessage = _lastSearchMessage!;
+      final req = GgetMessageLinksMetadataReq(
+        (b) => (b..executeOnListen = false).vars..message = _searchMessage,
+      );
+      final result = _read(clientProvider).request(req).firstWhere((element) {
+        if (element.hasErrors) {
+        } else if (element.data != null) {
+          final metadata = element.data!.getMessageLinksMetadata;
+          _read(messageLinks).state = MapEntry(_searchMessage, metadata);
+        }
+        return element.dataSource == DataSource.Link;
+      });
+      _read(clientProvider).requestController.add(req);
+      await result;
+      searchTimer = null;
+      if (_searchMessage != _lastSearchMessage) {
+        getMessageLinkMetadata(_lastSearchMessage!);
+      } else {
+        // _read(loadingSearch).state = false;
+      }
+    });
   }
 }
 
