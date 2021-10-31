@@ -6,7 +6,7 @@ import 'package:code_builder/code_builder.dart';
 import 'package:leto_generator/config.dart';
 import 'package:leto_generator/generator_models.dart';
 import 'package:leto_generator/utils.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 

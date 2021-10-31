@@ -1,4 +1,4 @@
-export 'package:graphql_schema/graphql_schema.dart';
+export 'package:leto_schema/leto_schema.dart';
 export 'package:leto/dataloader.dart';
 export 'package:leto/leto.dart';
 export 'package:shelf/shelf.dart';

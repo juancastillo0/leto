@@ -5,7 +5,7 @@ import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart' show DartFormatter;
 import 'package:glob/glob.dart' show Glob;
 import 'package:leto_generator/utils.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
@@ -114,7 +114,7 @@ class ValidatorsLibGenerator implements Builder {
 
       String out = '''
 // ignore: depend_on_referenced_packages
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 ${allElements.map((e) => "import '${cleanImport(basePath, e.source!.uri)}';").toSet().join()}
 
 final graphqlApiSchema = GraphQLSchema(

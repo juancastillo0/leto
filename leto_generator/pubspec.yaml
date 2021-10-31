@@ -11,7 +11,7 @@ dependencies:
   build_config: ^1.0.0
   code_builder: ^4.1.0
   collection: ^1.15.0-nullsafety.4
-  graphql_schema: ^1.0.2
+  leto_schema: ^1.0.2
   recase: ^4.0.0
   source_gen: ^1.1.0
   json_annotation:
@@ -25,8 +25,8 @@ dev_dependencies:
   lint: ^1.0.0
 
 dependency_overrides:
-  graphql_schema:
-    path: ../graphql_schema
+  leto_schema:
+    path: ../leto_schema
     # git:
     #   url: https://github.com/juancastillo0/leto
-    #   path: graphql_schema
+    #   path: leto_schema

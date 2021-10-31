@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_generator_example/decimal.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 part 'unions.freezed.dart';
 part 'unions.g.dart';

@@ -8,7 +8,7 @@ import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_generator/resolver_generator.dart';
 import 'package:leto_generator/utils.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 

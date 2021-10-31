@@ -1,5 +1,5 @@
 // ignore: depend_on_referenced_packages
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';

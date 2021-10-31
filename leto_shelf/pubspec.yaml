@@ -42,5 +42,5 @@ dev_dependencies:
   test: ^1.14.4
 
 dependency_overrides:
-  graphql_schema:
-    path: ../graphql_schema
+  leto_schema:
+    path: ../leto_schema

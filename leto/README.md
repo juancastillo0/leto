@@ -11,7 +11,7 @@ framework, and thus can be used in any Dart project.
 
 ## Ad-hoc Usage
 The actual querying functionality is handled by the
-`GraphQL` class, which takes a schema (from `package:graphql_schema`).
+`GraphQL` class, which takes a schema (from `package:leto_schema`).
 In most cases, you'll want to call `parseAndExecute`
 on some string of GraphQL text. It returns either a `Stream`
 or `Map<String, dynamic>`, and can potentially throw

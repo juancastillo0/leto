@@ -25,8 +25,8 @@ dependencies:
   shelf_static: ^1.1.0
   leto_shelf:
     path: ..
-  graphql_schema:
-    path: ../../graphql_schema
+  leto_schema:
+    path: ../../leto_schema
   leto:
     path: ../../leto
 
@@ -46,5 +46,5 @@ dev_dependencies:
       path: query_builder_generator
 
 dependency_overrides:
-  graphql_schema:
-    path: ../../graphql_schema
+  leto_schema:
+    path: ../../leto_schema

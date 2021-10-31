@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart' show sha1;
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto/leto.dart';
 
 CacheInfo? getCacheInfo(ReqCtx ctx) {

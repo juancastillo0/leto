@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:graphql_schema/utilities.dart';
+import 'package:leto_schema/utilities.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf_example/graphql_api.schema.dart';
 import 'package:leto_shelf_example/schema/books/books.schema.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:graphql_schema/utilities.dart';
+import 'package:leto_schema/utilities.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_plus/shelf_plus.dart';
 

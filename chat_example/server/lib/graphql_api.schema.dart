@@ -1,5 +1,5 @@
 // ignore: depend_on_referenced_packages
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/user_table.dart';
 import 'package:server/chat_room/chat_table.dart';

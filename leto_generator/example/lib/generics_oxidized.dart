@@ -1,4 +1,4 @@
-// import 'package:graphql_schema/graphql_schema.dart';
+// import 'package:leto_schema/leto_schema.dart';
 // import 'package:oxidized/oxidized.dart';
 
 // part 'generics_oxidized.g.dart';

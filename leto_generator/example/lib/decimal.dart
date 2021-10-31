@@ -1,5 +1,5 @@
 import 'package:decimal/decimal.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
   name: 'Decimal',

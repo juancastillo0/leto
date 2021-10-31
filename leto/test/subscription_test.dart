@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto/leto.dart';
 import 'package:test/test.dart';
 

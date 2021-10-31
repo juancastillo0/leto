@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:graphql_schema/utilities.dart' show printSchema, SchemaPrinter;
+import 'package:leto_schema/utilities.dart' show printSchema, SchemaPrinter;
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;

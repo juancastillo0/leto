@@ -1,4 +1,4 @@
-import 'package:graphql_schema/utilities.dart';
+import 'package:leto_schema/utilities.dart';
 import 'package:leto/leto.dart';
 import 'package:test/test.dart';
 

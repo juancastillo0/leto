@@ -1,5 +1,5 @@
 // ignore: depend_on_referenced_packages
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf_example/quickstart_server.dart';
 import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:leto_shelf_example/schema/generator_test.dart';

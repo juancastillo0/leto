@@ -5,7 +5,7 @@ import 'dart:collection';
 import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:graphql_schema/graphql_schema.dart'
+import 'package:leto_schema/leto_schema.dart'
     show ScopeRef, GraphQLException, ScopedMap;
 import 'package:leto/leto.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;

@@ -2,7 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
 import 'package:leto_generator_example/inputs.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto/leto.dart';
 
 part 'main.g.dart';

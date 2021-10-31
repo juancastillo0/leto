@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart' show DeepCollectionEquality;
-import 'package:graphql_schema/graphql_schema.dart' show GraphQLError;
+import 'package:leto_schema/leto_schema.dart' show GraphQLError;
 import 'package:meta/meta.dart';
 
 /// Utility for nullable values in copyWith methods

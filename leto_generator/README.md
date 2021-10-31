@@ -2,7 +2,7 @@
 [![Pub](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dartlang.org/packages/leto_generator)
 [![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
 
-Generates `package:graphql_schema` schemas for
+Generates `package:leto_schema` schemas for
 annotated class.
 
 Replaces `convertDartType` from `package:leto`.

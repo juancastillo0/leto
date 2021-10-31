@@ -267,13 +267,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.13.0"
-  graphql_schema:
-    dependency: "direct main"
-    description:
-      path: "../../graphql_schema"
-      relative: true
-    source: path
-    version: "1.0.4"
   graphs:
     dependency: transitive
     description:
@@ -400,6 +393,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  leto_schema:
+    dependency: "direct main"
+    description:
+      path: "../../leto_schema"
+      relative: true
+    source: path
+    version: "1.0.4"
   leto_shelf:
     dependency: "direct main"
     description:

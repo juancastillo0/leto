@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_constructors_over_static_methods
 
 import 'package:collection/collection.dart';
-import 'package:graphql_schema/graphql_schema.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
