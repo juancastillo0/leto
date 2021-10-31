@@ -3,6 +3,7 @@ import 'package:graphql_generator_example/decimal.dart';
 import 'package:graphql_generator_example/graphql_api.schema.dart';
 import 'package:graphql_generator_example/inputs.dart';
 import 'package:graphql_schema/graphql_schema.dart';
+import 'package:graphql_server/graphql_server.dart';
 
 part 'main.g.dart';
 
@@ -85,7 +86,7 @@ String getName() {
   return '';
 }
 
-void main() {
+Future<void> main() async {
   print(todoItemGraphQLType.fields.map((f) => f.name));
   const schemaSrt = '''
 type Query {
@@ -115,4 +116,160 @@ type TodoItem {
     'generic': 1,
   });
   print(d.toJson());
+
+  String fieldSelection(GraphQLObjectField<Object?, Object?, Object?> f) {
+    final type = f.type;
+    final _innerType =
+        type is GraphQLWrapperType ? (type as GraphQLWrapperType).ofType : type;
+    final innerType = _innerType is GraphQLWrapperType
+        ? (_innerType as GraphQLWrapperType).ofType
+        : _innerType;
+    if (innerType is GraphQLObjectType) {
+      return ' ${f.name} { ${innerType.fields.map(fieldSelection).join(' ')} } ';
+    } else if (innerType is GraphQLUnionType) {
+      return ' ${f.name} { ${innerType.possibleTypes.map((e) {
+        return ' ... on ${e.name} { ${e.fields.map(fieldSelection).join(' ')} } ';
+      })} }';
+    }
+    return ' ${f.name} ';
+  }
+
+  final allQueries = '{ ${graphqlApiSchema.queryType!.fields.where((f) {
+        return f.inputs.isEmpty;
+      }).map(fieldSelection).join(' ')} }';
+
+  final resultQueries =
+      await GraphQL(graphqlApiSchema).parseAndExecute(allQueries);
+  assert(resultQueries.errors.isEmpty);
+
+  final data = resultQueries.data! as Map<String, Object?>;
+  print(data);
+
+  final allMutations =
+      ' mutation { ${graphqlApiSchema.mutationType!.fields.where((f) {
+            return f.inputs.isEmpty;
+          }).map(fieldSelection).join(' ')} }';
+
+  final resultMutations =
+      await GraphQL(graphqlApiSchema).parseAndExecute(allMutations);
+  final dataMutation = resultMutations.data! as Map<String, Object?>;
+  print(dataMutation);
+  assert(resultMutations.errors.isEmpty);
 }
+
+const ss = '''
+type Query {
+  testInputGen(v: InputGenIntReq!): Int!
+  getNestedInterfaceImpl3: NestedInterfaceImpl3!
+  getName: String!
+}
+
+input InputGenIntReq {
+  name: String!
+  generic: Int!
+}
+
+type NestedInterfaceImpl3 {
+  name3: String!
+}
+
+type Mutation {
+  getInt: ResultIntReqString!
+  getIntReq: ResultIntReqStringReq!
+  getIntNull: ResultIntString!
+  getIntInterface: ResultIntErrCodeInterfaceStringReqReq!
+  getIntInterfaceEnum: ResultIntReqErrCodeInterfaceErrCodeTypeReqReq!
+  getIntInterfaceEnumList: ResultIntListReqErrCodeInterfaceErrCodeTypeReqListReqReq!
+  getIntInterfaceNEnumNull: ResultIntReqErrCodeInterfaceNErrCodeTypeReq!
+}
+
+"""
+Int! when the operation was successful or String when an error was encountered.
+"""
+type ResultIntReqString {
+  ok: Int
+  err: String
+  isOk: Boolean!
+}
+
+"""
+Int! when the operation was successful or String! when an error was encountered.
+"""
+type ResultIntReqStringReq {
+  ok: Int
+  err: String
+  isOk: Boolean!
+}
+
+"""
+Int when the operation was successful or String when an error was encountered.
+"""
+type ResultIntString {
+  ok: Int
+  err: String
+  isOk: Boolean!
+}
+
+"""
+Int when the operation was successful or ErrCodeInterfaceStringReq! when an error was encountered.
+"""
+type ResultIntErrCodeInterfaceStringReqReq {
+  ok: Int
+  err: ErrCodeInterfaceStringReq
+  isOk: Boolean!
+}
+
+type ErrCodeInterfaceStringReq {
+  message: String
+  code: String!
+}
+
+"""
+Int! when the operation was successful or ErrCodeInterfaceErrCodeTypeReq! when an error was encountered.
+"""
+type ResultIntReqErrCodeInterfaceErrCodeTypeReqReq {
+  ok: Int
+  err: ErrCodeInterfaceErrCodeTypeReq
+  isOk: Boolean!
+}
+
+type ErrCodeInterfaceErrCodeTypeReq {
+  message: String
+  code: ErrCodeType!
+}
+
+enum ErrCodeType {
+  code1
+  code2
+}
+
+"""
+[Int]! when the operation was successful or ErrCodeInterfaceErrCodeTypeReqListReq! when an error was encountered.
+"""
+type ResultIntListReqErrCodeInterfaceErrCodeTypeReqListReqReq {
+  ok: [Int]
+  err: ErrCodeInterfaceErrCodeTypeReqListReq
+  isOk: Boolean!
+}
+
+type ErrCodeInterfaceErrCodeTypeReqListReq {
+  message: String
+  code: [ErrCodeType!]!
+}
+
+"""
+Int! when the operation was successful or ErrCodeInterfaceNErrCodeType! when an error was encountered.
+"""
+type ResultIntReqErrCodeInterfaceNErrCodeTypeReq {
+  ok: Int
+  err: ErrCodeInterfaceNErrCodeType
+  isOk: Boolean!
+}
+
+type ErrCodeInterfaceNErrCodeType {
+  message: String
+  code: ErrCodeType!
+}
+
+type Subscription
+''';

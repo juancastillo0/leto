@@ -17,7 +17,7 @@ final GraphQLObjectField<int, Object, Object> testInputGenGraphQLField = field(
   inputs: [
     GraphQLFieldInput(
       "v",
-      inputGenGraphQLType(graphQLInt.nonNull()).nonNull(),
+      inputGenGraphQLType<int>(graphQLInt.nonNull()).nonNull(),
     )
   ],
 );
@@ -113,10 +113,10 @@ GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLType {
       inputField('parent', inputMGraphQLType.coerceToInputObject()),
       inputField(
           'inputGenM',
-          inputGenGraphQLType(inputMGraphQLType.nonNull())
+          inputGenGraphQLType<InputM>(inputMGraphQLType.nonNull())
               .coerceToInputObject()),
       inputField('inputGenMNull',
-          inputGenGraphQLType(inputMGraphQLType).coerceToInputObject())
+          inputGenGraphQLType<InputM?>(inputMGraphQLType).coerceToInputObject())
     ],
   );
 
@@ -127,7 +127,7 @@ final inputGenSerdeCtx = SerdeCtx();
 Map<String, GraphQLInputObjectType<InputGen>> _inputGenGraphQLType = {};
 
 /// Auto-generated from [InputGen].
-GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T extends Object>(
+GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'InputGen${tGraphQLType.printableName}';

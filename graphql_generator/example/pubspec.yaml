@@ -7,14 +7,16 @@ environment:
 dependencies:
   collection: ^1.15.0-nullsafety.4
   graphql_schema: ^1.0.2
-  recase: ^4.0.0
   decimal: ^1.0.0
   json_annotation: ^4.3.0
   freezed_annotation:
+  oxidized: ^5.1.0
   valida:
     git:
       url: https://github.com/juancastillo0/valida
       path: valida
+  graphql_server:
+    path: ../../graphql_server
 
 dev_dependencies:
   build_runner: ^2.0.0
@@ -22,6 +24,10 @@ dev_dependencies:
   freezed:
   json_serializable:
   graphql_generator:
+  valida_generator:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida_generator
 
 dependency_overrides:
   graphql_generator:
@@ -33,3 +39,5 @@ dependency_overrides:
     #   path: graphql_schema
   valida:
     path: ../../../valida/valida
+  graphql_server:
+    path: ../../graphql_server

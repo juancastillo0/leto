@@ -6,6 +6,21 @@ part of 'unions.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
+final GraphQLObjectField<NestedInterfaceImpl3, Object, Object>
+    getNestedInterfaceImpl3GraphQLField = field(
+  'getNestedInterfaceImpl3',
+  nestedInterfaceImpl3GraphQLType.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getNestedInterfaceImpl3();
+  },
+);
+
+// **************************************************************************
+// _GraphQLGenerator
+// **************************************************************************
+
 final unionSingleInputSerializer = SerializerValue<UnionSingleInput>(
   fromJson: (ctx, json) =>
       UnionSingleInput.fromJson(json), // _$$_UnionSingleInputFromJson,
@@ -223,6 +238,28 @@ GraphQLObjectType<NestedInterfaceImpl2> get nestedInterfaceImpl2GraphQLType {
   );
 
   return __nestedInterfaceImpl2GraphQLType;
+}
+
+GraphQLObjectType<NestedInterfaceImpl3>? _nestedInterfaceImpl3GraphQLType;
+
+/// Auto-generated from [NestedInterfaceImpl3].
+GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType {
+  final __name = 'NestedInterfaceImpl3';
+  if (_nestedInterfaceImpl3GraphQLType != null)
+    return _nestedInterfaceImpl3GraphQLType!
+        as GraphQLObjectType<NestedInterfaceImpl3>;
+
+  final __nestedInterfaceImpl3GraphQLType = objectType<NestedInterfaceImpl3>(
+      'NestedInterfaceImpl3',
+      isInterface: false,
+      interfaces: []);
+
+  _nestedInterfaceImpl3GraphQLType = __nestedInterfaceImpl3GraphQLType;
+  __nestedInterfaceImpl3GraphQLType.fields.addAll(
+    [field('name3', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name3)],
+  );
+
+  return __nestedInterfaceImpl3GraphQLType;
 }
 
 // **************************************************************************

@@ -73,3 +73,23 @@ class NestedInterfaceImpl2 implements NestedInterfaceImpl {
     required this.name2,
   });
 }
+
+@GraphQLClass()
+class NestedInterfaceImpl3 extends NestedInterfaceImpl {
+  final String name3;
+
+  NestedInterfaceImpl3({
+    required Decimal dec,
+    required String? name,
+    required this.name3,
+  }) : super(name, dec);
+}
+
+@Query()
+Future<NestedInterfaceImpl3> getNestedInterfaceImpl3() async {
+  return NestedInterfaceImpl3(
+    dec: Decimal.parse('12.3'),
+    name3: 'name33',
+    name: null,
+  );
+}

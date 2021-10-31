@@ -1,9 +1,9 @@
 // ignore: depend_on_referenced_packages
 import 'package:graphql_schema/graphql_schema.dart';
 import 'package:graphql_generator_example/inputs.dart';
+import 'package:graphql_generator_example/unions.dart';
 import 'package:graphql_generator_example/main.dart';
 import 'package:graphql_generator_example/generics.dart';
-import 'package:graphql_generator_example/unions.dart';
 
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
@@ -23,6 +23,7 @@ final graphqlApiSchema = GraphQLSchema(
     'Query',
     fields: [
       testInputGenGraphQLField,
+      getNestedInterfaceImpl3GraphQLField,
       getNameGraphQLField,
     ],
   ),
@@ -35,6 +36,7 @@ final graphqlApiSchema = GraphQLSchema(
       getIntInterfaceGraphQLField,
       getIntInterfaceEnumGraphQLField,
       getIntInterfaceEnumListGraphQLField,
+      getIntInterfaceNEnumNullGraphQLField,
     ],
   ),
   subscriptionType: objectType(
