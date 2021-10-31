@@ -201,11 +201,13 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 
 # Packages
 
-- leto: Main server implementation
-- leto_schema: GraphQL executable schema definition
-- leto_generator: Generate GraphQLSchema and GraphQLTypes from Dart classes with code generation
-- leto_shelf: Web server
-- leto_links: Client gql links, primarily to support GraphQLExtensions defined in leto
+| Pub                                                                  | Source                                                    | Description                                                             |
+| -------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [![version][package:leto:version]][package:leto]                     | [`package:leto`][package:leto:source]                     | Base GraphQL server implementation                                      |
+| [![version][package:leto_schema:version]][package:leto_schema]       | [`package:leto_schema`][package:leto_schema:source]       | Define GraphQL executable schemas                                       |
+| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQLSchema and GraphQLTypes from Dart annotations           |
+| [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server implementation using shelf                           |
+| [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQLExtensions defined in package:leto |
 
 # Documentation
 
@@ -953,3 +955,19 @@ If using fvm, you may need to run:
 ```
 fvm flutter pub global run melos bootstrap
 ```
+
+[package:leto:source]: ./leto
+[package:leto]: https://pub.dartlang.org/packages/leto
+[package:leto:version]: https://img.shields.io/pub/v/leto.svg
+[package:leto_schema:source]: ./leto_schema
+[package:leto_schema]: https://pub.dartlang.org/packages/leto_schema
+[package:leto_schema:version]: https://img.shields.io/pub/v/leto_schema.svg
+[package:leto_generator:source]: ./leto_generator
+[package:leto_generator]: https://pub.dartlang.org/packages/leto_generator
+[package:leto_generator:version]: https://img.shields.io/pub/v/leto_generator.svg
+[package:leto_shelf:source]: ./leto_shelf
+[package:leto_shelf]: https://pub.dartlang.org/packages/leto_shelf
+[package:leto_shelf:version]: https://img.shields.io/pub/v/leto_shelf.svg
+[package:leto_links:source]: ./leto_links
+[package:leto_links]: https://pub.dartlang.org/packages/leto_links
+[package:leto_links:version]: https://img.shields.io/pub/v/leto_links.svg
