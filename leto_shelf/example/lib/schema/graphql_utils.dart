@@ -65,7 +65,7 @@ GraphQLObjectType<T>? mergeObjectNullable<T extends Object>(
   }
 }
 
-GraphQLObjectType<T> mergeObject<T extends Object>(
+GraphQLObjectType<T> mergeObject<T>(
   GraphQLObjectType<T> a,
   GraphQLObjectType<T> b, {
   String? name,
@@ -80,10 +80,9 @@ GraphQLObjectType<T> mergeObject<T extends Object>(
   );
 }
 
-Map<String, GraphQLObjectField<Object, Object, T>>
-    mergeObjectFields<T extends Object>(
-  List<GraphQLObjectField<Object, Object, T>>? aFields,
-  List<GraphQLObjectField<Object, Object, T>>? bFields,
+Map<String, GraphQLObjectField<Object?, Object?, T>> mergeObjectFields<T>(
+  List<GraphQLObjectField<Object?, Object?, T>>? aFields,
+  List<GraphQLObjectField<Object?, Object?, T>>? bFields,
 ) {
   final aFieldsMap = Map.fromEntries(
     (aFields ?? []).map((e) => MapEntry(e.name, e)),
@@ -92,8 +91,9 @@ Map<String, GraphQLObjectField<Object, Object, T>>
     (bFields ?? []).map((e) => MapEntry(e.name, e)),
   );
 
-  final mergedFields = Map.fromEntries(
-      aFieldsMap.keys.followedBy(bFieldsMap.keys).toSet().map((e) {
+  final mergedFields =
+      Map<String, GraphQLObjectField<Object?, Object?, T>>.fromEntries(
+          aFieldsMap.keys.followedBy(bFieldsMap.keys).toSet().map((e) {
     final _a = aFieldsMap[e];
     final _b = bFieldsMap[e];
 
@@ -105,7 +105,7 @@ Map<String, GraphQLObjectField<Object, Object, T>>
       return MapEntry(
         e,
         _a.type.generic.callWithType(
-          <V extends Object>() => field<Object, Object, T>(
+          <V>() => field<Object?, Object?, T>(
             e,
             mergeObject<V>(
               _a.type as GraphQLObjectType<V>,

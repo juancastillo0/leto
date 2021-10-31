@@ -6,8 +6,7 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Iterable<GraphQLObjectField<Object, Object, T>>
-      fieldsFromMap<T extends Object>(
+  Iterable<GraphQLObjectField<Object?, Object?, T>> fieldsFromMap<T>(
     Map<String, GraphQLType> map,
   ) {
     return map.entries.map((e) => e.value.field(e.key));

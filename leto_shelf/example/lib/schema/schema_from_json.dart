@@ -8,9 +8,8 @@ import 'package:shelf_graphql/shelf_graphql.dart';
 import 'package:shelf_graphql_example/schema/graphql_utils.dart';
 import 'package:shelf_graphql_example/types/safe_json.dart';
 import 'package:shelf_graphql_example/types/safe_json_graphql.dart';
-import 'package:valida/valida.dart';
-
-export 'package:valida/validate/serde_type.dart';
+import 'package:valida/serde_type.dart';
+export 'package:valida/serde_type.dart';
 
 GraphQLSchema schemaFromJson({
   required String fieldName,
@@ -75,7 +74,7 @@ GraphQLSchema schemaFromJson({
   return schemas.reduce(mergeGraphQLSchemas);
 }
 
-GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
+GraphQLObjectField<Object?, Object?, Object?> graphqlFieldFromJson({
   required String fieldName,
   required String jsonString,
   String typeName = 'Root',
@@ -93,14 +92,14 @@ GraphQLObjectField<Object, Object, Object> graphqlFieldFromJson({
 }
 
 GraphQLSchema makeMutationSchema(
-  GraphQLObjectType objType,
+  GraphQLObjectType<Object?> objType,
   List<Map<String, Object?>> response, {
   required String fieldName,
   Set<String>? idFields,
   bool upsert = true,
 }) {
-  final mutationFields = <GraphQLObjectField<Object, Object, Object>>[];
-  final subscriptionFields = <GraphQLObjectField<Object, Object, Object>>[];
+  final mutationFields = <GraphQLObjectField<Object?, Object?, Object?>>[];
+  final subscriptionFields = <GraphQLObjectField<Object?, Object?, Object?>>[];
 
   final controllerAdd = StreamController<Map<String, Object?>>.broadcast();
   final controllerUpdate = StreamController<Map<String, Object?>>.broadcast();
@@ -286,12 +285,12 @@ GraphQLSchema makeMutationSchema(
   return GraphQLSchema(
     queryType: objectType('Query', fields: []),
     mutationType: objectType('Mutation', fields: mutationFields),
-    subscriptionType: objectType('Subcription', fields: subscriptionFields),
+    subscriptionType: objectType('Subscription', fields: subscriptionFields),
   );
 }
 
-GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
-  final GraphQLType<Object, Object> gqlType = type.when(
+GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
+  final GraphQLType<Object?, Object?> gqlType = type.when(
     bool: () => graphQLBoolean,
     int: () => graphQLInt,
     num: () => graphQLFloat,
@@ -325,7 +324,7 @@ GraphQLType<Object, Object> graphQLTypeFromSerde(String key, SerdeType type) {
     unionType: (unionType) {
       final variants = unionType.variants
           .map((e) => graphQLTypeFromSerde('$key${e.inner}', e));
-      if (variants.every((v) => v.realType is GraphQLObjectType)) {
+      if (variants.every((v) => v is GraphQLObjectType)) {
         return GraphQLUnionType(
           key,
           variants.cast(),
