@@ -1,9 +1,10 @@
 // ignore_for_file: leading_newlines_in_multiline_strings
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:query_builder/database/models/connection_models.dart';
 import 'package:server/chat_room/user_rooms.dart';
 import 'package:server/data_utils/sql_utils.dart';
@@ -11,7 +12,6 @@ import 'package:server/data_utils/sqlite_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
-import 'package:leto_shelf/leto_shelf.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'chat_table.freezed.dart';

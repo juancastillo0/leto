@@ -1,4 +1,5 @@
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:shelf/shelf.dart';
 
 final requestCtxKey = ScopeRef<Request>('__request');
 final responseCtxKey = ScopeRef<Response>('__response');

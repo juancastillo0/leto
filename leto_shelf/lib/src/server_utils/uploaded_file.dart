@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart' show sha1;
 import 'package:http_parser/http_parser.dart';
 import 'package:http_server/http_server.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 
 part 'uploaded_file.g.dart';

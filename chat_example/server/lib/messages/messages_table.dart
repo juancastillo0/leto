@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:query_builder/database/models/connection_models.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart';
@@ -13,10 +15,9 @@ import 'package:server/events/database_event.dart';
 import 'package:server/messages/metadata.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/utilities.dart';
-import 'package:leto_shelf/leto_shelf.dart';
 
-part 'messages_table.g.dart';
 part 'messages_table.freezed.dart';
+part 'messages_table.g.dart';
 
 @GraphQLClass()
 enum MessageType {

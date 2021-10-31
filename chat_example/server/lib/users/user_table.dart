@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:leto/dataloader.dart';
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:oxidized/oxidized.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
@@ -9,11 +13,10 @@ import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/utilities.dart';
-import 'package:leto_shelf/leto_shelf.dart';
 import 'package:valida/validate/validate_annotations.dart';
 
-part 'user_table.g.dart';
 part 'user_table.freezed.dart';
+part 'user_table.g.dart';
 
 final userTableRef = RefWithDefault.global(
   (scope) => UserTable(

@@ -13,6 +13,8 @@ dependencies:
   gql: ^0.13.0
   leto:
     path: ../leto
+  leto_schema:
+    path: ../leto_schema
   http_parser: ^4.0.0
   http_server: ^1.0.0
 

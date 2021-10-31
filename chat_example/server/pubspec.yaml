@@ -40,6 +40,8 @@ dependencies:
 
   leto_shelf_example:
     path: ../../leto_shelf/example
+  leto:
+    path: ../../leto
   leto_schema:
     path: ../../leto/leto_schema
 

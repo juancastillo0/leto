@@ -338,7 +338,7 @@ packages:
     source: path
     version: "2.0.0-beta"
   leto_schema:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../leto_schema"
       relative: true

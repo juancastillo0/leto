@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
-
-import 'package:leto_shelf/leto_shelf.dart';
 
 part 'user_rooms.g.dart';
 part 'user_rooms.freezed.dart';

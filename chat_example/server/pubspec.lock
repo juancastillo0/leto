@@ -380,7 +380,7 @@ packages:
     source: hosted
     version: "5.0.2"
   leto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../../leto"
       relative: true

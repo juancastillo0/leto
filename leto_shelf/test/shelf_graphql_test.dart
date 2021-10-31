@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:leto/leto.dart';
 import 'package:http/http.dart' as http;
+import 'package:leto/leto.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf/src/server_utils/graphql_request.dart';
 import 'package:leto_shelf_example/schema/generator_test.dart';

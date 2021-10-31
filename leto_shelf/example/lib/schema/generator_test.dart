@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:valida/valida.dart';
 
 part 'generator_test.freezed.dart';

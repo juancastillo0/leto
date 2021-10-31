@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show printSchema, SchemaPrinter;
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
@@ -10,7 +13,6 @@ import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
-import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 

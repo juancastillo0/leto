@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf_example/schema/chat_room/sql_utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 

@@ -1,6 +1,7 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/abstract-test.ts
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show buildSchema;
-import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 
 Future<Map<String, Object?>> executeQuery(

@@ -13,6 +13,15 @@ import 'introspection.dart';
 import 'src/extension.dart';
 import 'src/graphql_result.dart';
 
+export 'package:leto_schema/leto_schema.dart'
+    show
+        GraphQLException,
+        GraphQLError,
+        ScopedMap,
+        ScopeRef,
+        RefWithDefault,
+        GlobalsHolder;
+
 export 'src/extension.dart';
 export 'src/graphql_result.dart';
 

@@ -1,5 +1,6 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/union-interface-test.ts
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';
 
 class Dog {

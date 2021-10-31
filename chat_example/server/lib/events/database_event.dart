@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_shelf_example/types/page_info.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart';
@@ -9,8 +11,6 @@ import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
-import 'package:leto_shelf/leto_shelf.dart';
-import 'package:leto_shelf_example/types/page_info.dart';
 
 part 'database_event.freezed.dart';
 part 'database_event.g.dart';

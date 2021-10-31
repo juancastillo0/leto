@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:leto/leto.dart';
 import 'package:leto_shelf/leto_shelf.dart';
-import 'package:leto_shelf/src/multipart_shelf.dart'
-    show extractMultiPartData;
+import 'package:leto_shelf/src/multipart_shelf.dart' show extractMultiPartData;
 
 Handler graphqlHttp(
   GraphQL graphQL, {

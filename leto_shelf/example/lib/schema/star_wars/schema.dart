@@ -50,7 +50,7 @@
 /// We begin by setting up our schema.
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf_example/schema/star_wars/data.dart';
 
 part 'schema.freezed.dart';

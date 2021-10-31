@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_path/json_path.dart';
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf_example/schema/graphql_utils.dart';
 import 'package:leto_shelf_example/types/safe_json.dart';
 import 'package:leto_shelf_example/types/safe_json_graphql.dart';

@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:blurhash_dart/blurhash_dart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:image/image.dart' as img;
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:linkify/linkify.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:leto_shelf/leto_shelf.dart';
 
 part 'metadata.freezed.dart';
 part 'metadata.g.dart';

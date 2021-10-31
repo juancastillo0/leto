@@ -1,4 +1,4 @@
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 GraphQLSchema mergeGraphQLSchemas(
   GraphQLSchema a,

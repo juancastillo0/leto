@@ -1,4 +1,4 @@
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto/leto.dart';
 import 'package:test/test.dart';
 import 'package:toml/toml.dart';
 

@@ -9,7 +9,7 @@
 
 // import { StarWarsSchema } from './starWarsSchema';
 
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto/leto.dart';
 import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:test/test.dart';
 
