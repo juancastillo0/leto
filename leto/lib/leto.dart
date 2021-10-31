@@ -751,37 +751,15 @@ class GraphQL {
           );
         }
         futureResponseValue = withExtensions<FutureOr<Object?>>(
-            (n, e) => e.executeField(n, objectCtx, objectField, alias),
-            () async {
-          try {
-            // improved debugging
-            // ignore: unnecessary_await_in_return
-            return await executeField(
+          (n, e) => e.executeField(n, objectCtx, objectField, alias),
+          () {
+            return executeField<Object?, Object?>(
               fields,
               objectCtx,
               objectField,
             );
-          } catch (e, s) {
-            final err = mapException(
-              ThrownError(
-                error: e,
-                stackTrace: s,
-                path: fieldPath,
-                span: fieldSpan,
-                objectCtx: objectCtx,
-                type: objectField.type,
-                location: ThrownErrorLocation.executeField,
-              ),
-            );
-            if (objectField.type.isNullable) {
-              // TODO: add only one error?
-              baseCtx.errors.add(err.errors.first);
-              return null;
-            } else {
-              throw err;
-            }
-          }
-        });
+          },
+        );
       }
       if (serial) {
         await futureResponseValue;
@@ -798,35 +776,70 @@ class GraphQL {
   /// Returns the serialized value of type [objectField] for the object [ctx]
   /// by [coerceArgumentValues], executing the resolver [resolveFieldValue]
   /// and serializing the result [completeValue]
-  Future<T> executeField<T, P>(
+  Future<T?> executeField<T, P>(
     List<FieldNode> fields,
     ResolveObjectCtx<P> ctx,
     GraphQLObjectField<T, Object?, P> objectField,
   ) async {
+    T? _returnError(GraphQLException err) {
+      if (objectField.type.isNullable) {
+        // TODO: add only one error?
+        ctx.base.errors.add(err.errors.first);
+        return null;
+      } else {
+        throw err;
+      }
+    }
+
     final field = fields.first;
     final fieldName = field.name.value;
     final pathItem = field.alias?.value ?? fieldName;
+    final fieldSpan = field.span ?? field.alias?.span ?? field.name.span;
+    final fieldPath = [...ctx.path, pathItem];
 
-    final argumentValues = coerceArgumentValues(
-      ctx.serdeCtx,
-      ctx.objectType,
-      field,
-      ctx.variableValues,
-    );
-    final resolvedValue = await resolveFieldValue<T, P>(
-      ctx,
-      objectField,
-      pathItem,
-      argumentValues,
-    );
-    return await completeValue(
-      ctx,
-      fieldName,
-      objectField.type,
-      fields,
-      resolvedValue,
-      pathItem: pathItem,
-    ) as T;
+    final Map<String, dynamic> argumentValues;
+    try {
+      argumentValues = coerceArgumentValues(
+        ctx.serdeCtx,
+        ctx.objectType,
+        field,
+        ctx.variableValues,
+      );
+    } catch (e, s) {
+      return _returnError(
+        GraphQLException.fromException(e, s, fieldPath, span: fieldSpan),
+      );
+    }
+
+    try {
+      final resolvedValue = await resolveFieldValue<T, P>(
+        ctx,
+        objectField,
+        pathItem,
+        argumentValues,
+      );
+      return await completeValue(
+        ctx,
+        fieldName,
+        objectField.type,
+        fields,
+        resolvedValue,
+        pathItem: pathItem,
+      ) as T;
+    } catch (e, s) {
+      final err = mapException(
+        ThrownError(
+          error: e,
+          stackTrace: s,
+          path: fieldPath,
+          span: fieldSpan,
+          objectCtx: ctx,
+          type: objectField.type,
+          location: ThrownErrorLocation.executeField,
+        ),
+      );
+      return _returnError(err);
+    }
   }
 
   Map<String, dynamic> coerceArgumentValues(
