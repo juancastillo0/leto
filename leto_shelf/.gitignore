@@ -14,3 +14,6 @@ example/lib/.DS_Store
 example/lib/schema/.DS_Store
 example/.DS_Store
 .DS_Store
+example/chat_room.sqlite
+chat_example/server/chat_room.sqlite
+chat_room.sqlite
