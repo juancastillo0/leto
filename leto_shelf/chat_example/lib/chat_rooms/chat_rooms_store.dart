@@ -194,7 +194,7 @@ class RoomStore {
   String lastSearchName = '';
   Timer? searchTimer;
   void searchUser(String name) {
-    if (name.isEmpty || name == lastSearchName) {
+    if (name.isEmpty) {
       return;
     }
     _read(loadingSearch).state = true;
@@ -261,7 +261,7 @@ class RoomStore {
     final result = await fut;
     if (result.hasErrors) {}
     if (result.data?.deleteChatRoomUser == true) {
-      if (_read(authStoreProv).user?.id == userId) {
+      if (_read(authStoreProv)?.user.id == userId) {
         // TODO: leave group
       }
     }

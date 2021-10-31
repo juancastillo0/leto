@@ -18,7 +18,7 @@ class ChatRoomUsers extends HookConsumerWidget {
   final GFullChatRoomData room;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStoreProv).user!;
+    final user = ref.watch(authStoreProv)!.user;
 
     final ownUser = room.users.firstWhere((u) => u.userId == user.id);
     final userIds = room.users.map((p0) => p0.userId).toSet();

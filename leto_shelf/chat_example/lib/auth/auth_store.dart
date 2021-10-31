@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chat_example/api/client.dart';
+import 'package:chat_example/api/persistence.dart';
 import 'package:chat_example/api/user.data.gql.dart';
 import 'package:chat_example/api/user.req.gql.dart';
 import 'package:chat_example/api/user.var.gql.dart';
@@ -29,15 +30,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 //       _$AuthStateFromJson(json);
 // }
 
-final authStoreProv = Provider<AuthStore>((ref) {
-  final savedState = ref.read(authStorageProv).state;
+final authStoreProv =
+    StateNotifierProvider<AuthStore, GSTokenWithUserData?>((ref) {
+  final savedState = ref.read(authStorageProv).get();
   return AuthStore(
     ref.read,
     savedState,
   );
 });
 
-final userIdProvider = Provider((ref) => ref.watch(authStoreProv).user?.id);
+final userIdProvider = Provider((ref) => ref.watch(authStoreProv)?.user.id);
 
 class AuthStore extends StateNotifier<GSTokenWithUserData?> {
   final T Function<T>(ProviderBase<T> provider) _read;
@@ -257,7 +259,7 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
           _errorController.add(signOutError);
         } else {
           state = null;
-          await signInAnnon();
+          // await signInAnnon();
         }
 
         await _signOutSub!.cancel();

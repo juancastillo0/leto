@@ -27,7 +27,7 @@ class AuthForm extends HookConsumerWidget {
         return 'Should be at least 6 characters long';
       }
     });
-    final state = ref.watch(authStoreProv);
+    final state = ref.watch(authStoreProv.notifier);
     final isLoading = useListenable(state.signInLoading).value;
 
     final user = state.user;
@@ -43,7 +43,7 @@ class AuthForm extends HookConsumerWidget {
                 primary: Theme.of(context).colorScheme.onPrimary,
               ),
               onPressed: () {
-                ref.read(authStoreProv).signOut();
+                ref.read(authStoreProv.notifier).signOut();
               },
               child: const Text('Sign Out'),
             ),
@@ -178,7 +178,7 @@ class AuthForm extends HookConsumerWidget {
               children: [
                 ElevatedButton(
                   onPressed: _validated(() {
-                    ref.read(authStoreProv).signUp(
+                    ref.read(authStoreProv.notifier).signUp(
                           name: name.controller.text,
                           password: password.controller.text,
                         );
@@ -188,7 +188,7 @@ class AuthForm extends HookConsumerWidget {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _validated(() {
-                    ref.read(authStoreProv).signIn(
+                    ref.read(authStoreProv.notifier).signIn(
                           name: name.controller.text,
                           password: password.controller.text,
                         );

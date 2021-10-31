@@ -136,7 +136,7 @@ class ChatsBody extends StatelessWidget {
             builder: (context, ref, _) {
               final showInfo = useState(false);
               final chat = ref.watch(selectedChat).asData?.value;
-              final state = ref.watch(authStoreProv);
+              final state = ref.watch(authStoreProv.notifier);
 
               if (chat == null) {
                 return Center(
