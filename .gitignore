@@ -57,3 +57,4 @@ fabric.properties
 .fvm/flutter_sdk
 .vscode/settings.json
 .vscode/launch.json
+.DS_Store
