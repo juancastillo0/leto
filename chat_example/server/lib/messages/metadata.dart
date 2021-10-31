@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:image/image.dart' as img;
 import 'package:linkify/linkify.dart';
 import 'package:metadata_fetch/metadata_fetch.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 
 part 'metadata.freezed.dart';
 part 'metadata.g.dart';

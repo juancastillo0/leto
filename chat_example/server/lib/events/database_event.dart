@@ -9,8 +9,8 @@ import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/types/page_info.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/types/page_info.dart';
 
 part 'database_event.freezed.dart';
 part 'database_event.g.dart';

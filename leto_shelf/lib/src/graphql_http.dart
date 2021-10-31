@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql/src/multipart_shelf.dart'
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf/src/multipart_shelf.dart'
     show extractMultiPartData;
 
 Handler graphqlHttp(

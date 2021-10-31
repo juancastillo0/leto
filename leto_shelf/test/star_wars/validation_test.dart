@@ -9,8 +9,8 @@
 
 // import { StarWarsSchema } from './starWarsSchema';
 
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:valida/valida.dart';
 
 part 'generator_test.freezed.dart';

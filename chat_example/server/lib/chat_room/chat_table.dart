@@ -11,7 +11,7 @@ import 'package:server/data_utils/sqlite_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'chat_table.freezed.dart';

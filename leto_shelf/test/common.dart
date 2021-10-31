@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf_io.dart' as io;
-import 'package:shelf_graphql_example/run_server.dart'
+import 'package:leto_shelf_example/run_server.dart'
     show ServerConfig, serverHandler;
 import 'package:test/test.dart';
 
-export 'package:shelf_graphql_example/run_server.dart' show ServerConfig;
+export 'package:leto_shelf_example/run_server.dart' show ServerConfig;
 
 class TestGqlServer {
   final Uri url;

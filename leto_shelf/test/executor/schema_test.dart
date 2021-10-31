@@ -1,5 +1,5 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/schema-test.ts
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 
 /// Execute: Handles execution with a complex schema

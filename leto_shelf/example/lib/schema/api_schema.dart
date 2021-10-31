@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:graphql_schema/utilities.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/graphql_api.schema.dart';
-import 'package:shelf_graphql_example/schema/books/books.schema.dart';
-import 'package:shelf_graphql_example/schema/graphql_utils.dart';
-import 'package:shelf_graphql_example/schema/schema_from_json.dart';
-import 'package:shelf_graphql_example/schema/star_wars/schema.dart';
-import 'package:shelf_graphql_example/schema/star_wars_relay/data.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/graphql_api.schema.dart';
+import 'package:leto_shelf_example/schema/books/books.schema.dart';
+import 'package:leto_shelf_example/schema/graphql_utils.dart';
+import 'package:leto_shelf_example/schema/schema_from_json.dart';
+import 'package:leto_shelf_example/schema/star_wars/schema.dart';
+import 'package:leto_shelf_example/schema/star_wars_relay/data.dart';
 
 import '../types/safe_json.dart';
 import '../types/safe_json_graphql.dart';

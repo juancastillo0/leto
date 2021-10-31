@@ -400,6 +400,20 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  leto_shelf:
+    dependency: "direct main"
+    description:
+      path: "../../leto_shelf"
+      relative: true
+    source: path
+    version: "0.0.0"
+  leto_shelf_example:
+    dependency: "direct main"
+    description:
+      path: "../../leto_shelf/example"
+      relative: true
+    source: path
+    version: "0.0.0"
   linkify:
     dependency: "direct main"
     description:
@@ -607,20 +621,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
-  shelf_graphql:
-    dependency: "direct main"
-    description:
-      path: "../../leto_shelf"
-      relative: true
-    source: path
-    version: "0.0.0"
-  shelf_graphql_example:
-    dependency: "direct main"
-    description:
-      path: "../../leto_shelf/example"
-      relative: true
-    source: path
-    version: "0.0.0"
   shelf_hotreload:
     dependency: transitive
     description:

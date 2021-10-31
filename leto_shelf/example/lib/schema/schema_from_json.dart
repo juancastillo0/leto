@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_path/json_path.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/graphql_utils.dart';
-import 'package:shelf_graphql_example/types/safe_json.dart';
-import 'package:shelf_graphql_example/types/safe_json_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/graphql_utils.dart';
+import 'package:leto_shelf_example/types/safe_json.dart';
+import 'package:leto_shelf_example/types/safe_json_graphql.dart';
 import 'package:valida/serde_type.dart';
 export 'package:valida/serde_type.dart';
 

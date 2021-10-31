@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:oxidized/oxidized.dart';
-import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-import 'package:shelf_graphql/src/server_utils/uploaded_file.dart';
+import 'package:leto_shelf/src/server_utils/graphql_request.dart';
+import 'package:leto_shelf/src/server_utils/uploaded_file.dart';
 
 class MultiPartData {
   final Map<String, String> body;

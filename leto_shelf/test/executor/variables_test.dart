@@ -1,7 +1,7 @@
 // https://github.com/graphql/graphql-js/blob/8261922bafb8c2b5c5041093ce271bdfcdf133c3/src/execution/__tests__/variables-test.ts
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/types/safe_json.dart';
-import 'package:shelf_graphql_example/types/safe_json_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/types/safe_json.dart';
+import 'package:leto_shelf_example/types/safe_json_graphql.dart';
 
 import 'package:test/test.dart';
 

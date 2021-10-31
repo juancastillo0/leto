@@ -2,9 +2,9 @@ import 'package:gql/language.dart' as gql;
 import 'package:gql_exec/gql_exec.dart' as gql_exec;
 import 'package:gql_link/gql_link.dart' as gql_link;
 import 'package:gql_websocket_link/gql_websocket_link.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/books/books.controller.dart';
-import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/books/books.controller.dart';
+import 'package:leto_shelf_example/schema/stream_state_callbacks.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';

@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-import 'package:shelf_graphql_example/schema/books/books.controller.dart';
-import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf/src/server_utils/graphql_request.dart';
+import 'package:leto_shelf_example/schema/books/books.controller.dart';
+import 'package:leto_shelf_example/schema/stream_state_callbacks.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';

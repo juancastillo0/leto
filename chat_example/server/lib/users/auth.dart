@@ -6,7 +6,7 @@ import 'dart:typed_data' show Uint8List;
 import 'package:argon2/argon2.dart';
 import 'package:jose/jose.dart';
 import 'package:server/users/user_table.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';

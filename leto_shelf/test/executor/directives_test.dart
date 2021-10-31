@@ -1,6 +1,6 @@
 // https://github.com/graphql/graphql-js/blob/0c7165a5d0a7054cac4f2a0898ace19ca9d67f76/src/execution/__tests__/directives-test.ts
 
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 
 final schema = GraphQLSchema(

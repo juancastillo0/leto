@@ -35,10 +35,10 @@ dependencies:
   shelf_plus: ^0.0.2
   shelf_router: ^1.1.1
   shelf_static: ^1.1.0
-  shelf_graphql:
+  leto_shelf:
     path: ../../leto_shelf
 
-  shelf_graphql_example:
+  leto_shelf_example:
     path: ../../leto_shelf/example
   graphql_schema:
     path: ../../graphql_server/graphql_schema
@@ -86,12 +86,12 @@ dependency_overrides:
 #   shelf_plus: ^0.0.2
 #   shelf_router: ^1.1.1
 #   shelf_static: ^1.1.0
-#   shelf_graphql:
+#   leto_shelf:
 #     git:
-#       url: https://github.com/juancastillo0/shelf_graphql
-#   shelf_graphql_example:
+#       url: https://github.com/juancastillo0/leto_shelf
+#   leto_shelf_example:
 #     git:
-#       url: https://github.com/juancastillo0/shelf_graphql
+#       url: https://github.com/juancastillo0/leto_shelf
 #       path: example
 
 # dev_dependencies:

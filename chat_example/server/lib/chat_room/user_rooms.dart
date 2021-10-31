@@ -8,7 +8,7 @@ import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
 
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 
 part 'user_rooms.g.dart';
 part 'user_rooms.freezed.dart';

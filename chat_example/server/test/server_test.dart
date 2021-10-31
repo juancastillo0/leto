@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 import 'package:crypto/crypto.dart' show sha1;
 import 'package:test_process/test_process.dart';

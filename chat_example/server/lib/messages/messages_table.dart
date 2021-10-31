@@ -13,7 +13,7 @@ import 'package:server/events/database_event.dart';
 import 'package:server/messages/metadata.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/utilities.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 
 part 'messages_table.g.dart';
 part 'messages_table.freezed.dart';

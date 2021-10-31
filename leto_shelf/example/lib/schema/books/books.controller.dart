@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/stream_state_callbacks.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/stream_state_callbacks.dart';
 
 import 'book.model.dart';
 export 'book.model.dart';

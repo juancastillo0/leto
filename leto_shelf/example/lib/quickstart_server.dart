@@ -4,7 +4,7 @@ import 'dart:io' show HttpServer;
 
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf_io.dart' as shelf_io;
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_router/shelf_router.dart' show Router;
 
 part 'quickstart_server.g.dart';

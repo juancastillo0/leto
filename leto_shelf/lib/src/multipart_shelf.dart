@@ -3,8 +3,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:http_server/http_server.dart';
 import 'package:mime/mime.dart';
 import 'package:shelf/shelf.dart';
-import 'package:shelf_graphql/src/server_utils/request_from_multipart.dart';
-import 'package:shelf_graphql/src/server_utils/uploaded_file.dart';
+import 'package:leto_shelf/src/server_utils/request_from_multipart.dart';
+import 'package:leto_shelf/src/server_utils/uploaded_file.dart';
 
 Stream<HttpMultipartFormData> extractMultiPartStream(Request request) {
   final boundary = extractMultipartBoundary(request);

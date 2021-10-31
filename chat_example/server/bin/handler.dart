@@ -10,7 +10,7 @@ import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 

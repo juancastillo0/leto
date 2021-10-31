@@ -344,6 +344,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
+  leto_shelf_example:
+    dependency: "direct dev"
+    description:
+      path: example
+      relative: true
+    source: path
+    version: "0.0.0"
   lint:
     dependency: "direct dev"
     description:
@@ -514,13 +521,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
-  shelf_graphql_example:
-    dependency: "direct dev"
-    description:
-      path: example
-      relative: true
-    source: path
-    version: "0.0.0"
   shelf_hotreload:
     dependency: transitive
     description:

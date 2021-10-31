@@ -1,5 +1,5 @@
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/types/safe_json_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/types/safe_json_graphql.dart';
 
 GraphQLObjectType<UploadedFileMeta>? _fileUploadType;
 GraphQLObjectType<UploadedFileMeta> fileUploadType() {

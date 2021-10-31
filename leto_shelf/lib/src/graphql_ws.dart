@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:graphql_server/graphql_server.dart';
 import 'package:graphql_server/subscriptions_transport_ws.dart' as stw;
 import 'package:shelf/shelf.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 

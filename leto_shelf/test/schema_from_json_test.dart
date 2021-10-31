@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:gql/language.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql_example/schema/schema_from_json.dart';
-import 'package:shelf_graphql_example/types/safe_json.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/schema_from_json.dart';
+import 'package:leto_shelf_example/types/safe_json.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -9,7 +9,7 @@ import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/utilities.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:valida/validate/validate_annotations.dart';
 
 part 'user_table.g.dart';

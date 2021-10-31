@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:shelf_graphql/shelf_graphql.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 
 class Email {

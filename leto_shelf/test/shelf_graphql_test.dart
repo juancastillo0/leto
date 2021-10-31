@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:graphql_server/graphql_server.dart';
 import 'package:http/http.dart' as http;
-import 'package:shelf_graphql/shelf_graphql.dart';
-import 'package:shelf_graphql/src/server_utils/graphql_request.dart';
-import 'package:shelf_graphql_example/schema/generator_test.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf/src/server_utils/graphql_request.dart';
+import 'package:leto_shelf_example/schema/generator_test.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';
