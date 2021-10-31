@@ -12,7 +12,7 @@
 
 import 'dart:async';
 
-import 'package:graphql_server/src/persisted_queries.dart';
+import 'package:leto/src/persisted_queries.dart';
 
 // A Function, which when given an Array of keys, returns a Promise of an Array
 // of values or Errors.

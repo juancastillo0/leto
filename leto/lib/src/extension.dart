@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 
 export 'package:gql/ast.dart' show DocumentNode;
 

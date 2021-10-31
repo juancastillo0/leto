@@ -1,4 +1,4 @@
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 import 'package:test/test.dart';
 import 'common.dart';
 import 'todos_schema.dart';

@@ -8,8 +8,8 @@
 
 import 'dart:async';
 
-import 'package:graphql_server/dataloader.dart';
-import 'package:graphql_server/src/persisted_queries.dart';
+import 'package:leto/dataloader.dart';
+import 'package:leto/src/persisted_queries.dart';
 import 'package:test/test.dart';
 
 _Loader<K, K> idLoader<K extends Object>([

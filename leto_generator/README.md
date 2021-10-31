@@ -5,7 +5,7 @@
 Generates `package:graphql_schema` schemas for
 annotated class.
 
-Replaces `convertDartType` from `package:graphql_server`.
+Replaces `convertDartType` from `package:leto`.
 
 ## Usage
 Usage is very simple. You just need a `@graphQLClass` or `@GraphQLClass()` annotation

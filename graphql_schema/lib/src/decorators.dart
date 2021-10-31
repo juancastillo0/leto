@@ -200,7 +200,7 @@ class Subscription implements GraphQLResolver {
 typedef GraphDocumentationTypeProvider = GraphQLType Function();
 
 /// A metadata annotation used to provide documentation to
-/// `package:graphql_server`.
+/// `package:leto`.
 class GraphQLDocumentation {
   /// The description of the annotated class, field, or enum value, to be
   /// displayed in tools like GraphiQL.

@@ -4,7 +4,7 @@
 
 // import { StarWarsSchema as schema } from './starWarsSchema';
 
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 import 'package:leto_shelf_example/schema/star_wars_relay/data.dart';
 import 'package:test/test.dart';
 

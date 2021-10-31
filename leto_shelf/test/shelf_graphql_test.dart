@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 import 'package:http/http.dart' as http;
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf/src/server_utils/graphql_request.dart';

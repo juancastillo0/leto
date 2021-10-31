@@ -27,8 +27,8 @@ dependencies:
     path: ..
   graphql_schema:
     path: ../../graphql_schema
-  graphql_server:
-    path: ../../graphql_server
+  leto:
+    path: ../../leto
 
 dev_dependencies:
   build_runner: ^2.1.1

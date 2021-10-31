@@ -41,7 +41,7 @@ dependencies:
   leto_shelf_example:
     path: ../../leto_shelf/example
   graphql_schema:
-    path: ../../graphql_server/graphql_schema
+    path: ../../leto/graphql_schema
 
 dev_dependencies:
   build_runner: ^2.1.1
@@ -104,7 +104,7 @@ dependency_overrides:
 #   test: ^1.14.4
 #   leto_generator:
 #     git:
-#       url: https://github.com/juancastillo0/graphql_server
+#       url: https://github.com/juancastillo0/leto
 #       path: leto_generator
 #   valida_generator:
 #     git:
@@ -118,5 +118,5 @@ dependency_overrides:
 # dependency_overrides:
 #   graphql_schema:
 #     git:
-#       url: https://github.com/juancastillo0/graphql_server
+#       url: https://github.com/juancastillo0/leto
 #       path: graphql_schema

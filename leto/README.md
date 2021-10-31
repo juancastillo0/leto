@@ -1,12 +1,12 @@
-# graphql_server
-[![Pub](https://img.shields.io/pub/v/graphql_server.svg)](https://pub.dartlang.org/packages/graphql_server)
+# leto
+[![Pub](https://img.shields.io/pub/v/leto.svg)](https://pub.dartlang.org/packages/leto)
 [![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
 
 Base package for implementing GraphQL servers.
 You might prefer [`package:angel_graphql`](https://github.com/angel-dart/graphql),
 the fastest way to implement GraphQL backends in Dart.
 
-`package:graphql_server` does not require any specific
+`package:leto` does not require any specific
 framework, and thus can be used in any Dart project.
 
 ## Ad-hoc Usage
@@ -32,7 +32,7 @@ try {
 ```
 
 Consult the API reference for more:
-https://pub.dartlang.org/documentation/graphql_server/latest/graphql_server/GraphQL/parseAndExecute.html
+https://pub.dartlang.org/documentation/leto/latest/leto/GraphQL/parseAndExecute.html
 
 If you're looking for functionality like `graphQLHttp`
 in `graphql-js`, that is not included in this package, because
@@ -76,7 +76,7 @@ field(
 ```
 
 For the purposes of reusing existing tooling (i.e. JS clients, etc.),
-`package:graphql_server` rolls with an implementation of Apollo's
+`package:leto` rolls with an implementation of Apollo's
 `subscriptions-transport-ws` spec.
 
 **NOTE: At this point, Apollo's spec is extremely out-of-sync with the protocol their client actually expects.**
@@ -112,16 +112,16 @@ and get information about the response the server expects. The `GraphQL`
 class handles this automatically, so you don't have to write any code for it.
 
 However, you can call the `reflectSchema` method to manually reflect a schema:
-https://pub.dartlang.org/documentation/graphql_server/latest/introspection/reflectSchema.html
+https://pub.dartlang.org/documentation/leto/latest/introspection/reflectSchema.html
 
 ## Mirrors Usage
 By default, `dart:mirrors` is not required, but it can be optionally used.
 
 The `mirrorsFieldResolver` can resolve fields from concrete objects, instead of you
 first having to serialize them:
-https://pub.dartlang.org/documentation/graphql_server/latest/graphql_server.mirrors/mirrorsFieldResolver.html
+https://pub.dartlang.org/documentation/leto/latest/leto.mirrors/mirrorsFieldResolver.html
 
 You can also use `convertDartType` to convert a concrete Dart type into a `GraphQLType`. However,
 the ideal choice is `package:leto_generator`.
-* https://pub.dartlang.org/documentation/graphql_server/latest/graphql_server.mirrors/convertDartType.html
+* https://pub.dartlang.org/documentation/leto/latest/leto.mirrors/convertDartType.html
 * https://pub.dartlang.org/packages/leto_generator

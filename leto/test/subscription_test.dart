@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 import 'package:test/test.dart';
 
 void main() {

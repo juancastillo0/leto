@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart' show sha1;
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 
 CacheInfo? getCacheInfo(ReqCtx ctx) {
   return CacheExtension.getRootInfo(ctx)?.getNested(ctx.path);

@@ -11,8 +11,8 @@ dependencies:
   freezed_annotation: ^0.14.3
 
   gql: ^0.13.0
-  graphql_server:
-    path: ../graphql_server
+  leto:
+    path: ../leto
   http_parser: ^4.0.0
   http_server: ^1.0.0
 

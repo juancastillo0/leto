@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:graphql_server/src/graphql_result.dart';
+import 'package:leto/src/graphql_result.dart';
 
 import 'remote_client.dart';
 import 'transport.dart';

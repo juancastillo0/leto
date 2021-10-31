@@ -4,7 +4,7 @@
 /// See:
 /// https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
 /// https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
-library graphql_server.subscriptions_transport_ws;
+library leto.subscriptions_transport_ws;
 
 export 'src/web_socket/remote_client.dart';
 export 'src/web_socket/server.dart';

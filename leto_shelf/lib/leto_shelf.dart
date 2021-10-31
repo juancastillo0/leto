@@ -1,6 +1,6 @@
 export 'package:graphql_schema/graphql_schema.dart';
-export 'package:graphql_server/dataloader.dart';
-export 'package:graphql_server/graphql_server.dart';
+export 'package:leto/dataloader.dart';
+export 'package:leto/leto.dart';
 export 'package:shelf/shelf.dart';
 export 'package:leto_shelf/src/graphql_http.dart';
 export 'package:leto_shelf/src/graphql_ui/altair.dart';

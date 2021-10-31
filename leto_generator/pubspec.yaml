@@ -1,6 +1,6 @@
 name: leto_generator
 version: 1.0.0+1
-description: Generates GraphQL schemas from Dart classes, for use with pkg:graphql_server.
+description: Generates GraphQL schemas from Dart classes, for use with pkg:leto.
 author: Tobe O <thosakwe@gmail.com>
 homepage: https://github.com/angel-dart/graphql
 environment:
@@ -28,5 +28,5 @@ dependency_overrides:
   graphql_schema:
     path: ../graphql_schema
     # git:
-    #   url: https://github.com/juancastillo0/graphql_server
+    #   url: https://github.com/juancastillo0/leto
     #   path: graphql_schema

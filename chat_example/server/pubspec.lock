@@ -274,13 +274,6 @@ packages:
       relative: true
     source: path
     version: "1.0.4"
-  graphql_server:
-    dependency: transitive
-    description:
-      path: "../../graphql_server"
-      relative: true
-    source: path
-    version: "2.0.0-beta"
   graphs:
     dependency: transitive
     description:
@@ -393,6 +386,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.2"
+  leto:
+    dependency: transitive
+    description:
+      path: "../../leto"
+      relative: true
+    source: path
+    version: "2.0.0-beta"
   leto_generator:
     dependency: "direct dev"
     description:

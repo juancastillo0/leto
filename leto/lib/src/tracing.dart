@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:graphql_schema/graphql_schema.dart';
-import 'package:graphql_server/graphql_server.dart';
+import 'package:leto/leto.dart';
 import 'package:meta/meta.dart';
 
 /// Apollo Tracing is a GraphQL extension for performance tracing.
