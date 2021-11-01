@@ -172,18 +172,18 @@ Future<Library> generateFromFreezed(
     final fieldName = '${ReCase(clazz.name).camelCase}$graphqlTypeSuffix';
     final typeName = clazz.name;
 
-    l.body.add(Code('''
-${hasFromJson(clazz) ? serializerDefinitionCode(typeName, hasFrezzed: false) : ''}
-
 // Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
 
-GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeName>()
-   => field(
-  'runtimeType',
-  enumTypeFromStrings('${typeName}Type', [
-    ${variants.map((e) => '"${e.constructorName}"').join(',')}
-  ]),
-);
+// GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeName>()
+//    => field(
+//   'runtimeType',
+//   enumTypeFromStrings('${typeName}Type', [
+//     ${variants.map((e) => '"${e.constructorName}"').join(',')}
+//   ]),
+// );
+
+    l.body.add(Code('''
+${hasFromJson(clazz) ? serializerDefinitionCode(typeName, hasFrezzed: false) : ''}
 
 GraphQLUnionType<$typeName>? _$fieldName;
 GraphQLUnionType<$typeName> get $fieldName {

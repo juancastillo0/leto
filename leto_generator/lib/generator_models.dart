@@ -267,6 +267,9 @@ class UnionVarianInfo {
         : '';
   }
 
+  String removeTrailingUnder(String value) =>
+      value.startsWith('_') ? value.substring(1) : value;
+
   String fieldCode() {
     final hasTypeParams = typeParams.isNotEmpty;
     final _typeParamsStr = typeParams.map((e) {
@@ -304,7 +307,10 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
             .map((e) => MapEntry(e.name, e)),
       ).values.map((e) => e.expression(isInput: isInput))
           // add union discriminant key
-          .followedBy([if (isUnion) refer(unionKeyName)]),
+          .followedBy([]
+              // TODO: should we generate this?
+              // [if (isUnion) refer(unionKeyName)],
+              ),
     ).accept(DartEmitter())},);
 
   return __$fieldName;
@@ -312,7 +318,8 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
 ''';
   }
 
-  String get graphQLTypeName => '$typeName${typeParams.map((t) {
+  String get graphQLTypeName =>
+      '${removeTrailingUnder(typeName)}${typeParams.map((t) {
         final _t = t.displayName;
         final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
         return '\${$ts.printableName}';
