@@ -26,58 +26,68 @@ jobs:
       - name: build_runner code generation
         run: melos build_runner
       - name: Check formatting
-        run: flutter format --output=none --set-exit-if-changed .
+        run: flutter format --set-exit-if-changed .
         if: always() && steps.install.outcome == 'success'
       - name: Analyze code
         run: melos run analyze
         if: always() && steps.install.outcome == 'success'
+      - id: coverage
+        name: Collect and report coverage
+        run: melos run coverage
+        if: always() && steps.install.outcome == 'success'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        if: always() && steps.coverage.outcome == 'success'
+        with:
+          fail_ci_if_error: true
+          files: "*/coverage/lcov.info"
 
   # Run tests on a matrix consisting of two dimensions:
   # 1. OS: ubuntu-latest, (macos-latest, windows-latest)
   # 2. release channel: dev
-  test:
-    needs: analyze
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # Add macos-latest and/or windows-latest if relevant for this package.
-        os: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
-      - name: Set up melos
-        run: flutter pub global activate melos ^1.0.0-dev
-      - id: install
-        name: Install dependencies
-        run: melos bootstrap
-      - name: build_runner code generation
-        run: melos build_runner
-      - name: Run tests
-        run: melos run test:all
-        if: always() && steps.install.outcome == 'success'
+  # test:
+  #   needs: analyze
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # Add macos-latest and/or windows-latest if relevant for this package.
+  #       os: [ubuntu-latest]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: subosito/flutter-action@v1
+  #       with:
+  #         channel: "stable"
+  #     - name: Set up melos
+  #       run: flutter pub global activate melos ^1.0.0-dev
+  #     - id: install
+  #       name: Install dependencies
+  #       run: melos bootstrap
+  #     - name: build_runner code generation
+  #       run: melos build_runner
+  #     - name: Run tests
+  #       run: melos run test:all
+  #       if: always() && steps.install.outcome == 'success'
 
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
-      - name: Set up melos
-        run: flutter pub global activate melos ^1.0.0-dev
-      - id: install
-        name: Install dependencies
-        run: melos bootstrap
-      - name: build_runner code generation
-        run: melos build_runner
-      - name: Collect and report coverage
-        run: melos run coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: true
-          files: "*/coverage/lcov.info"
+  # coverage:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: subosito/flutter-action@v1
+  #       with:
+  #         channel: "stable"
+  #     - name: Set up melos
+  #       run: flutter pub global activate melos ^1.0.0-dev
+  #     - id: install
+  #       name: Install dependencies
+  #       run: melos bootstrap
+  #     - name: build_runner code generation
+  #       run: melos build_runner
+  #     - name: Collect and report coverage
+  #       run: melos run coverage
+  #     - name: Upload coverage to Codecov
+  #       uses: codecov/codecov-action@v2
+  #       with:
+  #         fail_ci_if_error: true
+  #         files: "*/coverage/lcov.info"

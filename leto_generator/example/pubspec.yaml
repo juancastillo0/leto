@@ -21,6 +21,7 @@ dev_dependencies:
   json_serializable:
   leto_generator:
   valida_generator:
+  test:
 
 dependency_overrides:
   leto_generator:
