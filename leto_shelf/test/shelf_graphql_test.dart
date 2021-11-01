@@ -104,10 +104,9 @@ Future<void> main() async {
     const _query = '''
 query unions {
   testUnionModels(positions: [null, 1]) {
-    ... on _EventUnionAdd {
+    ... on EventUnionAdd {
       name
       description
-      runtimeType
       models {
         name
         description
@@ -117,7 +116,6 @@ query unions {
       name
       cost
       dates
-      runtimeType
     }
   }
 }
@@ -133,7 +131,7 @@ query unions {
             add: (e) => {
               'name': e.name,
               'description': e.description,
-              'runtimeType': 'add',
+              // 'runtimeType': 'add',
               'models': e.models
                   .map((e) => e == null
                       ? null
@@ -147,7 +145,7 @@ query unions {
               'name': e.name,
               'cost': e.cost,
               'dates': e.dates?.map((e) => e.toIso8601String()).toList(),
-              'runtimeType': 'delete',
+              // 'runtimeType': 'delete',
             },
           );
         }).toList(),

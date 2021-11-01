@@ -14,3 +14,10 @@ dependencies:
 dev_dependencies:
   lint: ^1.0.0
   test: ">=0.12.0 <2.0.0"
+
+dependency_overrides:
+  gql:
+    git:
+      url: https://github.com/juancastillo0/gql
+      path: gql
+      ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
