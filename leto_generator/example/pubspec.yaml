@@ -21,3 +21,11 @@ dev_dependencies:
   json_serializable:
   leto_generator:
   valida_generator:
+
+dependency_overrides:
+  leto_generator:
+    path: ..
+  leto:
+    path: ../../leto
+  leto_schema:
+    path: ../../leto_schema

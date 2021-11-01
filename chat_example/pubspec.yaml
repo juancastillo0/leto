@@ -33,7 +33,7 @@ dependencies:
   gql_link:
   gql_http_link:
   gql_websocket_link:
-    git: 
+    git:
       url: https://github.com/juancastillo0/gql
       path: links/gql_websocket_link
       ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266

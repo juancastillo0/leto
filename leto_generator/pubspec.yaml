@@ -23,3 +23,7 @@ dependencies:
   path:
 dev_dependencies:
   lint: ^1.0.0
+
+dependency_overrides:
+  leto_schema:
+    path: ../leto_schema

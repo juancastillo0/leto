@@ -40,3 +40,9 @@ dev_dependencies:
     path: ./example
 
   test: ^1.14.4
+
+dependency_overrides:
+  leto:
+    path: ../leto
+  leto_schema:
+    path: ../leto_schema
