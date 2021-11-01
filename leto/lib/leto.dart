@@ -1376,6 +1376,14 @@ class GraphQL {
       return matchingTypes.first;
     }
 
+    // Try to match with the type's generic with runtimeType
+    final matchingTypesRuntime =
+        possibleTypes.where((t) => t.generic.type == result.runtimeType);
+    // If there is only one match, return it,
+    if (matchingTypesRuntime.length == 1) {
+      return matchingTypesRuntime.first;
+    }
+
     // No match or multiple found, try each one and validate the output
     for (final t in possibleTypes) {
       try {

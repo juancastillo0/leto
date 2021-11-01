@@ -32,8 +32,11 @@ void main() {
       final m2 = s.m2;
 
       final result = await GraphQL(graphqlApiSchema).parseAndExecute(
-        '{ getNestedInterfaceImpl3 { name name3 dec } '
-        'getNestedInterfaceImpl2 { name name2 dec} }',
+        '{ getNestedInterfaceImpl3 { name name3 dec }'
+        ' getNestedInterfaceImpl2 { name name2 dec }'
+        ' index2: getNestedInterfaceImplByIndex(index: 2) { dec }'
+        ' index3: getNestedInterfaceImplByIndex(index: 3) { dec } '
+        '}',
         globalVariables: scope,
       );
 
@@ -48,16 +51,13 @@ void main() {
           'name2': m2.name2,
           'dec': m2.dec.toString(),
         },
+        'index2': {
+          'dec': m2.dec.toString(),
+        },
+        'index3': {
+          'dec': m3.dec.toString(),
+        },
       });
     }
   });
-
-  test(
-    'freezed unions',
-    () async {
-      for (final subs in unionsASchemaString) {
-        expect(graphqlApiSchema.schemaStr, contains(subs));
-      }
-    },
-  );
 }
