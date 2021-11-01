@@ -28,7 +28,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
 
   /// A list of other types that this object type is known to implement.
   List<GraphQLObjectType> get interfaces =>
-      List<GraphQLObjectType>.unmodifiable(_interfaces);
+      List.of(_interfaces.where((obj) => obj.isInterface));
 
   /// A list of other types that implement this interface.
   List<GraphQLObjectType> get possibleTypes =>

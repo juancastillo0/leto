@@ -162,6 +162,9 @@ class SchemaPrinter {
   }
 
   String printObject(GraphQLObjectType type) {
+    if (type.isInterface) {
+      return printInterface(type);
+    }
     return printDescription(type.description) +
         'type ${printTypeName(type)}' +
         printImplementedInterfaces(type) +
@@ -169,12 +172,12 @@ class SchemaPrinter {
   }
 
 // TODO: GraphQLInterfaceType
-// String printInterface(GraphQLObjectType type) {
-//   return printDescription(type.description) +
-//       'interface ${type.name}' +
-//       printImplementedInterfaces(type) +
-//       printFields(type);
-// }
+  String printInterface(GraphQLObjectType type) {
+    return printDescription(type.description) +
+        'interface ${type.name}' +
+        printImplementedInterfaces(type) +
+        printFields(type);
+  }
 
   String printUnion(GraphQLUnionType type) {
     final types = type.possibleTypes;
