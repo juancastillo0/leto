@@ -21,8 +21,8 @@ scripts:
 
   analyze:
     run: |
-      melos exec -c 5 --no-flutter -- \
-        flutter analyze . --no-fatal-infos
+      melos exec -c 5 -- \
+        flutter analyze . --no-fatal-infos --no-pub
     description: |
       Run `flutter analyze` in all packages.
        - Note: you can also rely on your IDEs Dart Analysis / Issues window.
@@ -33,6 +33,13 @@ scripts:
         flutter format .
     description: |
       Runs `flutter format` in all packages.
+
+  build_runner:
+    run: |
+      melos exec -c 5 --depends-on=build_runner -- \
+        flutter pub run build_runner build --delete-conflicting-outputs
+    description: |
+      Runs code generation `build_runner build` in all packages.
 
   test:all:
     run: melos run test --no-select
@@ -50,7 +57,7 @@ scripts:
   # Coverage
   coverage: >
     melos exec -c 1 --fail-fast --dir-exists=test --ignore="*example*" -- \
-      flutter test --coverage
+      flutter test --coverage --no-pub
 
   # Check pubspecs are valid and publishable in each package.
   lint:pub: >

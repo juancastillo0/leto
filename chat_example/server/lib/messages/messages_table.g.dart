@@ -40,7 +40,7 @@ final GraphQLObjectField<ChatMessage, Object, Object>
     final args = ctx.args;
 
     return sendFileMessage(
-        ctx, (args["chatId"] as int), (args["file"] as UploadedFile),
+        ctx, (args["chatId"] as int), (args["file"] as Upload),
         referencedMessageId: (args["referencedMessageId"] as int?),
         message: (args["message"] as String));
   },
@@ -51,7 +51,7 @@ final GraphQLObjectField<ChatMessage, Object, Object>
     ),
     GraphQLFieldInput(
       "file",
-      uploadedFileGraphQLType.nonNull().coerceToInputObject(),
+      uploadGraphQLType.nonNull().coerceToInputObject(),
     ),
     GraphQLFieldInput(
       "referencedMessageId",
