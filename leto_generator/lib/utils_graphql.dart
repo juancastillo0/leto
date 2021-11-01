@@ -28,7 +28,7 @@ bool isGraphQLClass(InterfaceType clazz) {
   return false;
 }
 
-List<Expression> getGraphqlInterfaces(ClassElement clazz) {
+List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
   if (isInputType(clazz)) {
     return [];
   }
@@ -38,16 +38,23 @@ List<Expression> getGraphqlInterfaces(ClassElement clazz) {
       .toListValue()!
       .map((i) => i.toStringValue()!)
       .toList();
+  final superType = clazz.supertype;
+
+  String getInterfaceName(ClassElement element) {
+    String name = element.name;
+    name = name.startsWith('_') ? name.substring(1) : name;
+    final rc = ReCase(name);
+    return '${rc.camelCase}$graphqlTypeSuffix';
+  }
+
   // Add interfaces
   return clazz.interfaces
       .where(isGraphQLClass)
-      .map((c) {
-        // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
-        final name = c.name!.startsWith('_') ? c.name!.substring(1) : c.name!;
-        final rc = ReCase(name);
-        return refer('${rc.camelCase}$graphqlTypeSuffix');
-      })
+      .map((c) => refer(getInterfaceName(c.element)))
       .followedBy(interfaces.map(refer))
+      .followedBy(superType != null && isGraphQLClass(superType)
+          ? [refer(getInterfaceName(superType.element))]
+          : [])
       .toList();
 }
 

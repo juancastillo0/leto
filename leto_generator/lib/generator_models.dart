@@ -16,6 +16,9 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
   ClassElement clazz,
   GeneratorCtx ctx,
 ) {
+  if (clazz.name == 'Object') {
+    return [];
+  }
   return clazz.methods
       .where(
         (element) => element.name != 'toJson' && element.name != 'fromJson',
@@ -23,7 +26,11 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
       .map((m) => fieldFromElement(m, m.returnType, ctx))
       .followedBy(clazz.fields.map((m) {
     return fieldFromElement(m, m.type, ctx);
-  }));
+  })).followedBy(
+    clazz.supertype == null
+        ? []
+        : fieldsFromClass(clazz.supertype!.element, ctx),
+  );
 }
 
 Future<List<UnionVarianInfo>> freezedVariants(
@@ -46,7 +53,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
       typeParams: clazz.typeParameters,
       hasFrezzed: true,
       isUnion: isUnion,
-      interfaces: getGraphqlInterfaces(clazz),
+      interfaces: getGraphQLInterfaces(ctx, clazz),
       hasFromJson: hasFromJson(clazz),
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,

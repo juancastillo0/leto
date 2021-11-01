@@ -129,7 +129,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         isUnion: false,
         isInput: isInputType(clazz),
         hasFromJson: hasFromJson(clazz),
-        interfaces: getGraphqlInterfaces(clazz),
+        interfaces: getGraphQLInterfaces(ctx, clazz),
         typeName: className,
         constructorName: redirectedName.isEmpty ? className : redirectedName,
         unionName: className,
