@@ -1,5 +1,5 @@
 name: leto
-repository: https://github.com/juancastillo0/graphql_server
+repository: https://github.com/juancastillo0/leto
 packages:
   [
     "leto/*",
@@ -22,17 +22,17 @@ scripts:
   analyze:
     run: |
       melos exec -c 5 -- \
-        dart analyze .
+        flutter analyze . --no-fatal-infos
     description: |
-      Run `dart analyze` in all packages.
+      Run `flutter analyze` in all packages.
        - Note: you can also rely on your IDEs Dart Analysis / Issues window.
 
   format:
     run: |
       melos exec -c 5 -- \
-        dart format .
+        flutter format .
     description: |
-      Runs `dart format` in all packages.
+      Runs `flutter format` in all packages.
 
   test:all:
     run: melos run test --no-select

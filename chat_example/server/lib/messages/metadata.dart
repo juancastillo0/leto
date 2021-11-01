@@ -131,7 +131,8 @@ class FileMetadata with _$FileMetadata {
 
   @GraphQLField(omit: true)
   static Future<FileMetadata> fromUpload(Upload upload) async {
-    final image = img.decodeImage(await upload.readAsBytes());
+    final fileBytes = await upload.readAsBytes();
+    final image = img.decodeImage(fileBytes);
     final blurHash = image == null
         ? null
         : BlurHash.encode(image, numCompX: 4, numCompY: 3).hash;
@@ -144,7 +145,7 @@ class FileMetadata with _$FileMetadata {
       fileName: upload.filename!,
       mimeType: upload.contentType?.mimeType ?? 'application/octet-stream',
       sha1Hash: sha1Hash,
-      sizeInBytes: await upload.sizeInBytes,
+      sizeInBytes: fileBytes.lengthInBytes,
     );
   }
 }

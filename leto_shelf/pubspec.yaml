@@ -1,7 +1,7 @@
 name: leto_shelf
-description: A sample command-line application.
+description: Build GraphQL web servers with leto and shelf.
 version: 0.0.1
-# homepage: https://www.example.com
+homepage: https://github.com/juancastillo0/leto
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -12,9 +12,7 @@ dependencies:
 
   gql: ^0.13.0
   leto:
-    path: ../leto
   leto_schema:
-    path: ../leto_schema
   http_parser: ^4.0.0
   http_server: ^1.0.0
 

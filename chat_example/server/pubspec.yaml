@@ -1,5 +1,5 @@
 name: server
-description: A server app using the shelf package and Docker.
+description: A chat server app using leto, shelf and Docker.
 # homepage: https://www.example.com
 
 environment:
@@ -35,14 +35,10 @@ dependencies:
   shelf_router: ^1.1.1
   shelf_static: ^1.1.0
   leto_shelf:
-    path: ../../leto_shelf
 
   leto_shelf_example:
-    path: ../../leto_shelf/example
   leto:
-    path: ../../leto
   leto_schema:
-    path: ../../leto_schema
 
 dev_dependencies:
   build_runner: ^2.1.1
@@ -53,7 +49,6 @@ dev_dependencies:
   test_process: ^2.0.0
   test: ^1.14.4
   leto_generator:
-    path: ../../leto_generator
   valida_generator:
   query_builder_generator:
     git:

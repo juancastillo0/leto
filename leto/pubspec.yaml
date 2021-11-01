@@ -1,7 +1,9 @@
 name: leto
 version: 0.0.1
-description: Base package for implementing GraphQL servers. You might prefer `package:angel_graphql`, the fastest way to implement GraphQL backends in Dart.
-homepage: https://github.com/angel-dart/graphql
+description: |
+  Base package for implementing GraphQL servers. You might prefer `package:leto_shelf`
+  for building GraphQL web server with leto and shelf.
+homepage: https://github.com/juancastillo0/leto
 environment:
   sdk: ">=2.12.0 <3.0.0"
 dependencies:
@@ -10,7 +12,6 @@ dependencies:
   crypto: ^3.0.0
   gql: ^0.13.0
   leto_schema:
-    path: ../leto_schema
   meta: ^1.0.0
   source_span: ^1.0.0
   stream_channel: ^2.0.0
