@@ -7,7 +7,7 @@ targets:
 builders:
   graphql_types:
     target: ":leto_generator"
-    import: "package:leto_generator/leto_generator.dart"
+    import: "package:leto_generator/types_generator.dart"
     builder_factories: [graphQLBuilder]
     auto_apply: dependents
     build_to: cache

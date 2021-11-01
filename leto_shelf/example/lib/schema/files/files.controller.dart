@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:leto_shelf_example/schema/files/file_metadata.dart';
 import 'package:oxidized/oxidized.dart';
-import 'package:leto_shelf/leto_shelf.dart' show UploadedFileMeta;
 
 import 'file_event.dart';
 export 'file_event.dart';

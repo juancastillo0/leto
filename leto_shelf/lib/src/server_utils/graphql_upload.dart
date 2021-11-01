@@ -3,11 +3,11 @@ import 'package:leto_schema/leto_schema.dart';
 import 'uploaded_file.dart';
 
 /// The canonical [GraphQLUploadType] instance.
-final GraphQLUploadType graphQLUpload = GraphQLUploadType();
+final GraphQLUploadType uploadGraphQLType = GraphQLUploadType();
 
 /// A [GraphQLScalarType] that is used to read uploaded files from
 /// `multipart/form-data` requests.
-class GraphQLUploadType extends GraphQLScalarType<UploadedFile, UploadedFile> {
+class GraphQLUploadType extends GraphQLScalarType<Upload, Upload> {
   @override
   String get name => 'Upload';
 
@@ -20,18 +20,18 @@ class GraphQLUploadType extends GraphQLScalarType<UploadedFile, UploadedFile> {
       'https://github.com/jaydenseric/graphql-multipart-request-spec';
 
   @override
-  GraphQLType<UploadedFile, UploadedFile> coerceToInputObject() => this;
+  GraphQLType<Upload, Upload> coerceToInputObject() => this;
 
   @override
-  UploadedFile deserialize(SerdeCtx serdeCtx, UploadedFile serialized) =>
+  Upload deserialize(SerdeCtx serdeCtx, Upload serialized) =>
       serialized;
 
   @override
-  UploadedFile serialize(UploadedFile value) => value;
+  Upload serialize(Upload value) => value;
 
   @override
-  ValidationResult<UploadedFile> validate(String key, Object? input) {
-    if (input is UploadedFile) {
+  ValidationResult<Upload> validate(String key, Object? input) {
+    if (input is Upload) {
       return ValidationResult.ok(input);
     }
     return ValidationResult.failure(['Expected "$key" to be an Upload.']);

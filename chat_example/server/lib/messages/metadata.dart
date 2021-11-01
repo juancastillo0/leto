@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:blurhash_dart/blurhash_dart.dart';
+import 'package:crypto/crypto.dart' show sha1;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:image/image.dart' as img;
 import 'package:leto_schema/leto_schema.dart';
@@ -129,21 +130,21 @@ class FileMetadata with _$FileMetadata {
       _$FileMetadataFromJson(json);
 
   @GraphQLField(omit: true)
-  static Future<FileMetadata> fromUpload(UploadedFile file) async {
-    // TODO: filenameIfNull
-    final upload = await file.meta();
-    final image = img.decodeImage(await file.readAsBytes());
+  static Future<FileMetadata> fromUpload(Upload upload) async {
+    final image = img.decodeImage(await upload.readAsBytes());
     final blurHash = image == null
         ? null
         : BlurHash.encode(image, numCompX: 4, numCompY: 3).hash;
 
+    final sha1Hash = sha1.bind(upload.data).single.toString();
+
     // TODO: add more image metadata?
     return FileMetadata(
       fileHashBlur: blurHash,
-      fileName: upload.filename,
-      mimeType: upload.mimeType,
-      sha1Hash: upload.sha1Hash,
-      sizeInBytes: upload.sizeInBytes,
+      fileName: upload.filename!,
+      mimeType: upload.contentType?.mimeType ?? 'application/octet-stream',
+      sha1Hash: sha1Hash,
+      sizeInBytes: await upload.sizeInBytes,
     );
   }
 }

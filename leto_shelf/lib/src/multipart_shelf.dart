@@ -1,10 +1,11 @@
 import 'dart:async';
+
 import 'package:http_parser/http_parser.dart';
 import 'package:http_server/http_server.dart';
-import 'package:mime/mime.dart';
-import 'package:shelf/shelf.dart';
 import 'package:leto_shelf/src/server_utils/request_from_multipart.dart';
 import 'package:leto_shelf/src/server_utils/uploaded_file.dart';
+import 'package:mime/mime.dart';
+import 'package:shelf/shelf.dart';
 
 Stream<HttpMultipartFormData> extractMultiPartStream(Request request) {
   final boundary = extractMultipartBoundary(request);
@@ -19,11 +20,11 @@ Stream<HttpMultipartFormData> extractMultiPartStream(Request request) {
 Future<MultiPartData> extractMultiPartData(Request request) async {
   final parts = extractMultiPartStream(request);
   final _bodyFields = <String, String>{};
-  final _uploadedFiles = <UploadedFile>[];
+  final _uploadedFiles = <Upload>[];
 
   await for (final part in parts) {
     if (part.isBinary) {
-      _uploadedFiles.add(UploadedFile(part));
+      _uploadedFiles.add(Upload(part));
     } else if (part.isText &&
         // If there is no name, then don't parse it.
         part.contentDisposition.parameters.containsKey('name')) {

@@ -1,12 +1,13 @@
 import 'dart:convert';
+
 import 'package:collection/collection.dart';
-import 'package:oxidized/oxidized.dart';
 import 'package:leto_shelf/src/server_utils/graphql_request.dart';
 import 'package:leto_shelf/src/server_utils/uploaded_file.dart';
+import 'package:oxidized/oxidized.dart';
 
 class MultiPartData {
   final Map<String, String> body;
-  final List<UploadedFile> files;
+  final List<Upload> files;
 
   const MultiPartData(this.body, this.files);
 }
@@ -70,7 +71,7 @@ Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
 Result<Map<String, Object?>, String> _assignFilesToVariables({
   required Map<String, Object?> operation,
   required Map<String, Object?> map,
-  required List<UploadedFile> files,
+  required List<Upload> files,
 }) {
   for (final entry in map.entries) {
     final file = files.firstWhereOrNull(

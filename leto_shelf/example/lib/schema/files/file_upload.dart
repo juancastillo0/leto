@@ -1,5 +1,5 @@
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_shelf/leto_shelf.dart';
+import 'package:leto_shelf_example/schema/files/file_metadata.dart';
 import 'package:leto_shelf_example/types/safe_json_graphql.dart';
 
 GraphQLObjectType<UploadedFileMeta>? _fileUploadType;

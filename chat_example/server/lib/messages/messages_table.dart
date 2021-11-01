@@ -346,7 +346,7 @@ Future<ChatMessage?> sendMessage(
 Future<ChatMessage?> sendFileMessage(
   ReqCtx<Object> ctx,
   int chatId,
-  UploadedFile file, {
+  Upload file, {
   int? referencedMessageId,
   String message = '',
 }) async {

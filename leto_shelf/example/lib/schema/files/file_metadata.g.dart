@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'uploaded_file.dart';
+part of 'file_metadata.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

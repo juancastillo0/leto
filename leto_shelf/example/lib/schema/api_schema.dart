@@ -6,6 +6,7 @@ import 'package:leto_schema/utilities.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf_example/graphql_api.schema.dart';
 import 'package:leto_shelf_example/schema/books/books.schema.dart';
+import 'package:leto_shelf_example/schema/files/file_metadata.dart';
 import 'package:leto_shelf_example/schema/graphql_utils.dart';
 import 'package:leto_shelf_example/schema/schema_from_json.dart';
 import 'package:leto_shelf_example/schema/star_wars/schema.dart';
@@ -78,11 +79,14 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
           ),
           resolve: (obj, ctx) async {
             final isTesting = ctx.request.headers['shelf-test'] == 'true';
-            final upload = ctx.args['file'] as UploadedFile;
+            final upload = ctx.args['file'] as Upload;
             final replace = ctx.args['replace'] as bool;
             final extra = ctx.args['extra'] as Json?;
 
-            final meta = await upload.meta(extra: extra?.toJson());
+            final meta = await UploadedFileMeta.fromUpload(
+              upload,
+              extra: extra?.toJson(),
+            );
             final result = filesController.consume(
               FileEvent.added(meta, replace: replace),
             );
@@ -111,7 +115,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
           inputs: [
             GraphQLFieldInput(
               'file',
-              graphQLUpload.nonNull(),
+              uploadGraphQLType.nonNull(),
             ),
             GraphQLFieldInput(
               'replace',
