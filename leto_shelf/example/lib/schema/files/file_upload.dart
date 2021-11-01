@@ -12,7 +12,7 @@ GraphQLObjectType<UploadedFileMeta> fileUploadType() {
       graphQLString.nonNull().field('mimeType'),
       graphQLDate.nonNull().field('createdAt'),
       graphQLString.nonNull().field('sha1Hash'),
-      graphQLJson.field('extra'),
+      jsonGraphQLType.field('extra'),
       graphQLString.nonNull().field(
         'url',
         resolve: (file, ctx) {

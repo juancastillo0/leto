@@ -98,12 +98,12 @@ final TestEnum = GraphQLEnumType<Json>(
   ],
 );
 
-GraphQLObjectField<Json, Object, Object> fieldWithInputArg<V extends Object>(
+GraphQLObjectField<Json, Object?, Object?> fieldWithInputArg<V>(
   String name,
-  GraphQLType<V, Object> type, {
+  GraphQLType<V, Object?> type, {
   V? defaultValue,
 }) {
-  return graphQLJson.field(
+  return jsonGraphQLType.field(
     name,
     inputs: [
       GraphQLFieldInput(
@@ -116,7 +116,7 @@ GraphQLObjectField<Json, Object, Object> fieldWithInputArg<V extends Object>(
       if (ctx.args.containsKey('input')) {
         final value = Json.fromJson(ctx.args['input']);
         // TODO: a GraphQL Type can't serialize to 'null' like JsonNone would do
-        return value is JsonNone ? null : value;
+        return value;
       }
     },
   );

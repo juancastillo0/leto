@@ -330,7 +330,7 @@ GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
           variants.cast(),
         );
       } else {
-        return graphQLJson;
+        return jsonGraphQLType;
       }
     },
     enumV: (enumV) => enumTypeFromStrings(
@@ -338,7 +338,7 @@ GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
       enumV.values.map((Object? e) => e.toString().split('.').last).toList(),
     ),
     // TODO:
-    dynamic: () => graphQLJson,
+    dynamic: () => jsonGraphQLType,
     late: (late) => graphQLTypeFromSerde(key, late.func()),
   );
 
@@ -374,7 +374,7 @@ SerdeType serdeTypeFromJson(
       }
       return SerdeType.str;
     },
-    none: () => const SerdeType.option(SerdeType.dynamic),
+    none: (_) => const SerdeType.option(SerdeType.dynamic),
   );
 }
 

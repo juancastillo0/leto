@@ -337,6 +337,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  leto_generator:
+    dependency: "direct overridden"
+    description:
+      path: "../leto_generator"
+      relative: true
+    source: path
+    version: "0.0.1"
   leto_schema:
     dependency: "direct main"
     description:
@@ -486,6 +493,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  recase:
+    dependency: transitive
+    description:
+      name: recase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.0"
   rfc_6901:
     dependency: transitive
     description:

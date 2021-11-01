@@ -124,7 +124,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
             ),
             GraphQLFieldInput(
               'extra',
-              graphQLJson,
+              jsonGraphQLType,
             ),
           ],
         ),

@@ -107,7 +107,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     String? description,
     GraphQLFieldResolver<V, P>? resolve,
     GraphQLSubscriptionFieldResolver<V>? subscribe,
-    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
+    Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
   }) {
     return GraphQLObjectField(
       name,
