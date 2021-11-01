@@ -23,8 +23,7 @@ class GraphQLUploadType extends GraphQLScalarType<Upload, Upload> {
   GraphQLType<Upload, Upload> coerceToInputObject() => this;
 
   @override
-  Upload deserialize(SerdeCtx serdeCtx, Upload serialized) =>
-      serialized;
+  Upload deserialize(SerdeCtx serdeCtx, Upload serialized) => serialized;
 
   @override
   Upload serialize(Upload value) => value;
