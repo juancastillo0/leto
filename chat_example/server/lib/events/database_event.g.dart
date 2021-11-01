@@ -75,8 +75,7 @@ GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType {
   __chatDBEventDataGraphQLType.fields.addAll(
     [
       field('value', chatEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value),
-      dBEventDataGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -107,8 +106,7 @@ GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType {
   __userChatDBEventDataGraphQLType.fields.addAll(
     [
       field('value', userChatEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value),
-      dBEventDataGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -138,8 +136,7 @@ GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType {
   __userDBEventDataGraphQLType.fields.addAll(
     [
       field('value', userEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value),
-      dBEventDataGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -171,8 +168,7 @@ GraphQLObjectType<ChatMessageDBEventData>
   __chatMessageDBEventDataGraphQLType.fields.addAll(
     [
       field('value', chatMessageEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value),
-      dBEventDataGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -183,15 +179,6 @@ final dBEventDataSerializer = SerializerValue<DBEventData>(
   fromJson: (ctx, json) => DBEventData.fromJson(json), // _$DBEventDataFromJson,
   // toJson: (m) => _$DBEventDataToJson(m as DBEventData),
 );
-
-// Map<String, Object?> _$DBEventDataToJson(DBEventData instance) => instance.toJson();
-
-GraphQLObjectField<String, String, P>
-    dBEventDataGraphQLTypeDiscriminant<P extends DBEventData>() => field(
-          'runtimeType',
-          enumTypeFromStrings(
-              'DBEventDataType', ["chat", "userChat", "user", "message"]),
-        );
 
 GraphQLUnionType<DBEventData>? _dBEventDataGraphQLType;
 GraphQLUnionType<DBEventData> get dBEventDataGraphQLType {

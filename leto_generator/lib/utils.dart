@@ -99,6 +99,10 @@ Future<String> documentationOfParameter(
   ParameterElement parameter,
   BuildStep buildStep,
 ) async {
+  final doc = getDescription(parameter, parameter.documentationComment);
+  if (doc != null) {
+    return doc;
+  }
   final builder = StringBuffer();
 
   final astNode = await tryGetAstNodeForElement(parameter, buildStep);

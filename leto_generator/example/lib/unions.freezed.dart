@@ -13,31 +13,31 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-UnionSingleInput _$UnionSingleInputFromJson(Map<String, dynamic> json) {
-  return _UnionSingleInput.fromJson(json);
+FreezedSingleInput _$FreezedSingleInputFromJson(Map<String, dynamic> json) {
+  return _FreezedSingleInput.fromJson(json);
 }
 
 /// @nodoc
-class _$UnionSingleInputTearOff {
-  const _$UnionSingleInputTearOff();
+class _$FreezedSingleInputTearOff {
+  const _$FreezedSingleInputTearOff();
 
-  _UnionSingleInput cc(String? positional, {int five = 5}) {
-    return _UnionSingleInput(
+  _FreezedSingleInput cc(String? positional, {int five = 5}) {
+    return _FreezedSingleInput(
       positional,
       five: five,
     );
   }
 
-  UnionSingleInput fromJson(Map<String, Object?> json) {
-    return UnionSingleInput.fromJson(json);
+  FreezedSingleInput fromJson(Map<String, Object?> json) {
+    return FreezedSingleInput.fromJson(json);
   }
 }
 
 /// @nodoc
-const $UnionSingleInput = _$UnionSingleInputTearOff();
+const $FreezedSingleInput = _$FreezedSingleInputTearOff();
 
 /// @nodoc
-mixin _$UnionSingleInput {
+mixin _$FreezedSingleInput {
   String? get positional =>
       throw _privateConstructorUsedError; // five with default
   int get five => throw _privateConstructorUsedError;
@@ -60,42 +60,42 @@ mixin _$UnionSingleInput {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_UnionSingleInput value) cc,
+    required TResult Function(_FreezedSingleInput value) cc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionSingleInput value)? cc,
+    TResult Function(_FreezedSingleInput value)? cc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UnionSingleInput value)? cc,
+    TResult Function(_FreezedSingleInput value)? cc,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UnionSingleInputCopyWith<UnionSingleInput> get copyWith =>
+  $FreezedSingleInputCopyWith<FreezedSingleInput> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UnionSingleInputCopyWith<$Res> {
-  factory $UnionSingleInputCopyWith(
-          UnionSingleInput value, $Res Function(UnionSingleInput) then) =
-      _$UnionSingleInputCopyWithImpl<$Res>;
+abstract class $FreezedSingleInputCopyWith<$Res> {
+  factory $FreezedSingleInputCopyWith(
+          FreezedSingleInput value, $Res Function(FreezedSingleInput) then) =
+      _$FreezedSingleInputCopyWithImpl<$Res>;
   $Res call({String? positional, int five});
 }
 
 /// @nodoc
-class _$UnionSingleInputCopyWithImpl<$Res>
-    implements $UnionSingleInputCopyWith<$Res> {
-  _$UnionSingleInputCopyWithImpl(this._value, this._then);
+class _$FreezedSingleInputCopyWithImpl<$Res>
+    implements $FreezedSingleInputCopyWith<$Res> {
+  _$FreezedSingleInputCopyWithImpl(this._value, this._then);
 
-  final UnionSingleInput _value;
+  final FreezedSingleInput _value;
   // ignore: unused_field
-  final $Res Function(UnionSingleInput) _then;
+  final $Res Function(FreezedSingleInput) _then;
 
   @override
   $Res call({
@@ -116,32 +116,32 @@ class _$UnionSingleInputCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$UnionSingleInputCopyWith<$Res>
-    implements $UnionSingleInputCopyWith<$Res> {
-  factory _$UnionSingleInputCopyWith(
-          _UnionSingleInput value, $Res Function(_UnionSingleInput) then) =
-      __$UnionSingleInputCopyWithImpl<$Res>;
+abstract class _$FreezedSingleInputCopyWith<$Res>
+    implements $FreezedSingleInputCopyWith<$Res> {
+  factory _$FreezedSingleInputCopyWith(
+          _FreezedSingleInput value, $Res Function(_FreezedSingleInput) then) =
+      __$FreezedSingleInputCopyWithImpl<$Res>;
   @override
   $Res call({String? positional, int five});
 }
 
 /// @nodoc
-class __$UnionSingleInputCopyWithImpl<$Res>
-    extends _$UnionSingleInputCopyWithImpl<$Res>
-    implements _$UnionSingleInputCopyWith<$Res> {
-  __$UnionSingleInputCopyWithImpl(
-      _UnionSingleInput _value, $Res Function(_UnionSingleInput) _then)
-      : super(_value, (v) => _then(v as _UnionSingleInput));
+class __$FreezedSingleInputCopyWithImpl<$Res>
+    extends _$FreezedSingleInputCopyWithImpl<$Res>
+    implements _$FreezedSingleInputCopyWith<$Res> {
+  __$FreezedSingleInputCopyWithImpl(
+      _FreezedSingleInput _value, $Res Function(_FreezedSingleInput) _then)
+      : super(_value, (v) => _then(v as _FreezedSingleInput));
 
   @override
-  _UnionSingleInput get _value => super._value as _UnionSingleInput;
+  _FreezedSingleInput get _value => super._value as _FreezedSingleInput;
 
   @override
   $Res call({
     Object? positional = freezed,
     Object? five = freezed,
   }) {
-    return _then(_UnionSingleInput(
+    return _then(_FreezedSingleInput(
       positional == freezed
           ? _value.positional
           : positional // ignore: cast_nullable_to_non_nullable
@@ -156,11 +156,11 @@ class __$UnionSingleInputCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_UnionSingleInput implements _UnionSingleInput {
-  const _$_UnionSingleInput(this.positional, {this.five = 5});
+class _$_FreezedSingleInput implements _FreezedSingleInput {
+  const _$_FreezedSingleInput(this.positional, {this.five = 5});
 
-  factory _$_UnionSingleInput.fromJson(Map<String, dynamic> json) =>
-      _$$_UnionSingleInputFromJson(json);
+  factory _$_FreezedSingleInput.fromJson(Map<String, dynamic> json) =>
+      _$$_FreezedSingleInputFromJson(json);
 
   @override
   final String? positional;
@@ -170,14 +170,14 @@ class _$_UnionSingleInput implements _UnionSingleInput {
 
   @override
   String toString() {
-    return 'UnionSingleInput.cc(positional: $positional, five: $five)';
+    return 'FreezedSingleInput.cc(positional: $positional, five: $five)';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _UnionSingleInput &&
+            other is _FreezedSingleInput &&
             (identical(other.positional, positional) ||
                 other.positional == positional) &&
             (identical(other.five, five) || other.five == five));
@@ -188,8 +188,8 @@ class _$_UnionSingleInput implements _UnionSingleInput {
 
   @JsonKey(ignore: true)
   @override
-  _$UnionSingleInputCopyWith<_UnionSingleInput> get copyWith =>
-      __$UnionSingleInputCopyWithImpl<_UnionSingleInput>(this, _$identity);
+  _$FreezedSingleInputCopyWith<_FreezedSingleInput> get copyWith =>
+      __$FreezedSingleInputCopyWithImpl<_FreezedSingleInput>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -222,7 +222,7 @@ class _$_UnionSingleInput implements _UnionSingleInput {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_UnionSingleInput value) cc,
+    required TResult Function(_FreezedSingleInput value) cc,
   }) {
     return cc(this);
   }
@@ -230,7 +230,7 @@ class _$_UnionSingleInput implements _UnionSingleInput {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionSingleInput value)? cc,
+    TResult Function(_FreezedSingleInput value)? cc,
   }) {
     return cc?.call(this);
   }
@@ -238,7 +238,7 @@ class _$_UnionSingleInput implements _UnionSingleInput {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UnionSingleInput value)? cc,
+    TResult Function(_FreezedSingleInput value)? cc,
     required TResult orElse(),
   }) {
     if (cc != null) {
@@ -249,16 +249,16 @@ class _$_UnionSingleInput implements _UnionSingleInput {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_UnionSingleInputToJson(this);
+    return _$$_FreezedSingleInputToJson(this);
   }
 }
 
-abstract class _UnionSingleInput implements UnionSingleInput {
-  const factory _UnionSingleInput(String? positional, {int five}) =
-      _$_UnionSingleInput;
+abstract class _FreezedSingleInput implements FreezedSingleInput {
+  const factory _FreezedSingleInput(String? positional, {int five}) =
+      _$_FreezedSingleInput;
 
-  factory _UnionSingleInput.fromJson(Map<String, dynamic> json) =
-      _$_UnionSingleInput.fromJson;
+  factory _FreezedSingleInput.fromJson(Map<String, dynamic> json) =
+      _$_FreezedSingleInput.fromJson;
 
   @override
   String? get positional;
@@ -266,7 +266,7 @@ abstract class _UnionSingleInput implements UnionSingleInput {
   int get five;
   @override
   @JsonKey(ignore: true)
-  _$UnionSingleInputCopyWith<_UnionSingleInput> get copyWith =>
+  _$FreezedSingleInputCopyWith<_FreezedSingleInput> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -280,19 +280,21 @@ class _$UnionATearOff {
     );
   }
 
-  _UnionA2 a2({Decimal? dec}) {
+  _UnionA2 a2({@Deprecated('custom deprecated msg') Decimal? dec}) {
     return _UnionA2(
       dec: dec,
     );
   }
 
-  UnionA3 a3({List<int>? one}) {
+  UnionA3 a3(
+      {@GraphQLDocumentation(description: 'description for one')
+          List<int>? one}) {
     return UnionA3(
       one: one,
     );
   }
 
-  _UnionA4 a4({List<int>? one}) {
+  _UnionA4 a4({@GraphQLField(name: 'oneRenamed') required List<int> one}) {
     return _UnionA4(
       one: one,
     );
@@ -307,25 +309,36 @@ mixin _$UnionA {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(Decimal? dec) a2,
-    required TResult Function(List<int>? one) a3,
-    required TResult Function(List<int>? one) a4,
+    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+        a2,
+    required TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)
+        a3,
+    required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
+        a4,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -434,9 +447,14 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(Decimal? dec) a2,
-    required TResult Function(List<int>? one) a3,
-    required TResult Function(List<int>? one) a4,
+    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+        a2,
+    required TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)
+        a3,
+    required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
+        a4,
   }) {
     return a1(one);
   }
@@ -445,9 +463,12 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a1?.call(one);
   }
@@ -456,9 +477,12 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
   }) {
     if (a1 != null) {
@@ -519,7 +543,7 @@ abstract class _UnionA1 implements UnionA {
 abstract class _$UnionA2CopyWith<$Res> {
   factory _$UnionA2CopyWith(_UnionA2 value, $Res Function(_UnionA2) then) =
       __$UnionA2CopyWithImpl<$Res>;
-  $Res call({Decimal? dec});
+  $Res call({@Deprecated('custom deprecated msg') Decimal? dec});
 }
 
 /// @nodoc
@@ -547,9 +571,10 @@ class __$UnionA2CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 /// @nodoc
 
 class _$_UnionA2 implements _UnionA2 {
-  const _$_UnionA2({this.dec});
+  const _$_UnionA2({@Deprecated('custom deprecated msg') this.dec});
 
-  @override // five with default
+  @override
+  @Deprecated('custom deprecated msg')
   final Decimal? dec;
 
   @override
@@ -577,9 +602,14 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(Decimal? dec) a2,
-    required TResult Function(List<int>? one) a3,
-    required TResult Function(List<int>? one) a4,
+    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+        a2,
+    required TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)
+        a3,
+    required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
+        a4,
   }) {
     return a2(dec);
   }
@@ -588,9 +618,12 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a2?.call(dec);
   }
@@ -599,9 +632,12 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
   }) {
     if (a2 != null) {
@@ -649,9 +685,10 @@ class _$_UnionA2 implements _UnionA2 {
 }
 
 abstract class _UnionA2 implements UnionA {
-  const factory _UnionA2({Decimal? dec}) = _$_UnionA2;
+  const factory _UnionA2({@Deprecated('custom deprecated msg') Decimal? dec}) =
+      _$_UnionA2;
 
-// five with default
+  @Deprecated('custom deprecated msg')
   Decimal? get dec;
   @JsonKey(ignore: true)
   _$UnionA2CopyWith<_UnionA2> get copyWith =>
@@ -662,7 +699,9 @@ abstract class _UnionA2 implements UnionA {
 abstract class $UnionA3CopyWith<$Res> {
   factory $UnionA3CopyWith(UnionA3 value, $Res Function(UnionA3) then) =
       _$UnionA3CopyWithImpl<$Res>;
-  $Res call({List<int>? one});
+  $Res call(
+      {@GraphQLDocumentation(description: 'description for one')
+          List<int>? one});
 }
 
 /// @nodoc
@@ -690,9 +729,11 @@ class _$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 /// @nodoc
 
 class _$UnionA3 implements UnionA3 {
-  const _$UnionA3({this.one});
+  const _$UnionA3(
+      {@GraphQLDocumentation(description: 'description for one') this.one});
 
-  @override // five with default
+  @override
+  @GraphQLDocumentation(description: 'description for one')
   final List<int>? one;
 
   @override
@@ -721,9 +762,14 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(Decimal? dec) a2,
-    required TResult Function(List<int>? one) a3,
-    required TResult Function(List<int>? one) a4,
+    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+        a2,
+    required TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)
+        a3,
+    required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
+        a4,
   }) {
     return a3(one);
   }
@@ -732,9 +778,12 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a3?.call(one);
   }
@@ -743,9 +792,12 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
   }) {
     if (a3 != null) {
@@ -793,9 +845,11 @@ class _$UnionA3 implements UnionA3 {
 }
 
 abstract class UnionA3 implements UnionA {
-  const factory UnionA3({List<int>? one}) = _$UnionA3;
+  const factory UnionA3(
+      {@GraphQLDocumentation(description: 'description for one')
+          List<int>? one}) = _$UnionA3;
 
-// five with default
+  @GraphQLDocumentation(description: 'description for one')
   List<int>? get one;
   @JsonKey(ignore: true)
   $UnionA3CopyWith<UnionA3> get copyWith => throw _privateConstructorUsedError;
@@ -805,7 +859,7 @@ abstract class UnionA3 implements UnionA {
 abstract class _$UnionA4CopyWith<$Res> {
   factory _$UnionA4CopyWith(_UnionA4 value, $Res Function(_UnionA4) then) =
       __$UnionA4CopyWithImpl<$Res>;
-  $Res call({List<int>? one});
+  $Res call({@GraphQLField(name: 'oneRenamed') List<int> one});
 }
 
 /// @nodoc
@@ -825,7 +879,7 @@ class __$UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
       one: one == freezed
           ? _value.one
           : one // ignore: cast_nullable_to_non_nullable
-              as List<int>?,
+              as List<int>,
     ));
   }
 }
@@ -833,10 +887,11 @@ class __$UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 /// @nodoc
 
 class _$_UnionA4 implements _UnionA4 {
-  const _$_UnionA4({this.one});
+  const _$_UnionA4({@GraphQLField(name: 'oneRenamed') required this.one});
 
-  @override // five with default
-  final List<int>? one;
+  @override
+  @GraphQLField(name: 'oneRenamed')
+  final List<int> one;
 
   @override
   String toString() {
@@ -864,9 +919,14 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(Decimal? dec) a2,
-    required TResult Function(List<int>? one) a3,
-    required TResult Function(List<int>? one) a4,
+    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+        a2,
+    required TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)
+        a3,
+    required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
+        a4,
   }) {
     return a4(one);
   }
@@ -875,9 +935,12 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a4?.call(one);
   }
@@ -886,9 +949,12 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(Decimal? dec)? a2,
-    TResult Function(List<int>? one)? a3,
-    TResult Function(List<int>? one)? a4,
+    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @GraphQLDocumentation(description: 'description for one')
+                List<int>? one)?
+        a3,
+    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
   }) {
     if (a4 != null) {
@@ -936,10 +1002,11 @@ class _$_UnionA4 implements _UnionA4 {
 }
 
 abstract class _UnionA4 implements UnionA {
-  const factory _UnionA4({List<int>? one}) = _$_UnionA4;
+  const factory _UnionA4(
+      {@GraphQLField(name: 'oneRenamed') required List<int> one}) = _$_UnionA4;
 
-// five with default
-  List<int>? get one;
+  @GraphQLField(name: 'oneRenamed')
+  List<int> get one;
   @JsonKey(ignore: true)
   _$UnionA4CopyWith<_UnionA4> get copyWith =>
       throw _privateConstructorUsedError;

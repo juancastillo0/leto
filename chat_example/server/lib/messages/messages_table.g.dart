@@ -193,8 +193,7 @@ GraphQLObjectType<ChatMessageSentEvent> get chatMessageSentEventGraphQLType {
     [
       field('message', chatMessageGraphQLType.nonNull(),
           resolve: (obj, ctx) => obj.message),
-      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
-      chatMessageEventGraphQLTypeDiscriminant()
+      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId)
     ],
   );
 
@@ -227,8 +226,7 @@ GraphQLObjectType<ChatMessageDeletedEvent>
     [
       field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
       field('messageId', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.messageId),
-      chatMessageEventGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.messageId)
     ],
   );
 
@@ -261,8 +259,7 @@ GraphQLObjectType<ChatMessageUpdatedEvent>
     [
       field('message', chatMessageGraphQLType.nonNull(),
           resolve: (obj, ctx) => obj.message),
-      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
-      chatMessageEventGraphQLTypeDiscriminant()
+      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId)
     ],
   );
 
@@ -274,16 +271,6 @@ final chatMessageEventSerializer = SerializerValue<ChatMessageEvent>(
       ChatMessageEvent.fromJson(json), // _$ChatMessageEventFromJson,
   // toJson: (m) => _$ChatMessageEventToJson(m as ChatMessageEvent),
 );
-
-// Map<String, Object?> _$ChatMessageEventToJson(ChatMessageEvent instance) => instance.toJson();
-
-GraphQLObjectField<String, String, P>
-    chatMessageEventGraphQLTypeDiscriminant<P extends ChatMessageEvent>() =>
-        field(
-          'runtimeType',
-          enumTypeFromStrings(
-              'ChatMessageEventType', ["sent", "deleted", "updated"]),
-        );
 
 GraphQLUnionType<ChatMessageEvent>? _chatMessageEventGraphQLType;
 GraphQLUnionType<ChatMessageEvent> get chatMessageEventGraphQLType {

@@ -6,41 +6,97 @@ part of 'unions.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<NestedInterfaceImpl3, Object, Object>
-    getNestedInterfaceImpl3GraphQLField = field(
-  'getNestedInterfaceImpl3',
-  nestedInterfaceImpl3GraphQLType.nonNull(),
+final GraphQLObjectField<int, Object, Object>
+    returnFiveFromFreezedInputGraphQLField = field(
+  'returnFiveFromFreezedInput',
+  graphQLInt.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return getNestedInterfaceImpl3();
+    return returnFiveFromFreezedInput(
+        ctx, (args["input"] as FreezedSingleInput));
   },
+  inputs: [
+    GraphQLFieldInput(
+      "input",
+      freezedSingleInputGraphQLType.nonNull(),
+    )
+  ],
+);
+
+final GraphQLObjectField<UnionA, Object, Object> getUnionAGraphQLField = field(
+  'getUnionA',
+  unionAGraphQLType.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getUnionA(ctx);
+  },
+);
+
+final GraphQLObjectField<NestedInterfaceImpl3, Object, Object>
+    getNestedInterfaceImpl3GraphQLField = field(
+  'getNestedInterfaceImpl3',
+  nestedInterfaceImpl3GraphQLType,
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getNestedInterfaceImpl3(ctx);
+  },
+);
+
+final GraphQLObjectField<NestedInterfaceImpl2, Object, Object>
+    getNestedInterfaceImpl2GraphQLField = field(
+  'getNestedInterfaceImpl2',
+  nestedInterfaceImpl2GraphQLType.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getNestedInterfaceImpl2(ctx);
+  },
+);
+
+final GraphQLObjectField<NestedInterface, Object, Object>
+    getNestedInterfaceImplByIndexGraphQLField = field(
+  'getNestedInterfaceImplByIndex',
+  nestedInterfaceGraphQLType.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getNestedInterfaceImplByIndex(ctx, (args["index"] as int));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "index",
+      graphQLInt.nonNull().coerceToInputObject(),
+    )
+  ],
 );
 
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
 
-final unionSingleInputSerializer = SerializerValue<UnionSingleInput>(
+final freezedSingleInputSerializer = SerializerValue<FreezedSingleInput>(
   fromJson: (ctx, json) =>
-      UnionSingleInput.fromJson(json), // _$$_UnionSingleInputFromJson,
-  // toJson: (m) => _$$_UnionSingleInputToJson(m as _$_UnionSingleInput),
+      FreezedSingleInput.fromJson(json), // _$$_FreezedSingleInputFromJson,
+  // toJson: (m) => _$$_FreezedSingleInputToJson(m as _$_FreezedSingleInput),
 );
 
-GraphQLInputObjectType<UnionSingleInput>? _unionSingleInputGraphQLType;
+GraphQLInputObjectType<FreezedSingleInput>? _freezedSingleInputGraphQLType;
 
-/// Auto-generated from [UnionSingleInput].
-GraphQLInputObjectType<UnionSingleInput> get unionSingleInputGraphQLType {
-  final __name = 'UnionSingleInput';
-  if (_unionSingleInputGraphQLType != null)
-    return _unionSingleInputGraphQLType!
-        as GraphQLInputObjectType<UnionSingleInput>;
+/// Auto-generated from [FreezedSingleInput].
+GraphQLInputObjectType<FreezedSingleInput> get freezedSingleInputGraphQLType {
+  final __name = 'FreezedSingleInput';
+  if (_freezedSingleInputGraphQLType != null)
+    return _freezedSingleInputGraphQLType!
+        as GraphQLInputObjectType<FreezedSingleInput>;
 
-  final __unionSingleInputGraphQLType =
-      inputObjectType<UnionSingleInput>('UnionSingleInput');
+  final __freezedSingleInputGraphQLType =
+      inputObjectType<FreezedSingleInput>('FreezedSingleInput');
 
-  _unionSingleInputGraphQLType = __unionSingleInputGraphQLType;
-  __unionSingleInputGraphQLType.fields.addAll(
+  _freezedSingleInputGraphQLType = __freezedSingleInputGraphQLType;
+  __freezedSingleInputGraphQLType.fields.addAll(
     [
       inputField('positional', graphQLString.coerceToInputObject()),
       inputField('five', graphQLInt.nonNull().coerceToInputObject(),
@@ -48,26 +104,25 @@ GraphQLInputObjectType<UnionSingleInput> get unionSingleInputGraphQLType {
     ],
   );
 
-  return __unionSingleInputGraphQLType;
+  return __freezedSingleInputGraphQLType;
 }
 
 GraphQLObjectType<_UnionA1>? _unionA1GraphQLType;
 
 /// Auto-generated from [_UnionA1].
 GraphQLObjectType<_UnionA1> get unionA1GraphQLType {
-  final __name = '_UnionA1';
+  final __name = 'UnionA1';
   if (_unionA1GraphQLType != null)
     return _unionA1GraphQLType! as GraphQLObjectType<_UnionA1>;
 
   final __unionA1GraphQLType =
-      objectType<_UnionA1>('_UnionA1', isInterface: false, interfaces: []);
+      objectType<_UnionA1>('UnionA1', isInterface: false, interfaces: []);
 
   _unionA1GraphQLType = __unionA1GraphQLType;
   __unionA1GraphQLType.fields.addAll(
     [
       field('one', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.one, description: 'five with default'),
-      unionAGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.one, description: 'five with default')
     ],
   );
 
@@ -78,19 +133,19 @@ GraphQLObjectType<_UnionA2>? _unionA2GraphQLType;
 
 /// Auto-generated from [_UnionA2].
 GraphQLObjectType<_UnionA2> get unionA2GraphQLType {
-  final __name = '_UnionA2';
+  final __name = 'UnionA2';
   if (_unionA2GraphQLType != null)
     return _unionA2GraphQLType! as GraphQLObjectType<_UnionA2>;
 
   final __unionA2GraphQLType =
-      objectType<_UnionA2>('_UnionA2', isInterface: false, interfaces: []);
+      objectType<_UnionA2>('UnionA2', isInterface: false, interfaces: []);
 
   _unionA2GraphQLType = __unionA2GraphQLType;
   __unionA2GraphQLType.fields.addAll(
     [
       field('dec', decimalGraphQLType,
-          resolve: (obj, ctx) => obj.dec, description: 'five with default'),
-      unionAGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.dec,
+          deprecationReason: 'custom deprecated msg')
     ],
   );
 
@@ -112,8 +167,7 @@ GraphQLObjectType<UnionA3> get unionA3GraphQLType {
   __unionA3GraphQLType.fields.addAll(
     [
       field('one', listOf(graphQLInt.nonNull()),
-          resolve: (obj, ctx) => obj.one, description: 'five with default'),
-      unionAGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.one, description: 'description for one')
     ],
   );
 
@@ -124,32 +178,23 @@ GraphQLObjectType<_UnionA4>? _unionA4GraphQLType;
 
 /// Auto-generated from [_UnionA4].
 GraphQLObjectType<_UnionA4> get unionA4GraphQLType {
-  final __name = '_UnionA4';
+  final __name = 'UnionA4';
   if (_unionA4GraphQLType != null)
     return _unionA4GraphQLType! as GraphQLObjectType<_UnionA4>;
 
   final __unionA4GraphQLType =
-      objectType<_UnionA4>('_UnionA4', isInterface: false, interfaces: []);
+      objectType<_UnionA4>('UnionA4', isInterface: false, interfaces: []);
 
   _unionA4GraphQLType = __unionA4GraphQLType;
   __unionA4GraphQLType.fields.addAll(
     [
-      field('one', listOf(graphQLInt.nonNull()),
-          resolve: (obj, ctx) => obj.one, description: 'five with default'),
-      unionAGraphQLTypeDiscriminant()
+      field('oneRenamed', listOf(graphQLInt.nonNull()).nonNull(),
+          resolve: (obj, ctx) => obj.one)
     ],
   );
 
   return __unionA4GraphQLType;
 }
-
-// Map<String, Object?> _$UnionAToJson(UnionA instance) => instance.toJson();
-
-GraphQLObjectField<String, String, P>
-    unionAGraphQLTypeDiscriminant<P extends UnionA>() => field(
-          'runtimeType',
-          enumTypeFromStrings('UnionAType', ["a1", "a2", "a3", "a4"]),
-        );
 
 GraphQLUnionType<UnionA>? _unionAGraphQLType;
 GraphQLUnionType<UnionA> get unionAGraphQLType {
@@ -185,6 +230,27 @@ GraphQLObjectType<NestedInterface> get nestedInterfaceGraphQLType {
   );
 
   return __nestedInterfaceGraphQLType;
+}
+
+GraphQLObjectType<NamedInterface>? _namedInterfaceGraphQLType;
+
+/// Auto-generated from [NamedInterface].
+GraphQLObjectType<NamedInterface> get namedInterfaceGraphQLType {
+  final __name = 'NamedInterface';
+  if (_namedInterfaceGraphQLType != null)
+    return _namedInterfaceGraphQLType! as GraphQLObjectType<NamedInterface>;
+
+  final __namedInterfaceGraphQLType = objectType<NamedInterface>(
+      'NamedInterface',
+      isInterface: true,
+      interfaces: []);
+
+  _namedInterfaceGraphQLType = __namedInterfaceGraphQLType;
+  __namedInterfaceGraphQLType.fields.addAll(
+    [field('name', graphQLString, resolve: (obj, ctx) => obj.name)],
+  );
+
+  return __namedInterfaceGraphQLType;
 }
 
 GraphQLObjectType<NestedInterfaceImpl>? _nestedInterfaceImplGraphQLType;
@@ -252,11 +318,16 @@ GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType {
   final __nestedInterfaceImpl3GraphQLType = objectType<NestedInterfaceImpl3>(
       'NestedInterfaceImpl3',
       isInterface: false,
-      interfaces: []);
+      interfaces: [namedInterfaceGraphQLType, nestedInterfaceImplGraphQLType]);
 
   _nestedInterfaceImpl3GraphQLType = __nestedInterfaceImpl3GraphQLType;
   __nestedInterfaceImpl3GraphQLType.fields.addAll(
-    [field('name3', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name3)],
+    [
+      field('name3', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name3),
+      field('dec', decimalGraphQLType.nonNull(),
+          resolve: (obj, ctx) => obj.dec),
+      field('name', graphQLString, resolve: (obj, ctx) => obj.name)
+    ],
   );
 
   return __nestedInterfaceImpl3GraphQLType;
@@ -266,13 +337,15 @@ GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType {
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_UnionSingleInput _$$_UnionSingleInputFromJson(Map<String, dynamic> json) =>
-    _$_UnionSingleInput(
+_$_FreezedSingleInput _$$_FreezedSingleInputFromJson(
+        Map<String, dynamic> json) =>
+    _$_FreezedSingleInput(
       json['positional'] as String?,
       five: json['five'] as int? ?? 5,
     );
 
-Map<String, dynamic> _$$_UnionSingleInputToJson(_$_UnionSingleInput instance) =>
+Map<String, dynamic> _$$_FreezedSingleInputToJson(
+        _$_FreezedSingleInput instance) =>
     <String, dynamic>{
       'positional': instance.positional,
       'five': instance.five,

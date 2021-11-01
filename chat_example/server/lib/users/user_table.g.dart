@@ -132,8 +132,7 @@ GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQLType {
   __userCreatedEventGraphQLType.fields.addAll(
     [
       field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) => obj.user),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      userEventGraphQLTypeDiscriminant()
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -165,8 +164,7 @@ GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQLType {
     [
       field('session', userSessionGraphQLType.nonNull(),
           resolve: (obj, ctx) => obj.session),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      userEventGraphQLTypeDiscriminant()
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -198,8 +196,7 @@ GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQLType {
     [
       field('session', userSessionGraphQLType.nonNull(),
           resolve: (obj, ctx) => obj.session),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      userEventGraphQLTypeDiscriminant()
+      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -231,8 +228,7 @@ GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQLType {
     [
       field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
       field('sessionId', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.sessionId),
-      userEventGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.sessionId)
     ],
   );
 
@@ -243,15 +239,6 @@ final userEventSerializer = SerializerValue<UserEvent>(
   fromJson: (ctx, json) => UserEvent.fromJson(json), // _$UserEventFromJson,
   // toJson: (m) => _$UserEventToJson(m as UserEvent),
 );
-
-// Map<String, Object?> _$UserEventToJson(UserEvent instance) => instance.toJson();
-
-GraphQLObjectField<String, String, P>
-    userEventGraphQLTypeDiscriminant<P extends UserEvent>() => field(
-          'runtimeType',
-          enumTypeFromStrings('UserEventType',
-              ["created", "signedUp", "signedIn", "signedOut"]),
-        );
 
 GraphQLUnionType<UserEvent>? _userEventGraphQLType;
 GraphQLUnionType<UserEvent> get userEventGraphQLType {

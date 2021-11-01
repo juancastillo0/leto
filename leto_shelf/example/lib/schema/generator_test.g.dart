@@ -168,14 +168,12 @@ GraphQLObjectType<_EventUnionAdd>? _eventUnionAddGraphQLType;
 
 /// Auto-generated from [_EventUnionAdd].
 GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
-  final __name = '_EventUnionAdd';
+  final __name = 'EventUnionAdd';
   if (_eventUnionAddGraphQLType != null)
     return _eventUnionAddGraphQLType! as GraphQLObjectType<_EventUnionAdd>;
 
-  final __eventUnionAddGraphQLType = objectType<_EventUnionAdd>(
-      '_EventUnionAdd',
-      isInterface: false,
-      interfaces: []);
+  final __eventUnionAddGraphQLType = objectType<_EventUnionAdd>('EventUnionAdd',
+      isInterface: false, interfaces: []);
 
   _eventUnionAddGraphQLType = __eventUnionAddGraphQLType;
   __eventUnionAddGraphQLType.fields.addAll(
@@ -188,8 +186,7 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
       field('models', listOf(testModelGraphQLType).nonNull(),
           resolve: (obj, ctx) => obj.models),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates),
-      eventUnionGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
@@ -223,8 +220,7 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
       field('dates', listOf(graphQLDate.nonNull()),
           resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates),
-      eventUnionGraphQLTypeDiscriminant()
+          resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
@@ -235,14 +231,6 @@ final eventUnionSerializer = SerializerValue<EventUnion>(
   fromJson: (ctx, json) => EventUnion.fromJson(json), // _$EventUnionFromJson,
   // toJson: (m) => _$EventUnionToJson(m as EventUnion),
 );
-
-// Map<String, Object?> _$EventUnionToJson(EventUnion instance) => instance.toJson();
-
-GraphQLObjectField<String, String, P>
-    eventUnionGraphQLTypeDiscriminant<P extends EventUnion>() => field(
-          'runtimeType',
-          enumTypeFromStrings('EventUnionType', ["add", "delete"]),
-        );
 
 GraphQLUnionType<EventUnion>? _eventUnionGraphQLType;
 GraphQLUnionType<EventUnion> get eventUnionGraphQLType {

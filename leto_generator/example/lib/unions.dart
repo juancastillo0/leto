@@ -1,5 +1,7 @@
-import 'package:decimal/decimal.dart';
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_schema/leto_schema.dart';
 
@@ -8,16 +10,55 @@ part 'unions.g.dart';
 
 @GraphQLInput()
 @freezed
-class UnionSingleInput with _$UnionSingleInput {
-  const factory UnionSingleInput.cc(
+class FreezedSingleInput with _$FreezedSingleInput {
+  const factory FreezedSingleInput.cc(
     String? positional, {
     // five with default
     @Default(5) int five,
-  }) = _UnionSingleInput;
+  }) = _FreezedSingleInput;
 
-  factory UnionSingleInput.fromJson(Map<String, Object?> json) =>
-      _$UnionSingleInputFromJson(json);
+  factory FreezedSingleInput.fromJson(Map<String, Object?> json) =>
+      _$FreezedSingleInputFromJson(json);
 }
+
+@Query()
+int returnFiveFromFreezedInput(ReqCtx ctx, FreezedSingleInput input) {
+  return input.five;
+}
+
+final unionsASchemaString = [
+  '''
+input FreezedSingleInput {
+  positional: String
+
+  """five with default"""
+  five: Int! = 5
+}''',
+  '''
+returnFiveFromFreezedInput(input: FreezedSingleInput!): Int!
+''',
+  '''
+union UnionA = UnionA1 | UnionA2 | UnionA3 | UnionA4
+''',
+  '''
+type UnionA1 {
+  """five with default"""
+  one: Int!
+}''',
+  '''
+type UnionA2 {
+  dec: Decimal @deprecated(reason: "custom deprecated msg")
+}''',
+  '''
+type UnionA3 {
+  """description for one"""
+  one: [Int!]
+}''',
+  '''
+type UnionA4 {
+  oneRenamed: [Int!]!
+}''',
+];
 
 @GraphQLClass()
 @freezed
@@ -28,22 +69,24 @@ class UnionA with _$UnionA {
   }) = _UnionA1;
 
   const factory UnionA.a2({
-    // five with default
-    Decimal? dec,
+    @Deprecated('custom deprecated msg') Decimal? dec,
   }) = _UnionA2;
 
   const factory UnionA.a3({
-    // five with default
-    List<int>? one,
+    @GraphQLDocumentation(description: 'description for one') List<int>? one,
   }) = UnionA3;
 
   const factory UnionA.a4({
-    // five with default
-    List<int>? one,
+    @GraphQLField(name: 'oneRenamed') required List<int> one,
   }) = _UnionA4;
 }
 
+final unionARef = ScopeRef<UnionA>();
 
+@Query()
+FutureOr<UnionA> getUnionA(ReqCtx ctx) {
+  return unionARef.get(ctx)!;
+}
 
 final unionsSchemaString = '''
 interface NestedInterface {
