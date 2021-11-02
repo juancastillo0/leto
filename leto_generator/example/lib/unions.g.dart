@@ -26,7 +26,8 @@ final GraphQLObjectField<int, Object, Object>
 
 final GraphQLObjectField<UnionA, Object, Object> getUnionAGraphQLField = field(
   'getUnionA',
-  unionAGraphQLType.nonNull(),
+  unionAGraphQLType,
+  description: r"gets Union A",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -107,6 +108,11 @@ GraphQLInputObjectType<FreezedSingleInput> get freezedSingleInputGraphQLType {
   return __freezedSingleInputGraphQLType;
 }
 
+final unionA1Serializer = SerializerValue<_UnionA1>(
+  fromJson: (ctx, json) => _UnionA1.fromJson(json), // _$$_UnionA1FromJson,
+  // toJson: (m) => _$$_UnionA1ToJson(m as _$_UnionA1),
+);
+
 GraphQLObjectType<_UnionA1>? _unionA1GraphQLType;
 
 /// Auto-generated from [_UnionA1].
@@ -128,6 +134,11 @@ GraphQLObjectType<_UnionA1> get unionA1GraphQLType {
 
   return __unionA1GraphQLType;
 }
+
+final unionA2Serializer = SerializerValue<_UnionA2>(
+  fromJson: (ctx, json) => _UnionA2.fromJson(json), // _$$_UnionA2FromJson,
+  // toJson: (m) => _$$_UnionA2ToJson(m as _$_UnionA2),
+);
 
 GraphQLObjectType<_UnionA2>? _unionA2GraphQLType;
 
@@ -152,6 +163,11 @@ GraphQLObjectType<_UnionA2> get unionA2GraphQLType {
   return __unionA2GraphQLType;
 }
 
+final unionA3Serializer = SerializerValue<UnionA3>(
+  fromJson: (ctx, json) => UnionA3.fromJson(json), // _$$UnionA3FromJson,
+  // toJson: (m) => _$$UnionA3ToJson(m as _$UnionA3),
+);
+
 GraphQLObjectType<UnionA3>? _unionA3GraphQLType;
 
 /// Auto-generated from [UnionA3].
@@ -174,6 +190,11 @@ GraphQLObjectType<UnionA3> get unionA3GraphQLType {
   return __unionA3GraphQLType;
 }
 
+final unionA4Serializer = SerializerValue<_UnionA4>(
+  fromJson: (ctx, json) => _UnionA4.fromJson(json), // _$$_UnionA4FromJson,
+  // toJson: (m) => _$$_UnionA4ToJson(m as _$_UnionA4),
+);
+
 GraphQLObjectType<_UnionA4>? _unionA4GraphQLType;
 
 /// Auto-generated from [_UnionA4].
@@ -195,6 +216,11 @@ GraphQLObjectType<_UnionA4> get unionA4GraphQLType {
 
   return __unionA4GraphQLType;
 }
+
+final unionASerializer = SerializerValue<UnionA>(
+  fromJson: (ctx, json) => UnionA.fromJson(json), // _$UnionAFromJson,
+  // toJson: (m) => _$UnionAToJson(m as UnionA),
+);
 
 GraphQLUnionType<UnionA>? _unionAGraphQLType;
 GraphQLUnionType<UnionA> get unionAGraphQLType {
@@ -349,4 +375,39 @@ Map<String, dynamic> _$$_FreezedSingleInputToJson(
     <String, dynamic>{
       'positional': instance.positional,
       'five': instance.five,
+    };
+
+_$_UnionA1 _$$_UnionA1FromJson(Map<String, dynamic> json) => _$_UnionA1(
+      one: json['one'] as int? ?? 5,
+    );
+
+Map<String, dynamic> _$$_UnionA1ToJson(_$_UnionA1 instance) =>
+    <String, dynamic>{
+      'one': instance.one,
+    };
+
+_$_UnionA2 _$$_UnionA2FromJson(Map<String, dynamic> json) => _$_UnionA2(
+      dec: decimalFromJson(json['dec']),
+    );
+
+Map<String, dynamic> _$$_UnionA2ToJson(_$_UnionA2 instance) =>
+    <String, dynamic>{
+      'dec': decimalToJson(instance.dec),
+    };
+
+_$UnionA3 _$$UnionA3FromJson(Map<String, dynamic> json) => _$UnionA3(
+      one: (json['one'] as List<dynamic>?)?.map((e) => e as int).toList(),
+    );
+
+Map<String, dynamic> _$$UnionA3ToJson(_$UnionA3 instance) => <String, dynamic>{
+      'one': instance.one,
+    };
+
+_$_UnionA4 _$$_UnionA4FromJson(Map<String, dynamic> json) => _$_UnionA4(
+      one: (json['one'] as List<dynamic>).map((e) => e as int).toList(),
+    );
+
+Map<String, dynamic> _$$_UnionA4ToJson(_$_UnionA4 instance) =>
+    <String, dynamic>{
+      'one': instance.one,
     };

@@ -1518,21 +1518,15 @@ class GraphQL {
 
     return type.whenMaybe(
       object: (type) {
-        if (!type.isInterface) {
-          // TODO: if objectType and fragmentType are the same type,
-          // return true, otherwise return false.
-          // return type == objectType; should work
-          for (final field in type.fields) {
-            if (!objectType.fields.any((f) => f.name == field.name))
-              return false;
-          }
-          return true;
-        } else {
+        if (type.isInterface) {
           return objectType.isImplementationOf(type);
+        } else {
+          return type.name == objectType.name;
         }
       },
-      union: (type) =>
-          type.possibleTypes.any((t) => objectType.isImplementationOf(t)),
+      union: (type) {
+        return type.possibleTypes.any((t) => objectType.isImplementationOf(t));
+      },
       orElse: (_) => false,
     );
   }

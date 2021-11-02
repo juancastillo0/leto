@@ -58,6 +58,9 @@ type UnionA3 {
 type UnionA4 {
   oneRenamed: [Int!]!
 }''',
+  '''
+"""gets Union A"""
+  getUnionA: UnionA''',
 ];
 
 @GraphQLClass()
@@ -69,7 +72,9 @@ class UnionA with _$UnionA {
   }) = _UnionA1;
 
   const factory UnionA.a2({
-    @Deprecated('custom deprecated msg') Decimal? dec,
+    @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+    @Deprecated('custom deprecated msg')
+        Decimal? dec,
   }) = _UnionA2;
 
   const factory UnionA.a3({
@@ -79,13 +84,16 @@ class UnionA with _$UnionA {
   const factory UnionA.a4({
     @GraphQLField(name: 'oneRenamed') required List<int> one,
   }) = _UnionA4;
+
+  factory UnionA.fromJson(Map<String, Object?> json) => _$UnionAFromJson(json);
 }
 
 final unionARef = ScopeRef<UnionA>();
 
 @Query()
-FutureOr<UnionA> getUnionA(ReqCtx ctx) {
-  return unionARef.get(ctx)!;
+@GraphQLDocumentation(description: 'gets Union A')
+FutureOr<UnionA?> getUnionA(ReqCtx ctx) {
+  return unionARef.get(ctx);
 }
 
 final unionsSchemaString = '''

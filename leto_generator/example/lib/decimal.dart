@@ -5,8 +5,8 @@ export 'package:decimal/decimal.dart';
 
 final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
   name: 'Decimal',
-  deserialize: (_, serialized) => Decimal.parse(serialized),
-  serialize: (value) => value.toString(),
+  deserialize: (_, serialized) => decimalFromJson(serialized)!,
+  serialize: (value) => decimalToJson(value)!,
   validate: (key, input) => (input is num || input is String) &&
           Decimal.tryParse(input.toString()) != null
       ? ValidationResult.ok(input.toString())
@@ -16,3 +16,8 @@ final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
   description: 'A number that allows computation without losing precision.',
   specifiedByURL: null,
 );
+
+Decimal? decimalFromJson(Object? value) =>
+    value == null ? null : Decimal.parse(value as String);
+
+String? decimalToJson(Decimal? value) => value?.toString();

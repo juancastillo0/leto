@@ -12,6 +12,7 @@ final graphqlApiSchema = GraphQLSchema(
       inputMNSerializer,
       inputJsonSerdeSerializer,
       freezedSingleInputSerializer,
+      unionASerializer,
       todoItemInputSerializer,
       todoItemInputSSerializer,
       todoItemInputNestedSerializer,

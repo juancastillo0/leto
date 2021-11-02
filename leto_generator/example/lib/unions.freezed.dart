@@ -270,6 +270,23 @@ abstract class _FreezedSingleInput implements FreezedSingleInput {
       throw _privateConstructorUsedError;
 }
 
+UnionA _$UnionAFromJson(Map<String, dynamic> json) {
+  switch (json['runtimeType'] as String?) {
+    case 'a1':
+      return _UnionA1.fromJson(json);
+    case 'a2':
+      return _UnionA2.fromJson(json);
+    case 'a3':
+      return UnionA3.fromJson(json);
+    case 'a4':
+      return _UnionA4.fromJson(json);
+
+    default:
+      throw CheckedFromJsonException(json, 'runtimeType', 'UnionA',
+          'Invalid union type "${json['runtimeType']}"!');
+  }
+}
+
 /// @nodoc
 class _$UnionATearOff {
   const _$UnionATearOff();
@@ -280,7 +297,10 @@ class _$UnionATearOff {
     );
   }
 
-  _UnionA2 a2({@Deprecated('custom deprecated msg') Decimal? dec}) {
+  _UnionA2 a2(
+      {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+      @Deprecated('custom deprecated msg')
+          Decimal? dec}) {
     return _UnionA2(
       dec: dec,
     );
@@ -299,6 +319,10 @@ class _$UnionATearOff {
       one: one,
     );
   }
+
+  UnionA fromJson(Map<String, Object?> json) {
+    return UnionA.fromJson(json);
+  }
 }
 
 /// @nodoc
@@ -309,7 +333,10 @@ mixin _$UnionA {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+    required TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
@@ -322,7 +349,11 @@ mixin _$UnionA {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -333,7 +364,11 @@ mixin _$UnionA {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -367,6 +402,7 @@ mixin _$UnionA {
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -414,9 +450,12 @@ class __$UnionA1CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$_UnionA1 implements _UnionA1 {
   const _$_UnionA1({this.one = 5});
+
+  factory _$_UnionA1.fromJson(Map<String, dynamic> json) =>
+      _$$_UnionA1FromJson(json);
 
   @JsonKey(defaultValue: 5)
   @override // five with default
@@ -447,7 +486,10 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+    required TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
@@ -463,7 +505,11 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -477,7 +523,11 @@ class _$_UnionA1 implements _UnionA1 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -527,10 +577,17 @@ class _$_UnionA1 implements _UnionA1 {
     }
     return orElse();
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_UnionA1ToJson(this)..['runtimeType'] = 'a1';
+  }
 }
 
 abstract class _UnionA1 implements UnionA {
   const factory _UnionA1({int one}) = _$_UnionA1;
+
+  factory _UnionA1.fromJson(Map<String, dynamic> json) = _$_UnionA1.fromJson;
 
 // five with default
   int get one;
@@ -543,7 +600,10 @@ abstract class _UnionA1 implements UnionA {
 abstract class _$UnionA2CopyWith<$Res> {
   factory _$UnionA2CopyWith(_UnionA2 value, $Res Function(_UnionA2) then) =
       __$UnionA2CopyWithImpl<$Res>;
-  $Res call({@Deprecated('custom deprecated msg') Decimal? dec});
+  $Res call(
+      {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+      @Deprecated('custom deprecated msg')
+          Decimal? dec});
 }
 
 /// @nodoc
@@ -569,11 +629,18 @@ class __$UnionA2CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$_UnionA2 implements _UnionA2 {
-  const _$_UnionA2({@Deprecated('custom deprecated msg') this.dec});
+  const _$_UnionA2(
+      {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+      @Deprecated('custom deprecated msg')
+          this.dec});
+
+  factory _$_UnionA2.fromJson(Map<String, dynamic> json) =>
+      _$$_UnionA2FromJson(json);
 
   @override
+  @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
   @Deprecated('custom deprecated msg')
   final Decimal? dec;
 
@@ -602,7 +669,10 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+    required TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
@@ -618,7 +688,11 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -632,7 +706,11 @@ class _$_UnionA2 implements _UnionA2 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -682,12 +760,22 @@ class _$_UnionA2 implements _UnionA2 {
     }
     return orElse();
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_UnionA2ToJson(this)..['runtimeType'] = 'a2';
+  }
 }
 
 abstract class _UnionA2 implements UnionA {
-  const factory _UnionA2({@Deprecated('custom deprecated msg') Decimal? dec}) =
-      _$_UnionA2;
+  const factory _UnionA2(
+      {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+      @Deprecated('custom deprecated msg')
+          Decimal? dec}) = _$_UnionA2;
 
+  factory _UnionA2.fromJson(Map<String, dynamic> json) = _$_UnionA2.fromJson;
+
+  @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
   @Deprecated('custom deprecated msg')
   Decimal? get dec;
   @JsonKey(ignore: true)
@@ -727,10 +815,13 @@ class _$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$UnionA3 implements UnionA3 {
   const _$UnionA3(
       {@GraphQLDocumentation(description: 'description for one') this.one});
+
+  factory _$UnionA3.fromJson(Map<String, dynamic> json) =>
+      _$$UnionA3FromJson(json);
 
   @override
   @GraphQLDocumentation(description: 'description for one')
@@ -762,7 +853,10 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+    required TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
@@ -778,7 +872,11 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -792,7 +890,11 @@ class _$UnionA3 implements UnionA3 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -842,12 +944,19 @@ class _$UnionA3 implements UnionA3 {
     }
     return orElse();
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UnionA3ToJson(this)..['runtimeType'] = 'a3';
+  }
 }
 
 abstract class UnionA3 implements UnionA {
   const factory UnionA3(
       {@GraphQLDocumentation(description: 'description for one')
           List<int>? one}) = _$UnionA3;
+
+  factory UnionA3.fromJson(Map<String, dynamic> json) = _$UnionA3.fromJson;
 
   @GraphQLDocumentation(description: 'description for one')
   List<int>? get one;
@@ -885,9 +994,12 @@ class __$UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$_UnionA4 implements _UnionA4 {
   const _$_UnionA4({@GraphQLField(name: 'oneRenamed') required this.one});
+
+  factory _$_UnionA4.fromJson(Map<String, dynamic> json) =>
+      _$$_UnionA4FromJson(json);
 
   @override
   @GraphQLField(name: 'oneRenamed')
@@ -919,7 +1031,10 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(int one) a1,
-    required TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)
+    required TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
@@ -935,7 +1050,11 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -949,7 +1068,11 @@ class _$_UnionA4 implements _UnionA4 {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(int one)? a1,
-    TResult Function(@Deprecated('custom deprecated msg') Decimal? dec)? a2,
+    TResult Function(
+            @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+            @Deprecated('custom deprecated msg')
+                Decimal? dec)?
+        a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
                 List<int>? one)?
@@ -999,11 +1122,18 @@ class _$_UnionA4 implements _UnionA4 {
     }
     return orElse();
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_UnionA4ToJson(this)..['runtimeType'] = 'a4';
+  }
 }
 
 abstract class _UnionA4 implements UnionA {
   const factory _UnionA4(
       {@GraphQLField(name: 'oneRenamed') required List<int> one}) = _$_UnionA4;
+
+  factory _UnionA4.fromJson(Map<String, dynamic> json) = _$_UnionA4.fromJson;
 
   @GraphQLField(name: 'oneRenamed')
   List<int> get one;
