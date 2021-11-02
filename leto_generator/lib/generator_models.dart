@@ -281,7 +281,7 @@ class UnionVarianInfo {
         'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName${_typeList()}>';
 
     final _typeNoExt = 'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName>';
-    final _chacheGetter = hasTypeParams ? '_$fieldName[__name]' : '_$fieldName';
+    final _cacheGetter = hasTypeParams ? '_$fieldName[__name]' : '_$fieldName';
 
     return '''
 ${hasTypeParams && hasFromJson ? 'final ${ReCase(typeName).camelCase}SerdeCtx = SerdeCtx();' : ''}
@@ -289,7 +289,7 @@ ${hasTypeParams ? 'Map<String, $_typeNoExt> _$fieldName = {}' : '$_type? _$field
 /// Auto-generated from [$typeName].
 $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 'get $fieldName'} {
   final __name = '$graphQLTypeName';
-  if ($_chacheGetter != null) return $_chacheGetter! as $_type;
+  if ($_cacheGetter != null) return $_cacheGetter! as $_type;
 
   final __$fieldName = ${expression().accept(DartEmitter())};
   ${hasTypeParams && hasFromJson ? '''
@@ -298,7 +298,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
       fromJson: (ctx, json) => $typeName.fromJson(json, ${typeParams.map((p) => 'ctx.fromJson').join(',')}),
     ),
   );''' : ''}
-  $_chacheGetter = __$fieldName;
+  $_cacheGetter = __$fieldName;
   __$fieldName.fields.addAll(${literalList(
       // deduplicate field names
       Map.fromEntries(

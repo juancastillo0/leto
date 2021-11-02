@@ -24,6 +24,7 @@ final graphqlApiSchema = GraphQLSchema(
     'Query',
     fields: [
       testInputGenGraphQLField,
+      queryMultipleParamsGraphQLField,
       returnFiveFromFreezedInputGraphQLField,
       getUnionAGraphQLField,
       getNestedInterfaceImpl3GraphQLField,
@@ -42,6 +43,7 @@ final graphqlApiSchema = GraphQLSchema(
       getIntInterfaceEnumGraphQLField,
       getIntInterfaceEnumListGraphQLField,
       getIntInterfaceNEnumNullGraphQLField,
+      mutationMultipleParamsOptionalPosGraphQLField,
     ],
   ),
   subscriptionType: objectType(

@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   test(
-    'freezed unions',
+    'freezed unions generator',
     () async {
       for (final subs in unionsASchemaString) {
         expect(graphqlApiSchema.schemaStr, contains(subs));

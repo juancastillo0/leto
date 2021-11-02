@@ -1,7 +1,45 @@
-import 'package:leto_schema/leto_schema.dart';
+import 'dart:async';
+import 'dart:convert' show json;
+
 import 'package:json_annotation/json_annotation.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 part 'inputs.g.dart';
+
+const inputsSchemaStr = [
+  '''
+input InputM {
+  name: String!
+  date: Date
+  ints: [Int!]!
+  nested: [InputMN!]!
+  nestedNullItem: [InputMN]!
+  nestedNullItemNull: [InputMN]
+  nestedNull: [InputMN!]
+}''',
+  '''
+input InputMN {
+  name: String!
+  parent: InputM
+}''',
+  '''
+input InputJsonSerde {
+  name: String!
+  parent: InputM
+  inputGenM: InputGenInputMReq
+  inputGenMNull: InputGenInputM
+}''',
+  '''
+input InputGenIntReq {
+  name: String!
+  generic: Int!
+}''',
+  '''testInputGen(input: InputGenIntReq!): Int!''',
+  '''
+queryMultipleParams(serde: InputJsonSerde, serdeReq: InputJsonSerde!, defTwo: Int! = 2, mInput: InputM, gen: InputGenInputJsonSerde!): String!''',
+'''
+  mutationMultipleParamsOptionalPos(serde: InputJsonSerde, defTwo: Int! = 2, gen: InputGenInputJsonSerdeReqList): String!''',
+];
 
 @GraphQLInput()
 @JsonSerializable()
@@ -26,6 +64,7 @@ class InputM {
   });
 
   factory InputM.fromJson(Map<String, dynamic> json) => _$InputMFromJson(json);
+  Map<String, Object?> toJson() => _$InputMToJson(this);
 }
 
 @GraphQLInput()
@@ -65,6 +104,8 @@ class InputJsonSerde {
 
   factory InputJsonSerde.fromJson(Map<String, Object?> json) =>
       _$InputJsonSerdeFromJson(json);
+
+  Map<String, Object?> toJson() => _$InputJsonSerdeToJson(this);
 }
 
 @GraphQLInput()
@@ -88,6 +129,36 @@ class InputGen<T> {
 }
 
 @Query()
-int testInputGen(InputGen<int> v) {
-  return v.generic;
+int testInputGen(InputGen<int> input) {
+  return input.generic;
+}
+
+@Query()
+String queryMultipleParams(
+  InputJsonSerde? serde, {
+  required InputJsonSerde serdeReq,
+  int defTwo = 2,
+  InputM? mInput,
+  required InputGen<InputJsonSerde?> gen,
+}) {
+  return json.encode({
+    'serde': serde,
+    'serdeReq': serdeReq,
+    'defTwo': defTwo,
+    'mInput': mInput,
+    'gen': gen,
+  });
+}
+
+@Mutation()
+FutureOr<String> mutationMultipleParamsOptionalPos([
+  InputJsonSerde? serde,
+  int defTwo = 2,
+  InputGen<List<InputJsonSerde>?>? gen,
+]) {
+  return json.encode({
+    'serde': serde,
+    'defTwo': defTwo,
+    'gen': gen,
+  });
 }

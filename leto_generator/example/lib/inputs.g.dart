@@ -12,12 +12,80 @@ final GraphQLObjectField<int, Object, Object> testInputGenGraphQLField = field(
   resolve: (obj, ctx) {
     final args = ctx.args;
 
-    return testInputGen((args["v"] as InputGen<int>));
+    return testInputGen((args["input"] as InputGen<int>));
   },
   inputs: [
     GraphQLFieldInput(
-      "v",
+      "input",
       inputGenGraphQLType<int>(graphQLInt.nonNull()).nonNull(),
+    )
+  ],
+);
+
+final GraphQLObjectField<String, Object, Object>
+    queryMultipleParamsGraphQLField = field(
+  'queryMultipleParams',
+  graphQLString.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return queryMultipleParams((args["serde"] as InputJsonSerde?),
+        serdeReq: (args["serdeReq"] as InputJsonSerde),
+        defTwo: (args["defTwo"] as int),
+        mInput: (args["mInput"] as InputM?),
+        gen: (args["gen"] as InputGen<InputJsonSerde?>));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "serde",
+      inputJsonSerdeGraphQLType,
+    ),
+    GraphQLFieldInput(
+      "serdeReq",
+      inputJsonSerdeGraphQLType.nonNull(),
+    ),
+    GraphQLFieldInput(
+      "defTwo",
+      graphQLInt.nonNull().coerceToInputObject(),
+      defaultValue: 2,
+    ),
+    GraphQLFieldInput(
+      "mInput",
+      inputMGraphQLType,
+    ),
+    GraphQLFieldInput(
+      "gen",
+      inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType).nonNull(),
+    )
+  ],
+);
+
+final GraphQLObjectField<String, Object, Object>
+    mutationMultipleParamsOptionalPosGraphQLField = field(
+  'mutationMultipleParamsOptionalPos',
+  graphQLString.nonNull(),
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return mutationMultipleParamsOptionalPos(
+        (args["serde"] as InputJsonSerde?),
+        (args["defTwo"] as int),
+        (args["gen"] as InputGen<List<InputJsonSerde>?>?));
+  },
+  inputs: [
+    GraphQLFieldInput(
+      "serde",
+      inputJsonSerdeGraphQLType,
+    ),
+    GraphQLFieldInput(
+      "defTwo",
+      graphQLInt.nonNull().coerceToInputObject(),
+      defaultValue: 2,
+    ),
+    GraphQLFieldInput(
+      "gen",
+      inputGenGraphQLType<List<InputJsonSerde?>>(
+          listOf(inputJsonSerdeGraphQLType.nonNull())),
     )
   ],
 );

@@ -5,7 +5,7 @@ import 'package:leto_generator_example/unions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('interface test', () async {
+  test('interface generator', () async {
     final scope = ScopedMap.empty();
 
     for (final subs in unionsSchemaString.split('||')) {
