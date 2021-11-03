@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:oxidized/oxidized.dart';
 
+import 'safe_json_graphql.dart';
+
 export 'safe_json_graphql.dart';
 
 abstract class Json {
@@ -139,6 +141,8 @@ abstract class Json {
       mapErr: (err) => '$_errPrefix$err',
     );
   }
+
+  static GraphQLJsonType get graphQLType => jsonGraphQLType;
 }
 
 Result<T, E> resultCtx<T extends Object, E extends Object>(

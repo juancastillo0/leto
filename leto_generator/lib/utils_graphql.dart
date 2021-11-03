@@ -203,6 +203,24 @@ Expression inferType(
         );
       }
     }
+    final element = type.element;
+    if (element is ClassElement) {
+      final ExecutableElement? e =
+          element.getGetter('graphQLType') ?? element.getMethod('graphQLType');
+      if (e != null) {
+        if (!e.isStatic) {
+          throw Exception(
+            'The getter or method "$typeName.graphQLType" should be static.',
+          );
+        }
+        final prop = refer(typeName).property(e.name);
+        if (e is MethodElement) {
+          // TODO: generics
+          return _wrapNullability(prop.call([]));
+        }
+        return _wrapNullability(prop);
+      }
+    }
 
     log.warning('Cannot infer the GraphQL type for '
         'field $className.$name (type=$type).');

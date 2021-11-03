@@ -248,7 +248,7 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
     [
       field('values', tGraphQLType.list().nonNull(),
           resolve: (obj, ctx) => obj.values),
-      field('pageInfo', pageInfoGraphQLType.nonNull(),
+      field('pageInfo', PageInfo.graphQLType.nonNull(),
           resolve: (obj, ctx) => obj.pageInfo)
     ],
   );

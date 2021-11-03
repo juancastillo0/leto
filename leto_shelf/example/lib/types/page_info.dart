@@ -116,4 +116,6 @@ class PageInfo {
         startCursor.hashCode ^
         endCursor.hashCode;
   }
+
+  static GraphQLObjectType<PageInfo> get graphQLType => pageInfoGraphQLType;
 }

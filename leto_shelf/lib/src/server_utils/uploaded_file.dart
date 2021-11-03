@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 import 'package:http_server/http_server.dart';
 
+import 'graphql_upload.dart';
+
 export 'graphql_upload.dart';
 
 /// Reads information about a binary chunk uploaded to the server.
@@ -78,4 +80,6 @@ class Upload {
   Future<String> readAsString({Encoding encoding = utf8}) {
     return encoding.decoder.bind(data).join();
   }
+
+  static GraphQLUploadType graphQLType() => uploadGraphQLType;
 }

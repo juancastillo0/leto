@@ -51,7 +51,7 @@ final GraphQLObjectField<ChatMessage, Object, Object>
     ),
     GraphQLFieldInput(
       "file",
-      uploadGraphQLType.nonNull().coerceToInputObject(),
+      Upload.graphQLType().nonNull().coerceToInputObject(),
     ),
     GraphQLFieldInput(
       "referencedMessageId",
