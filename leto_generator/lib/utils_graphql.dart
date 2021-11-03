@@ -104,6 +104,7 @@ Expression inferType(
   DartType type, {
   bool? nullable,
   String? genericTypeName,
+  Map<String, TypeParameterElement>? generics,
 }) {
   // Next, check if this is the "id" field of a `Model`.
   // TODO:
@@ -114,7 +115,13 @@ Expression inferType(
 
   final genericWhenAsync = genericTypeWhenFutureOrStream(type);
   if (genericWhenAsync != null) {
-    return inferType(customTypes, className, name, genericWhenAsync);
+    return inferType(
+      customTypes,
+      className,
+      name,
+      genericWhenAsync,
+      generics: generics,
+    );
   }
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
   Expression _wrapNullability(Expression exp) =>
@@ -126,6 +133,7 @@ Expression inferType(
     double: 'graphQLFloat',
     bool: 'graphQLBoolean',
     DateTime: 'graphQLDate',
+    Uri: 'graphQLUri',
   };
 
   // Check to see if it's a primitive type.
@@ -143,13 +151,26 @@ Expression inferType(
       type.typeArguments.isNotEmpty &&
       const TypeChecker.fromRuntime(Iterable).isAssignableFromType(type)) {
     final arg = type.typeArguments[0];
-    final inner = inferType(customTypes, className, name, arg);
-    return _wrapNullability(refer('listOf').call([inner]));
+    final inner = inferType(
+      customTypes,
+      className,
+      name,
+      arg,
+      generics: generics,
+    );
+    return _wrapNullability(inner.property('list').call([]));
   } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
     return _wrapNullability(
       refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix').call([
-        ...type.typeArguments
-            .map((e) => inferType(customTypes, className, name, e)),
+        ...type.typeArguments.map((e) {
+          return inferType(
+            customTypes,
+            className,
+            name,
+            e,
+            generics: generics,
+          );
+        }),
       ], {
         if (genericTypeName != null) 'name': literalString(genericTypeName)
       }, [
@@ -164,15 +185,28 @@ Expression inferType(
     return _wrapNullability(refer(customType.getter, customType.import));
   }
 
+  final externalName = // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
+      typeName.startsWith('_') ? typeName.substring(1) : typeName;
+
   // Firstly, check if it's a GraphQL class.
   if (type is! InterfaceType ||
       (!isGraphQLClass(type) && !isInputType(type.element))) {
+    if (type is TypeParameterType && generics != null) {
+      final generic = generics[typeName];
+      if (generic != null) {
+        final isNonNull = nullable != true &&
+            type.nullabilitySuffix == NullabilitySuffix.none &&
+            generic.bound?.nullabilitySuffix == NullabilitySuffix.none;
+        final nullability = isNonNull ? '.nonNull()' : '';
+        return refer(
+          '${ReCase(externalName).camelCase}$graphqlTypeSuffix$nullability',
+        );
+      }
+    }
+
     log.warning('Cannot infer the GraphQL type for '
         'field $className.$name (type=$type).');
   }
-
-  final externalName = // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
-      typeName.startsWith('_') ? typeName.substring(1) : typeName;
   return _wrapNullability(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix'),
   );

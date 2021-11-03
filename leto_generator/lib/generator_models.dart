@@ -19,13 +19,16 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
   if (clazz.name == 'Object') {
     return [];
   }
+  final generics = Map.fromEntries(
+    clazz.typeParameters.map((e) => MapEntry(e.name, e)),
+  );
   return clazz.methods
       .where(
         (element) => element.name != 'toJson' && element.name != 'fromJson',
       )
-      .map((m) => fieldFromElement(m, m.returnType, ctx))
+      .map((m) => fieldFromElement(m, m.returnType, ctx, generics))
       .followedBy(clazz.fields.map((m) {
-    return fieldFromElement(m, m.type, ctx);
+    return fieldFromElement(m, m.type, ctx, generics);
   })).followedBy(
     clazz.supertype == null
         ? []
@@ -126,6 +129,7 @@ Future<FieldInfo> fieldFromElement(
   Element method,
   DartType type,
   GeneratorCtx ctx,
+  Map<String, TypeParameterElement> generics,
 ) async {
   final annot = getFieldAnnot(method);
   return FieldInfo(
@@ -137,6 +141,7 @@ Future<FieldInfo> fieldFromElement(
             method.name!,
             type,
             nullable: annot.nullable,
+            generics: generics,
           ),
     name: annot.name ?? method.name!,
     defaultValueCode: getDefaultValue(method),
