@@ -6,10 +6,10 @@ part of 'user_table.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<List<User?>, Object, Object> searchUserGraphQLField =
+final GraphQLObjectField<List<User>, Object, Object> searchUserGraphQLField =
     field(
   'searchUser',
-  listOf(userGraphQLType.nonNull()).nonNull(),
+  userGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -307,7 +307,7 @@ GraphQLObjectType<User> get userGraphQLType {
   _userGraphQLType = __userGraphQLType;
   __userGraphQLType.fields.addAll(
     [
-      field('sessions', listOf(userSessionGraphQLType.nonNull()).nonNull(),
+      field('sessions', userSessionGraphQLType.nonNull().list().nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
 
@@ -380,7 +380,7 @@ GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
   __errCGraphQLType.fields.addAll(
     [
       field('message', graphQLString, resolve: (obj, ctx) => obj.message),
-      field('value', tGraphQLType.nonNull(), resolve: (obj, ctx) => obj.value)
+      field('value', tGraphQLType, resolve: (obj, ctx) => obj.value)
     ],
   );
 

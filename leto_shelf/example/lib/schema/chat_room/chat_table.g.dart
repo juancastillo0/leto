@@ -32,10 +32,10 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
   ],
 );
 
-final GraphQLObjectField<List<ChatMessage?>, Object, Object>
+final GraphQLObjectField<List<ChatMessage>, Object, Object>
     getMessageGraphQLField = field(
   'getMessage',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
+  chatMessageGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -49,10 +49,10 @@ final GraphQLObjectField<List<ChatMessage?>, Object, Object>
   ],
 );
 
-final GraphQLObjectField<List<ChatMessage?>, Object, Object>
+final GraphQLObjectField<List<ChatMessage>, Object, Object>
     onMessageSentGraphQLField = field(
   'onMessageSent',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
+  chatMessageGraphQLType.nonNull().list().nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -83,10 +83,10 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
   ],
 );
 
-final GraphQLObjectField<List<ChatRoom?>, Object, Object>
+final GraphQLObjectField<List<ChatRoom>, Object, Object>
     getChatRoomsGraphQLField = field(
   'getChatRooms',
-  listOf(chatRoomGraphQLType.nonNull()).nonNull(),
+  chatRoomGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -169,7 +169,7 @@ GraphQLObjectType<ChatRoom> get chatRoomGraphQLType {
       field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt),
-      field('messages', listOf(chatMessageGraphQLType.nonNull()).nonNull(),
+      field('messages', chatMessageGraphQLType.nonNull().list().nonNull(),
           resolve: (obj, ctx) {
         final args = ctx.args;
 

@@ -60,11 +60,11 @@ GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType {
   _linksMetadataGraphQLType = __linksMetadataGraphQLType;
   __linksMetadataGraphQLType.fields.addAll(
     [
-      field('links', listOf(linkMetadataGraphQLType.nonNull()).nonNull(),
+      field('links', linkMetadataGraphQLType.nonNull().list().nonNull(),
           resolve: (obj, ctx) => obj.links),
-      field('emails', listOf(graphQLString.nonNull()).nonNull(),
+      field('emails', graphQLString.nonNull().list().nonNull(),
           resolve: (obj, ctx) => obj.emails),
-      field('userTags', listOf(graphQLString.nonNull()).nonNull(),
+      field('userTags', graphQLString.nonNull().list().nonNull(),
           resolve: (obj, ctx) => obj.userTags,
           description: 'TODO: bring user ids?'),
       field('hasLinks', graphQLBoolean.nonNull(),

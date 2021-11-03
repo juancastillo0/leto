@@ -118,6 +118,12 @@ class SerdeCtx {
   /// Adds a [serializer] into this context
   void add(Serializer<Object> serializer) {
     _map[serializer.generic.type] = serializer;
+    _map[serializer.generic.typeNull] = serializer;
+
+    final listSerializer = serializer.listSerializer;
+    _map[serializer.generic.listType] = listSerializer;
+    _map[serializer.generic.listTypeNull] = listSerializer;
+    _map[serializer.generic.listNullTypeNull] = listSerializer;
   }
 
   // Serializer<Object>? ofValue(Type T) {
@@ -178,6 +184,13 @@ abstract class Serializer<T> implements GenericHelpSingle<T> {
 
   @override
   GenericHelp<T> get generic => GenericHelp<T>();
+
+  Serializer<List<T>> get listSerializer {
+    return SerializerValueGen<List<T>>(
+      fromJson: (ctx, obj) =>
+          List.of((obj! as List).map((e) => fromJson(ctx, e))),
+    );
+  }
 }
 
 class GenericHelpSingle<T> {
@@ -185,11 +198,18 @@ class GenericHelpSingle<T> {
   final generic = GenericHelp<T>();
 }
 
+Type getType<T>() => T;
+
 /// Helper utilities for working with the generic type argument [T].
 @immutable
 class GenericHelp<T> implements GenericHelpSingle<T> {
   /// [T] as a [Type] object.
   Type get type => T;
+  Type get typeNull => getType<T?>();
+
+  Type get listType => getType<List<T>>();
+  Type get listTypeNull => getType<List<T?>>();
+  Type get listNullTypeNull => getType<List<T?>?>();
 
   /// Returns true if [value] is of type [T], false otherwise.
   bool isValueOfType(Object? value) => value is T;
@@ -354,6 +374,19 @@ class SerializerValue<T> extends Serializer<T> {
       json is T ? json : _fromJson(ctx, json! as Map<String, dynamic>);
   // @override
   // Map<String, dynamic> toJson(T instance) => _toJson(instance);
+}
+
+class SerializerValueGen<T> extends Serializer<T> {
+  const SerializerValueGen({
+    required T Function(SerdeCtx, Object? json) fromJson,
+  })  : _fromJson = fromJson,
+        super();
+
+  final T Function(SerdeCtx, Object? json) _fromJson;
+
+  @override
+  T fromJson(SerdeCtx ctx, Object? json) =>
+      json is T ? json : _fromJson(ctx, json);
 }
 
 // extension _GenMap<K, V> on Map<K, V> {

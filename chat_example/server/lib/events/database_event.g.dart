@@ -246,7 +246,7 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
   _paginatedGraphQLType[__name] = __paginatedGraphQLType;
   __paginatedGraphQLType.fields.addAll(
     [
-      field('values', listOf(tGraphQLType.nonNull()).nonNull(),
+      field('values', tGraphQLType.list().nonNull(),
           resolve: (obj, ctx) => obj.values),
       field('pageInfo', pageInfoGraphQLType.nonNull(),
           resolve: (obj, ctx) => obj.pageInfo)

@@ -65,10 +65,10 @@ final GraphQLObjectField<ChatMessage, Object, Object>
   ],
 );
 
-final GraphQLObjectField<List<ChatMessage?>, Object, Object>
+final GraphQLObjectField<List<ChatMessage>, Object, Object>
     getMessageGraphQLField = field(
   'getMessage',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
+  chatMessageGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -99,10 +99,10 @@ final GraphQLObjectField<LinksMetadata, Object, Object>
   ],
 );
 
-final GraphQLObjectField<List<ChatMessage?>, Object, Object>
+final GraphQLObjectField<List<ChatMessage>, Object, Object>
     onMessageSentGraphQLField = field(
   'onMessageSent',
-  listOf(chatMessageGraphQLType.nonNull()).nonNull(),
+  chatMessageGraphQLType.nonNull().list().nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 

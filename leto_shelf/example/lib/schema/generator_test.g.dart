@@ -41,15 +41,15 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
     ),
     GraphQLFieldInput(
       "value",
-      listOf(graphQLInt.nonNull()).nonNull().coerceToInputObject(),
+      graphQLInt.nonNull().list().nonNull().coerceToInputObject(),
     )
   ],
 );
 
-final GraphQLObjectField<List<TestModel?>, Object, Object>
+final GraphQLObjectField<List<TestModel>, Object, Object>
     testModelsGraphQLField = field(
   'testModels',
-  listOf(testModelGraphQLType.nonNull()).nonNull(),
+  testModelGraphQLType.nonNull().list().nonNull(),
   description: r"Automatic documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
@@ -75,7 +75,7 @@ final GraphQLObjectField<List<TestModel?>, Object, Object>
 final GraphQLObjectField<List<EventUnion?>, Object, Object>
     testUnionModelsGraphQLField = field(
   'testUnionModels',
-  listOf(eventUnionGraphQLType).nonNull(),
+  eventUnionGraphQLType.list().nonNull(),
   description:
       r"testUnionModels documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
@@ -86,7 +86,7 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
   inputs: [
     GraphQLFieldInput(
       "positions",
-      listOf(graphQLInt).nonNull().coerceToInputObject(),
+      graphQLInt.list().nonNull().coerceToInputObject(),
       defaultValue: const [],
       description: r"pagination",
     )
@@ -119,7 +119,7 @@ GraphQLObjectType<TestModel> get testModelGraphQLType {
       field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', listOf(graphQLDate.nonNull()),
+      field('dates', graphQLDate.nonNull().list(),
           resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates)
@@ -148,7 +148,7 @@ GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
       field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', listOf(graphQLDate.nonNull()),
+      field('dates', graphQLDate.nonNull().list(),
           resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates)
@@ -181,9 +181,9 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
       field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
       field('description', graphQLString,
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', listOf(graphQLDate.nonNull()),
+      field('dates', graphQLDate.nonNull().list(),
           resolve: (obj, ctx) => obj.dates),
-      field('models', listOf(testModelGraphQLType).nonNull(),
+      field('models', testModelGraphQLType.list().nonNull(),
           resolve: (obj, ctx) => obj.models),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates)
@@ -217,7 +217,7 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
     [
       field('name', graphQLString, resolve: (obj, ctx) => obj.name),
       field('cost', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.cost),
-      field('dates', listOf(graphQLDate.nonNull()),
+      field('dates', graphQLDate.nonNull().list(),
           resolve: (obj, ctx) => obj.dates),
       field('hasDates', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.hasDates)
