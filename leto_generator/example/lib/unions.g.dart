@@ -182,7 +182,7 @@ GraphQLObjectType<UnionA3> get unionA3GraphQLType {
   _unionA3GraphQLType = __unionA3GraphQLType;
   __unionA3GraphQLType.fields.addAll(
     [
-      field('one', listOf(graphQLInt.nonNull()),
+      field('one', graphQLInt.nonNull().list(),
           resolve: (obj, ctx) => obj.one, description: 'description for one')
     ],
   );
@@ -209,7 +209,7 @@ GraphQLObjectType<_UnionA4> get unionA4GraphQLType {
   _unionA4GraphQLType = __unionA4GraphQLType;
   __unionA4GraphQLType.fields.addAll(
     [
-      field('oneRenamed', listOf(graphQLInt.nonNull()).nonNull(),
+      field('oneRenamed', graphQLInt.nonNull().list().nonNull(),
           resolve: (obj, ctx) => obj.one)
     ],
   );

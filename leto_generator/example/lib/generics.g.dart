@@ -73,14 +73,14 @@ final GraphQLObjectField<Result<int, ErrCodeInterface<ErrCodeType>>, Object,
 );
 
 final GraphQLObjectField<
-    Result<List<int?>, ErrCodeInterface<List<ErrCodeType?>>>,
+    Result<List<int?>, ErrCodeInterface<List<ErrCodeType>>>,
     Object,
     Object> getIntInterfaceEnumListGraphQLField = field(
   'getIntInterfaceEnumList',
-  resultGraphQLType<List<int?>, ErrCodeInterface<List<ErrCodeType?>>>(
-          listOf(graphQLInt).nonNull(),
-          errCodeInterfaceGraphQLType<List<ErrCodeType?>>(
-                  listOf(errCodeTypeGraphQLType.nonNull()).nonNull())
+  resultGraphQLType<List<int?>, ErrCodeInterface<List<ErrCodeType>>>(
+          graphQLInt.list().nonNull(),
+          errCodeInterfaceGraphQLType<List<ErrCodeType>>(
+                  errCodeTypeGraphQLType.nonNull().list().nonNull())
               .nonNull())
       .nonNull(),
   resolve: (obj, ctx) {
@@ -129,7 +129,7 @@ GraphQLObjectType<Ok<V, E>> okGraphQLType<V, E>(
   _okGraphQLType[__name] = __okGraphQLType;
   __okGraphQLType.fields.addAll(
     [
-      field('value', vGraphQLType.nonNull(), resolve: (obj, ctx) => obj.value),
+      field('value', vGraphQLType, resolve: (obj, ctx) => obj.value),
       field('isOk', graphQLBoolean.nonNull(), resolve: (obj, ctx) => obj.isOk)
     ],
   );
@@ -157,7 +157,7 @@ GraphQLObjectType<Err<V, E>> errGraphQLType<V, E>(
   _errGraphQLType[__name] = __errGraphQLType;
   __errGraphQLType.fields.addAll(
     [
-      field('value', eGraphQLType.nonNull(), resolve: (obj, ctx) => obj.value),
+      field('value', eGraphQLType, resolve: (obj, ctx) => obj.value),
       field('isOk', graphQLBoolean.nonNull(), resolve: (obj, ctx) => obj.isOk)
     ],
   );
@@ -216,7 +216,7 @@ GraphQLObjectType<ErrCodeInterfaceN<T>>
   __errCodeInterfaceNGraphQLType.fields.addAll(
     [
       field('message', graphQLString, resolve: (obj, ctx) => obj.message),
-      field('code', tGraphQLType.nonNull(), resolve: (obj, ctx) => obj.code)
+      field('code', tGraphQLType, resolve: (obj, ctx) => obj.code)
     ],
   );
 
@@ -244,7 +244,7 @@ GraphQLObjectType<ErrCodeInterfaceNE<T>> errCodeInterfaceNEGraphQLType<T>(
   __errCodeInterfaceNEGraphQLType.fields.addAll(
     [
       field('message', graphQLString, resolve: (obj, ctx) => obj.message),
-      field('code', tGraphQLType.nonNull(), resolve: (obj, ctx) => obj.code)
+      field('code', tGraphQLType, resolve: (obj, ctx) => obj.code)
     ],
   );
 

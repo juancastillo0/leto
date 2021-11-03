@@ -84,8 +84,8 @@ final GraphQLObjectField<String, Object, Object>
     ),
     GraphQLFieldInput(
       "gen",
-      inputGenGraphQLType<List<InputJsonSerde?>>(
-          listOf(inputJsonSerdeGraphQLType.nonNull())),
+      inputGenGraphQLType<List<InputJsonSerde>>(
+          inputJsonSerdeGraphQLType.nonNull().list()),
     )
   ],
 );
@@ -115,15 +115,15 @@ GraphQLInputObjectType<InputM> get inputMGraphQLType {
       inputField('name', graphQLString.nonNull().coerceToInputObject()),
       inputField('date', graphQLDate.coerceToInputObject()),
       inputField(
-          'ints', listOf(graphQLInt.nonNull()).nonNull().coerceToInputObject()),
+          'ints', graphQLInt.nonNull().list().nonNull().coerceToInputObject()),
       inputField('nested',
-          listOf(inputMNGraphQLType.nonNull()).nonNull().coerceToInputObject()),
+          inputMNGraphQLType.nonNull().list().nonNull().coerceToInputObject()),
       inputField('nestedNullItem',
-          listOf(inputMNGraphQLType).nonNull().coerceToInputObject()),
+          inputMNGraphQLType.list().nonNull().coerceToInputObject()),
       inputField('nestedNullItemNull',
-          listOf(inputMNGraphQLType).coerceToInputObject()),
+          inputMNGraphQLType.list().coerceToInputObject()),
       inputField('nestedNull',
-          listOf(inputMNGraphQLType.nonNull()).coerceToInputObject())
+          inputMNGraphQLType.nonNull().list().coerceToInputObject())
     ],
   );
 
@@ -213,7 +213,7 @@ GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
   __inputGenGraphQLType.fields.addAll(
     [
       inputField('name', graphQLString.nonNull().coerceToInputObject()),
-      inputField('generic', tGraphQLType.nonNull().coerceToInputObject())
+      inputField('generic', tGraphQLType.coerceToInputObject())
     ],
   );
 

@@ -37,7 +37,7 @@ input InputGenIntReq {
   '''testInputGen(input: InputGenIntReq!): Int!''',
   '''
 queryMultipleParams(serde: InputJsonSerde, serdeReq: InputJsonSerde!, defTwo: Int! = 2, mInput: InputM, gen: InputGenInputJsonSerde!): String!''',
-'''
+  '''
   mutationMultipleParamsOptionalPos(serde: InputJsonSerde, defTwo: Int! = 2, gen: InputGenInputJsonSerdeReqList): String!''',
 ];
 
@@ -125,7 +125,7 @@ class InputGen<T> {
   ) =>
       _$InputGenFromJson(json, fromJsonT);
 
-  Map<String, Object?> toJson() => {'name': name, 'parent': generic};
+  Map<String, Object?> toJson() => {'name': name, 'generic': generic};
 }
 
 @Query()
