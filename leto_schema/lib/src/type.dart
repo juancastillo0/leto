@@ -45,6 +45,14 @@ abstract class GraphQLType<Value, Serialized> {
     );
   }
 
+  // Value? cast(Value? value) {
+  //   return value;
+  // }
+
+  GraphQLListType<Value?, Serialized> list() {
+    return listOf(this);
+  }
+
   /// A description of this type, which, while optional, can be
   /// very useful in tools like GraphiQL.
   String? get description;
@@ -238,10 +246,13 @@ abstract class GraphQLType<Value, Serialized> {
 }
 
 /// Shorthand to create a [GraphQLListType].
-GraphQLListType<Value, Serialized> listOf<Value, Serialized>(
+GraphQLListType<Value?, Serialized> listOf<Value, Serialized>(
   GraphQLType<Value, Serialized> innerType,
 ) {
-  return GraphQLListType<Value, Serialized>(innerType);
+  if (innerType is GraphQLNonNullType<Value, Serialized>) {
+    return _GraphQLNonNullListType(innerType);
+  }
+  return _GraphQLNullableListType(innerType);
 }
 
 /// A wrapper around a [GraphQLType].
@@ -251,16 +262,25 @@ abstract class GraphQLWrapperType {
   GraphQLType<Object?, Object?> get ofType;
 }
 
+abstract class GraphQLListType<Value, Serialized>
+    implements
+        // ignore: avoid_implementing_value_types
+        GraphQLType<List<Value>, List<Serialized?>>,
+        GraphQLWrapperType {
+  @override
+  GraphQLType<Value, Serialized> get ofType;
+}
+
 /// A special [GraphQLType] that indicates that input vales should
 /// be a list of another type [ofType].
-class GraphQLListType<Value, Serialized>
-    extends GraphQLType<List<Value?>, List<Serialized?>>
-    with _NonNullableMixin<List<Value?>, List<Serialized?>>
-    implements GraphQLWrapperType {
+class _GraphQLNonNullListType<Value, Serialized>
+    extends GraphQLType<List<Value>, List<Serialized?>>
+    with _NonNullableMixin<List<Value>, List<Serialized?>>
+    implements GraphQLListType<Value, Serialized> {
   @override
-  final GraphQLType<Value, Serialized> ofType;
+  final GraphQLNonNullType<Value, Serialized> ofType;
 
-  GraphQLListType(this.ofType);
+  _GraphQLNonNullListType(this.ofType);
 
   @override
   String? get name => null;
@@ -268,6 +288,83 @@ class GraphQLListType<Value, Serialized>
   @override
   String get description =>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
+
+  @override
+  // ignore: avoid_renaming_method_parameters
+  ValidationResult<List<Serialized?>> validate(String key, Object? _input) {
+    final input = _input != null && _input is! List ? [_input] : _input;
+    if (input is! List)
+      return ValidationResult.failure(
+          ['Expected "$key" to be a list. Got invalid value $_input.']);
+
+    final out = <Serialized?>[];
+    final List<String> errors = [];
+
+    for (int i = 0; i < input.length; i++) {
+      final k = '$key[$i]';
+      final v = input[i];
+      final result = ofType.validate(k, v);
+      if (!result.successful) {
+        errors.addAll(result.errors);
+      } else {
+        out.add(result.value);
+      }
+    }
+
+    if (errors.isNotEmpty) return ValidationResult.failure(errors);
+    return ValidationResult.ok(out);
+  }
+
+  @override
+  List<Value> deserialize(SerdeCtx serdeCtx, List<Object?> serialized) {
+    return serialized
+        .map<Value>((v) => ofType.deserialize(serdeCtx, v as Serialized))
+        .toList();
+  }
+
+  @override
+  List<Serialized?> serialize(List<Value?> value) {
+    return value.map(ofType.serializeSafe).toList();
+  }
+
+  @override
+  String toString() => '[$ofType]';
+
+  @override
+  Iterable<Object?> get props => [ofType];
+
+  @override
+  GraphQLType<List<Value>, List<Serialized?>> coerceToInputObject() =>
+      _GraphQLNonNullListType<Value, Serialized>(
+        ofType.coerceToInputObject() as GraphQLNonNullType<Value, Serialized>,
+      );
+}
+
+/// A special [GraphQLType] that indicates that input vales should
+/// be a list of another type [ofType].
+class _GraphQLNullableListType<Value, Serialized>
+    extends GraphQLType<List<Value?>, List<Serialized?>>
+    with _NonNullableMixin<List<Value?>, List<Serialized?>>
+    implements GraphQLListType<Value?, Serialized> {
+  @override
+  final GraphQLType<Value, Serialized> ofType;
+
+  _GraphQLNullableListType(this.ofType);
+
+  @override
+  String? get name => null;
+
+  @override
+  String get description =>
+      'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
+
+  // @override
+  // List<Value?>? cast(List<Value?>? value) {
+  //   if (value != null && ofType.isNonNullable) {
+  //     return value.cast<Value>() as List<Value>;
+  //   }
+  //   return value;
+  // }
 
   @override
   // ignore: avoid_renaming_method_parameters
@@ -327,7 +424,7 @@ class GraphQLListType<Value, Serialized>
 
   @override
   GraphQLType<List<Value?>, List<Serialized?>> coerceToInputObject() =>
-      GraphQLListType<Value, Serialized>(ofType.coerceToInputObject());
+      _GraphQLNullableListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
 mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
@@ -356,6 +453,11 @@ class GraphQLNonNullType<Value, Serialized>
 
   @override
   GraphQLNonNullType<Value, Serialized> nonNull() => this;
+
+  @override
+  GraphQLListType<Value, Serialized> list() {
+    return _GraphQLNonNullListType(this);
+  }
 
   @override
   ValidationResult<Serialized> validate(String key, Object? input) {
