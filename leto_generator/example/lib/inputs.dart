@@ -38,7 +38,7 @@ input InputGenIntReq {
   '''
 queryMultipleParams(serde: InputJsonSerde, serdeReq: InputJsonSerde!, defTwo: Int! = 2, mInput: InputM, gen: InputGenInputJsonSerde!): String!''',
   '''
-  mutationMultipleParamsOptionalPos(serde: InputJsonSerde, defTwo: Int! = 2, gen: InputGenInputJsonSerdeReqList): String!''',
+  mutationMultipleParamsOptionalPos(serde: InputJsonSerde, defTwo: Int! = 2, gen: InputGenInputJsonSerdeReqList, gen2: InputGen2StringReqIntReqListListReq): String!''',
 ];
 
 @GraphQLInput()
@@ -128,6 +128,37 @@ class InputGen<T> {
   Map<String, Object?> toJson() => {'name': name, 'generic': generic};
 }
 
+@GraphQLInput()
+@JsonSerializable(genericArgumentFactories: true)
+class InputGen2<T, O extends Object> {
+  final String name;
+  final T generic;
+  // final O? valueNull;
+  final O value;
+  final List<O> listValue;
+
+  const InputGen2({
+    required this.name,
+    required this.generic,
+    // required this.valueNull,
+    required this.value,
+    required this.listValue,
+  });
+
+  factory InputGen2.fromJson(
+    Map<String, Object?> json,
+    T Function(Object?) fromJsonT,
+    O Function(Object?) fromJsonO,
+  ) =>
+      _$InputGen2FromJson(json, fromJsonT, fromJsonO);
+
+  Map<String, Object?> toJson() => _$InputGen2ToJson(
+        this,
+        (b) => b,
+        (c) => c,
+      );
+}
+
 @Query()
 int testInputGen(InputGen<int> input) {
   return input.generic;
@@ -155,10 +186,12 @@ FutureOr<String> mutationMultipleParamsOptionalPos([
   InputJsonSerde? serde,
   int defTwo = 2,
   InputGen<List<InputJsonSerde>?>? gen,
+  InputGen2<String, List<List<int>?>>? gen2,
 ]) {
   return json.encode({
     'serde': serde,
     'defTwo': defTwo,
     'gen': gen,
+    'gen2': gen2,
   });
 }

@@ -70,7 +70,8 @@ final GraphQLObjectField<String, Object, Object>
     return mutationMultipleParamsOptionalPos(
         (args["serde"] as InputJsonSerde?),
         (args["defTwo"] as int),
-        (args["gen"] as InputGen<List<InputJsonSerde>?>?));
+        (args["gen"] as InputGen<List<InputJsonSerde>?>?),
+        (args["gen2"] as InputGen2<String, List<List<int>?>>?));
   },
   inputs: [
     GraphQLFieldInput(
@@ -84,8 +85,13 @@ final GraphQLObjectField<String, Object, Object>
     ),
     GraphQLFieldInput(
       "gen",
-      inputGenGraphQLType<List<InputJsonSerde>>(
+      inputGenGraphQLType<List<InputJsonSerde>?>(
           inputJsonSerdeGraphQLType.nonNull().list()),
+    ),
+    GraphQLFieldInput(
+      "gen2",
+      inputGen2GraphQLType<String, List<List<int>?>>(graphQLString.nonNull(),
+          graphQLInt.nonNull().list().list().nonNull()),
     )
   ],
 );
@@ -220,6 +226,43 @@ GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
   return __inputGenGraphQLType;
 }
 
+final inputGen2SerdeCtx = SerdeCtx();
+Map<String, GraphQLInputObjectType<InputGen2>> _inputGen2GraphQLType = {};
+
+/// Auto-generated from [InputGen2].
+GraphQLInputObjectType<InputGen2<T, O>>
+    inputGen2GraphQLType<T, O extends Object>(
+  GraphQLType<T, Object> tGraphQLType,
+  GraphQLType<O, Object> oGraphQLType,
+) {
+  final __name =
+      'InputGen2${tGraphQLType.printableName}${oGraphQLType.printableName}';
+  if (_inputGen2GraphQLType[__name] != null)
+    return _inputGen2GraphQLType[__name]!
+        as GraphQLInputObjectType<InputGen2<T, O>>;
+
+  final __inputGen2GraphQLType = inputObjectType<InputGen2<T, O>>(
+      'InputGen2${tGraphQLType.printableName}${oGraphQLType.printableName}');
+  inputGen2SerdeCtx.add(
+    SerializerValue<InputGen2<T, O>>(
+      fromJson: (ctx, json) =>
+          InputGen2.fromJson(json, ctx.fromJson, ctx.fromJson),
+    ),
+  );
+  _inputGen2GraphQLType[__name] = __inputGen2GraphQLType;
+  __inputGen2GraphQLType.fields.addAll(
+    [
+      inputField('name', graphQLString.nonNull().coerceToInputObject()),
+      inputField('generic', tGraphQLType.coerceToInputObject()),
+      inputField('value', oGraphQLType.nonNull().coerceToInputObject()),
+      inputField('listValue',
+          oGraphQLType.nonNull().list().nonNull().coerceToInputObject())
+    ],
+  );
+
+  return __inputGen2GraphQLType;
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -298,4 +341,28 @@ Map<String, dynamic> _$InputGenToJson<T>(
     <String, dynamic>{
       'name': instance.name,
       'generic': toJsonT(instance.generic),
+    };
+
+InputGen2<T, O> _$InputGen2FromJson<T, O extends Object>(
+  Map<String, dynamic> json,
+  T Function(Object? json) fromJsonT,
+  O Function(Object? json) fromJsonO,
+) =>
+    InputGen2<T, O>(
+      name: json['name'] as String,
+      generic: fromJsonT(json['generic']),
+      value: fromJsonO(json['value']),
+      listValue: (json['listValue'] as List<dynamic>).map(fromJsonO).toList(),
+    );
+
+Map<String, dynamic> _$InputGen2ToJson<T, O extends Object>(
+  InputGen2<T, O> instance,
+  Object? Function(T value) toJsonT,
+  Object? Function(O value) toJsonO,
+) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'generic': toJsonT(instance.generic),
+      'value': toJsonO(instance.value),
+      'listValue': instance.listValue.map(toJsonO).toList(),
     };

@@ -73,15 +73,32 @@ void main() {
       'serde': null,
       'defTwo': 32,
       'gen': gen2,
+      'gen2': null,
+      // TODO:
+      // 'gen2': const InputGen2<String, List<List<int>?>>(
+      //   name: 'name',
+      //   generic: 'fawd',
+      //   // valueNull: null,
+      //   value: [],
+      //   listValue: [
+      //     [null],
+      //     [
+      //       [3],
+      //       []
+      //     ]
+      //   ],
+      // )
     })) as Map<String, Object?>;
 
     final resultMut = await GraphQL(graphqlApiSchema).parseAndExecute(
       r'''
-        mutation m($serde: InputJsonSerde, $gen:InputGenInputJsonSerdeReqList) {
+        mutation m($serde: InputJsonSerde, $gen:InputGenInputJsonSerdeReqList,
+        $gen2: InputGen2StringReqIntReqListListReq) {
           mutationMultipleParamsOptionalPos(
             serde: $serde2
             defTwo: 32
             gen: $gen
+            gen2: $gen2
           )
         }
     ''',

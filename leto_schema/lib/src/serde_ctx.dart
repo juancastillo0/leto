@@ -122,6 +122,7 @@ class SerdeCtx {
 
     final listSerializer = serializer.listSerializer;
     _map[serializer.generic.listType] = listSerializer;
+    _map[serializer.generic.listNullType] = listSerializer;
     _map[serializer.generic.listTypeNull] = listSerializer;
     _map[serializer.generic.listNullTypeNull] = listSerializer;
   }
@@ -208,6 +209,7 @@ class GenericHelp<T> implements GenericHelpSingle<T> {
   Type get typeNull => getType<T?>();
 
   Type get listType => getType<List<T>>();
+  Type get listNullType => getType<List<T>?>();
   Type get listTypeNull => getType<List<T?>>();
   Type get listNullTypeNull => getType<List<T?>?>();
 

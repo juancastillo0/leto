@@ -235,16 +235,17 @@ Expression inferType(
 }
 
 String getReturnType(DartType _retType) {
-  if (_retType is ParameterizedType && _retType.typeArguments.isNotEmpty) {
-    // if (_retType.isDartCoreList) {
-    //   final param = _retType.typeArguments.first;
-    //   final _nullability =
-    //       param.nullabilitySuffix == NullabilitySuffix.none ? '?' : '';
-    //   return 'List<${getReturnType(param)}$_nullability>';
-    // } else {
-    return '${_retType.element!.name}'
-        '<${_retType.typeArguments.map((t) => getReturnType(t)).join(',')}>';
-    // }
-  }
+  // if (_retType is ParameterizedType && _retType.typeArguments.isNotEmpty) {
+  //   // if (_retType.isDartCoreList) {
+  //   //   final param = _retType.typeArguments.first;
+  //   //   final _nullability =
+  //   //       param.nullabilitySuffix == NullabilitySuffix.none ? '?' : '';
+  //   //   return 'List<${getReturnType(param)}$_nullability>';
+  //   // } else {
+
+  //   return '${_retType.element!.name}'
+  //       '<${_retType.typeArguments.map((t) => getReturnType(t)).join(',')}>';
+  //   // }
+  // }
   return _retType.getDisplayString(withNullability: true);
 }

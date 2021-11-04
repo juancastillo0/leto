@@ -19,6 +19,7 @@ final graphqlApiSchema = GraphQLSchema(
     ])
     ..children.addAll([
       inputGenSerdeCtx,
+      inputGen2SerdeCtx,
     ]),
   queryType: objectType(
     'Query',
