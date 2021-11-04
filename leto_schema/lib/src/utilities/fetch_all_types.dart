@@ -5,10 +5,14 @@ List<GraphQLType> fetchAllTypes(
   List<GraphQLType> specifiedTypes,
 ) {
   final data = <GraphQLType>{
+    ...specifiedTypes,
     if (schema.queryType != null) schema.queryType!,
     if (schema.mutationType != null) schema.mutationType!,
     if (schema.subscriptionType != null) schema.subscriptionType!,
-  }..addAll(specifiedTypes);
+    ...schema.directives.expand(
+      (directive) => directive.inputs.map((e) => e.type),
+    ),
+  };
 
   return CollectTypes(data).types.toList();
 }
