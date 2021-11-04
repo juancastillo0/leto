@@ -27,11 +27,11 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
 - [Documentation](#documentation)
 - [GraphQL Schema Types](#graphql-schema-types)
   - [Scalars](#scalars)
+  - [Enums](#enums)
   - [Objects](#objects)
     - [Interfaces](#interfaces)
   - [Inputs and Input Objects](#inputs-and-input-objects)
     - [InputObject.fromJson](#inputobjectfromjson)
-  - [Enums](#enums)
   - [Unions](#unions)
     - [Freezed Unions](#freezed-unions)
   - [Abstract Types](#abstract-types)
@@ -205,7 +205,7 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 | -------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [![version][package:leto:version]][package:leto]                     | [`package:leto`][package:leto:source]                     | Base GraphQL server implementation                                      |
 | [![version][package:leto_schema:version]][package:leto_schema]       | [`package:leto_schema`][package:leto_schema:source]       | Define GraphQL executable schemas                                       |
-| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQLSchema and GraphQLTypes from Dart annotations           |
+| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQLSchemas and GraphQLTypes from Dart annotations          |
 | [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server implementation using shelf                           |
 | [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQLExtensions defined in package:leto |
 
@@ -217,18 +217,60 @@ The following sections introduce most of the concepts and small examples for bui
 
 ## Scalars
 
-Standartd GraphQLScalarTypes: String, Int, Float, Boolean and Date types are already implemented.
+Standard `GraphQLScalarType`s: String, Int, Float, Boolean and Date types are already implemented and provided by Leto.
 
 Other types are also provided:
 
-- Json: a raw JSON value.
+- Json: a raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
+- Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
 - Timestamp: same as Date, but serialized as an UNIX timestamp.
-- Uri: Dart's Uri class.
 - Time: // TODO:
-- Upload: a file upload.
+- Duration: // TODO:
+- PageInfo: Following the [relay connections spec](https://relay.dev/graphql/connections.htm).
+- Upload: a file upload. The [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec)
 
 To provide your own or support types from other packages you can use [Custom Scalars](#custom-scalars).
 
+## Enums
+
+Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
+
+They require a unique name and a set of entries mapping their string representation to the dart value obtained after parsing.
+
+```graphql
+"""The error reason on a failed sign up attempt"""
+enum SignUpError {
+    usernameTooShort,
+    usernameNotFound,
+    wrongPassword,
+    passwordTooSimple,
+}
+```
+
+```dart
+import 'package:leto/leto.dart';
+
+final signUpErrorGraphQLType = enumTypeFromStrings(
+    'SignUpError', ['usernameTooShort',
+'usernameNotFound',
+'wrongPassword',
+'passwordTooSimple',]
+description: 'The error reason on a failed sign up attempt',
+);
+
+
+// Or with code generation
+
+/// The error reason on a failed sign up attempt
+@GraphQLClass()
+enum SignUpError {
+    usernameTooShort,
+    usernameNotFound,
+    wrongPassword,
+    passwordTooSimple,
+}
+
+```
 ## Objects
 
 ```dart
@@ -270,13 +312,19 @@ This would generate graphql_api.schema.dart
 ```
 
 
+
 ### Interfaces
 
 - inheritFrom
 
-dwad
+The `inheritFrom` function in `GraphQLObjectType` receives an Interface and assigns it's argument as  
+a super type, now the Object will implement the Interface passed as parameter.
 
 ## Inputs and Input Objects
+
+Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
+
+// TODO: customDeserialize with SerdeCtx deserializers
 
 ```dart
 final inputModel = GraphQLInputObjectType(
@@ -399,46 +447,9 @@ final directive = GraphQLDirective(
 
 ### InputObject.fromJson
 
-dw
-
-## Enums
-
-Similar in behaviour to scalars, are text values which are restricted to a set of predefined variants.
-
-```graphql
-"""The error reason on a failed sign up attempt"""
-enum SignUpError {
-    usernameTooShort,
-    usernameNotFound,
-    wrongPassword,
-    passwordTooSimple,
-}
-```
-
-```dart
-import 'package:leto/leto.dart';
-
-final signUpErrorGraphQLType = enumTypeFromStrings(
-    'SignUpError', ['usernameTooShort',
-'usernameNotFound',
-'wrongPassword',
-'passwordTooSimple',]
-description: 'The error reason on a failed sign up attempt',
-);
+For code generation, each class annotated as `GraphQLInput` should have a factory constructor or static method name `fromJson` in its class definition. This will be used as the method for deserializing instances of this class.
 
 
-// Or with code generation
-
-/// The error reason on a failed sign up attempt
-@GraphQLClass()
-enum SignUpError {
-    usernameTooShort,
-    usernameNotFound,
-    wrongPassword,
-    passwordTooSimple,
-}
-
-```
 
 ## Unions
 
