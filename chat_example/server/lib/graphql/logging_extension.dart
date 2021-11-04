@@ -28,35 +28,40 @@ class GraphQLLog {
 }
 
 class LoggingExtension extends GraphQLExtension {
-  LoggingExtension(this.logFunction);
+  LoggingExtension(
+    this.logFunction, {
+    this.onResolverError,
+  });
 
   @override
   String get mapKey => 'shelfGraphQLChatLogging';
 
   final LogFunction logFunction;
+  final void Function(ThrownError)? onResolverError;
 
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) async {
+    final extensions = ctx.extensions;
     try {
       final result = await next();
       logFunction(
         GraphQLLog(
-          () => '${_ctxStr(globals)}extensions $extensions result $result',
+          () => '${_ctxStr(ctx)}extensions $extensions result $result',
           result: result,
-          ctx: GraphQL.getResolveCtx(globals),
+          // TODO: pass more stuff maybe the ctx
+          ctx: GraphQL.getResolveCtx(ctx),
         ),
       );
       return result;
     } catch (e, s) {
       logFunction(
         GraphQLLog(
-          () => '${_ctxStr(globals)}extensions $extensions error $e $s',
+          () => '${_ctxStr(ctx)}extensions $extensions error $e $s',
           result: null,
-          ctx: GraphQL.getResolveCtx(globals),
+          ctx: GraphQL.getResolveCtx(ctx),
           error: e,
           stackTrace: s,
         ),
@@ -77,7 +82,7 @@ class LoggingExtension extends GraphQLExtension {
       logFunction(
         GraphQLLog(
           () => 'subscription_event ${_ctxStr(globals)}'
-              'extensions ${ctx.extensions} result $result',
+              'extensions ${ctx.baseCtx.extensions} result $result',
           isSubscriptionEvent: true,
           result: result,
           ctx: ctx,
@@ -88,7 +93,7 @@ class LoggingExtension extends GraphQLExtension {
       logFunction(
         GraphQLLog(
           () => 'subscription_event ${_ctxStr(globals)}'
-              'extensions ${ctx.extensions} error $e $s',
+              'extensions ${ctx.baseCtx.extensions} error $e $s',
           isSubscriptionEvent: true,
           result: null,
           ctx: ctx,
@@ -98,6 +103,15 @@ class LoggingExtension extends GraphQLExtension {
       );
       rethrow;
     }
+  }
+
+  @override
+  GraphQLException mapException(
+    GraphQLException Function() next,
+    ThrownError error,
+  ) {
+    onResolverError?.call(error);
+    return next();
   }
 
   String _ctxStr(GlobalsHolder globals) {
