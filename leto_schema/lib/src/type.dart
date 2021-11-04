@@ -30,9 +30,13 @@ abstract class GraphQLType<Value, Serialized> {
   ///
   /// Null for [GraphQLWrapperType] such us
   /// [GraphQLNonNullType] and [GraphQLListType].
+  /// You can use [GraphQLType.toString] or [GraphQLType.printableName]
+  /// if you need a non-null name.
   String? get name;
 
-  /// The name of the this type with defaults for [GraphQLWrapperType]
+  /// The name of this type with defaults for [GraphQLWrapperType].
+  /// Can be used as a name of another GraphQL type,
+  /// useful for composing names for generic types, for example.
   String get printableName {
     return when(
       enum_: (t) => t.name,

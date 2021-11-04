@@ -7,6 +7,7 @@ import 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode;
 
 import 'package:gql/language.dart' show parseString;
+import 'package:leto_schema/src/utilities/fetch_all_types.dart';
 import 'package:leto_schema/utilities.dart' show printSchema;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart' show Target, TargetKind;
@@ -62,11 +63,28 @@ class GraphQLSchema {
   /// The schema as a `package:gql` parsed node
   late final DocumentNode schemaNode = parseString(schemaStr);
 
+  final List<GraphQLType> types;
+
+  Map<String, GraphQLType>? _typeMap;
+
+  Map<String, GraphQLType> typeMap() {
+    if (_typeMap != null) return _typeMap!;
+    final allTypes = fetchAllTypes(this, types);
+    final map = Map<String, GraphQLType>.fromEntries(
+      allTypes.where((e) => e.name != null).map((e) => MapEntry(e.name!, e)),
+    );
+    _typeMap = map;
+    return map;
+  }
+
+  GraphQLType? getType(String name) => typeMap()[name];
+
   GraphQLSchema({
     this.queryType,
     this.mutationType,
     this.subscriptionType,
     this.description,
+    this.types = const [],
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
