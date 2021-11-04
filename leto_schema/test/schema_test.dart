@@ -1,410 +1,438 @@
-// https://github.com/graphql/graphql-js/blob/30b446938a9b5afeb25c642d8af1ea33f6c849f3/src/type/__tests__/schema-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+// ignore_for_file: non_constant_identifier_names
 
-import { dedent } from '../../__testUtils__/dedent';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/utilities.dart';
+import 'package:test/test.dart';
 
-import { DirectiveLocation } from '../../language/directiveLocation';
-
-import { printSchema } from '../../utilities/printSchema';
-
-import { GraphQLSchema } from '../schema';
-import { GraphQLDirective } from '../directives';
-import { GraphQLInt, GraphQLString, GraphQLBoolean } from '../scalars';
-import {
-  GraphQLList,
-  GraphQLScalarType,
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-  GraphQLInputObjectType,
-} from '../definition';
-
-describe('Type System: Schema', () => {
-  it('Define sample schema', () => {
-    const BlogImage = new GraphQLObjectType({
-      name: 'Image',
-      fields: {
-        url: { type: GraphQLString },
-        width: { type: GraphQLInt },
-        height: { type: GraphQLInt },
+/// Type System: Schema
+void main() {
+  test('Define sample schema', () {
+    final BlogImage = objectType(
+      'Image',
+      fieldsMap: {
+        'url': graphQLString.fieldSpec(),
+        'width': graphQLInt.fieldSpec(),
+        'height': graphQLInt.fieldSpec(),
       },
-    });
+    );
 
-    const BlogAuthor: GraphQLObjectType = new GraphQLObjectType({
-      name: 'Author',
-      fields: () => ({
-        id: { type: GraphQLString },
-        name: { type: GraphQLString },
-        pic: {
-          args: { width: { type: GraphQLInt }, height: { type: GraphQLInt } },
-          type: BlogImage,
-        },
-        recentArticle: { type: BlogArticle },
-      }),
-    });
+    final BlogAuthor = GraphQLObjectType(
+      'Author',
+      fields: [
+        graphQLString.field('id'),
+        graphQLString.field('name'),
+        BlogImage.field(
+          'pic',
+          inputs: [
+            inputField('width', graphQLInt),
+            inputField('height', graphQLInt)
+          ],
+        ),
+      ],
+    );
+    final BlogArticle = GraphQLObjectType(
+      'Article',
+      fields: [
+        graphQLString.field('id'),
+        graphQLBoolean.field('isPublished'),
+        BlogAuthor.field('author'),
+        graphQLString.field('title'),
+        graphQLString.field('body'),
+      ],
+    );
 
-    const BlogArticle: GraphQLObjectType = new GraphQLObjectType({
-      name: 'Article',
-      fields: {
-        id: { type: GraphQLString },
-        isPublished: { type: GraphQLBoolean },
-        author: { type: BlogAuthor },
-        title: { type: GraphQLString },
-        body: { type: GraphQLString },
-      },
-    });
+    BlogAuthor.fields.add(BlogArticle.field('recentArticle'));
 
-    const BlogQuery = new GraphQLObjectType({
-      name: 'Query',
-      fields: {
-        article: {
-          args: { id: { type: GraphQLString } },
-          type: BlogArticle,
-        },
-        feed: {
-          type: new GraphQLList(BlogArticle),
-        },
-      },
-    });
+    final BlogQuery = GraphQLObjectType(
+      'Query',
+      fields: [
+        BlogArticle.field(
+          'article',
+          inputs: [inputField('id', graphQLString)],
+        ),
+        BlogArticle.list().field('feed'),
+      ],
+    );
 
-    const BlogMutation = new GraphQLObjectType({
-      name: 'Mutation',
-      fields: {
-        writeArticle: {
-          type: BlogArticle,
-        },
-      },
-    });
+    final BlogMutation = GraphQLObjectType(
+      'Mutation',
+      fields: [
+        field('writeArticle', BlogArticle),
+      ],
+    );
 
-    const BlogSubscription = new GraphQLObjectType({
-      name: 'Subscription',
-      fields: {
-        articleSubscribe: {
-          args: { id: { type: GraphQLString } },
-          type: BlogArticle,
-        },
-      },
-    });
+    final BlogSubscription = GraphQLObjectType(
+      'Subscription',
+      fields: [
+        field(
+          'articleSubscribe',
+          BlogArticle,
+          inputs: [inputField('id', graphQLString)],
+        ),
+      ],
+    );
 
-    const schema = new GraphQLSchema({
+    final schema = GraphQLSchema(
       description: 'Sample schema',
-      query: BlogQuery,
-      mutation: BlogMutation,
-      subscription: BlogSubscription,
-    });
+      queryType: BlogQuery,
+      mutationType: BlogMutation,
+      subscriptionType: BlogSubscription,
+    );
 
-    expect(printSchema(schema)).to.equal(dedent`
-      """Sample schema"""
-      schema {
-        query: Query
-        mutation: Mutation
-        subscription: Subscription
-      }
+    expect(printSchema(schema), '''
+"""Sample schema"""
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
 
-      type Query {
-        article(id: String): Article
-        feed: [Article]
-      }
+type Query {
+  article(id: String): Article
+  feed: [Article]
+}
 
-      type Article {
-        id: String
-        isPublished: Boolean
-        author: Author
-        title: String
-        body: String
-      }
+type Article {
+  id: String
+  isPublished: Boolean
+  author: Author
+  title: String
+  body: String
+}
 
-      type Author {
-        id: String
-        name: String
-        pic(width: Int, height: Int): Image
-        recentArticle: Article
-      }
+type Author {
+  id: String
+  name: String
+  pic(width: Int, height: Int): Image
+  recentArticle: Article
+}
 
-      type Image {
-        url: String
-        width: Int
-        height: Int
-      }
+type Image {
+  url: String
+  width: Int
+  height: Int
+}
 
-      type Mutation {
-        writeArticle: Article
-      }
+type Mutation {
+  writeArticle: Article
+}
 
-      type Subscription {
-        articleSubscribe(id: String): Article
-      }
-    `);
+type Subscription {
+  articleSubscribe(id: String): Article
+}''');
   });
 
-  describe('Root types', () => {
-    const testType = new GraphQLObjectType({ name: 'TestType', fields: {} });
+  group('Root types', () {
+    final testType = GraphQLObjectType('TestType', fields: {});
 
-    it('defines a query root', () => {
-      const schema = new GraphQLSchema({ query: testType });
-      expect(schema.getQueryType()).to.equal(testType);
-      expect(schema.getTypeMap()).to.include.keys('TestType');
+    test('defines a query root', () {
+      final schema = GraphQLSchema(queryType: testType);
+      expect(schema.typeMap().keys, containsAll(['TestType']));
     });
 
-    it('defines a mutation root', () => {
-      const schema = new GraphQLSchema({ mutation: testType });
-      expect(schema.getMutationType()).to.equal(testType);
-      expect(schema.getTypeMap()).to.include.keys('TestType');
+    test('defines a mutation root', () {
+      final schema = GraphQLSchema(mutationType: testType);
+      expect(schema.typeMap().keys, containsAll(['TestType']));
     });
 
-    it('defines a subscription root', () => {
-      const schema = new GraphQLSchema({ subscription: testType });
-      expect(schema.getSubscriptionType()).to.equal(testType);
-      expect(schema.getTypeMap()).to.include.keys('TestType');
+    test('defines a subscription root', () {
+      final schema = GraphQLSchema(subscriptionType: testType);
+      expect(schema.typeMap().keys, containsAll(['TestType']));
     });
   });
 
-  describe('Type Map', () => {
-    it('includes interface possible types in the type map', () => {
-      const SomeInterface = new GraphQLInterfaceType({
-        name: 'SomeInterface',
+  group('Type Map', () {
+    test('includes interface possible types in the type map', () {
+      final SomeInterface = objectType(
+        'SomeInterface',
         fields: {},
-      });
+        isInterface: true,
+      );
 
-      const SomeSubtype = new GraphQLObjectType({
-        name: 'SomeSubtype',
+      final SomeSubtype = GraphQLObjectType(
+        'SomeSubtype',
         fields: {},
         interfaces: [SomeInterface],
-      });
+      );
 
-      const schema = new GraphQLSchema({
-        query: new GraphQLObjectType({
-          name: 'Query',
-          fields: {
-            iface: { type: SomeInterface },
-          },
-        }),
+      final schema = GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field('iface', SomeInterface),
+          ],
+        ),
         types: [SomeSubtype],
-      });
+      );
 
-      expect(schema.getType('SomeInterface')).to.equal(SomeInterface);
-      expect(schema.getType('SomeSubtype')).to.equal(SomeSubtype);
+      expect(schema.getType('SomeInterface'), SomeInterface);
+      expect(schema.getType('SomeSubtype'), SomeSubtype);
 
-      expect(schema.isSubType(SomeInterface, SomeSubtype)).to.equal(true);
+      expect(SomeSubtype.isImplementationOf(SomeInterface), true);
     });
 
-    it("includes interface's thunk subtypes in the type map", () => {
-      const SomeInterface = new GraphQLInterfaceType({
-        name: 'SomeInterface',
+    test("includes interface's thunk subtypes in the type map", () {
+      final AnotherInterface = GraphQLObjectType(
+        'AnotherInterface',
         fields: {},
-        interfaces: () => [AnotherInterface],
-      });
+        isInterface: true,
+      );
 
-      const AnotherInterface = new GraphQLInterfaceType({
-        name: 'AnotherInterface',
+      final SomeInterface = GraphQLObjectType(
+        'SomeInterface',
         fields: {},
-      });
+        interfaces: [AnotherInterface],
+        isInterface: true,
+      );
 
-      const SomeSubtype = new GraphQLObjectType({
-        name: 'SomeSubtype',
+      final SomeSubtype = GraphQLObjectType(
+        'SomeSubtype',
         fields: {},
-        interfaces: () => [SomeInterface],
-      });
+        interfaces: [SomeInterface],
+      );
 
-      const schema = new GraphQLSchema({ types: [SomeSubtype] });
+      final schema = GraphQLSchema(types: [SomeSubtype]);
 
-      expect(schema.getType('SomeInterface')).to.equal(SomeInterface);
-      expect(schema.getType('AnotherInterface')).to.equal(AnotherInterface);
-      expect(schema.getType('SomeSubtype')).to.equal(SomeSubtype);
+      expect(schema.getType('SomeInterface'), SomeInterface);
+      expect(schema.getType('AnotherInterface'), AnotherInterface);
+      expect(schema.getType('SomeSubtype'), SomeSubtype);
     });
 
-    it('includes nested input objects in the map', () => {
-      const NestedInputObject = new GraphQLInputObjectType({
-        name: 'NestedInputObject',
-        fields: {},
-      });
+    test('includes nested input objects in the map', () {
+      final NestedInputObject = GraphQLInputObjectType(
+        'NestedInputObject',
+        fields: [],
+      );
 
-      const SomeInputObject = new GraphQLInputObjectType({
-        name: 'SomeInputObject',
-        fields: { nested: { type: NestedInputObject } },
-      });
+      final SomeInputObject = GraphQLInputObjectType(
+        'SomeInputObject',
+        fields: [
+          inputField('nested', NestedInputObject),
+        ],
+      );
 
-      const schema = new GraphQLSchema({
-        query: new GraphQLObjectType({
-          name: 'Query',
-          fields: {
-            something: {
-              type: GraphQLString,
-              args: { input: { type: SomeInputObject } },
-            },
-          },
-        }),
-      });
+      final schema = GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field(
+              'something',
+              graphQLString,
+              inputs: [inputField('input', SomeInputObject)],
+            ),
+          ],
+        ),
+      );
 
-      expect(schema.getType('SomeInputObject')).to.equal(SomeInputObject);
-      expect(schema.getType('NestedInputObject')).to.equal(NestedInputObject);
+      expect(schema.getType('SomeInputObject'), SomeInputObject);
+      expect(schema.getType('NestedInputObject'), NestedInputObject);
     });
 
-    it('includes input types only used in directives', () => {
-      const directive = new GraphQLDirective({
+    test('includes input types only used in directives', () {
+      final directive = GraphQLDirective(
         name: 'dir',
         locations: [DirectiveLocation.OBJECT],
-        args: {
-          arg: {
-            type: new GraphQLInputObjectType({ name: 'Foo', fields: {} }),
-          },
-          argList: {
-            type: new GraphQLList(
-              new GraphQLInputObjectType({ name: 'Bar', fields: {} }),
+        inputs: [
+          inputField('arg', GraphQLInputObjectType('Foo', fields: {})),
+          inputField(
+            'argList',
+            listOf(
+              GraphQLInputObjectType('Bar', fields: {}),
             ),
-          },
-        },
-      });
-      const schema = new GraphQLSchema({ directives: [directive] });
+          ),
+        ],
+      );
+      final schema = GraphQLSchema(directives: [directive]);
 
-      expect(schema.getTypeMap()).to.include.keys('Foo', 'Bar');
+      expect(schema.typeMap().keys, containsAll(['Foo', 'Bar']));
     });
   });
 
-  it('preserves the order of user provided types', () => {
-    const aType = new GraphQLObjectType({
-      name: 'A',
-      fields: {
-        sub: { type: new GraphQLScalarType({ name: 'ASub' }) },
-      },
-    });
-    const zType = new GraphQLObjectType({
-      name: 'Z',
-      fields: {
-        sub: { type: new GraphQLScalarType({ name: 'ZSub' }) },
-      },
-    });
-    const queryType = new GraphQLObjectType({
-      name: 'Query',
-      fields: {
-        a: { type: aType },
-        z: { type: zType },
-        sub: { type: new GraphQLScalarType({ name: 'QuerySub' }) },
-      },
-    });
-    const schema = new GraphQLSchema({
-      types: [zType, queryType, aType],
-      query: queryType,
-    });
-
-    const typeNames = Object.keys(schema.getTypeMap());
-    expect(typeNames).to.deep.equal([
-      'Z',
-      'ZSub',
-      'Query',
-      'QuerySub',
-      'A',
-      'ASub',
-      'Boolean',
-      'String',
-      '__Schema',
-      '__Type',
-      '__TypeKind',
-      '__Field',
-      '__InputValue',
-      '__EnumValue',
-      '__Directive',
-      '__DirectiveLocation',
-    ]);
-
-    // Also check that this order is stable
-    const copySchema = new GraphQLSchema(schema.toConfig());
-    expect(Object.keys(copySchema.getTypeMap())).to.deep.equal(typeNames);
-  });
-
-  it('can be Object.toStringified', () => {
-    const schema = new GraphQLSchema({});
-
-    expect(Object.prototype.toString.call(schema)).to.equal(
-      '[object GraphQLSchema]',
+  GraphQLScalarTypeValue _testScalarType(String name) {
+    return GraphQLScalarTypeValue(
+      name: name,
+      description: null,
+      specifiedByURL: null,
+      validate: (key, input) => ValidationResult.ok(input),
+      serialize: (value) => value,
+      deserialize: (serdeCtx, serialized) => serialized,
     );
+  }
+
+  // TODO: Introspection in schema
+  // test('preserves the order of user provided types', () {
+  //   final aType = GraphQLObjectType(
+  //     'A',
+  //     fields: [
+  //       field('sub', _testScalarType('ASub')),
+  //     ],
+  //   );
+  //   final zType = GraphQLObjectType(
+  //     'Z',
+  //     fields: [
+  //       field('sub', _testScalarType('ZSub')),
+  //     ],
+  //   );
+  //   final queryType = GraphQLObjectType(
+  //     'Query',
+  //     fields: [
+  //       field('a', aType),
+  //       field('z', zType),
+  //       field('sub', _testScalarType('QuerySub')),
+  //     ],
+  //   );
+  //   final schema = GraphQLSchema(
+  //     types: [zType, queryType, aType],
+  //     queryType: queryType,
+  //   );
+
+  //   final typeNames = schema.typeMap().keys;
+  //   expect(typeNames, [
+  //     'Z',
+  //     'ZSub',
+  //     'Query',
+  //     'QuerySub',
+  //     'A',
+  //     'ASub',
+  //     'Boolean',
+  //     'String',
+  //     '__Schema',
+  //     '__Type',
+  //     '__TypeKind',
+  //     '__Field',
+  //     '__InputValue',
+  //     '__EnumValue',
+  //     '__Directive',
+  //     '__DirectiveLocation',
+  //   ]);
+
+  //   // Also check that this order is stable
+  //   // final copySchema = GraphQLSchema(schema.toConfig());
+  //   // expect(Object.keys(copySchema.typeMap())).to.deep.equal(typeNames);
+  // });
+
+  // test('can be Object.toStringified', ()  {
+  //   final schema = GraphQLSchema();
+
+  //   expect(Object.prototype.toString.call(schema),
+  //     '[object GraphQLSchema]',
+  //   );
+  // });
+
+  group('Validity', () {
+    group('when not assumed valid', () {
+      // TODO:
+      // test('configures the schema to still needing validation', ()  {
+      //   expect(
+      //     GraphQLSchema(
+      //       assumeValid: false,
+      //     ).__validationErrors,
+      //   ,undefined);
+      // });
+
+      //   test('checks the configuration for mistakes', ()  {
+      //     // @ts-expect-error
+      //     expect(() => GraphQLSchema(JSON.parse)).to.throw();
+      //     // @ts-expect-error
+      //     expect(() => GraphQLSchema({ types: {} })).to.throw();
+      //     // @ts-expect-error
+      //     expect(() => GraphQLSchema({ directives: {} })).to.throw();
+      //   });
+      // });
+
+      group('A Schema must contain uniquely named types', () {
+        test('rejects a Schema which redefines a built-in type', () {
+          final FakeString = _testScalarType(
+            'String',
+          );
+
+          final QueryType = GraphQLObjectType(
+            'Query',
+            fields: [
+              field('normal', graphQLString),
+              field('fake', FakeString),
+            ],
+          );
+
+          expect(
+              () => GraphQLSchema(queryType: QueryType),
+              throwsA(predicate(
+                (e) =>
+                    e is ArgumentError &&
+                    e.message ==
+                        'Schema must contain uniquely named types but'
+                            ' contains multiple types named "String".',
+              )));
+        });
+
+        test('rejects a Schema when a provided type has no name', () {
+          final query = GraphQLObjectType(
+            'Query',
+            fields: [graphQLString.field('foo')],
+          );
+          final types = <GraphQLType>[_testScalarType(''), query];
+
+          // @ts-expect-error
+          expect(
+              () => GraphQLSchema(queryType: query, types: types),
+              throwsA(predicate(
+                (e) =>
+                    e is ArgumentError &&
+                    e.message ==
+                        'One of the provided types for building the'
+                            ' Schema is missing a name.',
+              )));
+        });
+
+        test('rejects a Schema which defines an object type twice', () {
+          final types = [
+            GraphQLObjectType('SameName', fields: {}),
+            GraphQLObjectType('SameName', fields: {}),
+          ];
+
+          expect(
+              () => GraphQLSchema(types: types),
+              throwsA(predicate(
+                (e) =>
+                    e is ArgumentError &&
+                    e.message ==
+                        'Schema must contain uniquely named types but'
+                            ' contains multiple types named "SameName".',
+              )));
+        });
+
+        test('rejects a Schema which defines fields with conflicting types',
+            () {
+          final fields = <GraphQLObjectField>[];
+          final QueryType = GraphQLObjectType(
+            'Query',
+            fields: [
+              field('a', GraphQLObjectType('SameName', fields: fields)),
+              field('b', GraphQLObjectType('SameName', fields: fields)),
+            ],
+          );
+
+          expect(
+            () => GraphQLSchema(queryType: QueryType),
+            throwsA(predicate((e) =>
+                e is ArgumentError &&
+                e.message ==
+                    'Schema must contain uniquely named types but '
+                        'contains multiple types named "SameName".')),
+          );
+        }); // TODO:
+      }, skip: '// TODO: Improve equality checks for GraphQLTypes');
+
+      group('when assumed valid', () {
+        // TODO:
+        // test('configures the schema to have no errors', ()  {
+        //   expect(
+        //     GraphQLSchema(
+        //       assumeValid: true,
+        //     ).__validationErrors,
+        //   ).to.deep.equal([]);
+        // });
+      });
+    });
   });
-
-  describe('Validity', () => {
-    describe('when not assumed valid', () => {
-      it('configures the schema to still needing validation', () => {
-        expect(
-          new GraphQLSchema({
-            assumeValid: false,
-          }).__validationErrors,
-        ).to.equal(undefined);
-      });
-
-      it('checks the configuration for mistakes', () => {
-        // @ts-expect-error
-        expect(() => new GraphQLSchema(JSON.parse)).to.throw();
-        // @ts-expect-error
-        expect(() => new GraphQLSchema({ types: {} })).to.throw();
-        // @ts-expect-error
-        expect(() => new GraphQLSchema({ directives: {} })).to.throw();
-      });
-    });
-
-    describe('A Schema must contain uniquely named types', () => {
-      it('rejects a Schema which redefines a built-in type', () => {
-        const FakeString = new GraphQLScalarType({ name: 'String' });
-
-        const QueryType = new GraphQLObjectType({
-          name: 'Query',
-          fields: {
-            normal: { type: GraphQLString },
-            fake: { type: FakeString },
-          },
-        });
-
-        expect(() => new GraphQLSchema({ query: QueryType })).to.throw(
-          'Schema must contain uniquely named types but contains multiple types named "String".',
-        );
-      });
-
-      it('rejects a Schema when a provided type has no name', () => {
-        const query = new GraphQLObjectType({
-          name: 'Query',
-          fields: { foo: { type: GraphQLString } },
-        });
-        const types = [{}, query, {}];
-
-        // @ts-expect-error
-        expect(() => new GraphQLSchema({ query, types })).to.throw(
-          'One of the provided types for building the Schema is missing a name.',
-        );
-      });
-
-      it('rejects a Schema which defines an object type twice', () => {
-        const types = [
-          new GraphQLObjectType({ name: 'SameName', fields: {} }),
-          new GraphQLObjectType({ name: 'SameName', fields: {} }),
-        ];
-
-        expect(() => new GraphQLSchema({ types })).to.throw(
-          'Schema must contain uniquely named types but contains multiple types named "SameName".',
-        );
-      });
-
-      it('rejects a Schema which defines fields with conflicting types', () => {
-        const fields = {};
-        const QueryType = new GraphQLObjectType({
-          name: 'Query',
-          fields: {
-            a: { type: new GraphQLObjectType({ name: 'SameName', fields }) },
-            b: { type: new GraphQLObjectType({ name: 'SameName', fields }) },
-          },
-        });
-
-        expect(() => new GraphQLSchema({ query: QueryType })).to.throw(
-          'Schema must contain uniquely named types but contains multiple types named "SameName".',
-        );
-      });
-    });
-
-    describe('when assumed valid', () => {
-      it('configures the schema to have no errors', () => {
-        expect(
-          new GraphQLSchema({
-            assumeValid: true,
-          }).__validationErrors,
-        ).to.deep.equal([]);
-      });
-    });
-  });
-});
+}
