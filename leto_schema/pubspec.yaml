@@ -14,8 +14,13 @@ dependencies:
 dev_dependencies:
   lint: ^1.0.0
   test: ">=0.12.0 <2.0.0"
+  leto_generator_example:
 
 dependency_overrides:
+  leto_generator_example:
+    path: ../leto_generator/example
+  leto:
+    path: ../leto
   gql:
     git:
       url: https://github.com/juancastillo0/gql
