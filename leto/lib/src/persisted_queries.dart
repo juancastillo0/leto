@@ -5,10 +5,10 @@ import 'dart:collection';
 import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:leto_schema/leto_schema.dart'
-    show ScopeRef, GraphQLException, ScopedMap;
 import 'package:leto/leto.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;
+import 'package:leto_schema/leto_schema.dart'
+    show GraphQLException, ResolveBaseCtx, ScopeRef, ScopedMap;
 
 /// Save network bandwidth by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.
@@ -51,14 +51,13 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) async {
     if (!returnHashInResponse) {
       return next();
     }
     final response = await next();
-    final hash = _extensionResponseHashRef.get(globals);
+    final hash = _extensionResponseHashRef.get(ctx);
     if (hash != null) {
       return response.copyWithExtension(mapKey, {'sha256Hash': hash});
     }
@@ -68,10 +67,10 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    String query,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) {
+    final query = ctx.query;
+    final extensions = ctx.extensions;
     // '/graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"ecf4edb46db40b5132295c0291d62fb65d6759a9eedfa4d5d612dd5ec54a6b38"}}'
     final persistedQuery = extensions == null ? null : extensions[mapKey];
 
@@ -115,7 +114,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
         cache.set(digestHex, document);
       }
       if (returnHashInResponse && persistedQuery is Map<String, Object?>) {
-        _extensionResponseHashRef.setScoped(globals, digestHex);
+        _extensionResponseHashRef.setScoped(ctx, digestHex);
       }
     }
 

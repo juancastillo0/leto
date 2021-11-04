@@ -5,7 +5,7 @@ class ReqCtx<P> implements GlobalsHolder {
   final Map<String, Object?> args;
 
   /// The parent object value
-  final P object;
+  P get object => parentCtx.objectValue as P;
 
   @override
   ScopedMap get globals => parentCtx.globals;
@@ -16,18 +16,20 @@ class ReqCtx<P> implements GlobalsHolder {
   /// The field associated with this resolve context
   final GraphQLObjectField<Object?, Object?, Object?> field;
 
+  /// The complete path to this field in the GraphQL request
   List<Object> get path => [...parentCtx.path, pathItem];
+
+  /// The alias or field name
   final String pathItem;
 
   /// Function that computes the selected fields of the object or union
   /// associated with this context
   final PossibleSelections? Function() lookahead;
 
-  ResolveCtx get baseCtx => parentCtx.base;
+  ResolveCtx get baseCtx => parentCtx.resolveCtx;
 
   const ReqCtx({
     required this.args,
-    required this.object,
     required this.parentCtx,
     required this.field,
     required this.pathItem,
@@ -41,7 +43,6 @@ class ReqCtx<P> implements GlobalsHolder {
     }
     return ReqCtx(
       args: args,
-      object: object as T,
       parentCtx: parentCtx,
       pathItem: pathItem,
       field: field,
@@ -94,7 +95,7 @@ class PossibleSelectionsObject {
 
   /// Returns the nested selections for [fieldName]
   ///
-  /// Can be null when [fieldName] was not selected or if [fieldName]
+  /// Will be null when [fieldName] was not selected or if [fieldName]
   /// is not an Object or Union type (or list of those).
   ///
   /// If it's a scalar or an enum, for example, it would not have
@@ -103,16 +104,46 @@ class PossibleSelectionsObject {
   PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
 }
 
+class ResolveBaseCtx implements GlobalsHolder {
+  /// The schema used to execute the operation
+  final GraphQLSchema schema;
+
+  /// The document String containing the operation to execute
+  final String query;
+
+  /// The operation name
+  final String? operationName;
+
+  /// The value passed as root value in the execution of the request
+  final Object rootValue;
+
+  /// The unparsed variables passes as arguments
+  /// to the parameters in the [query]
+  final Map<String, Object?>? rawVariableValues;
+
+  /// this map contains custom values passed in the GraphQL request
+  final Map<String, Object?>? extensions;
+
+  @override
+  final ScopedMap globals;
+
+  ResolveBaseCtx({
+    required this.schema,
+    required this.query,
+    required this.operationName,
+    required this.rootValue,
+    required this.rawVariableValues,
+    required this.globals,
+    required this.extensions,
+  });
+}
+
 class ResolveCtx implements GlobalsHolder {
   /// The errors populated through out the processing of a GraphQL request
   final errors = <GraphQLError>[];
 
   /// The schema used to execute the operation
-  final GraphQLSchema schema;
-
-  /// The deseralization context, containing functions for creating objects
-  /// from serialized values
-  SerdeCtx get serdeCtx => schema.serdeCtx;
+  GraphQLSchema get schema => baseCtx.schema;
 
   /// The GraphQL document of the GraphQL request
   final DocumentNode document;
@@ -120,37 +151,32 @@ class ResolveCtx implements GlobalsHolder {
   /// The specific operation from the [document] of the GraphQL request
   final OperationDefinitionNode operation;
 
-  /// The value passed as root value in the execution of the request
-  final Object rootValue;
+  /// Base context of the request
+  final ResolveBaseCtx baseCtx;
 
-  /// The variables passes as arguments to the parameters in the [operation]
+  /// The parsed variables passes as arguments to
+  /// the parameters in the [operation]
   final Map<String, dynamic> variableValues;
+
   @override
   final ScopedMap globals;
 
-  /// this map contains custom values passed in the GraphQL request
-  final Map<String, dynamic>? extensions;
-
   ResolveCtx({
-    required this.schema,
+    required this.baseCtx,
     required this.document,
     required this.operation,
-    required this.rootValue,
     required this.variableValues,
     required this.globals,
-    required this.extensions,
   });
 }
 
 class ResolveObjectCtx<P> implements GlobalsHolder {
   /// The base context for this request
-  final ResolveCtx base;
+  final ResolveCtx resolveCtx;
 
   @override
-  ScopedMap get globals => base.globals;
-  SerdeCtx get serdeCtx => base.serdeCtx;
-  Map<String, dynamic> get variableValues => base.variableValues;
-  DocumentNode get document => base.document;
+  ScopedMap get globals => resolveCtx.globals;
+  Map<String, dynamic> get variableValues => resolveCtx.variableValues;
 
   /// The type associated with this resolve context
   final GraphQLObjectType<P> objectType;
@@ -168,13 +194,14 @@ class ResolveObjectCtx<P> implements GlobalsHolder {
   final Map<String, List<FieldNode>> groupedFieldSet;
 
   /// The path of execution including this object
-  Iterable<Object> get path => parent == null
-      ? [if (pathItem != null) pathItem!]
-      : parent!.path.followedBy([if (pathItem != null) pathItem!]);
+  Iterable<Object> get path => [
+        if (parent != null) ...parent!.path,
+        if (pathItem != null) pathItem!,
+      ];
 
   ResolveObjectCtx({
     required this.pathItem,
-    required this.base,
+    required this.resolveCtx,
     required this.objectType,
     required this.objectValue,
     required this.parent,
@@ -278,8 +305,8 @@ class RefWithDefault<T> {
     }
   }
 
-  /// Retrieves the value in the [holder]. If there aren't any
-  /// uses [create] to create a new one and set it into
+  /// Retrieves the value in the [holder]. If there isn't any,
+  /// uses [create] to create a new value and sets it into
   /// the appropriate scope.
   T get(GlobalsHolder holder) {
     if (scoped) {

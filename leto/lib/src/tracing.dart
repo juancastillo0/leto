@@ -35,11 +35,10 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) async {
     final tracing = TracingBuilder(version: 1);
-    ref.setScoped(globals, tracing);
+    ref.setScoped(ctx, tracing);
 
     final result = await next();
 
@@ -54,11 +53,9 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    String query,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) {
-    final tracing = ref.get(globals)!;
+    final tracing = ref.get(ctx)!;
     final endParsing = tracing.parsing.start();
     final document = next();
     endParsing();
@@ -68,12 +65,10 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   GraphQLException? validate(
     GraphQLException? Function() next,
-    GraphQLSchema schema,
+    ResolveBaseCtx ctx,
     DocumentNode document,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
   ) {
-    final tracing = ref.get(globals)!;
+    final tracing = ref.get(ctx)!;
     final endValidation = tracing.validation.start();
     final exception = next();
     endValidation();
@@ -108,11 +103,13 @@ class GraphQLTracingExtension extends GraphQLExtension {
     ResolveCtx ctx,
     ScopedMap parentGlobals,
   ) async {
-    return executeRequest(
-      next,
-      ctx.globals,
-      ctx.extensions,
-    );
+    // TODO:
+    return next();
+    // return executeRequest(
+    //   next,
+    //   ctx.globals,
+    //   ctx.extensions,
+    // );
   }
 }
 

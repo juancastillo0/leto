@@ -265,9 +265,9 @@ void main() {
         'returnType': resolvedInfo.field.type,
         'path': resolvedInfo.path,
         'parentType': parentType,
-        'schema': resolvedInfo.parentCtx.base.schema,
-        'rootValue': resolvedInfo.parentCtx.base.rootValue,
-        'variableValues': resolvedInfo.parentCtx.base.variableValues,
+        'schema': resolvedInfo.parentCtx.resolveCtx.schema,
+        'rootValue': resolvedInfo.parentCtx.resolveCtx.baseCtx.rootValue,
+        'variableValues': resolvedInfo.parentCtx.resolveCtx.variableValues,
       }, {
         'fieldName': 'test',
         'returnType': graphQLString,

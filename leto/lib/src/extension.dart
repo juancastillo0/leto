@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:leto_schema/leto_schema.dart';
 import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 export 'package:gql/ast.dart' show DocumentNode;
 
@@ -32,8 +32,7 @@ abstract class GraphQLExtension {
   /// [GraphQLResult.subscriptionStream] event
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) =>
       next();
 
@@ -41,9 +40,7 @@ abstract class GraphQLExtension {
   /// from [query] or [extensions]
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    String query,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) =>
       next();
 
@@ -51,10 +48,8 @@ abstract class GraphQLExtension {
   /// and the operation to perform
   GraphQLException? validate(
     GraphQLException? Function() next,
-    GraphQLSchema schema,
+    ResolveBaseCtx ctx,
     DocumentNode document,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
   ) =>
       next();
 

@@ -53,6 +53,7 @@ class GraphQLSchema {
   final List<GraphQLDirective> directives;
 
   /// Serialization and deserialization context for [GraphQLType]
+  /// Containing functions for creating objects from serialized values
   final SerdeCtx serdeCtx;
 
   /// The schema in Schema Definition Language (SDL) representation

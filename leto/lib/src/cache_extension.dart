@@ -215,15 +215,15 @@ class CacheExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ScopedMap globals,
-    Map<String, Object?>? extensions,
+    ResolveBaseCtx ctx,
   ) async {
+    final extensions = ctx.extensions;
     if (extensions != null && extensions[mapKey] is Map<String, Object?>) {
       final state = CacheInfo.fromJson(
         [],
         extensions[mapKey]! as Map<String, Object?>,
       );
-      ref.setScoped(globals, state);
+      ref.setScoped(ctx, state);
       final result = await next();
 
       if (!result.isSubscription && result.data != null) {

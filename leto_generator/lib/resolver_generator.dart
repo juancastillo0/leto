@@ -175,7 +175,8 @@ String resolverFunctionBodyFromElement(ExecutableElement element) {
         // TODO: support generics
         validations.add(
           'final $value = '
-          '${ReCase(typeName).camelCase}$serializerSuffix.fromJson(ctx.baseCtx.serdeCtx, args);',
+          '${ReCase(typeName).camelCase}$serializerSuffix'
+          '.fromJson(ctx.baseCtx.schema.serdeCtx, args);',
         );
       }
       if (_isValidation(e.type.element)) {
