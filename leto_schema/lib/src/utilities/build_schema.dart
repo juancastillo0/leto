@@ -89,6 +89,9 @@ GraphQLSchema buildSchema(
           e.name.value,
           type,
           description: e.description?.value,
+          deprecationReason:
+              getDirectiveValue('deprecated', 'reason', e.directives, payload)
+                  as String?,
           defaultValue: e.defaultValue == null
               ? null
               : computeValue(type, e.defaultValue!, null),
@@ -115,6 +118,8 @@ GraphQLSchema buildSchema(
               e.name.value,
               convertType(e.type, types.values.map((e) => e.key)),
               description: e.description?.value,
+              deprecationReason: getDirectiveValue(
+                  'deprecated', 'reason', e.directives, payload) as String?,
               inputs: arguments(e.args),
             ),
           )
