@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:leto_shelf/leto_shelf.dart';
@@ -12,8 +13,6 @@ import 'package:leto_shelf_example/schema/schema_from_json.dart';
 import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:leto_shelf_example/schema/star_wars_relay/data.dart';
 
-import '../types/safe_json.dart';
-import '../types/safe_json_graphql.dart';
 import 'files/file_upload.dart';
 import 'files/files.controller.dart';
 

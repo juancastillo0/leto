@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:leto/types/page_info.dart';
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_shelf_example/types/page_info.dart';
 import 'package:valida/valida.dart';
 
 part 'data.g.dart';

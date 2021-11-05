@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:meta/meta.dart';
 
 /// GraphQLType with the state of pagination
 ///

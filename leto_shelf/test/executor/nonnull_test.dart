@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show buildSchema;
-import 'package:leto_shelf/leto_shelf.dart';
 import 'package:test/test.dart';
 
 class _Exception implements Exception {

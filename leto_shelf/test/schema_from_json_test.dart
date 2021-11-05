@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:gql/language.dart';
 import 'package:leto/leto.dart';
+import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf_example/schema/schema_from_json.dart';
-import 'package:leto_shelf_example/types/safe_json.dart';
 import 'package:test/test.dart';
 
 void main() {
