@@ -4,7 +4,7 @@ description: Generates GraphQL schemas from Dart classes, for use with package:l
 homepage: https://github.com/juancastillo0/leto
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
   analyzer: ^2.1.0
