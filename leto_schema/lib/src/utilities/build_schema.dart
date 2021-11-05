@@ -194,6 +194,12 @@ GraphQLSchema buildSchema(
       ),
     ),
   );
+  final _directiveNames = directives.map((e) => e.name).toSet();
+  directives.addAll(
+    GraphQLDirective.specifiedDirectives.where(
+      (d) => !_directiveNames.contains(d.name),
+    ),
+  );
 
   return GraphQLSchema(
     queryType: queryType,
