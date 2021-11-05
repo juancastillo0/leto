@@ -6,7 +6,7 @@ environment:
 
 dependencies:
   freezed_annotation: ^0.14.3
-  json_annotation: ^4.1.0
+  json_annotation: ^4.3.0
   json_path:
   oxidized: ^5.0.1
   valida:

@@ -16,7 +16,7 @@ dependencies:
   http_parser: ^4.0.0
   http_server: ^1.0.0
 
-  json_annotation: ^4.1.0
+  json_annotation: ^4.3.0
   oxidized: ^5.0.1
 
   shelf: ^1.2.0
