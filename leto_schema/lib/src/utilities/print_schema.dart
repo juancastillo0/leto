@@ -270,6 +270,8 @@ class SchemaPrinter {
       if (defaultAST != null) {
         argDecl += ' = ${printAST(defaultAST)}';
       }
+    } else if (arg.defaultsToNull) {
+      argDecl += ' = null';
     }
     return argDecl + printDeprecated(arg.deprecationReason);
   }

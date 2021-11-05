@@ -251,15 +251,21 @@ class GraphQL {
       try {
         final document = gql.parseString(text, url: sourceUrl);
         return document;
-      } on SourceSpanException catch (e) {
+      } on SourceSpanException catch (e, s) {
         throw GraphQLException([
           GraphQLError(
             e.message,
             locations: GraphQLErrorLocation.listFromSource(e.span?.start),
+            sourceError: e,
+            stackTrace: s,
           )
         ]);
-      } catch (e) {
-        throw GraphQLException.fromMessage('Invalid GraphQL document: $e');
+      } catch (e, s) {
+        throw GraphQLException.fromMessage(
+          'Invalid GraphQL document: $e',
+          sourceError: e,
+          stackTrace: s,
+        );
       }
     });
   }
@@ -886,7 +892,7 @@ class GraphQL {
           argumentValues.firstWhereOrNull((a) => a.name.value == argumentName);
 
       if (argumentValue == null) {
-        if (defaultValue != null) {
+        if (defaultValue != null || argumentDefinition.defaultsToNull) {
           coercedValues[argumentName] = defaultValue;
         } else if (argumentType.isNonNullable) {
           throw GraphQLException.fromMessage(

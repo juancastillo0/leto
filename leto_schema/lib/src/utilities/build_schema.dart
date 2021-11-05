@@ -33,7 +33,7 @@ GraphQLSchema buildSchema(
                 as String?,
         serialize: (s) => s,
         deserialize: (_, s) => s,
-        validate: (k, inp) => ValidationResult.ok(inp!),
+        validate: (k, inp) => ValidationResult.ok(inp),
       );
     } else if (def is ObjectTypeDefinitionNode) {
       type = GraphQLObjectType(
@@ -95,6 +95,7 @@ GraphQLSchema buildSchema(
           defaultValue: e.defaultValue == null
               ? null
               : computeValue(type, e.defaultValue!, null),
+          defaultsToNull: e.defaultValue is NullValueNode,
         );
       },
     );

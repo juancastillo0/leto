@@ -346,6 +346,9 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
       description: 'A GraphQL-formatted string representing the default'
           ' value for this input value.',
       resolve: (obj, _) {
+        if (obj.defaultsToNull) {
+          return 'null';
+        }
         final ast = obj.type.isNullable && obj.defaultValue == null
             ? null
             : astFromValue(obj.defaultValue, obj.type);

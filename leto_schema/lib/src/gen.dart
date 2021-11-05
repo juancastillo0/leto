@@ -86,13 +86,15 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
   String? description,
   T? defaultValue,
   String? deprecationReason,
+  bool defaultsToNull = false,
 }) {
   return GraphQLFieldInput(
     name,
     type,
     description: description,
-    defaultValue: defaultValue,
     deprecationReason: deprecationReason,
+    defaultValue: defaultValue,
+    defaultsToNull: defaultsToNull,
   );
 }
 
