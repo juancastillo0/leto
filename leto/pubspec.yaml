@@ -16,7 +16,9 @@ dependencies:
   source_span: ^1.0.0
   stream_channel: ^2.0.0
   oxidized: ^5.0.1
+  clock: ^1.1.0
 dev_dependencies:
+  fake_async: ^1.2.0
   lint: ^1.0.0
   test: ">=0.12.0 <2.0.0"
   leto_generator_example:

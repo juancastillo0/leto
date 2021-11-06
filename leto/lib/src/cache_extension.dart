@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
-import 'package:crypto/crypto.dart' show sha1;
-import 'package:leto_schema/leto_schema.dart';
+import 'package:crypto/crypto.dart' show sha1, sha256;
 import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 
 CacheInfo? getCacheInfo(ReqCtx ctx) {
-  return CacheExtension.getRootInfo(ctx)?.getNested(ctx.path);
+  return CacheExtension.getRootInfo(ctx)?.incoming.getNested(ctx.path);
 }
 
 class CacheInfo {
-  final String? rootId;
   final DateTime? updatedAt;
   final String? hash;
   final int? maxAgeSeconds;
@@ -20,7 +20,6 @@ class CacheInfo {
 
   const CacheInfo({
     required this.path,
-    this.rootId,
     this.maxAgeSeconds,
     this.updatedAt,
     this.hash,
@@ -57,7 +56,7 @@ class CacheInfo {
       valuesToCache.add(CacheEntry(
         data: _data,
         info: info,
-        cachedAt: DateTime.now(),
+        cachedAt: clock.now(),
       ));
     }
 
@@ -136,7 +135,6 @@ class CacheInfo {
     final nested = json['nested'] as Map<String, Object?>?;
 
     return CacheInfo(
-      rootId: json['rootId'] as String?,
       path: path.toList(),
       hash: json['hash'] as String?,
       updatedAt: _parseDateTime(json['updatedAt']),
@@ -159,7 +157,6 @@ class CacheInfo {
 
   Map<String, Object?> toJson() {
     return {
-      if (rootId != null) 'rootId': rootId,
       if (hash != null) 'hash': hash,
       if (updatedAt != null) 'updatedAt': updatedAt?.toIso8601String(),
       if (maxAgeSeconds != null) 'maxAgeSeconds': maxAgeSeconds,
@@ -178,11 +175,22 @@ DateTime? _parseDateTime(Object? value) {
               : null;
 }
 
-// class CacheState {
-//   final CacheInfo incoming;
+class CacheState {
+  final CacheInfo incoming;
+  final String? rootId;
+  final String? operationName;
+  final String queryHash;
 
-//   CacheState(this.incoming);
-// }
+  String get cachePrefix =>
+      '$queryHash:${operationName ?? ''}:${rootId ?? ''}:';
+
+  CacheState({
+    required this.incoming,
+    required this.rootId,
+    required this.operationName,
+    required this.queryHash,
+  });
+}
 
 class CacheEntry {
   final Object data;
@@ -197,7 +205,7 @@ class CacheEntry {
 }
 
 class CacheExtension extends GraphQLExtension {
-  static final ref = ScopeRef<CacheInfo>('CacheExtension');
+  static final ref = ScopeRef<CacheState>('CacheExtension');
 
   final Cache<String, CacheEntry>? cache;
 
@@ -206,7 +214,7 @@ class CacheExtension extends GraphQLExtension {
   @override
   String get mapKey => 'cacheResponse';
 
-  static CacheInfo? getRootInfo(GlobalsHolder holder) {
+  static CacheState? getRootInfo(GlobalsHolder holder) {
     if (holder.globals.containsScoped(CacheExtension.ref)) {
       return CacheExtension.ref.get(holder);
     }
@@ -218,23 +226,41 @@ class CacheExtension extends GraphQLExtension {
     ResolveBaseCtx ctx,
   ) async {
     final extensions = ctx.extensions;
-    if (extensions != null && extensions[mapKey] is Map<String, Object?>) {
-      final state = CacheInfo.fromJson(
+    final extensionData = extensions?[mapKey] as Map<String, Object?>?;
+    if (extensionData is Map<String, Object?>) {
+      final incoming = CacheInfo.fromJson(
         [],
-        extensions[mapKey]! as Map<String, Object?>,
+        extensionData,
+      );
+      final _queryHash = ctx.query.isNotEmpty
+          ? GraphQLPersistedQueries.defaultComputeHash(ctx.query)
+          : (ctx.extensions?['persistedQuery']
+                  as Map<String, Object?>?)?['sha256Hash'] as String? ??
+              '';
+      final state = CacheState(
+        incoming: incoming,
+        operationName: ctx.operationName,
+        queryHash: _queryHash,
+        rootId: extensionData['rootId'] as String?,
       );
       ref.setScoped(ctx, state);
+      final value = getCachedValue(ctx, []);
+      if (value != null) {
+        return GraphQLResult(value);
+      }
       final result = await next();
 
       if (!result.isSubscription && result.data != null) {
         final data = result.data!;
         final valuesToCache = cache != null ? <CacheEntry>[] : null;
-        final computedData = state.validate(data, valuesToCache);
+        final computedData = incoming.validate(data, valuesToCache);
 
         if (cache != null) {
-          final _rootId = state.rootId ?? '';
-          for (final v in valuesToCache!) {
-            cache!.set('$_rootId${v.info.path.join('.')}', v);
+          for (final item in valuesToCache!) {
+            cache!.set(
+              '${state.cachePrefix}${item.info.path.join('.')}',
+              item,
+            );
           }
         }
 
@@ -260,25 +286,31 @@ class CacheExtension extends GraphQLExtension {
     String fieldAlias,
   ) {
     if (cache != null) {
-      final rootInfo = getRootInfo(ctx.globals);
       final path = ctx.path.followedBy([fieldAlias]).toList();
-      final info = rootInfo?.getNested(path);
-      final maxAgeSeconds = info?.maxAgeSeconds;
-      if (maxAgeSeconds != null) {
-        final _rootId = rootInfo!.rootId ?? '';
-        final cacheKey = '$_rootId${path.join('.')}';
-        final entry = cache!.get(cacheKey);
-        if (entry != null) {
-          final staleSecs = DateTime.now().difference(entry.cachedAt).inSeconds;
-          if (staleSecs < maxAgeSeconds) {
-            return entry.data;
-          }
-          // else {
-          //   cache!.delete(cacheKey);
-          // }
-        }
+      final value = getCachedValue(ctx, path);
+      if (value != null) {
+        return value;
       }
     }
     return next();
+  }
+
+  Object? getCachedValue(GlobalsHolder scope, List<Object> path) {
+    final state = getRootInfo(scope);
+    final info = state?.incoming.getNested(path);
+    final maxAgeSeconds = info?.maxAgeSeconds;
+    if (maxAgeSeconds != null) {
+      final cacheKey = '${state!.cachePrefix}${path.join('.')}';
+      final entry = cache!.get(cacheKey);
+      if (entry != null) {
+        final staleSecs = clock.now().difference(entry.cachedAt).inSeconds;
+        if (staleSecs < maxAgeSeconds) {
+          return entry.data;
+        }
+        // else {
+        //   cache!.delete(cacheKey);
+        // }
+      }
+    }
   }
 }
