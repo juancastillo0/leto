@@ -1,6 +1,4 @@
-import 'package:collection/collection.dart' show DeepCollectionEquality;
 import 'package:leto_schema/leto_schema.dart' show GraphQLError;
-import 'package:meta/meta.dart';
 
 /// Utility for nullable values in copyWith methods
 class Val<T> {
@@ -10,7 +8,6 @@ class Val<T> {
 }
 
 /// A result from a GraphQL request.
-@immutable
 class GraphQLResult {
   /// A Stream<GraphQLResult> for subscriptions
   /// or a Map<String, Object?>? for queries and mutations
@@ -68,23 +65,4 @@ class GraphQLResult {
   @override
   String toString() => 'GraphQLResult(data: $data, errors: $errors, '
       'didExecute: $didExecute, extensions: $extensions)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    final listEquals = const DeepCollectionEquality().equals;
-
-    return other is GraphQLResult &&
-        other.data == data &&
-        other.didExecute == didExecute &&
-        listEquals(other.extensions, extensions) &&
-        listEquals(other.errors, errors);
-  }
-
-  @override
-  int get hashCode =>
-      data.hashCode ^
-      errors.hashCode ^
-      didExecute.hashCode ^
-      extensions.hashCode;
 }
