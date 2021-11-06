@@ -337,7 +337,6 @@ void main() {
         document: 'subscription { foo }',
         rootValue: {'foo': fooGenerator},
       );
-      // TODO: invariant(isAsyncIterable(subscription));
 
       expect(await subscription.next(), {
         'done': false,
@@ -368,7 +367,6 @@ void main() {
         schema,
         document: 'subscription { foo }',
       );
-      // TODO: invariant(isAsyncIterable(subscription));
 
       expect(await subscription.next(), {
         'done': false,
@@ -398,7 +396,6 @@ void main() {
         schema,
         document: 'subscription { foo }',
       );
-      // TODO: invariant(isAsyncIterable(subscription));
 
       expect(await subscription.next(), {
         'done': false,
@@ -444,7 +441,6 @@ void main() {
         schema,
         document: 'subscription { foo bar }',
       );
-      // TODO: invariant(isAsyncIterable(subscription));
 
       expect(didResolveFoo, true);
       expect(didResolveBar, false);
@@ -643,7 +639,6 @@ void main() {
       final pubsub = StreamController<Email>.broadcast();
 
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       final secondSubscription = await createSubscription(pubsub);
       // TODO: invariant(isAsyncIterable(secondSubscription));
@@ -685,7 +680,6 @@ void main() {
     test('produces a payload per subscription event', () async {
       final pubsub = StreamController<Email>();
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       // Wait for the next subscription payload.
       final payload = subscription.next();
@@ -773,7 +767,6 @@ void main() {
     test('produces a payload when there are multiple events', () async {
       final pubsub = StreamController<Email>();
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       var payload = subscription.next();
 
@@ -839,7 +832,6 @@ void main() {
     test('should not trigger when subscription is already done', () async {
       final pubsub = StreamController<Email>();
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       var payload = subscription.next();
 
@@ -893,7 +885,6 @@ void main() {
     test('should not trigger when subscription is thrown', () async {
       final pubsub = StreamController<Email>();
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       var payload = subscription.next();
 
@@ -946,7 +937,6 @@ void main() {
     test('event order is correct for multiple publishes', () async {
       final pubsub = StreamController<Email>.broadcast();
       final subscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       var payload = subscription.next();
 
@@ -1047,7 +1037,6 @@ void main() {
 
       const document = 'subscription { newMessage }';
       final subscription = await subscribe(schema, document: document);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       expect(await subscription.next(), {
         'done': false,
@@ -1106,7 +1095,6 @@ void main() {
 
       const document = 'subscription { newMessage }';
       final subscription = await subscribe(schema, document: document);
-      // TODO: invariant(isAsyncIterable(subscription));
 
       final payload = await subscription.next();
       expect(payload, {
