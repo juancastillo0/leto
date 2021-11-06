@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:leto_schema/leto_schema.dart';
 import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
 import 'package:meta/meta.dart';
 
 /// Apollo Tracing is a GraphQL extension for performance tracing.
@@ -269,26 +269,6 @@ class Tracing {
     required this.execution,
   });
 
-  Tracing copyWith({
-    int? version,
-    DateTime? startTime,
-    DateTime? endTime,
-    int? duration,
-    TracingItem? parsing,
-    TracingItem? validation,
-    ExecutionTracing? execution,
-  }) {
-    return Tracing(
-      version: version ?? this.version,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
-      duration: duration ?? this.duration,
-      parsing: parsing ?? this.parsing,
-      validation: validation ?? this.validation,
-      execution: execution ?? this.execution,
-    );
-  }
-
   Map<String, Object?> toJson() {
     return {
       'version': version,
@@ -322,29 +302,6 @@ class Tracing {
         'endTime: $endTime, duration: $duration, '
         'parsing: $parsing, validation: $validation, execution: $execution)';
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Tracing &&
-        other.version == version &&
-        other.startTime == startTime &&
-        other.endTime == endTime &&
-        other.duration == duration &&
-        other.parsing == parsing &&
-        other.validation == validation;
-  }
-
-  @override
-  int get hashCode {
-    return version.hashCode ^
-        startTime.hashCode ^
-        endTime.hashCode ^
-        duration.hashCode ^
-        parsing.hashCode ^
-        validation.hashCode;
-  }
 }
 
 abstract class TracingItemI {
@@ -368,16 +325,6 @@ class TracingItem implements TracingItemI {
     required this.duration,
   });
 
-  TracingItem copyWith({
-    int? startOffset,
-    int? duration,
-  }) {
-    return TracingItem(
-      startOffset: startOffset ?? this.startOffset,
-      duration: duration ?? this.duration,
-    );
-  }
-
   Map<String, Object?> toJson() {
     return {
       'startOffset': startOffset,
@@ -395,18 +342,6 @@ class TracingItem implements TracingItemI {
   @override
   String toString() =>
       'TracingItem(startOffset: $startOffset, duration: $duration)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is TracingItem &&
-        other.startOffset == startOffset &&
-        other.duration == duration;
-  }
-
-  @override
-  int get hashCode => startOffset.hashCode ^ duration.hashCode;
 }
 
 class ExecutionTracingBuilder {
@@ -446,14 +381,6 @@ class ExecutionTracing {
     required this.resolvers,
   });
 
-  ExecutionTracing copyWith({
-    Map<ResolverTracing, TracingItem>? resolvers,
-  }) {
-    return ExecutionTracing(
-      resolvers: resolvers ?? this.resolvers,
-    );
-  }
-
   Map<String, Object?> toJson() {
     return {
       'resolvers': resolvers.entries.map((x) => x.key.toJson(x.value)).toList(),
@@ -474,17 +401,6 @@ class ExecutionTracing {
 
   @override
   String toString() => 'ExecutionTracing(resolvers: $resolvers)';
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    final listEquals = const DeepCollectionEquality().equals;
-
-    return other is ExecutionTracing && listEquals(other.resolvers, resolvers);
-  }
-
-  @override
-  int get hashCode => const DeepCollectionEquality().hash(resolvers);
 }
 
 @immutable
@@ -500,22 +416,6 @@ class ResolverTracing {
     required this.fieldName,
     required this.returnType,
   });
-
-  ResolverTracing copyWith({
-    List<Object>? path,
-    String? parentType,
-    String? fieldName,
-    String? returnType,
-    int? startOffset,
-    int? duration,
-  }) {
-    return ResolverTracing(
-      path: path ?? this.path,
-      parentType: parentType ?? this.parentType,
-      fieldName: fieldName ?? this.fieldName,
-      returnType: returnType ?? this.returnType,
-    );
-  }
 
   Map<String, Object?> toJson(TracingItemI tracing) {
     return {
