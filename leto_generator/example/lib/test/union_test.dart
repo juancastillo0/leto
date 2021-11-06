@@ -27,20 +27,17 @@ void main() {
         final result = await GraphQL(graphqlApiSchema).parseAndExecute(
           '''
           {getUnionA {
+            __typename
             ... on UnionA1 {
-              __typename
               one
             }
             ... on UnionA2 {
-              __typename
               dec
             }
             ... on UnionA3 {
-              __typename
               one
             }
             ... on UnionA4 {
-              __typename
               oneRenamed
             }
           }}

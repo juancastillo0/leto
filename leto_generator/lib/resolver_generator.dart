@@ -60,6 +60,10 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
             ? _returnType.substring(0, _returnType.length - 1)
             : _returnType;
 
+        final resolverName = const TypeChecker.fromRuntime(GraphQLResolver)
+            .firstAnnotationOf(element)
+            ?.getField('name')
+            ?.toStringValue();
         final genericTypeName = const TypeChecker.fromRuntime(GraphQLResolver)
             .firstAnnotationOf(element)
             ?.getField('genericTypeName')
@@ -81,7 +85,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
               ..assignment = Code(
                 '''
                 field(
-                  '${element.name}', 
+                  '${resolverName ?? element.name}', 
                   $returnGqlType,
                   ${desc == null ? '' : 'description: r"$desc",'}
                   $funcDef,
