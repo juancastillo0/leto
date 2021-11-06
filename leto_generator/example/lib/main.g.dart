@@ -48,35 +48,6 @@ GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType {
   return __todoItemInputGraphQLType;
 }
 
-final todoItemInputSSerializer = SerializerValue<TodoItemInputS>(
-  fromJson: (ctx, json) =>
-      TodoItemInputS.fromJson(json), // _$TodoItemInputSFromJson,
-  // toJson: (m) => _$TodoItemInputSToJson(m as TodoItemInputS),
-);
-
-GraphQLInputObjectType<TodoItemInputS>? _todoItemInputSGraphQLType;
-
-/// Auto-generated from [TodoItemInputS].
-GraphQLInputObjectType<TodoItemInputS> get todoItemInputSGraphQLType {
-  final __name = 'TodoItemInputS';
-  if (_todoItemInputSGraphQLType != null)
-    return _todoItemInputSGraphQLType!
-        as GraphQLInputObjectType<TodoItemInputS>;
-
-  final __todoItemInputSGraphQLType =
-      inputObjectType<TodoItemInputS>('TodoItemInputS');
-
-  _todoItemInputSGraphQLType = __todoItemInputSGraphQLType;
-  __todoItemInputSGraphQLType.fields.addAll(
-    [
-      inputField('text', graphQLString.nonNull().coerceToInputObject()),
-      inputField('nested', todoItemInputNestedGraphQLType.coerceToInputObject())
-    ],
-  );
-
-  return __todoItemInputSGraphQLType;
-}
-
 final todoItemInputNestedSerializer = SerializerValue<TodoItemInputNested>(
   fromJson: (ctx, json) =>
       TodoItemInputNested.fromJson(json), // _$TodoItemInputNestedFromJson,

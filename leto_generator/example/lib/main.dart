@@ -3,7 +3,6 @@ import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto/leto.dart';
 
 part 'main.g.dart';
 
@@ -28,27 +27,6 @@ class TodoItemInput {
 }
 
 @GraphQLInput()
-class TodoItemInputS {
-  const TodoItemInputS({
-    required this.text,
-    this.nested,
-  });
-
-  final String text;
-  final TodoItemInputNested? nested;
-
-  // ignore: prefer_constructors_over_static_methods
-  static TodoItemInputS fromJson(Map<String, Object?> json) => TodoItemInputS(
-        text: json['text']! as String,
-        nested: json['nested'] == null
-            ? null
-            : TodoItemInputNested.fromJson(
-                json['nested']! as Map<String, Object?>,
-              ),
-      );
-}
-
-@GraphQLInput()
 class TodoItemInputNested {
   const TodoItemInputNested({required this.cost});
 
@@ -57,7 +35,9 @@ class TodoItemInputNested {
   // ignore: prefer_constructors_over_static_methods
   static TodoItemInputNested fromJson(Map<String, Object?> json) =>
       TodoItemInputNested(
-        cost: Decimal.tryParse(json['cost'] as String? ?? ''),
+        cost: json['cost'] == null
+            ? null
+            : Decimal.parse(json['cost'].toString()),
       );
 }
 
@@ -77,6 +57,7 @@ class TodoItem {
   TodoItem({
     this.text,
     this.isComplete,
+    // ignore: deprecated_consistency
     required this.createdAt,
   });
 }
@@ -87,7 +68,6 @@ String getName() {
 }
 
 Future<void> main() async {
-  print(todoItemGraphQLType.fields.map((f) => f.name));
   const schemaSrt = '''
 type Query {
   getName: String!
@@ -116,45 +96,6 @@ type TodoItem {
     'generic': 1,
   });
   print(d.toJson());
-
-  String fieldSelection(GraphQLObjectField<Object?, Object?, Object?> f) {
-    final type = f.type;
-    final _innerType =
-        type is GraphQLWrapperType ? (type as GraphQLWrapperType).ofType : type;
-    final innerType = _innerType is GraphQLWrapperType
-        ? (_innerType as GraphQLWrapperType).ofType
-        : _innerType;
-    if (innerType is GraphQLObjectType) {
-      return ' ${f.name} { ${innerType.fields.map(fieldSelection).join(' ')} } ';
-    } else if (innerType is GraphQLUnionType) {
-      return ' ${f.name} { ${innerType.possibleTypes.map((e) {
-        return ' ... on ${e.name} { ${e.fields.map(fieldSelection).join(' ')} } ';
-      })} }';
-    }
-    return ' ${f.name} ';
-  }
-
-  final allQueries = '{ ${graphqlApiSchema.queryType!.fields.where((f) {
-        return f.inputs.isEmpty;
-      }).map(fieldSelection).join(' ')} }';
-
-  final resultQueries =
-      await GraphQL(graphqlApiSchema).parseAndExecute(allQueries);
-  assert(resultQueries.errors.isEmpty);
-
-  final data = resultQueries.data! as Map<String, Object?>;
-  print(data);
-
-  final allMutations =
-      ' mutation { ${graphqlApiSchema.mutationType!.fields.where((f) {
-            return f.inputs.isEmpty;
-          }).map(fieldSelection).join(' ')} }';
-
-  final resultMutations =
-      await GraphQL(graphqlApiSchema).parseAndExecute(allMutations);
-  final dataMutation = resultMutations.data! as Map<String, Object?>;
-  print(dataMutation);
-  assert(resultMutations.errors.isEmpty);
 }
 
 const ss = '''
