@@ -22,18 +22,16 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
   final generics = Map.fromEntries(
     clazz.typeParameters.map((e) => MapEntry(e.name, e)),
   );
-  return clazz.methods
-      .where(
-        (element) => element.name != 'toJson' && element.name != 'fromJson',
-      )
-      .map((m) => fieldFromElement(m, m.returnType, ctx, generics))
-      .followedBy(clazz.fields.map((m) {
-    return fieldFromElement(m, m.type, ctx, generics);
-  })).followedBy(
-    clazz.supertype == null
-        ? []
-        : fieldsFromClass(clazz.supertype!.element, ctx),
-  );
+
+  return [
+    ...clazz.interfaces.expand((m) => fieldsFromClass(m.element, ctx)),
+    if (clazz.supertype != null)
+      ...fieldsFromClass(clazz.supertype!.element, ctx),
+    ...clazz.fields.map((m) => fieldFromElement(m, m.type, ctx, generics)),
+    ...clazz.methods
+        .where((method) => method.name != 'toJson' && method.name != 'fromJson')
+        .map((m) => fieldFromElement(m, m.returnType, ctx, generics))
+  ];
 }
 
 Future<List<UnionVarianInfo>> freezedVariants(
