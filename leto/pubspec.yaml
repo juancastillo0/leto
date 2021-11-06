@@ -15,13 +15,17 @@ dependencies:
   meta: ^1.0.0
   source_span: ^1.0.0
   stream_channel: ^2.0.0
+  oxidized: ^5.0.1
 dev_dependencies:
   lint: ^1.0.0
   test: ">=0.12.0 <2.0.0"
+  leto_generator_example:
 
 dependency_overrides:
   leto_schema:
     path: ../leto_schema
+  leto_generator_example:
+    path: ../leto_generator/example
   gql:
     git:
       url: https://github.com/juancastillo0/gql
