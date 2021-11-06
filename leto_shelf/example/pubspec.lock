@@ -219,11 +219,13 @@ packages:
     source: hosted
     version: "2.0.1"
   gql:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: gql
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: gql
+      ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
+      resolved-ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
+      url: "https://github.com/juancastillo0/gql"
+    source: git
     version: "0.13.0"
   graphs:
     dependency: transitive

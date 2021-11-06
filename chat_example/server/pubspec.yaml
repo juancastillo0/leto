@@ -66,3 +66,8 @@ dependency_overrides:
     path: ../../leto_shelf
   leto_shelf_example:
     path: ../../leto_shelf/example
+  gql:
+    git:
+      url: https://github.com/juancastillo0/gql
+      path: gql
+      ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
