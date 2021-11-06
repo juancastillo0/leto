@@ -307,7 +307,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
         // deduplicate field names
         final _names = <String>{};
         return fields
-            .where((e) => e.fieldAnnot.omit != true && _names.add(e.name))
+            .where((e) => _names.add(e.getter) && e.fieldAnnot.omit != true)
             .map((e) => e.expression(isInput: isInput))
             // add union discriminant key
             .followedBy([]
