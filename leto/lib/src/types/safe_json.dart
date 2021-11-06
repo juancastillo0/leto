@@ -70,7 +70,7 @@ abstract class Json {
     return toJson(shallow: true);
   }
 
-  static Json fromJson(Object? value) {
+  factory Json.fromJson(Object? value) {
     final result = fromJsonChecked(value);
 
     return result.match(

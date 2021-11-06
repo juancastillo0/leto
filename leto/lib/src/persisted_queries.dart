@@ -8,7 +8,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:leto/leto.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;
 import 'package:leto_schema/leto_schema.dart'
-    show GraphQLException, ResolveBaseCtx, ScopeRef, ScopedMap;
+    show GraphQLException, ResolveBaseCtx, ScopeRef;
 
 /// Save network bandwidth by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.
@@ -156,19 +156,19 @@ class MapCache<K, V> implements Cache<K, V> {
 /// Least Recently Used (LRU) cache implementation.
 ///
 /// Implemented with the usual linked list with map.
-/// [size] is the maximum number of elements in the cache.
+/// [maxSize] is the maximum number of elements in the cache.
 class LruCacheSimple<K, T> implements Cache<K, T> {
-  final int size;
+  final int maxSize;
 
   final Map<K, DoubleLinkedQueueEntry<MapEntry<K, T>>> map = {};
   final linkedList = DoubleLinkedQueue<MapEntry<K, T>>();
 
-  LruCacheSimple(this.size) : assert(size > 0);
+  LruCacheSimple(this.maxSize) : assert(maxSize > 0);
 
-  factory LruCacheSimple.fromMap(int size, Map<K, T> map) {
-    final cache = LruCacheSimple<K, T>(size);
+  factory LruCacheSimple.fromMap(int maxSize, Map<K, T> map) {
+    final cache = LruCacheSimple<K, T>(maxSize);
 
-    for (final e in map.entries.take(size)) {
+    for (final e in map.entries.take(maxSize)) {
       cache.addFirst(e.key, e.value);
     }
 
@@ -200,7 +200,7 @@ class LruCacheSimple<K, T> implements Cache<K, T> {
         return;
       }
       entry.remove();
-    } else if (map.length == size) {
+    } else if (map.length == maxSize) {
       // cache is full, remove least recently used
       final last = linkedList.removeLast();
       map.remove(last.key);
