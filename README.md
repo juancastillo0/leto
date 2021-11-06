@@ -2,7 +2,19 @@
 
 <div style="text-align: center">
 <hr>
-<a href="https://pub.dartlang.org/packages/leto" rel="nofollow"><img src="https://img.shields.io/pub/v/leto.svg" alt="Pub" data-canonical-src="https://img.shields.io/pub/v/leto.svg" style="max-width:100%;"></a>
+<a href="https://pub.dartlang.org/packages/leto" rel="nofollow">
+  <img src="https://img.shields.io/pub/v/leto.svg" alt="Pub" data-canonical-src="https://img.shields.io/pub/v/leto.svg" style="max-width:100%;">
+</a>
+<a href="https://codecov.io/gh/juancastillo0/leto">
+  <img src="https://codecov.io/gh/juancastillo0/leto/branch/main/graph/badge.svg?token=QJLQSCIJ42"/>
+</a>
+<a href="https://github.com/juancastillo0/leto/actions/workflows/test.yaml">
+  <img src="https://img.shields.io/github/checks-status/juancastillo0/leto/main"/>
+</a>
+<a href="https://github.com/juancastillo0/leto/actions/workflows/test.yaml">
+  <img src="https://github.com/juancastillo0/leto/actions/workflows/test.yaml/badge.svg"/>
+</a>
+
 </div>
 
 # Leto - GraphQL Server <!-- omit in toc -->
@@ -41,12 +53,13 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [\_\_typename](#__typename)
     - [Serialize and validate](#serialize-and-validate)
   - [Advanced Types](#advanced-types)
+    - [Provided Types](#provided-types)
     - [Cyclic Types](#cyclic-types)
     - [Custom Scalars](#custom-scalars)
     - [Generic Types](#generic-types)
 - [Subscriptions](#subscriptions)
     - [Examples](#examples-1)
-- [Miscelaneous](#miscelaneous)
+- [Miscellaneous](#miscellaneous)
   - [`ScopedMap`](#scopedmap)
   - [Error Handling](#error-handling)
   - [Input Validation](#input-validation)
@@ -66,6 +79,8 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Persisted Queries](#persisted-queries)
   - [Apollo Tracing](#apollo-tracing)
   - [Response Cache](#response-cache)
+  - [Logging Extension](#logging-extension)
+  - [Map Error Extension](#map-error-extension)
   - [Custom Extensions](#custom-extensions)
 - [Directives](#directives)
 - [Utilities](#utilities)
@@ -226,7 +241,6 @@ Other types are also provided:
 - Timestamp: same as Date, but serialized as an UNIX timestamp.
 - Time: // TODO:
 - Duration: // TODO:
-- PageInfo: Following the [relay connections spec](https://relay.dev/graphql/connections.htm).
 - Upload: a file upload. The [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec)
 
 To provide your own or support types from other packages you can use [Custom Scalars](#custom-scalars).
@@ -235,7 +249,7 @@ To provide your own or support types from other packages you can use [Custom Sca
 
 Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
 
-They require a unique name and a set of entries mapping their string representation to the dart value obtained after parsing.
+They require a unique name and a set of entries mapping their string representation to the Dart value obtained after parsing.
 
 ```graphql
 """The error reason on a failed sign up attempt"""
@@ -522,6 +536,12 @@ If the resolved result is a `Map` and contains a key "\_\_typename", we will use
 
 ## Advanced Types
 
+### Provided Types
+
+
+- PageInfo: Following the [relay connections spec](https://relay.dev/graphql/connections.htm).
+
+
 ### Cyclic Types
 
 Types which use themselves in their definition have to reuse previously created instances. The type's field lists are mutable, which allow you to instantiate the type and then modify the fields of the type. For example, an User with friends:
@@ -732,7 +752,7 @@ For usage in the server you can use any of the [web server integrations](#web-se
 
 For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto_graphql/chat_example) in particular the // TODO:
 
-# Miscelaneous
+# Miscellaneous
 ## `ScopedMap`
 
 da
@@ -916,6 +936,11 @@ Client GQL Link implementation in:
 
 // TODO: retrive hash, updatedAt and maxAge in resolvers.
 
+## Logging Extension
+
+## Map Error Extension
+
+
 ## Custom Extensions
 
 To create a custom extension you can extend `GraphQLExtension` and override the necessary functions, all of which are executed throught a request's parsing, validation and execution.
@@ -939,7 +964,7 @@ Create a `GraphQLSchema` from a GraphQL Schema Definition String.
 
 ### `printSchema`
 
-Trasform a `GraphQLSchema` into a GraphQL Schema Definition String.
+Transform a `GraphQLSchema` into a String in the GraphQL Schema Definition Language (SDL).
 
 ### `mergeSchema`
 
