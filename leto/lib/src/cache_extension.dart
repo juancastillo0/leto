@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:clock/clock.dart';
 import 'package:collection/collection.dart';
-import 'package:crypto/crypto.dart' show sha1, sha256;
+import 'package:crypto/crypto.dart' show sha1;
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 

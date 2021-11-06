@@ -15,20 +15,24 @@ Map<String, Object?> persistedQueryExtension(String? sha256Hash) {
 }
 
 void main() {
-  final scope = ScopedMap.empty();
-  final data = tasksRef.get(scope).tasks;
+  late ScopedMap scope;
+  late LruCacheSimple<String, DocumentNode> queriesCache;
+  late GraphQL executor;
 
-  final queriesCache = LruCacheSimple<String, DocumentNode>(10);
-  final executor = GraphQL(
-    tasksSchema,
-    extensions: [
-      GraphQLPersistedQueries(
-        returnHashInResponse: true,
-        cache: queriesCache,
-      ),
-      CacheExtension(),
-    ],
-  );
+  setUp(() {
+    scope = ScopedMap.empty();
+    queriesCache = LruCacheSimple(10);
+    executor = GraphQL(
+      tasksSchema,
+      extensions: [
+        GraphQLPersistedQueries(
+          returnHashInResponse: true,
+          cache: queriesCache,
+        ),
+        CacheExtension(),
+      ],
+    );
+  });
 
   Future<Map<String, Object?>> _exec(
     String query, {
@@ -46,7 +50,9 @@ void main() {
   }
 
   test('persisted query with cache', () async {
-    final dataHash = sha1.convert(utf8.encode(json.encode(data))).toString();
+    final dataHash = sha1
+        .convert(utf8.encode(json.encode(tasksRef.get(scope).tasks)))
+        .toString();
 
     final jsonResp = await _exec(
       query,
@@ -102,6 +108,8 @@ void main() {
       }
     });
     expect(queriesCache.map.length, 1);
+
+    final data = tasksRef.get(scope).tasks;
 
     final firstAssignedToHash =
         sha1.convert(utf8.encode(json.encode(data[0].assignedTo))).toString();
