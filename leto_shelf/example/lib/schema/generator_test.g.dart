@@ -282,7 +282,8 @@ _$_EventUnionAdd _$$_EventUnionAddFromJson(Map<String, dynamic> json) =>
           ?.map((e) => DateTime.parse(e as String))
           .toList(),
       models: (json['models'] as List<dynamic>)
-          .map((e) => TestModel.fromJson(e as Map<String, dynamic>))
+          .map((e) =>
+              e == null ? null : TestModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

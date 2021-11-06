@@ -280,7 +280,7 @@ DBEvent _$DBEventFromJson(Map<String, dynamic> json) => DBEvent(
       id: json['id'] as int,
       userId: json['userId'] as int,
       sessionId: json['sessionId'] as String,
-      type: _$enumDecode(_$EventTypeEnumMap, json['type']),
+      type: $enumDecode(_$EventTypeEnumMap, json['type']),
       data: DBEventData.fromJson(json['data'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -293,32 +293,6 @@ Map<String, dynamic> _$DBEventToJson(DBEvent instance) => <String, dynamic>{
       'data': instance.data,
       'createdAt': instance.createdAt.toIso8601String(),
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
 
 const _$EventTypeEnumMap = {
   EventType.chatCreated: 'chatCreated',
