@@ -2,17 +2,32 @@
 
 <div style="text-align: center">
 <hr>
-<a href="https://pub.dartlang.org/packages/leto" rel="nofollow">
-  <img src="https://img.shields.io/pub/v/leto.svg" alt="Pub" data-canonical-src="https://img.shields.io/pub/v/leto.svg" style="max-width:100%;">
+<a href="https://pub.dartlang.org/packages/leto">
+  <img src="https://img.shields.io/pub/v/leto.svg" alt="Pub package">
 </a>
+
 <a href="https://codecov.io/gh/juancastillo0/leto">
-  <img src="https://codecov.io/gh/juancastillo0/leto/branch/main/graph/badge.svg?token=QJLQSCIJ42"/>
+  <img src="https://codecov.io/gh/juancastillo0/leto/branch/main/graph/badge.svg?token=QJLQSCIJ42" alt="Code coverage"/>
 </a>
+
 <a href="https://github.com/juancastillo0/leto/actions/workflows/test.yaml">
-  <img src="https://img.shields.io/github/checks-status/juancastillo0/leto/main"/>
+  <img src="https://img.shields.io/github/checks-status/juancastillo0/leto/main" alt="CI checks"/>
 </a>
+
 <a href="https://github.com/juancastillo0/leto/actions/workflows/test.yaml">
-  <img src="https://github.com/juancastillo0/leto/actions/workflows/test.yaml/badge.svg"/>
+  <img src="https://github.com/juancastillo0/leto/actions/workflows/test.yaml/badge.svg"  alt="CI tests"/>
+</a>
+
+<a href="https://pub.dev/packages/lint">
+  <img src="https://img.shields.io/badge/style-lint-4BC0F5.svg" alt="Lint" />
+</a>
+
+<a href="https://github.com/juancastillo0/leto/blob/main/LICENSE">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Leto is released under the MIT license." />
+</a>
+
+<a href="#contributing">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome" />
 </a>
 
 </div>
