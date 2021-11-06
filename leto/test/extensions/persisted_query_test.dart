@@ -1,10 +1,12 @@
 import 'dart:convert' show json, utf8;
 
-import 'package:crypto/crypto.dart' show sha1, sha256;
+import 'package:crypto/crypto.dart' show sha1;
 import 'package:leto/leto.dart';
 import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';
+
+import 'tasks_schema.dart';
 
 Map<String, Object?> persistedQueryExtension(String? sha256Hash) {
   return {
@@ -13,29 +15,18 @@ Map<String, Object?> persistedQueryExtension(String? sha256Hash) {
 }
 
 void main() {
-  final queryType = objectType(
-    'Query',
-    fields: [
-      getTasksGraphQLField,
-    ],
-  );
-  final schema = GraphQLSchema(
-    queryType: queryType,
-  );
-
   final scope = ScopedMap.empty();
   final data = tasksRef.get(scope).tasks;
 
   final queriesCache = LruCacheSimple<String, DocumentNode>(10);
   final executor = GraphQL(
-    schema,
+    tasksSchema,
     extensions: [
       GraphQLPersistedQueries(
         returnHashInResponse: true,
         cache: queriesCache,
       ),
       CacheExtension(),
-      // GraphQLTracingExtension(),
     ],
   );
 
@@ -57,23 +48,6 @@ void main() {
   test('persisted query with cache', () async {
     final dataHash = sha1.convert(utf8.encode(json.encode(data))).toString();
 
-    const query = '''
-{ getTasks {
-  id
-  name
-  description
-  image
-  weight
-  extra
-  createdTimestamp
-  assignedTo {
-    id
-    name
-  }
-} }
-''';
-
-    final queryHash = sha256.convert(utf8.encode(query)).toString();
     final jsonResp = await _exec(
       query,
       extensions: {
@@ -129,17 +103,6 @@ void main() {
     });
     expect(queriesCache.map.length, 1);
 
-    const query2 = '''
-{ getTasks {
-  id
-  assignedTo {
-    id
-    name
-  }
-} }
-''';
-
-    final query2Hash = sha256.convert(utf8.encode(query2)).toString();
     final firstAssignedToHash =
         sha1.convert(utf8.encode(json.encode(data[0].assignedTo))).toString();
     final firstTaskHash = sha1
@@ -203,5 +166,55 @@ void main() {
         },
       }
     });
+  });
+
+  test('persisted queries error', () async {
+    final result = await _exec(
+      query,
+      extensions: {
+        ...persistedQueryExtension('wrong-query-hash'),
+      },
+    );
+    expect(queriesCache.linkedList, isEmpty);
+    expect(result, {
+      'errors': [
+        {
+          'message': GraphQLPersistedQueries.PERSISTED_QUERY_HASH_MISMATCH,
+        }
+      ]
+    });
+    final result2 = await _exec(
+      '',
+      extensions: {
+        ...persistedQueryExtension(queryHash),
+      },
+    );
+    expect(queriesCache.linkedList, isEmpty);
+    expect(result2, {
+      'errors': [
+        {
+          'message': GraphQLPersistedQueries.PERSISTED_QUERY_NOT_FOUND,
+        }
+      ]
+    });
+    final result3 = await _exec(
+      query,
+      extensions: {
+        ...persistedQueryExtension(queryHash),
+      },
+    );
+    expect(queriesCache.linkedList.length, 1);
+    expect(
+      (result3['extensions'] as Map)['persistedQuery'],
+      {'sha256Hash': queryHash},
+    );
+    final result4 = await _exec(
+      query2,
+    );
+    expect(queriesCache.linkedList.length, 2);
+    expect(
+      result4['extensions'],
+      isNull,
+    );
   });
 }
