@@ -303,17 +303,18 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   );''' : ''}
   $_cacheGetter = __$fieldName;
   __$fieldName.fields.addAll(${literalList(
-      // deduplicate field names
-      Map.fromEntries(
-        fields
-            .where((e) => e.fieldAnnot.omit != true)
-            .map((e) => MapEntry(e.name, e)),
-      ).values.map((e) => e.expression(isInput: isInput))
-          // add union discriminant key
-          .followedBy([]
-              // TODO: should we generate this?
-              // [if (isUnion) refer(unionKeyName)],
-              ),
+      () {
+        // deduplicate field names
+        final _names = <String>{};
+        return fields
+            .where((e) => e.fieldAnnot.omit != true && _names.add(e.name))
+            .map((e) => e.expression(isInput: isInput))
+            // add union discriminant key
+            .followedBy([]
+                // TODO: should we generate this?
+                // [if (isUnion) refer(unionKeyName)],
+                );
+      }(),
     ).accept(DartEmitter())},);
 
   return __$fieldName;
