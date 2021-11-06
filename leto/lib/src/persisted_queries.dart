@@ -83,7 +83,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
               ? int.tryParse(_version)
               : null;
 
-      if (version == 1) {
+      if (version == 1 && persistedQuery['sha256Hash'] is String) {
         sha256Hash = persistedQuery['sha256Hash']! as String;
         final doc = cache.get(sha256Hash);
         if (doc != null) {

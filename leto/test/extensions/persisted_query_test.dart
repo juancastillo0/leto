@@ -6,7 +6,7 @@ import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';
 
-Map<String, Object?> persistedQueryExtension(String sha256Hash) {
+Map<String, Object?> persistedQueryExtension(String? sha256Hash) {
   return {
     'persistedQuery': {'version': 1, 'sha256Hash': sha256Hash}
   };
@@ -128,5 +128,80 @@ void main() {
       }
     });
     expect(queriesCache.map.length, 1);
+
+    const query2 = '''
+{ getTasks {
+  id
+  assignedTo {
+    id
+    name
+  }
+} }
+''';
+
+    final query2Hash = sha256.convert(utf8.encode(query2)).toString();
+    final firstAssignedToHash =
+        sha1.convert(utf8.encode(json.encode(data[0].assignedTo))).toString();
+    final firstTaskHash = sha1
+        .convert(utf8.encode(json.encode(
+          {'id': data[0].id, 'assignedTo': data[0].assignedTo},
+        )))
+        .toString();
+
+    final jsonResp3 = await _exec(
+      query2,
+      extensions: {
+        ...persistedQueryExtension(null),
+        'cacheResponse': {
+          'nested': {
+            'getTasks': {
+              'nested': {
+                '0': {
+                  'hash': 'wrong-value',
+                  'nested': {
+                    'assignedTo': {'hash': firstAssignedToHash}
+                  }
+                }
+              }
+            },
+          },
+        },
+      },
+    );
+    expect(queriesCache.map.length, 2);
+
+    expect(jsonResp3, {
+      'data': {
+        'getTasks': [
+          {
+            'id': data[0].id,
+            'assignedTo': null,
+          },
+          {
+            'id': data[1].id,
+            'assignedTo': data[1].assignedTo,
+          },
+        ]
+      },
+      'extensions': {
+        'persistedQuery': {'sha256Hash': query2Hash},
+        'cacheResponse': {
+          'hash': isA<String>(),
+          'nested': {
+            'getTasks': {
+              'hash': isA<String>(),
+              'nested': {
+                '0': {
+                  'hash': firstTaskHash,
+                  'nested': {
+                    'assignedTo': {'hash': firstAssignedToHash}
+                  }
+                }
+              }
+            },
+          },
+        },
+      }
+    });
   });
 }
