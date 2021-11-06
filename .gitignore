@@ -59,3 +59,4 @@ fabric.properties
 .vscode/launch.json
 .DS_Store
 chat_example/server/chat_room.sqlite
+coverage/

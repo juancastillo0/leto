@@ -1,3 +1,7 @@
+import 'package:leto_generator_example/test/exec_all_test.dart'
+    as exec_all_test;
+import 'package:leto_generator_example/test/generics_test.dart'
+    as generics_test;
 import 'package:leto_generator_example/test/input_test.dart' as input_test;
 import 'package:leto_generator_example/test/interface_test.dart'
     as interface_test;
@@ -11,4 +15,6 @@ void main() {
   union_test.main();
   schema_test.main();
   tasks_test.main();
+  generics_test.main();
+  exec_all_test.main();
 }
