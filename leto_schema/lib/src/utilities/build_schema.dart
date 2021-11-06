@@ -29,7 +29,7 @@ GraphQLSchema buildSchema(
         name: name,
         description: def.description?.value,
         specifiedByURL:
-            getDirectiveValue('specifiedByURL', 'url', def.directives, payload)
+            getDirectiveValue('specifiedBy', 'url', def.directives, payload)
                 as String?,
         serialize: (s) => s,
         deserialize: (_, s) => s,
@@ -125,12 +125,13 @@ GraphQLSchema buildSchema(
             ),
           )
         ]);
+        final List<NamedTypeNode> interfaces =
+            value.value is ObjectTypeDefinitionNode
+                ? (value.value as ObjectTypeDefinitionNode).interfaces
+                : (value.value as InterfaceTypeDefinitionNode).interfaces;
 
-        if (value.value is ObjectTypeDefinitionNode) {
-          for (final i
-              in (value.value as ObjectTypeDefinitionNode).interfaces) {
-            object.inheritFrom(types[i.name.value]!.key as GraphQLObjectType);
-          }
+        for (final i in interfaces) {
+          object.inheritFrom(types[i.name.value]!.key as GraphQLObjectType);
         }
       },
       input: (input) {

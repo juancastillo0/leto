@@ -52,8 +52,8 @@ interface WithId {
 }''',
   '''
 interface Named implements WithId {
-  id: ID!
   name: String!
+  id: ID!
 }''',
   '''
 interface WithCreated {
@@ -71,11 +71,11 @@ scalar Uri @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3986")'''
 type Task implements Named & WithId & WithCreated {
   id: ID!
   name: String!
-  createdTimestamp: Timestamp!
   description: String
   image: Uri!
   weight: Int!
   extra: Json
+  createdTimestamp: Timestamp!
   assignedTo: [User!]!
 }''',
   '''
