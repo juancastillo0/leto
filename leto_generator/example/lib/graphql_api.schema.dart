@@ -5,6 +5,7 @@ import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
+import 'package:leto_generator_example/arguments.dart';
 import 'package:leto_generator_example/generics.dart';
 
 final graphqlApiSchema = GraphQLSchema(
@@ -38,6 +39,7 @@ final graphqlApiSchema = GraphQLSchema(
       getNameGraphQLField,
       resultUnionObjectGraphQLField,
       resultUnionObjectErrGraphQLField,
+      testManyDefaultsGraphQLField,
     ],
   ),
   mutationType: objectType(
