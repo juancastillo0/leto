@@ -135,7 +135,7 @@ Future<FieldInfo> fieldFromElement(
         ? refer(annot.type!)
         : inferType(
             ctx.config.customTypes,
-            '',
+            method,
             method.name!,
             type,
             nullable: annot.nullable,
@@ -169,7 +169,7 @@ Future<FieldInfo> fieldFromParam(
         ? refer(annot.type!)
         : inferType(
             ctx.config.customTypes,
-            '',
+            param,
             param.name,
             param.type,
             nullable: annot.nullable,

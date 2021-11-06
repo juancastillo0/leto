@@ -71,7 +71,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
 
         final returnGqlType = inferType(
           config.customTypes,
-          element.name,
+          element,
           element.name,
           element.returnType,
           genericTypeName: genericTypeName,
@@ -123,7 +123,7 @@ Future<List<String>> inputsFromElement(
       final argInfo = argInfoFromElement(e);
       final type = inferType(
         ctx.config.customTypes,
-        element.name,
+        element,
         e.name,
         e.type,
         nullable: argInfo.inline,
@@ -133,8 +133,11 @@ Future<List<String>> inputsFromElement(
         // TODO; Check e.type is InputType?
         return '...$type.fields';
       } else {
+        final defaultValueCode = e.defaultValueCode ??
+            argInfo.defaultCode ??
+            argInfo.defaultFunc?.call() as String?;
         final defaultValue =
-            e.hasDefaultValue ? 'defaultValue: ${e.defaultValueCode},' : '';
+            defaultValueCode != null ? 'defaultValue: $defaultValueCode,' : '';
 
         final isInput = e.type.element != null && isInputType(e.type.element!);
 
@@ -150,8 +153,11 @@ Future<List<String>> inputsFromElement(
 GraphQLArg argInfoFromElement(Element element) {
   final argAnnot =
       const TypeChecker.fromRuntime(GraphQLArg).firstAnnotationOfExact(element);
+  final defaultFunc = argAnnot?.getField('defaultFunc')?.toFunctionValue();
   final argInfo = GraphQLArg(
     inline: argAnnot?.getField('inline')?.toBoolValue() ?? false,
+    defaultCode: argAnnot?.getField('defaultCode')?.toStringValue(),
+    defaultFunc: defaultFunc == null ? null : () => '${defaultFunc.name}()',
   );
   return argInfo;
 }

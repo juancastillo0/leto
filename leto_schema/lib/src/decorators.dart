@@ -96,8 +96,14 @@ class GraphQLClass extends GraphQLObjectDec {
 /// }
 /// ```
 class GraphQLArg {
-  const GraphQLArg({this.inline = false});
+  const GraphQLArg({
+    this.inline = false,
+    this.defaultCode,
+    this.defaultFunc,
+  });
   final bool inline;
+  final String? defaultCode;
+  final Object? Function()? defaultFunc;
 }
 
 /// An annotation for configuring a GraphQL field
@@ -127,8 +133,6 @@ class GraphQLField {
 abstract class GraphQLResolver {
   String? get name;
   String? get genericTypeName;
-
-  const GraphQLResolver._();
 }
 
 /// Signifies that a function should statically generate

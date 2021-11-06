@@ -99,13 +99,17 @@ bool isInputType(Element elem) {
 
 Expression inferType(
   List<CustomTypes> customTypes,
-  String className,
+  Element typeElement,
   String name,
   DartType type, {
   bool? nullable,
   String? genericTypeName,
   Map<String, TypeParameterElement>? generics,
 }) {
+  final docs = getDocumentation(typeElement);
+  if (docs?.typeName != null) {
+    return refer(docs!.typeName!.toString());
+  }
   // Next, check if this is the "id" field of a `Model`.
   // TODO:
   // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
@@ -117,7 +121,7 @@ Expression inferType(
   if (genericWhenAsync != null) {
     return inferType(
       customTypes,
-      className,
+      typeElement,
       name,
       genericWhenAsync,
       generics: generics,
@@ -153,7 +157,7 @@ Expression inferType(
     final arg = type.typeArguments[0];
     final inner = inferType(
       customTypes,
-      className,
+      typeElement,
       name,
       arg,
       generics: generics,
@@ -165,7 +169,7 @@ Expression inferType(
         ...type.typeArguments.map((e) {
           return inferType(
             customTypes,
-            className,
+            typeElement,
             name,
             e,
             generics: generics,
@@ -223,7 +227,7 @@ Expression inferType(
     }
 
     log.warning('Cannot infer the GraphQL type for '
-        'field $className.$name (type=$type).');
+        'field ${typeElement.name}.$name (type=$type).');
   }
   return _wrapNullability(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix'),

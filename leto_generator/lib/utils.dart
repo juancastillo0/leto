@@ -55,9 +55,13 @@ String? getDescription(
 GraphQLDocumentation? getDocumentation(Element element) {
   final annot = graphQLDocTypeChecker.firstAnnotationOfExact(element);
   if (annot != null) {
+    final typeFunc = annot.getField('type')?.toFunctionValue()?.name;
+    final typeName = annot.getField('typeName')?.toSymbolValue() ??
+        (typeFunc == null ? null : '$typeFunc()');
     return GraphQLDocumentation(
       description: annot.getField('description')?.toStringValue(),
       deprecationReason: annot.getField('deprecationReason')?.toStringValue(),
+      typeName: typeName == null ? null : Symbol(typeName),
     );
   }
 }
