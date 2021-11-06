@@ -2,7 +2,7 @@ import 'package:leto_schema/leto_schema.dart';
 
 part 'generics.g.dart';
 
-GraphQLType<Result<T, T2>, Map<String, Object?>> resultGraphQLType<T, T2>(
+GraphQLType<ResultV<T, T2>, Map<String, Object?>> resultVGraphQLType<T, T2>(
   GraphQLType<T, Object> t1,
   GraphQLType<T2, Object> t2, {
   String? name,
@@ -12,17 +12,17 @@ GraphQLType<Result<T, T2>, Map<String, Object?>> resultGraphQLType<T, T2>(
   final innerT2 =
       t2 is GraphQLNonNullType ? (t2 as GraphQLNonNullType).ofType : t2;
   return objectType(
-    name ?? 'Result${t1.printableName}${t2.printableName}',
+    name ?? 'ResultV${t1.printableName}${t2.printableName}',
     description: '$t1 when the operation was successful or'
         ' $t2 when an error was encountered.',
     fields: [
       innerT1.field(
         'ok',
-        resolve: (result, ctx) => result.isOk ? (result as Ok).value : null,
+        resolve: (result, ctx) => result.isOk ? (result as OkV).value : null,
       ),
       innerT2.field(
         'err',
-        resolve: (result, ctx) => result.isOk ? null : (result as Err).value,
+        resolve: (result, ctx) => result.isOk ? null : (result as ErrV).value,
       ),
       graphQLBoolean.nonNull().field(
             'isOk',
@@ -32,14 +32,14 @@ GraphQLType<Result<T, T2>, Map<String, Object?>> resultGraphQLType<T, T2>(
   );
 }
 
-abstract class Result<V, E> {
-  const Result();
+abstract class ResultV<V, E> {
+  const ResultV();
   bool get isOk;
 }
 
 @GraphQLClass()
-class Ok<V, E> extends Result<V, E> {
-  const Ok(this.value);
+class OkV<V, E> extends ResultV<V, E> {
+  const OkV(this.value);
 
   @override
   bool get isOk => true;
@@ -48,8 +48,8 @@ class Ok<V, E> extends Result<V, E> {
 }
 
 @GraphQLClass()
-class Err<V, E> extends Result<V, E> {
-  const Err(this.value);
+class ErrV<V, E> extends ResultV<V, E> {
+  const ErrV(this.value);
 
   @override
   bool get isOk => false;
@@ -116,37 +116,37 @@ class ErrCodeInterfaceNEE<T extends ErrCode> {
 }
 
 @Mutation()
-Result<int, String?> getInt() {
-  return const Ok(3);
+ResultV<int, String?> getInt() {
+  return const OkV(3);
 }
 
 @Mutation()
-Result<int, String> getIntReq() {
-  return const Ok(3);
+ResultV<int, String> getIntReq() {
+  return const OkV(3);
 }
 
 @Mutation()
-Result<int?, String?> getIntNull() {
-  return const Ok(null);
+ResultV<int?, String?> getIntNull() {
+  return const OkV(null);
 }
 
 @Mutation()
-Result<int?, ErrCodeInterface<String>> getIntInterface() {
-  return const Ok(null);
+ResultV<int?, ErrCodeInterface<String>> getIntInterface() {
+  return const OkV(null);
 }
 
 @Mutation()
-Result<int, ErrCodeInterface<ErrCodeType>> getIntInterfaceEnum() {
-  return const Err(ErrCodeInterface(ErrCodeType.code1));
+ResultV<int, ErrCodeInterface<ErrCodeType>> getIntInterfaceEnum() {
+  return const ErrV(ErrCodeInterface(ErrCodeType.code1));
 }
 
 @Mutation()
-Result<List<int?>, ErrCodeInterface<List<ErrCodeType>>>
+ResultV<List<int?>, ErrCodeInterface<List<ErrCodeType>>>
     getIntInterfaceEnumList() {
-  return const Err(ErrCodeInterface([ErrCodeType.code1]));
+  return const ErrV(ErrCodeInterface([ErrCodeType.code1]));
 }
 
 @Mutation(genericTypeName: 'LastGetIntResult')
-Result<int, ErrCodeInterfaceN<ErrCodeType?>> getIntInterfaceNEnumNull() {
-  return const Err(ErrCodeInterfaceN(ErrCodeType.code1));
+ResultV<int, ErrCodeInterfaceN<ErrCodeType?>> getIntInterfaceNEnumNull() {
+  return const ErrV(ErrCodeInterfaceN(ErrCodeType.code1));
 }

@@ -1,7 +1,8 @@
-// import 'package:leto_schema/leto_schema.dart';
-// import 'package:oxidized/oxidized.dart';
+import 'package:leto_generator_example/generics.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:oxidized/oxidized.dart';
 
-// part 'generics_oxidized.g.dart';
+part 'generics_oxidized.g.dart';
 
 // @Query()
 // Option<String> someValue() {
@@ -15,7 +16,7 @@
 
 // @Query()
 // Option<List<String>> someList() {
-//   return Some(['dw', 'caio']);
+//   return Some(['dw', 'cao']);
 // }
 
 // @Query()
@@ -28,37 +29,111 @@
 //   return Some([Some('dw'), const None()]);
 // }
 
-// abstract class ResultU<T extends Object, E extends Object>
-//     implements Result<T, E> {}
+const genericsOxidizedSchemaStr = [
+  '''
+type SuccessGet {
+  value: String!
+}''',
+  '''
+type UnionErrCode implements ErrCode {
+  id: Int!
+  value: String!
+}''',
+  '''
+type UnionErrCode implements ErrCode {
+  id: Int!
+  value: String!
+}''',
+  '''
+"""
+SuccessGet when the operation was successful or UnionErrCode when an error was encountered.
+"""
+union UnionObjectResult = SuccessGet | UnionErrCode''',
+  '''
+"""
+SuccessGet when the operation was successful or UnionErrCode when an error was encountered.
+"""
+union ResultUSuccessGetUnionErrCode = SuccessGet | UnionErrCode''',
+  '''
+  """resultUnionObject description"""
+  resultUnionObject: UnionObjectResult!''',
+  '''
+  """resultUnionObjectErr description"""
+  resultUnionObjectErrRenamed: ResultUSuccessGetUnionErrCode! @deprecated(reason: "use resultUnionObject")''',
+  '''
+  resultUnionObjectMutErrRenamed: ResultUSuccessGetUnionErrCode!''',
+];
 
-// class OkU<T extends Object, E extends Object> extends Ok<T, E>
-//     implements ResultU<T, E> {
-//   OkU(T s) : super(s);
-// }
+@GraphQLClass()
+class SuccessGet {
+  final String value;
 
-// class ErrU<T extends Object, E extends Object> extends Err<T, E>
-//     implements ResultU<T, E> {
-//   ErrU(E s) : super(s);
-// }
+  SuccessGet(this.value);
+}
 
-// GraphQLType<ResultU<T, T2>, Map<String, Object?>>
-//     resultUGraphQLType<T extends Object, T2 extends Object>(
-//   GraphQLType<T, Object> _t1,
-//   GraphQLType<T2, Object> _t2, {
-//   String? name,
-// }) {
-//   final t1 = (_t1 is GraphQLNonNullType
-//       ? (_t1 as GraphQLNonNullType).ofType
-//       : _t1) as GraphQLObjectType;
-//   final t2 = (_t2 is GraphQLNonNullType
-//       ? (_t2 as GraphQLNonNullType).ofType
-//       : _t2) as GraphQLObjectType;
-//   return GraphQLUnionType(
-//     name ?? 'ResultU${t1.name}${t2.name}',
-//     [t1, t2],
-//     description: '${t1.name} when the operation was successful or'
-//         ' ${t2.name} when an error was encountered.',
-//     extractInner: (result) => result.when(ok: (ok) => ok, err: (err) => err),
-//     resolveType: (result, union, ctx) => result is Err ? t2.name : t1.name,
-//   );
-// }
+@GraphQLClass()
+class UnionErrCode implements ErrCode {
+  @override
+  final int id;
+  @override
+  final String value;
+
+  UnionErrCode(this.id, this.value);
+}
+
+@GraphQLDocumentation(description: 'resultUnionObject description')
+@Query(genericTypeName: 'UnionObjectResult')
+ResultU<SuccessGet, UnionErrCode> resultUnionObject() {
+  return OkU(SuccessGet('success'));
+}
+
+@GraphQLDocumentation(
+  deprecationReason: 'use resultUnionObject',
+  description: 'resultUnionObjectErr description',
+)
+@Query(name: 'resultUnionObjectErrRenamed')
+ResultU<SuccessGet, UnionErrCode> resultUnionObjectErr() {
+  return ErrU(UnionErrCode(0, 'msj'));
+}
+
+@Mutation(name: 'resultUnionObjectMutErrRenamed')
+ResultU<SuccessGet, UnionErrCode> resultUnionObjectMutErr() {
+  return ErrU(UnionErrCode(0, 'msj'));
+}
+
+abstract class ResultU<T extends Object, E extends Object>
+    implements
+        // ignore: avoid_implementing_value_types
+        Result<T, E> {}
+
+class OkU<T extends Object, E extends Object> extends Ok<T, E>
+    implements ResultU<T, E> {
+  OkU(T s) : super(s);
+}
+
+class ErrU<T extends Object, E extends Object> extends Err<T, E>
+    implements ResultU<T, E> {
+  ErrU(E s) : super(s);
+}
+
+GraphQLType<ResultU<T, T2>, Map<String, Object?>>
+    resultUGraphQLType<T extends Object, T2 extends Object>(
+  GraphQLType<T, Object> _t1,
+  GraphQLType<T2, Object> _t2, {
+  String? name,
+}) {
+  final t1 = (_t1 is GraphQLNonNullType
+      ? (_t1 as GraphQLNonNullType).ofType
+      : _t1) as GraphQLObjectType;
+  final t2 = (_t2 is GraphQLNonNullType
+      ? (_t2 as GraphQLNonNullType).ofType
+      : _t2) as GraphQLObjectType;
+  return GraphQLUnionType(
+    name ?? 'ResultU${t1.name}${t2.name}',
+    [t1, t2],
+    description: '${t1.name} when the operation was successful or'
+        ' ${t2.name} when an error was encountered.',
+    extractInner: (result) => result.when(ok: (ok) => ok, err: (err) => err),
+    resolveType: (result, union, ctx) => result is Err ? t2.name : t1.name,
+  );
+}
