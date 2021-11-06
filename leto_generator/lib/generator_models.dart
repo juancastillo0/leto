@@ -24,13 +24,13 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
   );
 
   return [
-    ...clazz.interfaces.expand((m) => fieldsFromClass(m.element, ctx)),
-    if (clazz.supertype != null)
-      ...fieldsFromClass(clazz.supertype!.element, ctx),
-    ...clazz.fields.map((m) => fieldFromElement(m, m.type, ctx, generics)),
     ...clazz.methods
         .where((method) => method.name != 'toJson' && method.name != 'fromJson')
-        .map((m) => fieldFromElement(m, m.returnType, ctx, generics))
+        .map((m) => fieldFromElement(m, m.returnType, ctx, generics)),
+    ...clazz.fields.map((m) => fieldFromElement(m, m.type, ctx, generics)),
+    if (clazz.supertype != null)
+      ...fieldsFromClass(clazz.supertype!.element, ctx),
+    ...clazz.interfaces.expand((m) => fieldsFromClass(m.element, ctx)),
   ];
 }
 

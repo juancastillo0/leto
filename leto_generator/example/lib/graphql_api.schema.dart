@@ -1,5 +1,6 @@
 // ignore: depend_on_referenced_packages
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
@@ -8,6 +9,8 @@ import 'package:leto_generator_example/generics.dart';
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
     ..addAll([
+      taskSerializer,
+      userSerializer,
       inputMSerializer,
       inputMNSerializer,
       inputJsonSerdeSerializer,
@@ -24,6 +27,7 @@ final graphqlApiSchema = GraphQLSchema(
   queryType: objectType(
     'Query',
     fields: [
+      getTasksGraphQLField,
       testInputGenGraphQLField,
       queryMultipleParamsGraphQLField,
       returnFiveFromFreezedInputGraphQLField,
@@ -37,6 +41,7 @@ final graphqlApiSchema = GraphQLSchema(
   mutationType: objectType(
     'Mutation',
     fields: [
+      addTaskGraphQLField,
       getIntGraphQLField,
       getIntReqGraphQLField,
       getIntNullGraphQLField,
@@ -49,6 +54,8 @@ final graphqlApiSchema = GraphQLSchema(
   ),
   subscriptionType: objectType(
     'Subscription',
-    fields: [],
+    fields: [
+      onAddTaskGraphQLField,
+    ],
   ),
 );
