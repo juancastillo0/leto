@@ -17,10 +17,9 @@ final GraphQLObjectField<int, Object, Object>
         ctx, (args["input"] as FreezedSingleInput));
   },
   inputs: [
-    GraphQLFieldInput(
-      "input",
-      freezedSingleInputGraphQLType.nonNull(),
-    )
+    freezedSingleInputGraphQLType.nonNull().inputField(
+          "input",
+        )
   ],
 );
 
@@ -67,10 +66,9 @@ final GraphQLObjectField<NestedInterface, Object, Object>
     return getNestedInterfaceImplByIndex(ctx, (args["index"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "index",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "index",
+        )
   ],
 );
 

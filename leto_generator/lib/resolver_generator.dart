@@ -142,8 +142,8 @@ Future<List<String>> inputsFromElement(
         final isInput = e.type.element != null && isInputType(e.type.element!);
 
         final docs = await documentationOfParameter(e, ctx.buildStep);
-        return 'GraphQLFieldInput("${e.name}",'
-            ' $type${isInput ? '' : '.coerceToInputObject()'},'
+        return '$type${isInput ? '' : '.coerceToInputObject()'}.inputField('
+            ' "${e.name}",'
             ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
       }
     }

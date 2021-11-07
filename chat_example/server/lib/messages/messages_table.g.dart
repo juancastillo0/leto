@@ -17,18 +17,15 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
         (args["message"] as String), (args["referencedMessageId"] as int?));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "message",
-      graphQLString.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "referencedMessageId",
-      graphQLInt.coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        ),
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "message",
+        ),
+    graphQLInt.coerceToInputObject().inputField(
+          "referencedMessageId",
+        )
   ],
 );
 
@@ -45,23 +42,19 @@ final GraphQLObjectField<ChatMessage, Object, Object>
         message: (args["message"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "file",
-      Upload.graphQLType().nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "referencedMessageId",
-      graphQLInt.coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "message",
-      graphQLString.nonNull().coerceToInputObject(),
-      defaultValue: '',
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        ),
+    Upload.graphQLType().nonNull().coerceToInputObject().inputField(
+          "file",
+        ),
+    graphQLInt.coerceToInputObject().inputField(
+          "referencedMessageId",
+        ),
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "message",
+          defaultValue: '',
+        )
   ],
 );
 
@@ -75,10 +68,9 @@ final GraphQLObjectField<List<ChatMessage>, Object, Object>
     return getMessage(ctx, (args["chatId"] as int?));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.coerceToInputObject(),
-    )
+    graphQLInt.coerceToInputObject().inputField(
+          "chatId",
+        )
   ],
 );
 
@@ -92,10 +84,9 @@ final GraphQLObjectField<LinksMetadata, Object, Object>
     return getMessageLinksMetadata((args["message"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "message",
-      graphQLString.nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "message",
+        )
   ],
 );
 
@@ -109,10 +100,9 @@ final GraphQLObjectField<List<ChatMessage>, Object, Object>
     return onMessageSent(ctx, (args["chatId"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        )
   ],
 );
 

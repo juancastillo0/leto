@@ -26,10 +26,9 @@ final GraphQLObjectField<bool, Object, Object> addTaskGraphQLField = field(
     return addTask(ctx, (args["task"] as Task));
   },
   inputs: [
-    GraphQLFieldInput(
-      "task",
-      taskGraphQLType.nonNull().coerceToInputObject(),
-    )
+    taskGraphQLType.nonNull().coerceToInputObject().inputField(
+          "task",
+        )
   ],
 );
 

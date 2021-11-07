@@ -27,11 +27,10 @@ final GraphQLObjectField<bool, Object, Object> setStateGraphQLField = field(
     return setState(ctx, (args["newState"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "newState",
-      graphQLString.nonNull().coerceToInputObject(),
-      description: r"The new state, can't be 'WrongState'!.",
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "newState",
+          description: r"The new state, can't be 'WrongState'!.",
+        )
   ],
 );
 

@@ -17,18 +17,15 @@ final GraphQLObjectField<ChatMessage, Object, Object> sendMessageGraphQLField =
         (args["message"] as String), (args["referencedMessageId"] as int?));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "message",
-      graphQLString.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "referencedMessageId",
-      graphQLInt.coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        ),
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "message",
+        ),
+    graphQLInt.coerceToInputObject().inputField(
+          "referencedMessageId",
+        )
   ],
 );
 
@@ -42,10 +39,9 @@ final GraphQLObjectField<List<ChatMessage>, Object, Object>
     return getMessage(ctx, (args["chatId"] as int?));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.coerceToInputObject(),
-    )
+    graphQLInt.coerceToInputObject().inputField(
+          "chatId",
+        )
   ],
 );
 
@@ -59,10 +55,9 @@ final GraphQLObjectField<List<ChatMessage>, Object, Object>
     return onMessageSent(ctx, (args["chatId"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        )
   ],
 );
 
@@ -76,10 +71,9 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
     return createChatRoom(ctx, (args["name"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "name",
-      graphQLString.nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "name",
+        )
   ],
 );
 
@@ -104,10 +98,9 @@ final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
     return onMessageEvent(ctx, (args["type"] as EventType));
   },
   inputs: [
-    GraphQLFieldInput(
-      "type",
-      eventTypeGraphQLType.nonNull().coerceToInputObject(),
-    )
+    eventTypeGraphQLType.nonNull().coerceToInputObject().inputField(
+          "type",
+        )
   ],
 );
 

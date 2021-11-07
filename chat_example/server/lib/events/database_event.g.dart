@@ -37,14 +37,12 @@ final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
     return getEvents(ctx, (args["cursor"] as String?), (args["delta"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "cursor",
-      graphQLString.coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "delta",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLString.coerceToInputObject().inputField(
+          "cursor",
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "delta",
+        )
   ],
 );
 

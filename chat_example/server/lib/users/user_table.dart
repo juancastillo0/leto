@@ -301,6 +301,7 @@ class UserSession {
   final String? platform;
   final String? appVersion;
   final bool isActive;
+  final String? ipAddress;
   final DateTime createdAt;
   final DateTime? endedAt;
 
@@ -309,6 +310,7 @@ class UserSession {
     required this.userId,
     required this.isActive,
     required this.createdAt,
+    this.ipAddress,
     this.userAgent,
     this.platform,
     this.appVersion,
@@ -326,11 +328,15 @@ class UserSession {
     final request = ctx.request;
     final webSocketConn = WebSocketConnCtx.fromCtx(ctx);
     final uuid = uuidBase64Url();
+    final connInfo =
+        request.context['shelf.io.connection_info'] as HttpConnectionInfo?;
+    final ipAddress = connInfo?.remoteAddress.host;
     return UserSession(
       isActive: true,
       createdAt: DateTime.now(),
       id: uuid,
       userId: userId,
+      ipAddress: ipAddress,
       userAgent: request.headers[HttpHeaders.userAgentHeader],
       platform: request.headers[platformKey] ?? webSocketConn?.platform,
       appVersion: request.headers[appversionKey] ?? webSocketConn?.appVersion,

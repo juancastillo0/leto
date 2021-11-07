@@ -27,22 +27,18 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
         value: (args["value"] as List<int>));
   },
   inputs: [
-    GraphQLFieldInput(
-      "realName",
-      graphQLString.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "previous",
-      testModelGraphQLType.coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "name",
-      graphQLString.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "value",
-      graphQLInt.nonNull().list().nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "realName",
+        ),
+    testModelGraphQLType.coerceToInputObject().inputField(
+          "previous",
+        ),
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "name",
+        ),
+    graphQLInt.nonNull().list().nonNull().coerceToInputObject().inputField(
+          "value",
+        )
   ],
 );
 
@@ -58,17 +54,15 @@ final GraphQLObjectField<List<TestModel>, Object, Object>
         position: (args["position"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "lessThan",
-      graphQLDate.nonNull().coerceToInputObject(),
-      description: r"pagination less than",
-    ),
-    GraphQLFieldInput(
-      "position",
-      graphQLInt.nonNull().coerceToInputObject(),
-      defaultValue: 0,
-      description: r"pagination",
-    )
+    graphQLDate.nonNull().coerceToInputObject().inputField(
+          "lessThan",
+          description: r"pagination less than",
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "position",
+          defaultValue: 0,
+          description: r"pagination",
+        )
   ],
 );
 
@@ -84,12 +78,11 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
     return testUnionModels(ctx, positions: (args["positions"] as List<int?>));
   },
   inputs: [
-    GraphQLFieldInput(
-      "positions",
-      graphQLInt.list().nonNull().coerceToInputObject(),
-      defaultValue: const [],
-      description: r"pagination",
-    )
+    graphQLInt.list().nonNull().coerceToInputObject().inputField(
+          "positions",
+          defaultValue: const [],
+          description: r"pagination",
+        )
   ],
 );
 

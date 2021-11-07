@@ -18,19 +18,16 @@ final GraphQLObjectField<ChatRoomUser, Object, Object>
         role: (args["role"] as ChatRoomUserRole));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "userId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "role",
-      chatRoomUserRoleGraphQLType.nonNull().coerceToInputObject(),
-      defaultValue: ChatRoomUserRole.peer,
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "userId",
+        ),
+    chatRoomUserRoleGraphQLType.nonNull().coerceToInputObject().inputField(
+          "role",
+          defaultValue: ChatRoomUserRole.peer,
+        )
   ],
 );
 
@@ -45,14 +42,12 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
         ctx, (args["chatId"] as int), (args["userId"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "chatId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "userId",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "chatId",
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "userId",
+        )
   ],
 );
 

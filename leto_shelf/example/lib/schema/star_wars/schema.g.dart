@@ -15,11 +15,10 @@ final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
     return droid((args["id"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "id",
-      graphQLId.nonNull().coerceToInputObject(),
-      description: r"id of the droid",
-    )
+    graphQLId.nonNull().coerceToInputObject().inputField(
+          "id",
+          description: r"id of the droid",
+        )
   ],
 );
 

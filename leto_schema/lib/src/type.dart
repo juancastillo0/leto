@@ -49,10 +49,7 @@ abstract class GraphQLType<Value, Serialized> {
     );
   }
 
-  // Value? cast(Value? value) {
-  //   return value;
-  // }
-
+  /// Returns a [GraphQLListType] with the inner type set to [this]
   GraphQLListType<Value?, Serialized> list() {
     return listOf(this);
   }
@@ -338,9 +335,7 @@ class _GraphQLNonNullListType<Value, Serialized>
 
   @override
   GraphQLType<List<Value>, List<Serialized?>> coerceToInputObject() =>
-      _GraphQLNonNullListType<Value, Serialized>(
-        ofType.coerceToInputObject() as GraphQLNonNullType<Value, Serialized>,
-      );
+      _GraphQLNonNullListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
 /// A special [GraphQLType] that indicates that input vales should
@@ -458,11 +453,6 @@ class GraphQLNonNullType<Value, Serialized>
   GraphQLNonNullType<Value, Serialized> nonNull() => this;
 
   @override
-  GraphQLListType<Value, Serialized> list() {
-    return _GraphQLNonNullListType(this);
-  }
-
-  @override
   ValidationResult<Serialized> validate(String key, Object? input) {
     if (input == null)
       return ValidationResult.failure(
@@ -490,8 +480,13 @@ class GraphQLNonNullType<Value, Serialized>
   Iterable<Object?> get props => [ofType];
 
   @override
-  GraphQLType<Value, Serialized> coerceToInputObject() {
+  GraphQLNonNullType<Value, Serialized> coerceToInputObject() {
     return ofType.coerceToInputObject().nonNull();
+  }
+
+  @override
+  GraphQLListType<Value, Serialized> list() {
+    return _GraphQLNonNullListType(this);
   }
 
   /// Utility for creating an [GraphQLObjectField] with [type] == this
@@ -516,6 +511,23 @@ class GraphQLNonNullType<Value, Serialized>
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
+    );
+  }
+
+  /// Shorthand for generating a [GraphQLFieldInput].
+  GraphQLFieldInput<Value, Serialized> inputField(
+    String name, {
+    String? description,
+    Value? defaultValue,
+    String? deprecationReason,
+  }) {
+    return GraphQLFieldInput(
+      name,
+      this,
+      description: description,
+      deprecationReason: deprecationReason,
+      defaultValue: defaultValue,
+      defaultsToNull: false,
     );
   }
 }

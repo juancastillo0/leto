@@ -143,4 +143,22 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
       deprecationReason: deprecationReason,
     );
   }
+
+  /// Shorthand for generating a [GraphQLFieldInput].
+  GraphQLFieldInput<V, S> inputField(
+    String name, {
+    String? description,
+    V? defaultValue,
+    String? deprecationReason,
+    bool defaultsToNull = false,
+  }) {
+    return GraphQLFieldInput(
+      name,
+      this,
+      description: description,
+      deprecationReason: deprecationReason,
+      defaultValue: defaultValue,
+      defaultsToNull: defaultsToNull,
+    );
+  }
 }

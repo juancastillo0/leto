@@ -59,9 +59,10 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
           ' object types you are passing as inputs to a field.',
         ),
         assert(
-            !defaultsToNull || (type.isNullable && defaultValue == null),
-            'If defaultValue is true, type $type should be nullable'
-            ' and default value $defaultValue should be null');
+          !defaultsToNull || (type.isNullable && defaultValue == null),
+          'If defaultsToNull is true, type $type should be nullable'
+          ' and default value $defaultValue should be null',
+        );
 
   @override
   bool operator ==(Object other) =>

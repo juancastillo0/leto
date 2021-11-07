@@ -16,10 +16,9 @@ final GraphQLObjectField<List<User>, Object, Object> searchUserGraphQLField =
     return searchUser(ctx, (args["name"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "name",
-      graphQLString.nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "name",
+        )
   ],
 );
 
@@ -58,14 +57,12 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
     return signUp(ctx, (args["name"] as String), (args["password"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "name",
-      graphQLString.nonNull().coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "password",
-      graphQLString.nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "name",
+        ),
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "password",
+        )
   ],
 );
 
@@ -84,14 +81,12 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
         ctx, (args["name"] as String?), (args["password"] as String?));
   },
   inputs: [
-    GraphQLFieldInput(
-      "name",
-      graphQLString.coerceToInputObject(),
-    ),
-    GraphQLFieldInput(
-      "password",
-      graphQLString.coerceToInputObject(),
-    )
+    graphQLString.coerceToInputObject().inputField(
+          "name",
+        ),
+    graphQLString.coerceToInputObject().inputField(
+          "password",
+        )
   ],
 );
 
@@ -279,6 +274,7 @@ GraphQLObjectType<UserSession> get userSessionGraphQLType {
       field('appVersion', graphQLString, resolve: (obj, ctx) => obj.appVersion),
       field('isActive', graphQLBoolean.nonNull(),
           resolve: (obj, ctx) => obj.isActive),
+      field('ipAddress', graphQLString, resolve: (obj, ctx) => obj.ipAddress),
       field('createdAt', graphQLDate.nonNull(),
           resolve: (obj, ctx) => obj.createdAt),
       field('endedAt', graphQLDate, resolve: (obj, ctx) => obj.endedAt)
@@ -411,6 +407,7 @@ UserSession _$UserSessionFromJson(Map<String, dynamic> json) => UserSession(
       userId: json['userId'] as int,
       isActive: json['isActive'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      ipAddress: json['ipAddress'] as String?,
       userAgent: json['userAgent'] as String?,
       platform: json['platform'] as String?,
       appVersion: json['appVersion'] as String?,
@@ -427,6 +424,7 @@ Map<String, dynamic> _$UserSessionToJson(UserSession instance) =>
       'platform': instance.platform,
       'appVersion': instance.appVersion,
       'isActive': instance.isActive,
+      'ipAddress': instance.ipAddress,
       'createdAt': instance.createdAt.toIso8601String(),
       'endedAt': instance.endedAt?.toIso8601String(),
     };

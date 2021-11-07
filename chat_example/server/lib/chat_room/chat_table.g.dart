@@ -16,10 +16,9 @@ final GraphQLObjectField<ChatRoom, Object, Object> createChatRoomGraphQLField =
     return createChatRoom(ctx, (args["name"] as String));
   },
   inputs: [
-    GraphQLFieldInput(
-      "name",
-      graphQLString.nonNull().coerceToInputObject(),
-    )
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "name",
+        )
   ],
 );
 
@@ -33,10 +32,9 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomGraphQLField =
     return deleteChatRoom(ctx, (args["id"] as int));
   },
   inputs: [
-    GraphQLFieldInput(
-      "id",
-      graphQLInt.nonNull().coerceToInputObject(),
-    )
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "id",
+        )
   ],
 );
 
