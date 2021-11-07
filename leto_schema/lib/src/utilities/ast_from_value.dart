@@ -4,6 +4,9 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/utilities/print_schema.dart';
 import 'package:source_span/source_span.dart' show FileSpan;
 
+/// Returns an GraphQL Ast node from a Dart [value], given the [value]'s [type]
+///
+/// throws [ArgumentError] if [type] is not a GraphQL input type.
 ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
   if (type is GraphQLNonNullType) {
     final astNode = astFromValue(value, type.ofType);
@@ -56,8 +59,6 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
     },
     object: (object) {
       throw ArgumentError('astFromValue can only be called with input types.');
-      // TODO: should we support this?
-      // return astFromObject(object.serializeSafe(value), object.fields);
     },
     union: (union) {
       throw ArgumentError('astFromValue can only be called with input types.');
@@ -74,6 +75,9 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
   );
 }
 
+/// Returns a Dart value from a GraphQL Ast node, given the [value]'s [type]
+///
+/// throws [GraphQLError] if there is an error in validation or parsing.
 Object? valueFromAst(
   GraphQLType? type,
   ast.ValueNode node,

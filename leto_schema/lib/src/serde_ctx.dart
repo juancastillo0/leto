@@ -1,6 +1,6 @@
 part of leto_schema.src.schema;
 
-/// Deserialization context with [Serializer]s for creating
+/// De-serialization context with [Serializer]s for creating
 /// objects from serialized values
 class SerdeCtx {
   SerdeCtx();
@@ -272,10 +272,10 @@ class _SerializerIdentity<T> extends Serializer<T> {
     return json as T;
   }
 
-  @override
-  Object? toJson(T instance) {
-    return instance;
-  }
+  // @override
+  // Object? toJson(T instance) {
+  // return instance;
+  // }
 }
 
 class _SerializerDateTime extends Serializer<DateTime> {
@@ -291,10 +291,10 @@ class _SerializerDateTime extends Serializer<DateTime> {
     throw Error();
   }
 
-  @override
-  Object? toJson(DateTime instance) {
-    return instance.toIso8601String();
-  }
+  // @override
+  // Object? toJson(DateTime instance) {
+  // return instance.toIso8601String();
+  // }
 }
 
 class _SerializerUri extends Serializer<Uri> {
@@ -308,8 +308,8 @@ class _SerializerUri extends Serializer<Uri> {
     throw Error();
   }
 
-  @override
-  Object? toJson(Uri instance) => instance.toString();
+  // @override
+  // Object? toJson(Uri instance) => instance.toString();
 }
 
 // class SerializerFuncGeneric<T extends SerializableGeneric<S>, S>

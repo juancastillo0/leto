@@ -1,5 +1,8 @@
 import 'package:leto_schema/leto_schema.dart';
 
+/// Returns a List of all types in the [schema]
+///
+/// May throw if there are different types with the same name.
 List<GraphQLType> fetchAllTypes(
   GraphQLSchema schema,
   List<GraphQLType> specifiedTypes,

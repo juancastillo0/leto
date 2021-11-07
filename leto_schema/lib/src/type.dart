@@ -155,7 +155,6 @@ abstract class GraphQLType<Value, Serialized> {
   String toString() => name!;
 
   /// Utility for working with the [Value] Generic type
-  // GenericHelpWithExtends<Value, Object> get generic => GenericHelpWithExtends();
   GenericHelp<Value> get generic => GenericHelp();
 
   /// true when the type can not be null
