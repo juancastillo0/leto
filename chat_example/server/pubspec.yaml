@@ -14,6 +14,7 @@ dependencies:
   blurhash_dart: ^1.0.2
   metadata_fetch: ^0.4.1
   linkify: ^4.1.0
+  crypto:
 
   valida:
 
@@ -54,6 +55,11 @@ dev_dependencies:
     git:
       url: https://github.com/juancastillo0/query_builder
       path: query_builder_generator
+  
+  gql_exec:
+  gql_link:
+  gql_websocket_link:
+  gql:
 
 dependency_overrides:
   leto_generator:

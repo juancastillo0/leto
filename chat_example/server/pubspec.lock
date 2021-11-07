@@ -148,6 +148,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.4"
+  clock:
+    dependency: transitive
+    description:
+      name: clock
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   code_builder:
     dependency: transitive
     description:
@@ -177,7 +184,7 @@ packages:
     source: hosted
     version: "1.0.3"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       url: "https://pub.dartlang.org"
@@ -261,7 +268,7 @@ packages:
     source: hosted
     version: "2.0.2"
   gql:
-    dependency: "direct overridden"
+    dependency: "direct dev"
     description:
       path: gql
       ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
@@ -269,6 +276,27 @@ packages:
       url: "https://github.com/juancastillo0/gql"
     source: git
     version: "0.13.0"
+  gql_exec:
+    dependency: "direct dev"
+    description:
+      name: gql_exec
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
+  gql_link:
+    dependency: "direct dev"
+    description:
+      name: gql_link
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
+  gql_websocket_link:
+    dependency: "direct dev"
+    description:
+      name: gql_websocket_link
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.1"
   graphs:
     dependency: transitive
     description:
@@ -595,6 +623,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.0"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.26.0"
   sasl_scram:
     dependency: transitive
     description:
