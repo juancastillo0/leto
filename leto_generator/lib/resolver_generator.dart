@@ -123,7 +123,7 @@ Future<List<String>> inputsFromElement(
       final argInfo = argInfoFromElement(e);
       final type = inferType(
         ctx.config.customTypes,
-        element,
+        e,
         e.name,
         e.type,
         nullable: argInfo.inline,

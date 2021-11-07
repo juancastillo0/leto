@@ -54,14 +54,21 @@ String? getDescription(
 
 GraphQLDocumentation? getDocumentation(Element element) {
   final annot = graphQLDocTypeChecker.firstAnnotationOfExact(element);
+
   if (annot != null) {
     final typeFunc = annot.getField('type')?.toFunctionValue()?.name;
-    final typeName = annot.getField('typeName')?.toSymbolValue() ??
-        (typeFunc == null ? null : '$typeFunc()');
+    final _typeName = annot.getField('typeName')?.toStringValue();
+    final typeName = _typeName ?? (typeFunc == null ? null : '$typeFunc()');
+    if (typeFunc != null && _typeName != null) {
+      throw Exception(
+        "Can't have both type $typeFunc and typeName $_typeName set"
+        ' in $GraphQLDocumentation, please use only one of them.',
+      );
+    }
     return GraphQLDocumentation(
       description: annot.getField('description')?.toStringValue(),
       deprecationReason: annot.getField('deprecationReason')?.toStringValue(),
-      typeName: typeName == null ? null : Symbol(typeName),
+      typeName: typeName,
     );
   }
 }

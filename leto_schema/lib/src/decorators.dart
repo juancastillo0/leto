@@ -11,7 +11,8 @@ class GraphQLObjectDec {
 ///
 /// The class should have a `fromJson` constructor or static method.
 /// For generic type parameters, `fromJson` should have other positional
-/// parameters with functions that receive a Object? and return the generic type
+/// parameters with functions that receive an Object? and
+/// return an instance of the generic type
 @Target({TargetKind.classType})
 class GraphQLInput extends GraphQLObjectDec {
   const GraphQLInput();
@@ -226,8 +227,8 @@ class Subscription implements GraphQLResolver {
 /// Used to override the type inferred in code generation.
 typedef GraphQLTypeProvider = GraphQLType Function();
 
-/// A metadata annotation used to provide documentation to
-/// `package:leto`.
+/// A metadata annotation used to provide documentation and type information
+/// to `package:leto_generator` in code generation
 class GraphQLDocumentation {
   /// The description of the annotated class, field, or enum value, to be
   /// displayed in tools like GraphiQL.
@@ -242,7 +243,7 @@ class GraphQLDocumentation {
 
   /// The name of an explicit type for the annotated field, rather than
   /// having it be assumed.
-  final Symbol? typeName;
+  final String? typeName;
 
   const GraphQLDocumentation({
     this.description,
