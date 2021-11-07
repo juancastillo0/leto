@@ -20,7 +20,7 @@ targets:
           graphqlTypeSuffix: GraphQLType
           unionKeySuffix: Discriminant
           graphQLFieldSuffix: GraphQLField
-          nullableFields: true
+          nullableFields: false
           omitFields: false
           customTypes:
             - name: Decimal

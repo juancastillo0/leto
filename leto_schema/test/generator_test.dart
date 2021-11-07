@@ -1,5 +1,7 @@
 import 'package:leto_generator_example/test/arguments_test.dart'
     as arguments_test;
+import 'package:leto_generator_example/test/class_config_test.dart'
+    as class_config_test;
 import 'package:leto_generator_example/test/exec_all_test.dart'
     as exec_all_test;
 import 'package:leto_generator_example/test/generics_test.dart'
@@ -20,4 +22,5 @@ void main() {
   generics_test.main();
   exec_all_test.main();
   arguments_test.main();
+  class_config_test.main();
 }
