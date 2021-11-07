@@ -84,9 +84,9 @@ Future<void> main() async {
       (bodyMap['extensions']! as Map<String, Object?>)['tracing']!
           as Map<String, Object?>,
     );
-    final booksTrace = tracing.execution.resolvers.values.first;
+    final booksTrace = tracing.execution!.resolvers.values.first;
 
-    final nestedDur = tracing.execution.resolvers.values
+    final nestedDur = tracing.execution!.resolvers.values
         .skip(1)
         .fold<int>(0, (value, element) => value + element.duration);
     expect(booksTrace.duration, greaterThan(nestedDur));
