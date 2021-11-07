@@ -35,10 +35,12 @@ class GraphQLClass extends GraphQLObjectDec {
     this.interfaces = const [],
     this.omitFields,
     this.nullableFields,
+    this.name,
   });
   final List<String> interfaces;
   final bool? omitFields;
   final bool? nullableFields;
+  final String? name;
 }
 
 /// An annotation for configuring a [GraphQLFieldInput] within a resolver
@@ -116,13 +118,14 @@ class GraphQLArg {
 class GraphQLField {
   const GraphQLField({
     this.name,
-    this.omit,
-    this.nullable,
+    bool? omit,
+    bool? nullable,
     this.type,
-  });
+  })  : omit = omit ?? false,
+        nullable = nullable ?? false;
   final String? name;
-  final bool? omit;
-  final bool? nullable;
+  final bool omit;
+  final bool nullable;
   final String? type;
 }
 

@@ -32,12 +32,7 @@ List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
   if (isInputType(clazz)) {
     return [];
   }
-  final annot = graphQLClassTypeChecker.firstAnnotationOfExact(clazz);
-  final List<String> interfaces = annot!
-      .getField('interfaces')!
-      .toListValue()!
-      .map((i) => i.toStringValue()!)
-      .toList();
+  final List<String> interfaces = getClassConfig(ctx, clazz)?.interfaces ?? [];
   final superType = clazz.supertype;
 
   String getInterfaceName(ClassElement element) {
@@ -56,6 +51,24 @@ List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
           ? [refer(getInterfaceName(superType.element))]
           : [])
       .toList();
+}
+
+GraphQLClass? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
+  final annot = graphQLClassTypeChecker.firstAnnotationOfExact(clazz);
+  if (annot != null) {
+    return GraphQLClass(
+      interfaces: annot
+          .getField('interfaces')!
+          .toListValue()!
+          .map((i) => i.toStringValue()!)
+          .toList(),
+      name: annot.getField('name')?.toStringValue(),
+      nullableFields: annot.getField('nullableFields')?.toBoolValue() ??
+          ctx.config.nullableFields,
+      omitFields:
+          annot.getField('omitFields')?.toBoolValue() ?? ctx.config.omitFields,
+    );
+  }
 }
 
 bool isInterface(ClassElement clazz) {

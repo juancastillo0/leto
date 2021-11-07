@@ -23,11 +23,14 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
     clazz.typeParameters.map((e) => MapEntry(e.name, e)),
   );
 
+  final config = getClassConfig(ctx, clazz);
+
   return [
     ...clazz.methods
         .where((method) => method.name != 'toJson' && method.name != 'fromJson')
-        .map((m) => fieldFromElement(m, m.returnType, ctx, generics)),
-    ...clazz.fields.map((m) => fieldFromElement(m, m.type, ctx, generics)),
+        .map((m) => fieldFromElement(config, m, m.returnType, ctx, generics)),
+    ...clazz.fields
+        .map((m) => fieldFromElement(config, m, m.type, ctx, generics)),
     if (clazz.supertype != null)
       ...fieldsFromClass(clazz.supertype!.element, ctx),
     ...clazz.interfaces.expand((m) => fieldsFromClass(m.element, ctx)),
@@ -42,6 +45,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
       clazz.constructors.where(isFreezedVariantConstructor).length > 1;
   final className = ReCase(clazz.name).pascalCase;
   final _unionClassFields = fieldsFromClass(clazz, ctx);
+  final classConfig = getClassConfig(ctx, clazz);
 
   return Future.wait(
       clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
@@ -56,6 +60,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
       isUnion: isUnion,
       interfaces: getGraphQLInterfaces(ctx, clazz),
       hasFromJson: hasFromJson(clazz),
+      classConfig: classConfig,
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
@@ -64,19 +69,19 @@ Future<List<UnionVarianInfo>> freezedVariants(
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
         con.parameters
-            .map((p) => fieldFromParam(ctx, p))
+            .map((p) => fieldFromParam(ctx, classConfig, p))
             .followedBy(_unionClassFields),
       ),
     );
   }));
 }
 
-GraphQLField getFieldAnnot(Element e) {
+GraphQLField getFieldAnnot(GraphQLClass? clazz, Element e) {
   const graphQLFieldTypeChecker = TypeChecker.fromRuntime(GraphQLField);
   DartObject? _annot;
   if (!graphQLFieldTypeChecker.hasAnnotationOf(e, throwOnUnresolved: false)) {
     if (e is FieldElement && e.getter != null) {
-      return getFieldAnnot(e.getter!);
+      return getFieldAnnot(clazz, e.getter!);
     } else if (e is ParameterElement) {
       _annot = e.metadata.firstWhereOrNull(
         (element) {
@@ -84,25 +89,25 @@ GraphQLField getFieldAnnot(Element e) {
           return type != null && graphQLFieldTypeChecker.isExactlyType(type);
         },
       )?.computeConstantValue();
-    }
-    if (_annot == null) {
-      return const GraphQLField();
+      // if (_annot == null) {
+      //   return const GraphQLField();
+      // }
     }
   }
   final annot = graphQLFieldTypeChecker.firstAnnotationOf(
     e,
     throwOnUnresolved: false,
-  )!;
+  );
 
-  final name = annot.getField('name')?.toStringValue();
-  final omit = annot.getField('omit')?.toBoolValue();
-  final nullable = annot.getField('nullable')?.toBoolValue();
-  final type = annot.getField('type')?.toStringValue();
+  final name = annot?.getField('name')?.toStringValue();
+  final omit = annot?.getField('omit')?.toBoolValue();
+  final nullable = annot?.getField('nullable')?.toBoolValue();
+  final type = annot?.getField('type')?.toStringValue();
 
   return GraphQLField(
     name: name,
-    omit: omit,
-    nullable: nullable,
+    omit: omit ?? clazz?.omitFields,
+    nullable: nullable ?? clazz?.nullableFields,
     type: type,
   );
 }
@@ -124,12 +129,13 @@ bool isFreezedVariantConstructor(ConstructorElement con) =>
 // }
 
 Future<FieldInfo> fieldFromElement(
+  GraphQLClass? clazz,
   Element method,
   DartType type,
   GeneratorCtx ctx,
   Map<String, TypeParameterElement> generics,
 ) async {
-  final annot = getFieldAnnot(method);
+  final annot = getFieldAnnot(clazz, method);
   return FieldInfo(
     gqlType: annot.type != null
         ? refer(annot.type!)
@@ -160,9 +166,10 @@ Future<FieldInfo> fieldFromElement(
 
 Future<FieldInfo> fieldFromParam(
   GeneratorCtx ctx,
+  GraphQLClass? clazz,
   ParameterElement param,
 ) async {
-  final annot = getFieldAnnot(param);
+  final annot = getFieldAnnot(clazz, param);
 
   return FieldInfo(
     gqlType: annot.type != null
@@ -209,6 +216,7 @@ class UnionVarianInfo {
   final String? description;
   final String? deprecationReason;
   final List<FieldInfo> fields;
+  final GraphQLClass? classConfig;
   final bool isInterface;
   final bool hasFromJson;
   final List<Expression> interfaces;
@@ -222,6 +230,7 @@ class UnionVarianInfo {
     required this.constructorName,
     required this.unionName,
     required this.fields,
+    required this.classConfig,
     required this.description,
     required this.deprecationReason,
     required this.isInterface,
@@ -323,7 +332,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   }
 
   String get graphQLTypeName =>
-      '${removeTrailingUnder(typeName)}${typeParams.map((t) {
+      '${classConfig?.name ?? removeTrailingUnder(typeName)}${typeParams.map((t) {
         final _t = t.displayName;
         final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
         return '\${$ts.printableName}';
