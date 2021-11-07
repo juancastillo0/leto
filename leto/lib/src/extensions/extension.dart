@@ -6,6 +6,8 @@ import 'package:leto_schema/leto_schema.dart';
 export 'package:gql/ast.dart' show DocumentNode;
 
 export 'cache_extension.dart';
+export 'logging_extension.dart';
+export 'map_error_extension.dart';
 export 'persisted_queries.dart';
 export 'tracing.dart';
 

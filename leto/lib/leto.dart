@@ -10,7 +10,7 @@ import 'package:leto_schema/utilities.dart'
 import 'package:source_span/source_span.dart';
 
 import 'introspection.dart';
-import 'src/extension.dart';
+import 'src/extensions/extension.dart';
 import 'src/graphql_result.dart';
 
 export 'package:leto_schema/leto_schema.dart'
@@ -22,7 +22,7 @@ export 'package:leto_schema/leto_schema.dart'
         RefWithDefault,
         GlobalsHolder;
 
-export 'src/extension.dart';
+export 'src/extensions/extension.dart';
 export 'src/graphql_result.dart';
 
 class GraphQLConfig {

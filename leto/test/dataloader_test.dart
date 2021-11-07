@@ -9,7 +9,6 @@
 import 'dart:async';
 
 import 'package:leto/dataloader.dart';
-import 'package:leto/src/persisted_queries.dart';
 import 'package:test/test.dart';
 
 _Loader<K, K> idLoader<K extends Object>([

@@ -9,7 +9,6 @@ import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
 import 'package:server/events/database_event.dart';
-import 'package:server/graphql/logging_extension.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';

@@ -1,4 +1,4 @@
-import 'package:leto/src/persisted_queries.dart';
+import 'package:leto/src/extensions/persisted_queries.dart';
 import 'package:test/test.dart';
 
 void main() {

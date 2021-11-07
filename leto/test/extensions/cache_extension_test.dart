@@ -3,7 +3,7 @@ import 'dart:convert' show json;
 import 'package:clock/clock.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:leto/leto.dart';
-import 'package:leto/src/persisted_queries.dart';
+import 'package:leto/src/extensions/persisted_queries.dart';
 import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';

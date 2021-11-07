@@ -12,7 +12,10 @@
 
 import 'dart:async';
 
-import 'package:leto/src/persisted_queries.dart';
+import 'package:leto/src/extensions/persisted_queries.dart'
+    show Cache, MapCache;
+export 'package:leto/src/extensions/persisted_queries.dart'
+    show Cache, MapCache, LruCacheSimple;
 
 // A Function, which when given an Array of keys, returns a Promise of an Array
 // of values or Errors.
