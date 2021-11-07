@@ -27,6 +27,7 @@ final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
         enumValue: (args["enumValue"] as EnumValue),
         enumCustom: (args["enumCustom"] as int),
         enumCustomList: (args["enumCustomList"] as List<int>),
+        timestamps: (args["timestamps"] as List<DateTime?>),
         json: (args["json"] as Json));
   },
   inputs: [
@@ -74,13 +75,22 @@ final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
           "enumValue",
           defaultValue: EnumValue.v1,
         ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
+    enumCustomGraphQLType.coerceToInputObject().inputField(
           "enumCustom",
           defaultValue: 3,
         ),
-    graphQLInt.nonNull().list().nonNull().coerceToInputObject().inputField(
+    enumCustomGraphQLType
+        .nonNull()
+        .list()
+        .nonNull()
+        .coerceToInputObject()
+        .inputField(
       "enumCustomList",
       defaultValue: const [2],
+    ),
+    _timestampsType().coerceToInputObject().inputField(
+      "timestamps",
+      defaultValue: [DateTime.parse("2021-01-24"), null],
     ),
     Json.graphQLType.nonNull().coerceToInputObject().inputField(
           "json",

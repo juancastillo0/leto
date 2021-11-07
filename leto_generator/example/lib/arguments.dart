@@ -9,6 +9,9 @@ part 'arguments.g.dart';
 
 List<Decimal?> _defaultListDecimalNull() => [null, Decimal.parse('2')];
 
+GraphQLType<dynamic, dynamic> _timestampsType() =>
+    graphQLTimestamp.list().nonNull();
+
 @GraphQLClass()
 enum EnumValue { v1, v2, v3 }
 
@@ -37,12 +40,15 @@ String testManyDefaults({
   @GraphQLArg(defaultCode: "InputGen(name: 'gen', generic: 2)")
       InputGen<int>? gen,
   EnumValue enumValue = EnumValue.v1,
-  @GraphQLDocumentation(typeName: #enumCustomGraphQLType)
+  @GraphQLDocumentation(typeName: 'enumCustomGraphQLType')
       int enumCustom = 3,
   @GraphQLDocumentation(
-    typeName: Symbol('enumCustomGraphQLType.nonNull().list().nonNull()'),
+    typeName: 'enumCustomGraphQLType.nonNull().list().nonNull()',
   )
       List<int> enumCustomList = const [2],
+  @GraphQLArg(defaultCode: '[DateTime.parse("2021-01-24"), null]')
+  @GraphQLDocumentation(type: _timestampsType)
+      required List<DateTime?> timestamps,
   Json json = const Json.map({
     'd': Json.list([Json.number(2)])
   }),
@@ -61,6 +67,7 @@ String testManyDefaults({
     'enumValue': enumValue.toString().split('.').last,
     'enumCustom': enumCustom,
     'enumCustomList': enumCustomList,
+    'timestamps': timestamps.map((e) => e?.millisecondsSinceEpoch).toList(),
     'json': json,
   });
 }
