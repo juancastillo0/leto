@@ -25,6 +25,7 @@ final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
   'Int',
   'A signed integer.',
   'an integer',
+  (input) => input is int || input.round() == input ? input.round() : null,
 );
 
 /// A signed double-precision floating-point value.
@@ -32,6 +33,7 @@ final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
   'Float',
   'A signed double-precision floating-point value.',
   'a float',
+  (input) => input.toDouble(),
 );
 
 final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
@@ -157,25 +159,36 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   @override
   final String description;
   final String expected;
+  final T? Function(num) castNum;
 
-  _GraphQLNumType(this.name, this.description, this.expected);
+  _GraphQLNumType(
+    this.name,
+    this.description,
+    this.expected,
+    this.castNum,
+  );
 
   @override
   ValidationResult<T> validate(String key, Object? input) {
-    if (input is T) return ValidationResult.ok(input);
+    if (input is num) {
+      final value = castNum(input);
+      if (value != null) {
+        return ValidationResult.ok(value);
+      }
+    }
 
     return ValidationResult.failure(
         ['Expected "$key" to be $expected. Got invalid value $input.']);
   }
 
   @override
-  T deserialize(SerdeCtx serdeCtx, T serialized) {
-    return serialized;
+  T deserialize(SerdeCtx serdeCtx, num serialized) {
+    return castNum(serialized)!;
   }
 
   @override
-  T serialize(T value) {
-    return value;
+  T serialize(num value) {
+    return castNum(value)!;
   }
 
   @override
