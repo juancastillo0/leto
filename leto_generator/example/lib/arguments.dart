@@ -24,6 +24,8 @@ final enumCustomGraphQLType = enumType<int>(
 String testManyDefaults({
   String str = 'def',
   int intInput = 2,
+  double doubleInput = 3,
+  double? doubleInputNull = 4.2,
   bool boolean = true,
   List<String> listStr = const ['dw', 'dd2'],
   @GraphQLArg(defaultFunc: _defaultListDecimalNull)
@@ -48,6 +50,8 @@ String testManyDefaults({
   return jsonEncode({
     'str': str,
     'intInput': intInput,
+    'doubleInput': doubleInput,
+    'doubleInputNull': doubleInputNull,
     'boolean': boolean,
     'listStr': listStr,
     'listDecimalNull': listDecimalNull?.map((e) => e?.toString()).toList(),

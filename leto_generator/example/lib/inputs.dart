@@ -12,6 +12,7 @@ input InputM {
   name: String!
   date: Date
   ints: [Int!]!
+  doubles: [Float!]!
   nested: [InputMN!]!
   nestedNullItem: [InputMN]!
   nestedNullItemNull: [InputMN]
@@ -47,6 +48,7 @@ class InputM {
   final String name;
   final DateTime? date;
   final List<int> ints;
+  final List<double> doubles;
 
   final List<InputMN> nested;
   final List<InputMN?> nestedNullItem;
@@ -57,6 +59,7 @@ class InputM {
     required this.name,
     this.date,
     required this.ints,
+    required this.doubles,
     required this.nested,
     required this.nestedNullItem,
     this.nestedNullItemNull,

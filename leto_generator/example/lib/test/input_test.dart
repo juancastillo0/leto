@@ -14,6 +14,7 @@ void main() {
     const mInput = InputM(
       name: 'maop',
       ints: [],
+      doubles: [-2, 3.4],
       nested: [],
       nestedNullItem: [],
       nestedNull: [InputMN(name: 'axa')],
@@ -27,6 +28,7 @@ void main() {
         generic: InputM(
           name: 'amos',
           ints: [2],
+          doubles: [],
           nested: [],
           nestedNullItem: [null, InputMN(name: 'aca')],
         ),

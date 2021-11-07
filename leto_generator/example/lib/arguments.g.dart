@@ -16,6 +16,8 @@ final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
     return testManyDefaults(
         str: (args["str"] as String),
         intInput: (args["intInput"] as int),
+        doubleInput: (args["doubleInput"] as double),
+        doubleInputNull: (args["doubleInputNull"] as double?),
         boolean: (args["boolean"] as bool),
         listStr: (args["listStr"] as List<String>),
         listDecimalNull: (args["listDecimalNull"] as List<Decimal?>?),
@@ -28,68 +30,64 @@ final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
         json: (args["json"] as Json));
   },
   inputs: [
-    GraphQLFieldInput(
-      "str",
-      graphQLString.nonNull().coerceToInputObject(),
-      defaultValue: 'def',
-    ),
-    GraphQLFieldInput(
-      "intInput",
-      graphQLInt.nonNull().coerceToInputObject(),
-      defaultValue: 2,
-    ),
-    GraphQLFieldInput(
-      "boolean",
-      graphQLBoolean.nonNull().coerceToInputObject(),
-      defaultValue: true,
-    ),
-    GraphQLFieldInput(
+    graphQLString.nonNull().coerceToInputObject().inputField(
+          "str",
+          defaultValue: 'def',
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "intInput",
+          defaultValue: 2,
+        ),
+    graphQLFloat.nonNull().coerceToInputObject().inputField(
+          "doubleInput",
+          defaultValue: 3,
+        ),
+    graphQLFloat.coerceToInputObject().inputField(
+          "doubleInputNull",
+          defaultValue: 4.2,
+        ),
+    graphQLBoolean.nonNull().coerceToInputObject().inputField(
+          "boolean",
+          defaultValue: true,
+        ),
+    graphQLString.nonNull().list().nonNull().coerceToInputObject().inputField(
       "listStr",
-      graphQLString.nonNull().list().nonNull().coerceToInputObject(),
       defaultValue: const ['dw', 'dd2'],
     ),
-    GraphQLFieldInput(
-      "listDecimalNull",
-      decimalGraphQLType.list().coerceToInputObject(),
-      defaultValue: _defaultListDecimalNull(),
-    ),
-    GraphQLFieldInput(
+    decimalGraphQLType.list().coerceToInputObject().inputField(
+          "listDecimalNull",
+          defaultValue: _defaultListDecimalNull(),
+        ),
+    graphQLUri.nonNull().list().nonNull().coerceToInputObject().inputField(
       "listUri",
-      graphQLUri.nonNull().list().nonNull().coerceToInputObject(),
       defaultValue: [Uri.parse('http://localhost:8060/')],
     ),
-    GraphQLFieldInput(
-      "date",
-      graphQLDate.nonNull().coerceToInputObject(),
-      defaultValue: DateTime.parse("2021-03-24"),
-    ),
-    GraphQLFieldInput(
+    graphQLDate.nonNull().coerceToInputObject().inputField(
+          "date",
+          defaultValue: DateTime.parse("2021-03-24"),
+        ),
+    inputGenGraphQLType<int>(graphQLInt.nonNull()).inputField(
       "gen",
-      inputGenGraphQLType<int>(graphQLInt.nonNull()),
       defaultValue: InputGen(name: 'gen', generic: 2),
     ),
-    GraphQLFieldInput(
-      "enumValue",
-      enumValueGraphQLType.nonNull().coerceToInputObject(),
-      defaultValue: EnumValue.v1,
-    ),
-    GraphQLFieldInput(
-      "enumCustom",
-      graphQLInt.nonNull().coerceToInputObject(),
-      defaultValue: 3,
-    ),
-    GraphQLFieldInput(
+    enumValueGraphQLType.nonNull().coerceToInputObject().inputField(
+          "enumValue",
+          defaultValue: EnumValue.v1,
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "enumCustom",
+          defaultValue: 3,
+        ),
+    graphQLInt.nonNull().list().nonNull().coerceToInputObject().inputField(
       "enumCustomList",
-      graphQLInt.nonNull().list().nonNull().coerceToInputObject(),
       defaultValue: const [2],
     ),
-    GraphQLFieldInput(
-      "json",
-      Json.graphQLType.nonNull().coerceToInputObject(),
-      defaultValue: const Json.map({
-        'd': Json.list([Json.number(2)])
-      }),
-    )
+    Json.graphQLType.nonNull().coerceToInputObject().inputField(
+          "json",
+          defaultValue: const Json.map({
+            'd': Json.list([Json.number(2)])
+          }),
+        )
   ],
 );
 

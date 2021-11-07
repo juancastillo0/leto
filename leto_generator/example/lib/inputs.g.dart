@@ -15,10 +15,9 @@ final GraphQLObjectField<int, Object, Object> testInputGenGraphQLField = field(
     return testInputGen((args["input"] as InputGen<int>));
   },
   inputs: [
-    GraphQLFieldInput(
-      "input",
-      inputGenGraphQLType<int>(graphQLInt.nonNull()).nonNull(),
-    )
+    inputGenGraphQLType<int>(graphQLInt.nonNull()).nonNull().inputField(
+          "input",
+        )
   ],
 );
 
@@ -36,27 +35,24 @@ final GraphQLObjectField<String, Object, Object>
         gen: (args["gen"] as InputGen<InputJsonSerde?>));
   },
   inputs: [
-    GraphQLFieldInput(
+    inputJsonSerdeGraphQLType.inputField(
       "serde",
-      inputJsonSerdeGraphQLType,
     ),
-    GraphQLFieldInput(
-      "serdeReq",
-      inputJsonSerdeGraphQLType.nonNull(),
-    ),
-    GraphQLFieldInput(
-      "defTwo",
-      graphQLInt.nonNull().coerceToInputObject(),
-      defaultValue: 2,
-    ),
-    GraphQLFieldInput(
+    inputJsonSerdeGraphQLType.nonNull().inputField(
+          "serdeReq",
+        ),
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "defTwo",
+          defaultValue: 2,
+        ),
+    inputMGraphQLType.inputField(
       "mInput",
-      inputMGraphQLType,
     ),
-    GraphQLFieldInput(
-      "gen",
-      inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType).nonNull(),
-    )
+    inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType)
+        .nonNull()
+        .inputField(
+          "gen",
+        )
   ],
 );
 
@@ -74,24 +70,22 @@ final GraphQLObjectField<String, Object, Object>
         (args["gen2"] as InputGen2<String, List<List<int>?>>?));
   },
   inputs: [
-    GraphQLFieldInput(
+    inputJsonSerdeGraphQLType.inputField(
       "serde",
-      inputJsonSerdeGraphQLType,
     ),
-    GraphQLFieldInput(
-      "defTwo",
-      graphQLInt.nonNull().coerceToInputObject(),
-      defaultValue: 2,
-    ),
-    GraphQLFieldInput(
+    graphQLInt.nonNull().coerceToInputObject().inputField(
+          "defTwo",
+          defaultValue: 2,
+        ),
+    inputGenGraphQLType<List<InputJsonSerde>?>(
+            inputJsonSerdeGraphQLType.nonNull().list())
+        .inputField(
       "gen",
-      inputGenGraphQLType<List<InputJsonSerde>?>(
-          inputJsonSerdeGraphQLType.nonNull().list()),
     ),
-    GraphQLFieldInput(
+    inputGen2GraphQLType<String, List<List<int>?>>(graphQLString.nonNull(),
+            graphQLInt.nonNull().list().list().nonNull())
+        .inputField(
       "gen2",
-      inputGen2GraphQLType<String, List<List<int>?>>(graphQLString.nonNull(),
-          graphQLInt.nonNull().list().list().nonNull()),
     )
   ],
 );
@@ -122,6 +116,8 @@ GraphQLInputObjectType<InputM> get inputMGraphQLType {
       inputField('date', graphQLDate.coerceToInputObject()),
       inputField(
           'ints', graphQLInt.nonNull().list().nonNull().coerceToInputObject()),
+      inputField('doubles',
+          graphQLFloat.nonNull().list().nonNull().coerceToInputObject()),
       inputField('nested',
           inputMNGraphQLType.nonNull().list().nonNull().coerceToInputObject()),
       inputField('nestedNullItem',
@@ -272,6 +268,9 @@ InputM _$InputMFromJson(Map<String, dynamic> json) => InputM(
       date:
           json['date'] == null ? null : DateTime.parse(json['date'] as String),
       ints: (json['ints'] as List<dynamic>).map((e) => e as int).toList(),
+      doubles: (json['doubles'] as List<dynamic>)
+          .map((e) => (e as num).toDouble())
+          .toList(),
       nested: (json['nested'] as List<dynamic>)
           .map((e) => InputMN.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -292,6 +291,7 @@ Map<String, dynamic> _$InputMToJson(InputM instance) => <String, dynamic>{
       'name': instance.name,
       'date': instance.date?.toIso8601String(),
       'ints': instance.ints,
+      'doubles': instance.doubles,
       'nested': instance.nested,
       'nestedNullItem': instance.nestedNullItem,
       'nestedNullItemNull': instance.nestedNullItemNull,

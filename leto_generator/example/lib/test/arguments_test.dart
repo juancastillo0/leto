@@ -10,6 +10,7 @@ void main() {
       graphqlApiSchema.schemaStr,
       contains(
         'testManyDefaults(str: String! = "def", intInput: Int! = 2,'
+        ' doubleInput: Float! = 3.0, doubleInputNull: Float = 4.2,'
         ' boolean: Boolean! = true, listStr: [String!]! = ["dw", "dd2"],'
         ' listDecimalNull: [Decimal] = [null, "2"],'
         ' listUri: [Uri!]! = ["http://localhost:8060/"],'
@@ -32,12 +33,14 @@ void main() {
       {
         'str': 'def',
         'intInput': 2,
+        'doubleInput': 3,
+        'doubleInputNull': 4.2,
         'boolean': true,
-        'listStr': ["dw", "dd2"],
-        'listDecimalNull': [null, "2"],
-        'listUri': ["http://localhost:8060/"],
-        'date': "2021-03-24T00:00:00.000",
-        'gen': {'name': "gen", 'generic': 2},
+        'listStr': ['dw', 'dd2'],
+        'listDecimalNull': [null, '2'],
+        'listUri': ['http://localhost:8060/'],
+        'date': '2021-03-24T00:00:00.000',
+        'gen': {'name': 'gen', 'generic': 2},
         'enumValue': 'v1',
         'enumCustom': 3,
         'enumCustomList': [2],
