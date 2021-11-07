@@ -2,14 +2,16 @@ part of leto_schema.src.schema;
 
 /// An exception that occurs during execution of a GraphQL query.
 ///
-/// Its simply a List of [GraphQLError]
+/// It's a List of [GraphQLError]
 class GraphQLException implements Exception {
-  /// A list of all specific errors, with text representation,
-  /// that caused this exception.
+  /// A list of all [GraphQLError]s that caused this exception.
   final List<GraphQLError> errors;
 
   const GraphQLException(this.errors);
 
+  /// Creates an [GraphQLException] with a single [GraphQLError]
+  /// from the given arguments. You may want to pass [sourceError] and
+  /// [stackTrace] for improved error logs.
   factory GraphQLException.fromMessage(
     String message, {
     List<Object>? path,
@@ -30,6 +32,13 @@ class GraphQLException implements Exception {
     ]);
   }
 
+  /// Utility factory for creating a [GraphQLException] from
+  /// an [error] and [stackTrace].
+  ///
+  /// Will use [Object.toString] as a message if [error] is not
+  /// a [GraphQLException], otherwise, it will override all errors
+  /// with the values passed in the arguments if the given values are not
+  /// already present.
   factory GraphQLException.fromException(
     Object error,
     StackTrace stackTrace,
@@ -96,6 +105,7 @@ class GraphQLError implements Exception, GraphQLException {
   /// List of field names with aliased names or 0‐indexed integers for list
   final List<Object>? path;
 
+  /// The stack trace of the [sourceError]
   final StackTrace? stackTrace;
 
   /// An optional error Object to pass more information of the
@@ -105,7 +115,7 @@ class GraphQLError implements Exception, GraphQLException {
   /// Extensions return to the client
   ///
   /// This could be used to send more
-  /// information about the error
+  /// information about the error, such as a specific error code.
   final Map<String, Object?>? extensions;
 
   const GraphQLError(

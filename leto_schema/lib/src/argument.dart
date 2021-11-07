@@ -31,6 +31,7 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// "No longer supported" will be used.
   final String? deprecationReason;
 
+  /// Returns true if [type] can be used as a GraphQL input.
   static bool isInputType(GraphQLType type) {
     return type.when(
       enum_: (type) => true,
