@@ -20,12 +20,12 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
   ///
   /// Should return the name of the type in [possibleTypes] which is
   /// associated with the resolved result passed as parameter
-  final _ResolveType<GraphQLUnionType<P>>? resolveType;
+  final ResolveTypeWrapper<GraphQLUnionType<P>>? resolveType;
+
+  final Object Function(P)? _extractInner;
 
   /// When the union type is a wrapper around the real types associated to
   /// [possibleTypes], this function extracts that value from the wrapper
-  final Object Function(P)? _extractInner;
-
   Object extractInner(P p) {
     if (_extractInner != null) {
       return _extractInner!.call(p);
@@ -38,21 +38,18 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
     ResolveType<GraphQLUnionType<P>>? resolveType,
-
-    /// TODO:
     Object Function(P)? extractInner,
   })  : _extractInner = extractInner,
-        resolveType = resolveType == null ? null : _ResolveType(resolveType),
+        resolveType =
+            resolveType == null ? null : ResolveTypeWrapper(resolveType),
         assert(
-            possibleTypes.every((t) => t.whenMaybe(
-                object: (obj) => !obj.isInterface, orElse: (_) => false)),
-            'The member types of a Union type must all be Object base types; '
-            'Scalar, Interface and Union types must not be member types '
-            'of a Union. Similarly, wrapping types must not be member '
-            'types of a Union.')
-  //       assert(possibleTypes.isNotEmpty,
-  //           'A Union type must define one or more member types.')
-  {
+          possibleTypes.every((t) => t.whenMaybe(
+              object: (obj) => !obj.isInterface, orElse: (_) => false)),
+          'The member types of a Union type must all be Object base types; '
+          'Scalar, Interface and Union types must not be member types '
+          'of a Union. Similarly, wrapping types must not be member '
+          'types of a Union.',
+        ) {
     for (final t in possibleTypes.toSet()) {
       this.possibleTypes.add(t);
     }

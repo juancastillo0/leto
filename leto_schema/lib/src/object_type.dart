@@ -37,11 +37,11 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
   /// When this is an interface ([isInterface] == true), this function
   /// returns the name of the [GraphQLObjectType] in [possibleTypes] which
   /// implements the resolved result passed in the parameter
-  final _ResolveType<GraphQLObjectType<P>>? resolveType;
+  final ResolveTypeWrapper<GraphQLObjectType<P>>? resolveType;
 
   /// When provided, this function should return true for values
   /// which are associated with this object type
-  final _IsTypeOf<P>? isTypeOf;
+  final IsTypeOfWrapper<P>? isTypeOf;
 
   GraphQLObjectType(
     this.name, {
@@ -51,8 +51,9 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     IsTypeOf<P>? isTypeOf,
     Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
-  })  : isTypeOf = isTypeOf == null ? null : _IsTypeOf(isTypeOf),
-        resolveType = resolveType == null ? null : _ResolveType(resolveType) {
+  })  : isTypeOf = isTypeOf == null ? null : IsTypeOfWrapper(isTypeOf),
+        resolveType =
+            resolveType == null ? null : ResolveTypeWrapper(resolveType) {
     this.fields.addAll(fields);
 
     inheritFromMany(interfaces);
@@ -157,7 +158,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     //   final field = fields.firstWhereOrNull((f) => f.name == k);
     //   if (field == null)
     //     throw UnsupportedError(
-    //       'Cannot serialize field "$k", which was not defined in the schema.',
+    //      'Cannot serialize field "$k", which was not defined in the schema.',
     //     );
     //   return out..[k.toString()] = field.serialize(value[k]);
     // });
@@ -203,10 +204,10 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
 typedef ResolveType<P extends GraphQLType> = String Function(
     Object, P, ResolveObjectCtx);
 
-class _ResolveType<T extends GraphQLType<Object?, Object?>> {
+class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
   final ResolveType<T> func;
 
-  const _ResolveType(this.func);
+  const ResolveTypeWrapper(this.func);
 
   String call(Object result, T type, ResolveObjectCtx ctx) =>
       func(result, type, ctx);
@@ -215,10 +216,10 @@ class _ResolveType<T extends GraphQLType<Object?, Object?>> {
 typedef IsTypeOf<P> = bool Function(
     Object, GraphQLObjectType<P>, ResolveObjectCtx);
 
-class _IsTypeOf<P> {
+class IsTypeOfWrapper<P> {
   final IsTypeOf<P> func;
 
-  _IsTypeOf(this.func);
+  IsTypeOfWrapper(this.func);
 
   bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
       func(value, type, ctx);
@@ -402,7 +403,7 @@ Map<String, Object?> _gqlFromJson(
       // TODO: serealized value can have multiple values in the map
       // some of which are not in fields
       // throw UnsupportedError(
-      //   'Cannot serialize field "$key", which was not defined in the schema.',
+      //  'Cannot serialize field "$key", which was not defined in the schema.',
       // );
     }
     return MapEntry(e.key, field.type.serializeSafe(e.value));

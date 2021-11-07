@@ -1,36 +1,5 @@
 part of leto_schema.src.schema;
 
-/// Typedef for a function that resolves the value of a [GraphQLObjectField],
-/// whether asynchronously or not.
-typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
-    P parent, ReqCtx<P> ctx);
-
-/// Typedef for a function that resolves the [Stream] of [Value]s
-/// of a [GraphQLObjectField], whether asynchronously or not.
-typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
-    Function(Object parent, ReqCtx<Object> ctx);
-
-/// Wrapper class for [GraphQLFieldResolver]
-/// necessary for type casting.
-class FieldResolver<Value, P> {
-  final GraphQLFieldResolver<Value, P> resolve;
-
-  const FieldResolver(this.resolve);
-
-  FutureOr<Value?> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
-}
-
-/// Wrapper class for [GraphQLSubscriptionFieldResolver]
-/// necessary for type casting.
-class FieldSubscriptionResolver<Value> {
-  final GraphQLSubscriptionFieldResolver<Value> subscribe;
-
-  const FieldSubscriptionResolver(this.subscribe);
-
-  FutureOr<Stream<Value?>> call(Object parent, ReqCtx ctx) =>
-      subscribe(parent, ctx.cast());
-}
-
 /// A field on a [GraphQLObjectType].
 ///
 /// It can have input values and additional documentation, and explicitly
@@ -104,4 +73,35 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
       runtimeType.hashCode ^
       const DeepCollectionEquality()
           .hash([name, deprecationReason, type, inputs]);
+}
+
+/// Typedef for a function that resolves the value of a [GraphQLObjectField],
+/// whether asynchronously or not.
+typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
+    P parent, ReqCtx<P> ctx);
+
+/// Typedef for a function that resolves the [Stream] of [Value]s
+/// of a [GraphQLObjectField], whether asynchronously or not.
+typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
+    Function(Object parent, ReqCtx<Object> ctx);
+
+/// Wrapper class for [GraphQLFieldResolver]
+/// necessary for type casting.
+class FieldResolver<Value, P> {
+  final GraphQLFieldResolver<Value, P> resolve;
+
+  const FieldResolver(this.resolve);
+
+  FutureOr<Value?> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
+}
+
+/// Wrapper class for [GraphQLSubscriptionFieldResolver]
+/// necessary for type casting.
+class FieldSubscriptionResolver<Value> {
+  final GraphQLSubscriptionFieldResolver<Value> subscribe;
+
+  const FieldSubscriptionResolver(this.subscribe);
+
+  FutureOr<Stream<Value?>> call(Object parent, ReqCtx ctx) =>
+      subscribe(parent, ctx.cast());
 }
