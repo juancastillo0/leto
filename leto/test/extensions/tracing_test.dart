@@ -166,7 +166,7 @@ void main() {
       (e) => MapEntry((e['path']! as List).join(','), e),
     ));
     expect(map.length, resolvers.length);
-    for (final t in trace.execution.resolvers.entries) {
+    for (final t in trace.execution!.resolvers.entries) {
       final inResponse = map[t.key.path.join(',')];
       if (inResponse == null) {
         throw Exception(t.key.path.join(','));

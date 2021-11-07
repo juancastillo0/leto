@@ -56,10 +56,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     ResolveBaseCtx ctx,
   ) {
     final tracing = ref.get(ctx)!;
-    final endParsing = tracing.parsing.start();
-    final document = next();
-    endParsing();
-    return document;
+    return tracing.parsing.trace(next);
   }
 
   @override
@@ -69,10 +66,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     DocumentNode document,
   ) {
     final tracing = ref.get(ctx)!;
-    final endValidation = tracing.validation.start();
-    final exception = next();
-    endValidation();
-    return exception;
+    return tracing.validation.trace(next);
   }
 
   @override
@@ -95,21 +89,6 @@ class GraphQLTracingExtension extends GraphQLExtension {
     } finally {
       endTracing();
     }
-  }
-
-  @override
-  FutureOr<GraphQLResult> executeSubscriptionEvent(
-    FutureOr<GraphQLResult> Function() next,
-    ResolveCtx ctx,
-    ScopedMap parentGlobals,
-  ) async {
-    // TODO:
-    return next();
-    // return executeRequest(
-    //   next,
-    //   ctx.globals,
-    //   ctx.extensions,
-    // );
   }
 }
 
@@ -184,7 +163,7 @@ class TracingBuilder {
       'duration': duration!,
       'parsing': parsing.toJson(),
       'validation': validation.toJson(),
-      'execution': execution.build().toJson(),
+      'execution': execution.toJson(),
     };
   }
 }
@@ -206,27 +185,24 @@ class TracingItemBuilder {
 
   T trace<T>(T Function() func) {
     assert(startOffset == null);
+    T? value;
     try {
       startOffset = stopwatch.elapsedMicroseconds;
-      final result = func();
-      return result;
+      value = func();
     } finally {
-      duration = stopwatch.elapsedMicroseconds - startOffset!;
+      if (value is Future) {
+        value.whenComplete(end);
+      } else {
+        end();
+      }
     }
+    return value as T;
   }
 
-  FutureOr<T> traceAsync<T>(FutureOr<T> Function() func) async {
-    assert(startOffset == null);
-    try {
-      startOffset = stopwatch.elapsedMicroseconds;
-      final result = await func();
-      return result;
-    } finally {
-      duration = stopwatch.elapsedMicroseconds - startOffset!;
+  TracingItem? build() {
+    if (startOffset == null) {
+      return null;
     }
-  }
-
-  TracingItem build() {
     return TracingItem(
       startOffset: startOffset!,
       duration: duration!,
@@ -236,9 +212,6 @@ class TracingItemBuilder {
   Map<String, Object?>? toJson() {
     if (startOffset == null) {
       return null;
-    }
-    if (duration == null) {
-      end();
     }
     return {
       'startOffset': startOffset,
@@ -255,9 +228,9 @@ class Tracing {
 
   /// in nanoseconds
   final int duration;
-  final TracingItem parsing;
-  final TracingItem validation;
-  final ExecutionTracing execution;
+  final TracingItem? parsing;
+  final TracingItem? validation;
+  final ExecutionTracing? execution;
 
   const Tracing({
     required this.version,
@@ -275,9 +248,9 @@ class Tracing {
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),
       'duration': duration,
-      'parsing': parsing.toJson(),
-      'validation': validation.toJson(),
-      'execution': execution.toJson(),
+      'parsing': parsing?.toJson(),
+      'validation': validation?.toJson(),
+      'execution': execution?.toJson(),
     };
   }
 
@@ -287,12 +260,17 @@ class Tracing {
       startTime: DateTime.parse(map['startTime']! as String),
       endTime: DateTime.parse(map['endTime']! as String),
       duration: map['duration']! as int,
-      parsing: TracingItem.fromJson(map['parsing']! as Map<String, Object?>),
-      validation:
-          TracingItem.fromJson(map['validation']! as Map<String, Object?>),
-      execution: ExecutionTracing.fromJson(
-        map['execution']! as Map<String, Object?>,
-      ),
+      parsing: map['parsing'] == null
+          ? null
+          : TracingItem.fromJson(map['parsing']! as Map<String, Object?>),
+      validation: map['validation'] == null
+          ? null
+          : TracingItem.fromJson(map['validation']! as Map<String, Object?>),
+      execution: map['execution'] == null
+          ? null
+          : ExecutionTracing.fromJson(
+              map['execution']! as Map<String, Object?>,
+            ),
     );
   }
 
@@ -350,13 +328,6 @@ class ExecutionTracingBuilder {
 
   ExecutionTracingBuilder(this.stopwatch);
 
-  TracingItemBuilder tracing(ResolverTracing resolver) {
-    return resolvers.putIfAbsent(
-      resolver,
-      () => TracingItemBuilder(stopwatch),
-    );
-  }
-
   void Function() start(ResolverTracing resolver) {
     final tracing = resolvers.putIfAbsent(
       resolver,
@@ -365,12 +336,26 @@ class ExecutionTracingBuilder {
     return tracing.start();
   }
 
-  ExecutionTracing build() {
+  ExecutionTracing? build() {
+    if (resolvers.isEmpty) {
+      return null;
+    }
     return ExecutionTracing(
       resolvers: resolvers.map(
-        (key, value) => MapEntry(key, value.build()),
+        (key, value) => MapEntry(key, value.build()!),
       ),
     );
+  }
+
+  Map<String, Object?>? toJson() {
+    if (resolvers.isEmpty) {
+      return null;
+    }
+    return {
+      'resolvers': List.of(resolvers.entries.map(
+        (x) => x.key.toJson(x.value.build()!),
+      )),
+    };
   }
 }
 
