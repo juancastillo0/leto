@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:shelf/shelf_io.dart' as io;
 import 'package:leto_shelf_example/run_server.dart'
     show ServerConfig, serverHandler;
+import 'package:shelf/shelf_io.dart' as io;
 import 'package:test/test.dart';
 
 export 'package:leto_shelf_example/run_server.dart' show ServerConfig;

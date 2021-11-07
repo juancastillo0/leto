@@ -1,13 +1,10 @@
-import 'package:gql/language.dart' as gql;
-import 'package:gql_exec/gql_exec.dart' as gql_exec;
-import 'package:gql_link/gql_link.dart' as gql_link;
-import 'package:gql_websocket_link/gql_websocket_link.dart';
 import 'package:leto/leto.dart';
 import 'package:leto_shelf_example/schema/books/books.controller.dart';
 import 'package:leto_shelf_example/schema/stream_state_callbacks.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';
+import 'web_socket_link.dart';
 
 Future<void> main() async {
   final _streamCallbacks = StreamCallbacks();
@@ -69,22 +66,4 @@ mutation add {
       'cancelations ${_streamCallbacks.cancelations}',
     );
   });
-}
-
-extension RequestRaw on gql_link.Link {
-  Stream<gql_exec.Response> requestRaw(
-    String document, {
-    String? operationName,
-    Map<String, Object?> variables = const {},
-  }) {
-    return request(
-      gql_exec.Request(
-        operation: gql_exec.Operation(
-          document: gql.parseString(document),
-          operationName: operationName,
-        ),
-        variables: variables,
-      ),
-    );
-  }
 }
