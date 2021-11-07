@@ -142,7 +142,8 @@ Future<List<String>> inputsFromElement(
         final isInput = e.type.element != null && isInputType(e.type.element!);
 
         final docs = await documentationOfParameter(e, ctx.buildStep);
-        return 'GraphQLFieldInput("${e.name}", $type${isInput ? '' : '.coerceToInputObject()'},'
+        return 'GraphQLFieldInput("${e.name}",'
+            ' $type${isInput ? '' : '.coerceToInputObject()'},'
             ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
       }
     }
@@ -159,6 +160,13 @@ GraphQLArg argInfoFromElement(Element element) {
     defaultCode: argAnnot?.getField('defaultCode')?.toStringValue(),
     defaultFunc: defaultFunc == null ? null : () => '${defaultFunc.name}()',
   );
+  if (defaultFunc != null && argInfo.defaultCode != null) {
+    throw Exception(
+      "Can't specify both defaultFunc: $defaultFunc and"
+      ' defaultCode: ${argInfo.defaultCode} in decorator GraphQLArg'
+      ' for ${element.name}.',
+    );
+  }
   return argInfo;
 }
 

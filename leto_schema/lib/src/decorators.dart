@@ -103,18 +103,21 @@ class GraphQLArg {
     this.defaultCode,
     this.defaultFunc,
   });
+
+  /// Whether to inline the fields of a [GraphQLInputObjectType]
+  /// inside the parameters.
   final bool inline;
+
+  /// The Dart code used to create the default value for the argument.
   final String? defaultCode;
+
+  /// A function which returns the default value for the argument.
+  ///
+  /// Can't specify both [defaultCode] and [defaultFunc].
   final Object? Function()? defaultFunc;
 }
 
-/// An annotation for configuring a GraphQL field
-///
-/// if [omit] is true, this field will be omitted.
-/// if [nullable] is true, the type will be nullable
-/// even when the Dart type is non-nullable.
-/// [name] is the name of the [GraphQLObjectField].
-/// [type] is a String containing a getter for the [GraphQLType].
+/// An annotation for configuring the generated code of a GraphQL field
 class GraphQLField {
   const GraphQLField({
     this.name,
@@ -123,9 +126,18 @@ class GraphQLField {
     this.type,
   })  : omit = omit ?? false,
         nullable = nullable ?? false;
+
+  /// The name of the [GraphQLObjectField].
   final String? name;
+
+  /// If true, this field will be omitted in the generated [GraphQLObjectType].
   final bool omit;
+
+  /// If true, this field will be nullable even if the
+  /// Dart type is non-nullable.
   final bool nullable;
+
+  /// A String containing a getter for the [GraphQLType].
   final String? type;
 }
 
@@ -134,7 +146,12 @@ class GraphQLField {
 /// Use [Mutation], [Query] and [Subscription]
 @Target({TargetKind.function, TargetKind.method})
 abstract class GraphQLResolver {
+  /// The name of the field to generate
   String? get name;
+
+  /// If the return type of this resolver is a generic type, then
+  /// this will be the name of that [GraphQLType]. This will be passed in the
+  /// `name` parameter to the generic function which created the type
   String? get genericTypeName;
 }
 
@@ -204,7 +221,10 @@ class Subscription implements GraphQLResolver {
   });
 }
 
-typedef GraphDocumentationTypeProvider = GraphQLType Function();
+/// A function which returns a [GraphQLType].
+///
+/// Used to override the type inferred in code generation.
+typedef GraphQLTypeProvider = GraphQLType Function();
 
 /// A metadata annotation used to provide documentation to
 /// `package:leto`.
@@ -218,8 +238,7 @@ class GraphQLDocumentation {
 
   /// A constant callback that returns an explicit type for the annotated field,
   /// rather than having it be assumed
-  /// via `dart:mirrors`.
-  final GraphDocumentationTypeProvider? type;
+  final GraphQLTypeProvider? type;
 
   /// The name of an explicit type for the annotated field, rather than
   /// having it be assumed.
