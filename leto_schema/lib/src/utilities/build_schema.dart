@@ -19,13 +19,14 @@ GraphQLSchema buildSchema(
   final directiveDefs =
       schemaDoc.definitions.whereType<DirectiveDefinitionNode>();
 
-  final types = <String, MapEntry<GraphQLType, TypeDefinitionNode>>{};
+  final types =
+      <String, MapEntry<GraphQLType<Object?, Object?>, TypeDefinitionNode>>{};
 
   for (final def in typeDefs) {
     final name = def.name.value;
     final GraphQLType type;
     if (def is ScalarTypeDefinitionNode) {
-      type = GraphQLScalarTypeValue(
+      type = GraphQLScalarTypeValue<Object?, Object?>(
         name: name,
         description: def.description?.value,
         specifiedByURL:
@@ -36,25 +37,25 @@ GraphQLSchema buildSchema(
         validate: (k, inp) => ValidationResult.ok(inp),
       );
     } else if (def is ObjectTypeDefinitionNode) {
-      type = GraphQLObjectType(
+      type = GraphQLObjectType<Object?>(
         name,
         description: def.description?.value,
         isInterface: false,
       );
     } else if (def is InterfaceTypeDefinitionNode) {
-      type = GraphQLObjectType(
+      type = GraphQLObjectType<Object?>(
         name,
         description: def.description?.value,
         isInterface: true,
       );
     } else if (def is UnionTypeDefinitionNode) {
-      type = GraphQLUnionType(
+      type = GraphQLUnionType<Object?>(
         name,
         [],
         description: def.description?.value,
       );
     } else if (def is EnumTypeDefinitionNode) {
-      type = GraphQLEnumType(
+      type = GraphQLEnumType<Object?>(
         name,
         [
           ...def.values.map(
@@ -70,7 +71,7 @@ GraphQLSchema buildSchema(
         description: def.description?.value,
       );
     } else if (def is InputObjectTypeDefinitionNode) {
-      type = GraphQLInputObjectType(
+      type = GraphQLInputObjectType<Object?>(
         name,
         description: def.description?.value,
       );
@@ -115,9 +116,8 @@ GraphQLSchema buildSchema(
 
         object.fields.addAll([
           ...fields.map(
-            (e) => GraphQLObjectField(
+            (e) => convertType(e.type, types.values.map((e) => e.key)).field(
               e.name.value,
-              convertType(e.type, types.values.map((e) => e.key)),
               description: e.description?.value,
               deprecationReason: getDirectiveValue(
                   'deprecated', 'reason', e.directives, payload) as String?,
@@ -256,7 +256,7 @@ Object? getDirectiveValue(
   return computeValue(null, value, variableValues);
 }
 
-GraphQLType convertType(
+GraphQLType<Object?, Object?> convertType(
   TypeNode node,
   Iterable<GraphQLType> customTypes,
 ) {

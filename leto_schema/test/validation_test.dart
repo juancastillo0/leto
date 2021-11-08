@@ -19,14 +19,13 @@ void main() {
     ),
   ]);
 
-  final isValidPokemon = predicate(
-      (dynamic x) =>
+  final isValidPokemon = predicate<Object?>(
+      (x) =>
           pokemonType.validate('@root', x as Map<String, dynamic>).successful,
       'is a valid Pokémon');
 
-  final throwsATypeError = throwsA(predicate(
-      (dynamic x) => x is TypeError || x is CastError,
-      'is a type or cast error'));
+  final throwsATypeError = throwsA(predicate<Object?>(
+      (x) => x is TypeError || x is CastError, 'is a type or cast error'));
 
   test('object accepts valid input', () {
     expect({'name': 'Charmander', 'type': 'FIRE'}, isValidPokemon);
@@ -65,7 +64,7 @@ void main() {
       ],
     );
 
-    final u = GraphQLUnionType('Monster', [pokemonType, digimonType]);
+    final u = GraphQLUnionType<Object>('Monster', [pokemonType, digimonType]);
 
     test('any of its types returns valid', () {
       expect(u.validate('@root', {'size': 32.0}).successful, true);
@@ -77,11 +76,11 @@ void main() {
   });
 
   group('input object', () {
-    final type = inputObjectType(
+    final type = inputObjectType<Object>(
       'Foo',
       fields: [
-        inputField('bar', graphQLString.nonNull()),
-        inputField('baz', graphQLFloat.nonNull()),
+        graphQLString.nonNull().inputField('bar'),
+        graphQLFloat.nonNull().inputField('baz'),
       ],
     );
 

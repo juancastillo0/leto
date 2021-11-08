@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 /// Type System: Schema
 void main() {
   test('Define sample schema', () {
-    final BlogImage = objectType(
+    final BlogImage = objectType<Object>(
       'Image',
       fieldsMap: {
         'url': graphQLString.fieldSpec(),
@@ -16,7 +16,7 @@ void main() {
       },
     );
 
-    final BlogAuthor = GraphQLObjectType(
+    final BlogAuthor = GraphQLObjectType<Object>(
       'Author',
       fields: [
         graphQLString.field('id'),
@@ -30,7 +30,7 @@ void main() {
         ),
       ],
     );
-    final BlogArticle = GraphQLObjectType(
+    final BlogArticle = GraphQLObjectType<Object>(
       'Article',
       fields: [
         graphQLString.field('id'),
@@ -43,7 +43,7 @@ void main() {
 
     BlogAuthor.fields.add(BlogArticle.field('recentArticle'));
 
-    final BlogQuery = GraphQLObjectType(
+    final BlogQuery = GraphQLObjectType<Object>(
       'Query',
       fields: [
         BlogArticle.field(
@@ -54,14 +54,14 @@ void main() {
       ],
     );
 
-    final BlogMutation = GraphQLObjectType(
+    final BlogMutation = GraphQLObjectType<Object>(
       'Mutation',
       fields: [
         field('writeArticle', BlogArticle),
       ],
     );
 
-    final BlogSubscription = GraphQLObjectType(
+    final BlogSubscription = GraphQLObjectType<Object>(
       'Subscription',
       fields: [
         field(
@@ -127,17 +127,17 @@ type Subscription {
 
     test('defines a query root', () {
       final schema = GraphQLSchema(queryType: testType);
-      expect(schema.typeMap().keys, containsAll(['TestType']));
+      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
     });
 
     test('defines a mutation root', () {
       final schema = GraphQLSchema(mutationType: testType);
-      expect(schema.typeMap().keys, containsAll(['TestType']));
+      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
     });
 
     test('defines a subscription root', () {
       final schema = GraphQLSchema(subscriptionType: testType);
-      expect(schema.typeMap().keys, containsAll(['TestType']));
+      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
     });
   });
 
@@ -199,12 +199,12 @@ type Subscription {
     });
 
     test('includes nested input objects in the map', () {
-      final NestedInputObject = GraphQLInputObjectType(
+      final NestedInputObject = GraphQLInputObjectType<Object>(
         'NestedInputObject',
         fields: [],
       );
 
-      final SomeInputObject = GraphQLInputObjectType(
+      final SomeInputObject = GraphQLInputObjectType<Object>(
         'SomeInputObject',
         fields: [
           inputField('nested', NestedInputObject),
@@ -233,22 +233,19 @@ type Subscription {
         name: 'dir',
         locations: [DirectiveLocation.OBJECT],
         inputs: [
-          inputField('arg', GraphQLInputObjectType('Foo', fields: {})),
-          inputField(
-            'argList',
-            listOf(
-              GraphQLInputObjectType('Bar', fields: {}),
-            ),
-          ),
+          GraphQLInputObjectType<Object>('Foo', fields: {}).inputField('arg'),
+          GraphQLInputObjectType<Object>('Bar', fields: {}).list().inputField(
+                'argList',
+              ),
         ],
       );
       final schema = GraphQLSchema(directives: [directive]);
 
-      expect(schema.typeMap().keys, containsAll(['Foo', 'Bar']));
+      expect(schema.typeMap().keys, containsAll(<String>['Foo', 'Bar']));
     });
   });
 
-  GraphQLScalarTypeValue _testScalarType(String name) {
+  GraphQLScalarTypeValue<Object?, Object?> _testScalarType(String name) {
     return GraphQLScalarTypeValue(
       name: name,
       description: null,
@@ -346,11 +343,11 @@ type Subscription {
             'String',
           );
 
-          final QueryType = GraphQLObjectType(
+          final QueryType = GraphQLObjectType<Object>(
             'Query',
             fields: [
-              field('normal', graphQLString),
-              field('fake', FakeString),
+              graphQLString.field('normal'),
+              FakeString.field('fake'),
             ],
           );
 
@@ -366,7 +363,7 @@ type Subscription {
         });
 
         test('rejects a Schema when a provided type has no name', () {
-          final query = GraphQLObjectType(
+          final query = GraphQLObjectType<Object>(
             'Query',
             fields: [graphQLString.field('foo')],
           );
@@ -404,7 +401,7 @@ type Subscription {
         test('rejects a Schema which defines fields with conflicting types',
             () {
           final fields = <GraphQLObjectField>[];
-          final QueryType = GraphQLObjectType(
+          final QueryType = GraphQLObjectType<Object>(
             'Query',
             fields: [
               field('a', GraphQLObjectType('SameName', fields: fields)),

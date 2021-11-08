@@ -45,11 +45,11 @@ void main() {
   });
 
   group('input object', () {
-    final type = inputObjectType(
+    final type = inputObjectType<Object>(
       'Foo',
       fields: [
-        inputField('bar', graphQLString.nonNull()),
-        inputField('baz', graphQLFloat.nonNull()),
+        graphQLString.nonNull().inputField('bar'),
+        graphQLFloat.nonNull().inputField('baz'),
       ],
     );
 
@@ -93,7 +93,7 @@ void main() {
       ],
     );
 
-    final u = GraphQLUnionType('Monster', [pokemonType, digimonType]);
+    final u = GraphQLUnionType<Object>('Monster', [pokemonType, digimonType]);
 
     expect(u.serialize({'size': 10.0}), {'size': 10.0});
     expect(u.serialize({'name': 'Charmander', 'type': 'FIRE'}),
