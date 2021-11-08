@@ -167,12 +167,12 @@ void main() {
     ));
     expect(map.length, resolvers.length);
     for (final t in trace.execution!.resolvers.entries) {
-      final inResponse = map[t.key.path.join(',')];
-      if (inResponse == null) {
+      final expected = map[t.key.path.join(',')];
+      if (expected == null) {
         throw Exception(t.key.path.join(','));
       }
-
-      expect({...t.key.toJson(t.value)}, inResponse);
+      expect(t.key == ResolverTracing.fromJson(expected), true);
+      expect({...t.key.toJson(t.value)}, expected);
     }
   });
 }
