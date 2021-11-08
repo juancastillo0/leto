@@ -4,12 +4,12 @@ import 'package:collection/collection.dart' show IterableExtension;
 import 'package:gql/ast.dart';
 import 'package:gql/document.dart' as gql_doc;
 import 'package:gql/language.dart' as gql;
+import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart'
     show computeValue, convertType, fetchAllTypes, getDirectiveValue;
 import 'package:source_span/source_span.dart';
 
-import 'introspection.dart';
 import 'src/extensions/extension.dart';
 import 'src/graphql_result.dart';
 
