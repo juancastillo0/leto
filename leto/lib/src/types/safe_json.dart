@@ -1,11 +1,14 @@
-import 'dart:convert';
+import 'dart:convert' show jsonDecode;
+
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:oxidized/oxidized.dart';
 
 import 'safe_json_graphql.dart';
 
 export 'safe_json_graphql.dart';
 
+@immutable
 abstract class Json {
   const Json._();
   const factory Json.map(Map<String, Json> value) = JsonMap;
@@ -143,6 +146,19 @@ abstract class Json {
   }
 
   static GraphQLJsonType get graphQLType => jsonGraphQLType;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Json &&
+        runtimeType == other.runtimeType &&
+        const DeepCollectionEquality().equals(value, other.value);
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
 }
 
 Result<T, E> resultCtx<T extends Object, E extends Object>(
