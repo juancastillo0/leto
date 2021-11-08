@@ -1,4 +1,4 @@
-import 'package:leto_shelf_example/schema/star_wars/schema.dart';
+import 'schema.dart';
 
 /// These are types which correspond to the schema.
 /// They represent the shape of the data visited during field resolution.

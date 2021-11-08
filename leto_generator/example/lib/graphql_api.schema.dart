@@ -7,7 +7,9 @@ import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
+import 'package:leto_generator_example/star_wars/schema.dart';
 import 'package:leto_generator_example/generics.dart';
+import 'package:leto_generator_example/star_wars_relay/data.dart';
 
 final graphqlApiSchema = GraphQLSchema(
   serdeCtx: SerdeCtx()
@@ -21,6 +23,10 @@ final graphqlApiSchema = GraphQLSchema(
       unionASerializer,
       todoItemInputSerializer,
       todoItemInputNestedSerializer,
+      shipSerializer,
+      factionSerializer,
+      connectionArgumentsSerializer,
+      humanSerializer,
     ])
     ..children.addAll([
       inputGenSerdeCtx,
@@ -43,6 +49,7 @@ final graphqlApiSchema = GraphQLSchema(
       resultUnionObjectGraphQLField,
       resultUnionObjectErrGraphQLField,
       testManyDefaultsGraphQLField,
+      droidGraphQLField,
     ],
   ),
   mutationType: objectType(

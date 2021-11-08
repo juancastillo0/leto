@@ -5,8 +5,9 @@
 // import { StarWarsSchema as schema } from './starWarsSchema';
 
 import 'package:leto/leto.dart';
-import 'package:leto_shelf_example/schema/star_wars_relay/data.dart';
 import 'package:test/test.dart';
+
+import '../data.dart';
 
 /// Star Wars connections
 void main() {

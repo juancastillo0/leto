@@ -51,7 +51,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_shelf_example/schema/star_wars/data.dart';
+import 'data.dart';
 
 part 'schema.freezed.dart';
 part 'schema.g.dart';

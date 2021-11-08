@@ -1,13 +1,7 @@
 // https://github.com/graphql/graphql-js/blob/2df59f18dd3f3c415eaba57d744131a674079ddf/src/__tests__/starWarsQuery-test.ts
-// import { expect } from 'chai';
-// import { group, it } from 'mocha';
-
-// import { graphql } from '../graphql';
-
-// import { StarWarsSchema as schema } from './starWarsSchema';
 import 'package:leto/leto.dart';
-import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:test/test.dart';
+import '../schema.dart';
 
 void main() {
   final server = GraphQL(starWarsSchema);

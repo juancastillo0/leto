@@ -10,8 +10,6 @@ import 'package:leto_shelf_example/schema/books/books.schema.dart';
 import 'package:leto_shelf_example/schema/files/file_metadata.dart';
 import 'package:leto_shelf_example/schema/graphql_utils.dart';
 import 'package:leto_shelf_example/schema/schema_from_json.dart';
-import 'package:leto_shelf_example/schema/star_wars/schema.dart';
-import 'package:leto_shelf_example/schema/star_wars_relay/data.dart';
 
 import 'files/file_upload.dart';
 import 'files/files.controller.dart';
@@ -153,9 +151,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
   return [
     base,
     graphqlApiSchema,
-    starWarsSchema,
     makeBooksSchema(),
-    relayStarWarsSchema,
     schemaFromJson(
       fieldName: 'JsonTest',
       jsonString: jsonPayload,

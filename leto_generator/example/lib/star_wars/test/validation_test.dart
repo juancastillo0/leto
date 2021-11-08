@@ -1,24 +1,13 @@
 // https://github.com/graphql/graphql-js/blob/ac9833e4358e1995729a6c54009781ea434d4354/src/__tests__/starWarsValidation-test.ts
-// import { expect } from 'chai';
-// import { describe, it } from 'mocha';
-
-// import { parse } from '../language/parser';
-// import { Source } from '../language/source';
-
-// import { validate } from '../validation/validate';
-
-// import { StarWarsSchema } from './starWarsSchema';
-
 import 'package:leto/leto.dart';
-import 'package:leto_shelf_example/schema/star_wars/schema.dart';
 import 'package:test/test.dart';
+
+import '../schema.dart';
 
 void main() {
   final server = GraphQL(starWarsSchema);
 
-  ///
   /// Helper function to test a query and the expected response.
-  ///
   Future<List<GraphQLError>> validationErrors(String query) async {
     final result = await server.parseAndExecute(query);
     return result.errors;

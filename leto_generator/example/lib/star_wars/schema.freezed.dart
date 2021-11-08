@@ -36,7 +36,7 @@ class _$HumanTearOff {
     );
   }
 
-  Human fromJson(Map<String, Object> json) {
+  Human fromJson(Map<String, Object?> json) {
     return Human.fromJson(json);
   }
 }
@@ -208,30 +208,24 @@ class _$_Human extends _Human {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Human &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.appearsIn, appearsIn) ||
-                const DeepCollectionEquality()
-                    .equals(other.appearsIn, appearsIn)) &&
-            (identical(other.friends, friends) ||
-                const DeepCollectionEquality()
-                    .equals(other.friends, friends)) &&
+        (other.runtimeType == runtimeType &&
+            other is _Human &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other.appearsIn, appearsIn) &&
+            const DeepCollectionEquality().equals(other.friends, friends) &&
             (identical(other.homePlanet, homePlanet) ||
-                const DeepCollectionEquality()
-                    .equals(other.homePlanet, homePlanet)));
+                other.homePlanet == homePlanet));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(appearsIn) ^
-      const DeepCollectionEquality().hash(friends) ^
-      const DeepCollectionEquality().hash(homePlanet);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      const DeepCollectionEquality().hash(appearsIn),
+      const DeepCollectionEquality().hash(friends),
+      homePlanet);
 
   @JsonKey(ignore: true)
   @override
@@ -256,18 +250,18 @@ abstract class _Human extends Human {
   factory _Human.fromJson(Map<String, dynamic> json) = _$_Human.fromJson;
 
   @override // The id of the human.
-  String get id => throw _privateConstructorUsedError;
+  String get id;
   @override // The name of the human.
   @GraphQLField(nullable: true)
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override // Which movies they appear in.
   @GraphQLField(type: 'listOf(episodeEnum)')
-  List<int> get appearsIn => throw _privateConstructorUsedError;
+  List<int> get appearsIn;
   @override // The friends of the human, or an empty list if they have none.
   @GraphQLField(omit: true)
-  List<String> get friends => throw _privateConstructorUsedError;
+  List<String> get friends;
   @override // The home planet of the human, or null if unknown.
-  String? get homePlanet => throw _privateConstructorUsedError;
+  String? get homePlanet;
   @override
   @JsonKey(ignore: true)
   _$HumanCopyWith<_Human> get copyWith => throw _privateConstructorUsedError;
@@ -460,30 +454,24 @@ class _$_Droid extends _Droid {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Droid &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.friends, friends) ||
-                const DeepCollectionEquality()
-                    .equals(other.friends, friends)) &&
-            (identical(other.appearsIn, appearsIn) ||
-                const DeepCollectionEquality()
-                    .equals(other.appearsIn, appearsIn)) &&
+        (other.runtimeType == runtimeType &&
+            other is _Droid &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other.friends, friends) &&
+            const DeepCollectionEquality().equals(other.appearsIn, appearsIn) &&
             (identical(other.primaryFunction, primaryFunction) ||
-                const DeepCollectionEquality()
-                    .equals(other.primaryFunction, primaryFunction)));
+                other.primaryFunction == primaryFunction));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(friends) ^
-      const DeepCollectionEquality().hash(appearsIn) ^
-      const DeepCollectionEquality().hash(primaryFunction);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      const DeepCollectionEquality().hash(friends),
+      const DeepCollectionEquality().hash(appearsIn),
+      primaryFunction);
 
   @JsonKey(ignore: true)
   @override
@@ -507,19 +495,19 @@ abstract class _Droid extends Droid {
   @override
 
   /// The id of the droid.
-  String get id => throw _privateConstructorUsedError;
+  String get id;
   @override
   @GraphQLField(nullable: true)
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
   @GraphQLField(omit: true)
-  List<String> get friends => throw _privateConstructorUsedError;
+  List<String> get friends;
   @override // Which movies they appear in.
   @GraphQLField(type: 'listOf(episodeEnum)')
-  List<int> get appearsIn => throw _privateConstructorUsedError;
+  List<int> get appearsIn;
   @override // The primary function of the droid.
   @GraphQLField(nullable: true)
-  String get primaryFunction => throw _privateConstructorUsedError;
+  String get primaryFunction;
   @override
   @JsonKey(ignore: true)
   _$DroidCopyWith<_Droid> get copyWith => throw _privateConstructorUsedError;
