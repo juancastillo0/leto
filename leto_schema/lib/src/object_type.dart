@@ -201,7 +201,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
       ];
 }
 
-typedef ResolveType<P extends GraphQLType> = String Function(
+typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
     Object, P, ResolveObjectCtx);
 
 class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {

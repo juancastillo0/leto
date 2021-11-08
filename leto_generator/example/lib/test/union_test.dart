@@ -52,7 +52,7 @@ void main() {
           json['oneRenamed'] = json.remove('one');
         }
         expect(result.data, {
-          'getUnionA': {
+          'getUnionA': <String, Object?>{
             ...json,
             '__typename': 'Union${runtimeType.toUpperCase()}'
           }

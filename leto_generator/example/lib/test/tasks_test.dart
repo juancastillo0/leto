@@ -35,7 +35,7 @@ void main() {
     expect(
       result.toJson(),
       {
-        'data': {
+        'data': <String, Object?>{
           'getTasks': jsonDecode(jsonEncode(tasks.tasks)),
         },
       },

@@ -42,7 +42,7 @@ class ClassConfig {
   });
 }
 
-final customInterface = objectType(
+final customInterface = objectType<Object>(
   'ClassConfig2Interface',
   fields: [
     graphQLString.nonNull().field('value'),

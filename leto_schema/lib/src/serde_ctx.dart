@@ -189,7 +189,7 @@ abstract class Serializer<T> implements GenericHelpSingle<T> {
   Serializer<List<T>> get listSerializer {
     return SerializerValueGen<List<T>>(
       fromJson: (ctx, obj) =>
-          List.of((obj! as List).map((e) => fromJson(ctx, e))),
+          List.of((obj! as List).map((Object? e) => fromJson(ctx, e))),
     );
   }
 }

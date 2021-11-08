@@ -26,7 +26,7 @@ void main() {
       '{testManyDefaults}',
     );
     expect(result.errors, isEmpty);
-    final values = jsonDecode(
+    final Object? values = jsonDecode(
       (result.data as Map)['testManyDefaults'] as String,
     );
 

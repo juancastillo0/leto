@@ -20,7 +20,7 @@ void main() {
       nestedNull: [InputMN(name: 'axa')],
     );
     const gen = InputGen(name: 'daw', generic: null);
-    const gen2 = InputGen(name: 'daw', generic: []);
+    const gen2 = InputGen(name: 'daw', generic: <Object?>[]);
     final serde = InputJsonSerde(
       name: 'dw',
       inputGenM: const InputGen(

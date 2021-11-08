@@ -51,7 +51,7 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
       ),
     ),
     scalar: (scalar) {
-      final serialized = type.serialize(value);
+      final Object? serialized = type.serialize(value);
       return astFromUntypedValue(serialized);
     },
     input: (input) {
@@ -66,7 +66,7 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
     list: (list) {
       if (value is List) {
         return ast.ListValueNode(values: [
-          ...value.map((e) => astFromValue(e, list.ofType)).whereType(),
+          ...value.map((Object? e) => astFromValue(e, list.ofType)).whereType(),
         ]);
       }
       return astFromValue(value, list.ofType);
@@ -134,7 +134,7 @@ Object? valueFromAst(
           locations: GraphQLErrorLocation.listFromSource(_span?.start),
         );
       }
-      return List.from(
+      return List.of(
         list.values.mapIndexed(
           (index, v) => valueFromAst(
             (_type as GraphQLListType?)?.ofType,
@@ -207,7 +207,6 @@ ast.ValueNode astFromUntypedValue(Object? value) {
       ...value.map(astFromUntypedValue),
     ]);
   }
-  // TODO:
   throw Error();
 }
 

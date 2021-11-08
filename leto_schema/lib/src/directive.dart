@@ -89,7 +89,7 @@ final graphQLIncludeDirective = GraphQLDirective(
     DirectiveLocation.INLINE_FRAGMENT,
   ],
   inputs: [
-    GraphQLFieldInput(
+    GraphQLFieldInput<bool, bool>(
       'if',
       graphQLBoolean.nonNull(),
       description: 'Included when true.',
@@ -107,7 +107,7 @@ final graphQLSkipDirective = GraphQLDirective(
     DirectiveLocation.INLINE_FRAGMENT,
   ],
   inputs: [
-    GraphQLFieldInput(
+    GraphQLFieldInput<bool, bool>(
       'if',
       graphQLBoolean.nonNull(),
       description: 'Skipped when true.',
@@ -125,7 +125,7 @@ final graphQLDeprecatedDirective = GraphQLDirective(
     DirectiveLocation.ENUM_VALUE,
   ],
   inputs: [
-    GraphQLFieldInput(
+    GraphQLFieldInput<String, String>(
       'reason',
       graphQLString,
       description:
@@ -142,7 +142,7 @@ final graphQLSpecifiedByDirective = GraphQLDirective(
   description: 'Exposes a URL that specifies the behaviour of this scalar.',
   locations: [DirectiveLocation.SCALAR],
   inputs: [
-    GraphQLFieldInput(
+    GraphQLFieldInput<String, String>(
       'url',
       graphQLString.nonNull(),
       description: 'The URL that specifies the behaviour of this scalar.',

@@ -302,7 +302,7 @@ class _GraphQLNonNullListType<Value, Serialized>
 
     for (int i = 0; i < input.length; i++) {
       final k = '$key[$i]';
-      final v = input[i];
+      final Object? v = input[i];
       final result = ofType.validate(k, v);
       if (!result.successful) {
         errors.addAll(result.errors);
@@ -377,7 +377,7 @@ class _GraphQLNullableListType<Value, Serialized>
 
     for (int i = 0; i < input.length; i++) {
       final k = '$key[$i]';
-      final v = input[i];
+      final Object? v = input[i];
       final result = ofType.validate(k, v);
       if (!result.successful) {
         if (v == null && ofType.isNullable) {

@@ -22,7 +22,7 @@ class Config {
         nullableFields = nullableFields ?? false,
         omitFields = omitFields ?? false;
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
       'serializerSuffix': serializerSuffix,
       'graphqlTypeSuffix': graphqlTypeSuffix,
@@ -46,7 +46,7 @@ class Config {
           ? []
           : List.of(
               (map['customTypes'] as List).map(
-                (e) => CustomTypes.fromJson((e as Map).cast()),
+                (Object? e) => CustomTypes.fromJson((e as Map).cast()),
               ),
             ),
     );
@@ -64,7 +64,7 @@ class CustomTypes {
     required this.getter,
   });
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
       'name': name,
       'import': import,
@@ -72,11 +72,11 @@ class CustomTypes {
     };
   }
 
-  factory CustomTypes.fromJson(Map<String, dynamic> map) {
+  factory CustomTypes.fromJson(Map<String, Object?> map) {
     return CustomTypes(
-      name: map['name'] as String,
-      import: map['import'] as String,
-      getter: map['getter'] as String,
+      name: map['name']! as String,
+      import: map['import']! as String,
+      getter: map['getter']! as String,
     );
   }
 }
