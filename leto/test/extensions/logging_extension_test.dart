@@ -89,6 +89,25 @@ void main() {
               final _log = json.decode(logs[eventId]) as Map<String, Object?>;
               expect(values, _log);
 
+              expect(
+                Map.fromEntries(event
+                    .separatedLog(withVariables: true)
+                    .split('\t')
+                    .map((e) {
+                  final keyIndex = e.indexOf('=');
+                  final key = e.substring(0, keyIndex);
+                  Object? value = e.substring(keyIndex + 1);
+                  if (const ['extensions', 'result', 'variables']
+                      .contains(key)) {
+                    value = json.decode(value as String);
+                  } else if (const ['dur', 'time'].contains(key)) {
+                    return null;
+                  }
+                  return MapEntry(key, value);
+                }).whereType()),
+                values,
+              );
+
               if (eventId == 5) {
                 expect(values.containsKey('variables'), true);
                 expect(event.toJson().containsKey('variables'), false);
