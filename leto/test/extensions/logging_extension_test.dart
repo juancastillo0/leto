@@ -29,6 +29,7 @@ void main() {
       '{"operation":"subsOpName","type":"subscription_event","result":{"data":{"subsFieldName":"2"}},"variables":null,"query":"subscription subsOpName { subsFieldName }"}',
       r'{"operation":"opName","type":"query","result":{"errors":[{"message":"mapped:wrongInput"}],"data":{"fieldName":null}},"extensions":{"anyExtension":true},"variables":{"input":"wrongInput"},"query":"query opName($input: String) { fieldName(input: $input) }"}',
       r'{"operation":"wrongName","type":"unknown","result":{"errors":[{"message":"Operation named \"wrongName\" not found in query."}]},"extensions":{"anyExtension":{"value":2}},"variables":{"input":"wrongInput"},"query":"query opName($input: String) { fieldName(input: $input) }"}',
+      r'{"operation":"opName2","type":"query","result":null,"variables":{"input":"wrongRethrow"},"query":"query opName2($input: String) { fieldName(input: $input) }"}',
     ];
 
     int eventId = 0;
@@ -67,6 +68,9 @@ void main() {
         MapErrorExtension((thrown) {
           final inner = thrown.error;
           if (inner is CustomError) {
+            if (inner.msg == 'wrongRethrow') {
+              throw inner;
+            }
             return GraphQLException.fromMessage(
               'mapped:${inner.msg}',
               sourceError: thrown.error,
@@ -81,13 +85,6 @@ void main() {
               final values = json.decode(
                 event.toJsonString(withVariables: true),
               ) as Map<String, Object?>;
-              final time = DateTime.parse(values.remove('time')! as String);
-              expect(time.isAfter(before), true);
-              expect(values.remove('dur'), greaterThanOrEqualTo(0));
-              before = time;
-
-              final _log = json.decode(logs[eventId]) as Map<String, Object?>;
-              expect(values, _log);
 
               expect(
                 Map.fromEntries(event
@@ -100,13 +97,25 @@ void main() {
                   if (const ['extensions', 'result', 'variables']
                       .contains(key)) {
                     value = json.decode(value as String);
-                  } else if (const ['dur', 'time'].contains(key)) {
-                    return null;
+                  } else if (key == 'dur') {
+                    value = int.parse(value as String);
                   }
                   return MapEntry(key, value);
-                }).whereType()),
+                })),
                 values,
               );
+
+              final time = DateTime.parse(values.remove('time')! as String);
+              expect(time.isAfter(before), true);
+              expect(values.remove('dur'), greaterThanOrEqualTo(0));
+              before = time;
+
+              if (eventId == 6) {
+                expect(values.remove('error'), isA<String>());
+                expect(values.remove('stackTrace'), isA<String>());
+              }
+              final _log = json.decode(logs[eventId]) as Map<String, Object?>;
+              expect(values, _log);
 
               if (eventId == 5) {
                 expect(values.containsKey('variables'), true);
@@ -115,11 +124,11 @@ void main() {
               }
               eventId++;
             },
-            count: 6,
+            count: 7,
           ),
           onResolverError: expectAsync1((err) {
             expect(err.error, isA<CustomError>());
-          }, count: 1),
+          }, count: 2),
         ),
       ],
     );
@@ -143,5 +152,14 @@ void main() {
       },
       operationName: 'wrongName',
     );
+
+    try {
+      await executor.parseAndExecute(
+        r'query opName2($input: String) { fieldName(input: $input) }',
+        variableValues: {'input': 'wrongRethrow'},
+      );
+    } catch (e) {
+      expect(e, isA<CustomError>());
+    }
   });
 }
