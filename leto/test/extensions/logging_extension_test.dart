@@ -83,7 +83,7 @@ void main() {
               ) as Map<String, Object?>;
               final time = DateTime.parse(values.remove('time')! as String);
               expect(time.isAfter(before), true);
-              expect(values.remove('dur')! as int > 0, true);
+              expect(values.remove('dur'), greaterThanOrEqualTo(0));
               before = time;
 
               final _log = json.decode(logs[eventId]) as Map<String, Object?>;
