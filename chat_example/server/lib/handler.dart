@@ -103,9 +103,8 @@ Future<void> setUpGraphQL(
           GraphQLPersistedQueries(returnHashInResponse: true),
           CacheExtension(cache: LruCacheSimple(50)),
           LoggingExtension((log) {
-            final message = log.message;
-            if (!message.startsWith('IntrospectionQuery')) {
-              print(message);
+            if (log.operationName != 'IntrospectionQuery') {
+              print(log);
             }
           }),
         ],
