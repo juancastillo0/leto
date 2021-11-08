@@ -76,12 +76,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 
     String? sha256Hash;
     if (persistedQuery is Map<String, Object?>) {
-      final _version = persistedQuery['version'];
-      final version = _version is int
-          ? _version
-          : _version is String
-              ? int.tryParse(_version)
-              : null;
+      final version = persistedQuery['version'];
 
       if (version == 1 && persistedQuery['sha256Hash'] is String) {
         sha256Hash = persistedQuery['sha256Hash']! as String;

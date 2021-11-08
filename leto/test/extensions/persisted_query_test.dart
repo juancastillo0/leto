@@ -224,5 +224,20 @@ void main() {
       result4['extensions'],
       isNull,
     );
+
+    final result5 = await _exec(
+      '$query ',
+      extensions: {
+        ...persistedQueryExtension(queryHash),
+      },
+    );
+    expect(queriesCache.linkedList.length, 2);
+    expect(result5, {
+      'errors': [
+        {
+          'message': GraphQLPersistedQueries.PERSISTED_QUERY_HASH_MISMATCH,
+        }
+      ]
+    });
   });
 }
