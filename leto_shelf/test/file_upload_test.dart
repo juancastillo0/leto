@@ -58,4 +58,120 @@ Future<void> main() async {
       }
     });
   });
+
+  test('file upload bad requests', () async {
+    final values = <String, Map<String, Object>>{
+      'Missing "operations" field.': {},
+      '"operations" field should have at least one operation.': {
+        'operations': jsonEncode(<String>[])
+      },
+      '"operations" field must decode to a JSON object.': {
+        'operations': jsonEncode(<String>['d'])
+      },
+      '"operations.query" field must be a String.': {
+        'operations': jsonEncode([
+          {'query': 2}
+        ])
+      },
+      '"operations.operationName" field must be a String?.': {
+        'operations': jsonEncode({'query': '', 'operationName': 2})
+      },
+      '"operations.variables" field must be a Map.': {
+        'operations': jsonEncode({'query': '', 'variables': true})
+      },
+      '"operations.extensions" field must be a Map.': {
+        'operations': jsonEncode({
+          'query': '',
+          'extensions': ['true'],
+          'variables': <String, Object?>{},
+        })
+      },
+      '"map" field must decode to a JSON object.': {
+        'operations': jsonEncode({
+          'query': '',
+          'variables': <String, Object?>{},
+        }),
+        'map': jsonEncode(<String>['d']),
+      },
+      '"map" contained key "kk", but no uploaded file '
+          'has that name.': {
+        'operations': jsonEncode({
+          'query': '',
+          'variables': <String, Object?>{},
+        }),
+        'map': jsonEncode(<String, String>{'kk': ''}),
+      },
+      'The value for "kk" in the "map"'
+          ' field was not a JSON array.': {
+        'operations': jsonEncode({
+          'query': '',
+          'variables': <String, Object?>{},
+        }),
+        'map': jsonEncode(<String, String>{'kk': ''}),
+        'files': [
+          http.MultipartFile.fromBytes(
+            'kk',
+            utf8.encode('testString in file'),
+            filename: 'filename1.txt',
+          )
+        ],
+      },
+      'Object "wrongVariables" is not a JSON object, but the '
+          '"map" field contained a mapping to wrongVariables.v.': {
+        'operations': jsonEncode({
+          'query': '',
+          'variables': <String, Object?>{'v': null},
+        }),
+        'map': jsonEncode(<String, List<String>>{
+          'kk': ['wrongVariables.v']
+        }),
+        'files': [
+          http.MultipartFile.fromBytes(
+            'kk',
+            utf8.encode('testString in file'),
+            filename: 'filename1.txt',
+          )
+        ],
+      },
+      'Object "variables.v" is not a JSON array, but the '
+          '"map" field contained a mapping to variables.v.wrongName.': {
+        'operations': jsonEncode({
+          'query': '',
+          'variables': <String, Object?>{
+            'v': [null]
+          },
+        }),
+        'map': jsonEncode(<String, List<String>>{
+          'kk': ['variables.v.wrongName']
+        }),
+        'files': [
+          http.MultipartFile.fromBytes(
+            'kk',
+            utf8.encode('testString in file'),
+            filename: 'filename1.txt',
+          )
+        ],
+      },
+    };
+
+    await Future.wait(values.entries.map((e) async {
+      final files = e.value.remove('files') as List<http.MultipartFile>? ?? [];
+      if (!e.value.containsKey('map')) {
+        e.value['map'] = '{}';
+      }
+
+      final request = http.MultipartRequest('POST', url)
+        ..fields['map'] = e.value['map']! as String
+        ..files.addAll(files);
+
+      final operations = e.value['operations'];
+      if (operations is String) {
+        request.fields['operations'] = operations;
+      }
+
+      final response = await request.send();
+      expect(response.statusCode, 400);
+      expect(await response.stream.bytesToString(), e.key);
+    }));
+  });
 }

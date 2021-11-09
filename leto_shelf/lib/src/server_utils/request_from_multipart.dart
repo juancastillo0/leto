@@ -26,6 +26,12 @@ Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
     return Err('"operations" field should have at least one operation.');
   }
 
+  final Object? map =
+      data.body.containsKey('map') ? json.decode(data.body['map']!) : null;
+  if (map is! Map<String, Object?>) {
+    return Err('"map" field must decode to a JSON object.');
+  }
+
   GraphQLRequest? current;
   for (final operation in operationsList.reversed) {
     if (operation is! Map<String, Object?>) {
@@ -40,11 +46,6 @@ Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
       return Err('"operations.extensions" field must be a Map.');
     }
 
-    final Object? map =
-        data.body.containsKey('map') ? json.decode(data.body['map']!) : null;
-    if (map is! Map<String, Object?>) {
-      return Err('"map" field must decode to a JSON object.');
-    }
     final variablesResult = _assignFilesToVariables(
       operation: operation,
       map: map,
