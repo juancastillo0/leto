@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'graphiql_config.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GraphiqlConfig {
   /// Required. a function which accepts GraphQL-HTTP parameters and
   /// returns a Promise, Observable or AsyncIterable which resolves
@@ -130,7 +130,7 @@ class GraphiqlConfig {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class GraphiqlFetcher {
   /// url for HTTP(S) requests. required!
   final String url;

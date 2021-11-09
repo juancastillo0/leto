@@ -26,25 +26,34 @@ GraphiqlConfig _$GraphiqlConfigFromJson(Map<String, dynamic> json) =>
       maxHistoryLength: json['maxHistoryLength'] as int?,
     );
 
-Map<String, dynamic> _$GraphiqlConfigToJson(GraphiqlConfig instance) =>
-    <String, dynamic>{
-      'schema': instance.schema,
-      'query': instance.query,
-      'variables': instance.variables,
-      'headers': instance.headers,
-      'externalFragments': instance.externalFragments,
-      'operationName': instance.operationName,
-      'response': instance.response,
-      'defaultQuery': instance.defaultQuery,
-      'defaultVariableEditorOpen': instance.defaultVariableEditorOpen,
-      'defaultSecondaryEditorOpen': instance.defaultSecondaryEditorOpen,
-      'editorTheme': instance.editorTheme,
-      'readOnly': instance.readOnly,
-      'docExplorerOpen': instance.docExplorerOpen,
-      'headerEditorEnabled': instance.headerEditorEnabled,
-      'shouldPersistHeaders': instance.shouldPersistHeaders,
-      'maxHistoryLength': instance.maxHistoryLength,
-    };
+Map<String, dynamic> _$GraphiqlConfigToJson(GraphiqlConfig instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('schema', instance.schema);
+  writeNotNull('query', instance.query);
+  writeNotNull('variables', instance.variables);
+  writeNotNull('headers', instance.headers);
+  writeNotNull('externalFragments', instance.externalFragments);
+  writeNotNull('operationName', instance.operationName);
+  writeNotNull('response', instance.response);
+  writeNotNull('defaultQuery', instance.defaultQuery);
+  writeNotNull('defaultVariableEditorOpen', instance.defaultVariableEditorOpen);
+  writeNotNull(
+      'defaultSecondaryEditorOpen', instance.defaultSecondaryEditorOpen);
+  writeNotNull('editorTheme', instance.editorTheme);
+  writeNotNull('readOnly', instance.readOnly);
+  writeNotNull('docExplorerOpen', instance.docExplorerOpen);
+  writeNotNull('headerEditorEnabled', instance.headerEditorEnabled);
+  writeNotNull('shouldPersistHeaders', instance.shouldPersistHeaders);
+  writeNotNull('maxHistoryLength', instance.maxHistoryLength);
+  return val;
+}
 
 GraphiqlFetcher _$GraphiqlFetcherFromJson(Map<String, dynamic> json) =>
     GraphiqlFetcher(
@@ -56,10 +65,19 @@ GraphiqlFetcher _$GraphiqlFetcherFromJson(Map<String, dynamic> json) =>
       enableIncrementalDelivery: json['enableIncrementalDelivery'] as bool?,
     );
 
-Map<String, dynamic> _$GraphiqlFetcherToJson(GraphiqlFetcher instance) =>
-    <String, dynamic>{
-      'url': instance.url,
-      'subscriptionUrl': instance.subscriptionUrl,
-      'headers': instance.headers,
-      'enableIncrementalDelivery': instance.enableIncrementalDelivery,
-    };
+Map<String, dynamic> _$GraphiqlFetcherToJson(GraphiqlFetcher instance) {
+  final val = <String, dynamic>{
+    'url': instance.url,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('subscriptionUrl', instance.subscriptionUrl);
+  writeNotNull('headers', instance.headers);
+  writeNotNull('enableIncrementalDelivery', instance.enableIncrementalDelivery);
+  return val;
+}

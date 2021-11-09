@@ -2,11 +2,12 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'altait_settings_state.freezed.dart';
-part 'altait_settings_state.g.dart';
+part 'altair_settings_state.freezed.dart';
+part 'altair_settings_state.g.dart';
 
 @freezed
 class SettingsState with _$SettingsState {
+  @JsonSerializable(includeIfNull: false)
   const factory SettingsState({
     /// Theme
     required String theme,

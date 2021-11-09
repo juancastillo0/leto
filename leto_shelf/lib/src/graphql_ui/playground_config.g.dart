@@ -29,22 +29,30 @@ PlaygroundConfig _$PlaygroundConfigFromJson(Map<String, dynamic> json) =>
       faviconUrl: json['faviconUrl'] as String?,
     );
 
-Map<String, dynamic> _$PlaygroundConfigToJson(PlaygroundConfig instance) =>
-    <String, dynamic>{
-      'endpoint': instance.endpoint,
-      'subscriptionEndpoint': instance.subscriptionEndpoint,
-      'workspaceName': instance.workspaceName,
-      'env': instance.env,
-      'config': instance.config,
-      'settings': instance.settings,
-      'schema': instance.schema,
-      'tabs': instance.tabs,
-      'codeTheme': instance.codeTheme,
-      'version': instance.version,
-      'cdnUrl': instance.cdnUrl,
-      'title': instance.title,
-      'faviconUrl': instance.faviconUrl,
-    };
+Map<String, dynamic> _$PlaygroundConfigToJson(PlaygroundConfig instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('endpoint', instance.endpoint);
+  writeNotNull('subscriptionEndpoint', instance.subscriptionEndpoint);
+  writeNotNull('workspaceName', instance.workspaceName);
+  writeNotNull('env', instance.env);
+  writeNotNull('config', instance.config);
+  writeNotNull('settings', instance.settings);
+  writeNotNull('schema', instance.schema);
+  writeNotNull('tabs', instance.tabs);
+  writeNotNull('codeTheme', instance.codeTheme);
+  writeNotNull('version', instance.version);
+  writeNotNull('cdnUrl', instance.cdnUrl);
+  writeNotNull('title', instance.title);
+  writeNotNull('faviconUrl', instance.faviconUrl);
+  return val;
+}
 
 Tab _$TabFromJson(Map<String, dynamic> json) => Tab(
       endpoint: json['endpoint'] as String,
@@ -59,14 +67,24 @@ Tab _$TabFromJson(Map<String, dynamic> json) => Tab(
       ),
     );
 
-Map<String, dynamic> _$TabToJson(Tab instance) => <String, dynamic>{
-      'endpoint': instance.endpoint,
-      'query': instance.query,
-      'name': instance.name,
-      'variables': instance.variables,
-      'responses': instance.responses,
-      'headers': instance.headers,
-    };
+Map<String, dynamic> _$TabToJson(Tab instance) {
+  final val = <String, dynamic>{
+    'endpoint': instance.endpoint,
+    'query': instance.query,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('name', instance.name);
+  writeNotNull('variables', instance.variables);
+  writeNotNull('responses', instance.responses);
+  writeNotNull('headers', instance.headers);
+  return val;
+}
 
 EditorColours _$EditorColoursFromJson(Map<String, dynamic> json) =>
     EditorColours(

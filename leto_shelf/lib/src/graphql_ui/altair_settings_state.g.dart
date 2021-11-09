@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'altait_settings_state.dart';
+part of 'altair_settings_state.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -30,24 +30,33 @@ _$SettingsState_ _$$SettingsState_FromJson(Map<String, dynamic> json) =>
       responsehideExtensions: json['response.hideExtensions'] as bool?,
     );
 
-Map<String, dynamic> _$$SettingsState_ToJson(_$SettingsState_ instance) =>
-    <String, dynamic>{
-      'theme': instance.theme,
-      'theme.dark': instance.themedark,
-      'language': instance.language,
-      'addQueryDepthLimit': instance.addQueryDepthLimit,
-      'tabSize': instance.tabSize,
-      'enableExperimental': instance.enableExperimental,
-      'theme.fontsize': instance.themefontsize,
-      'theme.editorFontFamily': instance.themeeditorFontFamily,
-      'theme.editorFontSize': instance.themeeditorFontSize,
-      'disablePushNotification': instance.disablePushNotification,
-      'plugin.list': instance.pluginlist,
-      'request.withCredentials': instance.requestwithCredentials,
-      'schema.reloadOnStart': instance.schemareloadOnStart,
-      'alert.disableWarnings': instance.alertdisableWarnings,
-      'historyDepth': instance.historyDepth,
-      'themeConfig': instance.themeConfig,
-      'themeConfig.dark': instance.themeConfigdark,
-      'response.hideExtensions': instance.responsehideExtensions,
-    };
+Map<String, dynamic> _$$SettingsState_ToJson(_$SettingsState_ instance) {
+  final val = <String, dynamic>{
+    'theme': instance.theme,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('theme.dark', instance.themedark);
+  val['language'] = instance.language;
+  val['addQueryDepthLimit'] = instance.addQueryDepthLimit;
+  val['tabSize'] = instance.tabSize;
+  writeNotNull('enableExperimental', instance.enableExperimental);
+  writeNotNull('theme.fontsize', instance.themefontsize);
+  writeNotNull('theme.editorFontFamily', instance.themeeditorFontFamily);
+  writeNotNull('theme.editorFontSize', instance.themeeditorFontSize);
+  writeNotNull('disablePushNotification', instance.disablePushNotification);
+  writeNotNull('plugin.list', instance.pluginlist);
+  writeNotNull('request.withCredentials', instance.requestwithCredentials);
+  writeNotNull('schema.reloadOnStart', instance.schemareloadOnStart);
+  writeNotNull('alert.disableWarnings', instance.alertdisableWarnings);
+  writeNotNull('historyDepth', instance.historyDepth);
+  writeNotNull('themeConfig', instance.themeConfig);
+  writeNotNull('themeConfig.dark', instance.themeConfigdark);
+  writeNotNull('response.hideExtensions', instance.responsehideExtensions);
+  return val;
+}

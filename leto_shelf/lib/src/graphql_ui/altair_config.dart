@@ -4,8 +4,8 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'altait_settings_state.dart';
-export 'altait_settings_state.dart';
+import 'altair_settings_state.dart';
+export 'altair_settings_state.dart';
 
 part 'altair_config.freezed.dart';
 part 'altair_config.g.dart';

@@ -5,9 +5,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'playground_config.g.dart';
 part 'playground_config.freezed.dart';
 
-@JsonSerializable()
-
 /// https://github.com/graphql/graphql-playground
+@JsonSerializable(includeIfNull: false)
 class PlaygroundConfig {
   final String? endpoint;
   final String? subscriptionEndpoint;
@@ -51,7 +50,7 @@ class PlaygroundConfig {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class Tab {
   final String endpoint;
   final String query;
@@ -112,7 +111,7 @@ class ISettings with _$ISettings {
       _$ISettingsFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class EditorColours {
   final String property;
   final String comment;
