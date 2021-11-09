@@ -52,12 +52,8 @@ Future<void> main() async {
     );
   });
 
-
-  test('generated union', () async {
-    final client = http.Client();
-
-    // TODO: check name alias
-    const _query = '''
+  // TODO: check name alias
+  const _query = '''
 query unions {
   testUnionModels(positions: [null, 1]) {
     ... on EventUnionAdd {
@@ -77,37 +73,40 @@ query unions {
 }
 ''';
 
-    final expectedBody = {
-      'data': {
-        'testUnionModels': _testUnionModels.map((e) {
-          if (e == null) {
-            return null;
-          }
-          return e.map(
-            add: (e) => {
-              'name': e.name,
-              'description': e.description,
-              // 'runtimeType': 'add',
-              'models': e.models
-                  .map((e) => e == null
-                      ? null
-                      : {
-                          'name': e.name,
-                          'description': e.description,
-                        })
-                  .toList()
-            },
-            delete: (e) => {
-              'name': e.name,
-              'cost': e.cost,
-              'dates': e.dates?.map((e) => e.toIso8601String()).toList(),
-              // 'runtimeType': 'delete',
-            },
-          );
-        }).toList(),
-      }
-    };
-    final sha256Hash = sha256.convert(utf8.encode(_query)).toString();
+  final expectedBody = {
+    'data': {
+      'testUnionModels': _testUnionModels.map((e) {
+        if (e == null) {
+          return null;
+        }
+        return e.map(
+          add: (e) => {
+            'name': e.name,
+            'description': e.description,
+            // 'runtimeType': 'add',
+            'models': e.models
+                .map((e) => e == null
+                    ? null
+                    : {
+                        'name': e.name,
+                        'description': e.description,
+                      })
+                .toList()
+          },
+          delete: (e) => {
+            'name': e.name,
+            'cost': e.cost,
+            'dates': e.dates?.map((e) => e.toIso8601String()).toList(),
+            // 'runtimeType': 'delete',
+          },
+        );
+      }).toList(),
+    }
+  };
+  final sha256Hash = sha256.convert(utf8.encode(_query)).toString();
+
+  test('generated union success', () async {
+    final client = http.Client();
 
     /// GET without query text (using persistedQueryExtension)
     /// returns error since
@@ -152,12 +151,12 @@ query unions {
     expect(response2.statusCode, 200);
     expect(jsonDecode(response2.body), expectedBody);
 
-    /// POST without query text batched
+    /// POST without query text batched with graphql+json
     const reqBatched = GraphQLRequest(query: _query);
     final responseBatched = await client.post(
       url,
       body: jsonEncode([req2.toJson(), reqBatched.toJson()]),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      headers: {HttpHeaders.contentTypeHeader: 'application/graphql+json'},
     );
     expect(responseBatched.statusCode, 200);
     expect(jsonDecode(responseBatched.body), [expectedBody, expectedBody]);
@@ -170,5 +169,57 @@ query unions {
     );
     expect(responseBatchedSingle.statusCode, 200);
     expect(jsonDecode(responseBatchedSingle.body), [expectedBody]);
+
+    /// POST with application/graphql
+    final responseApplicationGraphQL = await client.post(
+      url,
+      body: _query,
+      headers: {HttpHeaders.contentTypeHeader: 'application/graphql'},
+    );
+    expect(responseApplicationGraphQL.statusCode, 200);
+    expect(jsonDecode(responseApplicationGraphQL.body), expectedBody);
+
+    /// POST with query in queryParameters
+    final responsePostQueryParams = await client.post(
+      url.replace(queryParameters: <String, String>{'query': _query}),
+      body: jsonEncode({'extensions': persistedQueryExtension(sha256Hash)}),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(responsePostQueryParams.statusCode, 200);
+    expect(jsonDecode(responsePostQueryParams.body), expectedBody);
+  });
+
+  test('http errors', () async {
+    final client = http.Client();
+
+    // no query POST
+    http.Response response = await client.post(
+      url,
+      body: jsonEncode({'extensions': persistedQueryExtension(sha256Hash)}),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(response.statusCode, 400);
+
+    // extensions is not a map
+    response = await client.post(
+      url,
+      body: jsonEncode({'query': _query, 'extensions': <String>[]}),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+    expect(response.statusCode, 400);
+
+    // no query GET
+    response = await client.get(url);
+    expect(response.statusCode, 400);
+
+    // PUT
+    response = await client.put(url);
+    expect(response.statusCode, 404);
+    // DELETE
+    response = await client.delete(url);
+    expect(response.statusCode, 404);
+    // HEAD
+    response = await client.head(url);
+    expect(response.statusCode, 404);
   });
 }
