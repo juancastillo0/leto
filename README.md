@@ -1,4 +1,4 @@
-![Logo](img/leto_graphql.svg)
+![Logo](img/leto-logo-white.svg)
 
 <div style="text-align: center">
 <hr>
