@@ -136,6 +136,7 @@ class InputGen<T> {
 class InputGen2<T, O extends Object> {
   final String name;
   final T generic;
+  // TODO:
   // final O? valueNull;
   final O value;
   final List<O> listValue;
