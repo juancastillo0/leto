@@ -67,6 +67,12 @@ mutation sendMessage(
   }
 }
 
+query getMessageLinksMetadata($message: String!) {
+  getMessageLinksMetadata(message: $message) {
+    ...MsgLinkMetadata
+  }
+}
+
 fragment FullMessage on ChatMessage {
   ...BaseMessage
   referencedMessage {
@@ -82,4 +88,16 @@ fragment BaseMessage on ChatMessage {
   type
   fileUrl
   createdAt
+}
+
+fragment MsgLinkMetadata on LinksMetadata {
+  links {
+    title
+    description
+    image
+    url
+  }
+  emails
+  userTags
+  hasLinks
 }''';

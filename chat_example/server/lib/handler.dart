@@ -191,9 +191,44 @@ void setUpGraphQLSchemaDefinition(
     ),
   );
 
+  const _title = 'Leto Chat';
+  const _description =
+      'A chat server application implemented with Leto Dart GraphQL';
+  const _imageUrl =
+      'https://raw.githubusercontent.com/juancastillo0/leto/main/img/leto-logo-white.png';
+  const icon = '/files/assets/leto-icon-transparent.png';
+
   final schemaFileHtml = '''
+<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="$_description">
+
+  <meta property="og:description" content="$_description">
+  <meta property="og:title" content="$_title">
+  <meta property="og:url" content="https://github.com/juancastillo0/leto/">
+  <meta property="og:image" content="$_imageUrl">
+
+  <meta name="twitter:text:title" content="$_title">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="$_title">
+  <meta name="twitter:description" content="$_description">
+  <meta name="twitter:image" content="$_imageUrl">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="$_title">
+  <link rel="apple-touch-icon" href="$icon">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/png"  href="$icon"/>
+  <link rel="apple-touch-icon" sizes="320x320" href="$icon">
+  <link rel="icon" type="image/png" href="$icon">
+
+  <title>$_title</title>
 <style>
   .disable-select {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
 </style>

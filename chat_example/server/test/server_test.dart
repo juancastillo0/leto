@@ -300,6 +300,29 @@ void main() {
       final messages = responseMessages.data!['getMessage'] as List;
       expect(messages[0]['id'], messageId);
       expect(messages[1]['id'], messageId2);
+
+      final responseLinksMetadata = await link.requestRaw(
+        messagesQuery,
+        operationName: 'getMessageLinksMetadata',
+        variables: {
+          'message':
+              'Go to this link: http://localhost:8060/graphql-schema-interactive',
+        },
+      ).first;
+
+      final linksMetadata = responseLinksMetadata
+          .data!['getMessageLinksMetadata'] as Map<String, Object?>;
+      expect(linksMetadata['hasLinks'], true);
+      final links = linksMetadata['links']! as List;
+      expect(links.length, 1);
+      expect(links.first, {
+        'title': 'Leto Chat',
+        'description':
+            'A chat server application implemented with Leto Dart GraphQL',
+        'image':
+            'https://raw.githubusercontent.com/juancastillo0/leto/main/img/leto-logo-white.png',
+        'url': 'https://github.com/juancastillo0/leto/',
+      });
     });
   });
 }
