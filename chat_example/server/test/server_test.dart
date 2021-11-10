@@ -305,8 +305,7 @@ void main() {
         messagesQuery,
         operationName: 'getMessageLinksMetadata',
         variables: {
-          'message':
-              'Go to this link: http://localhost:8060/graphql-schema-interactive',
+          'message': 'Go to this link: ${host()}/graphql-schema-interactive',
         },
       ).first;
 
