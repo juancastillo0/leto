@@ -28,7 +28,7 @@ class _$FreezedSingleInputTearOff {
     );
   }
 
-  FreezedSingleInput fromJson(Map<String, Object?> json) {
+  FreezedSingleInput fromJson(Map<String, Object> json) {
     return FreezedSingleInput.fromJson(json);
   }
 }
@@ -176,15 +176,19 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _FreezedSingleInput &&
+        (other is _FreezedSingleInput &&
             (identical(other.positional, positional) ||
-                other.positional == positional) &&
-            (identical(other.five, five) || other.five == five));
+                const DeepCollectionEquality()
+                    .equals(other.positional, positional)) &&
+            (identical(other.five, five) ||
+                const DeepCollectionEquality().equals(other.five, five)));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, positional, five);
+  int get hashCode =>
+      runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(positional) ^
+      const DeepCollectionEquality().hash(five);
 
   @JsonKey(ignore: true)
   @override
@@ -261,9 +265,9 @@ abstract class _FreezedSingleInput implements FreezedSingleInput {
       _$_FreezedSingleInput.fromJson;
 
   @override
-  String? get positional;
+  String? get positional => throw _privateConstructorUsedError;
   @override // five with default
-  int get five;
+  int get five => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
   _$FreezedSingleInputCopyWith<_FreezedSingleInput> get copyWith =>
@@ -320,7 +324,7 @@ class _$UnionATearOff {
     );
   }
 
-  UnionA fromJson(Map<String, Object?> json) {
+  UnionA fromJson(Map<String, Object> json) {
     return UnionA.fromJson(json);
   }
 }
@@ -469,13 +473,14 @@ class _$_UnionA1 implements _UnionA1 {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UnionA1 &&
-            (identical(other.one, one) || other.one == one));
+        (other is _UnionA1 &&
+            (identical(other.one, one) ||
+                const DeepCollectionEquality().equals(other.one, one)));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, one);
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(one);
 
   @JsonKey(ignore: true)
   @override
@@ -590,7 +595,7 @@ abstract class _UnionA1 implements UnionA {
   factory _UnionA1.fromJson(Map<String, dynamic> json) = _$_UnionA1.fromJson;
 
 // five with default
-  int get one;
+  int get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$UnionA1CopyWith<_UnionA1> get copyWith =>
       throw _privateConstructorUsedError;
@@ -652,13 +657,14 @@ class _$_UnionA2 implements _UnionA2 {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UnionA2 &&
-            (identical(other.dec, dec) || other.dec == dec));
+        (other is _UnionA2 &&
+            (identical(other.dec, dec) ||
+                const DeepCollectionEquality().equals(other.dec, dec)));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, dec);
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(dec);
 
   @JsonKey(ignore: true)
   @override
@@ -777,7 +783,7 @@ abstract class _UnionA2 implements UnionA {
 
   @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
   @Deprecated('custom deprecated msg')
-  Decimal? get dec;
+  Decimal? get dec => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$UnionA2CopyWith<_UnionA2> get copyWith =>
       throw _privateConstructorUsedError;
@@ -835,14 +841,14 @@ class _$UnionA3 implements UnionA3 {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is UnionA3 &&
-            const DeepCollectionEquality().equals(other.one, one));
+        (other is UnionA3 &&
+            (identical(other.one, one) ||
+                const DeepCollectionEquality().equals(other.one, one)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(one);
 
   @JsonKey(ignore: true)
   @override
@@ -959,7 +965,7 @@ abstract class UnionA3 implements UnionA {
   factory UnionA3.fromJson(Map<String, dynamic> json) = _$UnionA3.fromJson;
 
   @GraphQLDocumentation(description: 'description for one')
-  List<int>? get one;
+  List<int>? get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $UnionA3CopyWith<UnionA3> get copyWith => throw _privateConstructorUsedError;
 }
@@ -1013,14 +1019,14 @@ class _$_UnionA4 implements _UnionA4 {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UnionA4 &&
-            const DeepCollectionEquality().equals(other.one, one));
+        (other is _UnionA4 &&
+            (identical(other.one, one) ||
+                const DeepCollectionEquality().equals(other.one, one)));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(one);
 
   @JsonKey(ignore: true)
   @override
@@ -1136,7 +1142,7 @@ abstract class _UnionA4 implements UnionA {
   factory _UnionA4.fromJson(Map<String, dynamic> json) = _$_UnionA4.fromJson;
 
   @GraphQLField(name: 'oneRenamed')
-  List<int> get one;
+  List<int> get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   _$UnionA4CopyWith<_UnionA4> get copyWith =>
       throw _privateConstructorUsedError;

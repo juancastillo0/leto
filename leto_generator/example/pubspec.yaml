@@ -18,7 +18,7 @@ dependencies:
 dev_dependencies:
   build_runner: ^2.0.0
   lint: ^1.0.0
-  freezed:
+  freezed: ^0.14.5
   json_serializable:
   leto_generator:
   valida_generator:
