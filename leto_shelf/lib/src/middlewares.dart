@@ -169,10 +169,10 @@ Middleware etag({
       }
 
       final ifNoneMatch = request.headersAll[HttpHeaders.ifNoneMatchHeader];
-      final settedEtag = response.headers[HttpHeaders.etagHeader];
-      if (settedEtag != null) {
+      final alreadySetEtag = response.headers[HttpHeaders.etagHeader];
+      if (alreadySetEtag != null) {
         // ETag already set
-        if (ifNoneMatch != null && ifNoneMatch.contains(settedEtag)) {
+        if (ifNoneMatch != null && ifNoneMatch.contains(alreadySetEtag)) {
           // set ETag matches If-None-Match header
           return Response.notModified(
             headers: response.headersAll,

@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:leto/leto.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf_example/run_server.dart'
     show ServerConfig, serverHandler;
 import 'package:shelf/shelf_io.dart' as io;
@@ -45,6 +48,50 @@ Future<TestGqlServer> testServer(ServerConfig config) async {
     url: url,
     subscriptionsUrl: subscriptionsUrl,
   );
+}
+
+Future<Uri> simpleGraphQLHttpServer(
+  Pipeline pipeline,
+  GraphQLSchema schema, {
+  ServerConfig? config,
+}) async {
+  final graphQL = GraphQL(
+    schema,
+    introspect: true,
+    extensions: config?.extensionList ?? [],
+  );
+
+  return simpleHttpServer(
+    pipeline
+        .addMiddleware(
+          jsonParse(),
+        )
+        .addHandler(
+          graphqlHttp(
+            graphQL,
+            globalVariables: config?.globalVariables,
+          ),
+        ),
+  );
+}
+
+Future<Uri> simpleHttpServer(
+  Handler handler,
+) async {
+  final server = await io.serve(
+    handler,
+    '0.0.0.0',
+    0,
+  );
+  // Enable content compression
+  server.autoCompress = true;
+
+  final url = Uri.http(
+    '${server.address.host}:${server.port}',
+    '/',
+  );
+
+  return url;
 }
 
 Future<void> checkEtag(http.Client client, http.Response response) async {
