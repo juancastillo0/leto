@@ -51,6 +51,14 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [Chat functionalities](#chat-functionalities)
   - [Server example](#server-example)
 - [Packages](#packages)
+- [Web integrations](#web-integrations)
+  - [Server integrations](#server-integrations)
+    - [Shelf](#shelf)
+  - [Web UI Explorers](#web-ui-explorers)
+    - [GraphiQL](#graphiql)
+    - [Playground](#playground)
+    - [Altair](#altair)
+  - [Clients](#clients)
 - [Documentation](#documentation)
 - [GraphQL Schema Types](#graphql-schema-types)
   - [Scalars](#scalars)
@@ -79,14 +87,6 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Error Handling](#error-handling)
   - [Input Validation](#input-validation)
   - [Query Complexity (Not implemented, yet)](#query-complexity-not-implemented-yet)
-- [Web integrations](#web-integrations)
-  - [Server integrations](#server-integrations)
-    - [Shelf](#shelf)
-  - [Web UI Explorers](#web-ui-explorers)
-    - [GraphiQL](#graphiql)
-    - [Playground](#playground)
-    - [Altair](#altair)
-  - [Clients](#clients)
 - [Solving the N+1 problem](#solving-the-n1-problem)
   - [Lookahead](#lookahead)
   - [DataLoader](#dataloader)
@@ -238,6 +238,42 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 | [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQLSchemas and GraphQLTypes from Dart annotations          |
 | [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server implementation using shelf                           |
 | [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQLExtensions defined in package:leto |
+
+# Web integrations
+
+## Server integrations
+
+### [Shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)
+
+- [HTTP](https://graphql.org/learn/serving-over-http/) POST and GET
+- [Mutipart requests](https://github.com/jaydenseric/graphql-multipart-request-spec) for file Upload.
+- Subscriptions through WebSockets. Supporting [graphql-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) and [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) subprotocols
+- Batched queries
+- TODO: HTTP/2
+- TODO: [Server-Sent Events](https://the-guild.dev/blog/graphql-over-sse)
+
+## Web UI Explorers
+
+### [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme)
+
+with `graphiqlHandler`.
+### [Playground](https://github.com/graphql/graphql-playground)
+
+with `playgroundHandler`.
+### [Altair](https://github.com/altair-graphql/altair)
+
+with `altairHandler`.
+
+
+## Clients
+
+For a complete GraphQL client you probably want to use:
+
+- Ferry (https://github.com/gql-dart/ferry)
+- Artemis (https://github.com/comigor/artemis)
+- or raw gql Links (https://github.com/gql-dart/gql/tree/master/links)
+  
+  gql Links are used by Ferry and Artemis, both of which provide additional functionalities over raw gql Links like serialization and deserialization, code generation, type safety, normalized caching and more.
 
 # Documentation
 
@@ -761,7 +797,7 @@ Future<void> main() async {
 The `resolve` callback in a subscription field will always receive a `SubscriptionEvent` as it's parent.
 From that you can access the event value with `SubscriptionEvent.value` which will be the emitted by the Stream returned in the `subscribe` callback. The error handling in each callback is different, if an error is thrown in the `subscribe` callback, the Stream will end with an error. But if you throw an error in the `resolve` callback it will continue sending events, just the event resolved with a thrown Object will have GraphQLErrors as a result of processing the thrown Object ([More in Error Handling](#error-handling)).
 
-For usage in the server you can use any of the [web server integrations](#web-server-integrations) (e.g. [leto_shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)) which support WebSocket suscriptions.
+For usage in the server you can use any of the [web server integrations](#web-integrations) (e.g. [leto_shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)) which support WebSocket subscriptions.
 
 ### Examples
 
@@ -783,45 +819,6 @@ daw
 ## Query Complexity (Not implemented, yet)
 
 dwd
-
-
-
-
-# Web integrations
-
-## Server integrations
-
-### [Shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)
-
-- [HTTP](https://graphql.org/learn/serving-over-http/) POST and GET
-- [Mutipart requests](https://github.com/jaydenseric/graphql-multipart-request-spec) for file Upload.
-- Subscriptions through WebSockets. Supporting [graphql-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) and [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) subprotocols
-- Batched queries
-- TODO: HTTP/2
-- TODO: [Server-Sent Events](https://the-guild.dev/blog/graphql-over-sse)
-
-## Web UI Explorers
-
-### [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme)
-
-with `graphiqlHandler`.
-### [Playground](https://github.com/graphql/graphql-playground)
-
-with `playgroundHandler`.
-### [Altair](https://github.com/altair-graphql/altair)
-
-with `altairHandler`.
-
-
-## Clients
-
-For a complete GraphQL client you probably want to use:
-
-- Ferry (https://github.com/gql-dart/ferry)
-- Artemis (https://github.com/comigor/artemis)
-- or raw gql Links (https://github.com/gql-dart/gql/tree/master/links)
-  
-  gql Links are used by Ferry and Artemis, both of which provide additional functionalities over raw gql Links like serialization and deserialization, code generation, type safety, normalized caching and more.
 
 
 # Solving the N+1 problem
