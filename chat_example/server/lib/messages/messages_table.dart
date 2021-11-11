@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
@@ -12,6 +11,7 @@ import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart';
 import 'package:server/data_utils/sql_utils.dart';
 import 'package:server/events/database_event.dart';
+import 'package:server/file_system.dart';
 import 'package:server/messages/metadata.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/utilities.dart';
@@ -357,6 +357,7 @@ Future<ChatMessage?> sendFileMessage(
     chatId: chatId,
     referencedMessageId: referencedMessageId,
   );
+  final fs = fileSystemRef.get(ctx);
   final timestamp = DateTime.now().millisecondsSinceEpoch;
   final uuid = uuidBase64Url();
 
@@ -364,7 +365,7 @@ Future<ChatMessage?> sendFileMessage(
   final filePath = //
       '/files/chats/$chatId/${claims.userId}/'
       '$timestamp-$uuid-$fileName';
-  final ioFile = await File('./bin$filePath').create(recursive: true);
+  final ioFile = await fs.file('./bin$filePath').create(recursive: true);
 
   // TODO: sizeLimit
   final c = ioFile.openWrite();

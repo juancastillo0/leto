@@ -137,14 +137,14 @@ class FileMetadata with _$FileMetadata {
         ? null
         : BlurHash.encode(image, numCompX: 4, numCompY: 3).hash;
 
-    final sha1Hash = sha1.bind(upload.data).single.toString();
+    final sha1Hash = await sha1.bind(upload.data).single;
 
     // TODO: add more image metadata?
     return FileMetadata(
       fileHashBlur: blurHash,
       fileName: upload.filename!,
       mimeType: upload.contentType?.mimeType ?? 'application/octet-stream',
-      sha1Hash: sha1Hash,
+      sha1Hash: sha1Hash.toString(),
       sizeInBytes: fileBytes.lengthInBytes,
     );
   }
