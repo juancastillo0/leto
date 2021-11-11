@@ -9,12 +9,12 @@ import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
 import 'package:server/events/database_event.dart';
+import 'package:server/file_system.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;
 import 'package:server/users/user_table.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
-import 'package:shelf_static/shelf_static.dart';
 
 Future<HttpServer> startServer({
   ScopedMap? scope,
@@ -281,48 +281,6 @@ void setUpGraphQLUi(
   );
 }
 
-Handler staticFilesHandler(GlobalsHolder globals) {
-  final handler = createStaticHandler(
-    pathRelativeToScript(['/']),
-    listDirectories: true,
-    useHeaderBytesForContentType: true,
-  );
-
-  return (request) async {
-    final etag = request.headers[HttpHeaders.ifNoneMatchHeader];
-    String? fileHash;
-    final filepath = request.params['filepath']!;
-    if (filepath.startsWith('chats/')) {
-      final chatController = await chatControllerRef.get(globals);
-
-      final dbbPath = request.url.pathSegments.join('/');
-      // TODO: Authorization
-      final message = await chatController.messages.getByPath('/$dbbPath');
-      if (message == null) {
-        return Response.notFound(null);
-      }
-      final fileMetadata = message.metadata()?.fileMetadata;
-      if (fileMetadata != null) {
-        fileHash = '"${fileMetadata.sha1Hash}"';
-        if (fileHash == etag) {
-          return Response.notModified();
-        }
-      }
-    }
-    final response = await handler(request);
-    return fileHash != null ? setEtag(response, fileHash) : response;
-  };
-}
-
 Response _echoHandler(Request request) {
   return Response.ok(DateTime.now().toString());
-}
-
-String pathRelativeToScript(List<String> pathSegments) {
-  return [
-    '/',
-    ...Platform.script.pathSegments
-        .take(Platform.script.pathSegments.length - 1),
-    ...pathSegments
-  ].join(Platform.pathSeparator);
 }
