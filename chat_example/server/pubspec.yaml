@@ -15,6 +15,7 @@ dependencies:
   metadata_fetch: ^0.4.1
   linkify: ^4.1.0
   crypto:
+  file: ^6.1.2
 
   valida:
 
@@ -59,6 +60,10 @@ dev_dependencies:
   gql_exec:
   gql_link:
   gql_websocket_link:
+    git:
+      url: https://github.com/juancastillo0/gql
+      path: links/gql_websocket_link
+      ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266
   gql:
 
 dependency_overrides:

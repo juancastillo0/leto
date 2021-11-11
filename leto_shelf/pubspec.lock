@@ -251,9 +251,11 @@ packages:
   gql_websocket_link:
     dependency: "direct dev"
     description:
-      name: gql_websocket_link
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "links/gql_websocket_link"
+      ref: "813d52423ed1bff6db17e9c1dbe47cf489f06266"
+      resolved-ref: "813d52423ed1bff6db17e9c1dbe47cf489f06266"
+      url: "https://github.com/juancastillo0/gql"
+    source: git
     version: "0.3.1"
   graphs:
     dependency: transitive
@@ -508,7 +510,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.26.0"
+    version: "0.27.2"
   sasl_scram:
     dependency: transitive
     description:
