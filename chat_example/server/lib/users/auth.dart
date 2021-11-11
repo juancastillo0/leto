@@ -4,6 +4,7 @@ import 'dart:math' show Random;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:argon2/argon2.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:jose/jose.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf/leto_shelf.dart';
@@ -69,7 +70,7 @@ Future<void> setWebSocketAuth(
     final refreshToken = map['refreshToken'];
     UserClaims? claims;
     if (refreshToken is String) {
-      claims = await _getUserClaimsFromToken(
+      claims = await getUserClaimsFromToken(
         refreshToken,
         isRefreshToken: true,
       );
@@ -138,7 +139,7 @@ Future<UserClaims?> getUserClaims(
   }
   final authToken = getAuthToken(ctx);
   if (authToken != null) {
-    return _getUserClaimsFromToken(
+    return getUserClaimsFromToken(
       authToken,
       isRefreshToken: isRefreshToken,
     );
@@ -146,7 +147,8 @@ Future<UserClaims?> getUserClaims(
   return null;
 }
 
-Future<UserClaims?> _getUserClaimsFromToken(
+@visibleForTesting
+Future<UserClaims?> getUserClaimsFromToken(
   String authToken, {
   bool isRefreshToken = false,
 }) async {

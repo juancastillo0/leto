@@ -46,6 +46,8 @@ fragment BaseMessage on ChatMessage {
   createdAt
 }''';
 
+// TOOD: test message metadata
+
 const messagesQuery = r'''
 query getMessages($chatId: Int!) {
   getMessage(chatId: $chatId) {
@@ -61,6 +63,22 @@ mutation sendMessage(
   sendMessage(
     chatId: $chatId
     message: $message
+    referencedMessageId: $referencedMessageId
+  ) {
+    ...FullMessage
+  }
+}
+
+mutation sendFileMessage(
+  $chatId: Int!
+  $message: String
+  $file: Upload!
+  $referencedMessageId: Int
+) {
+  sendFileMessage(
+    chatId: $chatId
+    message: $message
+    file: $file
     referencedMessageId: $referencedMessageId
   ) {
     ...FullMessage
@@ -90,6 +108,24 @@ fragment BaseMessage on ChatMessage {
   createdAt
 }
 
+fragment MsgMetadata on MessageMetadata {
+  fileMetadata {
+    ...MsgFileMetadata
+  }
+  linksMetadata {
+    ...MsgLinkMetadata
+  }
+  computedAt
+}
+
+fragment MsgFileMetadata on FileMetadata {
+  sizeInBytes
+  mimeType
+  fileName
+  sha1Hash
+  fileHashBlur
+}
+
 fragment MsgLinkMetadata on LinksMetadata {
   links {
     title
@@ -100,4 +136,62 @@ fragment MsgLinkMetadata on LinksMetadata {
   emails
   userTags
   hasLinks
+}''';
+
+const roomQueries = r'''
+mutation createRoom($name: String!) {
+  createChatRoom(name: $name) {
+    ...FullChatRoom
+  }
+}
+
+mutation deleteRoom($id: Int!) {
+  deleteChatRoom(id: $id)
+}
+
+query getRooms {
+  getChatRooms {
+    ...FullChatRoom
+  }
+}
+
+query searchUser($name: String!) {
+  searchUser(name: $name) {
+    ...AUser
+  }
+}
+
+mutation addChatRoomUser(
+  $role: ChatRoomUserRole
+  $chatId: Int!
+  $userId: Int!
+) {
+  addChatRoomUser(chatId: $chatId, userId: $userId, role: $role) {
+    ...UserChat
+  }
+}
+
+mutation deleteChatRoomUser($chatId: Int!, $userId: Int!) {
+  deleteChatRoomUser(chatId: $chatId, userId: $userId)
+}
+
+fragment UserChat on ChatRoomUser {
+  userId
+  chatId
+  role
+  user {
+    ...AUser
+  }
+}
+
+fragment FullChatRoom on ChatRoom {
+  ...BaseChatRoom
+  users {
+    ...UserChat
+  }
+}
+fragment BaseChatRoom on ChatRoom {
+  id
+  name
+  createdAt
 }''';

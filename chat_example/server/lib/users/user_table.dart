@@ -420,6 +420,10 @@ Future<String?> refreshAuthToken(
   if (claims == null) {
     return null;
   }
+  final session = await userSessionRef.get(ctx).get(claims.sessionId);
+  if (session == null || !session.isActive) {
+    return null;
+  }
   return setAuthToken(
     ctx,
     claims,
