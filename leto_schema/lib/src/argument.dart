@@ -44,6 +44,8 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
     );
   }
 
+  /// An input to a GraphQL field. This is analogous
+  /// to a function parameter in Dart.
   GraphQLFieldInput(
     this.name,
     this.type, {

@@ -62,6 +62,8 @@ bool isSpecifiedScalarType(GraphQLType type) {
   ].contains(type.name);
 }
 
+/// A [GraphQLType] without nested properties.
+/// Can be used as an input type.
 abstract class GraphQLScalarType<Value, Serialized>
     extends GraphQLType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
@@ -75,6 +77,9 @@ abstract class GraphQLScalarType<Value, Serialized>
   GraphQLType<Value, Serialized> coerceToInputObject() => this;
 }
 
+/// A [GraphQLType] without nested properties.
+/// Can be used as an input type.
+/// Utility for creating a [GraphQLScalarType], you can also extend it.
 class GraphQLScalarTypeValue<Value, Serialized>
     extends GraphQLScalarType<Value, Serialized> {
   @override
@@ -89,6 +94,9 @@ class GraphQLScalarTypeValue<Value, Serialized>
   final Serialized Function(Value value) _serialize;
   final Value Function(SerdeCtx serdeCtx, Serialized serialized) _deserialize;
 
+  /// A [GraphQLType] without nested properties.
+  /// Can be used as an input type.
+  /// Utility for creating a [GraphQLScalarType], you can also extend it.
   GraphQLScalarTypeValue({
     required this.name,
     required this.description,

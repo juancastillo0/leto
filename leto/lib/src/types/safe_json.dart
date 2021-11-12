@@ -26,6 +26,8 @@ abstract class Json {
   /// A null [Json] value
   static const null_ = JsonNone();
 
+  /// Executes the given callback when [this.value
+  /// is of the type parameter.
   T when<T>({
     required T Function(Map<String, Json>) map,
     required T Function(List<Json>) list,
@@ -70,10 +72,13 @@ abstract class Json {
     }
   }
 
+  /// Returns the inner json value
   Object? toJsonShallow() {
     return toJson(shallow: true);
   }
 
+  /// Creates a Json from a valid Json value.
+  /// throws [Exception] if [value] could not be coerced into a [Json]
   factory Json.fromJson(Object? value) {
     final result = fromJsonChecked(value);
 
@@ -83,6 +88,10 @@ abstract class Json {
     );
   }
 
+  /// Creates a Json from a valid Json value.
+  /// Similar to [fromJson] but does not throw when
+  /// [value] could not be coerced into a [Json], it
+  /// returns an error message instead
   static Result<Json, String> fromJsonChecked(
     Object? value, {
     String? getter,
@@ -178,6 +187,7 @@ Result<T, E> resultCtx<T extends Object, E extends Object>(
 }
 
 class ResultCtx<T extends Object, E extends Object> {
+  /// Retuen 
   T unwrap(Result<T, E> result) {
     if (result.isOk()) {
       return result.unwrap();

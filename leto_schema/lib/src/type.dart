@@ -94,55 +94,6 @@ abstract class GraphQLType<Value, Serialized> {
 
   Iterable<Object?> get props;
 
-  // @override
-  // bool operator ==(Object? other) {
-  //   return identical(this, other) ||
-  //           other is GraphQLType &&
-  //               (runtimeType == other.runtimeType ||
-  //                 this is GraphQLObjectType && other is GraphQLObjectType) &&
-  //               const DeepCollectionEquality().equals(other.props, props)
-  //       // || other is GraphQLType &&
-  //       // () {
-  //       //   final _otherReal = other.realType;
-  //       //   final _real = realType;
-  //       //   return identical(_otherReal, realType) ||
-  //       //       (_otherReal.runtimeType == _real.runtimeType &&
-  //       //           _otherReal is GraphQLTypeWrapper &&
-  //       //           _real is GraphQLTypeWrapper &&
-  //       //           (_otherReal as GraphQLTypeWrapper).ofType.realType ==
-  //       //               (_real as GraphQLTypeWrapper).ofType.realType);
-  //       // }()
-  //       ;
-  // }
-
-  // static Map<String, GraphQLType>? _usedHashCodes;
-
-  // @override
-  // int get hashCode {
-  //   final key = toString();
-  //   final _used = _usedHashCodes;
-  //   if (_used == null) {
-  //     _usedHashCodes = {key: this};
-  //     final value = const DeepCollectionEquality().hash(props);
-  //     _usedHashCodes = null;
-  //     return value;
-  //   } else if (_used.containsKey(key)) {
-  //     assert(
-  //       () {
-  //         final other = _used[key]!;
-  //         final areEqual = other == this;
-  //         return areEqual;
-  //       }(),
-  //       'GraphQLTypes with the same name are different:'
-  //       ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
-  //     );
-  //     return key.hashCode;
-  //   } else {
-  //     _used[key] = this;
-  //   }
-  //   return const DeepCollectionEquality().hash(props);
-  // }
-
   @override
   String toString() => name!;
 

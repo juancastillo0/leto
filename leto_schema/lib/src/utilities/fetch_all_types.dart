@@ -1,6 +1,6 @@
 import 'package:leto_schema/leto_schema.dart';
 
-/// Returns a Set of all types in the [schema]
+/// Returns a Set of all named types in the [schema]
 Set<GraphQLType> fetchAllNamedTypes(GraphQLSchema schema) {
   final data = <GraphQLType>[
     ...schema.otherTypes,
@@ -16,14 +16,15 @@ Set<GraphQLType> fetchAllNamedTypes(GraphQLSchema schema) {
 }
 
 class CollectTypes {
-  // final traversedTypes = GraphQLTypeSet();
-
+  /// The set of types collected at this point
   final traversedTypes = <GraphQLType>{};
 
+  /// Collects all named types from [types]
   CollectTypes(Iterable<GraphQLType> types) {
     types.forEach(_fetchAllTypesFromType);
   }
 
+  /// Collects all named types from [type]
   CollectTypes.fromRootObject(GraphQLObjectType type) {
     _fetchAllTypesFromObject(type);
   }
@@ -77,44 +78,6 @@ class CollectTypes {
   }
 }
 
-class GraphQLTypeSet {
-  final Map<String, GraphQLType> types = {};
-
-  Iterable<GraphQLType> get allTypes => types.values;
-
-  void addAll(Iterable<GraphQLType> types) {
-    types.forEach(add);
-  }
-
-  bool contains(GraphQLType type) {
-    final key = type.toString();
-    final prev = types[key];
-    if (prev == null) {
-      return false;
-    } else if (!areEqual(prev, type)) {
-      throw SameNameGraphQLTypeException(prev, type);
-    }
-    return true;
-  }
-
-  void add(GraphQLType type) {
-    if (!contains(type)) {
-      types[type.toString()] = type;
-    }
-  }
-
-  static bool areEqual(GraphQLType a, GraphQLType b) {
-    if (identical(a, b)) return true;
-    if (a is GraphQLListType && b is GraphQLListType) {
-      return areEqual(a.ofType, b.ofType);
-    } else if (a is GraphQLNonNullType && b is GraphQLNonNullType) {
-      return areEqual(a.ofType, b.ofType);
-    } else {
-      return a == b;
-    }
-  }
-}
-
 /// Thrown when a [GraphQLSchema] has at least two different
 /// [GraphQLType]s with the same name.
 class SameNameGraphQLTypeException implements Exception {
@@ -140,11 +103,12 @@ If you need cyclic types, you can do the following:
 GraphQLType? _type;
 GraphQLType get type {
   if (_type != null) return _type!;
-  __type = ...;
-  _type = __type;
+  __type = ...; // create the type
+  _type = __type; // set the cached value
+
   // or __type.possibleTypes for unions
   __type.fields.addAll([
-    ...
+    ... // add fields with cyclic references
   ]);
   return __type;
 }

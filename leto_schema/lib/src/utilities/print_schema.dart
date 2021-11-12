@@ -9,6 +9,7 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/utilities/ast_from_value.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart';
 
+/// Returns true if the [type] is an introspection type
 bool isIntrospectionType(GraphQLType type) {
   return const [
     '__Schema',

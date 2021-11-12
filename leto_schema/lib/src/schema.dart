@@ -99,7 +99,7 @@ class GraphQLSchema {
       if (prev == null) {
         typeMap[name] = type;
       } else if (queryType == prev || queryType == type) {
-        // If it's an introspected queryType, don't throw exception
+        // Don't throw exception if it's an introspected queryType
         final other = prev == queryType ? type : prev;
         final difference = queryType!.fields
             .map((e) => e.name)

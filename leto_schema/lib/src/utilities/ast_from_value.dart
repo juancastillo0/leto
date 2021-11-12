@@ -57,12 +57,14 @@ ast.ValueNode? astFromValue(Object? value, GraphQLType type) {
     input: (input) {
       return astFromObject(input.serializeSafe(value), input.fields);
     },
-    object: (object) {
-      throw ArgumentError('astFromValue can only be called with input types.');
-    },
-    union: (union) {
-      throw ArgumentError('astFromValue can only be called with input types.');
-    },
+    object: (object) => throw ArgumentError(
+      'astFromValue can only be called with input types,'
+      ' received Object $object.',
+    ),
+    union: (union) => throw ArgumentError(
+      'astFromValue can only be called with input types,'
+      ' received Union $union.',
+    ),
     list: (list) {
       if (value is List) {
         return ast.ListValueNode(values: [
@@ -210,7 +212,9 @@ ast.ValueNode astFromUntypedValue(Object? value) {
   throw Error();
 }
 
+/// Utility for executing code for each [ast.ValueNode] type
 extension ValueNodeWhen on ast.ValueNode {
+  /// Executes the given callback when [this] is of the type parameter
   T when<T>({
     required T Function(ast.StringValueNode) string,
     required T Function(ast.IntValueNode) int_,

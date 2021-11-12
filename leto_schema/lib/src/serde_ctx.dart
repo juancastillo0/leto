@@ -22,8 +22,8 @@ class SerdeCtx {
 
   /// Other context associated with this context
   ///
-  /// Useful if the children wants to add [Serializer]s with out having
-  /// a direct reference to the parent
+  /// Useful if the children wants to add [Serializer]s without
+  /// having a direct reference to the parent
   final Set<SerdeCtx> children = {};
 
   Map<Type, Serializer<Object>> get map => _map;
@@ -124,10 +124,10 @@ class SerdeCtx {
     _map[serializer.generic.typeNull] = serializer;
 
     final listSerializer = serializer.listSerializer;
-    _map[serializer.generic.listType] = listSerializer;
-    _map[serializer.generic.listNullType] = listSerializer;
-    _map[serializer.generic.listTypeNull] = listSerializer;
-    _map[serializer.generic.listNullTypeNull] = listSerializer;
+    _map[serializer.generic._listType] = listSerializer;
+    _map[serializer.generic._listNullType] = listSerializer;
+    _map[serializer.generic._listTypeNull] = listSerializer;
+    _map[serializer.generic._listNullTypeNull] = listSerializer;
 
     _keyedMap.addEntries(
       serializer.keys.map((e) => MapEntry(e.replaceAll('?', ''), serializer)),
@@ -140,6 +140,8 @@ class SerdeCtx {
   //   return _map[T];
   // }
 
+  /// Returns the serializer for the given type [T].
+  /// If [key] is non-null it will be used to find the serializer.
   Serializer<T>? of<T>({String? key}) {
     Serializer<T>? serializer = _map[T] as Serializer<T>?;
     if (serializer != null) return serializer;
@@ -249,6 +251,7 @@ class GenericHelpSingle<T> {
   final generic = GenericHelp<T>();
 }
 
+/// Returns the type passed as type argument
 Type getType<T>() => T;
 
 /// Helper utilities for working with the generic type argument [T].
@@ -256,12 +259,14 @@ Type getType<T>() => T;
 class GenericHelp<T> implements GenericHelpSingle<T> {
   /// [T] as a [Type] object.
   Type get type => T;
+
+  /// [T] as a nullable [Type] object.
   Type get typeNull => getType<T?>();
 
-  Type get listType => getType<List<T>>();
-  Type get listNullType => getType<List<T>?>();
-  Type get listTypeNull => getType<List<T?>>();
-  Type get listNullTypeNull => getType<List<T?>?>();
+  Type get _listType => getType<List<T>>();
+  Type get _listNullType => getType<List<T>?>();
+  Type get _listTypeNull => getType<List<T?>>();
+  Type get _listNullTypeNull => getType<List<T?>?>();
 
   /// Returns true if [value] is of type [T], false otherwise.
   bool isValueOfType(Object? value) => value is T;

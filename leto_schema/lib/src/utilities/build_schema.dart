@@ -258,6 +258,9 @@ Object? getDirectiveValue(
   return computeValue(null, value, variableValues);
 }
 
+/// Returns a [GraphQLType] from a [TypeNode] and
+/// a map of names to types [customTypes].
+/// throws [GraphQLError] there isn't a match.
 GraphQLType<Object?, Object?> convertType(
   TypeNode node,
   Map<String, GraphQLType> customTypes,

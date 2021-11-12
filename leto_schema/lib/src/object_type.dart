@@ -43,6 +43,8 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
   /// which are associated with this object type
   final IsTypeOfWrapper<P>? isTypeOf;
 
+  /// A [GraphQLType] that specifies the shape of structured data,
+  /// with multiple fields that can be resolved independently of one another.
   GraphQLObjectType(
     this.name, {
     this.description,
@@ -97,6 +99,10 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     }
   }
 
+  /// Declares that this type inherits from other parent types.
+  ///
+  /// This also has the side effect of notifying
+  /// the parent that this type is its descendant.
   void inheritFromMany(
     Iterable<GraphQLObjectType> others, {
     Set<GraphQLObjectType>? alreadyInherited,
@@ -219,7 +225,7 @@ typedef IsTypeOf<P> = bool Function(
 class IsTypeOfWrapper<P> {
   final IsTypeOf<P> func;
 
-  IsTypeOfWrapper(this.func);
+  const IsTypeOfWrapper(this.func);
 
   bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
       func(value, type, ctx);
@@ -251,6 +257,8 @@ class GraphQLInputObjectType<Value>
   /// A function which parses a JSON Map into the [Value] type
   final Value Function(Map<String, Object?>)? customDeserialize;
 
+  /// A special [GraphQLType] that specifies the shape of an object that can
+  /// only be used as an input to a [GraphQLField].
   GraphQLInputObjectType(
     this.name, {
     this.description,
