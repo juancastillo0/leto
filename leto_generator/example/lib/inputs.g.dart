@@ -253,6 +253,9 @@ GraphQLInputObjectType<InputGen2<T, O>>
     [
       inputField('name', graphQLString.nonNull().coerceToInputObject()),
       inputField('generic', tGraphQLType.coerceToInputObject()),
+      inputField('valueNull', oGraphQLType.nullable().coerceToInputObject()),
+      inputField('listValueNull',
+          oGraphQLType.nullable().list().nonNull().coerceToInputObject()),
       inputField('value', oGraphQLType.nonNull().coerceToInputObject()),
       inputField('listValue',
           oGraphQLType.nonNull().list().nonNull().coerceToInputObject())
@@ -354,8 +357,12 @@ InputGen2<T, O> _$InputGen2FromJson<T, O extends Object>(
     InputGen2<T, O>(
       name: json['name'] as String,
       generic: fromJsonT(json['generic']),
+      valueNull: _$nullableGenericFromJson(json['valueNull'], fromJsonO),
       value: fromJsonO(json['value']),
       listValue: (json['listValue'] as List<dynamic>).map(fromJsonO).toList(),
+      listValueNull: (json['listValueNull'] as List<dynamic>)
+          .map((e) => _$nullableGenericFromJson(e, fromJsonO))
+          .toList(),
     );
 
 Map<String, dynamic> _$InputGen2ToJson<T, O extends Object>(
@@ -366,6 +373,22 @@ Map<String, dynamic> _$InputGen2ToJson<T, O extends Object>(
     <String, dynamic>{
       'name': instance.name,
       'generic': toJsonT(instance.generic),
+      'valueNull': _$nullableGenericToJson(instance.valueNull, toJsonO),
+      'listValueNull': instance.listValueNull
+          .map((e) => _$nullableGenericToJson(e, toJsonO))
+          .toList(),
       'value': toJsonO(instance.value),
       'listValue': instance.listValue.map(toJsonO).toList(),
     };
+
+T? _$nullableGenericFromJson<T>(
+  Object? input,
+  T Function(Object? json) fromJson,
+) =>
+    input == null ? null : fromJson(input);
+
+Object? _$nullableGenericToJson<T>(
+  T? input,
+  Object? Function(T value) toJson,
+) =>
+    input == null ? null : toJson(input);

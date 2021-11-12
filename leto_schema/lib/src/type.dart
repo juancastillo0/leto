@@ -62,6 +62,16 @@ abstract class GraphQLType<Value, Serialized> {
   /// that a field of this type is present in input data.
   GraphQLNonNullType<Value, Serialized> nonNull();
 
+  /// Returns a nullable type that represents this type.
+  /// If the type is [isNullable] returns itself without changes.
+  GraphQLType<Value, Serialized> nullable() {
+    final _this = this;
+    if (_this is GraphQLNonNullType<Value, Serialized>) {
+      return _this.ofType;
+    }
+    return this;
+  }
+
   /// Turns this type into one suitable for being provided as an input
   /// to a [GraphQLObjectField].
   GraphQLType<Value, Serialized> coerceToInputObject();

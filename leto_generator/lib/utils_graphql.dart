@@ -214,7 +214,11 @@ Expression inferType(
         final isNonNull = nullable != true &&
             type.nullabilitySuffix == NullabilitySuffix.none &&
             generic.bound?.nullabilitySuffix == NullabilitySuffix.none;
-        final nullability = isNonNull ? '.nonNull()' : '';
+        final nullability = isNonNull
+            ? '.nonNull()'
+            : type.nullabilitySuffix != NullabilitySuffix.none
+                ? '.nullable()'
+                : '';
         return refer(
           '${ReCase(externalName).camelCase}$graphqlTypeSuffix$nullability',
         );

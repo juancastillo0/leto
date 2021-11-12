@@ -136,17 +136,18 @@ class InputGen<T> {
 class InputGen2<T, O extends Object> {
   final String name;
   final T generic;
-  // TODO:
-  // final O? valueNull;
+  final O? valueNull;
+  final List<O?> listValueNull;
   final O value;
   final List<O> listValue;
 
   const InputGen2({
     required this.name,
     required this.generic,
-    // required this.valueNull,
+    required this.valueNull,
     required this.value,
     required this.listValue,
+    required this.listValueNull,
   });
 
   factory InputGen2.fromJson(

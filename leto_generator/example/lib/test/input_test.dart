@@ -78,9 +78,15 @@ void main() {
       'gen2': const InputGen2<String, List<List<int>?>>(
         name: 'name',
         generic: 'fawd',
-        // TODO:
-        // valueNull: null,
+        valueNull: null,
         value: [],
+        listValueNull: [
+          null,
+          [
+            null,
+            [1]
+          ]
+        ],
         listValue: [
           [null],
           [
