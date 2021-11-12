@@ -66,7 +66,7 @@ class SchemaPrinter {
     bool Function(GraphQLType) typeFilter,
   ) {
     final directives = schema.directives.where(directiveFilter);
-    final types = fetchAllTypes(schema, []).where(typeFilter);
+    final types = fetchAllNamedTypes(schema).where(typeFilter);
 
     return [
       printSchemaDefinition(schema),

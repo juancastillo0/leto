@@ -127,17 +127,17 @@ type Subscription {
 
     test('defines a query root', () {
       final schema = GraphQLSchema(queryType: testType);
-      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
+      expect(schema.typeMap.keys, containsAll(<String>['TestType']));
     });
 
     test('defines a mutation root', () {
       final schema = GraphQLSchema(mutationType: testType);
-      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
+      expect(schema.typeMap.keys, containsAll(<String>['TestType']));
     });
 
     test('defines a subscription root', () {
       final schema = GraphQLSchema(subscriptionType: testType);
-      expect(schema.typeMap().keys, containsAll(<String>['TestType']));
+      expect(schema.typeMap.keys, containsAll(<String>['TestType']));
     });
   });
 
@@ -162,7 +162,7 @@ type Subscription {
             field('iface', SomeInterface),
           ],
         ),
-        types: [SomeSubtype],
+        otherTypes: [SomeSubtype],
       );
 
       expect(schema.getType('SomeInterface'), SomeInterface);
@@ -191,7 +191,7 @@ type Subscription {
         interfaces: [SomeInterface],
       );
 
-      final schema = GraphQLSchema(types: [SomeSubtype]);
+      final schema = GraphQLSchema(otherTypes: [SomeSubtype]);
 
       expect(schema.getType('SomeInterface'), SomeInterface);
       expect(schema.getType('AnotherInterface'), AnotherInterface);
@@ -241,7 +241,7 @@ type Subscription {
       );
       final schema = GraphQLSchema(directives: [directive]);
 
-      expect(schema.typeMap().keys, containsAll(<String>['Foo', 'Bar']));
+      expect(schema.typeMap.keys, containsAll(<String>['Foo', 'Bar']));
     });
   });
 
@@ -371,7 +371,7 @@ type Subscription {
 
           // @ts-expect-error
           expect(
-              () => GraphQLSchema(queryType: query, types: types),
+              () => GraphQLSchema(queryType: query, otherTypes: types),
               throwsA(predicate(
                 (e) =>
                     e is ArgumentError &&
@@ -388,7 +388,7 @@ type Subscription {
           ];
 
           expect(
-              () => GraphQLSchema(types: types),
+              () => GraphQLSchema(otherTypes: types),
               throwsA(predicate(
                 (e) =>
                     e is ArgumentError &&

@@ -116,7 +116,9 @@ class ErrU<T extends Object, E extends Object> extends Err<T, E>
   ErrU(E s) : super(s);
 }
 
-GraphQLType<ResultU<T, T2>, Map<String, Object?>>
+final _resultUGraphQLTypes = <String, GraphQLType>{};
+
+GraphQLUnionType<ResultU<T, T2>>
     resultUGraphQLType<T extends Object, T2 extends Object>(
   GraphQLType<T, Object> _t1,
   GraphQLType<T2, Object> _t2, {
@@ -128,12 +130,20 @@ GraphQLType<ResultU<T, T2>, Map<String, Object?>>
   final t2 = (_t2 is GraphQLNonNullType
       ? (_t2 as GraphQLNonNullType).ofType
       : _t2) as GraphQLObjectType;
-  return GraphQLUnionType(
-    name ?? 'ResultU${t1.name}${t2.name}',
-    [t1, t2],
+
+  final _name = name ?? 'ResultU${t1.name}${t2.name}';
+  if (_resultUGraphQLTypes.containsKey(_name)) {
+    return _resultUGraphQLTypes[_name]! as GraphQLUnionType<ResultU<T, T2>>;
+  }
+  final type = GraphQLUnionType<ResultU<T, T2>>(
+    _name,
+    [],
     description: '${t1.name} when the operation was successful or'
         ' ${t2.name} when an error was encountered.',
     extractInner: (result) => result.when(ok: (ok) => ok, err: (err) => err),
     resolveType: (result, union, ctx) => result is Err ? t2.name : t1.name,
   );
+  _resultUGraphQLTypes[type.name] = type;
+  type.possibleTypes.addAll([t1, t2]);
+  return type;
 }

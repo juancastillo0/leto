@@ -6,11 +6,12 @@ import 'package:leto_schema/utilities.dart' show astFromValue, printAST;
 ///
 /// [allTypes] should contain all types, not directly defined in the schema,
 /// that you would like to have introspection available for.
-GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
+GraphQLSchema reflectSchema(GraphQLSchema schema) {
   final typeType = _reflectTypeType();
   final directiveType = _reflectDirectiveType();
 
-  Set<GraphQLType>? allTypeSet;
+  final Map<String, GraphQLType> allTypeMap = {...schema.typeMap};
+  late final List<GraphQLType> allTypes;
 
   final schemaType = objectType<Object>('__Schema', fields: [
     field(
@@ -21,7 +22,7 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     field(
       'types',
       listOf(typeType.nonNull()).nonNull(),
-      resolve: (_, __) => allTypeSet ??= allTypes.toSet(),
+      resolve: (_, __) => allTypes,
     ),
     field(
       'queryType',
@@ -46,18 +47,21 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
     ),
   ]);
 
-  allTypes.addAll([
-    graphQLBoolean,
-    graphQLString,
-    schemaType,
-    typeType,
-    _typeKindType,
-    _reflectFieldType(),
-    _reflectInputValueType(),
-    _reflectEnumValueType(),
-    directiveType,
-    _directiveLocationType,
-  ]);
+  allTypeMap.addEntries(
+    <GraphQLType>[
+      graphQLBoolean,
+      graphQLString,
+      schemaType,
+      typeType,
+      _typeKindType,
+      _reflectFieldType(),
+      _reflectInputValueType(),
+      _reflectEnumValueType(),
+      directiveType,
+      _directiveLocationType,
+    ].map((e) => MapEntry(e.name!, e)),
+  );
+  allTypes = allTypeMap.values.toList();
 
   final fields = <GraphQLObjectField<Object?, Object?, Object?>>[
     field(
@@ -71,12 +75,11 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
       inputs: [GraphQLFieldInput('name', graphQLString.nonNull())],
       resolve: (_, ctx) {
         final name = ctx.args['name'] as String?;
-        return allTypes.firstWhere(
-          (t) => t.name == name,
-          orElse: () => throw GraphQLException.fromMessage(
-            'No type named "$name" exists.',
-          ),
-        );
+        final type = allTypeMap[name];
+        if (type == null) {
+          throw GraphQLException.fromMessage('No type named "$name" exists.');
+        }
+        return type;
       },
     ),
   ];
@@ -89,8 +92,6 @@ GraphQLSchema reflectSchema(GraphQLSchema schema, List<GraphQLType> allTypes) {
       queryType.name,
       fields: fields,
       description: queryType.description,
-      interfaces: queryType.interfaces,
-      isInterface: queryType.isInterface,
     ),
     mutationType: schema.mutationType,
     subscriptionType: schema.subscriptionType,

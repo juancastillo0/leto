@@ -80,12 +80,14 @@ GraphQLSchema buildSchema(
     }
     types[name] = MapEntry(type, def);
   }
+  final typesMap = types.map((k, v) => MapEntry(k, v.key));
 
   Iterable<GraphQLFieldInput<Object?, Object?>> arguments(
-      List<InputValueDefinitionNode> args) {
+    List<InputValueDefinitionNode> args,
+  ) {
     return args.map(
       (e) {
-        final type = convertType(e.type, types.values.map((e) => e.key));
+        final type = convertType(e.type, typesMap);
         return GraphQLFieldInput(
           e.name.value,
           type,
@@ -116,7 +118,7 @@ GraphQLSchema buildSchema(
 
         object.fields.addAll([
           ...fields.map(
-            (e) => convertType(e.type, types.values.map((e) => e.key)).field(
+            (e) => convertType(e.type, typesMap).field(
               e.name.value,
               description: e.description?.value,
               deprecationReason: getDirectiveValue(
@@ -258,7 +260,7 @@ Object? getDirectiveValue(
 
 GraphQLType<Object?, Object?> convertType(
   TypeNode node,
-  Iterable<GraphQLType> customTypes,
+  Map<String, GraphQLType> customTypes,
 ) {
   GraphQLType _type() {
     if (node is ListTypeNode) {
@@ -279,15 +281,16 @@ GraphQLType<Object?, Object?> convertType(
         case 'DateTime':
           return graphQLDate;
         default:
-          return customTypes.firstWhere(
-            (t) => t.name == node.name.value,
-            orElse: () => throw GraphQLError(
+          final type = customTypes[node.name.value];
+          if (type == null) {
+            throw GraphQLError(
               'Unknown GraphQL type: "${node.name.value}".',
               locations: GraphQLErrorLocation.listFromSource(
                 node.span?.start ?? node.name.span?.start,
               ),
-            ),
-          );
+            );
+          }
+          return type;
       }
     } else {
       throw ArgumentError('Invalid GraphQL type: "${node.span!.text}"');

@@ -1,20 +1,5 @@
 part of leto_schema.src.schema;
 
-class GraphQLTypeSet {
-  final Map<String, GraphQLType> types = {};
-
-  Iterable<GraphQLType> get allTypes => types.values;
-
-  void add(GraphQLType type) {
-    final prev = types[type.toString()];
-    if (prev == null) {
-      types[type.toString()] = type;
-    } else {
-      assert(prev == type);
-    }
-  }
-}
-
 /// Strictly dictates the structure of some input data in a GraphQL query.
 ///
 /// GraphQL's rigid type system is primarily implemented in Dart using
@@ -99,54 +84,54 @@ abstract class GraphQLType<Value, Serialized> {
 
   Iterable<Object?> get props;
 
-  @override
-  bool operator ==(Object? other) {
-    return identical(this, other) ||
-            other is GraphQLType &&
-                (runtimeType == other.runtimeType ||
-                    this is GraphQLObjectType && other is GraphQLObjectType) &&
-                const DeepCollectionEquality().equals(other.props, props)
-        // || other is GraphQLType &&
-        // () {
-        //   final _otherReal = other.realType;
-        //   final _real = realType;
-        //   return identical(_otherReal, realType) ||
-        //       (_otherReal.runtimeType == _real.runtimeType &&
-        //           _otherReal is GraphQLTypeWrapper &&
-        //           _real is GraphQLTypeWrapper &&
-        //           (_otherReal as GraphQLTypeWrapper).ofType.realType ==
-        //               (_real as GraphQLTypeWrapper).ofType.realType);
-        // }()
-        ;
-  }
+  // @override
+  // bool operator ==(Object? other) {
+  //   return identical(this, other) ||
+  //           other is GraphQLType &&
+  //               (runtimeType == other.runtimeType ||
+  //                 this is GraphQLObjectType && other is GraphQLObjectType) &&
+  //               const DeepCollectionEquality().equals(other.props, props)
+  //       // || other is GraphQLType &&
+  //       // () {
+  //       //   final _otherReal = other.realType;
+  //       //   final _real = realType;
+  //       //   return identical(_otherReal, realType) ||
+  //       //       (_otherReal.runtimeType == _real.runtimeType &&
+  //       //           _otherReal is GraphQLTypeWrapper &&
+  //       //           _real is GraphQLTypeWrapper &&
+  //       //           (_otherReal as GraphQLTypeWrapper).ofType.realType ==
+  //       //               (_real as GraphQLTypeWrapper).ofType.realType);
+  //       // }()
+  //       ;
+  // }
 
-  static Map<String, GraphQLType>? _usedHashCodes;
+  // static Map<String, GraphQLType>? _usedHashCodes;
 
-  @override
-  int get hashCode {
-    final key = toString();
-    final _used = _usedHashCodes;
-    if (_used == null) {
-      _usedHashCodes = {key: this};
-      final value = const DeepCollectionEquality().hash(props);
-      _usedHashCodes = null;
-      return value;
-    } else if (_used.containsKey(key)) {
-      assert(
-        () {
-          final other = _used[key]!;
-          final areEqual = other == this;
-          return areEqual;
-        }(),
-        'GraphQLTypes with the same name are different:'
-        ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
-      );
-      return key.hashCode;
-    } else {
-      _used[key] = this;
-    }
-    return const DeepCollectionEquality().hash(props);
-  }
+  // @override
+  // int get hashCode {
+  //   final key = toString();
+  //   final _used = _usedHashCodes;
+  //   if (_used == null) {
+  //     _usedHashCodes = {key: this};
+  //     final value = const DeepCollectionEquality().hash(props);
+  //     _usedHashCodes = null;
+  //     return value;
+  //   } else if (_used.containsKey(key)) {
+  //     assert(
+  //       () {
+  //         final other = _used[key]!;
+  //         final areEqual = other == this;
+  //         return areEqual;
+  //       }(),
+  //       'GraphQLTypes with the same name are different:'
+  //       ' $this != ${_used[key]}. $props != ${_used[key]!.props}',
+  //     );
+  //     return key.hashCode;
+  //   } else {
+  //     _used[key] = this;
+  //   }
+  //   return const DeepCollectionEquality().hash(props);
+  // }
 
   @override
   String toString() => name!;
@@ -259,20 +244,20 @@ GraphQLListType<Value?, Serialized> listOf<Value, Serialized>(
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
 abstract class GraphQLWrapperType {
+  /// The wrapped type
   GraphQLType<Object?, Object?> get ofType;
 }
 
+/// A special [GraphQLType] that indicates that input vales should
+/// be a list of another type [ofType].
 abstract class GraphQLListType<Value, Serialized>
-    implements
-        // ignore: avoid_implementing_value_types
-        GraphQLType<List<Value>, List<Serialized?>>,
-        GraphQLWrapperType {
+    implements GraphQLType<List<Value>, List<Serialized?>>, GraphQLWrapperType {
   @override
   GraphQLType<Value, Serialized> get ofType;
 }
 
 /// A special [GraphQLType] that indicates that input vales should
-/// be a list of another type [ofType].
+/// be a list of another non-nullable type [ofType].
 class _GraphQLNonNullListType<Value, Serialized>
     extends GraphQLType<List<Value>, List<Serialized?>>
     with _NonNullableMixin<List<Value>, List<Serialized?>>
@@ -339,7 +324,7 @@ class _GraphQLNonNullListType<Value, Serialized>
 }
 
 /// A special [GraphQLType] that indicates that input vales should
-/// be a list of another type [ofType].
+/// be a list of another nullable type [ofType].
 class _GraphQLNullableListType<Value, Serialized>
     extends GraphQLType<List<Value?>, List<Serialized?>>
     with _NonNullableMixin<List<Value?>, List<Serialized?>>
@@ -355,14 +340,6 @@ class _GraphQLNullableListType<Value, Serialized>
   @override
   String get description =>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
-
-  // @override
-  // List<Value?>? cast(List<Value?>? value) {
-  //   if (value != null && ofType.isNonNullable) {
-  //     return value.cast<Value>() as List<Value>;
-  //   }
-  //   return value;
-  // }
 
   @override
   // ignore: avoid_renaming_method_parameters
@@ -440,7 +417,8 @@ class GraphQLNonNullType<Value, Serialized>
   @override
   final GraphQLType<Value, Serialized> ofType;
 
-  const GraphQLNonNullType._(this.ofType);
+  const GraphQLNonNullType._(this.ofType)
+      : assert(ofType is! GraphQLNonNullType);
 
   @override
   String? get name => null;

@@ -7,7 +7,7 @@ import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart'
-    show computeValue, convertType, fetchAllTypes, getDirectiveValue;
+    show computeValue, convertType, getDirectiveValue;
 import 'package:source_span/source_span.dart';
 
 import 'src/extensions/extension.dart';
@@ -27,9 +27,6 @@ export 'src/extensions/extension.dart';
 export 'src/graphql_result.dart';
 
 class GraphQLConfig {
-  /// Any custom types to include in introspection information.
-  final List<GraphQLType> customTypes;
-
   /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
@@ -45,6 +42,12 @@ class GraphQLConfig {
   /// being validated with the provided schema
   final bool? validate;
 
+  /// Whether to introspect the [GraphQLSchema]
+  ///
+  /// This will change the Query type of the [schema] by adding
+  /// introspection fields, useful for client code generators or other
+  /// tools like UI explorers.
+  /// More information in: [reflectSchema]
   final bool? introspect;
 
   final Map<Object, Object?>? globalVariables;
@@ -54,7 +57,6 @@ class GraphQLConfig {
     this.validate,
     this.defaultFieldResolver,
     this.extensions = const <GraphQLExtension>[],
-    this.customTypes = const <GraphQLType>[],
     this.globalVariables,
   });
 }
@@ -64,9 +66,6 @@ class GraphQLConfig {
 /// Parses, validates and executes GraphQL requests using the
 /// provided [GraphQLSchema].
 class GraphQL {
-  /// Any custom types to include in introspection information.
-  final List<GraphQLType> customTypes = [];
-
   /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
@@ -93,45 +92,26 @@ class GraphQL {
   /// More information in: [reflectSchema]
   final bool introspect;
 
-  GraphQLSchema _schema;
+  late final GraphQLSchema _schema;
 
+  /// A Dart implementation of a GraphQL server.
+  ///
+  /// Parses, validates and executes GraphQL requests using the
+  /// provided [GraphQLSchema].
   GraphQL(
     GraphQLSchema schema, {
     bool? introspect,
     bool? validate,
     this.defaultFieldResolver,
     this.extensions = const [],
-    List<GraphQLType> customTypes = const <GraphQLType>[],
     Map<Object, Object?>? globalVariables,
   })  : baseGlobalVariables = globalVariables ?? const {},
-        _schema = schema,
         introspect = introspect ?? true,
         validate = validate ?? true {
-    this.customTypes.addAll(customTypes);
-    _init();
-  }
-
-  void _init() {
-    if (introspect) {
-      final allTypes = fetchAllTypes(_schema, customTypes);
-
-      _schema = reflectSchema(_schema, allTypes);
-
-      for (final type in allTypes.toSet()) {
-        if (!customTypes.contains(type)) {
-          customTypes.add(type);
-        }
-      }
-    }
-
-    if (_schema.queryType != null) {
-      customTypes.add(_schema.queryType!);
-    }
-    if (_schema.mutationType != null) {
-      customTypes.add(_schema.mutationType!);
-    }
-    if (_schema.subscriptionType != null) {
-      customTypes.add(_schema.subscriptionType!);
+    if (this.introspect) {
+      _schema = reflectSchema(schema);
+    } else {
+      _schema = schema;
     }
   }
 
@@ -141,7 +121,6 @@ class GraphQL {
         schema,
         validate: config.validate,
         introspect: config.introspect,
-        customTypes: config.customTypes,
         defaultFieldResolver: config.defaultFieldResolver,
         extensions: config.extensions,
         globalVariables: config.globalVariables,
@@ -149,13 +128,15 @@ class GraphQL {
 
   static final _resolveCtxRef = ScopeRef<ResolveCtx>('ResolveCtx');
 
-  /// Gets the [ResolveCtx] of a request from a [scope]
+  /// Gets the [ResolveCtx] of a request from a [scope].
+  /// null when the execution stage hasn't started.
   static ResolveCtx? getResolveCtx(GlobalsHolder scope) =>
       _resolveCtxRef.get(scope);
 
   static final _graphQLExecutorRef = ScopeRef<GraphQL>('GraphQLExecutor');
 
-  /// Gets the [GraphQL] executor from a [scope]
+  /// Gets the [GraphQL] executor from a [scope].
+  /// Always non-null for scopes derived from [parseAndExecute]
   static GraphQL? fromCtx(GlobalsHolder scope) =>
       _graphQLExecutorRef.get(scope);
 
@@ -163,7 +144,7 @@ class GraphQL {
   /// or the only operation in the document if not given.
   ///
   /// Throws [InvalidOperationType] if the operation
-  /// for [query] and [operationName] is not in [validOperationTypes].
+  /// for the given [query] and [operationName] is not in [validOperationTypes].
   /// May throw other exceptions if a [GraphQLExtension] in [extensions] throws.
   Future<GraphQLResult> parseAndExecute(
     String query, {
@@ -393,7 +374,7 @@ class GraphQL {
     for (final variableDefinition in variableDefinitions) {
       final variableName = variableDefinition.variable.name.value;
       final variableType = variableDefinition.type;
-      final type = convertType(variableType, customTypes);
+      final type = convertType(variableType, schema.typeMap);
       final span = variableDefinition.span ??
           variableDefinition.variable.span ??
           variableDefinition.variable.name.span;
@@ -1539,7 +1520,7 @@ class GraphQL {
         name: fragmentType.on.name,
         span: fragmentType.on.span,
         isNonNull: fragmentType.on.isNonNull);
-    final type = convertType(typeNode, customTypes);
+    final type = convertType(typeNode, _schema.typeMap);
 
     return type.whenMaybe(
       object: (type) {

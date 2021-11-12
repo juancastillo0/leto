@@ -28,7 +28,7 @@ part 'type.dart';
 part 'union.dart';
 part 'validation_result.dart';
 
-/// The schema against which queries, mutations, and subscriptions are executed.
+/// The schema against which queries, mutations and subscriptions are executed.
 class GraphQLSchema {
   /// The shape which all queries against the server must take.
   final GraphQLObjectType<Object?>? queryType;
@@ -53,8 +53,8 @@ class GraphQLSchema {
   /// Default: [GraphQLDirective.specifiedDirectives]
   final List<GraphQLDirective> directives;
 
-  /// Serialization and de-serialization context for [GraphQLType]
-  /// Containing functions for creating objects from serialized values
+  /// Serialization and de-serialization context for [GraphQLType]s.
+  /// Contains functions for creating objects from serialized values.
   final SerdeCtx serdeCtx;
 
   /// The schema in Schema Definition Language (SDL) representation
@@ -63,32 +63,61 @@ class GraphQLSchema {
   /// The schema as a `package:gql` parsed node
   late final DocumentNode schemaNode = parseString(schemaStr);
 
-  final List<GraphQLType> types;
+  /// Other [GraphQLType] that you want to have in the schema
+  final List<GraphQLType> otherTypes;
 
-  Map<String, GraphQLType>? _typeMap;
+  /// A Map from name to [GraphQLType].
+  /// Contains all named types in the schema.
+  final typeMap = <String, GraphQLType>{};
 
-  Map<String, GraphQLType> typeMap() {
-    if (_typeMap != null) return _typeMap!;
-    final allTypes = fetchAllTypes(this, types);
-    final map = Map<String, GraphQLType>.fromEntries(
-      allTypes.where((e) => e.name != null).map((e) => MapEntry(e.name!, e)),
-    );
-    _typeMap = map;
-    return map;
-  }
+  /// Returns a [GraphQLType] with the given [name]
+  GraphQLType? getType(String name) => typeMap[name];
 
-  GraphQLType? getType(String name) => typeMap()[name];
-
+  /// The schema against which queries, mutations
+  /// and subscriptions are executed.
+  ///
+  /// throws [SameNameGraphQLTypeException] if there are different types
+  /// with the same name.
   GraphQLSchema({
     this.queryType,
     this.mutationType,
     this.subscriptionType,
     this.description,
-    this.types = const [],
+    this.otherTypes = const [],
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
-        directives = directives ?? GraphQLDirective.specifiedDirectives;
+        directives = directives ?? GraphQLDirective.specifiedDirectives {
+    _collectTypes();
+  }
+
+  void _collectTypes() {
+    final allTypes = fetchAllNamedTypes(this);
+    for (final type in allTypes) {
+      final name = type.name!;
+      final prev = typeMap[name];
+      if (prev == null) {
+        typeMap[name] = type;
+      } else if (queryType == prev || queryType == type) {
+        // If it's an introspected queryType, don't throw exception
+        final other = prev == queryType ? type : prev;
+        final difference = queryType!.fields
+            .map((e) => e.name)
+            .toSet()
+            .difference(
+                (other as GraphQLObjectType).fields.map((e) => e.name).toSet());
+        if (difference.length == 2 &&
+            const ['__type', '__schema'].every(difference.contains)) {
+          typeMap[name] = other;
+          continue;
+        } else {
+          throw SameNameGraphQLTypeException(type, prev);
+        }
+      } else {
+        throw SameNameGraphQLTypeException(type, prev);
+      }
+    }
+  }
 }
 
 /// A default resolver that always returns `null`.
