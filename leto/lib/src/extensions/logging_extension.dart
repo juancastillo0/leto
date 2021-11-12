@@ -5,23 +5,53 @@ import 'package:clock/clock.dart';
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 
+/// A callback for logging a [GraphQLLog] from a request execution
 typedef LogFunction = void Function(GraphQLLog);
 
+/// A log with information about the execution of GraphQL requests
+/// or subscription events
 class GraphQLLog {
+  /// The base request context
   final ResolveBaseCtx baseCtx;
+
+  /// The main execution context for the execution, null if there
+  /// was an error before execution
   final ResolveCtx? ctx;
+
+  /// The [GraphQLResult] for the execution, null if there
+  /// was an error before execution
   final GraphQLResult? result;
+
+  /// Whether the log is from a subscription event
   final bool isSubscriptionEvent;
+
+  /// The start time of execution
   final DateTime startTime;
+
+  /// The duration of execution
   final Duration duration;
 
+  /// The [GraphQLError]s found during execution, null if there
+  /// was an error before execution
   List<GraphQLError>? get graphQLErrors => result?.errors ?? ctx?.errors;
+
+  /// The operation name of the request, null if there
+  /// was an error before execution
   String? get operationName =>
       ctx?.operation.name?.value ?? baseCtx.operationName;
 
+  /// The source error
+  ///
+  /// Almost always null. Most of the times, if there were any errors,
+  /// they will be in [graphQLErrors].
+  /// More information in [GraphQL.parseAndExecute].
   final Object? error;
+
+  /// The [StackTrace] for [error]
   final StackTrace? stackTrace;
 
+  /// A log with information about the execution of GraphQL requests
+  /// or subscription events
   const GraphQLLog({
     this.isSubscriptionEvent = false,
     required this.startTime,
@@ -33,6 +63,11 @@ class GraphQLLog {
     this.stackTrace,
   });
 
+  /// Returns the log as a Json Map
+  ///
+  /// Uses `toJson` for the error or `toString` if not available
+  /// If [withVariables] is true, it will also return the
+  /// input variables within the Map
   Map<String, Object?> toJson({bool withVariables = false}) {
     final type = ctx?.operation.type.toString().split('.').last ?? 'unknown';
     return {
@@ -64,6 +99,7 @@ class GraphQLLog {
     };
   }
 
+  /// A String with the log information separated by [separator]
   String separatedLog({
     bool withVariables = false,
     String separator = '\t',
@@ -79,6 +115,8 @@ class GraphQLLog {
         return withKeys ? '${e.key}=$value' : value;
       }).join(separator);
 
+  /// A Json String with the log information.
+  /// More info in [toJson]
   String toJsonString({bool withVariables = false}) =>
       json.encode(toJson(withVariables: withVariables));
 
@@ -88,7 +126,9 @@ class GraphQLLog {
   }
 }
 
+/// Extension that logs all requests and subscription events
 class LoggingExtension extends GraphQLExtension {
+  /// Extension that logs all requests and subscription events
   LoggingExtension(
     this.logFunction, {
     this.onResolverError,
@@ -97,7 +137,10 @@ class LoggingExtension extends GraphQLExtension {
   @override
   String get mapKey => 'letoLogger';
 
+  /// Called for each request or subscription event
   final LogFunction logFunction;
+
+  /// Optional callback for logging errors thrown in resolvers
   final void Function(ThrownError)? onResolverError;
 
   @override

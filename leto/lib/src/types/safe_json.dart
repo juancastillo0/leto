@@ -8,6 +8,7 @@ import 'safe_json_graphql.dart';
 
 export 'safe_json_graphql.dart';
 
+/// A safe json model for wrapping json values
 @immutable
 abstract class Json {
   const Json._();
@@ -19,8 +20,10 @@ abstract class Json {
   const factory Json.str(String value) = JsonStr;
   const factory Json.none() = JsonNone;
 
+  /// The inner value, may contain [Json] objects in maps or lists
   Object? get value;
 
+  /// A null [Json] value
   static const null_ = JsonNone();
 
   T when<T>({
@@ -48,11 +51,9 @@ abstract class Json {
     throw Error();
   }
 
+  /// Returns a serializable Json value.
+  /// if [shallow], it will not serialize inner [Json] values
   Object? toJson({bool shallow = false}) {
-    final v = this;
-    if (v is JsonNone) {
-      return null;
-    }
     if (shallow) {
       return value;
     } else {
@@ -145,6 +146,7 @@ abstract class Json {
     );
   }
 
+  /// The [GraphQLType] associated with [Json]
   static GraphQLJsonType get graphQLType => jsonGraphQLType;
 
   @override

@@ -31,16 +31,27 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   /// String again.
   final bool returnHashInResponse;
 
+  /// Extension for caching documents on the server side
+  ///
+  /// Provide a custom [computeHash] function, a [cache]
+  /// (default: [LruCacheSimple] with max size 100)
+  /// and configure whether you want to return the hash in the response
   GraphQLPersistedQueries({
     this.computeHash = defaultComputeHash,
     Cache<String, DocumentNode>? cache,
     this.returnHashInResponse = false,
   }) : cache = cache ?? LruCacheSimple(100);
 
+  /// Uses package:crypto for computing the sha256 for [query]
   static String defaultComputeHash(String query) =>
       sha256.convert(utf8.encode(query)).toString();
 
+  /// Error message sent when the hash in the incoming extension map is
+  /// different from the computed locally in the server from the query
   static const PERSISTED_QUERY_HASH_MISMATCH = 'PERSISTED_QUERY_HASH_MISMATCH';
+
+  /// Error message sent when the hash in the incoming extension
+  /// isn't saved in [cache].
   static const PERSISTED_QUERY_NOT_FOUND = 'PERSISTED_QUERY_NOT_FOUND';
 
   @override
@@ -122,9 +133,19 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 /// Provided implementations [LruCacheSimple] and [MapCache].
 abstract class Cache<K, T> {
   // TODO: FutureOr
+
+  /// Returns the cached value for the [key], may be null
+  /// if it isn't in the cache
   T? get(K key);
+
+  /// Sets the [value] in the cache for the [key].
+  /// May delete other values from the cache, depending on the implementation
   void set(K key, T value);
+
+  /// Removes the value in the cache for the [key].
   void delete(K key);
+
+  /// Clears all values from the cache
   void clear();
 }
 
@@ -133,6 +154,7 @@ abstract class Cache<K, T> {
 /// No size limit, might want to use something like [LruCacheSimple]
 /// if you don't have full control over whats saved.
 class MapCache<K, V> implements Cache<K, V> {
+  /// Inner map for saving the cached values
   final Map<K, V> stash = {};
 
   @override
@@ -151,15 +173,23 @@ class MapCache<K, V> implements Cache<K, V> {
 /// Least Recently Used (LRU) cache implementation.
 ///
 /// Implemented with the usual linked list with map.
-/// [maxSize] is the maximum number of elements in the cache.
 class LruCacheSimple<K, T> implements Cache<K, T> {
+  /// The maximum number of elements in the cache.
   final int maxSize;
 
+  /// Map from keys to [linkedList] entries
   final Map<K, DoubleLinkedQueueEntry<MapEntry<K, T>>> map = {};
+
+  /// Linked list with the cached values, ordered from
+  /// most recently used to least recently used
   final linkedList = DoubleLinkedQueue<MapEntry<K, T>>();
 
+  /// Empty LruCache with a maximum size of [maxSize]
   LruCacheSimple(this.maxSize) : assert(maxSize > 0);
 
+  /// Creates a [LruCacheSimple] from a [map].
+  /// If [map] contains more than [maxSize] elements, some elements will not
+  /// be saved
   factory LruCacheSimple.fromMap(int maxSize, Map<K, T> map) {
     final cache = LruCacheSimple<K, T>(maxSize);
 

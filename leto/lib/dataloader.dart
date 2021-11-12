@@ -17,20 +17,33 @@ import 'package:leto/src/extensions/persisted_queries.dart'
 export 'package:leto/src/extensions/persisted_queries.dart'
     show Cache, MapCache, LruCacheSimple;
 
-// A Function, which when given an Array of keys, returns a Promise of an Array
-// of values or Errors.
+/// A Function, which when given an Array of keys, returns a Future of an Array
+/// of values or Errors.
 typedef BatchLoadFn<K, V> = Future<List<V>> Function(List<K> keys);
 
-// Optionally turn off batching or caching or provide a cache key function or a
-// custom cache instance.
+/// [DataLoader] configuration options
 class DataLoaderOptions<K, V, C> {
+  /// Whether to batch
   final bool? batch;
+
+  /// The maximum size of batches
   final int? maxBatchSize;
+
+  /// A scheduling function
   final void Function(void Function() callback)? batchScheduleFn;
+
+  /// Whether to cache
   final bool? cache;
+
+  /// Optional mapper between the item key [K] and the cache key [C]
   final C Function(K)? cacheKeyFn;
+
+  /// A custom cache implementation
   final Cache<C, Future<V>>? cacheMap;
 
+  /// [DataLoader] configuration options.
+  /// Optionally turn off batching or caching or provide a cache key function
+  /// or a custom cache instance.
   DataLoaderOptions({
     this.batch,
     this.maxBatchSize,
@@ -50,6 +63,9 @@ class DataLoaderOptions<K, V, C> {
 /// different access permissions and consider creating a new instance per
 /// web request.
 class DataLoader<K extends Object, V, C> {
+  /// Main [DataLoader] constructor
+  /// use [DataLoader.unmapped] if the
+  /// item key [K] is equal to the cache key [C]
   DataLoader(this._batchLoadFn, [DataLoaderOptions<K, V, C>? options])
       : _maxBatchSize = _getValidMaxBatchSize(options),
         _batchScheduleFn = _getValidBatchScheduleFn(options),
@@ -62,6 +78,8 @@ class DataLoader<K extends Object, V, C> {
                   )),
         _cacheMap = _getValidCacheMap(options);
 
+  /// Constructs a [DataLoader] where the
+  /// item key [K] is equal to the cache key
   static DataLoader<K, V, K> unmapped<K extends Object, V>(
     BatchLoadFn<K, V> _batchLoadFn, [
     DataLoaderOptions<K, V, K>? options,
@@ -76,27 +94,27 @@ class DataLoader<K extends Object, V, C> {
   final Cache<C, FutureOr<V>>? _cacheMap;
   _Batch<K, V>? _batch;
 
-  /// Loads a key, returning a `Promise` for the value represented by that key.
+  /// Loads a key, returning a [Future] for the value represented by that key.
   Future<V> load(K key) {
     final batch = _getCurrentBatch(this);
     final cacheMap = this._cacheMap;
     final cacheKey = this._cacheKeyFn(key);
 
-    // If caching and there is a cache-hit, return cached Promise.
+    // If caching and there is a cache-hit, return cached Future.
     if (cacheMap != null) {
-      final cachedPromise = cacheMap.get(cacheKey);
-      if (cachedPromise != null) {
+      final cachedFuture = cacheMap.get(cacheKey);
+      if (cachedFuture != null) {
         final cacheHits =
             batch.cacheHits != null ? batch.cacheHits! : (batch.cacheHits = []);
         final comp = Completer<V>();
         cacheHits.add(() {
-          comp.complete(cachedPromise);
+          comp.complete(cachedFuture);
         });
         return comp.future;
       }
     }
 
-    // Otherwise, produce a new Promise for this key, and enqueue it to be
+    // Otherwise, produce a new Future for this key, and enqueue it to be
     // dispatched along with the current batch.
     batch.keys.add(key);
     final comp = Completer<V>();
@@ -126,19 +144,19 @@ class DataLoader<K extends Object, V, C> {
   ///
   Future<List<V>> loadMany(List<K> keys) {
     // Support ArrayLike by using only minimal property access
-    final loadPromises = <Future<V>>[];
+    final loadFutures = <Future<V>>[];
     for (var i = 0; i < keys.length; i++) {
       // TODO: this.load(keys[i]).catch(error => error)
       /// However it is different in the case where any load fails. Where
-      /// Promise.all() would reject, loadMany() always resolves, however each
+      /// Future.all() would reject, loadMany() always resolves, however each
       /// result is either a value or an Error instance.
       ///
       ///     var [ a, b, c ] = await myLoader.loadMany([ 'a', 'b', 'badkey' ]);
       ///     // c instanceof Error
       ///
-      loadPromises.add(this.load(keys[i]));
+      loadFutures.add(this.load(keys[i]));
     }
-    return Future.wait(loadPromises);
+    return Future.wait(loadFutures);
   }
 
   /// Clears the value at `key` from the cache, if it exists. Returns itself for
@@ -283,10 +301,10 @@ void dispatchBatch<K extends Object, V>(
 
   // Call the provided batchLoadFn for this loader with the batch's keys and
   // with the loader as the `this` context.
-  final batchPromise = loader._batchLoadFn(batch.keys);
+  final batchFuture = loader._batchLoadFn(batch.keys);
 
   // Await the resolution of the call to batchLoadFn.
-  batchPromise.then((values) {
+  batchFuture.then((values) {
     if (values.length != batch.keys.length) {
       throw StateError(
           'DataLoader must be constructed with a function which accepts '
@@ -325,7 +343,7 @@ void _failedDispatch<K extends Object, V>(
   }
 }
 
-// Private: Resolves the Promises for any cache hits in this batch.
+// Private: Resolves the Futures for any cache hits in this batch.
 void _resolveCacheHits(_Batch<dynamic, dynamic> batch) {
   final hits = batch.cacheHits;
   if (hits != null) {
