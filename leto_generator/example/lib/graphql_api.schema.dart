@@ -49,6 +49,8 @@ final graphqlApiSchema = GraphQLSchema(
       getNameGraphQLField,
       resultUnionObjectGraphQLField,
       resultUnionObjectErrGraphQLField,
+      resultObjectGraphQLField,
+      resultObjectErrGraphQLField,
       testManyDefaultsGraphQLField,
     ],
   ),
@@ -65,6 +67,7 @@ final graphqlApiSchema = GraphQLSchema(
       getIntInterfaceNEnumNullGraphQLField,
       mutationMultipleParamsOptionalPosGraphQLField,
       resultUnionObjectMutErrGraphQLField,
+      resultObjectMutErrGraphQLField,
     ],
   ),
   subscriptionType: objectType(

@@ -62,6 +62,41 @@ union ResultUSuccessGetUnionErrCode = SuccessGet | UnionErrCode''',
   resultUnionObjectErrRenamed: ResultUSuccessGetUnionErrCode! @deprecated(reason: "use resultUnionObject")''',
   '''
   resultUnionObjectMutErrRenamed: ResultUSuccessGetUnionErrCode!''',
+  '''
+"""
+Int! when the operation was successful or String! when an error was encountered.
+"""
+type ObjectResult {
+  ok: Int
+  err: String
+  isOk: Boolean!
+}''',
+  '''
+"""
+String! when the operation was successful or [UnionErrCode]! when an error was encountered.
+"""
+type ResultStringUnionErrCodeList {
+  ok: String
+  err: [UnionErrCode]
+  isOk: Boolean!
+}''',
+  '''
+"""
+SuccessGet! when the operation was successful or ErrCode! when an error was encountered.
+"""
+type ResultSuccessGetErrCode {
+  ok: SuccessGet
+  err: ErrCode
+  isOk: Boolean!
+}''',
+  '''
+  """resultObject description"""
+  resultObject: ObjectResult!''',
+  '''
+  """resultObjectErr description"""
+  resultObjectErrRenamed: ResultStringUnionErrCodeList! @deprecated(reason: "use resultObject")''',
+  '''
+  resultObjectMutErrRenamed: ResultSuccessGetErrCode!''',
 ];
 
 @GraphQLClass()
@@ -101,10 +136,49 @@ ResultU<SuccessGet, UnionErrCode> resultUnionObjectMutErr() {
   return ErrU(UnionErrCode(0, 'msj'));
 }
 
+@GraphQLDocumentation(description: 'resultObject description')
+@Query(genericTypeName: 'ObjectResult')
+Result<int, String> resultObject() {
+  return Ok(34);
+}
+
+@GraphQLDocumentation(
+  deprecationReason: 'use resultObject',
+  description: 'resultObjectErr description',
+)
+@Query(name: 'resultObjectErrRenamed')
+Result<String, List<UnionErrCode?>> resultObjectErr() {
+  return Err([UnionErrCode(0, 'msj'), null]);
+}
+
+@Mutation(name: 'resultObjectMutErrRenamed')
+Result<SuccessGet, ErrCode> resultObjectMutErr() {
+  return Err(UnionErrCode(0, 'msj'));
+}
+
 abstract class ResultU<T extends Object, E extends Object>
     implements
         // ignore: avoid_implementing_value_types
-        Result<T, E> {}
+        Result<T, E> {
+  /// Create an `Ok` result with the given value.
+  factory ResultU.ok(T s) = OkU;
+
+  /// Create an `Err` result with the given error.
+  factory ResultU.err(E err) = ErrU;
+
+  /// Call the `catching` function and produce a `ResultU`.
+  ///
+  /// If the function throws an error, it will be caught and contained in the
+  /// returned result. Otherwise, the result of the function will be contained
+  /// as the `OkU` value.
+  factory ResultU.of(T Function() catching) {
+    try {
+      return OkU(catching());
+    } on E catch (e) {
+      return ErrU(e);
+    }
+  }
+}
 
 class OkU<T extends Object, E extends Object> extends Ok<T, E>
     implements ResultU<T, E> {
@@ -145,5 +219,44 @@ GraphQLUnionType<ResultU<T, T2>>
   );
   _resultUGraphQLTypes[type.name] = type;
   type.possibleTypes.addAll([t1, t2]);
+  return type;
+}
+
+final _resultGraphQLTypes = <String, GraphQLObjectType<Result>>{};
+
+GraphQLObjectType<Result<T, T2>>
+    resultGraphQLType<T extends Object, T2 extends Object>(
+  GraphQLType<T, Object> t1,
+  GraphQLType<T2, Object> t2, {
+  String? name,
+}) {
+  final t1Inner = t1.nullable();
+  final t2Inner = t2.nullable();
+  final _name =
+      name ?? 'Result${t1Inner.printableName}${t2Inner.printableName}';
+  if (_resultGraphQLTypes.containsKey(_name))
+    return _resultGraphQLTypes[_name]! as GraphQLObjectType<Result<T, T2>>;
+
+  final type = objectType<Result<T, T2>>(
+    _name,
+    description: '$t1 when the operation was successful or'
+        ' $t2 when an error was encountered.',
+  );
+  _resultGraphQLTypes[_name] = type;
+
+  type.fields.addAll([
+    t1Inner.field(
+      'ok',
+      resolve: (result, ctx) => result.isOk() ? result.unwrap() : null,
+    ),
+    t2Inner.field(
+      'err',
+      resolve: (result, ctx) => result.isOk() ? null : result.unwrapErr(),
+    ),
+    graphQLBoolean.nonNull().field(
+          'isOk',
+          resolve: (result, ctx) => result.isOk(),
+        ),
+  ]);
   return type;
 }

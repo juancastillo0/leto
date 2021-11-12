@@ -2,34 +2,43 @@ import 'package:leto_schema/leto_schema.dart';
 
 part 'generics.g.dart';
 
-GraphQLType<ResultV<T, T2>, Map<String, Object?>> resultVGraphQLType<T, T2>(
+final _resultVGraphQLTypes = <String, GraphQLObjectType<ResultV>>{};
+
+GraphQLObjectType<ResultV<T, T2>> resultVGraphQLType<T, T2>(
   GraphQLType<T, Object> t1,
   GraphQLType<T2, Object> t2, {
   String? name,
 }) {
+  final _name = name ?? 'ResultV${t1.printableName}${t2.printableName}';
+  if (_resultVGraphQLTypes.containsKey(_name))
+    return _resultVGraphQLTypes[_name]! as GraphQLObjectType<ResultV<T, T2>>;
+
   final innerT1 =
       t1 is GraphQLNonNullType ? (t1 as GraphQLNonNullType).ofType : t1;
   final innerT2 =
       t2 is GraphQLNonNullType ? (t2 as GraphQLNonNullType).ofType : t2;
-  return objectType(
-    name ?? 'ResultV${t1.printableName}${t2.printableName}',
+  final type = objectType<ResultV<T, T2>>(
+    _name,
     description: '$t1 when the operation was successful or'
         ' $t2 when an error was encountered.',
-    fields: [
-      innerT1.field(
-        'ok',
-        resolve: (result, ctx) => result.isOk ? (result as OkV).value : null,
-      ),
-      innerT2.field(
-        'err',
-        resolve: (result, ctx) => result.isOk ? null : (result as ErrV).value,
-      ),
-      graphQLBoolean.nonNull().field(
-            'isOk',
-            resolve: (result, ctx) => result.isOk,
-          ),
-    ],
   );
+  _resultVGraphQLTypes[_name] = type;
+
+  type.fields.addAll([
+    innerT1.field(
+      'ok',
+      resolve: (result, ctx) => result.isOk ? (result as OkV).value : null,
+    ),
+    innerT2.field(
+      'err',
+      resolve: (result, ctx) => result.isOk ? null : (result as ErrV).value,
+    ),
+    graphQLBoolean.nonNull().field(
+          'isOk',
+          resolve: (result, ctx) => result.isOk,
+        ),
+  ]);
+  return type;
 }
 
 abstract class ResultV<V, E> {
