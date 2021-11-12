@@ -98,6 +98,9 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
   );
 }
 
+/// Utility extensions for creating fields in a [GraphQLSchema].
+///
+/// Improved type inference, over `field(name, type)` or field constructors
 extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
   /// Utility for creating an [GraphQLObjectField] with [type] == [this]
   ///

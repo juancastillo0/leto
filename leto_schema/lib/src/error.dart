@@ -2,11 +2,14 @@ part of leto_schema.src.schema;
 
 /// An exception that occurs during execution of a GraphQL query.
 ///
-/// It's a List of [GraphQLError]
+/// It's a list of [GraphQLError]
 class GraphQLException implements Exception {
   /// A list of all [GraphQLError]s that caused this exception.
   final List<GraphQLError> errors;
 
+  /// An exception that occurs during execution of a GraphQL query.
+  ///
+  /// It's a list of [GraphQLError]
   const GraphQLException(this.errors);
 
   /// Creates an [GraphQLException] with a single [GraphQLError]
@@ -85,8 +88,7 @@ class GraphQLException implements Exception {
   }
 }
 
-/// One of an arbitrary number of errors that may occur during the
-/// execution of a GraphQL query.
+/// An error that may occur during the execution of a GraphQL query.
 ///
 /// This will almost always be passed to a [GraphQLException].
 class GraphQLError implements Exception, GraphQLException {
@@ -153,9 +155,16 @@ class GraphQLError implements Exception, GraphQLException {
 /// This is analogous to a [SourceLocation] from `package:source_span`.
 @immutable
 class GraphQLErrorLocation {
+  /// The line within the document String related to the error
   final int line;
+
+  /// The column within the document String related to the error
   final int column;
 
+  /// Information about a location in source text that caused an error during
+  /// the execution of a GraphQL query.
+  ///
+  /// This is analogous to a [SourceLocation] from `package:source_span`.
   const GraphQLErrorLocation(
     this.line,
     this.column,
@@ -182,16 +191,6 @@ class GraphQLErrorLocation {
 
   Map<String, Object?> toJson() {
     return {'line': line, 'column': column};
-  }
-
-  GraphQLErrorLocation copyWith({
-    int? line,
-    int? column,
-  }) {
-    return GraphQLErrorLocation(
-      line ?? this.line,
-      column ?? this.column,
-    );
   }
 
   @override

@@ -47,18 +47,6 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// Returns `true` if this field has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
 
-  Serialized? serialize(Value value) {
-    return type.serialize(value);
-  }
-
-  FutureOr<Value>? deserialize(
-    SerdeCtx serdeCtx,
-    Serialized serialized, [
-    Map<String, dynamic> argumentValues = const <String, dynamic>{},
-  ]) {
-    return type.deserialize(serdeCtx, serialized);
-  }
-
   @override
   bool operator ==(Object other) =>
       other is GraphQLObjectField &&

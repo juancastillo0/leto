@@ -43,6 +43,7 @@ class GraphQLDirective {
   ];
 }
 
+/// The position within the schema where a given directive can be
 enum DirectiveLocation {
   QUERY,
   MUTATION,
@@ -70,6 +71,8 @@ extension DirectiveLocationEnumSerde on DirectiveLocation {
   String toJson() => toString().split('.').last;
 }
 
+/// Whether the [directive] is one of the default
+/// [GraphQLDirective.specifiedDirectives]
 bool isSpecifiedDirective(GraphQLDirective directive) {
   return GraphQLDirective.specifiedDirectives
       .map((e) => e.name)

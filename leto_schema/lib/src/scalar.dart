@@ -36,6 +36,7 @@ final GraphQLScalarType<double, double> graphQLFloat = _GraphQLNumType(
   (input) => input.toDouble(),
 );
 
+/// A [GraphQLType] for [Uri] values.
 final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
   name: 'Uri',
   description: 'A Uniform Resource Identifier (URI) is a compact sequence of'
@@ -50,6 +51,7 @@ final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
         ),
 );
 
+/// Whether [type] is one of the default [GraphQLScalarType] types
 bool isSpecifiedScalarType(GraphQLType type) {
   return const [
     'String',
@@ -66,6 +68,7 @@ abstract class GraphQLScalarType<Value, Serialized>
   @override
   String get name;
 
+  /// An url with the specification of this scalar type
   String? get specifiedByURL => null;
 
   @override
@@ -277,14 +280,14 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
 
   @override
   ValidationResult<String> validate(String key, Object? input) {
-    return validateDateString(key, input);
+    return _validateDateString(key, input);
   }
 
   @override
   Iterable<Object?> get props => [];
 }
 
-ValidationResult<String> validateDateString(String key, Object? input) {
+ValidationResult<String> _validateDateString(String key, Object? input) {
   if (input is! String)
     return ValidationResult<String>.failure(
         ['$key must be an ISO 8601-formatted date string.']);
