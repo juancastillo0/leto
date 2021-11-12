@@ -24,9 +24,15 @@ String fieldSelection(GraphQLObjectField<Object?, Object?, Object?> f) {
 }
 
 void main() {
-  test('execute queries and mutations with no input', () async {
+  test('execute queries, mutations and subscriptions with no inputs', () async {
+    bool _noRequiredInputs(GraphQLObjectField obj) {
+      return obj.inputs.every(
+        (i) => i.type.isNullable || i.defaultValue != null,
+      );
+    }
+
     final _queryFields = graphqlApiSchema.queryType!.fields
-        .where((f) => f.inputs.isEmpty)
+        .where(_noRequiredInputs)
         .map(fieldSelection)
         .join('\n');
     final resultQueries =
@@ -35,7 +41,7 @@ void main() {
     expect(resultQueries.data, isNotNull);
 
     final _mutFields = graphqlApiSchema.mutationType!.fields
-        .where((f) => f.inputs.isEmpty)
+        .where(_noRequiredInputs)
         .map(fieldSelection)
         .join('\n');
 
@@ -43,5 +49,18 @@ void main() {
         .parseAndExecute(' mutation { $_mutFields }');
     expect(resultMutations.errors, isEmpty);
     expect(resultMutations.data, isNotNull);
+
+    final _subFields = graphqlApiSchema.subscriptionType!.fields
+        .where(_noRequiredInputs)
+        .map(fieldSelection);
+
+    await Future.wait(_subFields.map((e) async {
+      final resultSubscription = await GraphQL(graphqlApiSchema)
+          .parseAndExecute(' subscription { $e }');
+      expect(resultSubscription.errors, isEmpty);
+      expect(resultSubscription.isSubscription, true);
+      expect(resultSubscription.subscriptionStream, isNotNull);
+      expect(resultSubscription.data, isA<Stream<GraphQLResult>>());
+    }));
   });
 }
