@@ -111,6 +111,7 @@ final GraphQLObjectField<List<ChatMessage>, Object, Object>
 // **************************************************************************
 
 final chatMessageSerializer = SerializerValue<ChatMessage>(
+  key: "ChatMessage",
   fromJson: (ctx, json) =>
       ChatMessage.fromJson(json), // _$$_ChatMessageFromJson,
   // toJson: (m) => _$$_ChatMessageToJson(m as _$_ChatMessage),
@@ -159,6 +160,7 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQLType {
 }
 
 final chatMessageSentEventSerializer = SerializerValue<ChatMessageSentEvent>(
+  key: "ChatMessageSentEvent",
   fromJson: (ctx, json) =>
       ChatMessageSentEvent.fromJson(json), // _$$ChatMessageSentEventFromJson,
   // toJson: (m) => _$$ChatMessageSentEventToJson(m as _$ChatMessageSentEvent),
@@ -192,6 +194,7 @@ GraphQLObjectType<ChatMessageSentEvent> get chatMessageSentEventGraphQLType {
 
 final chatMessageDeletedEventSerializer =
     SerializerValue<ChatMessageDeletedEvent>(
+  key: "ChatMessageDeletedEvent",
   fromJson: (ctx, json) => ChatMessageDeletedEvent.fromJson(
       json), // _$$ChatMessageDeletedEventFromJson,
   // toJson: (m) => _$$ChatMessageDeletedEventToJson(m as _$ChatMessageDeletedEvent),
@@ -225,6 +228,7 @@ GraphQLObjectType<ChatMessageDeletedEvent>
 
 final chatMessageUpdatedEventSerializer =
     SerializerValue<ChatMessageUpdatedEvent>(
+  key: "ChatMessageUpdatedEvent",
   fromJson: (ctx, json) => ChatMessageUpdatedEvent.fromJson(
       json), // _$$ChatMessageUpdatedEventFromJson,
   // toJson: (m) => _$$ChatMessageUpdatedEventToJson(m as _$ChatMessageUpdatedEvent),
@@ -257,6 +261,7 @@ GraphQLObjectType<ChatMessageUpdatedEvent>
 }
 
 final chatMessageEventSerializer = SerializerValue<ChatMessageEvent>(
+  key: "ChatMessageEvent",
   fromJson: (ctx, json) =>
       ChatMessageEvent.fromJson(json), // _$ChatMessageEventFromJson,
   // toJson: (m) => _$ChatMessageEventToJson(m as ChatMessageEvent),

@@ -95,6 +95,7 @@ final GraphQLObjectField<String, Object, Object>
 // **************************************************************************
 
 final inputMSerializer = SerializerValue<InputM>(
+  key: "InputM",
   fromJson: (ctx, json) => InputM.fromJson(json), // _$InputMFromJson,
   // toJson: (m) => _$InputMToJson(m as InputM),
 );
@@ -133,6 +134,7 @@ GraphQLInputObjectType<InputM> get inputMGraphQLType {
 }
 
 final inputMNSerializer = SerializerValue<InputMN>(
+  key: "InputMN",
   fromJson: (ctx, json) => InputMN.fromJson(json), // _$InputMNFromJson,
   // toJson: (m) => _$InputMNToJson(m as InputMN),
 );
@@ -159,6 +161,7 @@ GraphQLInputObjectType<InputMN> get inputMNGraphQLType {
 }
 
 final inputJsonSerdeSerializer = SerializerValue<InputJsonSerde>(
+  key: "InputJsonSerde",
   fromJson: (ctx, json) =>
       InputJsonSerde.fromJson(json), // _$InputJsonSerdeFromJson,
   // toJson: (m) => _$InputJsonSerdeToJson(m as InputJsonSerde),

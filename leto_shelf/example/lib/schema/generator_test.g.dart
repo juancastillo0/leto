@@ -91,6 +91,7 @@ final GraphQLObjectField<List<EventUnion?>, Object, Object>
 // **************************************************************************
 
 final testModelSerializer = SerializerValue<TestModel>(
+  key: "TestModel",
   fromJson: (ctx, json) => TestModel.fromJson(json), // _$TestModelFromJson,
   // toJson: (m) => _$TestModelToJson(m as TestModel),
 );
@@ -152,6 +153,7 @@ GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
 }
 
 final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
+  key: "_EventUnionAdd",
   fromJson: (ctx, json) =>
       _EventUnionAdd.fromJson(json), // _$$_EventUnionAddFromJson,
   // toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
@@ -187,6 +189,7 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
 }
 
 final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
+  key: "EventUnionDelete",
   fromJson: (ctx, json) =>
       EventUnionDelete.fromJson(json), // _$$EventUnionDeleteFromJson,
   // toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
@@ -221,6 +224,7 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
 }
 
 final eventUnionSerializer = SerializerValue<EventUnion>(
+  key: "EventUnion",
   fromJson: (ctx, json) => EventUnion.fromJson(json), // _$EventUnionFromJson,
   // toJson: (m) => _$EventUnionToJson(m as EventUnion),
 );

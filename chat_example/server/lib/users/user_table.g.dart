@@ -105,6 +105,7 @@ final GraphQLObjectField<String, Object, Object> signOutGraphQLField = field(
 // **************************************************************************
 
 final userCreatedEventSerializer = SerializerValue<UserCreatedEvent>(
+  key: "UserCreatedEvent",
   fromJson: (ctx, json) =>
       UserCreatedEvent.fromJson(json), // _$$UserCreatedEventFromJson,
   // toJson: (m) => _$$UserCreatedEventToJson(m as _$UserCreatedEvent),
@@ -135,6 +136,7 @@ GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQLType {
 }
 
 final userSignedUpEventSerializer = SerializerValue<UserSignedUpEvent>(
+  key: "UserSignedUpEvent",
   fromJson: (ctx, json) =>
       UserSignedUpEvent.fromJson(json), // _$$UserSignedUpEventFromJson,
   // toJson: (m) => _$$UserSignedUpEventToJson(m as _$UserSignedUpEvent),
@@ -167,6 +169,7 @@ GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQLType {
 }
 
 final userSignedInEventSerializer = SerializerValue<UserSignedInEvent>(
+  key: "UserSignedInEvent",
   fromJson: (ctx, json) =>
       UserSignedInEvent.fromJson(json), // _$$UserSignedInEventFromJson,
   // toJson: (m) => _$$UserSignedInEventToJson(m as _$UserSignedInEvent),
@@ -199,6 +202,7 @@ GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQLType {
 }
 
 final userSignedOutEventSerializer = SerializerValue<UserSignedOutEvent>(
+  key: "UserSignedOutEvent",
   fromJson: (ctx, json) =>
       UserSignedOutEvent.fromJson(json), // _$$UserSignedOutEventFromJson,
   // toJson: (m) => _$$UserSignedOutEventToJson(m as _$UserSignedOutEvent),
@@ -231,6 +235,7 @@ GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQLType {
 }
 
 final userEventSerializer = SerializerValue<UserEvent>(
+  key: "UserEvent",
   fromJson: (ctx, json) => UserEvent.fromJson(json), // _$UserEventFromJson,
   // toJson: (m) => _$UserEventToJson(m as UserEvent),
 );
@@ -249,6 +254,7 @@ GraphQLUnionType<UserEvent> get userEventGraphQLType {
 }
 
 final userSessionSerializer = SerializerValue<UserSession>(
+  key: "UserSession",
   fromJson: (ctx, json) => UserSession.fromJson(json), // _$UserSessionFromJson,
   // toJson: (m) => _$UserSessionToJson(m as UserSession),
 );
@@ -285,6 +291,7 @@ GraphQLObjectType<UserSession> get userSessionGraphQLType {
 }
 
 final userSerializer = SerializerValue<User>(
+  key: "User",
   fromJson: (ctx, json) => User.fromJson(json), // _$UserFromJson,
   // toJson: (m) => _$UserToJson(m as User),
 );
@@ -320,6 +327,7 @@ GraphQLObjectType<User> get userGraphQLType {
 }
 
 final tokenWithUserSerializer = SerializerValue<TokenWithUser>(
+  key: "TokenWithUser",
   fromJson: (ctx, json) =>
       TokenWithUser.fromJson(json), // _$TokenWithUserFromJson,
   // toJson: (m) => _$TokenWithUserToJson(m as TokenWithUser),

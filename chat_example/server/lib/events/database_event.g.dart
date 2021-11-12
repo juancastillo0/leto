@@ -51,6 +51,7 @@ final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
 // **************************************************************************
 
 final chatDBEventDataSerializer = SerializerValue<ChatDBEventData>(
+  key: "ChatDBEventData",
   fromJson: (ctx, json) =>
       ChatDBEventData.fromJson(json), // _$$ChatDBEventDataFromJson,
   // toJson: (m) => _$$ChatDBEventDataToJson(m as _$ChatDBEventData),
@@ -81,6 +82,7 @@ GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType {
 }
 
 final userChatDBEventDataSerializer = SerializerValue<UserChatDBEventData>(
+  key: "UserChatDBEventData",
   fromJson: (ctx, json) =>
       UserChatDBEventData.fromJson(json), // _$$UserChatDBEventDataFromJson,
   // toJson: (m) => _$$UserChatDBEventDataToJson(m as _$UserChatDBEventData),
@@ -112,6 +114,7 @@ GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType {
 }
 
 final userDBEventDataSerializer = SerializerValue<UserDBEventData>(
+  key: "UserDBEventData",
   fromJson: (ctx, json) =>
       UserDBEventData.fromJson(json), // _$$UserDBEventDataFromJson,
   // toJson: (m) => _$$UserDBEventDataToJson(m as _$UserDBEventData),
@@ -143,6 +146,7 @@ GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType {
 
 final chatMessageDBEventDataSerializer =
     SerializerValue<ChatMessageDBEventData>(
+  key: "ChatMessageDBEventData",
   fromJson: (ctx, json) => ChatMessageDBEventData.fromJson(
       json), // _$$ChatMessageDBEventDataFromJson,
   // toJson: (m) => _$$ChatMessageDBEventDataToJson(m as _$ChatMessageDBEventData),
@@ -174,6 +178,7 @@ GraphQLObjectType<ChatMessageDBEventData>
 }
 
 final dBEventDataSerializer = SerializerValue<DBEventData>(
+  key: "DBEventData",
   fromJson: (ctx, json) => DBEventData.fromJson(json), // _$DBEventDataFromJson,
   // toJson: (m) => _$DBEventDataToJson(m as DBEventData),
 );
@@ -192,6 +197,7 @@ GraphQLUnionType<DBEventData> get dBEventDataGraphQLType {
 }
 
 final dBEventSerializer = SerializerValue<DBEvent>(
+  key: "DBEvent",
   fromJson: (ctx, json) => DBEvent.fromJson(json), // _$DBEventFromJson,
   // toJson: (m) => _$DBEventToJson(m as DBEvent),
 );

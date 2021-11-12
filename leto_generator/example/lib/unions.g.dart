@@ -77,6 +77,7 @@ final GraphQLObjectField<NestedInterface, Object, Object>
 // **************************************************************************
 
 final freezedSingleInputSerializer = SerializerValue<FreezedSingleInput>(
+  key: "FreezedSingleInput",
   fromJson: (ctx, json) =>
       FreezedSingleInput.fromJson(json), // _$$_FreezedSingleInputFromJson,
   // toJson: (m) => _$$_FreezedSingleInputToJson(m as _$_FreezedSingleInput),
@@ -107,6 +108,7 @@ GraphQLInputObjectType<FreezedSingleInput> get freezedSingleInputGraphQLType {
 }
 
 final unionA1Serializer = SerializerValue<_UnionA1>(
+  key: "_UnionA1",
   fromJson: (ctx, json) => _UnionA1.fromJson(json), // _$$_UnionA1FromJson,
   // toJson: (m) => _$$_UnionA1ToJson(m as _$_UnionA1),
 );
@@ -134,6 +136,7 @@ GraphQLObjectType<_UnionA1> get unionA1GraphQLType {
 }
 
 final unionA2Serializer = SerializerValue<_UnionA2>(
+  key: "_UnionA2",
   fromJson: (ctx, json) => _UnionA2.fromJson(json), // _$$_UnionA2FromJson,
   // toJson: (m) => _$$_UnionA2ToJson(m as _$_UnionA2),
 );
@@ -162,6 +165,7 @@ GraphQLObjectType<_UnionA2> get unionA2GraphQLType {
 }
 
 final unionA3Serializer = SerializerValue<UnionA3>(
+  key: "UnionA3",
   fromJson: (ctx, json) => UnionA3.fromJson(json), // _$$UnionA3FromJson,
   // toJson: (m) => _$$UnionA3ToJson(m as _$UnionA3),
 );
@@ -189,6 +193,7 @@ GraphQLObjectType<UnionA3> get unionA3GraphQLType {
 }
 
 final unionA4Serializer = SerializerValue<_UnionA4>(
+  key: "_UnionA4",
   fromJson: (ctx, json) => _UnionA4.fromJson(json), // _$$_UnionA4FromJson,
   // toJson: (m) => _$$_UnionA4ToJson(m as _$_UnionA4),
 );
@@ -216,6 +221,7 @@ GraphQLObjectType<_UnionA4> get unionA4GraphQLType {
 }
 
 final unionASerializer = SerializerValue<UnionA>(
+  key: "UnionA",
   fromJson: (ctx, json) => UnionA.fromJson(json), // _$UnionAFromJson,
   // toJson: (m) => _$UnionAToJson(m as UnionA),
 );

@@ -109,6 +109,7 @@ final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
 // **************************************************************************
 
 final dBEventSerializer = SerializerValue<DBEvent>(
+  key: "DBEvent",
   fromJson: (ctx, json) => DBEvent.fromJson(json), // _$DBEventFromJson,
   // toJson: (m) => _$DBEventToJson(m as DBEvent),
 );
@@ -140,6 +141,7 @@ GraphQLObjectType<DBEvent> get dBEventGraphQLType {
 }
 
 final chatRoomSerializer = SerializerValue<ChatRoom>(
+  key: "ChatRoom",
   fromJson: (ctx, json) => ChatRoom.fromJson(json), // _$$_ChatRoomFromJson,
   // toJson: (m) => _$$_ChatRoomToJson(m as _$_ChatRoom),
 );
@@ -175,6 +177,7 @@ GraphQLObjectType<ChatRoom> get chatRoomGraphQLType {
 }
 
 final chatMessageSerializer = SerializerValue<ChatMessage>(
+  key: "ChatMessage",
   fromJson: (ctx, json) =>
       ChatMessage.fromJson(json), // _$$_ChatMessageFromJson,
   // toJson: (m) => _$$_ChatMessageToJson(m as _$_ChatMessage),

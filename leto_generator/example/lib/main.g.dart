@@ -21,6 +21,7 @@ final GraphQLObjectField<String, Object, Object> getNameGraphQLField = field(
 // **************************************************************************
 
 final todoItemInputSerializer = SerializerValue<TodoItemInput>(
+  key: "TodoItemInput",
   fromJson: (ctx, json) =>
       TodoItemInput.fromJson(json), // _$TodoItemInputFromJson,
   // toJson: (m) => _$TodoItemInputToJson(m as TodoItemInput),
@@ -49,6 +50,7 @@ GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType {
 }
 
 final todoItemInputNestedSerializer = SerializerValue<TodoItemInputNested>(
+  key: "TodoItemInputNested",
   fromJson: (ctx, json) =>
       TodoItemInputNested.fromJson(json), // _$TodoItemInputNestedFromJson,
   // toJson: (m) => _$TodoItemInputNestedToJson(m as TodoItemInputNested),

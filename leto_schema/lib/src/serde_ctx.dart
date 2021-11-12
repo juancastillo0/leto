@@ -3,19 +3,22 @@ part of leto_schema.src.schema;
 /// De-serialization context with [Serializer]s for creating
 /// objects from serialized values
 class SerdeCtx {
-  SerdeCtx();
+  /// De-serialization context with [Serializer]s for creating
+  /// objects from serialized values
+  SerdeCtx() {
+    addAll(const [
+      _SerializerIdentity<int>('int'),
+      _SerializerIdentity<double>('double'),
+      _SerializerIdentity<num>('num'),
+      _SerializerIdentity<String>('String'),
+      _SerializerIdentity<bool>('bool'),
+      _SerializerUri(),
+      _SerializerDateTime(),
+    ]);
+  }
 
-  final Map<Type, Serializer<Object>> _map = {
-    int: const _SerializerIdentity<int>(),
-    double: const _SerializerIdentity<double>(),
-    num: const _SerializerIdentity<num>(),
-    String: const _SerializerIdentity<String>(),
-    bool: const _SerializerIdentity<bool>(),
-    Uri: const _SerializerUri(),
-    // ignore: prefer_void_to_null
-    // Null: const _SerializerIdentity<Null>(),
-    DateTime: const _SerializerDateTime(),
-  };
+  final Map<Type, Serializer<Object>> _map = {};
+  final Map<String, Serializer<Object>> _keyedMap = {};
 
   /// Other context associated with this context
   ///
@@ -26,11 +29,11 @@ class SerdeCtx {
   Map<Type, Serializer<Object>> get map => _map;
 
   /// Parses [json] into a value of type [T]
-  T fromJson<T>(Object? json) {
+  T fromJson<T>(Object? json, {String? key}) {
     if (json is T) {
       return json;
     } else {
-      final Serializer<T>? serializer = of<T>();
+      final Serializer<T>? serializer = of<T>(key: key);
       if (serializer == null) {
         throw Exception('No serializer found for type $T.');
       }
@@ -125,15 +128,42 @@ class SerdeCtx {
     _map[serializer.generic.listNullType] = listSerializer;
     _map[serializer.generic.listTypeNull] = listSerializer;
     _map[serializer.generic.listNullTypeNull] = listSerializer;
+
+    _keyedMap.addEntries(
+      serializer.keys.map((e) => MapEntry(e.replaceAll('?', ''), serializer)),
+    );
+    final _typeKey = serializer.generic.type.toString();
+    _keyedMap[_typeKey.replaceAll('?', '')] = serializer;
   }
 
   // Serializer<Object>? ofValue(Type T) {
   //   return _map[T];
   // }
 
-  Serializer<T>? of<T>() {
-    final serializer = _map[T] as Serializer<T>?;
+  Serializer<T>? of<T>({String? key}) {
+    Serializer<T>? serializer = _map[T] as Serializer<T>?;
     if (serializer != null) return serializer;
+
+    for (final _key in [key, T.toString()].whereType<String>()) {
+      serializer = _keyedMap[_key] as Serializer<T>?;
+      if (serializer != null) return serializer;
+      serializer = _keyedMap[_key.replaceAll('?', '')] as Serializer<T>?;
+      if (serializer != null) return serializer;
+
+      if (_key.startsWith('List<')) {
+        final isNullable = _key.endsWith('?');
+        final _inner = of(
+          key: _key.substring(5, _key.length - (isNullable ? 2 : 1)),
+        );
+        if (_inner != null) {
+          if (isNullable) {
+            return _inner.listSerializerNull as Serializer<T>;
+          } else {
+            return _inner.listSerializer as Serializer<T>;
+          }
+        }
+      }
+    }
 
     final Set<SerdeCtx> processed = {this};
     for (final child in children) {
@@ -180,6 +210,9 @@ class SerdeCtx {
 abstract class Serializer<T> implements GenericHelpSingle<T> {
   const Serializer();
 
+  /// Strings that can be used to reference this serializer
+  List<String> get keys;
+
   T fromJson(SerdeCtx ctx, Object? json);
   // Object? toJson(T instance);
 
@@ -188,8 +221,25 @@ abstract class Serializer<T> implements GenericHelpSingle<T> {
 
   Serializer<List<T>> get listSerializer {
     return SerializerValueGen<List<T>>(
-      fromJson: (ctx, obj) =>
-          List.of((obj! as List).map((Object? e) => fromJson(ctx, e))),
+      keys: List.of(keys.map((e) => 'List<$e>')),
+      fromJson: (ctx, obj) => List.of(
+        (obj! as List).map(
+          (Object? e) => fromJson(ctx, e),
+        ),
+      ),
+    );
+  }
+
+  Serializer<List<T>?> get listSerializerNull {
+    return SerializerValueGen(
+      keys: List.of(keys.map((e) => 'List<$e>')),
+      fromJson: (ctx, obj) => obj == null
+          ? null
+          : List.of(
+              (obj as List).map(
+                (Object? e) => fromJson(ctx, e),
+              ),
+            ),
     );
   }
 }
@@ -221,7 +271,7 @@ class GenericHelp<T> implements GenericHelpSingle<T> {
 
   /// Executes a generic callback with the generic type parameter as [T].
   /// Returns the object returned by the callback.
-  O callWithType<O>(O Function<P extends T>() callback) => callback<T>();
+  O callWithType<O>(O Function<P>() callback) => callback<T>();
 
   @override
   GenericHelp<T> get generic => this;
@@ -265,7 +315,11 @@ class GenericHelpWithExtends<T extends E, E> implements GenericHelpSingle<T> {
 }
 
 class _SerializerIdentity<T> extends Serializer<T> {
-  const _SerializerIdentity();
+  const _SerializerIdentity(this.key);
+  final String key;
+
+  @override
+  List<String> get keys => [key];
 
   @override
   T fromJson(SerdeCtx ctx, Object? json) {
@@ -280,6 +334,9 @@ class _SerializerIdentity<T> extends Serializer<T> {
 
 class _SerializerDateTime extends Serializer<DateTime> {
   const _SerializerDateTime();
+
+  @override
+  List<String> get keys => ['DateTime'];
 
   @override
   DateTime fromJson(SerdeCtx ctx, Object? json) {
@@ -299,6 +356,9 @@ class _SerializerDateTime extends Serializer<DateTime> {
 
 class _SerializerUri extends Serializer<Uri> {
   const _SerializerUri();
+
+  @override
+  List<String> get keys => ['Uri'];
 
   @override
   Uri fromJson(SerdeCtx ctx, Object? json) {
@@ -363,10 +423,14 @@ class _SerializerUri extends Serializer<Uri> {
 class SerializerValue<T> extends Serializer<T> {
   const SerializerValue({
     required T Function(SerdeCtx, Map<String, dynamic> json) fromJson,
+    this.key,
     // required Map<String, dynamic> Function(T value) toJson,
   })  : _fromJson = fromJson,
         // _toJson = toJson,
         super();
+  final String? key;
+  @override
+  List<String> get keys => [if (key != null) key!];
 
   final T Function(SerdeCtx, Map<String, dynamic> json) _fromJson;
   // final Map<String, dynamic> Function(T value) _toJson;
@@ -381,8 +445,11 @@ class SerializerValue<T> extends Serializer<T> {
 class SerializerValueGen<T> extends Serializer<T> {
   const SerializerValueGen({
     required T Function(SerdeCtx, Object? json) fromJson,
+    required this.keys,
   })  : _fromJson = fromJson,
         super();
+  @override
+  final List<String> keys;
 
   final T Function(SerdeCtx, Object? json) _fromJson;
 

@@ -29,6 +29,7 @@ GraphQLObjectType<Node> get nodeGraphQLType {
 }
 
 final shipSerializer = SerializerValue<Ship>(
+  key: "Ship",
   fromJson: (ctx, json) => Ship.fromJson(json), // _$ShipFromJson,
   // toJson: (m) => _$ShipToJson(m as Ship),
 );
@@ -60,6 +61,7 @@ GraphQLObjectType<Ship> get shipGraphQLType {
 }
 
 final factionSerializer = SerializerValue<Faction>(
+  key: "Faction",
   fromJson: (ctx, json) => Faction.fromJson(json), // _$FactionFromJson,
   // toJson: (m) => _$FactionToJson(m as Faction),
 );
@@ -109,6 +111,7 @@ GraphQLObjectType<Faction> get factionGraphQLType {
 }
 
 final connectionArgumentsSerializer = SerializerValue<ConnectionArguments>(
+  key: "ConnectionArguments",
   fromJson: (ctx, json) =>
       ConnectionArguments.fromJson(json), // _$ConnectionArgumentsFromJson,
   // toJson: (m) => _$ConnectionArgumentsToJson(m as ConnectionArguments),

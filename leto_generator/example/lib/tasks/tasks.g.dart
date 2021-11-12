@@ -110,6 +110,7 @@ GraphQLObjectType<WithCreated> get withCreatedGraphQLType {
 }
 
 final taskSerializer = SerializerValue<Task>(
+  key: "Task",
   fromJson: (ctx, json) => Task.fromJson(json), // _$TaskFromJson,
   // toJson: (m) => _$TaskToJson(m as Task),
 );
@@ -147,6 +148,7 @@ GraphQLObjectType<Task> get taskGraphQLType {
 }
 
 final userSerializer = SerializerValue<User>(
+  key: "User",
   fromJson: (ctx, json) => User.fromJson(json), // _$UserFromJson,
   // toJson: (m) => _$UserToJson(m as User),
 );

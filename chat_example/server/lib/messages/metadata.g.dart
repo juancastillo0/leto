@@ -7,6 +7,7 @@ part of 'metadata.dart';
 // **************************************************************************
 
 final messageMetadataSerializer = SerializerValue<MessageMetadata>(
+  key: "MessageMetadata",
   fromJson: (ctx, json) =>
       MessageMetadata.fromJson(json), // _$$_MessageMetadataFromJson,
   // toJson: (m) => _$$_MessageMetadataToJson(m as _$_MessageMetadata),
@@ -41,6 +42,7 @@ GraphQLObjectType<MessageMetadata> get messageMetadataGraphQLType {
 }
 
 final linksMetadataSerializer = SerializerValue<LinksMetadata>(
+  key: "LinksMetadata",
   fromJson: (ctx, json) =>
       LinksMetadata.fromJson(json), // _$$_LinksMetadataFromJson,
   // toJson: (m) => _$$_LinksMetadataToJson(m as _$_LinksMetadata),
@@ -76,6 +78,7 @@ GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType {
 }
 
 final linkMetadataSerializer = SerializerValue<LinkMetadata>(
+  key: "LinkMetadata",
   fromJson: (ctx, json) =>
       LinkMetadata.fromJson(json), // _$$_LinkMetadataFromJson,
   // toJson: (m) => _$$_LinkMetadataToJson(m as _$_LinkMetadata),
@@ -107,6 +110,7 @@ GraphQLObjectType<LinkMetadata> get linkMetadataGraphQLType {
 }
 
 final fileMetadataSerializer = SerializerValue<FileMetadata>(
+  key: "FileMetadata",
   fromJson: (ctx, json) =>
       FileMetadata.fromJson(json), // _$$_FileMetadataFromJson,
   // toJson: (m) => _$$_FileMetadataToJson(m as _$_FileMetadata),

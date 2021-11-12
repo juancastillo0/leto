@@ -54,6 +54,7 @@ final GraphQLObjectField<List<ChatRoom>, Object, Object>
 // **************************************************************************
 
 final chatCreatedEventSerializer = SerializerValue<ChatCreatedEvent>(
+  key: "ChatCreatedEvent",
   fromJson: (ctx, json) =>
       ChatCreatedEvent.fromJson(json), // _$$ChatCreatedEventFromJson,
   // toJson: (m) => _$$ChatCreatedEventToJson(m as _$ChatCreatedEvent),
@@ -87,6 +88,7 @@ GraphQLObjectType<ChatCreatedEvent> get chatCreatedEventGraphQLType {
 }
 
 final chatDeletedEventSerializer = SerializerValue<ChatDeletedEvent>(
+  key: "ChatDeletedEvent",
   fromJson: (ctx, json) =>
       ChatDeletedEvent.fromJson(json), // _$$ChatDeletedEventFromJson,
   // toJson: (m) => _$$ChatDeletedEventToJson(m as _$ChatDeletedEvent),
@@ -114,6 +116,7 @@ GraphQLObjectType<ChatDeletedEvent> get chatDeletedEventGraphQLType {
 }
 
 final chatEventSerializer = SerializerValue<ChatEvent>(
+  key: "ChatEvent",
   fromJson: (ctx, json) => ChatEvent.fromJson(json), // _$ChatEventFromJson,
   // toJson: (m) => _$ChatEventToJson(m as ChatEvent),
 );
@@ -127,6 +130,7 @@ GraphQLUnionType<ChatEvent> get chatEventGraphQLType {
 }
 
 final chatRoomSerializer = SerializerValue<ChatRoom>(
+  key: "ChatRoom",
   fromJson: (ctx, json) => ChatRoom.fromJson(json), // _$$_ChatRoomFromJson,
   // toJson: (m) => _$$_ChatRoomToJson(m as _$_ChatRoom),
 );

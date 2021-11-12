@@ -27,6 +27,7 @@ final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
 // **************************************************************************
 
 final humanSerializer = SerializerValue<Human>(
+  key: "Human",
   fromJson: (ctx, json) => Human.fromJson(json), // _$$_HumanFromJson,
   // toJson: (m) => _$$_HumanToJson(m as _$_Human),
 );

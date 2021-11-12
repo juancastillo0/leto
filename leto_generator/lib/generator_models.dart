@@ -203,6 +203,7 @@ String serializerDefinitionCode(
   return '''
 
 final ${ReCase(typeName).camelCase}$serializerSuffix = SerializerValue<$typeName>(
+  key: "$typeName",
   fromJson: (ctx, json) => $typeName.fromJson(json), // $prefix\$${_constructorName}FromJson,
   // toJson: (m) => $prefix\$${_constructorName}ToJson(m as ${hasFrezzed ? '_\$' : ''}$_constructorName),
 );
