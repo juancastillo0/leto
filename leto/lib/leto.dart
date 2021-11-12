@@ -13,6 +13,7 @@ import 'package:source_span/source_span.dart';
 import 'src/extensions/extension.dart';
 import 'src/graphql_result.dart';
 
+export 'package:gql/ast.dart' show OperationType;
 export 'package:leto_schema/leto_schema.dart'
     show
         GraphQLException,
@@ -134,6 +135,7 @@ class GraphQL {
     }
   }
 
+  /// Creates a [GraphQL] executor from a [GraphQLConfig]
   factory GraphQL.fromConfig(GraphQLSchema schema, GraphQLConfig config) =>
       GraphQL(
         schema,
@@ -157,10 +159,14 @@ class GraphQL {
   static GraphQL? fromCtx(GlobalsHolder scope) =>
       _graphQLExecutorRef.get(scope);
 
-  /// Parses the GraphQL document in [text] and executes [operationName]
+  /// Parses the GraphQL document in [query] and executes [operationName]
   /// or the only operation in the document if not given.
+  ///
+  /// Throws [InvalidOperationType] if the operation
+  /// for [query] and [operationName] is not in [validOperationTypes].
+  /// May throw other exceptions if a [GraphQLExtension] in [extensions] throws.
   Future<GraphQLResult> parseAndExecute(
-    String text, {
+    String query, {
     String? operationName,
 
     /// The text document's source
@@ -170,6 +176,7 @@ class GraphQL {
     Map<String, Object?>? extensions,
     Object? rootValue,
     ScopedMap? globalVariables,
+    List<OperationType> validOperationTypes = OperationType.values,
   }) async {
     final _globalVariables = globalVariables ?? ScopedMap.empty();
     for (final e in baseGlobalVariables.entries) {
@@ -181,7 +188,7 @@ class GraphQL {
       extensions: extensions,
       globals: _globalVariables,
       operationName: operationName,
-      query: text,
+      query: query,
       rootValue: rootValue ?? _globalVariables,
       rawVariableValues: variableValues,
       schema: _schema,
@@ -195,21 +202,31 @@ class GraphQL {
       () async {
         try {
           final document = getDocumentNode(
-            text,
+            query,
             sourceUrl: sourceUrl,
             extensions: extensions,
             globals: _globalVariables,
             ctx: preExecuteCtx,
           );
+
+          final operation = getOperation(document, operationName);
+          if (!validOperationTypes.contains(operation.type)) {
+            throw InvalidOperationType(
+              preExecuteCtx,
+              document,
+              operation,
+              validOperationTypes,
+            );
+          }
           final result = await executeRequest(
             _schema,
             document,
-            operationName: operationName,
             rootValue: rootValue ?? _globalVariables,
             variableValues: variableValues,
             globalVariables: _globalVariables,
             extensions: extensions,
             baseCtx: preExecuteCtx,
+            operation: operation,
           );
 
           return result;
@@ -241,7 +258,7 @@ class GraphQL {
   }
 
   DocumentNode getDocumentNode(
-    String text, {
+    String query, {
     dynamic sourceUrl,
     Map<String, Object?>? extensions,
     required ScopedMap globals,
@@ -249,7 +266,7 @@ class GraphQL {
   }) {
     return withExtensions((next, ext) => ext.getDocumentNode(next, ctx), () {
       try {
-        final document = gql.parseString(text, url: sourceUrl);
+        final document = gql.parseString(query, url: sourceUrl);
         return document;
       } on SourceSpanException catch (e, s) {
         throw GraphQLException([
@@ -273,12 +290,12 @@ class GraphQL {
   Future<GraphQLResult> executeRequest(
     GraphQLSchema schema,
     DocumentNode document, {
-    String? operationName,
     Map<String, dynamic>? variableValues,
     required Object rootValue,
     required ScopedMap globalVariables,
     Map<String, dynamic>? extensions,
     required ResolveBaseCtx baseCtx,
+    required OperationDefinitionNode operation,
   }) async {
     if (validate) {
       final validationException = withExtensions<GraphQLException?>(
@@ -306,7 +323,6 @@ class GraphQL {
       }
     }
 
-    final operation = getOperation(document, operationName);
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
     final ctx = ResolveCtx(
@@ -1619,4 +1635,25 @@ class ThrownError {
     required this.objectCtx,
     required this.ctx,
   });
+}
+
+class InvalidOperationType implements Exception {
+  final ResolveBaseCtx ctx;
+  final DocumentNode document;
+  final OperationDefinitionNode operation;
+  final List<OperationType> validOperationTypes;
+
+  const InvalidOperationType(
+    this.ctx,
+    this.document,
+    this.operation,
+    this.validOperationTypes,
+  );
+
+  @override
+  String toString() {
+    return 'InvalidOperationType(operationName: ${operation.name},'
+        ' operationType: ${operation.type},'
+        ' validOperationTypes: $validOperationTypes)';
+  }
 }

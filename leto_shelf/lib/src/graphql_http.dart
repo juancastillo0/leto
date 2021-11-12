@@ -19,8 +19,10 @@ Handler graphqlHttp(
 
     try {
       final GraphQLRequest graphQLRequest;
+      final List<OperationType> validOperationTypes;
       try {
         if (request.method == 'POST') {
+          validOperationTypes = [OperationType.query, OperationType.mutation];
           if (request.mimeType == 'application/graphql') {
             final text = await request.readAsString();
             graphQLRequest = GraphQLRequest(query: text);
@@ -45,6 +47,7 @@ Handler graphqlHttp(
             return Response(HttpStatus.badRequest);
           }
         } else if (request.method == 'GET') {
+          validOperationTypes = [OperationType.query];
           final queryParams = request.url.queryParameters;
           if (queryParams['query'] is String) {
             // TODO: allow requests without query but with extensions?
@@ -70,6 +73,7 @@ Handler graphqlHttp(
           globalVariables: requestVariables,
           extensions: gqlQuery.extensions,
           sourceUrl: 'input',
+          validOperationTypes: validOperationTypes,
         );
       });
       final resultList = await Future.wait(results);
@@ -95,6 +99,9 @@ Handler graphqlHttp(
       return response;
     } on Response catch (e) {
       return e;
+    } on InvalidOperationType catch (e) {
+      // HttpStatus.methodNotAllowed = 405
+      return Response(HttpStatus.methodNotAllowed, body: e.toString());
     } catch (e, s) {
       return onError?.call(request, e, s) ?? Response.internalServerError();
     }

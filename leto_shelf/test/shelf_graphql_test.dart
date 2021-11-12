@@ -212,6 +212,23 @@ query unions {
     response = await client.get(url);
     expect(response.statusCode, 400);
 
+    // Mutation in GET
+    response = await client.get(url.replace(
+      queryParameters: <String, String>{
+        'query': 'mutation addTestModel { addTestModel { name } }'
+      },
+    ));
+    expect(response.statusCode, 405);
+
+    // Mutation in GET with operationName
+    response = await client.get(url.replace(
+      queryParameters: <String, String>{
+        'query': '$_query mutation addTestModel { addTestModel { name } }',
+        'operationName': 'addTestModel',
+      },
+    ));
+    expect(response.statusCode, 405);
+
     // PUT
     response = await client.put(url);
     expect(response.statusCode, 404);
