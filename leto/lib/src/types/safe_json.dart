@@ -187,7 +187,7 @@ Result<T, E> resultCtx<T extends Object, E extends Object>(
 }
 
 class ResultCtx<T extends Object, E extends Object> {
-  /// Retuen 
+  /// Returns the ok variant or throws the inner error
   T unwrap(Result<T, E> result) {
     if (result.isOk()) {
       return result.unwrap();
@@ -195,6 +195,7 @@ class ResultCtx<T extends Object, E extends Object> {
     throw result.unwrapErr();
   }
 
+  /// Throws an error of type [E]
   Never throwErr(E err) {
     throw err;
   }
