@@ -1,3 +1,4 @@
+// ignore_for_file: implicit_dynamic_list_literal
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/utilities/build_schema.dart';

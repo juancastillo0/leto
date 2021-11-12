@@ -288,10 +288,10 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
 }
 
 ValidationResult<String> _validateDateString(String key, Object? input) {
-  if (input is! String)
+  if (input is! String) {
     return ValidationResult<String>.failure(
         ['$key must be an ISO 8601-formatted date string.']);
-
+  }
   try {
     DateTime.parse(input);
     return ValidationResult.ok(input);

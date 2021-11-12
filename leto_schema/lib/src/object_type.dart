@@ -126,11 +126,11 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     String key,
     Object? input,
   ) {
-    if (input is! Map<String, Object?>)
+    if (input is! Map<String, Object?>) {
       return ValidationResult.failure([
         'Expected "$key" to be a Map of type $this. Got invalid value $input.'
       ]);
-
+    }
     if (isInterface) {
       final List<String> errors = [];
 
@@ -309,10 +309,11 @@ ValidationResult<Map<String, dynamic>> _validateObject(
   String key,
   Object? input,
 ) {
-  if (input is! Map<String, Object?>)
+  if (input is! Map<String, Object?>) {
     return ValidationResult.failure([
       'Expected "$key" to be a Map of type $type. Got invalid value $input.'
     ]);
+  }
 
   final out = <String, Object?>{};
   final List<String> errors = [];

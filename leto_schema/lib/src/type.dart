@@ -278,10 +278,10 @@ class _GraphQLNonNullListType<Value, Serialized>
   // ignore: avoid_renaming_method_parameters
   ValidationResult<List<Serialized?>> validate(String key, Object? _input) {
     final input = _input != null && _input is! List ? [_input] : _input;
-    if (input is! List)
+    if (input is! List) {
       return ValidationResult.failure(
           ['Expected "$key" to be a list. Got invalid value $_input.']);
-
+    }
     final out = <Serialized?>[];
     final List<String> errors = [];
 
@@ -345,10 +345,10 @@ class _GraphQLNullableListType<Value, Serialized>
   // ignore: avoid_renaming_method_parameters
   ValidationResult<List<Serialized?>> validate(String key, Object? _input) {
     final input = _input != null && _input is! List ? [_input] : _input;
-    if (input is! List)
+    if (input is! List) {
       return ValidationResult.failure(
           ['Expected "$key" to be a list. Got invalid value $_input.']);
-
+    }
     final out = ofType.isNullable ? <Serialized?>[] : <Serialized>[];
     final List<String> errors = [];
 
@@ -432,10 +432,11 @@ class GraphQLNonNullType<Value, Serialized>
 
   @override
   ValidationResult<Serialized> validate(String key, Object? input) {
-    if (input == null)
+    if (input == null) {
       return ValidationResult.failure(
         ['Expected "$key" to be a non-null value of type $this.'],
       );
+    }
     return ofType.validate(key, input);
   }
 

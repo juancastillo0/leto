@@ -303,10 +303,11 @@ class SchemaPrinter {
       return '';
     }
     final urlAST = astFromValue(url, graphQLString);
-    if (urlAST == null)
+    if (urlAST == null) {
       throw Exception(
         'Unexpected null value returned from `astFromValue` for specifiedByURL',
       );
+    }
     return ' @specifiedBy(url: ' + printAST(urlAST) + ')';
   }
 

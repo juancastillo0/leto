@@ -402,8 +402,9 @@ class GraphQL {
       } else {
         final Object? value = variableValues[variableName];
         if (value == null) {
-          if (variableValues.containsKey(variableName))
+          if (variableValues.containsKey(variableName)) {
             coercedValues[variableName] = null;
+          }
         } else {
           // TODO: should we just deserialize with a result?
           final validation = type.validate(variableName, value);

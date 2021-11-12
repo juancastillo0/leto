@@ -152,7 +152,7 @@ class SerdeCtx {
 
       if (_key.startsWith('List<')) {
         final isNullable = _key.endsWith('?');
-        final _inner = of(
+        final _inner = of<dynamic>(
           key: _key.substring(5, _key.length - (isNullable ? 2 : 1)),
         );
         if (_inner != null) {
