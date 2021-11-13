@@ -131,6 +131,7 @@ class InputGen<T> {
   Map<String, Object?> toJson() => {'name': name, 'generic': generic};
 }
 
+// TODO: add schema string tests
 @GraphQLInput()
 @JsonSerializable(genericArgumentFactories: true)
 class InputGen2<T, O extends Object> {

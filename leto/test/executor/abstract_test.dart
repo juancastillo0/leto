@@ -67,11 +67,6 @@ void main() {
     final DogType = objectType<Dog>(
       'Dog',
       interfaces: [PetType],
-      // TODO:
-      // isTypeOf(obj, context) {
-      //   const isDog = obj instanceof Dog;
-      //   return context.async ? Promise.resolve(isDog) : isDog;
-      // },
       fieldsMap: {
         'name': graphQLString.fieldSpec(),
         'woofs': graphQLBoolean.fieldSpec(),
@@ -81,11 +76,6 @@ void main() {
     final CatType = objectType<Cat>(
       'Cat',
       interfaces: [PetType],
-      // TODO:
-      // isTypeOf(obj, context) {
-      //   final isCat = obj instanceof Cat;
-      //   return context.async ? Promise.resolve(isCat) : isCat;
-      // },
       fieldsMap: {
         'name': graphQLString.fieldSpec(),
         'meows': graphQLBoolean.fieldSpec(),
@@ -182,8 +172,6 @@ void main() {
           ),
         ],
       ),
-      // TODO:
-      // types: [DogType, CatType],
     );
 
     const query = '''
@@ -343,8 +331,6 @@ void main() {
           ),
         ],
       ),
-      // TODO:
-      // types: [CatType, DogType],
     );
 
     const query = '''

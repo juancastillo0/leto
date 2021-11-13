@@ -238,20 +238,6 @@ void main() {
       await GraphQL(schema, introspect: false).parseAndExecute(document,
           rootValue: rootValue, variableValues: variableValues);
 
-      // TODO:
-      // expect(resolvedInfo).to.have.all.keys(
-      //   'fieldName',
-      //   'fieldNodes',
-      //   'returnType',
-      //   'parentType',
-      //   'path',
-      //   'schema',
-      //   'fragments',
-      //   'rootValue',
-      //   'operation',
-      //   'variableValues',
-      // );
-
       // final operation = document.definitions[0];
       // invariant(operation.kind === Kind.OPERATION_DEFINITION);
       final resolvedInfo = _resolvedInfo;
