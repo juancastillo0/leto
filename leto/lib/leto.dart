@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:gql/ast.dart';
-import 'package:gql/document.dart' as gql_doc;
 import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart'
     show computeValue, convertType, getDirectiveValue, isInputType;
+import 'package:leto_schema/validate.dart';
 import 'package:source_span/source_span.dart';
 
 import 'src/extensions/extension.dart';
@@ -282,21 +282,11 @@ class GraphQL {
       final validationException = withExtensions<GraphQLException?>(
         (n, e) => e.validate(n, baseCtx, document),
         () {
-          // final gqlSchema = gql_schema.GraphQLSchema.fromNode(node);
-          final errors = gql_doc.validateRequest(schema.schemaNode, document);
+          final errors = validateDocument(schema, document);
           if (errors.isEmpty) {
             return null;
           }
-          return GraphQLException([
-            ...errors.map(
-              (e) => GraphQLError(
-                e.message ?? 'Invalid operation.',
-                locations: GraphQLErrorLocation.listFromSource(
-                  e.node?.span?.start,
-                ),
-              ),
-            )
-          ]);
+          return GraphQLException(errors);
         },
       );
       if (validationException != null) {
