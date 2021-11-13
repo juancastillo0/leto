@@ -448,7 +448,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
   final userWithName = await userTableRef.get(ctx).getByName(name);
   if (userWithName != null) {
     final verified = userWithName.passwordHash != null &&
-        verifyPasswordFromHash(password, userWithName.passwordHash!);
+        await verifyPasswordFromIsolate(password, userWithName.passwordHash!);
     if (!verified) {
       return Err(ErrC(SignUpError.nameTaken));
     }
@@ -466,7 +466,7 @@ Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
       await deactivateSession(ctx, userClaims);
     }
 
-    final passwordHash = hashFromPassword(password);
+    final passwordHash = await hashPasswordFromIsolate(password);
 
     if (currentUser != null) {
       user = await userTableRef.get(ctx).update(
@@ -540,7 +540,8 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
       return Err(ErrC(SignInError.wrong));
     }
     // Verify password (returns true/false), uses default type (Argon2Type.i)
-    final verified = verifyPasswordFromHash(password, user.passwordHash!);
+    final verified =
+        await verifyPasswordFromIsolate(password, user.passwordHash!);
     if (!verified) {
       return Err(ErrC(SignInError.wrong));
     }

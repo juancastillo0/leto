@@ -1,5 +1,6 @@
 import 'dart:convert' show base64;
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math' show Random;
 import 'dart:typed_data' show Uint8List;
 
@@ -236,6 +237,47 @@ Uint8List getRandomBytes([int length = 16]) {
     List<int>.generate(length, (i) => _random.nextInt(256)),
   );
 }
+
+Future<String> hashPasswordFromIsolate(String password) async {
+  final receivePort = ReceivePort();
+  final isolate = await Isolate.spawn(_isolatePasswordTask, {
+    'sendPort': receivePort.sendPort,
+    'password': password,
+  });
+  final value = await receivePort.first as String;
+  assert((() => verifyPasswordFromHash(password, value))());
+  isolate.kill();
+  return value;
+}
+
+Future<bool> verifyPasswordFromIsolate(String password, String realHash) async {
+  final receivePort = ReceivePort();
+  final isolate = await Isolate.spawn(_isolatePasswordTask, {
+    'sendPort': receivePort.sendPort,
+    'password': password,
+    'realHash': realHash,
+  });
+  final value = await receivePort.first as bool;
+  assert((() => verifyPasswordFromHash(password, realHash) == value)());
+  isolate.kill();
+  return value;
+}
+
+// coverage:ignore-start
+void _isolatePasswordTask(Map<String, Object?> message) {
+  final sendPort = message['sendPort']! as SendPort;
+  final password = message['password']! as String;
+  final realHash = message['realHash'] as String?;
+
+  if (realHash != null) {
+    final value = verifyPasswordFromHash(password, realHash);
+    sendPort.send(value);
+  } else {
+    final value = hashFromPassword(password);
+    sendPort.send(value);
+  }
+}
+// coverage:ignore-end
 
 String hashFromPassword(String password, {Argon2Parameters? params}) {
   final _params = params ??
