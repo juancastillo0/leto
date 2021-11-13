@@ -488,8 +488,9 @@ class GraphQL {
         'The schema does not define a subscription type.',
       );
     }
-    final groupedFieldSet = collectFields(baseCtx.document, subscriptionType,
-        selectionSet, baseCtx.variableValues);
+    final fragments = fragmentsFromDocument(baseCtx.document);
+    final groupedFieldSet = collectFields(
+        fragments, subscriptionType, selectionSet, baseCtx.variableValues);
     if (validate && groupedFieldSet.length != 1) {
       throw GraphQLException.fromMessage(
         'The grouped field set from this query must have exactly one entry.',
@@ -686,8 +687,9 @@ class GraphQL {
     ResolveObjectCtx? parentCtx,
     Object? pathItem,
   }) async {
+    final fragments = fragmentsFromDocument(baseCtx.document);
     final groupedFieldSet = collectFields(
-      baseCtx.document,
+      fragments,
       objectType,
       selectionSet,
       baseCtx.variableValues,
@@ -1011,12 +1013,13 @@ class GraphQL {
       );
       if (possibleObjects.isNotEmpty) {
         final selectionSet = mergeSelectionSets(fields);
+        final fragments = fragmentsFromDocument(document);
 
         _value = PossibleSelections(
           Map.fromEntries(
             possibleObjects.map((obj) {
               final nonAlised = collectFields(
-                document,
+                fragments,
                 obj,
                 selectionSet,
                 variableValues,
@@ -1430,16 +1433,26 @@ class GraphQL {
     return SelectionSetNode(selections: selections);
   }
 
-  Map<String, List<FieldNode>> collectFields(
+  Map<String, FragmentDefinitionNode> fragmentsFromDocument(
     DocumentNode document,
+  ) {
+    final allFragments =
+        document.definitions.whereType<FragmentDefinitionNode>();
+    return Map.fromEntries(
+      allFragments.map((e) => MapEntry(e.name.value, e)),
+    );
+  }
+
+  Map<String, List<FieldNode>> collectFields(
+    Map<String, FragmentDefinitionNode> fragments,
     GraphQLObjectType objectType,
     SelectionSetNode selectionSet,
     Map<String, dynamic> variableValues, {
-    List<Object?>? visitedFragments,
+    Set<String>? visitedFragments,
     bool aliased = true,
   }) {
     final groupedFields = <String, List<FieldNode>>{};
-    visitedFragments ??= [];
+    visitedFragments ??= {};
 
     for (final selection in selectionSet.selections) {
       final directives = selection.directives;
@@ -1462,16 +1475,14 @@ class GraphQL {
         final fragmentSpreadName = selection.name.value;
         if (visitedFragments.contains(fragmentSpreadName)) continue;
         visitedFragments.add(fragmentSpreadName);
-        final fragment = document.definitions
-            .whereType<FragmentDefinitionNode>()
-            .firstWhereOrNull((f) => f.name.value == fragmentSpreadName);
+        final fragment = fragments[fragmentSpreadName];
 
         if (fragment == null) continue;
         final fragmentType = fragment.typeCondition;
         if (!doesFragmentTypeApply(objectType, fragmentType)) continue;
         final fragmentSelectionSet = fragment.selectionSet;
         final fragmentGroupFieldSet = collectFields(
-            document, objectType, fragmentSelectionSet, variableValues,
+            fragments, objectType, fragmentSelectionSet, variableValues,
             visitedFragments: visitedFragments, aliased: aliased);
 
         for (final groupEntry in fragmentGroupFieldSet.entries) {
@@ -1487,7 +1498,7 @@ class GraphQL {
             !doesFragmentTypeApply(objectType, fragmentType)) continue;
         final fragmentSelectionSet = selection.selectionSet;
         final fragmentGroupFieldSet = collectFields(
-            document, objectType, fragmentSelectionSet, variableValues,
+            fragments, objectType, fragmentSelectionSet, variableValues,
             visitedFragments: visitedFragments, aliased: aliased);
 
         for (final groupEntry in fragmentGroupFieldSet.entries) {
