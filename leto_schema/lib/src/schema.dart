@@ -8,6 +8,7 @@ import 'package:gql/ast.dart'
 
 import 'package:gql/language.dart' show parseString;
 import 'package:leto_schema/src/utilities/fetch_all_types.dart';
+import 'package:leto_schema/src/utilities/print_schema.dart';
 import 'package:leto_schema/utilities.dart' show printSchema;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart' show Target, TargetKind;
@@ -78,6 +79,10 @@ class GraphQLSchema {
   ///
   /// throws [SameNameGraphQLTypeException] if there are different types
   /// with the same name.
+  /// throws [UnnamedTypeException] if there are different types
+  /// with the same name.
+  /// throws [InvalidTypeNameException] if there is a type
+  /// with an invalid name. All type names should match [typeNameRegExp].
   GraphQLSchema({
     this.queryType,
     this.mutationType,
@@ -91,10 +96,18 @@ class GraphQLSchema {
     _collectTypes();
   }
 
+  /// All [GraphQLType] names should match this regular expression
+  static final typeNameRegExp = RegExp(r'^[a-zA-Z][_a-zA-Z0-9]*$');
+
   void _collectTypes() {
     final allTypes = fetchAllNamedTypes(this);
     for (final type in allTypes) {
       final name = type.name!;
+      if (name.isEmpty) {
+        throw UnnamedTypeException(this, type);
+      } else if (!typeNameRegExp.hasMatch(name) && !isIntrospectionType(type)) {
+        throw InvalidTypeNameException(this, type);
+      }
       final prev = typeMap[name];
       if (prev == null) {
         typeMap[name] = type;
@@ -122,3 +135,44 @@ class GraphQLSchema {
 
 /// A default resolver that always returns `null`.
 Object? resolveToNull(Object? _, Object? __) => null;
+
+/// Thrown when a schema was constructed with an unnamed type
+class UnnamedTypeException implements Exception {
+  /// The type with no name found in the schema
+  final GraphQLType type;
+
+  /// The schema that was being constructed when this exception was thrown
+  final GraphQLSchema schema;
+
+  /// Thrown when a schema was constructed with an unnamed type
+  const UnnamedTypeException(this.schema, this.type);
+
+  @override
+  String toString() {
+    return 'One of the provided types for building the'
+        ' Schema is missing a name. '
+        'GraphQLType(runtimeType: ${type.runtimeType},'
+        ' description: ${type.description}.)';
+  }
+}
+
+/// Thrown when a schema was constructed with a type with an invalid name
+class InvalidTypeNameException implements Exception {
+  /// The type with an invalid name found in the schema
+  final GraphQLType type;
+
+  /// The schema that was being constructed when this exception was thrown
+  final GraphQLSchema schema;
+
+  /// Thrown when a schema was constructed with a type with an invalid name
+  const InvalidTypeNameException(this.schema, this.type);
+
+  @override
+  String toString() {
+    return 'One of the provided types for building the'
+        ' Schema has an invalid name = $type.'
+        ' All names should match: ${GraphQLSchema.typeNameRegExp.pattern}'
+        '. GraphQLType(runtimeType: ${type.runtimeType},'
+        ' description: ${type.description}.)';
+  }
+}

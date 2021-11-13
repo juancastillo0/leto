@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:test/test.dart';
@@ -256,57 +257,60 @@ type Subscription {
     );
   }
 
-  // TODO: Introspection in schema
-  // test('preserves the order of user provided types', () {
-  //   final aType = GraphQLObjectType(
-  //     'A',
-  //     fields: [
-  //       field('sub', _testScalarType('ASub')),
-  //     ],
-  //   );
-  //   final zType = GraphQLObjectType(
-  //     'Z',
-  //     fields: [
-  //       field('sub', _testScalarType('ZSub')),
-  //     ],
-  //   );
-  //   final queryType = GraphQLObjectType(
-  //     'Query',
-  //     fields: [
-  //       field('a', aType),
-  //       field('z', zType),
-  //       field('sub', _testScalarType('QuerySub')),
-  //     ],
-  //   );
-  //   final schema = GraphQLSchema(
-  //     types: [zType, queryType, aType],
-  //     queryType: queryType,
-  //   );
+  test('preserves the order of user provided types', () {
+    final aType = GraphQLObjectType<Object>(
+      'A',
+      fields: [
+        field('sub', _testScalarType('ASub')),
+      ],
+    );
+    final zType = GraphQLObjectType<Object>(
+      'Z',
+      fields: [
+        field('sub', _testScalarType('ZSub')),
+      ],
+    );
+    final queryType = GraphQLObjectType<Object>(
+      'Query',
+      fields: [
+        field('a', aType),
+        field('z', zType),
+        field('sub', _testScalarType('QuerySub')),
+      ],
+    );
+    final schema = reflectSchema(GraphQLSchema(
+      otherTypes: [zType, queryType, aType],
+      queryType: queryType,
+    ));
 
-  //   final typeNames = schema.typeMap().keys;
-  //   expect(typeNames, [
-  //     'Z',
-  //     'ZSub',
-  //     'Query',
-  //     'QuerySub',
-  //     'A',
-  //     'ASub',
-  //     'Boolean',
-  //     'String',
-  //     '__Schema',
-  //     '__Type',
-  //     '__TypeKind',
-  //     '__Field',
-  //     '__InputValue',
-  //     '__EnumValue',
-  //     '__Directive',
-  //     '__DirectiveLocation',
-  //   ]);
+    final typeNames = schema.typeMap.keys;
+    expect(
+      typeNames,
+      // TODO: was ordered
+      unorderedEquals(<String>[
+        'Z',
+        'ZSub',
+        'Query',
+        'QuerySub',
+        'A',
+        'ASub',
+        'Boolean',
+        'String',
+        '__Schema',
+        '__Type',
+        '__TypeKind',
+        '__Field',
+        '__InputValue',
+        '__EnumValue',
+        '__Directive',
+        '__DirectiveLocation',
+      ]),
+    );
 
-  //   // Also check that this order is stable
-  //   // final copySchema = GraphQLSchema(schema.toConfig());
-  //   // expect(Object.keys(copySchema.typeMap())).to.deep.equal(typeNames);
-  // });
+    // Also check that this order is stable
+    // final copySchema = GraphQLSchema(schema.toConfig());
+    // expect(Object.keys(copySchema.typeMap())).to.deep.equal(typeNames);
+  });
 
   // test('can be Object.toStringified', ()  {
   //   final schema = GraphQLSchema();
@@ -355,10 +359,9 @@ type Subscription {
               () => GraphQLSchema(queryType: QueryType),
               throwsA(predicate(
                 (e) =>
-                    e is ArgumentError &&
-                    e.message ==
-                        'Schema must contain uniquely named types but'
-                            ' contains multiple types named "String".',
+                    e is SameNameGraphQLTypeException &&
+                    e.type1 == FakeString &&
+                    e.type2 == graphQLString,
               )));
         });
 
@@ -373,11 +376,7 @@ type Subscription {
           expect(
               () => GraphQLSchema(queryType: query, otherTypes: types),
               throwsA(predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.message ==
-                        'One of the provided types for building the'
-                            ' Schema is missing a name.',
+                (e) => e is UnnamedTypeException && e.type == types[0],
               )));
         });
 
@@ -391,10 +390,9 @@ type Subscription {
               () => GraphQLSchema(otherTypes: types),
               throwsA(predicate(
                 (e) =>
-                    e is ArgumentError &&
-                    e.message ==
-                        'Schema must contain uniquely named types but'
-                            ' contains multiple types named "SameName".',
+                    e is SameNameGraphQLTypeException &&
+                    e.type1 == types[1] &&
+                    e.type2 == types[0],
               )));
         });
 
@@ -412,13 +410,12 @@ type Subscription {
           expect(
             () => GraphQLSchema(queryType: QueryType),
             throwsA(predicate((e) =>
-                e is ArgumentError &&
-                e.message ==
-                    'Schema must contain uniquely named types but '
-                        'contains multiple types named "SameName".')),
+                e is SameNameGraphQLTypeException &&
+                e.type1 == QueryType.fields[1].type &&
+                e.type2 == QueryType.fields[0].type)),
           );
-        }); // TODO:
-      }, skip: '// TODO: Improve equality checks for GraphQLTypes');
+        });
+      });
 
       group('when assumed valid', () {
         // TODO:
