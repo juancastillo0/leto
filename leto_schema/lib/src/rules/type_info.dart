@@ -1,324 +1,252 @@
-// https://github.com/graphql/graphql-js/blob/085c9efaa4586aa9b4bbf21f80ea612a79069b8d/src/utilities/TypeInfo.ts
-import type { ASTVisitor } from '../language/visitor';
-import type { ASTNode, FieldNode } from '../language/ast';
-import { Kind } from '../language/kinds';
-import { isNode } from '../language/ast';
-import { getEnterLeaveForKind } from '../language/visitor';
+// ignore_for_file: unnecessary_this, public_member_api_docs, prefer_is_empty
 
-import type { Maybe } from '../jsutils/Maybe';
+import 'package:gql/ast.dart';
+import 'package:leto_schema/introspection.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/src/rules/typed_visitor.dart';
+import 'package:leto_schema/src/utilities/build_schema.dart';
+import 'package:leto_schema/src/utilities/predicates.dart';
 
-import type { GraphQLSchema } from '../type/schema';
-import type { GraphQLDirective } from '../type/directives';
-import type {
-  GraphQLType,
-  GraphQLInputType,
-  GraphQLOutputType,
-  GraphQLCompositeType,
-  GraphQLField,
-  GraphQLArgument,
-  GraphQLInputField,
-  GraphQLEnumValue,
-} from '../type/definition';
-import {
-  isObjectType,
-  isInterfaceType,
-  isEnumType,
-  isInputObjectType,
-  isListType,
-  isCompositeType,
-  isInputType,
-  isOutputType,
-  getNullableType,
-  getNamedType,
-} from '../type/definition';
-import {
-  SchemaMetaFieldDef,
-  TypeMetaFieldDef,
-  TypeNameMetaFieldDef,
-} from '../type/introspection';
+GraphQLType? getNamedType(GraphQLType? type) {
+  GraphQLType? _type = type;
+  while (_type is GraphQLWrapperType) {
+    _type = (_type! as GraphQLWrapperType).ofType;
+  }
+  return _type;
+}
 
-import { typeFromAST } from './typeFromAST';
+// TODO: GraphQLOutputType, GraphQLCompositeType, GraphQLInputType
+class TypeInfo {
+  final GraphQLSchema _schema;
+  final List<GraphQLType?> _typeStack = [];
+  final List<GraphQLType?> _parentTypeStack = [];
+  final List<GraphQLType?> _inputTypeStack = [];
+  final List<GraphQLObjectField?> _fieldDefStack = [];
+  final List<Object?> _defaultValueStack = [];
+  GraphQLDirective? _directive;
+  GraphQLFieldInput? _argument;
+  GraphQLEnumValue? _enumValue;
+  final GetFieldDefFn _getFieldDef;
 
-/**
- * TypeInfo is a utility class which, given a GraphQL schema, can keep track
- * of the current field and type definitions at any point in a GraphQL document
- * AST during a recursive descent by calling `enter(node)` and `leave(node)`.
- */
-export class TypeInfo {
-  private _schema: GraphQLSchema;
-  private _typeStack: Array<Maybe<GraphQLOutputType>>;
-  private _parentTypeStack: Array<Maybe<GraphQLCompositeType>>;
-  private _inputTypeStack: Array<Maybe<GraphQLInputType>>;
-  private _fieldDefStack: Array<Maybe<GraphQLField<unknown, unknown>>>;
-  private _defaultValueStack: Array<Maybe<unknown>>;
-  private _directive: Maybe<GraphQLDirective>;
-  private _argument: Maybe<GraphQLArgument>;
-  private _enumValue: Maybe<GraphQLEnumValue>;
-  private _getFieldDef: GetFieldDefFn;
-
-  constructor(
-    schema: GraphQLSchema,
+  TypeInfo(
+    this._schema,
     /**
      * Initial type may be provided in rare cases to facilitate traversals
      *  beginning somewhere other than documents.
      */
-    initialType?: Maybe<GraphQLType>,
+    // initialType?: Maybe<GraphQLType>,
+    [
+    this._getFieldDef = globalGetFieldDef,
+  ]);
+  // {
+  // this._getFieldDef = getFieldDefFn ?? getFieldDef;
+  // if (initialType) {
+  //   if (isInputType(initialType)) {
+  //     this._inputTypeStack.add(initialType);
+  //   }
+  //   if (isCompositeType(initialType)) {
+  //     this._parentTypeStack.add(initialType);
+  //   }
+  //   if (isOutputType(initialType)) {
+  //     this._typeStack.add(initialType);
+  //   }
+  // }
+  // }
 
-    /** @deprecated will be removed in 17.0.0 */
-    getFieldDefFn?: GetFieldDefFn,
-  ) {
-    this._schema = schema;
-    this._typeStack = [];
-    this._parentTypeStack = [];
-    this._inputTypeStack = [];
-    this._fieldDefStack = [];
-    this._defaultValueStack = [];
-    this._directive = null;
-    this._argument = null;
-    this._enumValue = null;
-    this._getFieldDef = getFieldDefFn ?? getFieldDef;
-    if (initialType) {
-      if (isInputType(initialType)) {
-        this._inputTypeStack.push(initialType);
-      }
-      if (isCompositeType(initialType)) {
-        this._parentTypeStack.push(initialType);
-      }
-      if (isOutputType(initialType)) {
-        this._typeStack.push(initialType);
-      }
-    }
-  }
-
-  get [Symbol.toStringTag]() {
-    return 'TypeInfo';
-  }
-
-  getType(): Maybe<GraphQLOutputType> {
+  GraphQLType? getType() {
     if (this._typeStack.length > 0) {
       return this._typeStack[this._typeStack.length - 1];
     }
   }
 
-  getParentType(): Maybe<GraphQLCompositeType> {
+  GraphQLType? getParentType() {
     if (this._parentTypeStack.length > 0) {
       return this._parentTypeStack[this._parentTypeStack.length - 1];
     }
   }
 
-  getInputType(): Maybe<GraphQLInputType> {
+  GraphQLType? getInputType() {
     if (this._inputTypeStack.length > 0) {
       return this._inputTypeStack[this._inputTypeStack.length - 1];
     }
   }
 
-  getParentInputType(): Maybe<GraphQLInputType> {
+  GraphQLType? getParentInputType() {
     if (this._inputTypeStack.length > 1) {
       return this._inputTypeStack[this._inputTypeStack.length - 2];
     }
   }
 
-  getFieldDef(): Maybe<GraphQLField<unknown, unknown>> {
+  GraphQLObjectField? getFieldDef() {
     if (this._fieldDefStack.length > 0) {
       return this._fieldDefStack[this._fieldDefStack.length - 1];
     }
   }
 
-  getDefaultValue(): Maybe<unknown> {
+  Object? getDefaultValue() {
     if (this._defaultValueStack.length > 0) {
       return this._defaultValueStack[this._defaultValueStack.length - 1];
     }
   }
 
-  getDirective(): Maybe<GraphQLDirective> {
+  GraphQLDirective? getDirective() {
     return this._directive;
   }
 
-  getArgument(): Maybe<GraphQLArgument> {
+  GraphQLFieldInput? getArgument() {
     return this._argument;
   }
 
-  getEnumValue(): Maybe<GraphQLEnumValue> {
+  GraphQLEnumValue? getEnumValue() {
     return this._enumValue;
   }
 
-  enter(node: ASTNode) {
-    const schema = this._schema;
+  void enter(Node node) {
+    final schema = this._schema;
     // Note: many of the types below are explicitly typed as "unknown" to drop
     // any assumptions of a valid schema to ensure runtime types are properly
     // checked before continuing since TypeInfo is used as part of validation
     // which occurs before guarantees of schema and document validity.
-    switch (node.kind) {
-      case Kind.SELECTION_SET: {
-        const namedType: unknown = getNamedType(this.getType());
-        this._parentTypeStack.push(
-          isCompositeType(namedType) ? namedType : undefined,
-        );
-        break;
-      }
-      case Kind.FIELD: {
-        const parentType = this.getParentType();
-        let fieldDef;
-        let fieldType: unknown;
-        if (parentType) {
-          fieldDef = this._getFieldDef(schema, parentType, node);
-          if (fieldDef) {
-            fieldType = fieldDef.type;
-          }
-        }
-        this._fieldDefStack.push(fieldDef);
-        this._typeStack.push(isOutputType(fieldType) ? fieldType : undefined);
-        break;
-      }
-      case Kind.DIRECTIVE:
-        this._directive = schema.getDirective(node.name.value);
-        break;
-      case Kind.OPERATION_DEFINITION: {
-        const rootType = schema.getRootType(node.operation);
-        this._typeStack.push(isObjectType(rootType) ? rootType : undefined);
-        break;
-      }
-      case Kind.INLINE_FRAGMENT:
-      case Kind.FRAGMENT_DEFINITION: {
-        const typeConditionAST = node.typeCondition;
-        const outputType: unknown = typeConditionAST
-          ? typeFromAST(schema, typeConditionAST)
-          : getNamedType(this.getType());
-        this._typeStack.push(isOutputType(outputType) ? outputType : undefined);
-        break;
-      }
-      case Kind.VARIABLE_DEFINITION: {
-        const inputType: unknown = typeFromAST(schema, node.type);
-        this._inputTypeStack.push(
-          isInputType(inputType) ? inputType : undefined,
-        );
-        break;
-      }
-      case Kind.ARGUMENT: {
-        let argDef;
-        let argType: unknown;
-        const fieldOrDirective = this.getDirective() ?? this.getFieldDef();
-        if (fieldOrDirective) {
-          argDef = fieldOrDirective.args.find(
-            (arg) => arg.name === node.name.value,
+    if (node is SelectionSetNode) {
+      final namedType = getNamedType(this.getType());
+      this._parentTypeStack.add(
+            isCompositeType(namedType) ? namedType : null,
           );
-          if (argDef) {
-            argType = argDef.type;
-          }
+    } else if (node is FieldNode) {
+      final parentType = this.getParentType();
+      GraphQLObjectField? fieldDef;
+      GraphQLType? fieldType;
+      if (parentType != null) {
+        fieldDef = this._getFieldDef(schema, parentType, node);
+        if (fieldDef != null) {
+          fieldType = fieldDef.type;
         }
-        this._argument = argDef;
-        this._defaultValueStack.push(argDef ? argDef.defaultValue : undefined);
-        this._inputTypeStack.push(isInputType(argType) ? argType : undefined);
-        break;
       }
-      case Kind.LIST: {
-        const listType: unknown = getNullableType(this.getInputType());
-        const itemType: unknown = isListType(listType)
-          ? listType.ofType
-          : listType;
-        // List positions never have a default value.
-        this._defaultValueStack.push(undefined);
-        this._inputTypeStack.push(isInputType(itemType) ? itemType : undefined);
-        break;
-      }
-      case Kind.OBJECT_FIELD: {
-        const objectType: unknown = getNamedType(this.getInputType());
-        let inputFieldType: GraphQLInputType | undefined;
-        let inputField: GraphQLInputField | undefined;
-        if (isInputObjectType(objectType)) {
-          inputField = objectType.getFields()[node.name.value];
-          if (inputField) {
-            inputFieldType = inputField.type;
-          }
-        }
-        this._defaultValueStack.push(
-          inputField ? inputField.defaultValue : undefined,
+      this._fieldDefStack.add(fieldDef);
+      this._typeStack.add(isOutputType(fieldType) ? fieldType : null);
+    } else if (node is DirectiveNode) {
+      this._directive = schema.getDirective(node.name.value);
+    } else if (node is OperationDefinitionNode) {
+      final rootType = schema.getRootType(node.type);
+      this._typeStack.add(
+            rootType is GraphQLObjectType && !rootType.isInterface
+                ? rootType
+                : null,
+          );
+    } else if (node is InlineFragmentNode || node is FragmentDefinitionNode) {
+      final typeConditionAST = node is InlineFragmentNode
+          ? node.typeCondition
+          : (node as FragmentDefinitionNode).typeCondition;
+      final outputType = typeConditionAST != null
+          ? convertType(typeConditionAST.on, schema.typeMap)
+          : getNamedType(this.getType());
+      this._typeStack.add(isOutputType(outputType) ? outputType : null);
+    } else if (node is VariableDefinitionNode) {
+      final inputType = convertType(node.type, schema.typeMap);
+      this._inputTypeStack.add(
+            isInputType(inputType) ? inputType : null,
+          );
+    } else if (node is ArgumentNode) {
+      GraphQLFieldInput? argDef;
+      GraphQLType? argType;
+      final fieldOrDirectiveInputs =
+          this.getDirective()?.inputs ?? this.getFieldDef()?.inputs;
+      if (fieldOrDirectiveInputs != null) {
+        final index = fieldOrDirectiveInputs.indexWhere(
+          (arg) => arg.name == node.name.value,
         );
-        this._inputTypeStack.push(
-          isInputType(inputFieldType) ? inputFieldType : undefined,
-        );
-        break;
-      }
-      case Kind.ENUM: {
-        const enumType: unknown = getNamedType(this.getInputType());
-        let enumValue;
-        if (isEnumType(enumType)) {
-          enumValue = enumType.getValue(node.value);
+        argDef = index == -1 ? null : fieldOrDirectiveInputs[index];
+        if (argDef != null) {
+          argType = argDef.type;
         }
-        this._enumValue = enumValue;
-        break;
       }
+      this._argument = argDef;
+      this._defaultValueStack.add(argDef?.defaultValue);
+      this._inputTypeStack.add(isInputType(argType) ? argType : null);
+    } else if (node is ListValueNode) {
+      final listType = this.getInputType()?.nullable();
+      final itemType = listType is GraphQLListType ? listType.ofType : listType;
+      // List positions never have a default value.
+      this._defaultValueStack.add(null);
+      this._inputTypeStack.add(isInputType(itemType) ? itemType : null);
+    } else if (node is ObjectFieldNode) {
+      final objectType = getNamedType(this.getInputType());
+      GraphQLType? inputFieldType;
+      GraphQLFieldInput? inputField;
+      if (objectType is GraphQLInputObjectType) {
+        inputField = objectType.fieldByName(node.name.value);
+        if (inputField != null) {
+          inputFieldType = inputField.type;
+        }
+      }
+      this._defaultValueStack.add(inputField?.defaultValue);
+      this._inputTypeStack.add(
+            isInputType(inputFieldType) ? inputFieldType : null,
+          );
+    } else if (node is EnumValueNode) {
+      final enumType = getNamedType(this.getInputType());
+      GraphQLEnumValue? enumValue;
+      if (enumType is GraphQLEnumType) {
+        enumValue = enumType.getValue(node.name.value);
+      }
+      this._enumValue = enumValue;
     }
   }
 
-  leave(node: ASTNode) {
-    switch (node.kind) {
-      case Kind.SELECTION_SET:
-        this._parentTypeStack.pop();
-        break;
-      case Kind.FIELD:
-        this._fieldDefStack.pop();
-        this._typeStack.pop();
-        break;
-      case Kind.DIRECTIVE:
-        this._directive = null;
-        break;
-      case Kind.OPERATION_DEFINITION:
-      case Kind.INLINE_FRAGMENT:
-      case Kind.FRAGMENT_DEFINITION:
-        this._typeStack.pop();
-        break;
-      case Kind.VARIABLE_DEFINITION:
-        this._inputTypeStack.pop();
-        break;
-      case Kind.ARGUMENT:
-        this._argument = null;
-        this._defaultValueStack.pop();
-        this._inputTypeStack.pop();
-        break;
-      case Kind.LIST:
-      case Kind.OBJECT_FIELD:
-        this._defaultValueStack.pop();
-        this._inputTypeStack.pop();
-        break;
-      case Kind.ENUM:
-        this._enumValue = null;
-        break;
+  void leave(Node node) {
+    if (node is SelectionSetNode) {
+      this._parentTypeStack.removeLast();
+    } else if (node is FieldNode) {
+      this._fieldDefStack.removeLast();
+      this._typeStack.removeLast();
+    } else if (node is DirectiveNode) {
+      this._directive = null;
+    } else if (node is OperationDefinitionNode ||
+        node is FragmentDefinitionNode ||
+        node is InlineFragmentNode) {
+      this._typeStack.removeLast();
+    } else if (node is VariableDefinitionNode) {
+      this._inputTypeStack.removeLast();
+    } else if (node is ArgumentNode) {
+      this._argument = null;
+      this._defaultValueStack.removeLast();
+      this._inputTypeStack.removeLast();
+    } else if (node is ListValueNode || node is ObjectFieldNode) {
+      this._defaultValueStack.removeLast();
+      this._inputTypeStack.removeLast();
+    } else if (node is EnumValueNode) {
+      this._enumValue = null;
     }
   }
 }
 
-type GetFieldDefFn = (
-  schema: GraphQLSchema,
-  parentType: GraphQLType,
-  fieldNode: FieldNode,
-) => Maybe<GraphQLField<unknown, unknown>>;
+///
+typedef GetFieldDefFn = GraphQLObjectField? Function(
+  GraphQLSchema schema,
+  GraphQLType parentType,
+  FieldNode fieldNode,
+);
 
-/**
- * Not exactly the same as the executor's definition of getFieldDef, in this
- * statically evaluated environment we do not always have an Object type,
- * and need to handle Interface and Union types.
- */
-function getFieldDef(
-  schema: GraphQLSchema,
-  parentType: GraphQLType,
-  fieldNode: FieldNode,
-): Maybe<GraphQLField<unknown, unknown>> {
-  const name = fieldNode.name.value;
-  if (
-    name === SchemaMetaFieldDef.name &&
-    schema.getQueryType() === parentType
-  ) {
-    return SchemaMetaFieldDef;
-  }
-  if (name === TypeMetaFieldDef.name && schema.getQueryType() === parentType) {
-    return TypeMetaFieldDef;
-  }
-  if (name === TypeNameMetaFieldDef.name && isCompositeType(parentType)) {
-    return TypeNameMetaFieldDef;
-  }
-  if (isObjectType(parentType) || isInterfaceType(parentType)) {
-    return parentType.getFields()[name];
+/// Not exactly the same as the executor's definition of getFieldDef, in this
+/// statically evaluated environment we do not always have an Object type,
+/// and need to handle Interface and Union types.
+GraphQLObjectField? globalGetFieldDef(
+  GraphQLSchema schema,
+  GraphQLType parentType,
+  FieldNode fieldNode,
+) {
+  final name = fieldNode.name.value;
+  if (name == schemaIntrospectionTypeField.name &&
+      schema.queryType == parentType) {
+    return schemaIntrospectionTypeField;
+  } else if (name == typeIntrospectionTypeField.name &&
+      schema.queryType == parentType) {
+    return typeIntrospectionTypeField;
+  } else if (name == typenameIntrospectionField.name &&
+      isCompositeType(parentType)) {
+    return typenameIntrospectionField;
+  } else if (parentType is GraphQLObjectType) {
+    return parentType.fieldByName(name);
   }
 }
 
@@ -326,35 +254,98 @@ function getFieldDef(
  * Creates a new visitor instance which maintains a provided TypeInfo instance
  * along with visiting visitor.
  */
-export function visitWithTypeInfo(
-  typeInfo: TypeInfo,
-  visitor: ASTVisitor,
-): ASTVisitor {
-  return {
-    enter(...args) {
-      const node = args[0];
-      typeInfo.enter(node);
-      const fn = getEnterLeaveForKind(visitor, node.kind).enter;
-      if (fn) {
-        const result = fn.apply(visitor, args);
-        if (result !== undefined) {
-          typeInfo.leave(node);
-          if (isNode(result)) {
-            typeInfo.enter(result);
-          }
-        }
-        return result;
-      }
-    },
-    leave(...args) {
-      const node = args[0];
-      const fn = getEnterLeaveForKind(visitor, node.kind).leave;
-      let result;
-      if (fn) {
-        result = fn.apply(visitor, args);
-      }
-      typeInfo.leave(node);
-      return result;
-    },
-  };
+// WithTypeInfoVisitor visitWithTypeInfo(
+//   TypeInfo typeInfo,
+//   visitor: ASTVisitor,
+// ) {
+//   return {
+//     enter(...args) {
+//       final node = args[0];
+//       typeInfo.enter(node);
+//       final fn = getEnterLeaveForKind(visitor, node.kind).enter;
+//       if (fn) {
+//         final result = fn.apply(visitor, args);
+//         if (result !== null) {
+//           typeInfo.leave(node);
+//           if (isNode(result)) {
+//             typeInfo.enter(result);
+//           }
+//         }
+//         return result;
+//       }
+//     },
+//     leave(...args) {
+//       final node = args[0];
+//       final fn = getEnterLeaveForKind(visitor, node.kind).leave;
+//       var result;
+//       if (fn) {
+//         result = fn.apply(visitor, args);
+//       }
+//       typeInfo.leave(node);
+//       return result;
+//     },
+//   };
+// }
+
+///
+class WithTypeInfoVisitor extends WrapperVisitor<void> {
+  final TypeInfo typeInfo;
+  final List<Visitor> visitors;
+  final void Function(Object?)? onAccept;
+
+  ///
+  WithTypeInfoVisitor(
+    this.typeInfo, {
+    required this.visitors,
+    this.onAccept,
+  });
+
+  @override
+  void visitNode<N extends Node>(N node) {
+    for (int i = 0; i < visitors.length; i++) {
+      final visitor = visitors[i];
+      final value = node.accept<Object?>(visitor);
+      onAccept?.call(value);
+    }
+    node.visitChildren(this);
+  }
+
+  void _wrap<T extends Node>(T node, void Function(T) inner) {
+    typeInfo.enter(node);
+    inner(node);
+    typeInfo.leave(node);
+  }
+
+  @override
+  void visitSelectionSetNode(SelectionSetNode node) =>
+      _wrap(node, super.visitSelectionSetNode);
+  @override
+  void visitFieldNode(FieldNode node) => _wrap(node, super.visitFieldNode);
+  @override
+  void visitDirectiveNode(DirectiveNode node) =>
+      _wrap(node, super.visitDirectiveNode);
+  @override
+  void visitOperationDefinitionNode(OperationDefinitionNode node) =>
+      _wrap(node, super.visitOperationDefinitionNode);
+  @override
+  void visitInlineFragmentNode(InlineFragmentNode node) =>
+      _wrap(node, super.visitInlineFragmentNode);
+  @override
+  void visitFragmentDefinitionNode(FragmentDefinitionNode node) =>
+      _wrap(node, super.visitFragmentDefinitionNode);
+  @override
+  void visitVariableDefinitionNode(VariableDefinitionNode node) =>
+      _wrap(node, super.visitVariableDefinitionNode);
+  @override
+  void visitArgumentNode(ArgumentNode node) =>
+      _wrap(node, super.visitArgumentNode);
+  @override
+  void visitListValueNode(ListValueNode node) =>
+      _wrap(node, super.visitListValueNode);
+  @override
+  void visitObjectFieldNode(ObjectFieldNode node) =>
+      _wrap(node, super.visitObjectFieldNode);
+  @override
+  void visitEnumValueNode(EnumValueNode node) =>
+      _wrap(node, super.visitEnumValueNode);
 }
