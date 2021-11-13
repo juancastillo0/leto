@@ -181,7 +181,7 @@ final TestType = GraphQLObjectType(
 
 final schema = GraphQLSchema(queryType: TestType);
 
-final server = GraphQL(schema);
+final server = GraphQL(schema, validate: false);
 
 Future<Map<String, Object?>> executeQuery(
   String query, [

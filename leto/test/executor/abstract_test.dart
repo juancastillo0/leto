@@ -9,7 +9,7 @@ Future<Map<String, Object?>> executeQuery(
   String query, {
   Object? rootValue,
 }) async {
-  final result = await GraphQL(schema).parseAndExecute(
+  final result = await GraphQL(schema, validate: false).parseAndExecute(
     query,
     rootValue: rootValue,
     globalVariables: ScopedMap({'async': false}),

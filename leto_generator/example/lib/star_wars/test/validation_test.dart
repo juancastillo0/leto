@@ -10,6 +10,7 @@ void main() {
   /// Helper function to test a query and the expected response.
   Future<List<GraphQLError>> validationErrors(String query) async {
     final result = await server.parseAndExecute(query);
+    // TODO: validateDocument
     return result.errors;
   }
 
@@ -79,8 +80,7 @@ void main() {
         }
       ''';
         return expect(await validationErrors(query), hasLength(greaterThan(0)));
-        // TODO:
-      }, skip: 'Implement fields on interfaces validation');
+      });
 
       test('Allows object fields in fragments', () async {
         const query = '''

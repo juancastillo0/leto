@@ -184,6 +184,11 @@ fragment UserChat on ChatRoomUser {
   }
 }
 
+fragment AUser on User {
+  id
+  name
+}
+
 fragment FullChatRoom on ChatRoom {
   ...BaseChatRoom
   users {

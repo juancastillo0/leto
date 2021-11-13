@@ -17,8 +17,9 @@ Future<void> main() async {
   test('file upload', () async {
     final operations = const GraphQLRequest(
         query: 'mutation addFile(\$fileVar: Upload!) { '
-            ' addFile (file: \$fileVar){ filename mimeType sizeInBytes }'
-            ' }',
+            ' addFile (file: \$fileVar){'
+            ' ... on FileUpload{filename mimeType sizeInBytes }'
+            ' } } ',
         variables: {
           'fileVar': null,
         }).toJson();
