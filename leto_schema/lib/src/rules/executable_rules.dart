@@ -11,11 +11,10 @@ import 'package:leto_schema/src/utilities/predicates.dart';
 /// operation or fragment definitions.
 ///
 /// See https://spec.graphql.org/draft/#sec-Executable-Definitions
-Visitor validateExecutableDefinitionsRule(ValidationCtx ctx) =>
-    ValidateExecutableDefinitionsRule();
+Visitor executableDefinitionsRule(ValidationCtx ctx) =>
+    ExecutableDefinitionsRule();
 
-class ValidateExecutableDefinitionsRule
-    extends SimpleVisitor<List<GraphQLError>> {
+class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
   @override
   List<GraphQLError>? visitDocumentNode(DocumentNode node) {
     final nonExecutable = node.definitions.where(

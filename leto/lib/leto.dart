@@ -6,7 +6,12 @@ import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart'
-    show computeValue, convertType, getDirectiveValue, isInputType;
+    show
+        collectFields,
+        computeValue,
+        convertType,
+        fragmentsFromDocument,
+        isInputType;
 import 'package:leto_schema/validate.dart';
 import 'package:source_span/source_span.dart';
 
@@ -489,8 +494,8 @@ class GraphQL {
       );
     }
     final fragments = fragmentsFromDocument(baseCtx.document);
-    final groupedFieldSet = collectFields(
-        fragments, subscriptionType, selectionSet, baseCtx.variableValues);
+    final groupedFieldSet = collectFields(baseCtx.schema, fragments,
+        subscriptionType, selectionSet, baseCtx.variableValues);
     if (validate && groupedFieldSet.length != 1) {
       throw GraphQLException.fromMessage(
         'The grouped field set from this query must have exactly one entry.',
@@ -633,6 +638,7 @@ class GraphQL {
       parentCtx: ctx,
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
+        ctx.resolveCtx.schema,
         field.type,
         ctx.groupedFieldSet[pathItem]!,
         ctx.resolveCtx.document,
@@ -689,6 +695,7 @@ class GraphQL {
   }) async {
     final fragments = fragmentsFromDocument(baseCtx.document);
     final groupedFieldSet = collectFields(
+      baseCtx.schema,
       fragments,
       objectType,
       selectionSet,
@@ -820,6 +827,7 @@ class GraphQL {
       field: objectField,
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
+        ctx.resolveCtx.schema,
         objectField.type,
         ctx.groupedFieldSet[pathItem]!,
         ctx.resolveCtx.document,
@@ -980,6 +988,7 @@ class GraphQL {
   }
 
   PossibleSelections? Function() possibleSelectionsCallback(
+    GraphQLSchema schema,
     GraphQLType type,
     List<FieldNode> fields,
     DocumentNode document,
@@ -1019,6 +1028,7 @@ class GraphQL {
           Map.fromEntries(
             possibleObjects.map((obj) {
               final nonAlised = collectFields(
+                schema,
                 fragments,
                 obj,
                 selectionSet,
@@ -1043,6 +1053,7 @@ class GraphQL {
                     return MapEntry(
                       e.key,
                       possibleSelectionsCallback(
+                        schema,
                         field.type,
                         e.value,
                         document,
@@ -1432,112 +1443,6 @@ class GraphQL {
 
     return SelectionSetNode(selections: selections);
   }
-
-  Map<String, FragmentDefinitionNode> fragmentsFromDocument(
-    DocumentNode document,
-  ) {
-    final allFragments =
-        document.definitions.whereType<FragmentDefinitionNode>();
-    return Map.fromEntries(
-      allFragments.map((e) => MapEntry(e.name.value, e)),
-    );
-  }
-
-  Map<String, List<FieldNode>> collectFields(
-    Map<String, FragmentDefinitionNode> fragments,
-    GraphQLObjectType objectType,
-    SelectionSetNode selectionSet,
-    Map<String, dynamic> variableValues, {
-    Set<String>? visitedFragments,
-    bool aliased = true,
-  }) {
-    final groupedFields = <String, List<FieldNode>>{};
-    visitedFragments ??= {};
-
-    for (final selection in selectionSet.selections) {
-      final directives = selection.directives;
-      if (getDirectiveValue('skip', 'if', directives, variableValues) == true) {
-        continue;
-      }
-      if (getDirectiveValue('include', 'if', directives, variableValues) ==
-          false) {
-        continue;
-      }
-
-      if (selection is FieldNode) {
-        final responseKey = aliased
-            ? (selection.alias?.value ?? selection.name.value)
-            : selection.name.value;
-        final groupForResponseKey =
-            groupedFields.putIfAbsent(responseKey, () => []);
-        groupForResponseKey.add(selection);
-      } else if (selection is FragmentSpreadNode) {
-        final fragmentSpreadName = selection.name.value;
-        if (visitedFragments.contains(fragmentSpreadName)) continue;
-        visitedFragments.add(fragmentSpreadName);
-        final fragment = fragments[fragmentSpreadName];
-
-        if (fragment == null) continue;
-        final fragmentType = fragment.typeCondition;
-        if (!doesFragmentTypeApply(objectType, fragmentType)) continue;
-        final fragmentSelectionSet = fragment.selectionSet;
-        final fragmentGroupFieldSet = collectFields(
-            fragments, objectType, fragmentSelectionSet, variableValues,
-            visitedFragments: visitedFragments, aliased: aliased);
-
-        for (final groupEntry in fragmentGroupFieldSet.entries) {
-          final responseKey = groupEntry.key;
-          final fragmentGroup = groupEntry.value;
-          final groupForResponseKey =
-              groupedFields.putIfAbsent(responseKey, () => []);
-          groupForResponseKey.addAll(fragmentGroup);
-        }
-      } else if (selection is InlineFragmentNode) {
-        final fragmentType = selection.typeCondition;
-        if (fragmentType != null &&
-            !doesFragmentTypeApply(objectType, fragmentType)) continue;
-        final fragmentSelectionSet = selection.selectionSet;
-        final fragmentGroupFieldSet = collectFields(
-            fragments, objectType, fragmentSelectionSet, variableValues,
-            visitedFragments: visitedFragments, aliased: aliased);
-
-        for (final groupEntry in fragmentGroupFieldSet.entries) {
-          final responseKey = groupEntry.key;
-          final fragmentGroup = groupEntry.value;
-          final groupForResponseKey =
-              groupedFields.putIfAbsent(responseKey, () => []);
-          groupForResponseKey.addAll(fragmentGroup);
-        }
-      }
-    }
-
-    return groupedFields;
-  }
-
-  bool doesFragmentTypeApply(
-    GraphQLObjectType objectType,
-    TypeConditionNode fragmentType,
-  ) {
-    final typeNode = NamedTypeNode(
-        name: fragmentType.on.name,
-        span: fragmentType.on.span,
-        isNonNull: fragmentType.on.isNonNull);
-    final type = convertType(typeNode, _schema.typeMap);
-
-    return type.whenMaybe(
-      object: (type) {
-        if (type.isInterface) {
-          return objectType.isImplementationOf(type);
-        } else {
-          return type.name == objectType.name;
-        }
-      },
-      union: (type) {
-        return type.possibleTypes.any((t) => objectType.isImplementationOf(t));
-      },
-      orElse: (_) => false,
-    );
-  }
 }
 
 /// Wrapper around a value from a GraphQL Subscription Stream.
@@ -1548,29 +1453,6 @@ class SubscriptionEvent {
   final Object? value;
 
   const SubscriptionEvent._(this.value);
-}
-
-extension DirectiveExtension on SelectionNode {
-  List<DirectiveNode> get directives {
-    final selection = this;
-    return selection is FieldNode
-        ? selection.directives
-        : selection is FragmentSpreadNode
-            ? selection.directives
-            : (selection as InlineFragmentNode).directives;
-  }
-
-  T when<T>({
-    required T Function(FieldNode) field,
-    required T Function(FragmentSpreadNode) fragmentSpread,
-    required T Function(InlineFragmentNode) inlineFragment,
-  }) {
-    final selection = this;
-    if (selection is FieldNode) return field(selection);
-    if (selection is FragmentSpreadNode) return fragmentSpread(selection);
-    if (selection is InlineFragmentNode) return inlineFragment(selection);
-    throw Error();
-  }
 }
 
 /// The execution location where this exception was thrown
