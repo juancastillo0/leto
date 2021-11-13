@@ -8,6 +8,7 @@ import 'package:gql/ast.dart'
 
 import 'package:gql/language.dart' show parseString;
 import 'package:leto_schema/src/utilities/fetch_all_types.dart';
+import 'package:leto_schema/src/utilities/predicates.dart';
 import 'package:leto_schema/src/utilities/print_schema.dart';
 import 'package:leto_schema/utilities.dart' show printSchema;
 import 'package:meta/meta.dart';

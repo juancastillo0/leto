@@ -11,17 +11,20 @@ import 'package:leto_schema/src/utilities/fetch_all_types.dart';
 
 /// Returns true if the [type] is an introspection type
 bool isIntrospectionType(GraphQLType type) {
-  return const [
-    '__Schema',
-    '__Directive',
-    '__DirectiveLocation',
-    '__Type',
-    '__Field',
-    '__InputValue',
-    '__EnumValue',
-    '__TypeKind',
-  ].contains(type.name);
+  return introspectionTypeNames.contains(type.name);
 }
+
+/// All introspection type names
+const introspectionTypeNames = [
+  '__Schema',
+  '__Directive',
+  '__DirectiveLocation',
+  '__Type',
+  '__Field',
+  '__InputValue',
+  '__EnumValue',
+  '__TypeKind',
+];
 
 String printSchema(
   GraphQLSchema schema, {

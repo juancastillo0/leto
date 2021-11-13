@@ -61,6 +61,11 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     inheritFromMany(interfaces);
   }
 
+  /// Returns the field with the given [name]
+  GraphQLObjectField<Object?, Object?, P>? fieldByName(String name) {
+    return fields.firstWhereOrNull((field) => field.name == name);
+  }
+
   @override
   GraphQLType<P, Map<String, dynamic>> coerceToInputObject() {
     return toInputObject('${name}Input', description: description);
@@ -266,6 +271,11 @@ class GraphQLInputObjectType<Value>
     this.customDeserialize,
   }) {
     this.fields.addAll(fields);
+  }
+
+  /// Returns the field with the given [name]
+  GraphQLFieldInput? fieldByName(String name) {
+    return fields.firstWhereOrNull((field) => field.name == name);
   }
 
   @override

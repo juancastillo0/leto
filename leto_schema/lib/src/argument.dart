@@ -31,19 +31,6 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// "No longer supported" will be used.
   final String? deprecationReason;
 
-  /// Returns true if [type] can be used as a GraphQL input.
-  static bool isInputType(GraphQLType type) {
-    return type.when(
-      enum_: (type) => true,
-      scalar: (type) => true,
-      input: (type) => true,
-      object: (type) => false,
-      union: (type) => false,
-      list: (type) => isInputType(type.ofType),
-      nonNullable: (type) => isInputType(type.ofType),
-    );
-  }
-
   /// An input to a GraphQL field. This is analogous
   /// to a function parameter in Dart.
   GraphQLFieldInput(

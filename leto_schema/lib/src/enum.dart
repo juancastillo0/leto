@@ -55,7 +55,12 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
 
   @override
   Value deserialize(SerdeCtx serdeCtx, String serialized) {
-    return values.firstWhere((v) => v.name == serialized).value;
+    return getValue(serialized)!.value;
+  }
+
+  /// Returns the enum value with the given name
+  GraphQLEnumValue<Value>? getValue(String name) {
+    return values.firstWhereOrNull((v) => v.name == name);
   }
 
   @override

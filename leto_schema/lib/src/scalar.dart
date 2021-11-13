@@ -53,14 +53,17 @@ final GraphQLScalarType<Uri, String> graphQLUri = GraphQLScalarTypeValue(
 
 /// Whether [type] is one of the default [GraphQLScalarType] types
 bool isSpecifiedScalarType(GraphQLType type) {
-  return const [
-    'String',
-    'Int',
-    'Float',
-    'Boolean',
-    'ID',
-  ].contains(type.name);
+  return specifiedScalarNames.contains(type.name);
 }
+
+/// Names of all specified scalars
+const specifiedScalarNames = [
+  'String',
+  'Int',
+  'Float',
+  'Boolean',
+  'ID',
+];
 
 /// A [GraphQLType] without nested properties.
 /// Can be used as an input type.

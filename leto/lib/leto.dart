@@ -7,7 +7,7 @@ import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart'
-    show computeValue, convertType, getDirectiveValue;
+    show computeValue, convertType, getDirectiveValue, isInputType;
 import 'package:source_span/source_span.dart';
 
 import 'src/extensions/extension.dart';
@@ -382,7 +382,7 @@ class GraphQL {
         span?.start,
       );
 
-      if (!GraphQLFieldInput.isInputType(type)) {
+      if (!isInputType(type)) {
         throw GraphQLError(
           'Variable "$variableName" expected value of type "$type"'
           ' which cannot be used as an input type.',
