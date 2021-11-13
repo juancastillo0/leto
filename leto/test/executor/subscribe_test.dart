@@ -252,8 +252,6 @@ Future<TestSubs> createSubscription(StreamController<Email> pubsub) async {
   final inbox = Inbox(emails);
   final data = <String, Object?>{
     'inbox': inbox,
-
-    // FIXME: we shouldn't use mapAsyncIterator here since it makes tests way more complex
     'importantEmail': () => _controller.stream.map((newEmail) {
           return {
             'email': newEmail,
@@ -641,7 +639,6 @@ void main() {
       final subscription = await createSubscription(pubsub);
 
       final secondSubscription = await createSubscription(pubsub);
-      // TODO: invariant(isAsyncIterable(secondSubscription));
 
       final payload1 = subscription.next();
       final payload2 = secondSubscription.next();

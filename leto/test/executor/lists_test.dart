@@ -31,7 +31,6 @@ void main() {
     test('Accepts an Generator function as a List value', () async {
       Iterable<Object> listField() sync* {
         yield 'one';
-        // TODO: allow numbers or boolean as String?
         yield '2';
         yield 'true';
       }

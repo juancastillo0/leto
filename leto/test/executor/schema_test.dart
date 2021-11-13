@@ -7,8 +7,7 @@ import 'package:test/test.dart';
 void main() {
   Map<String, Object?> getPic(int uid, int width, int height) {
     return {
-      'url': 'cdn://${uid}',
-      // TODO: graphql-js serializes into string
+      'url': 'cdn://$uid',
       'width': width,
       'height': height,
     };
@@ -16,11 +15,9 @@ void main() {
 
   Map<String, Object?> article(int id) {
     return {
-      // TODO: graphql-js doesnt serialize into string
       'id': '$id',
       'isPublished': true,
       'author': {
-        // TODO: graphql-js doesnt serialize into string
         'id': '123',
         'name': 'John Smith',
         'pic': (int width, int height) => getPic(123, width, height),
@@ -29,7 +26,6 @@ void main() {
       'title': 'My Article $id',
       'body': 'This is a post',
       'hidden': 'This data is not exposed in the schema',
-      // TODO: graphql-js doesnt serialize '1' and 'true' into string
       'keywords': ['foo', 'bar', '1', 'true', null],
     };
   }

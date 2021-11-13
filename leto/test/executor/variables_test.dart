@@ -114,7 +114,6 @@ GraphQLObjectField<Json, Object?, Object?> fieldWithInputArg<V>(
     resolve: (_, ctx) {
       if (ctx.args.containsKey('input')) {
         final value = Json.fromJson(ctx.args['input']);
-        // TODO: a GraphQL Type can't serialize to 'null' like JsonNone would do
         return value;
       }
     },

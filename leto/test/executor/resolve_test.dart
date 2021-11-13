@@ -118,9 +118,6 @@ void main() {
 
     expect(await execute(schema, '{ test }'), {
       'data': {
-        // TODO: in graphql-js it is 'test': '[null,{}]',
-        // we restrict the parent as a non null value and
-        // pass the global variables as the root object
         'test': '[null,{}]',
       },
     });

@@ -504,10 +504,10 @@ void main() {
           // return throw Future.value(
           //   GraphQLError('Error getting asyncReturnError'),
           // );
-          return throw GraphQLError('Error getting asyncReturnError');
+          return throw const GraphQLError('Error getting asyncReturnError');
         },
         'asyncReturnErrorWithExtensions': () {
-          final error = GraphQLError(
+          const error = GraphQLError(
             'Error getting asyncReturnErrorWithExtensions',
             extensions: {'foo': 'bar'},
           );
