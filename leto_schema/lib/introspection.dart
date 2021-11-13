@@ -2,95 +2,18 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show astFromValue, printAST;
 
 /// Performs introspection over a GraphQL [schema], and returns one
-/// containing introspective information.
-///
-/// [allTypes] should contain all types, not directly defined in the schema,
-/// that you would like to have introspection available for.
+/// containing introspection fields in the new [GraphQLSchema.queryType].
 GraphQLSchema reflectSchema(GraphQLSchema schema) {
-  final typeType = _reflectTypeType();
-  final directiveType = _reflectDirectiveType();
-
-  final Map<String, GraphQLType> allTypeMap = {...schema.typeMap};
-  late final List<GraphQLType> allTypes;
-
-  final schemaType = objectType<Object>('__Schema', fields: [
-    field(
-      'description',
-      graphQLString,
-      resolve: (_, __) => schema.description,
-    ),
-    field(
-      'types',
-      listOf(typeType.nonNull()).nonNull(),
-      resolve: (_, __) => allTypes,
-    ),
-    field(
-      'queryType',
-      typeType.nonNull(),
-      resolve: (_, __) => schema.queryType,
-    ),
-    field(
-      'mutationType',
-      typeType,
-      resolve: (_, __) => schema.mutationType,
-    ),
-    field(
-      'subscriptionType',
-      typeType,
-      resolve: (_, __) => schema.subscriptionType,
-    ),
-    field(
-      'directives',
-      listOf(directiveType.nonNull()).nonNull(),
-      description: 'A list of all directives supported by this server.',
-      resolve: (_, __) => schema.directives,
-    ),
-  ]);
-
-  allTypeMap.addEntries(
-    <GraphQLType>[
-      graphQLBoolean,
-      graphQLString,
-      schemaType,
-      typeType,
-      _typeKindType,
-      _reflectFieldType(),
-      _reflectInputValueType(),
-      _reflectEnumValueType(),
-      directiveType,
-      _directiveLocationType,
-    ].map((e) => MapEntry(e.name!, e)),
-  );
-  allTypes = allTypeMap.values.toList();
-
-  final fields = <GraphQLObjectField<Object?, Object?, Object?>>[
-    field(
-      '__schema',
-      schemaType,
-      resolve: (_, __) => schemaType,
-    ),
-    field(
-      '__type',
-      typeType,
-      inputs: [GraphQLFieldInput('name', graphQLString.nonNull())],
-      resolve: (_, ctx) {
-        final name = ctx.args['name'] as String?;
-        final type = allTypeMap[name];
-        if (type == null) {
-          throw GraphQLException.fromMessage('No type named "$name" exists.');
-        }
-        return type;
-      },
-    ),
-  ];
-
   final queryType = schema.queryType!;
-  fields.addAll(queryType.fields);
 
   return GraphQLSchema(
     queryType: objectType(
       queryType.name,
-      fields: fields,
+      fields: [
+        schemaIntrospectionTypeField,
+        typeIntrospectionTypeField,
+        ...queryType.fields,
+      ],
       description: queryType.description,
     ),
     mutationType: schema.mutationType,
@@ -98,8 +21,70 @@ GraphQLSchema reflectSchema(GraphQLSchema schema) {
     serdeCtx: schema.serdeCtx,
     description: schema.description,
     directives: schema.directives,
+    otherTypes: schema.otherTypes,
   );
 }
+
+/// The schema introspection [GraphQLType]
+final schemaGraphQLType = objectType<GraphQLSchema>('__Schema', fields: [
+  field(
+    'description',
+    graphQLString,
+    resolve: (schema, ctx) => schema.description,
+  ),
+  field(
+    'types',
+    listOf(_reflectTypeType().nonNull()).nonNull(),
+    resolve: (schema, ctx) => schema.allTypes,
+  ),
+  field(
+    'queryType',
+    _reflectTypeType().nonNull(),
+    resolve: (schema, ctx) => schema.queryType,
+  ),
+  field(
+    'mutationType',
+    _reflectTypeType(),
+    resolve: (schema, ctx) => schema.mutationType,
+  ),
+  field(
+    'subscriptionType',
+    _reflectTypeType(),
+    resolve: (schema, ctx) => schema.subscriptionType,
+  ),
+  field(
+    'directives',
+    listOf(_reflectDirectiveType().nonNull()).nonNull(),
+    description: 'A list of all directives supported by this server.',
+    resolve: (schema, ctx) => schema.directives,
+  ),
+]);
+
+/// The schema introspection type [GraphQLObjectField]
+final schemaIntrospectionTypeField = schemaGraphQLType.nonNull().field(
+      '__schema',
+      resolve: (_, ctx) => ctx.baseCtx.schema,
+    );
+
+/// The introspection typename [GraphQLObjectField]
+final typenameIntrospectionField = graphQLString.nonNull().field(
+      '__typename',
+      resolve: (_, ctx) => ctx.parentCtx.objectType.name,
+    );
+
+/// The type introspection type [GraphQLObjectField]
+final typeIntrospectionTypeField = _reflectTypeType().field(
+  '__type',
+  inputs: [GraphQLFieldInput('name', graphQLString.nonNull())],
+  resolve: (_, ctx) {
+    final name = ctx.args['name'] as String?;
+    final type = ctx.baseCtx.schema.typeMap[name];
+    if (type == null) {
+      throw GraphQLException.fromMessage('No type named "$name" exists.');
+    }
+    return type;
+  },
+);
 
 GraphQLObjectType<GraphQLType>? _typeType;
 GraphQLObjectType<GraphQLType> _reflectTypeType() {
@@ -151,7 +136,10 @@ GraphQLObjectType<GraphQLType> _reflectTypeType() {
         object: (type) {
           final includeDeprecated = ctx.args['includeDeprecated'] == true;
           return type.fields
-              .where((f) => !f.isDeprecated || includeDeprecated)
+              .where((f) =>
+                  (!f.isDeprecated || includeDeprecated) &&
+                  ![schemaIntrospectionTypeField, typeIntrospectionTypeField]
+                      .contains(f))
               .toList();
         },
       ),

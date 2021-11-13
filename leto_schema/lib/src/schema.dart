@@ -4,16 +4,20 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart'
-    show DocumentNode, FieldNode, OperationDefinitionNode;
+    show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
 
 import 'package:gql/language.dart' show parseString;
-import 'package:leto_schema/src/utilities/fetch_all_types.dart';
+import 'package:leto_schema/src/utilities/fetch_all_types.dart'
+    show fetchAllNamedTypes;
 import 'package:leto_schema/src/utilities/predicates.dart';
 import 'package:leto_schema/src/utilities/print_schema.dart';
 import 'package:leto_schema/utilities.dart' show printSchema;
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart' show Target, TargetKind;
 import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
+
+export 'package:gql/ast.dart'
+    show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
 
 part 'argument.dart';
 part 'decorators.dart';
@@ -72,8 +76,33 @@ class GraphQLSchema {
   /// Contains all named types in the schema.
   final typeMap = <String, GraphQLType>{};
 
-  /// Returns a [GraphQLType] with the given [name]
+  /// Contains all named types in the schema.
+  /// Same as `typeMap.values.toList()`.
+  late final List<GraphQLType> allTypes = [
+    ...typeMap.values.where((t) => !isIntrospectionType(t)),
+    ...typeMap.values.where(isIntrospectionType),
+  ];
+
+  /// Returns the [GraphQLType] with the given [name]
   GraphQLType? getType(String name) => typeMap[name];
+
+  /// A Map from name to [GraphQLDirective].
+  final Map<String, GraphQLDirective> directiveMap = {};
+
+  /// Returns the [GraphQLDirective] with the given [name]
+  GraphQLDirective? getDirective(String name) => directiveMap[name];
+
+  /// Returns the type for the given [operation] type
+  GraphQLObjectType? getRootType(OperationType operation) {
+    switch (operation) {
+      case OperationType.mutation:
+        return mutationType;
+      case OperationType.query:
+        return queryType;
+      case OperationType.subscription:
+        return subscriptionType;
+    }
+  }
 
   /// The schema against which queries, mutations
   /// and subscriptions are executed.
@@ -95,14 +124,15 @@ class GraphQLSchema {
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
         directives = directives ?? GraphQLDirective.specifiedDirectives {
     _collectTypes();
+    _collectDirectives();
   }
 
   /// All [GraphQLType] names should match this regular expression
   static final typeNameRegExp = RegExp(r'^[a-zA-Z][_a-zA-Z0-9]*$');
 
   void _collectTypes() {
-    final allTypes = fetchAllNamedTypes(this);
-    for (final type in allTypes) {
+    final allNamedTypes = fetchAllNamedTypes(this);
+    for (final type in allNamedTypes) {
       final name = type.name!;
       if (name.isEmpty) {
         throw UnnamedTypeException(this, type);
@@ -112,18 +142,17 @@ class GraphQLSchema {
       final prev = typeMap[name];
       if (prev == null) {
         typeMap[name] = type;
-      } else if (queryType == prev || queryType == type) {
+      } else if ((queryType == prev || queryType == type) &&
+          (type is GraphQLObjectType && prev is GraphQLObjectType)) {
         // Don't throw exception if it's an introspected queryType
         final other = prev == queryType ? type : prev;
         final difference = queryType!.fields
             .map((e) => e.name)
             .toSet()
-            .difference(
-                (other as GraphQLObjectType).fields.map((e) => e.name).toSet());
+            .difference(other.fields.map((e) => e.name).toSet());
         if (difference.length == 2 &&
             const ['__type', '__schema'].every(difference.contains)) {
           typeMap[name] = other;
-          continue;
         } else {
           throw SameNameGraphQLTypeException(type, prev);
         }
@@ -132,13 +161,27 @@ class GraphQLSchema {
       }
     }
   }
+
+  void _collectDirectives() {
+    for (final dir in directives) {
+      final prev = directiveMap[dir.name];
+      if (prev == null) {
+        directiveMap[dir.name] = dir;
+      } else if (prev != dir) {
+        // TODO:
+      }
+    }
+  }
 }
 
 /// A default resolver that always returns `null`.
 Object? resolveToNull(Object? _, Object? __) => null;
 
+/// Base exception thrown on schema construction
+class SchemaValidationException implements Exception {}
+
 /// Thrown when a schema was constructed with an unnamed type
-class UnnamedTypeException implements Exception {
+class UnnamedTypeException implements SchemaValidationException {
   /// The type with no name found in the schema
   final GraphQLType type;
 
@@ -158,7 +201,7 @@ class UnnamedTypeException implements Exception {
 }
 
 /// Thrown when a schema was constructed with a type with an invalid name
-class InvalidTypeNameException implements Exception {
+class InvalidTypeNameException implements SchemaValidationException {
   /// The type with an invalid name found in the schema
   final GraphQLType type;
 
@@ -175,5 +218,43 @@ class InvalidTypeNameException implements Exception {
         ' All names should match: ${GraphQLSchema.typeNameRegExp.pattern}'
         '. GraphQLType(runtimeType: ${type.runtimeType},'
         ' description: ${type.description}.)';
+  }
+}
+
+/// Thrown when a [GraphQLSchema] has at least two different
+/// [GraphQLType]s with the same name.
+class SameNameGraphQLTypeException implements SchemaValidationException {
+  /// A type different from [type2] that shares it's name
+  final GraphQLType type1;
+
+  /// A type different from [type1] that shares it's name
+  final GraphQLType type2;
+
+  /// Thrown when a [GraphQLSchema] has at least two different
+  /// [GraphQLType]s with the same name.
+  SameNameGraphQLTypeException(this.type1, this.type2)
+      : assert(type1.toString() == type2.toString());
+
+  @override
+  String toString() {
+    return '''
+Can't have multiple types with the same name: $type1.
+
+Please reuse a previously created instance of the type.
+If you need cyclic types, you can do the following:
+```dart
+GraphQLType? _type;
+GraphQLType get type {
+  if (_type != null) return _type!;
+  __type = ...; // create the type
+  _type = __type; // set the cached value
+
+  // or __type.possibleTypes for unions
+  __type.fields.addAll([
+    ... // add fields with cyclic references
+  ]);
+  return __type;
+}
+```''';
   }
 }
