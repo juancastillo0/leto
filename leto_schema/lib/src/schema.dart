@@ -105,7 +105,7 @@ class GraphQLSchema {
   }
 
   /// Returns all the [GraphQLObjectType] that implement a given abstract [type]
-  List<GraphQLObjectType>? getPossibleTypes(GraphQLType type) {
+  List<GraphQLObjectType>? getPossibleTypes(GraphQLCompositeType type) {
     if (type is GraphQLUnionType) {
       return type.possibleTypes;
     } else if (type is GraphQLObjectType && type.isInterface) {
@@ -117,7 +117,7 @@ class GraphQLSchema {
 
   /// Returns `true` if [maybeSubType] is a possible type of [abstractType]
   bool isSubType(
-    GraphQLType abstractType,
+    GraphQLCompositeType abstractType,
     GraphQLObjectType maybeSubType,
   ) {
     if (!isAbstractType(abstractType)) return false;

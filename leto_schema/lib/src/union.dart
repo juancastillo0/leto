@@ -4,13 +4,14 @@ part of leto_schema.src.schema;
 /// be valid against one or more [possibleTypes].
 ///
 /// All provided types must be [GraphQLObjectType]s.
-class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
+class GraphQLUnionType<P> extends GraphQLCompositeType<P>
     with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
   final String name;
 
   /// A list of all types that conform to this union.
+  @override
   final List<GraphQLObjectType> possibleTypes = [];
 
   @override
