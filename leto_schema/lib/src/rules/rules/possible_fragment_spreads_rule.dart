@@ -1,7 +1,7 @@
 import '../rules_prelude.dart';
 
 const _possibleFragmentSpreadsSpec = ErrorSpec(
-  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  spec: 'https://spec.graphql.org/draft/#sec-Fragment-spread-is-possible',
   code: 'possibleFragmentSpreads',
 );
 
@@ -10,6 +10,8 @@ const _possibleFragmentSpreadsSpec = ErrorSpec(
 /// A fragment spread is only valid if the type condition could ever possibly
 /// be true: if there is a non-empty intersection of the possible parent types,
 /// and possible types which pass the type condition.
+/// 
+/// See https://spec.graphql.org/draft/#sec-Fragment-spread-is-possible
 Visitor possibleFragmentSpreadsRule(
   ValidationCtx context,
 ) {

@@ -5,7 +5,7 @@ import 'package:leto_schema/src/rules/rules/known_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/known_directive_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_undefined_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_unused_variables_rule.dart';
-import 'package:leto_schema/src/rules/rules/possible_fragment_spread_rule.dart';
+import 'package:leto_schema/src/rules/rules/possible_fragment_spreads_rule.dart';
 import 'package:leto_schema/src/rules/rules/provide_required_arguments_rule.dart';
 import 'package:leto_schema/src/rules/rules/scalar_leafs_rule.dart';
 import 'package:leto_schema/src/rules/rules/single_field_subscription_rule.dart';

@@ -2,12 +2,12 @@ import '../rules_prelude.dart';
 
 
 const _providedRequiredArgumentsSpec = ErrorSpec(
-  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  spec: 'https://spec.graphql.org/draft/#sec-Required-Arguments',
   code: 'providedRequiredArguments',
 );
 
 const _providedRequiredArgumentsOnDirectivesSpec = ErrorSpec(
-  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  spec: 'https://spec.graphql.org/draft/#sec-Required-Arguments',
   code: 'providedRequiredArgumentsOnDirectives',
 );
 
@@ -15,12 +15,14 @@ const _providedRequiredArgumentsOnDirectivesSpec = ErrorSpec(
 ///
 /// A field or directive is only valid if all required (non-null without a
 /// default value) field arguments have been provided.
+/// 
+/// See https://spec.graphql.org/draft/#sec-Required-Arguments
 Visitor providedRequiredArgumentsRule(
   ValidationCtx context,
 ) {
   final visitor = TypedVisitor();
     // eslint-disable-next-line new-cap
-    // ...ProvidedRequiredArgumentsOnDirectivesRule(context),
+    visitor.mergeInPlace(providedRequiredArgumentsOnDirectivesRule(context));
     visitor.add<FieldNode>((_) {},
       // Validate on leave to allow for deeper errors to appear first.
       leave: (fieldNode) {
@@ -53,7 +55,7 @@ Visitor providedRequiredArgumentsRule(
 }
 
 /// @internal
-Visitor providedRequiredArgumentsOnDirectivesRule(
+TypedVisitor providedRequiredArgumentsOnDirectivesRule(
   ValidationCtx context // SDLValidationContext,
 ) {
   final visitor = TypedVisitor();

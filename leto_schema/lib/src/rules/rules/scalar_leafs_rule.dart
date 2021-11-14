@@ -1,7 +1,7 @@
 import '../rules_prelude.dart';
 
 const _scalarLeafsSpec = ErrorSpec(
-  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  spec: 'https://spec.graphql.org/draft/#sec-Leaf-Field-Selections',
   code: 'scalarLeafs',
 );
 
@@ -9,6 +9,8 @@ const _scalarLeafsSpec = ErrorSpec(
 ///
 /// A GraphQL document is valid only if all leaf fields (fields without
 /// sub selections) are of scalar or enum types.
+///
+/// See https://spec.graphql.org/draft/#sec-Leaf-Field-Selections
 Visitor scalarLeafsRule(ValidationCtx context) {
   final visitor = TypedVisitor();
   final typeInfo = context.typeInfo;

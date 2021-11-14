@@ -31,20 +31,20 @@ class TypedVisitor extends WrapperVisitor<void> {
     nodeVisitors.add(obj);
   }
 
+  void mergeInPlace(TypedVisitor other) {
+    other._visitors.forEach((key, value) {
+      final list = _visitors.putIfAbsent(key, () => []);
+      list.addAll(value);
+    });
+  }
+
+  List<VisitNodeCallbacks<Node>>? _defaultVisitors() => _visitors[Node];
+
   @override
   void visitNode<N extends Node>(N node) {
-    final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.enter(node);
-      }
-      node.visitChildren(this);
-      for (final visitor in nodeVisitors) {
-        visitor.leave(node);
-      }
-    } else {
-      node.visitChildren(this);
-    }
+    enter(node);
+    node.visitChildren(this);
+    leave(node);
   }
 
   void enter<N extends Node>(N node) {
@@ -54,12 +54,24 @@ class TypedVisitor extends WrapperVisitor<void> {
         visitor.enter(node);
       }
     }
+    final _default = _defaultVisitors();
+    if (_default != null) {
+      for (final visitor in _default) {
+        visitor.enter(node);
+      }
+    }
   }
 
   void leave<N extends Node>(N node) {
     final nodeVisitors = _visitors[N];
     if (nodeVisitors != null) {
       for (final visitor in nodeVisitors) {
+        visitor.leave(node);
+      }
+    }
+    final _default = _defaultVisitors();
+    if (_default != null) {
+      for (final visitor in _default) {
         visitor.leave(node);
       }
     }

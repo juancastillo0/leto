@@ -21,8 +21,7 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
   final typeInfo = context.typeInfo;
   final visitor = TypedVisitor();
 
-  // eslint-disable-next-line new-cap
-  // ...KnownArgumentNamesOnDirectivesRule(context),
+  visitor.mergeInPlace(knownArgumentNamesOnDirectivesRule(context));
   visitor.add<ArgumentNode>((argNode) {
     final argDef = typeInfo.getArgument();
     final fieldDef = typeInfo.getFieldDef();
@@ -51,7 +50,7 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
 /**
  * @internal
  */
-Visitor knownArgumentNamesOnDirectivesRule(
+TypedVisitor knownArgumentNamesOnDirectivesRule(
   ValidationCtx context, // SDLValidationContext
 ) {
   final visitor = TypedVisitor();

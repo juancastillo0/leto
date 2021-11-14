@@ -1,13 +1,15 @@
 import '../rules_prelude.dart';
 
 const _uniqueVariableNamesSpec = ErrorSpec(
-  spec: 'https://spec.graphql.org/draft/#sec-Input-Object-Field-Uniqueness',
+  spec: 'https://spec.graphql.org/draft/#sec-Variable-Uniqueness',
   code: 'uniqueVariableNames',
 );
 
 /// Unique variable names
 ///
 /// A GraphQL operation is only valid if all its variables are uniquely named.
+/// 
+/// See https://spec.graphql.org/draft/#sec-Variable-Uniqueness
 Visitor uniqueVariableNamesRule(
   ValidationCtx context, // ASTValidationContext
 ) {
