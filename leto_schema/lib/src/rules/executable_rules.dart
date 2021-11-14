@@ -337,6 +337,11 @@ class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
   }
 }
 
+const _noUnusedFragmentsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used',
+  code: 'noUnusedFragments',
+);
+
 /// No unused fragments
 ///
 /// A GraphQL document is only valid if all fragment definitions are spread
@@ -344,22 +349,49 @@ class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
 /// operations.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used
-/// // TODO: leave
-class NoUnusedFragmentsRule extends RecursiveVisitor {
+Visitor noUnusedFragmentsRule(ValidationCtx context) {
+  final visitor = TypedVisitor();
   final operationDefs = <OperationDefinitionNode>[];
   final fragmentDefs = <FragmentDefinitionNode>[];
 
-  @override
-  void visitOperationDefinitionNode(OperationDefinitionNode node) {
+  visitor.add<OperationDefinitionNode>((node) {
     operationDefs.add(node);
-    super.visitOperationDefinitionNode(node);
-  }
+    // return false;
+  });
 
-  @override
-  void visitFragmentDefinitionNode(FragmentDefinitionNode node) {
-    // TODO: implement visitFragmentDefinitionNode
-    super.visitFragmentDefinitionNode(node);
-  }
+  visitor.add<FragmentDefinitionNode>((node) {
+    fragmentDefs.add(node);
+    // return false;
+  });
+  visitor.add<DocumentNode>(
+    (_) {},
+    leave: (_) {
+      final fragmentNameUsed = <String>{};
+      for (final operation in operationDefs) {
+        for (final fragment in context.getRecursivelyReferencedFragments(
+          operation,
+        )) {
+          fragmentNameUsed.add(fragment.name.value);
+        }
+      }
+
+      for (final fragmentDef in fragmentDefs) {
+        final fragName = fragmentDef.name.value;
+        if (!fragmentNameUsed.contains(fragName)) {
+          context.reportError(
+            GraphQLError(
+              'Fragment "${fragName}" is never used.',
+              locations: GraphQLErrorLocation.firstFromNodes(
+                  [fragmentDef, fragmentDef.name]),
+              extensions: _noUnusedFragmentsSpec.extensions(),
+            ),
+          );
+        }
+      }
+    },
+  );
+
+  return visitor;
 }
 
 const _fieldsOnCorrectTypeSpec = ErrorSpec(
