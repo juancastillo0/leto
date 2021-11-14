@@ -190,6 +190,17 @@ class GraphQLErrorLocation {
     ];
   }
 
+  static List<GraphQLErrorLocation> firstFromNodes(List<Node?> nodes) {
+    final locations = List<GraphQLErrorLocation>.of(
+      nodes
+          .map((e) => e?.span == null
+              ? null
+              : GraphQLErrorLocation.fromSourceLocation(e!.span!.start))
+          .whereType(),
+    );
+    return locations.length > 1 ? [locations.first] : locations;
+  }
+
   factory GraphQLErrorLocation.fromSourceLocation(SourceLocation location) {
     return GraphQLErrorLocation(
       location.line,

@@ -31,6 +31,10 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// "No longer supported" will be used.
   final String? deprecationReason;
 
+  /// Returns true if this type input is non-nullable and
+  /// doesn't have a default value
+  bool get isRequired => type.isNonNullable && defaultValue == null;
+
   /// An input to a GraphQL field. This is analogous
   /// to a function parameter in Dart.
   GraphQLFieldInput(
