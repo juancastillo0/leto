@@ -17,9 +17,41 @@ import 'package:leto_schema/src/rules/rules/variables_in_allowed_position_rule.d
 import 'package:leto_schema/src/rules/type_info.dart';
 import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/utilities.dart';
-import 'package:meta/meta.dart';
 
 import 'executable_rules.dart';
+
+/// Return a visitor that executes document validations for a [ValidationCtx]
+typedef ValidationRule = Visitor Function(ValidationCtx);
+
+/// Default validations rules from the GraphQL specification
+const specifiedRules = <ValidationRule>[
+  // TODO: some are returning error when visiting, not by using reportError
+  executableDefinitionsRule,
+  uniqueOperationNamesRule,
+  loneAnonymousOperationRule,
+  singleFieldSubscriptionsRule,
+  knownTypeNamesRule,
+  fragmentsOnCompositeTypesRule,
+  variablesAreInputTypesRule,
+  scalarLeafsRule,
+  fieldsOnCorrectTypeRule,
+  knownFragmentNamesRule,
+  noUnusedFragmentsRule,
+  possibleFragmentSpreadsRule,
+  // TODO: NoFragmentCyclesRule,
+  uniqueVariableNamesRule,
+  noUndefinedVariablesRule,
+  noUnusedVariablesRule,
+  knownDirectivesRule,
+  uniqueDirectivesPerLocationRule,
+  knownArgumentNamesRule,
+  uniqueArgumentNamesRule,
+  // TODO: ValuesOfCorrectType
+  providedRequiredArgumentsRule,
+  variablesInAllowedPositionRule,
+  // TODO: OverlappingFieldsCanMerge
+  uniqueInputFieldNamesRule,
+];
 
 /// Executes the default GraphQL validations for the given [document]
 /// over the [schema].
@@ -29,6 +61,7 @@ List<GraphQLError> validateDocument(
   GraphQLSchema schema,
   DocumentNode document, {
   int maxErrors = 100,
+  List<ValidationRule> rules = specifiedRules,
 }) {
   final typeInfo = TypeInfo(schema);
   final ctx = ValidationCtx(
@@ -38,39 +71,16 @@ List<GraphQLError> validateDocument(
     maxErrors: maxErrors,
   );
 
-  final visitor = WithTypeInfoVisitor(typeInfo, visitors: [
-    // TODO: some are returning error when visiting, not by using reportError
-    executableDefinitionsRule(ctx),
-    uniqueOperationNamesRule(ctx),
-    loneAnonymousOperationRule(ctx),
-    singleFieldSubscriptionsRule(ctx),
-    knownTypeNamesRule(ctx),
-    fragmentsOnCompositeTypesRule(ctx),
-    variablesAreInputTypesRule(ctx),
-    scalarLeafsRule(ctx),
-    fieldsOnCorrectTypeRule(ctx),
-    knownFragmentNamesRule(ctx),
-    noUnusedFragmentsRule(ctx),
-    possibleFragmentSpreadsRule(ctx),
-    // TODO: NoFragmentCyclesRule,
-    uniqueVariableNamesRule(ctx),
-    noUndefinedVariablesRule(ctx),
-    noUnusedVariablesRule(ctx),
-    knownDirectivesRule(ctx),
-    uniqueDirectivesPerLocationRule(ctx),
-    knownArgumentNamesRule(ctx),
-    uniqueArgumentNamesRule(ctx),
-    // TODO: ValuesOfCorrectType
-    providedRequiredArgumentsRule(ctx),
-    variablesInAllowedPositionRule(ctx),
-    // TODO: OverlappingFieldsCanMerge
-    uniqueInputFieldNamesRule(ctx),
-  ], onAccept: (result) {
-    if (result is List<GraphQLError>) {
-      // TODO: these are returning error when visiting, not by using reportError
-      result.forEach(ctx.reportError);
-    }
-  });
+  final visitor = WithTypeInfoVisitor(
+    typeInfo,
+    visitors: rules.map((e) => e(ctx)).toList(),
+    onAccept: (result) {
+      if (result is List<GraphQLError>) {
+        // TODO: these are returning error when visiting, not by using reportError
+        result.forEach(ctx.reportError);
+      }
+    },
+  );
 
   try {
     document.accept(visitor);
@@ -109,10 +119,16 @@ class ValidationCtx {
   final List<GraphQLError> _errors = [];
 
   void reportError(GraphQLError error) {
-    _errors.add(error);
     if (_errors.length >= maxErrors) {
+      _errors.add(
+        const GraphQLError(
+          'Too many validation errors, error limit reached.'
+          ' Validation aborted.',
+        ),
+      );
       throw _AbortValidationException();
     }
+    _errors.add(error);
   }
 
   List<VariableUsage> getVariableUsages(ExecutableDefinitionNode node) {
