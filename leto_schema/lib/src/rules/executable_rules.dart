@@ -1,10 +1,16 @@
 import 'package:gql/ast.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/src/rules/error_mapping.dart';
 import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/src/rules/validate.dart';
 import 'package:leto_schema/src/utilities/build_schema.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
 import 'package:leto_schema/utilities.dart';
+
+const _executableDefinitionsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Executable-Definitions',
+  code: 'executableDefinitions',
+);
 
 /// Executable definitions
 ///
@@ -27,10 +33,16 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
         .map((e) => GraphQLError(
               'The $e is not executable',
               locations: GraphQLErrorLocation.listFromSource(e.span?.start),
+              extensions: _executableDefinitionsSpec.extensions(),
             ))
         .toList();
   }
 }
+
+const _uniqueOperationNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Operation-Name-Uniqueness',
+  code: 'uniqueOperationNames',
+);
 
 /// Unique operation names
 ///
@@ -61,6 +73,7 @@ class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
             GraphQLErrorLocation.fromSourceLocation(prev.name!.span!.start),
             GraphQLErrorLocation.fromSourceLocation(node.name!.span!.start),
           ],
+          extensions: _uniqueOperationNamesSpec.extensions(),
         )
       ];
     } else {
@@ -68,6 +81,11 @@ class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
     }
   }
 }
+
+const _loneAnonymousOperationSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Lone-Anonymous-Operation',
+  code: 'loneAnonymousOperation',
+);
 
 /// Lone anonymous operation
 ///
@@ -98,11 +116,17 @@ class LoneAnonymousOperationRule extends SimpleVisitor<List<GraphQLError>> {
         GraphQLError(
           'This anonymous operation must be the only defined operation.',
           locations: GraphQLErrorLocation.listFromSource(node.span?.start),
+          extensions: _loneAnonymousOperationSpec.extensions(),
         )
       ];
     }
   }
 }
+
+const _knownTypeNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Fragment-Spread-Type-Existence',
+  code: 'knownTypeNames',
+);
 
 /// Known type names
 ///
@@ -128,11 +152,17 @@ class KnownTypeNamesRule extends SimpleVisitor<List<GraphQLError>> {
         GraphQLError(
           'Unknown type "$name".',
           locations: GraphQLErrorLocation.listFromSource(node.name.span?.start),
+          extensions: _knownTypeNamesSpec.extensions(),
         )
       ];
     }
   }
 }
+
+const _fragmentsOnCompositeTypesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Fragments-On-Composite-Types',
+  code: 'fragmentsOnCompositeTypes',
+);
 
 /// Fragments on composite type
 ///
@@ -171,12 +201,18 @@ class FragmentsOnCompositeTypesRule extends SimpleVisitor<List<GraphQLError>> {
             locations: GraphQLErrorLocation.listFromSource(
               typeCondition.span?.start ?? typeCondition.on.name.span?.start,
             ),
+            extensions: _fragmentsOnCompositeTypesSpec.extensions(),
           )
         ];
       }
     }
   }
 }
+
+const _variablesAreInputTypesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Variables-Are-Input-Types',
+  code: 'variablesAreInputTypes',
+);
 
 /// Variables are input types
 ///
@@ -204,18 +240,26 @@ class VariablesAreInputTypesRule extends SimpleVisitor<List<GraphQLError>> {
           locations: GraphQLErrorLocation.listFromSource(
             node.span?.start ?? node.type.span?.start,
           ),
+          extensions: _variablesAreInputTypesSpec.extensions(),
         )
       ];
     }
   }
 }
 
+const _uniqueFragmentNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Fragment-Name-Uniqueness',
+  code: 'uniqueFragmentNames',
+);
+
 /// Unique fragment names
 ///
 /// A GraphQL document is only valid if all defined fragments have unique names.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragment-Name-Uniqueness
-class UniqueFragmentNamesRule extends UniqueNamesRule<FragmentDefinitionNode> {
+Visitor uniqueFragmentNamesRule(ValidationCtx ctx) => UniqueFragmentNamesRule();
+
+class UniqueFragmentNamesRule extends _UniqueNamesRule<FragmentDefinitionNode> {
   @override
   List<GraphQLError>? visitFragmentDefinitionNode(FragmentDefinitionNode node) {
     final name = node.name.value;
@@ -223,11 +267,12 @@ class UniqueFragmentNamesRule extends UniqueNamesRule<FragmentDefinitionNode> {
       node: node,
       nameNode: node.name,
       error: 'There can be only one fragment named "$name".',
+      extensions: _uniqueFragmentNamesSpec.extensions(),
     );
   }
 }
 
-class UniqueNamesRule<T extends DefinitionNode>
+class _UniqueNamesRule<T extends DefinitionNode>
     extends SimpleVisitor<List<GraphQLError>> {
   final operations = <String, T>{};
 
@@ -235,6 +280,7 @@ class UniqueNamesRule<T extends DefinitionNode>
     required T node,
     required NameNode nameNode,
     required String error,
+    required Map<String, Object?> extensions,
   }) {
     final name = nameNode.value;
     final prev = operations[name];
@@ -245,6 +291,7 @@ class UniqueNamesRule<T extends DefinitionNode>
           locations: GraphQLErrorLocation.listFromSource(
             node.span?.start ?? nameNode.span?.start,
           ),
+          extensions: extensions,
         )
       ];
     } else {
@@ -252,6 +299,11 @@ class UniqueNamesRule<T extends DefinitionNode>
     }
   }
 }
+
+const _knownFragmentNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Fragment-spread-target-defined',
+  code: 'knownFragmentNames',
+);
 
 /// Known fragment names
 ///
@@ -278,6 +330,7 @@ class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
           locations: GraphQLErrorLocation.listFromSource(
             node.span?.start ?? node.name.span?.start,
           ),
+          extensions: _knownFragmentNamesSpec.extensions(),
         )
       ];
     }
@@ -308,6 +361,11 @@ class NoUnusedFragmentsRule extends RecursiveVisitor {
     super.visitFragmentDefinitionNode(node);
   }
 }
+
+const _fieldsOnCorrectTypeSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Field-Selections',
+  code: 'fieldsOnCorrectType',
+);
 
 /// Fields on correct type
 ///
@@ -346,6 +404,7 @@ TypedVisitor fieldsOnCorrectTypeRule(ValidationCtx context) {
             locations: GraphQLErrorLocation.listFromSource(
               node.span?.start ?? node.name.span?.start,
             ),
+            extensions: _fieldsOnCorrectTypeSpec.extensions(),
           ),
         );
       }
