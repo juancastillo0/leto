@@ -256,6 +256,14 @@ Object? getDirectiveValue(
   return computeValue(null, value, variableValues);
 }
 
+GraphQLType? getNamedType(GraphQLType? type) {
+  GraphQLType? _type = type;
+  while (_type is GraphQLWrapperType) {
+    _type = (_type! as GraphQLWrapperType).ofType;
+  }
+  return _type;
+}
+
 /// Returns a [GraphQLType] from a [TypeNode] and
 /// a map of names to types [customTypes].
 /// throws [GraphQLError] there isn't a match.
