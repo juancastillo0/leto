@@ -69,7 +69,7 @@ Visitor knownDirectivesRule(
   return visitor;
 }
 
-DirectiveLocation getDirectiveLocationForASTPath(
+DirectiveLocation? getDirectiveLocationForASTPath(
   List<Node> ancestors, // Array<ASTNode | ReadonlyArray<ASTNode>>
 ) {
   final appliedTo = ancestors[ancestors.length - 1];
@@ -122,9 +122,9 @@ DirectiveLocation getDirectiveLocationForASTPath(
             ? DirectiveLocation.INPUT_FIELD_DEFINITION
             : DirectiveLocation.ARGUMENT_DEFINITION;
       }
+    default:
+      return null;
   }
-  // TODO:
-  throw Error();
 }
 
 DirectiveLocation _getDirectiveLocationForOperation(

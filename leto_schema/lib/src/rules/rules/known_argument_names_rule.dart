@@ -68,7 +68,7 @@ TypedVisitor knownArgumentNamesOnDirectivesRule(
       context.document.definitions.whereType<DirectiveDefinitionNode>();
   for (final def in astDefinitions) {
     // istanbul ignore next (See: 'https://github.com/graphql/graphql-js/issues/2203')
-    final argsNodes = def.args ?? [];
+    final argsNodes = def.args;
 
     directiveArgs[def.name.value] =
         argsNodes.map((arg) => arg.name.value).toSet();
@@ -78,7 +78,7 @@ TypedVisitor knownArgumentNamesOnDirectivesRule(
     final directiveName = directiveNode.name.value;
     final knownArgs = directiveArgs[directiveName];
 
-    if (directiveNode.arguments != null && knownArgs != null) {
+    if (knownArgs != null) {
       for (final argNode in directiveNode.arguments) {
         final argName = argNode.name.value;
         if (!knownArgs.contains(argName)) {
