@@ -25,17 +25,21 @@ Visitor uniqueInputFieldNamesRule(
     },
     leave: (_) {
       final prevKnownNames = knownNameStack.removeLast();
-      invariant(prevKnownNames);
       knownNames = prevKnownNames;
     },
   );
   visitor.add<ObjectFieldNode>((node) {
     final fieldName = node.name.value;
-    if (knownNames[fieldName] != null) {
+    final other = knownNames[fieldName];
+    if (other != null) {
       context.reportError(
         GraphQLError(
           'There can be only one input field named "${fieldName}".',
-          [knownNames[fieldName], node.name],
+          locations: List.of(
+            [other, node.name].map(
+              (e) => GraphQLErrorLocation.fromSourceLocation(e.span!.start),
+            ),
+          ),
           extensions: _uniqueInputFieldNamesSpec.extensions(),
         ),
       );

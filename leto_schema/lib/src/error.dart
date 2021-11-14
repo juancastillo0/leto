@@ -190,7 +190,7 @@ class GraphQLErrorLocation {
     ];
   }
 
-  static List<GraphQLErrorLocation> firstFromNodes(List<Node?> nodes) {
+  static List<GraphQLErrorLocation> firstFromNodes(Iterable<Node?> nodes) {
     final locations = List<GraphQLErrorLocation>.of(
       nodes
           .map((e) => e?.span == null

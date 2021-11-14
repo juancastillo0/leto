@@ -39,7 +39,9 @@ Visitor providedRequiredArgumentsRule(
             context.reportError(
                GraphQLError(
                 'Field "${fieldDef.name}" argument "${argDef.name}" of type "${argTypeStr}" is required, but it was not provided.',
-                fieldNode,
+                
+                locations: GraphQLErrorLocation.firstFromNodes(
+              [fieldNode, fieldNode.name]),
                 extensions: _providedRequiredArgumentsSpec.extensions(),
               ),
             );
@@ -96,7 +98,9 @@ Visitor providedRequiredArgumentsOnDirectivesRule(
               context.reportError(
                GraphQLError(
                   'Directive "@${directiveName}" argument "${entry.key}" of type "${argType}" is required, but it was not provided.',
-                  directiveNode,
+                  
+          locations: GraphQLErrorLocation.firstFromNodes(
+              [directiveNode, directiveNode.name]),
                   extensions: _providedRequiredArgumentsOnDirectivesSpec.extensions(),
                 ),
               );

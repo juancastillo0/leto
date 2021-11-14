@@ -39,7 +39,11 @@ class _Visitor extends SimpleVisitor<void> {
         context.reportError(
           GraphQLError(
             'There can be only one variable named "\$${entry.key}".',
-            variableNodes.map((node) => node.variable.name),
+            locations: entry.value
+                .map((node) => GraphQLErrorLocation.fromSourceLocation(
+                      node.variable.name.span!.start,
+                    ))
+                .toList(),
             extensions: _uniqueVariableNamesSpec.extensions(),
           ),
         );

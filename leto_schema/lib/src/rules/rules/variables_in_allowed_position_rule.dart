@@ -45,12 +45,16 @@ Visitor variablesInAllowedPositionRule(
               usage.defaultValue,
             )) {
           final varTypeStr = inspect(varType);
-          final typeStr = inspect(type);
+          final typeStr = inspect(usage.type!);
           context.reportError(
             GraphQLError(
               'Variable "\$${varName}" of type "${varTypeStr}" used'
               ' in position expecting type "${typeStr}".',
-              [varDef, node],
+              locations: List.of(<Node?>[varDef, node, node.name]
+                  .map((e) => e?.span == null
+                      ? null
+                      : GraphQLErrorLocation.fromSourceLocation(e!.span!.start))
+                  .whereType<GraphQLErrorLocation>()),
               extensions: _variablesInAllowedPositionSpec.extensions(),
             ),
           );
@@ -71,7 +75,7 @@ bool allowedVariableUsage(
   GraphQLType locationType,
   Object? locationDefaultValue,
 ) {
-  if (locationType.isNonNullable && varType.isNullable) {
+  if (locationType is GraphQLNonNullType && varType is! GraphQLNonNullType) {
     final hasNonNullVariableDefaultValue =
         varDefaultValue != null && varDefaultValue is! NullValueNode;
     final hasLocationDefaultValue = locationDefaultValue != null;
