@@ -1,8 +1,15 @@
 part of leto_schema.src.schema;
 
+/// A [GraphQLType] with nested properties
+abstract class GraphQLCompositeType<P>
+    extends GraphQLType<P, Map<String, dynamic>> {
+  /// The possible implementations for this type
+  List<GraphQLObjectType> get possibleTypes;
+}
+
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
+class GraphQLObjectType<P> extends GraphQLCompositeType<P>
     with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
@@ -31,6 +38,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
       List.of(_interfaces.where((obj) => obj.isInterface));
 
   /// A list of other types that implement this interface.
+  @override
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
@@ -189,14 +197,13 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
   /// Returns `true` if this type, or any of its parents,
   /// is a direct descendant of another given [type].
   bool isImplementationOf(GraphQLObjectType type) {
+    final _interfaces = interfaces;
     if (type == this) {
       return true;
-    } else if (interfaces.contains(type)) {
+    } else if (_interfaces.contains(type)) {
       return true;
-    } else if (interfaces.isNotEmpty) {
-      return interfaces.any((t) => t.isImplementationOf(type));
     } else {
-      return false;
+      return _interfaces.any((t) => t.isImplementationOf(type));
     }
   }
 

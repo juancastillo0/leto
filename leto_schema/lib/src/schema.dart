@@ -104,6 +104,43 @@ class GraphQLSchema {
     }
   }
 
+  /// Returns all the [GraphQLObjectType] that implement a given abstract [type]
+  List<GraphQLObjectType>? getPossibleTypes(GraphQLType type) {
+    if (type is GraphQLUnionType) {
+      return type.possibleTypes;
+    } else if (type is GraphQLObjectType && type.isInterface) {
+      return type.possibleTypes.where((obj) => !obj.isInterface).toList();
+    }
+  }
+
+  final _subTypeMap = <String, Set<String>>{};
+
+  /// Returns `true` if [maybeSubType] is a possible type of [abstractType]
+  bool isSubType(
+    GraphQLType abstractType,
+    GraphQLObjectType maybeSubType,
+  ) {
+    if (!isAbstractType(abstractType)) return false;
+    Set<String>? map = _subTypeMap[abstractType.name];
+    if (map == null) {
+      map = {};
+
+      if (abstractType is GraphQLUnionType) {
+        for (final type in abstractType.possibleTypes) {
+          map.add(type.name);
+        }
+      } else if (abstractType is GraphQLObjectType) {
+        final implementations = abstractType.possibleTypes;
+        for (final type in implementations) {
+          map.add(type.name);
+        }
+      }
+
+      _subTypeMap[abstractType.name!] = map;
+    }
+    return map.contains(maybeSubType.name);
+  }
+
   /// The schema against which queries, mutations
   /// and subscriptions are executed.
   ///
