@@ -1,0 +1,60 @@
+scenario: "Validate: Fields on correct type"
+background:
+  schema-file: validation.schema.graphql
+tests:
+  - name: known fragment names are valid
+    given:
+      query: |-
+        {
+          human(id: 4) {
+            ...HumanFields1
+            ... on Human {
+              ...HumanFields2
+            }
+            ... {
+              name
+            }
+          }
+        }
+        fragment HumanFields1 on Human {
+          name
+          ...HumanFields3
+        }
+        fragment HumanFields2 on Human {
+          name
+        }
+        fragment HumanFields3 on Human {
+          name
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: unknown fragment names are invalid
+    given:
+      query: |-
+        {
+          human(id: 4) {
+            ...UnknownFragment1
+            ... on Human {
+              ...UnknownFragment2
+            }
+          }
+        }
+        fragment HumanFields on Human {
+          name
+          ...UnknownFragment3
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      - error-count: 3
+      - error-code: undefinedField
+        args:
+          fieldName: name
+          type: CatOrDog
+        loc:
+          line: 2
+          column: 3

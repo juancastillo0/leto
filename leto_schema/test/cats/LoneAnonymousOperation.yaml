@@ -1,0 +1,122 @@
+scenario: "Validate: Anonymous operation must be alone"
+background:
+  schema-file: validation.schema.graphql
+tests:
+  - name: no operations
+    given:
+      query: |-
+        fragment fragA on Type {
+          field
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: one anon operation
+    given:
+      query: |-
+        {
+          field
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: multiple named operations
+    given:
+      query: |-
+        query Foo {
+          field
+        }
+        query Bar {
+          field
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: multiple operations of different type
+    given:
+      query: |-
+        query Foo {
+          field
+        }
+        mutation Bar {
+          field
+        }
+        subscription Baz {
+          field
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: anon operation with fragment
+    given:
+      query: |-
+        {
+          ...Foo
+        }
+        fragment Foo on Type {
+          field
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: multiple anon operations
+    given:
+      query: |-
+        {
+          fieldA
+        }
+        {
+          fieldB
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      - error-count: 2
+      - error-code: undefinedField
+  - name: anon operation with a mutation
+    given:
+      query: |-
+        {
+          fieldA
+        }
+        mutation Foo {
+          fieldB
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      - error-count: 1
+      - error-code: undefinedField
+        args:
+          fieldName: name
+          type: CatOrDog
+        loc:
+          line: 2
+          column: 3
+  - name: anon operation with a subscription
+    given:
+      query: |-
+        {
+          fieldA
+        }
+        subscription Foo {
+          fieldB
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      - error-count: 1
+      - error-code: undefinedField
