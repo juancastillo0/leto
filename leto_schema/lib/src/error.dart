@@ -65,14 +65,22 @@ class GraphQLException implements Exception {
         ),
       ]);
     }
-    final message = error.toString();
+    final message =
+        error is ErrorExtensions ? error.errorMessage : error.toString();
+    final _extensions = extensions != null || error is ErrorExtensions
+        ? {
+            if (error is ErrorExtensions) ...error.errorExtensions(),
+            if (extensions != null) ...extensions,
+          }
+        : null;
     return GraphQLException.fromMessage(
       message,
       path: path,
       location: span?.start,
       sourceError: error,
       stackTrace: stackTrace,
-      extensions: extensions,
+      extensions:
+          _extensions == null || _extensions.isEmpty ? null : _extensions,
     );
   }
 
@@ -207,4 +215,9 @@ class GraphQLErrorLocation {
 
   @override
   int get hashCode => line.hashCode ^ column.hashCode;
+}
+
+abstract class ErrorExtensions implements Exception {
+  String get errorMessage;
+  Map<String, Object?> errorExtensions();
 }
