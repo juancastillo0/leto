@@ -1,9 +1,14 @@
-import 'package:gql/ast.dart' hide DirectiveLocation;
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _knownArgumentNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Argument-Names',
+  code: 'knownArgumentNames',
+);
+
+const _knownArgumentNamesOnDirectivesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Directives-Are-In-Valid-Locations',
+  code: 'knownArgumentNamesOnDirectives',
+);
 
 /// Known argument names
 ///
@@ -32,7 +37,10 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
           'Unknown argument "${argName}" on field "${parentType.name}.${fieldDef.name}".'
           // +    didYouMean(suggestions)
           ,
-          argNode,
+          locations: GraphQLErrorLocation.firstFromNodes(
+            [argNode, argNode.name],
+          ),
+          extensions: _knownArgumentNamesSpec.extensions(),
         ),
       );
     }
@@ -44,8 +52,8 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
  * @internal
  */
 Visitor knownArgumentNamesOnDirectivesRule(
-    ValidationCtx context // SDLValidationContext
-    ) {
+  ValidationCtx context, // SDLValidationContext
+) {
   final visitor = TypedVisitor();
   final directiveArgs = <String, Set<String>>{};
 
@@ -81,14 +89,17 @@ Visitor knownArgumentNamesOnDirectivesRule(
               'Unknown argument "${argName}" on directive "@${directiveName}".'
               //  + didYouMean(suggestions)
               ,
-              argNode,
+              locations: GraphQLErrorLocation.firstFromNodes(
+                [argNode, argNode.name],
+              ),
+              extensions: _knownArgumentNamesOnDirectivesSpec.extensions(),
             ),
           );
         }
       }
     }
 
-    return false;
+    // TODO: return false;
   });
   return visitor;
 }

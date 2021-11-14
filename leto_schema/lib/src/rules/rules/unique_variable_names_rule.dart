@@ -1,6 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _uniqueVariableNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Input-Object-Field-Uniqueness',
+  code: 'uniqueVariableNames',
+);
 
 /// Unique variable names
 ///
@@ -37,6 +40,7 @@ class _Visitor extends SimpleVisitor<void> {
           GraphQLError(
             'There can be only one variable named "\$${entry.key}".',
             variableNodes.map((node) => node.variable.name),
+            extensions: _uniqueVariableNamesSpec.extensions(),
           ),
         );
       }

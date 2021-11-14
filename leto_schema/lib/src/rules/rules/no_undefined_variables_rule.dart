@@ -1,9 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _noUndefinedVariablesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variable-Uses-Defined',
+  code: 'noUndefinedVariables',
+);
 
 /// No undefined variables
 ///
@@ -27,15 +27,18 @@ Visitor noUndefinedVariablesRule(
     leave: (operation) {
       final usages = context.getRecursiveVariableUsages(operation);
 
-      for (final node in usages) {
+      for (final usage in usages) {
+        final node = usage.node;
         final varName = node.name.value;
         if (variableNameDefined[varName] != true) {
           context.reportError(
             GraphQLError(
               operation.name != null
-                  ? 'Variable "\$${varName}" is not defined by operation "${operation.name.value}".'
+                  ? 'Variable "\$${varName}" is not defined by operation "${operation.name!.value}".'
                   : 'Variable "\$${varName}" is not defined.',
-              [node, operation],
+              locations: GraphQLErrorLocation.firstFromNodes(
+                  [node, node.name, operation]),
+              extensions: _noUndefinedVariablesSpec.extensions(),
             ),
           );
         }

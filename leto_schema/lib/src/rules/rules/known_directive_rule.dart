@@ -1,9 +1,14 @@
-import 'package:gql/ast.dart' hide DirectiveLocation;
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/ast_node_enum.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/build_schema.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _knownDirectivesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Directives-Are-Defined',
+  code: 'knownDirectives',
+);
+
+const _misplacedDirectivesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Directives-Are-Defined',
+  code: 'misplacedDirectives',
+);
 
 /// Known directives
 ///
@@ -34,19 +39,28 @@ Visitor knownDirectivesRule(
     final name = node.name.value;
     final locations = locationsMap[name];
 
+    final _errorLocations =
+        GraphQLErrorLocation.firstFromNodes([node, node.name]);
+
     if (locations == null) {
       context.reportError(
-        GraphQLError('Unknown directive "@${name}".', node),
+        GraphQLError(
+          'Unknown directive "@${name}".',
+          locations: _errorLocations,
+          extensions: _knownDirectivesSpec.extensions(),
+        ),
       );
       return;
     }
 
-    final candidateLocation = getDirectiveLocationForASTPath(ancestors);
+    final candidateLocation =
+        getDirectiveLocationForASTPath(context.typeInfo.ancestors);
     if (candidateLocation != null && !locations.contains(candidateLocation)) {
       context.reportError(
         GraphQLError(
           'Directive "@${name}" may not be used on ${candidateLocation}.',
-          node,
+          locations: _errorLocations,
+          extensions: _misplacedDirectivesSpec.extensions(),
         ),
       );
     }
@@ -63,7 +77,7 @@ DirectiveLocation getDirectiveLocationForASTPath(
 
   switch (appliedTo.kind) {
     case Kind.OperationDefinition:
-      return getDirectiveLocationForOperation(
+      return _getDirectiveLocationForOperation(
           (appliedTo as OperationDefinitionNode).type);
     case Kind.Field:
       return DirectiveLocation.FIELD;
@@ -109,9 +123,11 @@ DirectiveLocation getDirectiveLocationForASTPath(
             : DirectiveLocation.ARGUMENT_DEFINITION;
       }
   }
+  // TODO:
+  throw Error();
 }
 
-DirectiveLocation getDirectiveLocationForOperation(
+DirectiveLocation _getDirectiveLocationForOperation(
   OperationType operation,
 ) {
   switch (operation) {

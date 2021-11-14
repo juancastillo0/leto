@@ -1,8 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/rules/validate.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _uniqueInputFieldNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Input-Object-Field-Uniqueness',
+  code: 'uniqueInputFieldNames',
+);
 
 /// Unique input field names
 ///
@@ -35,6 +36,7 @@ Visitor uniqueInputFieldNamesRule(
         GraphQLError(
           'There can be only one input field named "${fieldName}".',
           [knownNames[fieldName], node.name],
+          extensions: _uniqueInputFieldNamesSpec.extensions(),
         ),
       );
     } else {

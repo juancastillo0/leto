@@ -1,9 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _possibleFragmentSpreadsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  code: 'possibleFragmentSpreads',
+);
 
 /// Possible fragment spread
 ///
@@ -18,22 +18,28 @@ Visitor possibleFragmentSpreadsRule(
   visitor.add<InlineFragmentNode>((node) {
     final fragType = typeInfo.getType();
     final parentType = typeInfo.getParentType();
-    if (isCompositeType(fragType) &&
-        isCompositeType(parentType) &&
+    if (fragType is GraphQLCompositeType &&
+        parentType is GraphQLCompositeType &&
         !doTypesOverlap(context.schema, fragType, parentType)) {
       final parentTypeStr = inspect(parentType);
       final fragTypeStr = inspect(fragType);
       context.reportError(
         GraphQLError(
-          'Fragment cannot be spread here as objects of type "${parentTypeStr}" can never be of type "${fragTypeStr}".',
-          node,
+          'Fragment cannot be spread here as objects of type "${parentTypeStr}"'
+          ' can never be of type "${fragTypeStr}".',
+          locations: GraphQLErrorLocation.firstFromNodes([
+            node,
+            node.typeCondition,
+            node.selectionSet,
+          ]),
+          extensions: _possibleFragmentSpreadsSpec.extensions(),
         ),
       );
     }
   });
   visitor.add<FragmentSpreadNode>((node) {
     final fragName = node.name.value;
-    final fragType = getFragmentType(context, fragName);
+    final fragType = _getFragmentType(context, fragName);
     final parentType = typeInfo.getParentType();
     if (fragType != null &&
         parentType != null &&
@@ -42,8 +48,10 @@ Visitor possibleFragmentSpreadsRule(
       final fragTypeStr = inspect(fragType);
       context.reportError(
         GraphQLError(
-          'Fragment "${fragName}" cannot be spread here as objects of type "${parentTypeStr}" can never be of type "${fragTypeStr}".',
-          node,
+          'Fragment "${fragName}" cannot be spread here as objects of type'
+          ' "${parentTypeStr}" can never be of type "${fragTypeStr}".',
+          locations: GraphQLErrorLocation.firstFromNodes([node, node.name]),
+          extensions: _possibleFragmentSpreadsSpec.extensions(),
         ),
       );
     }
@@ -51,14 +59,14 @@ Visitor possibleFragmentSpreadsRule(
   return visitor;
 }
 
-GraphQLType? getFragmentType(
+GraphQLCompositeType? _getFragmentType(
   ValidationCtx context,
   String name,
 ) {
-  final frag = context.getFragment(name);
+  final frag = context.fragmentsMap[name];
   if (frag != null) {
-    final type = typeFromAST(context.schema, frag.typeCondition);
-    if (isCompositeType(type)) {
+    final type = convertType(frag.typeCondition.on, context.schema.typeMap);
+    if (type is GraphQLCompositeType) {
       return type;
     }
   }

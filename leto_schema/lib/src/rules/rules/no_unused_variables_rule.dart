@@ -1,9 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _noUnusedVariablesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  code: 'noUnusedVariables',
+);
 
 /// No unused variables
 ///
@@ -26,8 +26,8 @@ Visitor noUnusedVariablesRule(ValidationCtx context) {
       final variableNameUsed = <String, bool>{};
       final usages = context.getRecursiveVariableUsages(operation);
 
-      for (final node in usages) {
-        variableNameUsed[node.name.value] = true;
+      for (final usage in usages) {
+        variableNameUsed[usage.node.name.value] = true;
       }
 
       for (final variableDef in variableDefs) {
@@ -38,7 +38,9 @@ Visitor noUnusedVariablesRule(ValidationCtx context) {
               operation.name != null
                   ? 'Variable "\$${variableName}" is never used in operation "${operation.name!.value}".'
                   : 'Variable "\$${variableName}" is never used.',
-              variableDef,
+              locations: GraphQLErrorLocation.firstFromNodes(
+                  [variableDef, variableDef.variable]),
+              extensions: _noUnusedVariablesSpec.extensions(),
             ),
           );
         }

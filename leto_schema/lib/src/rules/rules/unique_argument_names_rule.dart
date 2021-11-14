@@ -1,8 +1,9 @@
-import 'package:collection/collection.dart';
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+const _uniqueArgumentNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Argument-Names',
+  code: 'uniqueArgumentNames',
+);
 
 /// Unique argument names
 ///
@@ -29,6 +30,7 @@ Visitor uniqueArgumentNamesRule(
             locations: List.of(entry.value
                 .map((node) => node.name.span!.start)
                 .map((e) => GraphQLErrorLocation.fromSourceLocation(e))),
+            extensions: _uniqueArgumentNamesSpec.extensions(),
           ),
         );
       }

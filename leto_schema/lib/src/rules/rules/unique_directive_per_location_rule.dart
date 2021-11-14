@@ -1,9 +1,10 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+
+const _uniqueDirectivesPerLocationSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Directives-Are-Unique-Per-Location',
+  code: 'uniqueDirectivesPerLocation',
+);
 
 /// Unique directive names per location
 ///
@@ -69,6 +70,7 @@ Visitor uniqueDirectivesPerLocationRule(
                GraphQLError(
                 'The directive "@${directiveName}" can only be used once at this location.',
                 [seenDirectives[directiveName], directive],
+                extensions: _uniqueDirectivesPerLocationSpec.extensions(),
               ),
             );
           } else {

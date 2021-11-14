@@ -1,11 +1,9 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
 
-bool isLeafType(GraphQLType? type) =>
-    type is GraphQLEnumType || type is GraphQLScalarType;
+const _scalarLeafsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  code: 'scalarLeafs',
+);
 
 /// Scalar leafs
 ///
@@ -25,8 +23,10 @@ Visitor scalarLeafsRule(ValidationCtx context) {
           final typeStr = inspect(type);
           context.reportError(
             GraphQLError(
-              'Field "${fieldName}" must not have a selection since type "${typeStr}" has no subfields.',
+              'Field "${fieldName}" must not have a selection since'
+              ' type "${typeStr}" has no subfields.',
               selectionSet,
+              extensions: _scalarLeafsSpec.extensions(),
             ),
           );
         }
@@ -35,8 +35,10 @@ Visitor scalarLeafsRule(ValidationCtx context) {
         final typeStr = inspect(type);
         context.reportError(
           GraphQLError(
-            'Field "${fieldName}" of type "${typeStr}" must have a selection of subfields. Did you mean "${fieldName} { ... }"?',
+            'Field "${fieldName}" of type "${typeStr}" must have a selection'
+            ' of subfields. Did you mean "${fieldName} { ... }"?',
             node,
+            extensions: _scalarLeafsSpec.extensions(),
           ),
         );
       }

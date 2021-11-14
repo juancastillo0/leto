@@ -1,9 +1,15 @@
-import 'package:gql/ast.dart' hide DirectiveLocation;
-import 'package:leto_schema/leto_schema.dart' ;
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/validate.dart';
+import '../rules_prelude.dart';
+
+
+const _providedRequiredArgumentsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  code: 'providedRequiredArguments',
+);
+
+const _providedRequiredArgumentsOnDirectivesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-All-Variables-Used',
+  code: 'providedRequiredArgumentsOnDirectives',
+);
 
 /// Provided required arguments
 ///
@@ -28,12 +34,13 @@ Visitor providedRequiredArgumentsRule(
           fieldNode.arguments.map((arg) => arg.name.value).toSet()
         ;
         for (final argDef in fieldDef.inputs) {
-          if (!providedArgs.contains(argDef.name) && isRequiredArgument(argDef)) {
+          if (!providedArgs.contains(argDef.name) && argDef.isRequired) {
             final argTypeStr = inspect(argDef.type);
             context.reportError(
                GraphQLError(
                 'Field "${fieldDef.name}" argument "${argDef.name}" of type "${argTypeStr}" is required, but it was not provided.',
                 fieldNode,
+                extensions: _providedRequiredArgumentsSpec.extensions(),
               ),
             );
           }
@@ -66,7 +73,7 @@ Visitor providedRequiredArgumentsOnDirectivesRule(
       final argNodes = def.args ?? [];
 
       requiredArgsMap[def.name.value] = keyMap(
-        argNodes.filter(isRequiredArgumentNode),
+        argNodes.filter(_isRequiredArgumentNode),
         (arg) => arg.name.value,
       );
     
@@ -90,6 +97,7 @@ Visitor providedRequiredArgumentsOnDirectivesRule(
                GraphQLError(
                   'Directive "@${directiveName}" argument "${entry.key}" of type "${argType}" is required, but it was not provided.',
                   directiveNode,
+                  extensions: _providedRequiredArgumentsOnDirectivesSpec.extensions(),
                 ),
               );
             }
@@ -99,6 +107,6 @@ Visitor providedRequiredArgumentsOnDirectivesRule(
       return visitor;
 }
 
-bool isRequiredArgumentNode(InputValueDefinitionNode arg) {
+bool _isRequiredArgumentNode(InputValueDefinitionNode arg) {
   return arg.type.isNonNull && arg.defaultValue == null;
 }
