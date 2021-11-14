@@ -19,6 +19,7 @@ import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/utilities.dart';
 
 import 'executable_rules.dart';
+import 'validation_context.dart';
 
 /// Return a visitor that executes document validations for a [ValidationCtx]
 typedef ValidationRule = Visitor Function(ValidationCtx);
@@ -53,6 +54,23 @@ const specifiedRules = <ValidationRule>[
   uniqueInputFieldNamesRule,
 ];
 
+const specifiedSDLRules = <ValidationRule>[
+  // loneSchemaDefinitionRule,
+  // uniqueOperationTypesRule,
+  // uniqueTypeNamesRule,
+  // uniqueEnumValueNamesRule,
+  // uniqueFieldDefinitionNamesRule,
+  // uniqueDirectiveNamesRule,
+  knownTypeNamesRule,
+  knownDirectivesRule,
+  uniqueDirectivesPerLocationRule,
+  // possibleTypeExtensionsRule,
+  knownArgumentNamesOnDirectivesRule,
+  uniqueArgumentNamesRule,
+  uniqueInputFieldNamesRule,
+  providedRequiredArgumentsOnDirectivesRule,
+];
+
 /// Executes the default GraphQL validations for the given [document]
 /// over the [schema].
 ///
@@ -63,12 +81,24 @@ List<GraphQLError> validateDocument(
   int maxErrors = 100,
   List<ValidationRule> rules = specifiedRules,
 }) {
+  final _errors = <GraphQLError>[];
   final typeInfo = TypeInfo(schema);
   final ctx = ValidationCtx(
     schema,
     document,
     typeInfo,
-    maxErrors: maxErrors,
+    onError: (error) {
+      if (_errors.length >= maxErrors) {
+        _errors.add(
+          const GraphQLError(
+            'Too many validation errors, error limit reached.'
+            ' Validation aborted.',
+          ),
+        );
+        throw _AbortValidationException();
+      }
+      _errors.add(error);
+    },
   );
 
   final visitor = WithTypeInfoVisitor(
@@ -86,154 +116,7 @@ List<GraphQLError> validateDocument(
     document.accept(visitor);
   } on _AbortValidationException catch (_) {}
 
-  return ctx._errors;
-}
-
-class ValidationCtx {
-  final GraphQLSchema schema;
-  final DocumentNode document;
-  final TypeInfo typeInfo;
-  final int maxErrors;
-
-  late final Map<String, FragmentDefinitionNode> fragmentsMap =
-      fragmentsFromDocument(document);
-
-  final Map<ExecutableDefinitionNode, List<VariableUsage>> _variableUsages = {};
-
-  final Map<OperationDefinitionNode, List<VariableUsage>>
-      _recursiveVariableUsages = {};
-
-  final Map<OperationDefinitionNode, List<FragmentDefinitionNode>>
-      _recursivelyReferencedFragments = {};
-
-  final Map<SelectionSetNode, List<FragmentSpreadNode>> _fragmentSpreads = {};
-
-  ///
-  ValidationCtx(
-    this.schema,
-    this.document,
-    this.typeInfo, {
-    required this.maxErrors,
-  });
-
-  final List<GraphQLError> _errors = [];
-
-  void reportError(GraphQLError error) {
-    if (_errors.length >= maxErrors) {
-      _errors.add(
-        const GraphQLError(
-          'Too many validation errors, error limit reached.'
-          ' Validation aborted.',
-        ),
-      );
-      throw _AbortValidationException();
-    }
-    _errors.add(error);
-  }
-
-  List<VariableUsage> getVariableUsages(ExecutableDefinitionNode node) {
-    var usages = _variableUsages[node];
-    if (usages == null) {
-      final newUsages = <VariableUsage>[];
-      final typeInfo = TypeInfo(schema);
-
-      final _visitor = TypedVisitor();
-      // TOOD:
-      _visitor.add<VariableDefinitionNode>((_) => false);
-      _visitor.add<VariableNode>((variable) {
-        newUsages.add(VariableUsage(
-          node: variable,
-          type: typeInfo.getInputType(),
-          defaultValue: typeInfo.getDefaultValue(),
-        ));
-      });
-      node.accept(
-        WithTypeInfoVisitor(typeInfo, visitors: [_visitor]),
-      );
-      usages = newUsages;
-      _variableUsages[node] = usages;
-    }
-    return usages;
-  }
-
-  List<VariableUsage> getRecursiveVariableUsages(
-    OperationDefinitionNode operation,
-  ) {
-    var usages = _recursiveVariableUsages[operation];
-    if (usages == null) {
-      usages = getVariableUsages(operation);
-      for (final frag in getRecursivelyReferencedFragments(operation)) {
-        usages = usages!.followedBy(getVariableUsages(frag)).toList();
-      }
-      _recursiveVariableUsages[operation] = usages!;
-    }
-    return usages;
-  }
-
-  List<FragmentDefinitionNode> getRecursivelyReferencedFragments(
-    OperationDefinitionNode operation,
-  ) {
-    var fragments = this._recursivelyReferencedFragments[operation];
-    if (fragments == null) {
-      fragments = [];
-      final collectedNames = <String, bool>{};
-      final nodesToVisit = <SelectionSetNode>[operation.selectionSet];
-      while (nodesToVisit.length != 0) {
-        final node = nodesToVisit.removeLast();
-        for (final spread in this.getFragmentSpreads(node)) {
-          final fragName = spread.name.value;
-          if (collectedNames[fragName] != true) {
-            collectedNames[fragName] = true;
-            final fragment = this.fragmentsMap[fragName];
-            if (fragment != null) {
-              // @ts-expect-error FIXME: TS Conversion
-              fragments.add(fragment);
-              nodesToVisit.add(fragment.selectionSet);
-            }
-          }
-        }
-      }
-      this._recursivelyReferencedFragments[operation] = fragments;
-    }
-    return fragments;
-  }
-
-  List<FragmentSpreadNode> getFragmentSpreads(
-    SelectionSetNode node,
-  ) {
-    var spreads = _fragmentSpreads[node];
-    if (spreads == null) {
-      spreads = [];
-      final setsToVisit = <SelectionSetNode>[node];
-      while (setsToVisit.length != 0) {
-        final set = setsToVisit.removeLast();
-        for (final selection in set.selections) {
-          if (selection is FragmentSpreadNode) {
-            // @ts-expect-error FIXME: TS Conversion
-            spreads.add(selection);
-          } else if (selection.selectionSet != null) {
-            setsToVisit.add(selection.selectionSet!);
-          }
-        }
-      }
-      _fragmentSpreads[node] = spreads;
-    }
-    return spreads;
-  }
+  return _errors;
 }
 
 class _AbortValidationException implements Exception {}
-
-class VariableUsage {
-  final VariableNode node;
-  final GraphQLType? type;
-  final Object? defaultValue;
-
-  /// The position and information about a variable within
-  /// a GraphQL document
-  VariableUsage({
-    required this.node,
-    this.type,
-    this.defaultValue,
-  });
-}

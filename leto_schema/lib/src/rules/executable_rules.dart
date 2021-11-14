@@ -1,11 +1,7 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/error_mapping.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/rules/validate.dart';
-import 'package:leto_schema/src/utilities/build_schema.dart';
-import 'package:leto_schema/src/utilities/predicates.dart';
-import 'package:leto_schema/utilities.dart';
+import 'package:leto_schema/src/utilities/collect_fields.dart'
+    show fragmentsFromDocument;
+
+import 'rules_prelude.dart';
 
 const _executableDefinitionsSpec = ErrorSpec(
   spec: 'https://spec.graphql.org/draft/#sec-Executable-Definitions',
