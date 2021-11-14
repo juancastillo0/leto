@@ -1,13 +1,10 @@
-include: package:lint/analysis_options.yaml
-
+include: package:lint/analysis_options_package.yaml
 
 linter:
   rules:
     avoid_print: true
     type_annotate_public_apis: true
     avoid_redundant_argument_values: false
-    curly_braces_in_flow_control_structures: false
-    # new
     avoid_unused_constructor_parameters: true
     prefer_const_constructors: true
     lines_longer_than_80_chars: true
@@ -19,6 +16,7 @@ linter:
     use_named_constants: true
     avoid_renaming_method_parameters: true
     avoid_equals_and_hash_code_on_mutable_classes: true
+    public_member_api_docs: true
 
 analyzer:
   strong-mode:

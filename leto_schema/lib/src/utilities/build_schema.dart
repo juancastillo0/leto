@@ -191,9 +191,7 @@ GraphQLSchema buildSchema(
         description: e.description?.value,
         isRepeatable: e.repeatable,
         inputs: List.of(arguments(e.args)),
-        locations: List.of(
-          e.locations.map((e) => _mapDirectiveLocation[e]!),
-        ),
+        locations: List.of(e.locations.map(mapDirectiveLocation)),
       ),
     ),
   );
@@ -305,6 +303,9 @@ GraphQLType<Object?, Object?> convertType(
   }
   return _type();
 }
+
+DirectiveLocation mapDirectiveLocation(ast.DirectiveLocation location) =>
+    _mapDirectiveLocation[location]!;
 
 const _mapDirectiveLocation = {
   ast.DirectiveLocation.query: DirectiveLocation.QUERY,
