@@ -293,6 +293,11 @@ class WithTypeInfoVisitor extends WrapperVisitor<void> {
   final List<Visitor> visitors;
   final void Function(Object?)? onAccept;
 
+  late final List<TypedVisitor> _typedVisitors =
+      visitors.whereType<TypedVisitor>().toList();
+  late final List<Visitor> _otherVisitors =
+      visitors.where((v) => v is! TypedVisitor).toList();
+
   ///
   WithTypeInfoVisitor(
     this.typeInfo, {
@@ -302,12 +307,20 @@ class WithTypeInfoVisitor extends WrapperVisitor<void> {
 
   @override
   void visitNode<N extends Node>(N node) {
-    for (int i = 0; i < visitors.length; i++) {
-      final visitor = visitors[i];
+    for (int i = 0; i < _otherVisitors.length; i++) {
+      final visitor = _otherVisitors[i];
       final value = node.accept<Object?>(visitor);
       onAccept?.call(value);
     }
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.enter(node);
+    }
     node.visitChildren(this);
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.leave(node);
+    }
   }
 
   void _wrap<T extends Node>(T node, void Function(T) inner) {

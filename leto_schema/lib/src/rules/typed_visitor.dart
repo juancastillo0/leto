@@ -21,23 +21,7 @@ class VisitNodeCallbacks<N extends Node> {
 class TypedVisitor extends WrapperVisitor<void> {
   final _visitors = <Type, List<VisitNodeCallbacks>>{};
 
-  @override
-  void visitNode<N extends Node>(N node) {
-    final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.enter(node);
-      }
-      // node.visitChildren(this);
-      // for (final visitor in nodeVisitors) {
-      //   visitor.leave?.call(node);
-      // }
-    } else {
-      // node.visitChildren(this);
-    }
-  }
-
-  void add<N extends Node>(VisitFunc<N> enter, [VisitFunc<N>? leave]) {
+  void add<N extends Node>(VisitFunc<N> enter, {VisitFunc<N>? leave}) {
     final obj = VisitNodeCallbacks<N>(enter, leave);
     addObj(obj);
   }
@@ -45,6 +29,40 @@ class TypedVisitor extends WrapperVisitor<void> {
   void addObj<N extends Node>(VisitNodeCallbacks<N> obj) {
     final nodeVisitors = _visitors.putIfAbsent(N, () => []);
     nodeVisitors.add(obj);
+  }
+
+  @override
+  void visitNode<N extends Node>(N node) {
+    final nodeVisitors = _visitors[N];
+    if (nodeVisitors != null) {
+      for (final visitor in nodeVisitors) {
+        visitor.enter(node);
+      }
+      node.visitChildren(this);
+      for (final visitor in nodeVisitors) {
+        visitor.leave(node);
+      }
+    } else {
+      node.visitChildren(this);
+    }
+  }
+
+  void enter<N extends Node>(N node) {
+    final nodeVisitors = _visitors[N];
+    if (nodeVisitors != null) {
+      for (final visitor in nodeVisitors) {
+        visitor.enter(node);
+      }
+    }
+  }
+
+  void leave<N extends Node>(N node) {
+    final nodeVisitors = _visitors[N];
+    if (nodeVisitors != null) {
+      for (final visitor in nodeVisitors) {
+        visitor.leave(node);
+      }
+    }
   }
 }
 

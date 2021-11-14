@@ -4,6 +4,7 @@ import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/src/rules/validate.dart';
 import 'package:leto_schema/src/utilities/build_schema.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
+import 'package:leto_schema/utilities.dart';
 
 /// Executable definitions
 ///
@@ -209,21 +210,6 @@ class VariablesAreInputTypesRule extends SimpleVisitor<List<GraphQLError>> {
   }
 }
 
-/// Scalar leafs
-///
-/// A GraphQL document is valid only if all leaf fields (fields without
-/// sub selections) are of scalar or enum types.
-Visitor scalarLeafsRule(ValidationCtx ctx) => ScalarLeafsRule();
-
-class ScalarLeafsRule extends SimpleVisitor<List<GraphQLError>> {
-  @override
-  List<GraphQLError>? visitFieldNode(FieldNode node) {}
-}
-
-// TODO: need info in parent types
-// ScalarLeafsRule,
-// FieldsOnCorrectTypeRule,
-
 /// Unique fragment names
 ///
 /// A GraphQL document is only valid if all defined fragments have unique names.
@@ -276,15 +262,15 @@ class UniqueNamesRule<T extends DefinitionNode>
 Visitor knownFragmentNamesRule(ValidationCtx ctx) => KnownFragmentNamesRule();
 
 class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
-  late final List<FragmentDefinitionNode> fragments;
+  late final Map<String, FragmentDefinitionNode> fragments;
   @override
   List<GraphQLError>? visitDocumentNode(DocumentNode node) {
-    fragments = node.definitions.whereType<FragmentDefinitionNode>().toList();
+    fragments = fragmentsFromDocument(node);
   }
 
   @override
   List<GraphQLError>? visitFragmentSpreadNode(FragmentSpreadNode node) {
-    final found = fragments.any((f) => f.name.value == node.name.value);
+    final found = fragments.containsKey(node.name.value);
     if (!found) {
       return [
         GraphQLError(
@@ -305,6 +291,7 @@ class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
 /// operations.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used
+/// // TODO: leave
 class NoUnusedFragmentsRule extends RecursiveVisitor {
   final operationDefs = <OperationDefinitionNode>[];
   final fragmentDefs = <FragmentDefinitionNode>[];
