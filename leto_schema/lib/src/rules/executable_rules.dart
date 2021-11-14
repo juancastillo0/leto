@@ -25,9 +25,7 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
   @override
   List<GraphQLError>? visitDocumentNode(DocumentNode node) {
     final nonExecutable = node.definitions.where(
-      (element) =>
-          element is! OperationDefinitionNode &&
-          element is! FragmentDefinitionNode,
+      (element) => element is! ExecutableDefinitionNode,
     );
     return nonExecutable
         .map((e) => GraphQLError(

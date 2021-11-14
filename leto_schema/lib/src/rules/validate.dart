@@ -88,7 +88,7 @@ class ValidationCtx {
   late final Map<String, FragmentDefinitionNode> fragmentsMap =
       fragmentsFromDocument(document);
 
-  final Map<NodeWithSelectionSet, List<VariableUsage>> _variableUsages = {};
+  final Map<ExecutableDefinitionNode, List<VariableUsage>> _variableUsages = {};
 
   final Map<OperationDefinitionNode, List<VariableUsage>>
       _recursiveVariableUsages = {};
@@ -115,7 +115,7 @@ class ValidationCtx {
     }
   }
 
-  List<VariableUsage> getVariableUsages(NodeWithSelectionSet node) {
+  List<VariableUsage> getVariableUsages(ExecutableDefinitionNode node) {
     var usages = _variableUsages[node];
     if (usages == null) {
       final newUsages = <VariableUsage>[];
@@ -131,7 +131,7 @@ class ValidationCtx {
           defaultValue: typeInfo.getDefaultValue(),
         ));
       });
-      node.node.accept(
+      node.accept(
         WithTypeInfoVisitor(typeInfo, visitors: [_visitor]),
       );
       usages = newUsages;
@@ -145,11 +145,9 @@ class ValidationCtx {
   ) {
     var usages = _recursiveVariableUsages[operation];
     if (usages == null) {
-      usages = getVariableUsages(NodeWithSelectionSet.operation(operation));
+      usages = getVariableUsages(operation);
       for (final frag in getRecursivelyReferencedFragments(operation)) {
-        usages = usages!
-            .followedBy(getVariableUsages(NodeWithSelectionSet.fragment(frag)))
-            .toList();
+        usages = usages!.followedBy(getVariableUsages(frag)).toList();
       }
       _recursiveVariableUsages[operation] = usages!;
     }
@@ -209,40 +207,6 @@ class ValidationCtx {
 }
 
 class _AbortValidationException implements Exception {}
-
-@immutable
-abstract class NodeWithSelectionSet {
-  ///
-  const NodeWithSelectionSet();
-
-  ExecutableDefinitionNode get node;
-
-  const factory NodeWithSelectionSet.operation(OperationDefinitionNode node) =
-      _NodeWithSelectionSetOperationDefinition;
-  const factory NodeWithSelectionSet.fragment(FragmentDefinitionNode node) =
-      _NodeWithSelectionSetFragmentDefinition;
-
-  @override
-  bool operator ==(Object other) =>
-      other is NodeWithSelectionSet && node == other.node;
-
-  @override
-  int get hashCode => node.hashCode;
-}
-
-class _NodeWithSelectionSetOperationDefinition extends NodeWithSelectionSet {
-  @override
-  final OperationDefinitionNode node;
-
-  const _NodeWithSelectionSetOperationDefinition(this.node);
-}
-
-class _NodeWithSelectionSetFragmentDefinition extends NodeWithSelectionSet {
-  @override
-  final FragmentDefinitionNode node;
-
-  const _NodeWithSelectionSetFragmentDefinition(this.node);
-}
 
 class VariableUsage {
   final VariableNode node;
