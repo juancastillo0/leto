@@ -23,13 +23,20 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
     final nonExecutable = node.definitions.where(
       (element) => element is! ExecutableDefinitionNode,
     );
-    return nonExecutable
-        .map((e) => GraphQLError(
-              'The $e is not executable',
-              locations: GraphQLErrorLocation.listFromSource(e.span?.start),
-              extensions: _executableDefinitionsSpec.extensions(),
-            ))
-        .toList();
+    return nonExecutable.map((e) {
+      final nameNode = e.nameNode;
+      final _str = nameNode == null
+          ? e is SchemaDefinitionNode || e is SchemaExtensionNode
+              ? 'schema'
+              : '$e'
+          : '"${nameNode.value}"';
+      return GraphQLError(
+        'The $_str definition is not executable',
+        // TODO: get the span from schema nodes
+        locations: GraphQLErrorLocation.firstFromNodes([e, nameNode]),
+        extensions: _executableDefinitionsSpec.extensions(),
+      );
+    }).toList();
   }
 }
 
@@ -109,7 +116,11 @@ class LoneAnonymousOperationRule extends SimpleVisitor<List<GraphQLError>> {
       return [
         GraphQLError(
           'This anonymous operation must be the only defined operation.',
-          locations: GraphQLErrorLocation.listFromSource(node.span?.start),
+          locations: GraphQLErrorLocation.firstFromNodes([
+            node,
+            node.selectionSet,
+            node.selectionSet.selections.firstOrNull,
+          ]),
           extensions: _loneAnonymousOperationSpec.extensions(),
         )
       ];
@@ -129,19 +140,38 @@ const _knownTypeNamesSpec = ErrorSpec(
 /// by the type schema.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragment-Spread-Type-Existence
-Visitor knownTypeNamesRule(ValidationCtx ctx) => KnownTypeNamesRule(ctx.schema);
+Visitor knownTypeNamesRule(ValidationCtx ctx) => KnownTypeNamesRule(ctx);
 
 class KnownTypeNamesRule extends SimpleVisitor<List<GraphQLError>> {
-  final GraphQLSchema schema;
+  final ValidationCtx ctx;
+  final typeNames = <String>{};
 
-  KnownTypeNamesRule(this.schema);
+  ///
+  KnownTypeNamesRule(this.ctx) {
+    final schema = ctx.schema;
+    if (schema != null) {
+      typeNames.addAll(schema.typeMap.keys);
+    }
+    for (final def
+        in ctx.document.definitions.whereType<TypeDefinitionNode>()) {
+      typeNames.add(def.name.value);
+    }
+  }
 
   @override
   List<GraphQLError>? visitNamedTypeNode(NamedTypeNode node) {
     final name = node.name.value;
-    if (!schema.typeMap.containsKey(name) &&
-        !introspectionTypeNames.contains(name) &&
-        !specifiedScalarNames.contains(name)) {
+    if (!typeNames.contains(name)) {
+      final definitionNode =
+          ctx.typeInfo.ancestors[ctx.typeInfo.ancestors.length - 1];
+      final isSDL = definitionNode != null &&
+              definitionNode is TypeSystemDefinitionNode ||
+          definitionNode is TypeSystemExtensionNode;
+      if (isSDL &&
+          (introspectionTypeNames.contains(name) ||
+              specifiedScalarNames.contains(name))) {
+        return null;
+      }
       return [
         GraphQLError(
           'Unknown type "$name".',
@@ -192,7 +222,7 @@ class FragmentsOnCompositeTypesRule extends SimpleVisitor<List<GraphQLError>> {
           type is! GraphQLObjectType) {
         return [
           GraphQLError(
-            'Fragment${name == null ? '' : ' $name'} cannot condition'
+            'Fragment${name == null ? '' : ' "$name"'} cannot condition'
             ' on non composite type "$type".',
             locations: GraphQLErrorLocation.listFromSource(
               typeCondition.span?.start ?? typeCondition.on.name.span?.start,
