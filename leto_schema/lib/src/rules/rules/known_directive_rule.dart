@@ -58,7 +58,7 @@ Visitor knownDirectivesRule(
     if (candidateLocation != null && !locations.contains(candidateLocation)) {
       context.reportError(
         GraphQLError(
-          'Directive "@${name}" may not be used on ${candidateLocation}.',
+          'Directive "@${name}" may not be used on ${candidateLocation.toJson()}.',
           locations: _errorLocations,
           extensions: _misplacedDirectivesSpec.extensions(),
         ),

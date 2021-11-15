@@ -66,7 +66,7 @@ Visitor uniqueDirectivesPerLocationRule(
     for (final directive in directives) {
       final directiveName = directive.name.value;
 
-      if (uniqueDirectiveMap[directiveName] != null) {
+      if (uniqueDirectiveMap[directiveName] == true) {
         if (seenDirectives[directiveName] != null) {
           context.reportError(
             GraphQLError(

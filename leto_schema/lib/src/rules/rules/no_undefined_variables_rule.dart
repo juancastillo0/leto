@@ -38,8 +38,12 @@ Visitor noUndefinedVariablesRule(
                   : 'Variable "\$${varName}" is not defined.',
               locations: [
                 ...GraphQLErrorLocation.firstFromNodes([node, node.name]),
-                ...GraphQLErrorLocation.firstFromNodes(
-                    [operation, operation.name])
+                ...GraphQLErrorLocation.firstFromNodes([
+                  operation,
+                  operation.name,
+                  operation.selectionSet,
+                  operation.selectionSet.selections.firstOrNull,
+                ])
               ],
               extensions: _noUndefinedVariablesSpec.extensions(),
             ),

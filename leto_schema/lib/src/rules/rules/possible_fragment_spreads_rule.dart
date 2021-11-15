@@ -33,6 +33,7 @@ Visitor possibleFragmentSpreadsRule(
             node,
             node.typeCondition,
             node.selectionSet,
+            node.selectionSet.selections.first,
           ]),
           extensions: _possibleFragmentSpreadsSpec.extensions(),
         ),

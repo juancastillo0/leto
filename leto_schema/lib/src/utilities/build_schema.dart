@@ -210,6 +210,7 @@ GraphQLSchema buildSchema(
     subscriptionType: subscriptionType,
     serdeCtx: serdeCtx,
     directives: directives,
+    otherTypes: typesMap.values.toList(),
   );
 }
 
