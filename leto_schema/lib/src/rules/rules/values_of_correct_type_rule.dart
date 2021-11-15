@@ -121,10 +121,26 @@ void isValidValueNode(ValidationCtx context, ValueNode node) {
     final value = valueFromAst(null, node, null /* variables */);
     final validation = type.validate('key', value);
     if (!validation.successful) {
+      final ancestors = context.typeInfo.ancestors;
+      int _index = 1;
+      Node? arg;
+      while (ancestors.length > _index) {
+        arg = ancestors[ancestors.length - _index];
+        if (arg is ArgumentNode) break;
+        _index++;
+      }
+
+      String argStr = '.';
+      if (arg is ArgumentNode) {
+        final field = ancestors[ancestors.length - _index - 1];
+        final _field = field is FieldNode ? 'field' : 'directive';
+        argStr = ' in ${arg.name.value} for $_field ${field.nameNode!.value}.';
+      }
+
       final typeStr = inspect(locationType);
       context.reportError(
         GraphQLError(
-          'Expected value of type "${typeStr}", found ${printNode(node)}.'
+          'Expected value of type "${typeStr}", found ${printNode(node)}$argStr'
           // TODO:
           // ' ${validation.errors.join('. ')}'
           ,

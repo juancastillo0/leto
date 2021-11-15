@@ -735,6 +735,7 @@ void main() {
             withNonNullArg(cannotBeNull: null)
           }
         ''',
+        validate: false,
       );
 
       expect(result, {
