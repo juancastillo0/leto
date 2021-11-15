@@ -240,8 +240,10 @@ void main() {
       final rootValue = {'root': 'val'};
       final variableValues = {'var': 'abc'};
 
-      await GraphQL(schema, introspect: false).parseAndExecute(document,
-          rootValue: rootValue, variableValues: variableValues);
+      await GraphQL(schema, validate: false, introspect: false).parseAndExecute(
+          document,
+          rootValue: rootValue,
+          variableValues: variableValues);
 
       // final operation = document.definitions[0];
       // invariant(operation.kind === Kind.OPERATION_DEFINITION);

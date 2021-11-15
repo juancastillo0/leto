@@ -1,3 +1,4 @@
+import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 /// Returns a Set of all named types in the [schema]
@@ -10,6 +11,7 @@ Set<GraphQLType> fetchAllNamedTypes(GraphQLSchema schema) {
     ...schema.directives.expand(
       (directive) => directive.inputs.map((e) => e.type),
     ),
+    schemaGraphQLType,
   ];
 
   return CollectTypes(data).traversedTypes;
