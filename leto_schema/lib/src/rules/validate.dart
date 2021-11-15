@@ -59,6 +59,7 @@ const specifiedSDLRules = <ValidationRule>[
   // uniqueTypeNamesRule,
   // uniqueEnumValueNamesRule,
   // uniqueFieldDefinitionNamesRule,
+  // uniqueArgumentDefinitionNamesRule,
   // uniqueDirectiveNamesRule,
   knownTypeNamesRule,
   knownDirectivesRule,

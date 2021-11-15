@@ -24,16 +24,14 @@ Visitor valuesOfCorrectTypeRule(
     final type = context.typeInfo.getParentInputType()?.nullable();
     if (type is! GraphQLListType) {
       isValidValueNode(context, node);
-      // return false; // Don't traverse further.
-      return;
+      return VisitBehavior.skipTree;
     }
   });
   visitor.add<ObjectValueNode>((node) {
     final type = getNamedType(context.typeInfo.getInputType());
     if (type is! GraphQLInputObjectType) {
       isValidValueNode(context, node);
-      // return false; // Don't traverse further.
-      return;
+      return VisitBehavior.skipTree;
     }
     // Ensure every required field exists.
     final fieldNodeMap = node.fields

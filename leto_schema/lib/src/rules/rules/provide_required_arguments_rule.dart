@@ -29,8 +29,7 @@ Visitor providedRequiredArgumentsRule(
       leave: (fieldNode) {
     final fieldDef = context.typeInfo.getFieldDef();
     if (fieldDef == null) {
-      // return false;
-      return;
+      return VisitBehavior.skipTree;
     }
 
     final providedArgs =

@@ -37,6 +37,7 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
         extensions: _executableDefinitionsSpec.extensions(),
       );
     }).toList();
+    // return false;
   }
 }
 
@@ -56,6 +57,8 @@ Visitor uniqueOperationNamesRule(ValidationCtx ctx) =>
 
 class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
   final operations = <String, OperationDefinitionNode>{};
+
+  // TODO: FragmentDefinition: () => false,
 
   @override
   List<GraphQLError>? visitOperationDefinitionNode(
@@ -80,6 +83,7 @@ class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
     } else {
       operations[name] = node;
     }
+    // return false;
   }
 }
 
@@ -291,6 +295,7 @@ const _uniqueFragmentNamesSpec = ErrorSpec(
 Visitor uniqueFragmentNamesRule(ValidationCtx ctx) => UniqueFragmentNamesRule();
 
 class UniqueFragmentNamesRule extends _UniqueNamesRule<FragmentDefinitionNode> {
+  // TODO: OperationDefinition: () => false,
   @override
   List<GraphQLError>? visitFragmentDefinitionNode(FragmentDefinitionNode node) {
     final name = node.name.value;
@@ -300,6 +305,7 @@ class UniqueFragmentNamesRule extends _UniqueNamesRule<FragmentDefinitionNode> {
       error: 'There can be only one fragment named "$name".',
       extensions: _uniqueFragmentNamesSpec.extensions(),
     );
+    // return false;
   }
 }
 
@@ -387,12 +393,12 @@ Visitor noUnusedFragmentsRule(ValidationCtx context) {
 
   visitor.add<OperationDefinitionNode>((node) {
     operationDefs.add(node);
-    // return false;
+    return VisitBehavior.skipTree;
   });
 
   visitor.add<FragmentDefinitionNode>((node) {
     fragmentDefs.add(node);
-    // return false;
+    return VisitBehavior.skipTree;
   });
   visitor.add<DocumentNode>(
     (_) {},

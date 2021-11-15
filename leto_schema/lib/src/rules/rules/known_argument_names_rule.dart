@@ -98,7 +98,7 @@ TypedVisitor knownArgumentNamesOnDirectivesRule(
       }
     }
 
-    // TODO: return false;
+    return VisitBehavior.skipTree;
   });
   return visitor;
 }
