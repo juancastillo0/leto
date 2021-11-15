@@ -8,7 +8,7 @@ const _uniqueVariableNamesSpec = ErrorSpec(
 /// Unique variable names
 ///
 /// A GraphQL operation is only valid if all its variables are uniquely named.
-/// 
+///
 /// See https://spec.graphql.org/draft/#sec-Variable-Uniqueness
 Visitor uniqueVariableNamesRule(
   ValidationCtx context, // ASTValidationContext

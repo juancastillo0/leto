@@ -10,7 +10,7 @@ const _possibleFragmentSpreadsSpec = ErrorSpec(
 /// A fragment spread is only valid if the type condition could ever possibly
 /// be true: if there is a non-empty intersection of the possible parent types,
 /// and possible types which pass the type condition.
-/// 
+///
 /// See https://spec.graphql.org/draft/#sec-Fragment-spread-is-possible
 Visitor possibleFragmentSpreadsRule(
   ValidationCtx context,
@@ -68,7 +68,10 @@ GraphQLCompositeType? _getFragmentType(
 ) {
   final frag = context.fragmentsMap[name];
   if (frag != null) {
-    final type = convertTypeOrNull(frag.typeCondition.on, context.schema.typeMap);
+    final type = convertTypeOrNull(
+      frag.typeCondition.on,
+      context.schema.typeMap,
+    );
     if (type is GraphQLCompositeType) {
       return type;
     }

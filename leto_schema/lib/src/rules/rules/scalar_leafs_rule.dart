@@ -27,10 +27,7 @@ Visitor scalarLeafsRule(ValidationCtx context) {
             GraphQLError(
               'Field "${fieldName}" must not have a selection since'
               ' type "${typeStr}" has no subfields.',
-              locations: GraphQLErrorLocation.firstFromNodes([
-                node,
-                node.name
-              ]),
+              locations: GraphQLErrorLocation.firstFromNodes([node, node.name]),
               extensions: _scalarLeafsSpec.extensions(),
             ),
           );
