@@ -1,0 +1,43 @@
+{
+  "name": "Validate: Provided required arguments_Invalid non-nullable value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Missing one non-nullable argument",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req2: 2)\n          }\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": [
+        {
+          "message": "Field \"multipleReqs\" argument \"req1\" of type \"Int!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 13 }]
+        }
+      ]
+    },
+    {
+      "name": "Missing multiple non-nullable arguments",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs\n          }\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": [
+        {
+          "message": "Field \"multipleReqs\" argument \"req1\" of type \"Int!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 13 }]
+        },
+        {
+          "message": "Field \"multipleReqs\" argument \"req2\" of type \"Int!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 13 }]
+        }
+      ]
+    },
+    {
+      "name": "Incorrect value and missing argument",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req1: \"one\")\n          }\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": [
+        {
+          "message": "Field \"multipleReqs\" argument \"req2\" of type \"Int!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 13 }]
+        }
+      ]
+    }
+  ]
+}

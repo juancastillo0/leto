@@ -1,0 +1,205 @@
+{
+  "name": "Validate: Possible type extensions",
+  "tests": [
+    {
+      "name": "no extensions",
+      "document": "\n      scalar FooScalar\n      type FooObject\n      interface FooInterface\n      union FooUnion\n      enum FooEnum\n      input FooInputObject\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": []
+    },
+    {
+      "name": "one extension per type",
+      "document": "\n      scalar FooScalar\n      type FooObject\n      interface FooInterface\n      union FooUnion\n      enum FooEnum\n      input FooInputObject\n\n      extend scalar FooScalar @dummy\n      extend type FooObject @dummy\n      extend interface FooInterface @dummy\n      extend union FooUnion @dummy\n      extend enum FooEnum @dummy\n      extend input FooInputObject @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": []
+    },
+    {
+      "name": "many extensions per type",
+      "document": "\n      scalar FooScalar\n      type FooObject\n      interface FooInterface\n      union FooUnion\n      enum FooEnum\n      input FooInputObject\n\n      extend scalar FooScalar @dummy\n      extend type FooObject @dummy\n      extend interface FooInterface @dummy\n      extend union FooUnion @dummy\n      extend enum FooEnum @dummy\n      extend input FooInputObject @dummy\n\n      extend scalar FooScalar @dummy\n      extend type FooObject @dummy\n      extend interface FooInterface @dummy\n      extend union FooUnion @dummy\n      extend enum FooEnum @dummy\n      extend input FooInputObject @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": []
+    },
+    {
+      "name": "extending unknown type",
+      "document": "\n      type Known\n\n      extend scalar Unknown @dummy\n      extend type Unknown @dummy\n      extend interface Unknown @dummy\n      extend union Unknown @dummy\n      extend enum Unknown @dummy\n      extend input Unknown @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": [
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 4, "column": 21 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 5, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 6, "column": 24 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 7, "column": 20 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 8, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 9, "column": 20 }]
+        }
+      ]
+    },
+    {
+      "name": "does not consider non-type definitions",
+      "document": "\n      query Foo { __typename }\n      fragment Foo on Query { __typename }\n      directive @Foo on SCHEMA\n\n      extend scalar Foo @dummy\n      extend type Foo @dummy\n      extend interface Foo @dummy\n      extend union Foo @dummy\n      extend enum Foo @dummy\n      extend input Foo @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": [
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 6, "column": 21 }]
+        },
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 7, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 8, "column": 24 }]
+        },
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 9, "column": 20 }]
+        },
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 10, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Foo\" because it is not defined.",
+          "locations": [{ "line": 11, "column": 20 }]
+        }
+      ]
+    },
+    {
+      "name": "extending with different kinds",
+      "document": "\n      scalar FooScalar\n      type FooObject\n      interface FooInterface\n      union FooUnion\n      enum FooEnum\n      input FooInputObject\n\n      extend type FooScalar @dummy\n      extend interface FooObject @dummy\n      extend union FooInterface @dummy\n      extend enum FooUnion @dummy\n      extend input FooEnum @dummy\n      extend scalar FooInputObject @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "errors": [
+        {
+          "message": "Cannot extend non-object type \"FooScalar\".",
+          "locations": [
+            { "line": 2, "column": 7 },
+            { "line": 9, "column": 7 }
+          ]
+        },
+        {
+          "message": "Cannot extend non-interface type \"FooObject\".",
+          "locations": [
+            { "line": 3, "column": 7 },
+            { "line": 10, "column": 7 }
+          ]
+        },
+        {
+          "message": "Cannot extend non-union type \"FooInterface\".",
+          "locations": [
+            { "line": 4, "column": 7 },
+            { "line": 11, "column": 7 }
+          ]
+        },
+        {
+          "message": "Cannot extend non-enum type \"FooUnion\".",
+          "locations": [
+            { "line": 5, "column": 7 },
+            { "line": 12, "column": 7 }
+          ]
+        },
+        {
+          "message": "Cannot extend non-input object type \"FooEnum\".",
+          "locations": [
+            { "line": 6, "column": 7 },
+            { "line": 13, "column": 7 }
+          ]
+        },
+        {
+          "message": "Cannot extend non-scalar type \"FooInputObject\".",
+          "locations": [
+            { "line": 7, "column": 7 },
+            { "line": 14, "column": 7 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "extending types within existing schema",
+      "document": "\n      extend scalar FooScalar @dummy\n      extend type FooObject @dummy\n      extend interface FooInterface @dummy\n      extend union FooUnion @dummy\n      extend enum FooEnum @dummy\n      extend input FooInputObject @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "schema": "scalar FooScalar\n\ntype FooObject\n\ninterface FooInterface\n\nunion FooUnion\n\nenum FooEnum\n\ninput FooInputObject",
+      "errors": []
+    },
+    {
+      "name": "extending unknown types within existing schema",
+      "document": "\n      extend scalar Unknown @dummy\n      extend type Unknown @dummy\n      extend interface Unknown @dummy\n      extend union Unknown @dummy\n      extend enum Unknown @dummy\n      extend input Unknown @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "schema": "type Known",
+      "errors": [
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 2, "column": 21 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 3, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 4, "column": 24 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 5, "column": 20 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 6, "column": 19 }]
+        },
+        {
+          "message": "Cannot extend type \"Unknown\" because it is not defined. Did you mean \"Known\"?",
+          "locations": [{ "line": 7, "column": 20 }]
+        }
+      ]
+    },
+    {
+      "name": "extending types with different kinds within existing schema",
+      "document": "\n      extend type FooScalar @dummy\n      extend interface FooObject @dummy\n      extend union FooInterface @dummy\n      extend enum FooUnion @dummy\n      extend input FooEnum @dummy\n      extend scalar FooInputObject @dummy\n    ",
+      "rules": ["PossibleTypeExtensionsRule"],
+      "schema": "scalar FooScalar\n\ntype FooObject\n\ninterface FooInterface\n\nunion FooUnion\n\nenum FooEnum\n\ninput FooInputObject",
+      "errors": [
+        {
+          "message": "Cannot extend non-object type \"FooScalar\".",
+          "locations": [{ "line": 2, "column": 7 }]
+        },
+        {
+          "message": "Cannot extend non-interface type \"FooObject\".",
+          "locations": [{ "line": 3, "column": 7 }]
+        },
+        {
+          "message": "Cannot extend non-union type \"FooInterface\".",
+          "locations": [{ "line": 4, "column": 7 }]
+        },
+        {
+          "message": "Cannot extend non-enum type \"FooUnion\".",
+          "locations": [{ "line": 5, "column": 7 }]
+        },
+        {
+          "message": "Cannot extend non-input object type \"FooEnum\".",
+          "locations": [{ "line": 6, "column": 7 }]
+        },
+        {
+          "message": "Cannot extend non-scalar type \"FooInputObject\".",
+          "locations": [{ "line": 7, "column": 7 }]
+        }
+      ]
+    }
+  ]
+}

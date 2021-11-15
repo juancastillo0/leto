@@ -1,0 +1,153 @@
+{
+  "name": "Validate: Known type names_within SDL",
+  "tests": [
+    {
+      "name": "use standard types",
+      "document": "\n        type Query {\n          string: String\n          int: Int\n          float: Float\n          boolean: Boolean\n          id: ID\n          introspectionType: __EnumValue\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "reference types defined inside the same document",
+      "document": "\n        union SomeUnion = SomeObject | AnotherObject\n\n        type SomeObject implements SomeInterface {\n          someScalar(arg: SomeInputObject): SomeScalar\n        }\n\n        type AnotherObject {\n          foo(arg: SomeInputObject): String\n        }\n\n        type SomeInterface {\n          someScalar(arg: SomeInputObject): SomeScalar\n        }\n\n        input SomeInputObject {\n          someScalar: SomeScalar\n        }\n\n        scalar SomeScalar\n\n        type RootQuery {\n          someInterface: SomeInterface\n          someUnion: SomeUnion\n          someScalar: SomeScalar\n          someObject: SomeObject\n        }\n\n        schema {\n          query: RootQuery\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "unknown type references",
+      "document": "\n        type A\n        type B\n\n        type SomeObject implements C {\n          e(d: D): E\n        }\n\n        union SomeUnion = F | G\n\n        interface SomeInterface {\n          i(h: H): I\n        }\n\n        input SomeInput {\n          j: J\n        }\n\n        directive @SomeDirective(k: K) on QUERY\n\n        schema {\n          query: L\n          mutation: M\n          subscription: N\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown type \"C\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 5, "column": 36 }]
+        },
+        {
+          "message": "Unknown type \"D\". Did you mean \"A\", \"B\", or \"ID\"?",
+          "locations": [{ "line": 6, "column": 16 }]
+        },
+        {
+          "message": "Unknown type \"E\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 6, "column": 20 }]
+        },
+        {
+          "message": "Unknown type \"F\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 9, "column": 27 }]
+        },
+        {
+          "message": "Unknown type \"G\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 9, "column": 31 }]
+        },
+        {
+          "message": "Unknown type \"H\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 12, "column": 16 }]
+        },
+        {
+          "message": "Unknown type \"I\". Did you mean \"A\", \"B\", or \"ID\"?",
+          "locations": [{ "line": 12, "column": 20 }]
+        },
+        {
+          "message": "Unknown type \"J\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 16, "column": 14 }]
+        },
+        {
+          "message": "Unknown type \"K\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 19, "column": 37 }]
+        },
+        {
+          "message": "Unknown type \"L\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 22, "column": 18 }]
+        },
+        {
+          "message": "Unknown type \"M\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 23, "column": 21 }]
+        },
+        {
+          "message": "Unknown type \"N\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 24, "column": 25 }]
+        }
+      ]
+    },
+    {
+      "name": "does not consider non-type definitions",
+      "document": "\n        query Foo { __typename }\n        fragment Foo on Query { __typename }\n        directive @Foo on QUERY\n\n        type Query {\n          foo: Foo\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown type \"Foo\".",
+          "locations": [{ "line": 7, "column": 16 }]
+        }
+      ]
+    },
+    {
+      "name": "reference standard types inside extension document",
+      "document": "\n        type SomeType {\n          string: String\n          int: Int\n          float: Float\n          boolean: Boolean\n          id: ID\n          introspectionType: __EnumValue\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "type Foo",
+      "errors": []
+    },
+    {
+      "name": "reference types inside extension document",
+      "document": "\n        type QueryRoot {\n          foo: Foo\n          bar: Bar\n        }\n\n        scalar Bar\n\n        schema {\n          query: QueryRoot\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "type Foo",
+      "errors": []
+    },
+    {
+      "name": "unknown type references inside extension document",
+      "document": "\n        type B\n\n        type SomeObject implements C {\n          e(d: D): E\n        }\n\n        union SomeUnion = F | G\n\n        interface SomeInterface {\n          i(h: H): I\n        }\n\n        input SomeInput {\n          j: J\n        }\n\n        directive @SomeDirective(k: K) on QUERY\n\n        schema {\n          query: L\n          mutation: M\n          subscription: N\n        }\n      ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "type A",
+      "errors": [
+        {
+          "message": "Unknown type \"C\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 4, "column": 36 }]
+        },
+        {
+          "message": "Unknown type \"D\". Did you mean \"A\", \"B\", or \"ID\"?",
+          "locations": [{ "line": 5, "column": 16 }]
+        },
+        {
+          "message": "Unknown type \"E\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 5, "column": 20 }]
+        },
+        {
+          "message": "Unknown type \"F\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 8, "column": 27 }]
+        },
+        {
+          "message": "Unknown type \"G\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 8, "column": 31 }]
+        },
+        {
+          "message": "Unknown type \"H\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 11, "column": 16 }]
+        },
+        {
+          "message": "Unknown type \"I\". Did you mean \"A\", \"B\", or \"ID\"?",
+          "locations": [{ "line": 11, "column": 20 }]
+        },
+        {
+          "message": "Unknown type \"J\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 15, "column": 14 }]
+        },
+        {
+          "message": "Unknown type \"K\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 18, "column": 37 }]
+        },
+        {
+          "message": "Unknown type \"L\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 21, "column": 18 }]
+        },
+        {
+          "message": "Unknown type \"M\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 22, "column": 21 }]
+        },
+        {
+          "message": "Unknown type \"N\". Did you mean \"A\" or \"B\"?",
+          "locations": [{ "line": 23, "column": 25 }]
+        }
+      ]
+    }
+  ]
+}

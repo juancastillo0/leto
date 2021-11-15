@@ -1,0 +1,28 @@
+{
+  "name": "Validate: Values of correct type_Invalid List value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Incorrect item type",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: [\"one\", 2])\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 2",
+          "locations": [{ "line": 4, "column": 55 }]
+        }
+      ]
+    },
+    {
+      "name": "Single value of incorrect type",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 1",
+          "locations": [{ "line": 4, "column": 47 }]
+        }
+      ]
+    }
+  ]
+}

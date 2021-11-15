@@ -1,0 +1,86 @@
+{
+  "name": "Validate: Fragments on composite types",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "object is valid fragment type",
+      "document": "\n      fragment validFragment on Dog {\n        barks\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "interface is valid fragment type",
+      "document": "\n      fragment validFragment on Pet {\n        name\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "object is valid inline fragment type",
+      "document": "\n      fragment validFragment on Pet {\n        ... on Dog {\n          barks\n        }\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "interface is valid inline fragment type",
+      "document": "\n      fragment validFragment on Mammal {\n        ... on Canine {\n          name\n        }\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "inline fragment without type is valid",
+      "document": "\n      fragment validFragment on Pet {\n        ... {\n          name\n        }\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "union is valid fragment type",
+      "document": "\n      fragment validFragment on CatOrDog {\n        __typename\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "scalar is invalid fragment type",
+      "document": "\n      fragment scalarFragment on Boolean {\n        bad\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": [
+        {
+          "message": "Fragment \"scalarFragment\" cannot condition on non composite type \"Boolean\".",
+          "locations": [{ "line": 2, "column": 34 }]
+        }
+      ]
+    },
+    {
+      "name": "enum is invalid fragment type",
+      "document": "\n      fragment scalarFragment on FurColor {\n        bad\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": [
+        {
+          "message": "Fragment \"scalarFragment\" cannot condition on non composite type \"FurColor\".",
+          "locations": [{ "line": 2, "column": 34 }]
+        }
+      ]
+    },
+    {
+      "name": "input object is invalid fragment type",
+      "document": "\n      fragment inputFragment on ComplexInput {\n        stringField\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": [
+        {
+          "message": "Fragment \"inputFragment\" cannot condition on non composite type \"ComplexInput\".",
+          "locations": [{ "line": 2, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "scalar is invalid inline fragment type",
+      "document": "\n      fragment invalidFragment on Pet {\n        ... on String {\n          barks\n        }\n      }\n    ",
+      "rules": ["FragmentsOnCompositeTypesRule"],
+      "errors": [
+        {
+          "message": "Fragment cannot condition on non composite type \"String\".",
+          "locations": [{ "line": 3, "column": 16 }]
+        }
+      ]
+    }
+  ]
+}

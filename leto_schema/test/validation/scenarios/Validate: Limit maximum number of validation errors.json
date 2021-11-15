@@ -1,0 +1,8 @@
+{
+  "name": "Validate: Limit maximum number of validation errors",
+  "tests": [
+    { "name": "when maxErrors is equal to number of errors" },
+    { "name": "when maxErrors is less than number of errors" },
+    { "name": "passthrough exceptions from rules" }
+  ]
+}

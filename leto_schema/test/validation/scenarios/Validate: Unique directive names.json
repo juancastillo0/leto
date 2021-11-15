@@ -1,0 +1,81 @@
+{
+  "name": "Validate: Unique directive names",
+  "tests": [
+    {
+      "name": "no directive",
+      "document": "\n      type Foo\n    ",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one directive",
+      "document": "\n      directive @foo on SCHEMA\n    ",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "many directives",
+      "document": "\n      directive @foo on SCHEMA\n      directive @bar on SCHEMA\n      directive @baz on SCHEMA\n    ",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "directive and non-directive definitions named the same",
+      "document": "\n      query foo { __typename }\n      fragment foo on foo { __typename }\n      type foo\n\n      directive @foo on SCHEMA\n    ",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "directives named the same",
+      "document": "\n      directive @foo on SCHEMA\n\n      directive @foo on SCHEMA\n    ",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one directive named \"@foo\".",
+          "locations": [
+            { "line": 2, "column": 18 },
+            { "line": 4, "column": 18 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "adding new directive to existing schema",
+      "document": "directive @bar on SCHEMA",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "schema": "directive @foo on SCHEMA",
+      "errors": []
+    },
+    {
+      "name": "adding new directive with standard name to existing schema",
+      "document": "directive @skip on SCHEMA",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "schema": "type foo",
+      "errors": [
+        {
+          "message": "Directive \"@skip\" already exists in the schema. It cannot be redefined.",
+          "locations": [{ "line": 1, "column": 12 }]
+        }
+      ]
+    },
+    {
+      "name": "adding new directive to existing schema with same-named type",
+      "document": "directive @foo on SCHEMA",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "schema": "type foo",
+      "errors": []
+    },
+    {
+      "name": "adding conflicting directives to existing schema",
+      "document": "directive @foo on SCHEMA",
+      "rules": ["UniqueDirectiveNamesRule"],
+      "schema": "directive @foo on SCHEMA",
+      "errors": [
+        {
+          "message": "Directive \"@foo\" already exists in the schema. It cannot be redefined.",
+          "locations": [{ "line": 1, "column": 12 }]
+        }
+      ]
+    }
+  ]
+}

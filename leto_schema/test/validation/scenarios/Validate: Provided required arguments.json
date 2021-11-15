@@ -1,0 +1,12 @@
+{
+  "name": "Validate: Provided required arguments",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "ignores unknown arguments",
+      "document": "\n      {\n        dog {\n          isHouseTrained(unknownArgument: true)\n        }\n      }\n    ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": []
+    }
+  ]
+}

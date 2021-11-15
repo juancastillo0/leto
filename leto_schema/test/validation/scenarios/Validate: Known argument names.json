@@ -1,0 +1,139 @@
+{
+  "name": "Validate: Known argument names",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "single arg is known",
+      "document": "\n      fragment argOnRequiredArg on Dog {\n        doesKnowCommand(dogCommand: SIT)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple args are known",
+      "document": "\n      fragment multipleArgs on ComplicatedArgs {\n        multipleReqs(req1: 1, req2: 2)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores args of unknown fields",
+      "document": "\n      fragment argOnUnknownField on Dog {\n        unknownField(unknownArg: SIT)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple args in reverse order are known",
+      "document": "\n      fragment multipleArgsReverseOrder on ComplicatedArgs {\n        multipleReqs(req2: 2, req1: 1)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "no args on optional arg",
+      "document": "\n      fragment noArgOnOptionalArg on Dog {\n        isHouseTrained\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "args are known deeply",
+      "document": "\n      {\n        dog {\n          doesKnowCommand(dogCommand: SIT)\n        }\n        human {\n          pet {\n            ... on Dog {\n              doesKnowCommand(dogCommand: SIT)\n            }\n          }\n        }\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "directive args are known",
+      "document": "\n      {\n        dog @skip(if: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "field args are invalid",
+      "document": "\n      {\n        dog @skip(unless: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"unless\" on directive \"@skip\".",
+          "locations": [{ "line": 3, "column": 19 }]
+        }
+      ]
+    },
+    {
+      "name": "directive without args is valid",
+      "document": "\n      {\n        dog @onField\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "arg passed to directive without arg is reported",
+      "document": "\n      {\n        dog @onField(if: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"if\" on directive \"@onField\".",
+          "locations": [{ "line": 3, "column": 22 }]
+        }
+      ]
+    },
+    {
+      "name": "misspelled directive args are reported",
+      "document": "\n      {\n        dog @skip(iff: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"iff\" on directive \"@skip\". Did you mean \"if\"?",
+          "locations": [{ "line": 3, "column": 19 }]
+        }
+      ]
+    },
+    {
+      "name": "invalid arg name",
+      "document": "\n      fragment invalidArgName on Dog {\n        doesKnowCommand(unknown: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on field \"Dog.doesKnowCommand\".",
+          "locations": [{ "line": 3, "column": 25 }]
+        }
+      ]
+    },
+    {
+      "name": "misspelled arg name is reported",
+      "document": "\n      fragment invalidArgName on Dog {\n        doesKnowCommand(DogCommand: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"DogCommand\" on field \"Dog.doesKnowCommand\". Did you mean \"dogCommand\"?",
+          "locations": [{ "line": 3, "column": 25 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown args amongst known args",
+      "document": "\n      fragment oneGoodArgOneInvalidArg on Dog {\n        doesKnowCommand(whoKnows: 1, dogCommand: SIT, unknown: true)\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"whoKnows\" on field \"Dog.doesKnowCommand\".",
+          "locations": [{ "line": 3, "column": 25 }]
+        },
+        {
+          "message": "Unknown argument \"unknown\" on field \"Dog.doesKnowCommand\".",
+          "locations": [{ "line": 3, "column": 55 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown args deeply",
+      "document": "\n      {\n        dog {\n          doesKnowCommand(unknown: true)\n        }\n        human {\n          pet {\n            ... on Dog {\n              doesKnowCommand(unknown: true)\n            }\n          }\n        }\n      }\n    ",
+      "rules": ["KnownArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on field \"Dog.doesKnowCommand\".",
+          "locations": [{ "line": 4, "column": 27 }]
+        },
+        {
+          "message": "Unknown argument \"unknown\" on field \"Dog.doesKnowCommand\".",
+          "locations": [{ "line": 9, "column": 31 }]
+        }
+      ]
+    }
+  ]
+}

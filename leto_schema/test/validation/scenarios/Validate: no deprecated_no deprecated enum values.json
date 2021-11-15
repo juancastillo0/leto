@@ -1,0 +1,33 @@
+{
+  "name": "Validate: no deprecated_no deprecated enum values",
+  "schema": "enum EnumType {\n  NORMAL_VALUE\n  DEPRECATED_VALUE @deprecated(reason: \"Some enum reason.\")\n}\n\ntype Query {\n  someField(enumArg: EnumType): String\n}",
+  "tests": [
+    {
+      "name": "ignores enum values that are not deprecated",
+      "document": "\n        {\n          normalField(enumArg: NORMAL_VALUE)\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores unknown enum values",
+      "document": "\n        query (\n          $unknownValue: EnumType = UNKNOWN_VALUE\n          $unknownType: UnknownType = UNKNOWN_VALUE\n        ) {\n          someField(enumArg: UNKNOWN_VALUE)\n          someField(unknownArg: UNKNOWN_VALUE)\n          unknownField(unknownArg: UNKNOWN_VALUE)\n        }\n\n        fragment SomeFragment on Query {\n          someField(enumArg: UNKNOWN_VALUE)\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "reports error when a deprecated enum value is used",
+      "document": "\n        query (\n          $variable: EnumType = DEPRECATED_VALUE\n        ) {\n          someField(enumArg: DEPRECATED_VALUE)\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": [
+        {
+          "message": "The enum value \"EnumType.DEPRECATED_VALUE\" is deprecated. Some enum reason.",
+          "locations": [{ "line": 3, "column": 33 }]
+        },
+        {
+          "message": "The enum value \"EnumType.DEPRECATED_VALUE\" is deprecated. Some enum reason.",
+          "locations": [{ "line": 5, "column": 30 }]
+        }
+      ]
+    }
+  ]
+}

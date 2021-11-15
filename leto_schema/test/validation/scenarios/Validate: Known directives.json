@@ -1,0 +1,109 @@
+{
+  "name": "Validate: Known directives",
+  "schema": "directive @onQuery on QUERY\n\ndirective @onMutation on MUTATION\n\ndirective @onSubscription on SUBSCRIPTION\n\ndirective @onField on FIELD\n\ndirective @onFragmentDefinition on FRAGMENT_DEFINITION\n\ndirective @onFragmentSpread on FRAGMENT_SPREAD\n\ndirective @onInlineFragment on INLINE_FRAGMENT\n\ndirective @onVariableDefinition on VARIABLE_DEFINITION\n\ntype Query {\n  dummy: String\n}",
+  "tests": [
+    {
+      "name": "with no directives",
+      "document": "\n      query Foo {\n        name\n        ...Frag\n      }\n\n      fragment Frag on Dog {\n        name\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with standard directives",
+      "document": "\n      {\n        human @skip(if: false) {\n          name\n          pets {\n            ... on Dog @include(if: true) {\n              name\n            }\n          }\n        }\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with unknown directive",
+      "document": "\n      {\n        human @unknown(directive: \"value\") {\n          name\n        }\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown directive \"@unknown\".",
+          "locations": [{ "line": 3, "column": 15 }]
+        }
+      ]
+    },
+    {
+      "name": "with many unknown directives",
+      "document": "\n      {\n        __typename @unknown\n        human @unknown {\n          name\n          pets @unknown {\n            name\n          }\n        }\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown directive \"@unknown\".",
+          "locations": [{ "line": 3, "column": 20 }]
+        },
+        {
+          "message": "Unknown directive \"@unknown\".",
+          "locations": [{ "line": 4, "column": 15 }]
+        },
+        {
+          "message": "Unknown directive \"@unknown\".",
+          "locations": [{ "line": 6, "column": 16 }]
+        }
+      ]
+    },
+    {
+      "name": "with well placed directives",
+      "document": "\n      query ($var: Boolean @onVariableDefinition) @onQuery {\n        human @onField {\n          ...Frag @onFragmentSpread\n          ... @onInlineFragment {\n            name @onField\n          }\n        }\n      }\n\n      mutation @onMutation {\n        someField @onField\n      }\n\n      subscription @onSubscription {\n        someField @onField\n      }\n\n      fragment Frag on Human @onFragmentDefinition {\n        name @onField\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with misplaced directives",
+      "document": "\n      query ($var: Boolean @onQuery) @onMutation {\n        human @onQuery {\n          ...Frag @onQuery\n          ... @onQuery {\n            name @onQuery\n          }\n        }\n      }\n\n      mutation @onQuery {\n        someField @onQuery\n      }\n\n      subscription @onQuery {\n        someField @onQuery\n      }\n\n      fragment Frag on Human @onQuery {\n        name @onQuery\n      }\n    ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": [
+        {
+          "message": "Directive \"@onQuery\" may not be used on VARIABLE_DEFINITION.",
+          "locations": [{ "line": 2, "column": 28 }]
+        },
+        {
+          "message": "Directive \"@onMutation\" may not be used on QUERY.",
+          "locations": [{ "line": 2, "column": 38 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FIELD.",
+          "locations": [{ "line": 3, "column": 15 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FRAGMENT_SPREAD.",
+          "locations": [{ "line": 4, "column": 19 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on INLINE_FRAGMENT.",
+          "locations": [{ "line": 5, "column": 15 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FIELD.",
+          "locations": [{ "line": 6, "column": 18 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on MUTATION.",
+          "locations": [{ "line": 11, "column": 16 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FIELD.",
+          "locations": [{ "column": 19, "line": 12 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on SUBSCRIPTION.",
+          "locations": [{ "column": 20, "line": 15 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FIELD.",
+          "locations": [{ "column": 19, "line": 16 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FRAGMENT_DEFINITION.",
+          "locations": [{ "column": 30, "line": 19 }]
+        },
+        {
+          "message": "Directive \"@onQuery\" may not be used on FIELD.",
+          "locations": [{ "column": 14, "line": 20 }]
+        }
+      ]
+    }
+  ]
+}

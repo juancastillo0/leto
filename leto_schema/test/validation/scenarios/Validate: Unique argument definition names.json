@@ -1,0 +1,51 @@
+{
+  "name": "Validate: Unique argument definition names",
+  "tests": [
+    {
+      "name": "no args",
+      "document": "\n      type SomeObject {\n        someField: String\n      }\n\n      interface SomeInterface {\n        someField: String\n      }\n\n      directive @someDirective on QUERY\n    ",
+      "rules": ["UniqueArgumentDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one argument",
+      "document": "\n      type SomeObject {\n        someField(foo: String): String\n      }\n\n      interface SomeInterface {\n        someField(foo: String): String\n      }\n\n      directive @someDirective(foo: String) on QUERY\n    ",
+      "rules": ["UniqueArgumentDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple arguments",
+      "document": "\n      type SomeObject {\n        someField(\n          foo: String\n          bar: String\n        ): String\n      }\n\n      interface SomeInterface {\n        someField(\n          foo: String\n          bar: String\n        ): String\n      }\n\n      directive @someDirective(\n        foo: String\n        bar: String\n      ) on QUERY\n    ",
+      "rules": ["UniqueArgumentDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicating arguments",
+      "document": "\n      type SomeObject {\n        someField(\n          foo: String\n          bar: String\n          foo: String\n        ): String\n      }\n\n      interface SomeInterface {\n        someField(\n          foo: String\n          bar: String\n          foo: String\n        ): String\n      }\n\n      directive @someDirective(\n        foo: String\n        bar: String\n        foo: String\n      ) on QUERY\n    ",
+      "rules": ["UniqueArgumentDefinitionNamesRule"],
+      "errors": [
+        {
+          "message": "Argument \"SomeObject.someField(foo:)\" can only be defined once.",
+          "locations": [
+            { "line": 4, "column": 11 },
+            { "line": 6, "column": 11 }
+          ]
+        },
+        {
+          "message": "Argument \"SomeInterface.someField(foo:)\" can only be defined once.",
+          "locations": [
+            { "line": 12, "column": 11 },
+            { "line": 14, "column": 11 }
+          ]
+        },
+        {
+          "message": "Argument \"@someDirective(foo:)\" can only be defined once.",
+          "locations": [
+            { "line": 19, "column": 9 },
+            { "line": 21, "column": 9 }
+          ]
+        }
+      ]
+    }
+  ]
+}

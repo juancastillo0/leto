@@ -1,0 +1,70 @@
+{
+  "name": "Validate: Schema definition should be alone",
+  "tests": [
+    {
+      "name": "no schema",
+      "document": "\n      type Query {\n        foo: String\n      }\n    ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "errors": []
+    },
+    {
+      "name": "one schema definition",
+      "document": "\n      schema {\n        query: Foo\n      }\n\n      type Foo {\n        foo: String\n      }\n    ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple schema definitions",
+      "document": "\n      schema {\n        query: Foo\n      }\n\n      type Foo {\n        foo: String\n      }\n\n      schema {\n        mutation: Foo\n      }\n\n      schema {\n        subscription: Foo\n      }\n    ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "errors": [
+        {
+          "message": "Must provide only one schema definition.",
+          "locations": [{ "line": 10, "column": 7 }]
+        },
+        {
+          "message": "Must provide only one schema definition.",
+          "locations": [{ "line": 14, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "define schema in schema extension",
+      "document": "\n        schema {\n          query: Foo\n        }\n      ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "schema": "type Foo {\n  foo: String\n}",
+      "errors": []
+    },
+    {
+      "name": "redefine schema in schema extension",
+      "document": "\n        schema {\n          mutation: Foo\n        }\n      ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "schema": "schema {\n  query: Foo\n}\n\ntype Foo {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Cannot define a new schema within a schema extension.",
+          "locations": [{ "line": 2, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "redefine implicit schema in schema extension",
+      "document": "\n        schema {\n          mutation: Foo\n        }\n      ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "schema": "type Query {\n  fooField: Foo\n}\n\ntype Foo {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Cannot define a new schema within a schema extension.",
+          "locations": [{ "line": 2, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "extend schema in schema extension",
+      "document": "\n        extend schema {\n          mutation: Foo\n        }\n      ",
+      "rules": ["LoneSchemaDefinitionRule"],
+      "schema": "type Query {\n  fooField: Foo\n}\n\ntype Foo {\n  foo: String\n}",
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "Validate: Values of correct type_Valid input object value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Optional arg, despite required field in type",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Partial object, only required",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: { requiredField: true })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Partial object, required field can be falsy",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: { requiredField: false })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Partial object, including required",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: { requiredField: true, intField: 4 })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Full object",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: {\n              requiredField: true,\n              intField: 4,\n              stringField: \"foo\",\n              booleanField: false,\n              stringListField: [\"one\", \"two\"]\n            })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Full object with fields in different order",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: {\n              stringListField: [\"one\", \"two\"],\n              booleanField: false,\n              requiredField: true,\n              stringField: \"foo\",\n              intField: 4,\n            })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    }
+  ]
+}

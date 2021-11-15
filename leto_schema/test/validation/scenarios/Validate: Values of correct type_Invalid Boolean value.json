@@ -1,0 +1,50 @@
+{
+  "name": "Validate: Values of correct type_Invalid Boolean value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Int into Boolean",
+      "document": "\n        {\n          complicatedArgs {\n            booleanArgField(booleanArg: 2)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: 2",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Float into Boolean",
+      "document": "\n        {\n          complicatedArgs {\n            booleanArgField(booleanArg: 1.0)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: 1.0",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "String into Boolean",
+      "document": "\n        {\n          complicatedArgs {\n            booleanArgField(booleanArg: \"true\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: \"true\"",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Unquoted into Boolean",
+      "document": "\n        {\n          complicatedArgs {\n            booleanArgField(booleanArg: TRUE)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: TRUE",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    }
+  ]
+}

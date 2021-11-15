@@ -1,0 +1,27 @@
+{
+  "name": "Validate: Values of correct type_Directive arguments",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "with directives of valid types",
+      "document": "\n        {\n          dog @include(if: true) {\n            name\n          }\n          human @skip(if: false) {\n            name\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "with directive with incorrect types",
+      "document": "\n        {\n          dog @include(if: \"yes\") {\n            name @skip(if: ENUM)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: \"yes\"",
+          "locations": [{ "line": 3, "column": 28 }]
+        },
+        {
+          "message": "Boolean cannot represent a non boolean value: ENUM",
+          "locations": [{ "line": 4, "column": 28 }]
+        }
+      ]
+    }
+  ]
+}

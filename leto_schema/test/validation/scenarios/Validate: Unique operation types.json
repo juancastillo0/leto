@@ -1,0 +1,241 @@
+{
+  "name": "Validate: Unique operation types",
+  "tests": [
+    {
+      "name": "no schema definition",
+      "document": "\n      type Foo\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "schema definition with all types",
+      "document": "\n      type Foo\n\n      schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "schema definition with single extension",
+      "document": "\n      type Foo\n\n      schema { query: Foo }\n\n      extend schema {\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "schema definition with separate extensions",
+      "document": "\n      type Foo\n\n      schema { query: Foo }\n      extend schema { mutation: Foo }\n      extend schema { subscription: Foo }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "extend schema before definition",
+      "document": "\n      type Foo\n\n      extend schema { mutation: Foo }\n      extend schema { subscription: Foo }\n\n      schema { query: Foo }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicate operation types inside single schema definition",
+      "document": "\n      type Foo\n\n      schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": [
+        {
+          "message": "There can be only one query type in schema.",
+          "locations": [
+            { "line": 5, "column": 9 },
+            { "line": 9, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one mutation type in schema.",
+          "locations": [
+            { "line": 6, "column": 9 },
+            { "line": 10, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one subscription type in schema.",
+          "locations": [
+            { "line": 7, "column": 9 },
+            { "line": 11, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate operation types inside schema extension",
+      "document": "\n      type Foo\n\n      schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": [
+        {
+          "message": "There can be only one query type in schema.",
+          "locations": [
+            { "line": 5, "column": 9 },
+            { "line": 11, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one mutation type in schema.",
+          "locations": [
+            { "line": 6, "column": 9 },
+            { "line": 12, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one subscription type in schema.",
+          "locations": [
+            { "line": 7, "column": 9 },
+            { "line": 13, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate operation types inside schema extension twice",
+      "document": "\n      type Foo\n\n      schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": [
+        {
+          "message": "There can be only one query type in schema.",
+          "locations": [
+            { "line": 5, "column": 9 },
+            { "line": 11, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one mutation type in schema.",
+          "locations": [
+            { "line": 6, "column": 9 },
+            { "line": 12, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one subscription type in schema.",
+          "locations": [
+            { "line": 7, "column": 9 },
+            { "line": 13, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one query type in schema.",
+          "locations": [
+            { "line": 5, "column": 9 },
+            { "line": 17, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one mutation type in schema.",
+          "locations": [
+            { "line": 6, "column": 9 },
+            { "line": 18, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one subscription type in schema.",
+          "locations": [
+            { "line": 7, "column": 9 },
+            { "line": 19, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate operation types inside second schema extension",
+      "document": "\n      type Foo\n\n      schema {\n        query: Foo\n      }\n\n      extend schema {\n        mutation: Foo\n        subscription: Foo\n      }\n\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "errors": [
+        {
+          "message": "There can be only one query type in schema.",
+          "locations": [
+            { "line": 5, "column": 9 },
+            { "line": 14, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one mutation type in schema.",
+          "locations": [
+            { "line": 9, "column": 9 },
+            { "line": 15, "column": 9 }
+          ]
+        },
+        {
+          "message": "There can be only one subscription type in schema.",
+          "locations": [
+            { "line": 10, "column": 9 },
+            { "line": 16, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "define schema inside extension SDL",
+      "document": "\n      schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "schema": "type Foo",
+      "errors": []
+    },
+    {
+      "name": "define and extend schema inside extension SDL",
+      "document": "\n      schema { query: Foo }\n      extend schema { mutation: Foo }\n      extend schema { subscription: Foo }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "schema": "type Foo",
+      "errors": []
+    },
+    {
+      "name": "adding new operation types to existing schema",
+      "document": "\n      extend schema { mutation: Foo }\n      extend schema { subscription: Foo }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "schema": "type Query",
+      "errors": []
+    },
+    {
+      "name": "adding conflicting operation types to existing schema",
+      "document": "\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "schema": "type Query\n\ntype Mutation\n\ntype Subscription\n\ntype Foo",
+      "errors": [
+        {
+          "message": "Type for query already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 3, "column": 9 }]
+        },
+        {
+          "message": "Type for mutation already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 4, "column": 9 }]
+        },
+        {
+          "message": "Type for subscription already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 5, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "adding conflicting operation types to existing schema twice",
+      "document": "\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n\n      extend schema {\n        query: Foo\n        mutation: Foo\n        subscription: Foo\n      }\n    ",
+      "rules": ["UniqueOperationTypesRule"],
+      "schema": "type Query\n\ntype Mutation\n\ntype Subscription",
+      "errors": [
+        {
+          "message": "Type for query already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 3, "column": 9 }]
+        },
+        {
+          "message": "Type for mutation already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 4, "column": 9 }]
+        },
+        {
+          "message": "Type for subscription already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 5, "column": 9 }]
+        },
+        {
+          "message": "Type for query already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 9, "column": 9 }]
+        },
+        {
+          "message": "Type for mutation already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 10, "column": 9 }]
+        },
+        {
+          "message": "Type for subscription already defined in the schema. It cannot be redefined.",
+          "locations": [{ "line": 11, "column": 9 }]
+        }
+      ]
+    }
+  ]
+}

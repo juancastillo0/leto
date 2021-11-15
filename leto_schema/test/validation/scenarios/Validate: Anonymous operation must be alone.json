@@ -1,0 +1,67 @@
+{
+  "name": "Validate: Anonymous operation must be alone",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "no operations",
+      "document": "\n      fragment fragA on Type {\n        field\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": []
+    },
+    {
+      "name": "one anon operation",
+      "document": "\n      {\n        field\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple named operations",
+      "document": "\n      query Foo {\n        field\n      }\n\n      query Bar {\n        field\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": []
+    },
+    {
+      "name": "anon operation with fragment",
+      "document": "\n      {\n        ...Foo\n      }\n      fragment Foo on Type {\n        field\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple anon operations",
+      "document": "\n      {\n        fieldA\n      }\n      {\n        fieldB\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": [
+        {
+          "message": "This anonymous operation must be the only defined operation.",
+          "locations": [{ "line": 2, "column": 7 }]
+        },
+        {
+          "message": "This anonymous operation must be the only defined operation.",
+          "locations": [{ "line": 5, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "anon operation with a mutation",
+      "document": "\n      {\n        fieldA\n      }\n      mutation Foo {\n        fieldB\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": [
+        {
+          "message": "This anonymous operation must be the only defined operation.",
+          "locations": [{ "line": 2, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "anon operation with a subscription",
+      "document": "\n      {\n        fieldA\n      }\n      subscription Foo {\n        fieldB\n      }\n    ",
+      "rules": ["LoneAnonymousOperationRule"],
+      "errors": [
+        {
+          "message": "This anonymous operation must be the only defined operation.",
+          "locations": [{ "line": 2, "column": 7 }]
+        }
+      ]
+    }
+  ]
+}

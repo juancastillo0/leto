@@ -1,0 +1,118 @@
+{
+  "name": "Validate: Unique argument names",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "no arguments on field",
+      "document": "\n      {\n        field\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "no arguments on directive",
+      "document": "\n      {\n        field @directive\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "argument on field",
+      "document": "\n      {\n        field(arg: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "argument on directive",
+      "document": "\n      {\n        field @directive(arg: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "same argument on two fields",
+      "document": "\n      {\n        one: field(arg: \"value\")\n        two: field(arg: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "same argument on field and directive",
+      "document": "\n      {\n        field(arg: \"value\") @directive(arg: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "same argument on two directives",
+      "document": "\n      {\n        field @directive1(arg: \"value\") @directive2(arg: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple field arguments",
+      "document": "\n      {\n        field(arg1: \"value\", arg2: \"value\", arg3: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple directive arguments",
+      "document": "\n      {\n        field @directive(arg1: \"value\", arg2: \"value\", arg3: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicate field arguments",
+      "document": "\n      {\n        field(arg1: \"value\", arg1: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one argument named \"arg1\".",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 30 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "many duplicate field arguments",
+      "document": "\n      {\n        field(arg1: \"value\", arg1: \"value\", arg1: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one argument named \"arg1\".",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 30 },
+            { "line": 3, "column": 45 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate directive arguments",
+      "document": "\n      {\n        field @directive(arg1: \"value\", arg1: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one argument named \"arg1\".",
+          "locations": [
+            { "line": 3, "column": 26 },
+            { "line": 3, "column": 41 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "many duplicate directive arguments",
+      "document": "\n      {\n        field @directive(arg1: \"value\", arg1: \"value\", arg1: \"value\")\n      }\n    ",
+      "rules": ["UniqueArgumentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one argument named \"arg1\".",
+          "locations": [
+            { "line": 3, "column": 26 },
+            { "line": 3, "column": 41 },
+            { "line": 3, "column": 56 }
+          ]
+        }
+      ]
+    }
+  ]
+}

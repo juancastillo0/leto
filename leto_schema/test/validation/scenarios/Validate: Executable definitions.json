@@ -1,0 +1,52 @@
+{
+  "name": "Validate: Executable definitions",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "with only operation",
+      "document": "\n      query Foo {\n        dog {\n          name\n        }\n      }\n    ",
+      "rules": ["ExecutableDefinitionsRule"],
+      "errors": []
+    },
+    {
+      "name": "with operation and fragment",
+      "document": "\n      query Foo {\n        dog {\n          name\n          ...Frag\n        }\n      }\n\n      fragment Frag on Dog {\n        name\n      }\n    ",
+      "rules": ["ExecutableDefinitionsRule"],
+      "errors": []
+    },
+    {
+      "name": "with type definition",
+      "document": "\n      query Foo {\n        dog {\n          name\n        }\n      }\n\n      type Cow {\n        name: String\n      }\n\n      extend type Dog {\n        color: String\n      }\n    ",
+      "rules": ["ExecutableDefinitionsRule"],
+      "errors": [
+        {
+          "message": "The \"Cow\" definition is not executable.",
+          "locations": [{ "line": 8, "column": 7 }]
+        },
+        {
+          "message": "The \"Dog\" definition is not executable.",
+          "locations": [{ "line": 12, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "with schema definition",
+      "document": "\n      schema {\n        query: Query\n      }\n\n      type Query {\n        test: String\n      }\n\n      extend schema @directive\n    ",
+      "rules": ["ExecutableDefinitionsRule"],
+      "errors": [
+        {
+          "message": "The schema definition is not executable.",
+          "locations": [{ "line": 2, "column": 7 }]
+        },
+        {
+          "message": "The \"Query\" definition is not executable.",
+          "locations": [{ "line": 6, "column": 7 }]
+        },
+        {
+          "message": "The schema definition is not executable.",
+          "locations": [{ "line": 10, "column": 7 }]
+        }
+      ]
+    }
+  ]
+}

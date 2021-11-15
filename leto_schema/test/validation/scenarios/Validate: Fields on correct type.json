@@ -1,0 +1,179 @@
+{
+  "name": "Validate: Fields on correct type",
+  "schema": "interface Pet {\n  name: String\n}\n\ntype Dog implements Pet {\n  name: String\n  nickname: String\n  barkVolume: Int\n}\n\ntype Cat implements Pet {\n  name: String\n  nickname: String\n  meowVolume: Int\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name: String\n  pets: [Pet]\n}\n\ntype Query {\n  human: Human\n}",
+  "tests": [
+    {
+      "name": "Object field selection",
+      "document": "\n      fragment objectFieldSelection on Dog {\n        __typename\n        name\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Aliased object field selection",
+      "document": "\n      fragment aliasedObjectFieldSelection on Dog {\n        tn : __typename\n        otherName : name\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Interface field selection",
+      "document": "\n      fragment interfaceFieldSelection on Pet {\n        __typename\n        name\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Aliased interface field selection",
+      "document": "\n      fragment interfaceFieldSelection on Pet {\n        otherName : name\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Lying alias selection",
+      "document": "\n      fragment lyingAliasSelection on Dog {\n        name : nickname\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Ignores fields on unknown type",
+      "document": "\n      fragment unknownSelection on UnknownType {\n        unknownField\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "reports errors when type is known again",
+      "document": "\n      fragment typeKnownAgain on Pet {\n        unknown_pet_field {\n          ... on Cat {\n            unknown_cat_field\n          }\n        }\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"unknown_pet_field\" on type \"Pet\".",
+          "locations": [{ "line": 3, "column": 9 }]
+        },
+        {
+          "message": "Cannot query field \"unknown_cat_field\" on type \"Cat\".",
+          "locations": [{ "line": 5, "column": 13 }]
+        }
+      ]
+    },
+    {
+      "name": "Field not defined on fragment",
+      "document": "\n      fragment fieldNotDefined on Dog {\n        meowVolume\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"meowVolume\" on type \"Dog\". Did you mean \"barkVolume\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Ignores deeply unknown field",
+      "document": "\n      fragment deepFieldNotDefined on Dog {\n        unknown_field {\n          deeper_unknown_field\n        }\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"unknown_field\" on type \"Dog\".",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Sub-field not defined",
+      "document": "\n      fragment subFieldNotDefined on Human {\n        pets {\n          unknown_field\n        }\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"unknown_field\" on type \"Pet\".",
+          "locations": [{ "line": 4, "column": 11 }]
+        }
+      ]
+    },
+    {
+      "name": "Field not defined on inline fragment",
+      "document": "\n      fragment fieldNotDefined on Pet {\n        ... on Dog {\n          meowVolume\n        }\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"meowVolume\" on type \"Dog\". Did you mean \"barkVolume\"?",
+          "locations": [{ "line": 4, "column": 11 }]
+        }
+      ]
+    },
+    {
+      "name": "Aliased field target not defined",
+      "document": "\n      fragment aliasedFieldTargetNotDefined on Dog {\n        volume : mooVolume\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"mooVolume\" on type \"Dog\". Did you mean \"barkVolume\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Aliased lying field target not defined",
+      "document": "\n      fragment aliasedLyingFieldTargetNotDefined on Dog {\n        barkVolume : kawVolume\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"kawVolume\" on type \"Dog\". Did you mean \"barkVolume\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Not defined on interface",
+      "document": "\n      fragment notDefinedOnInterface on Pet {\n        tailLength\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"tailLength\" on type \"Pet\".",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Defined on implementors but not on interface",
+      "document": "\n      fragment definedOnImplementorsButNotInterface on Pet {\n        nickname\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"nickname\" on type \"Pet\". Did you mean to use an inline fragment on \"Cat\" or \"Dog\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Meta field selection on union",
+      "document": "\n      fragment directFieldSelectionOnUnion on CatOrDog {\n        __typename\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Direct field selection on union",
+      "document": "\n      fragment directFieldSelectionOnUnion on CatOrDog {\n        directField\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"directField\" on type \"CatOrDog\".",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "Defined on implementors queried on union",
+      "document": "\n      fragment definedOnImplementorsQueriedOnUnion on CatOrDog {\n        name\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Cannot query field \"name\" on type \"CatOrDog\". Did you mean to use an inline fragment on \"Pet\", \"Cat\", or \"Dog\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "valid field in inline fragment",
+      "document": "\n      fragment objectFieldSelection on Pet {\n        ... on Dog {\n          name\n        }\n        ... {\n          name\n        }\n      }\n    ",
+      "rules": ["FieldsOnCorrectTypeRule"],
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "name": "Validate: Values of correct type_Valid non-nullable value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Arg on optional arg",
+      "document": "\n        {\n          dog {\n            isHouseTrained(atOtherHomes: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "No Arg on optional arg",
+      "document": "\n        {\n          dog {\n            isHouseTrained\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Multiple args",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req1: 1, req2: 2)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Multiple args reverse order",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req2: 2, req1: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "No args on multiple optional",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOpts\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "One arg on multiple optional",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOpts(opt1: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Second arg on multiple optional",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOpts(opt2: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Multiple required args on mixedList",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOptAndReq(req1: 3, req2: 4)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Multiple required and one optional arg on mixedList",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOptAndReq(req1: 3, req2: 4, opt1: 5)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "All required and optional args on mixedList",
+      "document": "\n        {\n          complicatedArgs {\n            multipleOptAndReq(req1: 3, req2: 4, opt1: 5, opt2: 6)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    }
+  ]
+}

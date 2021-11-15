@@ -1,0 +1,59 @@
+{
+  "name": "Validate: No unused fragments",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "all fragment names are used",
+      "document": "\n      {\n        human(id: 4) {\n          ...HumanFields1\n          ... on Human {\n            ...HumanFields2\n          }\n        }\n      }\n      fragment HumanFields1 on Human {\n        name\n        ...HumanFields3\n      }\n      fragment HumanFields2 on Human {\n        name\n      }\n      fragment HumanFields3 on Human {\n        name\n      }\n    ",
+      "rules": ["NoUnusedFragmentsRule"],
+      "errors": []
+    },
+    {
+      "name": "all fragment names are used by multiple operations",
+      "document": "\n      query Foo {\n        human(id: 4) {\n          ...HumanFields1\n        }\n      }\n      query Bar {\n        human(id: 4) {\n          ...HumanFields2\n        }\n      }\n      fragment HumanFields1 on Human {\n        name\n        ...HumanFields3\n      }\n      fragment HumanFields2 on Human {\n        name\n      }\n      fragment HumanFields3 on Human {\n        name\n      }\n    ",
+      "rules": ["NoUnusedFragmentsRule"],
+      "errors": []
+    },
+    {
+      "name": "contains unknown fragments",
+      "document": "\n      query Foo {\n        human(id: 4) {\n          ...HumanFields1\n        }\n      }\n      query Bar {\n        human(id: 4) {\n          ...HumanFields2\n        }\n      }\n      fragment HumanFields1 on Human {\n        name\n        ...HumanFields3\n      }\n      fragment HumanFields2 on Human {\n        name\n      }\n      fragment HumanFields3 on Human {\n        name\n      }\n      fragment Unused1 on Human {\n        name\n      }\n      fragment Unused2 on Human {\n        name\n      }\n    ",
+      "rules": ["NoUnusedFragmentsRule"],
+      "errors": [
+        {
+          "message": "Fragment \"Unused1\" is never used.",
+          "locations": [{ "line": 22, "column": 7 }]
+        },
+        {
+          "message": "Fragment \"Unused2\" is never used.",
+          "locations": [{ "line": 25, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "contains unknown fragments with ref cycle",
+      "document": "\n      query Foo {\n        human(id: 4) {\n          ...HumanFields1\n        }\n      }\n      query Bar {\n        human(id: 4) {\n          ...HumanFields2\n        }\n      }\n      fragment HumanFields1 on Human {\n        name\n        ...HumanFields3\n      }\n      fragment HumanFields2 on Human {\n        name\n      }\n      fragment HumanFields3 on Human {\n        name\n      }\n      fragment Unused1 on Human {\n        name\n        ...Unused2\n      }\n      fragment Unused2 on Human {\n        name\n        ...Unused1\n      }\n    ",
+      "rules": ["NoUnusedFragmentsRule"],
+      "errors": [
+        {
+          "message": "Fragment \"Unused1\" is never used.",
+          "locations": [{ "line": 22, "column": 7 }]
+        },
+        {
+          "message": "Fragment \"Unused2\" is never used.",
+          "locations": [{ "line": 26, "column": 7 }]
+        }
+      ]
+    },
+    {
+      "name": "contains unknown and undef fragments",
+      "document": "\n      query Foo {\n        human(id: 4) {\n          ...bar\n        }\n      }\n      fragment foo on Human {\n        name\n      }\n    ",
+      "rules": ["NoUnusedFragmentsRule"],
+      "errors": [
+        {
+          "message": "Fragment \"foo\" is never used.",
+          "locations": [{ "line": 7, "column": 7 }]
+        }
+      ]
+    }
+  ]
+}

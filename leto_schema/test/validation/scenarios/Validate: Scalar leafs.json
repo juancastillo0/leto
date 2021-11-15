@@ -1,0 +1,95 @@
+{
+  "name": "Validate: Scalar leafs",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "valid scalar selection",
+      "document": "\n      fragment scalarSelection on Dog {\n        barks\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": []
+    },
+    {
+      "name": "object type missing selection",
+      "document": "\n      query directQueryOnObjectWithoutSubFields {\n        human\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"human\" of type \"Human\" must have a selection of subfields. Did you mean \"human { ... }\"?",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "interface type missing selection",
+      "document": "\n      {\n        human { pets }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"pets\" of type \"[Pet]\" must have a selection of subfields. Did you mean \"pets { ... }\"?",
+          "locations": [{ "line": 3, "column": 17 }]
+        }
+      ]
+    },
+    {
+      "name": "valid scalar selection with args",
+      "document": "\n      fragment scalarSelectionWithArgs on Dog {\n        doesKnowCommand(dogCommand: SIT)\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": []
+    },
+    {
+      "name": "scalar selection not allowed on Boolean",
+      "document": "\n      fragment scalarSelectionsNotAllowedOnBoolean on Dog {\n        barks { sinceWhen }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"barks\" must not have a selection since type \"Boolean\" has no subfields.",
+          "locations": [{ "line": 3, "column": 15 }]
+        }
+      ]
+    },
+    {
+      "name": "scalar selection not allowed on Enum",
+      "document": "\n      fragment scalarSelectionsNotAllowedOnEnum on Cat {\n        furColor { inHexDec }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"furColor\" must not have a selection since type \"FurColor\" has no subfields.",
+          "locations": [{ "line": 3, "column": 18 }]
+        }
+      ]
+    },
+    {
+      "name": "scalar selection not allowed with args",
+      "document": "\n      fragment scalarSelectionsNotAllowedWithArgs on Dog {\n        doesKnowCommand(dogCommand: SIT) { sinceWhen }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"doesKnowCommand\" must not have a selection since type \"Boolean\" has no subfields.",
+          "locations": [{ "line": 3, "column": 42 }]
+        }
+      ]
+    },
+    {
+      "name": "Scalar selection not allowed with directives",
+      "document": "\n      fragment scalarSelectionsNotAllowedWithDirectives on Dog {\n        name @include(if: true) { isAlsoHumanName }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"name\" must not have a selection since type \"String\" has no subfields.",
+          "locations": [{ "line": 3, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "Scalar selection not allowed with directives and args",
+      "document": "\n      fragment scalarSelectionsNotAllowedWithDirectivesAndArgs on Dog {\n        doesKnowCommand(dogCommand: SIT) @include(if: true) { sinceWhen }\n      }\n    ",
+      "rules": ["ScalarLeafsRule"],
+      "errors": [
+        {
+          "message": "Field \"doesKnowCommand\" must not have a selection since type \"Boolean\" has no subfields.",
+          "locations": [{ "line": 3, "column": 61 }]
+        }
+      ]
+    }
+  ]
+}

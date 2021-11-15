@@ -1,0 +1,93 @@
+{
+  "name": "Validate: Values of correct type_Variable default values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "variables with valid default values",
+      "document": "\n        query WithDefaultValues(\n          $a: Int = 1,\n          $b: String = \"ok\",\n          $c: ComplexInput = { requiredField: true, intField: 3 }\n          $d: Int! = 123\n        ) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "variables with valid default null values",
+      "document": "\n        query WithDefaultValues(\n          $a: Int = null,\n          $b: String = null,\n          $c: ComplexInput = { requiredField: true, intField: null }\n        ) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "variables with invalid default null values",
+      "document": "\n        query WithDefaultValues(\n          $a: Int! = null,\n          $b: String! = null,\n          $c: ComplexInput = { requiredField: null, intField: null }\n        ) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Expected value of type \"Int!\", found null.",
+          "locations": [{ "line": 3, "column": 22 }]
+        },
+        {
+          "message": "Expected value of type \"String!\", found null.",
+          "locations": [{ "line": 4, "column": 25 }]
+        },
+        {
+          "message": "Expected value of type \"Boolean!\", found null.",
+          "locations": [{ "line": 5, "column": 47 }]
+        }
+      ]
+    },
+    {
+      "name": "variables with invalid default values",
+      "document": "\n        query InvalidDefaultValues(\n          $a: Int = \"one\",\n          $b: String = 4,\n          $c: ComplexInput = \"NotVeryComplex\"\n        ) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: \"one\"",
+          "locations": [{ "line": 3, "column": 21 }]
+        },
+        {
+          "message": "String cannot represent a non string value: 4",
+          "locations": [{ "line": 4, "column": 24 }]
+        },
+        {
+          "message": "Expected value of type \"ComplexInput\", found \"NotVeryComplex\".",
+          "locations": [{ "line": 5, "column": 30 }]
+        }
+      ]
+    },
+    {
+      "name": "variables with complex invalid default values",
+      "document": "\n        query WithDefaultValues(\n          $a: ComplexInput = { requiredField: 123, intField: \"abc\" }\n        ) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Boolean cannot represent a non boolean value: 123",
+          "locations": [{ "line": 3, "column": 47 }]
+        },
+        {
+          "message": "Int cannot represent non-integer value: \"abc\"",
+          "locations": [{ "line": 3, "column": 62 }]
+        }
+      ]
+    },
+    {
+      "name": "complex variables missing required field",
+      "document": "\n        query MissingRequiredField($a: ComplexInput = {intField: 3}) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Field \"ComplexInput.requiredField\" of required type \"Boolean!\" was not provided.",
+          "locations": [{ "line": 2, "column": 55 }]
+        }
+      ]
+    },
+    {
+      "name": "list variables with invalid item",
+      "document": "\n        query InvalidItem($a: [String] = [\"one\", 2]) {\n          dog { name }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 2",
+          "locations": [{ "line": 2, "column": 50 }]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Validate: no deprecated_no deprecated arguments on fields",
+  "schema": "type Query {\n  someField(normalArg: String, deprecatedArg: String @deprecated(reason: \"Some arg reason.\")): String\n}",
+  "tests": [
+    {
+      "name": "ignores arguments that are not deprecated",
+      "document": "\n        {\n          normalField(normalArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores unknown arguments",
+      "document": "\n        {\n          someField(unknownArg: \"\")\n          unknownField(deprecatedArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "reports error when a deprecated argument is used",
+      "document": "\n        {\n          someField(deprecatedArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": [
+        {
+          "message": "Field \"Query.someField\" argument \"deprecatedArg\" is deprecated. Some arg reason.",
+          "locations": [{ "line": 3, "column": 21 }]
+        }
+      ]
+    }
+  ]
+}

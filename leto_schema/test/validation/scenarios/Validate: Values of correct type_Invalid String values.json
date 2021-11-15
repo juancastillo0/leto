@@ -1,0 +1,50 @@
+{
+  "name": "Validate: Values of correct type_Invalid String values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Int into String",
+      "document": "\n        {\n          complicatedArgs {\n            stringArgField(stringArg: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 1",
+          "locations": [{ "line": 4, "column": 39 }]
+        }
+      ]
+    },
+    {
+      "name": "Float into String",
+      "document": "\n        {\n          complicatedArgs {\n            stringArgField(stringArg: 1.0)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 1.0",
+          "locations": [{ "line": 4, "column": 39 }]
+        }
+      ]
+    },
+    {
+      "name": "Boolean into String",
+      "document": "\n        {\n          complicatedArgs {\n            stringArgField(stringArg: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: true",
+          "locations": [{ "line": 4, "column": 39 }]
+        }
+      ]
+    },
+    {
+      "name": "Unquoted String into String",
+      "document": "\n        {\n          complicatedArgs {\n            stringArgField(stringArg: BAR)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: BAR",
+          "locations": [{ "line": 4, "column": 39 }]
+        }
+      ]
+    }
+  ]
+}
