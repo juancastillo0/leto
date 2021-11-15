@@ -36,8 +36,11 @@ Visitor noUndefinedVariablesRule(
               operation.name != null
                   ? 'Variable "\$${varName}" is not defined by operation "${operation.name!.value}".'
                   : 'Variable "\$${varName}" is not defined.',
-              locations: GraphQLErrorLocation.firstFromNodes(
-                  [node, node.name, operation]),
+              locations: [
+                ...GraphQLErrorLocation.firstFromNodes([node, node.name]),
+                ...GraphQLErrorLocation.firstFromNodes(
+                    [operation, operation.name])
+              ],
               extensions: _noUndefinedVariablesSpec.extensions(),
             ),
           );
