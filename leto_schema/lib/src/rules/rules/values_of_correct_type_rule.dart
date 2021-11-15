@@ -93,11 +93,11 @@ Visitor valuesOfCorrectTypeRule(
 
 /// Any value literal may be a valid representation of a Scalar, depending on
 /// that scalar type.
-void isValidValueNode(ValidationCtx context, ValueNode node) {
+VisitBehavior? isValidValueNode(ValidationCtx context, ValueNode node) {
   // Report any error at the full type expected by the location.
   final locationType = context.typeInfo.getInputType();
   if (locationType == null) {
-    return;
+    return null;
   }
 
   final type = getNamedType(locationType)!;
@@ -111,7 +111,7 @@ void isValidValueNode(ValidationCtx context, ValueNode node) {
         extensions: _valuesOfCorrectTypeSpec.extensions(),
       ),
     );
-    return;
+    return null;
   }
 
   // Scalars and Enums determine if a literal value is valid via parseLiteral(),

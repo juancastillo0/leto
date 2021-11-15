@@ -16,7 +16,7 @@ Visitor uniqueArgumentNamesRule(
 ) {
   final visitor = TypedVisitor();
 
-  void checkArgUniqueness(List<ArgumentNode> argumentNodes) {
+  VisitBehavior? checkArgUniqueness(List<ArgumentNode> argumentNodes) {
     // istanbul ignore next (See: 'https://github.com/graphql/graphql-js/issues/2203')
     // final argumentNodes = arguments ?? [];
 

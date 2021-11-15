@@ -1,6 +1,11 @@
 import 'package:gql/ast.dart';
 
-typedef VisitFunc<N extends Node> = void Function(N);
+typedef VisitFunc<N extends Node> = VisitBehavior? Function(N);
+
+enum VisitBehavior {
+  skipTree,
+  stop,
+}
 
 class VisitNodeCallbacks<N extends Node> {
   final VisitFunc<N>? _enter;
@@ -8,8 +13,8 @@ class VisitNodeCallbacks<N extends Node> {
 
   const VisitNodeCallbacks(this._enter, this._leave);
 
-  void enter(N node) => _enter?.call(node);
-  void leave(N node) => _leave?.call(node);
+  VisitBehavior? enter(N node) => _enter?.call(node);
+  VisitBehavior? leave(N node) => _leave?.call(node);
 
   Type get nodeType => N;
 }
@@ -38,7 +43,7 @@ class TypedVisitor extends WrapperVisitor<void> {
     });
   }
 
-  List<VisitNodeCallbacks<Node>>? _defaultVisitors() => _visitors[Node];
+  List<VisitNodeCallbacks<Node>>? defaultVisitors() => _visitors[Node];
 
   @override
   void visitNode<N extends Node>(N node) {
@@ -47,32 +52,56 @@ class TypedVisitor extends WrapperVisitor<void> {
     leave(node);
   }
 
-  void enter<N extends Node>(N node) {
+  Node? _skippedNode;
+  bool _stopped = false;
+
+  List<VisitNodeCallbacks> _visitorsFor<N extends Node>() {
     final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.enter(node);
-      }
-    }
-    final _default = _defaultVisitors();
-    if (_default != null) {
-      for (final visitor in _default) {
-        visitor.enter(node);
+    final _defaultVisitors = defaultVisitors();
+
+    return [
+      if (nodeVisitors != null) ...nodeVisitors,
+      if (_defaultVisitors != null) ..._defaultVisitors,
+    ];
+  }
+
+  void enter<N extends Node>(N node) {
+    if (_skippedNode != null || _stopped) return;
+
+    final nodeVisitors = _visitorsFor<N>();
+    for (final visitor in nodeVisitors) {
+      final value = visitor.enter(node);
+      if (value == VisitBehavior.skipTree) {
+        _skippedNode = node;
+      } else if (value == VisitBehavior.stop) {
+        _stopped = true;
       }
     }
   }
 
+  // void _skipVisitor(Node node, VisitNodeCallbacks visitor) {
+  //   _skippedStack[_skippedStack.length - 1].add(visitor);
+  //   _allSkipped.add(visitor);
+  // }
+
   void leave<N extends Node>(N node) {
-    final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.leave(node);
+    if (_stopped) return;
+    if (_skippedNode != null) {
+      if (node == _skippedNode) {
+        _skippedNode = null;
+      } else {
+        return;
       }
     }
-    final _default = _defaultVisitors();
-    if (_default != null) {
-      for (final visitor in _default) {
-        visitor.leave(node);
+    // for (final visitor in list) {
+    //   _allSkipped.remove(visitor);
+    // }
+
+    final nodeVisitors = _visitorsFor<N>();
+    for (final visitor in nodeVisitors) {
+      final value = visitor.leave(node);
+      if (value == VisitBehavior.stop) {
+        _stopped = true;
       }
     }
   }

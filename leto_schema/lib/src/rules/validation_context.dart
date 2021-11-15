@@ -45,8 +45,9 @@ class ValidationCtx {
       final typeInfo = TypeInfo(schema);
 
       final _visitor = TypedVisitor();
-      // TOOD:
-      _visitor.add<VariableDefinitionNode>((_) => false);
+      _visitor.add<VariableDefinitionNode>(
+        (_) => VisitBehavior.skipTree,
+      );
       _visitor.add<VariableNode>((variable) {
         newUsages.add(VariableUsage(
           node: variable,
@@ -70,9 +71,9 @@ class ValidationCtx {
     if (usages == null) {
       usages = getVariableUsages(operation);
       for (final frag in getRecursivelyReferencedFragments(operation)) {
-        usages = usages!.followedBy(getVariableUsages(frag)).toList();
+        usages.addAll(getVariableUsages(frag));
       }
-      _recursiveVariableUsages[operation] = usages!;
+      _recursiveVariableUsages[operation] = usages;
     }
     return usages;
   }
