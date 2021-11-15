@@ -13,10 +13,9 @@ import 'package:leto_schema/src/rules/rules/unique_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_directive_per_location_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_input_field_name_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_variable_names_rule.dart';
+import 'package:leto_schema/src/rules/rules/values_of_correct_type_rule.dart';
 import 'package:leto_schema/src/rules/rules/variables_in_allowed_position_rule.dart';
 import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/utilities.dart';
 
 import 'executable_rules.dart';
 import 'validation_context.dart';
@@ -47,7 +46,7 @@ const specifiedRules = <ValidationRule>[
   uniqueDirectivesPerLocationRule,
   knownArgumentNamesRule,
   uniqueArgumentNamesRule,
-  // TODO: ValuesOfCorrectType
+  valuesOfCorrectTypeRule,
   providedRequiredArgumentsRule,
   variablesInAllowedPositionRule,
   // TODO: OverlappingFieldsCanMerge
@@ -102,7 +101,20 @@ List<GraphQLError> validateDocument(
         );
         throw _AbortValidationException();
       }
-      _errors.add(error);
+      if (error.locations.isEmpty) {
+        _errors.add(GraphQLError(
+          error.message,
+          extensions: error.extensions,
+          path: error.path,
+          sourceError: error.sourceError,
+          stackTrace: error.stackTrace,
+          locations: GraphQLErrorLocation.firstFromNodes(
+            typeInfo.ancestors.reversed,
+          ),
+        ));
+      } else {
+        _errors.add(error);
+      }
     },
   );
 
@@ -153,6 +165,7 @@ const _allValidationRules = <String, ValidationRule>{
   'knownDirectivesRule': knownDirectivesRule,
   'uniqueDirectivesPerLocationRule': uniqueDirectivesPerLocationRule,
   'knownArgumentNamesRule': knownArgumentNamesRule,
+  'valuesOfCorrectTypeRule': valuesOfCorrectTypeRule,
   'uniqueArgumentNamesRule': uniqueArgumentNamesRule,
   'providedRequiredArgumentsRule': providedRequiredArgumentsRule,
   'variablesInAllowedPositionRule': variablesInAllowedPositionRule,

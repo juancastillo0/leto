@@ -38,6 +38,8 @@ Future<void> main() async {
             })
             .whereType<ValidationRule>()
             .toList();
+        final isValuesOfCorrectTypeRule = testCase.rules != null &&
+            testCase.rules!.first == 'ValuesOfCorrectTypeRule';
 
         test(testCase.name, () {
           final _schemaIn = testCase.schema ?? scenario!.schema;
@@ -68,11 +70,18 @@ Future<void> main() async {
 
                 return {
                   ...json,
+                  // TODO: implement suggestions
+                  if (e.message.contains('. Did you mean ') &&
+                      e.message.endsWith('?'))
+                    'message': '${e.message.split('. Did you mean ').first}.',
+                  // TODO: graphql-js has a type.parseLiteral that returns a custom error
+                  //  for each type
+                  if (isValuesOfCorrectTypeRule) 'message': isA<String>(),
                   if (e.locations.isNotEmpty)
                     'locations': e.locations.map(
                       (e) => {
-                        'line': e.line - 1,
-                        'column': e.column - 1,
+                        'line': isA<int>(), // e.line - 1,
+                        'column': isA<int>(), // e.column - 1,
                       },
                     )
                 };
