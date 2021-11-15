@@ -116,7 +116,11 @@ DirectiveLocation? getDirectiveLocationForASTPath(
       return DirectiveLocation.INPUT_OBJECT;
     case Kind.InputValueDefinition:
       {
-        final parentNode = ancestors[ancestors.length - 3];
+        var parentNode = ancestors[ancestors.length - 3];
+        // TODO: this should not be necessary check usage of ancestor
+        if (parentNode is DocumentNode) {
+          parentNode = ancestors[ancestors.length - 2];
+        }
         // invariant('kind' in parentNode);
         return parentNode.kind == Kind.InputObjectTypeDefinition
             ? DirectiveLocation.INPUT_FIELD_DEFINITION

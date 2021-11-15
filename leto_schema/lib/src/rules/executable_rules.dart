@@ -162,8 +162,10 @@ class KnownTypeNamesRule extends SimpleVisitor<List<GraphQLError>> {
   List<GraphQLError>? visitNamedTypeNode(NamedTypeNode node) {
     final name = node.name.value;
     if (!typeNames.contains(name)) {
-      final definitionNode =
-          ctx.typeInfo.ancestors[ctx.typeInfo.ancestors.length - 1];
+      // TODO: check ancestors usage
+      final definitionNode = ctx.typeInfo.ancestors.length > 1
+          ? ctx.typeInfo.ancestors[1]
+          : ctx.typeInfo.ancestors[ctx.typeInfo.ancestors.length - 1];
       final isSDL = definitionNode != null &&
               definitionNode is TypeSystemDefinitionNode ||
           definitionNode is TypeSystemExtensionNode;
