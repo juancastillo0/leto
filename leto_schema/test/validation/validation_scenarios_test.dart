@@ -40,6 +40,8 @@ Future<void> main() async {
             .toList();
         final isValuesOfCorrectTypeRule = testCase.rules != null &&
             testCase.rules!.first == 'ValuesOfCorrectTypeRule';
+        final isScalarLeafsRule = testCase.rules != null &&
+            testCase.rules!.first == 'ScalarLeafsRule';
 
         test(testCase.name, () {
           final _schemaIn = testCase.schema ?? scenario!.schema;
@@ -71,7 +73,8 @@ Future<void> main() async {
                 return {
                   ...json,
                   // TODO: implement suggestions
-                  if (e.message.contains('. Did you mean ') &&
+                  if (!isScalarLeafsRule &&
+                      e.message.contains('. Did you mean ') &&
                       e.message.endsWith('?'))
                     'message': '${e.message.split('. Did you mean ').first}.',
                   // TODO: graphql-js has a type.parseLiteral that returns a custom error
