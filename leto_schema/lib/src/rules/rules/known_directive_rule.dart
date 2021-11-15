@@ -81,7 +81,7 @@ DirectiveLocation? getDirectiveLocationForASTPath(
           (appliedTo as OperationDefinitionNode).type);
     case Kind.Field:
       return DirectiveLocation.FIELD;
-    case Kind.FragmentDefinition:
+    case Kind.FragmentSpread:
       return DirectiveLocation.FRAGMENT_SPREAD;
     case Kind.InlineFragment:
       return DirectiveLocation.INLINE_FRAGMENT;
