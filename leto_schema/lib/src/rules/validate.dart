@@ -39,7 +39,7 @@ const specifiedRules = <ValidationRule>[
   knownFragmentNamesRule,
   noUnusedFragmentsRule,
   possibleFragmentSpreadsRule,
-  // TODO: NoFragmentCyclesRule,
+  // TODO: NoFragmentCyclesRule
   uniqueVariableNamesRule,
   noUndefinedVariablesRule,
   noUnusedVariablesRule,
@@ -70,6 +70,11 @@ const specifiedSDLRules = <ValidationRule>[
   uniqueInputFieldNamesRule,
   providedRequiredArgumentsOnDirectivesRule,
 ];
+
+// LoneSchemaDefinitionRule-test.ts
+// NoDeprecatedCustomRule-test.ts
+// NoFragmentCyclesRule-test.ts
+// NoSchemaIntrospectionCustomRule-test.ts
 
 /// Executes the default GraphQL validations for the given [document]
 /// over the [schema].
@@ -120,3 +125,39 @@ List<GraphQLError> validateDocument(
 }
 
 class _AbortValidationException implements Exception {}
+
+ValidationRule? validationFromName(String name) {
+  if (name.isEmpty) return null;
+  final _rule = name.endsWith('Rule') ? '' : 'Rule';
+  final _name =
+      '${name.substring(0, 1).toLowerCase()}${name.substring(1)}$_rule';
+  return _allValidationRules[_name];
+}
+
+const _allValidationRules = <String, ValidationRule>{
+  'executableDefinitionsRule': executableDefinitionsRule,
+  'uniqueOperationNamesRule': uniqueOperationNamesRule,
+  'loneAnonymousOperationRule': loneAnonymousOperationRule,
+  'singleFieldSubscriptionsRule': singleFieldSubscriptionsRule,
+  'knownTypeNamesRule': knownTypeNamesRule,
+  'fragmentsOnCompositeTypesRule': fragmentsOnCompositeTypesRule,
+  'variablesAreInputTypesRule': variablesAreInputTypesRule,
+  'scalarLeafsRule': scalarLeafsRule,
+  'fieldsOnCorrectTypeRule': fieldsOnCorrectTypeRule,
+  'knownFragmentNamesRule': knownFragmentNamesRule,
+  'noUnusedFragmentsRule': noUnusedFragmentsRule,
+  'possibleFragmentSpreadsRule': possibleFragmentSpreadsRule,
+  'uniqueVariableNamesRule': uniqueVariableNamesRule,
+  'noUndefinedVariablesRule': noUndefinedVariablesRule,
+  'noUnusedVariablesRule': noUnusedVariablesRule,
+  'knownDirectivesRule': knownDirectivesRule,
+  'uniqueDirectivesPerLocationRule': uniqueDirectivesPerLocationRule,
+  'knownArgumentNamesRule': knownArgumentNamesRule,
+  'uniqueArgumentNamesRule': uniqueArgumentNamesRule,
+  'providedRequiredArgumentsRule': providedRequiredArgumentsRule,
+  'variablesInAllowedPositionRule': variablesInAllowedPositionRule,
+  'uniqueInputFieldNamesRule': uniqueInputFieldNamesRule,
+  'knownArgumentNamesOnDirectivesRule': knownArgumentNamesOnDirectivesRule,
+  'providedRequiredArgumentsOnDirectivesRule':
+      providedRequiredArgumentsOnDirectivesRule,
+};
