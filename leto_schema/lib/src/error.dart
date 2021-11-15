@@ -149,6 +149,21 @@ class GraphQLError implements Exception, GraphQLException {
   }
 
   @override
+  factory GraphQLError.fromJson(Map<String, Object?> json) {
+    return GraphQLError(
+      json['message']! as String,
+      path: json['path'] == null ? null : (json['path']! as List).cast(),
+      locations: List.of(
+        (json['locations'] as List? ?? <dynamic>[]).map(
+          (Object? l) =>
+              GraphQLErrorLocation.fromJson(l! as Map<String, Object?>),
+        ),
+      ),
+      extensions: json['extensions'] as Map<String, Object?>?,
+    );
+  }
+
+  @override
   String toString() {
     return 'GraphQLExceptionError(${toJson()})';
   }
@@ -211,6 +226,12 @@ class GraphQLErrorLocation {
   Map<String, Object?> toJson() {
     return {'line': line, 'column': column};
   }
+
+  factory GraphQLErrorLocation.fromJson(Map<String, Object?> json) =>
+      GraphQLErrorLocation(
+        json['line']! as int,
+        json['column']! as int,
+      );
 
   @override
   String toString() => 'GraphQLErrorLocation(line: $line, column: $column)';
