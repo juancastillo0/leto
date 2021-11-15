@@ -208,7 +208,7 @@ class TestServer {
     final response = await send(
       GraphQLRequest(
         query:
-            'mutation $_field(\$userName: String) { $_field(name: \$userName,'
+            'mutation $_field(\$userName: String!) { $_field(name: \$userName,'
             ' password: "$userPassword")'
             ' ${tokenWithUserSelection(signUp: !signIn)} }',
         variables: {'userName': userName},

@@ -5,8 +5,6 @@ import 'package:leto_schema/src/rules/type_info.dart';
 import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/utilities.dart';
 
-import 'validate.dart';
-
 class ValidationCtx {
   final GraphQLSchema schema;
   final DocumentNode document;

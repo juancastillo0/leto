@@ -108,24 +108,6 @@ fragment BaseMessage on ChatMessage {
   createdAt
 }
 
-fragment MsgMetadata on MessageMetadata {
-  fileMetadata {
-    ...MsgFileMetadata
-  }
-  linksMetadata {
-    ...MsgLinkMetadata
-  }
-  computedAt
-}
-
-fragment MsgFileMetadata on FileMetadata {
-  sizeInBytes
-  mimeType
-  fileName
-  sha1Hash
-  fileHashBlur
-}
-
 fragment MsgLinkMetadata on LinksMetadata {
   links {
     title
