@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart'
     show DocumentNode, FieldNode, Node, OperationDefinitionNode, OperationType;
-
 import 'package:gql/language.dart' show parseString;
+import 'package:leto_schema/src/rules/ast_node_enum.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
 import 'package:leto_schema/src/utilities/predicates.dart';

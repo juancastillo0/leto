@@ -206,14 +206,13 @@ class GraphQLErrorLocation {
   }
 
   static List<GraphQLErrorLocation> firstFromNodes(Iterable<Node?> nodes) {
-    final locations = List<GraphQLErrorLocation>.of(
-      nodes
-          .map((e) => e?.span == null
-              ? null
-              : GraphQLErrorLocation.fromSourceLocation(e!.span!.start))
-          .whereType(),
-    );
-    return locations.length > 1 ? [locations.first] : locations;
+    final location = nodes.map((e) {
+      final span = e?.span ?? e?.nameNode?.span;
+      return span == null
+          ? null
+          : GraphQLErrorLocation.fromSourceLocation(span.start);
+    }).firstWhereOrNull((loc) => loc != null);
+    return location != null ? [location] : [];
   }
 
   factory GraphQLErrorLocation.fromSourceLocation(SourceLocation location) {
