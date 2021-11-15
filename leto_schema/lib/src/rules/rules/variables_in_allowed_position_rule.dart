@@ -35,7 +35,7 @@ Visitor variablesInAllowedPositionRule(
         // If both are list types, the variable item type can be more strict
         // than the expected item type (contravariant).
         final schema = context.schema;
-        final varType = convertType(varDef.type, schema.typeMap);
+        final varType = convertTypeOrNull(varDef.type, schema.typeMap);
         if (varType != null &&
             !allowedVariableUsage(
               schema,
@@ -50,7 +50,13 @@ Visitor variablesInAllowedPositionRule(
             GraphQLError(
               'Variable "\$${varName}" of type "${varTypeStr}" used'
               ' in position expecting type "${typeStr}".',
-              locations: List.of(<Node?>[varDef, node, node.name]
+              locations: List.of(<Node?>[
+                varDef,
+                varDef.variable,
+                varDef.variable.name,
+                node,
+                node.name
+              ]
                   .map((e) => e?.span == null
                       ? null
                       : GraphQLErrorLocation.fromSourceLocation(e!.span!.start))

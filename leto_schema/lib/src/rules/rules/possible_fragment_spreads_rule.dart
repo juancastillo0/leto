@@ -67,7 +67,7 @@ GraphQLCompositeType? _getFragmentType(
 ) {
   final frag = context.fragmentsMap[name];
   if (frag != null) {
-    final type = convertType(frag.typeCondition.on, context.schema.typeMap);
+    final type = convertTypeOrNull(frag.typeCondition.on, context.schema.typeMap);
     if (type is GraphQLCompositeType) {
       return type;
     }

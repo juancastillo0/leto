@@ -186,8 +186,10 @@ class FragmentsOnCompositeTypesRule extends SimpleVisitor<List<GraphQLError>> {
   /// Execute the validation
   List<GraphQLError>? validate(TypeConditionNode? typeCondition, String? name) {
     if (typeCondition != null) {
-      final type = convertType(typeCondition.on, schema.typeMap);
-      if (type is! GraphQLUnionType && type is! GraphQLObjectType) {
+      final type = convertTypeOrNull(typeCondition.on, schema.typeMap);
+      if (type != null &&
+          type is! GraphQLUnionType &&
+          type is! GraphQLObjectType) {
         return [
           GraphQLError(
             'Fragment${name == null ? '' : ' $name'} cannot condition'
@@ -224,15 +226,18 @@ class VariablesAreInputTypesRule extends SimpleVisitor<List<GraphQLError>> {
 
   @override
   List<GraphQLError>? visitVariableDefinitionNode(VariableDefinitionNode node) {
-    final type = convertType(node.type, schema.typeMap);
+    final type = convertTypeOrNull(node.type, schema.typeMap);
 
-    if (!isInputType(type)) {
+    if (type != null && !isInputType(type)) {
       return [
         GraphQLError(
           'Variable "\$${node.variable.name.value}" cannot'
           ' be non-input type "$type".',
           locations: GraphQLErrorLocation.listFromSource(
-            node.span?.start ?? node.type.span?.start,
+            node.span?.start ??
+                node.type.span?.start ??
+                node.variable.span?.start ??
+                node.variable.name.span?.start,
           ),
           extensions: _variablesAreInputTypesSpec.extensions(),
         )
@@ -320,7 +325,7 @@ class KnownFragmentNamesRule extends SimpleVisitor<List<GraphQLError>> {
     if (!found) {
       return [
         GraphQLError(
-          'Unknown fragment "${node.name.value}"',
+          'Unknown fragment "${node.name.value}".',
           locations: GraphQLErrorLocation.listFromSource(
             node.span?.start ?? node.name.span?.start,
           ),

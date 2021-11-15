@@ -172,13 +172,15 @@ GraphQLSchema buildSchema(
       final typeName = op.type.name.value;
       switch (op.operation) {
         case OperationType.query:
-          queryType = types[typeName]!.key as GraphQLObjectType;
+          queryType = queryType ?? types[typeName]?.key as GraphQLObjectType?;
           break;
         case OperationType.mutation:
-          mutationType = types[typeName]!.key as GraphQLObjectType;
+          mutationType =
+              mutationType ?? types[typeName]?.key as GraphQLObjectType?;
           break;
         case OperationType.subscription:
-          subscriptionType = types[typeName]!.key as GraphQLObjectType;
+          subscriptionType =
+              subscriptionType ?? types[typeName]?.key as GraphQLObjectType?;
           break;
       }
     }
@@ -262,6 +264,17 @@ GraphQLType? getNamedType(GraphQLType? type) {
     _type = (_type! as GraphQLWrapperType).ofType;
   }
   return _type;
+}
+
+GraphQLType<Object?, Object?>? convertTypeOrNull(
+  TypeNode node,
+  Map<String, GraphQLType> customTypes,
+) {
+  try {
+    return convertType(node, customTypes);
+  } catch (_) {
+    return null;
+  }
 }
 
 /// Returns a [GraphQLType] from a [TypeNode] and

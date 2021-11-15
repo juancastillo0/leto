@@ -131,11 +131,11 @@ class TypeInfo {
           ? node.typeCondition
           : (node as FragmentDefinitionNode).typeCondition;
       final outputType = typeConditionAST != null
-          ? convertType(typeConditionAST.on, schema.typeMap)
+          ? convertTypeOrNull(typeConditionAST.on, schema.typeMap)
           : getNamedType(this.getType());
       this._typeStack.add(isOutputType(outputType) ? outputType : null);
     } else if (node is VariableDefinitionNode) {
-      final inputType = convertType(node.type, schema.typeMap);
+      final inputType = convertTypeOrNull(node.type, schema.typeMap);
       this._inputTypeStack.add(
             isInputType(inputType) ? inputType : null,
           );
