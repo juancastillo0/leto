@@ -3,6 +3,7 @@ import 'package:gql/ast.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/rules/rules/known_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/known_directive_rule.dart';
+import 'package:leto_schema/src/rules/rules/no_fragment_cycles_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_undefined_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_unused_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/possible_fragment_spreads_rule.dart';
@@ -23,7 +24,7 @@ import 'validation_context.dart';
 /// Return a visitor that executes document validations for a [ValidationCtx]
 typedef ValidationRule = Visitor Function(ValidationCtx);
 
-/// Default validations rules from the GraphQL specification
+/// Default validation rules from the GraphQL specification
 const specifiedRules = <ValidationRule>[
   // TODO: some are returning error when visiting, not by using reportError
   executableDefinitionsRule,
@@ -38,7 +39,7 @@ const specifiedRules = <ValidationRule>[
   knownFragmentNamesRule,
   noUnusedFragmentsRule,
   possibleFragmentSpreadsRule,
-  // TODO: NoFragmentCyclesRule
+  noFragmentCyclesRule,
   uniqueVariableNamesRule,
   noUndefinedVariablesRule,
   noUnusedVariablesRule,
@@ -53,6 +54,7 @@ const specifiedRules = <ValidationRule>[
   uniqueInputFieldNamesRule,
 ];
 
+/// Default SDL validation rules from the GraphQL specification
 const specifiedSDLRules = <ValidationRule>[
   // loneSchemaDefinitionRule,
   // uniqueOperationTypesRule,
@@ -73,7 +75,6 @@ const specifiedSDLRules = <ValidationRule>[
 
 // LoneSchemaDefinitionRule-test.ts
 // NoDeprecatedCustomRule-test.ts
-// NoFragmentCyclesRule-test.ts
 // NoSchemaIntrospectionCustomRule-test.ts
 
 /// Executes the default GraphQL validations for the given [document]
@@ -160,6 +161,7 @@ const _allValidationRules = <String, ValidationRule>{
   'knownFragmentNamesRule': knownFragmentNamesRule,
   'noUnusedFragmentsRule': noUnusedFragmentsRule,
   'possibleFragmentSpreadsRule': possibleFragmentSpreadsRule,
+  'noFragmentCyclesRule': noFragmentCyclesRule,
   'uniqueVariableNamesRule': uniqueVariableNamesRule,
   'noUndefinedVariablesRule': noUndefinedVariablesRule,
   'noUnusedVariablesRule': noUnusedVariablesRule,
