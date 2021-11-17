@@ -43,12 +43,21 @@ class TypedVisitor extends WrapperVisitor<void> {
     });
   }
 
+  List<Node> ancestors() => _ancestors ??= [];
+  List<Node>? _ancestors;
+  void _overrideAncestors(List<Node> ancestors) {
+    assert(_ancestors == null);
+    _ancestors = ancestors;
+  }
+
   List<VisitNodeCallbacks<Node>>? defaultVisitors() => _visitors[Node];
 
   @override
   void visitNode<N extends Node>(N node) {
     enter(node);
+    ancestors().add(node);
     node.visitChildren(this);
+    ancestors().removeLast();
     leave(node);
   }
 
@@ -103,6 +112,46 @@ class TypedVisitor extends WrapperVisitor<void> {
       if (value == VisitBehavior.stop) {
         _stopped = true;
       }
+    }
+  }
+}
+
+class ParallelVisitor extends WrapperVisitor<void> {
+  final List<Visitor> visitors;
+  final void Function(Object?)? onAccept;
+
+  late final List<TypedVisitor> _typedVisitors = visitors
+      .whereType<TypedVisitor>()
+      .map((e) => e.._overrideAncestors(ancestors))
+      .toList();
+  late final List<Visitor> _otherVisitors =
+      visitors.where((v) => v is! TypedVisitor).toList();
+
+  final List<Node> ancestors = [];
+
+  ///
+  ParallelVisitor({
+    required this.visitors,
+    this.onAccept,
+  });
+
+  @override
+  void visitNode<N extends Node>(N node) {
+    for (int i = 0; i < _otherVisitors.length; i++) {
+      final visitor = _otherVisitors[i];
+      final value = node.accept<Object?>(visitor);
+      onAccept?.call(value);
+    }
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.enter(node);
+    }
+    ancestors.add(node);
+    node.visitChildren(this);
+    ancestors.removeLast();
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.leave(node);
     }
   }
 }

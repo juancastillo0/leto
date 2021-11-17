@@ -15,7 +15,6 @@ class TypeInfo {
   final List<GraphQLType?> _inputTypeStack = [];
   final List<GraphQLObjectField?> _fieldDefStack = [];
   final List<Object?> _defaultValueStack = [];
-  final List<Node> ancestors = [];
   GraphQLDirective? _directive;
   GraphQLFieldInput? _argument;
   GraphQLEnumValue? _enumValue;
@@ -281,42 +280,18 @@ GraphQLObjectField? globalGetFieldDef(
 // }
 
 ///
-class WithTypeInfoVisitor extends WrapperVisitor<void> {
+class WithTypeInfoVisitor extends ParallelVisitor {
   final TypeInfo typeInfo;
-  final List<Visitor> visitors;
-  final void Function(Object?)? onAccept;
-
-  late final List<TypedVisitor> _typedVisitors =
-      visitors.whereType<TypedVisitor>().toList();
-  late final List<Visitor> _otherVisitors =
-      visitors.where((v) => v is! TypedVisitor).toList();
 
   ///
   WithTypeInfoVisitor(
     this.typeInfo, {
-    required this.visitors,
-    this.onAccept,
-  });
-
-  @override
-  void visitNode<N extends Node>(N node) {
-    for (int i = 0; i < _otherVisitors.length; i++) {
-      final visitor = _otherVisitors[i];
-      final value = node.accept<Object?>(visitor);
-      onAccept?.call(value);
-    }
-    for (int i = 0; i < _typedVisitors.length; i++) {
-      final visitor = _typedVisitors[i];
-      visitor.enter(node);
-    }
-    typeInfo.ancestors.add(node);
-    node.visitChildren(this);
-    typeInfo.ancestors.removeLast();
-    for (int i = 0; i < _typedVisitors.length; i++) {
-      final visitor = _typedVisitors[i];
-      visitor.leave(node);
-    }
-  }
+    required List<Visitor> visitors,
+    void Function(Object?)? onAccept,
+  }) : super(
+          visitors: visitors,
+          onAccept: onAccept,
+        );
 
   void _wrap<T extends Node>(T node, void Function(T) inner) {
     typeInfo.enter(node);
