@@ -52,7 +52,6 @@ Future<void> main() async {
     );
   });
 
-  // TODO: check name alias
   const _query = '''
 query unions {
   testUnionModels(positions: [null, 1]) {
@@ -65,7 +64,7 @@ query unions {
       }
     }
     ... on EventUnionDelete {
-      name
+      nameDelete: name
       cost
       dates
     }
@@ -94,7 +93,7 @@ query unions {
                 .toList()
           },
           delete: (e) => {
-            'name': e.name,
+            'nameDelete': e.name,
             'cost': e.cost,
             'dates': e.dates?.map((e) => e.toIso8601String()).toList(),
             // 'runtimeType': 'delete',
