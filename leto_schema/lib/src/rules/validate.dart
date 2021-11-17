@@ -3,13 +3,16 @@ import 'package:gql/ast.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/rules/rules/known_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/known_directive_rule.dart';
+import 'package:leto_schema/src/rules/rules/lone_schema_definition_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_fragment_cycles_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_undefined_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_unused_variables_rule.dart';
+import 'package:leto_schema/src/rules/rules/overlapping_fields_can_be_merged.dart';
 import 'package:leto_schema/src/rules/rules/possible_fragment_spreads_rule.dart';
 import 'package:leto_schema/src/rules/rules/provide_required_arguments_rule.dart';
 import 'package:leto_schema/src/rules/rules/scalar_leafs_rule.dart';
 import 'package:leto_schema/src/rules/rules/single_field_subscription_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_argument_definition_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_directive_per_location_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_input_field_name_rule.dart';
@@ -50,23 +53,23 @@ const specifiedRules = <ValidationRule>[
   valuesOfCorrectTypeRule,
   providedRequiredArgumentsRule,
   variablesInAllowedPositionRule,
-  // TODO: OverlappingFieldsCanMerge
+  overlappingFieldsCanBeMergedRule,
   uniqueInputFieldNamesRule,
 ];
 
 /// Default SDL validation rules from the GraphQL specification
 const specifiedSDLRules = <ValidationRule>[
-  // loneSchemaDefinitionRule,
+  loneSchemaDefinitionRule,
   // uniqueOperationTypesRule,
   // uniqueTypeNamesRule,
   // uniqueEnumValueNamesRule,
   // uniqueFieldDefinitionNamesRule,
-  // uniqueArgumentDefinitionNamesRule,
+  uniqueArgumentDefinitionNamesRule,
   // uniqueDirectiveNamesRule,
   knownTypeNamesRule,
   knownDirectivesRule,
   uniqueDirectivesPerLocationRule,
-  // possibleTypeExtensionsRule,
+  // possibleTypeExtensionsRule, // TODO:
   knownArgumentNamesOnDirectivesRule,
   uniqueArgumentNamesRule,
   uniqueInputFieldNamesRule,
@@ -154,6 +157,8 @@ const _allValidationRules = <String, ValidationRule>{
   'uniqueOperationNamesRule': uniqueOperationNamesRule,
   'loneAnonymousOperationRule': loneAnonymousOperationRule,
   'singleFieldSubscriptionsRule': singleFieldSubscriptionsRule,
+  'loneSchemaDefinitionRule': loneSchemaDefinitionRule,
+  'uniqueArgumentDefinitionNamesRule': uniqueArgumentDefinitionNamesRule,
   'knownTypeNamesRule': knownTypeNamesRule,
   'fragmentsOnCompositeTypesRule': fragmentsOnCompositeTypesRule,
   'variablesAreInputTypesRule': variablesAreInputTypesRule,
@@ -173,6 +178,7 @@ const _allValidationRules = <String, ValidationRule>{
   'uniqueArgumentNamesRule': uniqueArgumentNamesRule,
   'providedRequiredArgumentsRule': providedRequiredArgumentsRule,
   'variablesInAllowedPositionRule': variablesInAllowedPositionRule,
+  'overlappingFieldsCanBeMergedRule': overlappingFieldsCanBeMergedRule,
   'uniqueInputFieldNamesRule': uniqueInputFieldNamesRule,
   'knownArgumentNamesOnDirectivesRule': knownArgumentNamesOnDirectivesRule,
   'providedRequiredArgumentsOnDirectivesRule':
