@@ -153,21 +153,22 @@ GraphQLSchema buildSchema(
   GraphQLObjectType? queryType;
   GraphQLObjectType? mutationType;
   GraphQLObjectType? subscriptionType;
+  SchemaDefinitionNode? schemaNode;
   if (schemaDef.isEmpty) {
-    final _queryType = types['Query']?.key ?? types['Queries']?.key;
+    final _queryType = types['Query']?.key;
     if (_queryType is GraphQLObjectType) {
       queryType = _queryType;
     }
-    final _mutationType = types['Mutation']?.key ?? types['Mutations']?.key;
+    final _mutationType = types['Mutation']?.key;
     if (_mutationType is GraphQLObjectType) {
       mutationType = _mutationType;
     }
-    final _subscriptionType =
-        types['Subscription']?.key ?? types['Subscriptions']?.key;
+    final _subscriptionType = types['Subscription']?.key;
     if (_subscriptionType is GraphQLObjectType) {
       subscriptionType = _subscriptionType;
     }
   } else {
+    schemaNode = schemaDef.first;
     for (final op in schemaDef.first.operationTypes) {
       final typeName = op.type.name.value;
       switch (op.operation) {
@@ -211,7 +212,7 @@ GraphQLSchema buildSchema(
     serdeCtx: serdeCtx,
     directives: directives,
     otherTypes: typesMap.values.toList(),
-    astNode: schemaDoc,
+    astNode: schemaNode,
     // TODO: description
   );
 }

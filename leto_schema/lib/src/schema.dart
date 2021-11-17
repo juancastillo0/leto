@@ -4,8 +4,13 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart'
-    show DocumentNode, FieldNode, Node, OperationDefinitionNode, OperationType;
-import 'package:gql/language.dart' show parseString;
+    show
+        DocumentNode,
+        FieldNode,
+        Node,
+        OperationDefinitionNode,
+        OperationType,
+        SchemaDefinitionNode;
 import 'package:leto_schema/src/rules/ast_node_enum.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
@@ -68,7 +73,7 @@ class GraphQLSchema {
 
   /// The schema as a `package:gql` parsed node
   // late final DocumentNode schemaNode = parseString(schemaStr);
-  final DocumentNode? astNode;
+  final SchemaDefinitionNode? astNode;
 
   /// Other [GraphQLType] that you want to have in the schema
   final List<GraphQLType> otherTypes;
