@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:gql/language.dart' show parseString;
+import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:leto_schema/validate.dart';
 import 'package:test/test.dart';
@@ -61,13 +62,13 @@ Future<void> main() async {
             );
 
             expect(
-              errors.map(
+              _sortErrors(errors).map(
                 (e) => {
                   'message': e.message,
                   'locations': e.locations.map((e) => e.toJson())
                 },
               ),
-              (testCase.errors ?? []).map((e) {
+              _sortErrors(testCase.errors ?? []).map((e) {
                 final json = e.toJson();
 
                 return {
@@ -97,4 +98,13 @@ Future<void> main() async {
       }
     });
   }
+}
+
+// TODO: maybe some of them should be sorted?
+List<GraphQLError> _sortErrors(
+  Iterable<GraphQLError> errors,
+) {
+  return [...errors]..sort(
+      (a, b) => (a.message).compareTo(b.message),
+    );
 }
