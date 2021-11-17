@@ -88,11 +88,6 @@ class TypedVisitor extends WrapperVisitor<void> {
     }
   }
 
-  // void _skipVisitor(Node node, VisitNodeCallbacks visitor) {
-  //   _skippedStack[_skippedStack.length - 1].add(visitor);
-  //   _allSkipped.add(visitor);
-  // }
-
   void leave<N extends Node>(N node) {
     if (_stopped) return;
     if (_skippedNode != null) {
@@ -102,9 +97,6 @@ class TypedVisitor extends WrapperVisitor<void> {
         return;
       }
     }
-    // for (final visitor in list) {
-    //   _allSkipped.remove(visitor);
-    // }
 
     final nodeVisitors = _visitorsFor<N>();
     for (final visitor in nodeVisitors) {

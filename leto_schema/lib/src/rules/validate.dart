@@ -20,12 +20,17 @@ import 'package:leto_schema/src/rules/rules/unique_variable_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/values_of_correct_type_rule.dart';
 import 'package:leto_schema/src/rules/rules/variables_in_allowed_position_rule.dart';
 import 'package:leto_schema/src/rules/type_info.dart';
+import 'package:leto_schema/src/rules/typed_visitor.dart';
 
 import 'executable_rules.dart';
 import 'validation_context.dart';
 
 /// Return a visitor that executes document validations for a [ValidationCtx]
 typedef ValidationRule = Visitor Function(ValidationCtx);
+
+/// Return a visitor that executes schema document
+/// validations for a [SDLValidationRule]
+typedef SDLValidationRule = Visitor Function(SDLValidationCtx);
 
 /// Default validation rules from the GraphQL specification
 const specifiedRules = <ValidationRule>[
@@ -57,8 +62,8 @@ const specifiedRules = <ValidationRule>[
   uniqueInputFieldNamesRule,
 ];
 
-/// Default SDL validation rules from the GraphQL specification
-const specifiedSDLRules = <ValidationRule>[
+/// Default schema validation rules from the GraphQL specification
+const specifiedSDLRules = <SDLValidationRule>[
   loneSchemaDefinitionRule,
   // uniqueOperationTypesRule,
   // uniqueTypeNamesRule,
@@ -76,7 +81,6 @@ const specifiedSDLRules = <ValidationRule>[
   providedRequiredArgumentsOnDirectivesRule,
 ];
 
-// LoneSchemaDefinitionRule-test.ts
 // NoDeprecatedCustomRule-test.ts
 // NoSchemaIntrospectionCustomRule-test.ts
 
@@ -142,8 +146,37 @@ List<GraphQLError> validateDocument(
   return _errors;
 }
 
+/// Executes GraphQL schema validations for the given [document]
+/// with an optional base [schemaToExtend].
+///
+/// If [schemaToExtend] is non null, [document] will be interpreted
+/// as a schema extension.
+List<GraphQLError> validateSDL(
+  DocumentNode document, {
+  GraphQLSchema? schemaToExtend,
+  List<SDLValidationRule> rules = specifiedSDLRules,
+}) {
+  final errors = <GraphQLError>[];
+  final ctx = SDLValidationCtx(
+    schema: schemaToExtend,
+    document: document,
+    onError: errors.add,
+  );
+  final visitor = ParallelVisitor(
+    visitors: rules.map((e) => e(ctx)).toList(),
+    onAccept: (obj) {
+      if (obj is List<GraphQLError>) {
+        errors.addAll(obj);
+      }
+    },
+  );
+  document.accept(visitor);
+  return errors;
+}
+
 class _AbortValidationException implements Exception {}
 
+/// Returns the provided [ValidationRule] with the given [name], if any
 ValidationRule? validationFromName(String name) {
   if (name.isEmpty) return null;
   final _rule = name.endsWith('Rule') ? '' : 'Rule';
