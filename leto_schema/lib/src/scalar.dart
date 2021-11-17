@@ -25,7 +25,7 @@ final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
   'Int',
   'A signed integer.',
   'an integer',
-  (input) => input is int || input.round() == input ? input.round() : null,
+  (input) => input is int ? input : null,
 );
 
 /// A signed double-precision floating-point value.

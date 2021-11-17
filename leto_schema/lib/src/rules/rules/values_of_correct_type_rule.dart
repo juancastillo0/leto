@@ -131,9 +131,12 @@ VisitBehavior? isValidValueNode(
   // which may throw or return an invalid value to indicate failure.
   try {
     // final parseResult = type.parseLiteral(node, undefined /* variables */);
+    // TODO: we could pass type type to valueFromAst for improved error messages and spans
     final value = valueFromAst(null, node, null /* variables */);
     final validation = type.validate('key', value);
-    if (!validation.successful) {
+    if (!validation.successful ||
+        // Don't allow string inputs as enums
+        node is EnumValueNode && value is! EnumValue) {
       final ancestors = localCtx.ancestors();
       int _index = 1;
       Node? arg;
