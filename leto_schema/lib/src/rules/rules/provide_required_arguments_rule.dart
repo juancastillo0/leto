@@ -55,7 +55,7 @@ Visitor providedRequiredArgumentsRule(
 
 /// @internal
 TypedVisitor providedRequiredArgumentsOnDirectivesRule(
-  ValidationCtx context, // SDLValidationContext,
+  SDLValidationCtx context,
 ) {
   final visitor = TypedVisitor();
   final requiredArgsMap = <String, Map<String, Object>>{};

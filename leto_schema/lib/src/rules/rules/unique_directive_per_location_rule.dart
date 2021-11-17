@@ -13,7 +13,7 @@ const _uniqueDirectivesPerLocationSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Directives-Are-Unique-Per-Location
 Visitor uniqueDirectivesPerLocationRule(
-  ValidationCtx context, // SDLValidationContext,
+  SDLValidationCtx context,
 ) {
   final visitor = TypedVisitor();
   final uniqueDirectiveMap = <String, bool>{};

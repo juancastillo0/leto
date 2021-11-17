@@ -15,7 +15,7 @@ const _noFragmentCyclesSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragment-spreads-must-not-form-cycles
 Visitor noFragmentCyclesRule(
-  ValidationCtx context, //: ASTValidationContext,
+  SDLValidationCtx context, // ASTValidationContext,
 ) {
   // Tracks already visited fragments to maintain O(N) and to ensure that cycles
   // are not redundantly reported.
@@ -57,8 +57,10 @@ Visitor noFragmentCyclesRule(
         }
       } else {
         final cyclePath = spreadPath.slice(cycleIndex);
-        final viaPath =
-            cyclePath.slice(0, -1).map((s) => '"${s.name.value}"').join(', ');
+        final viaPath = spreadPath
+            .slice(cycleIndex, spreadPath.length - 1)
+            .map((s) => '"${s.name.value}"')
+            .join(', ');
 
         context.reportError(
           GraphQLError(

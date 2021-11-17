@@ -18,19 +18,23 @@ Visitor valuesOfCorrectTypeRule(
   ValidationCtx context,
 ) {
   final visitor = TypedVisitor();
+  final localCtx = _ValidationCtxWithAncestors(
+    context,
+    () => visitor.ancestors(),
+  );
   visitor.add<ListValueNode>((node) {
     // Note: TypeInfo will traverse into a list's item type, so look to the
     // parent input type to check if it is a list.
     final type = context.typeInfo.getParentInputType()?.nullable();
     if (type is! GraphQLListType) {
-      isValidValueNode(context, node);
+      isValidValueNode(localCtx, node);
       return VisitBehavior.skipTree;
     }
   });
   visitor.add<ObjectValueNode>((node) {
     final type = getNamedType(context.typeInfo.getInputType());
     if (type is! GraphQLInputObjectType) {
-      isValidValueNode(context, node);
+      isValidValueNode(localCtx, node);
       return VisitBehavior.skipTree;
     }
     // Ensure every required field exists.
@@ -81,17 +85,28 @@ Visitor valuesOfCorrectTypeRule(
       );
     }
   });
-  visitor.add<EnumValueNode>((node) => isValidValueNode(context, node));
-  visitor.add<IntValueNode>((node) => isValidValueNode(context, node));
-  visitor.add<FloatValueNode>((node) => isValidValueNode(context, node));
-  visitor.add<StringValueNode>((node) => isValidValueNode(context, node));
-  visitor.add<BooleanValueNode>((node) => isValidValueNode(context, node));
+  visitor.add<EnumValueNode>((node) => isValidValueNode(localCtx, node));
+  visitor.add<IntValueNode>((node) => isValidValueNode(localCtx, node));
+  visitor.add<FloatValueNode>((node) => isValidValueNode(localCtx, node));
+  visitor.add<StringValueNode>((node) => isValidValueNode(localCtx, node));
+  visitor.add<BooleanValueNode>((node) => isValidValueNode(localCtx, node));
   return visitor;
+}
+
+class _ValidationCtxWithAncestors {
+  final ValidationCtx context;
+  final List<Node> Function() ancestors;
+
+  _ValidationCtxWithAncestors(this.context, this.ancestors);
 }
 
 /// Any value literal may be a valid representation of a Scalar, depending on
 /// that scalar type.
-VisitBehavior? isValidValueNode(ValidationCtx context, ValueNode node) {
+VisitBehavior? isValidValueNode(
+  _ValidationCtxWithAncestors localCtx,
+  ValueNode node,
+) {
+  final context = localCtx.context;
   // Report any error at the full type expected by the location.
   final locationType = context.typeInfo.getInputType();
   if (locationType == null) {
@@ -119,7 +134,7 @@ VisitBehavior? isValidValueNode(ValidationCtx context, ValueNode node) {
     final value = valueFromAst(null, node, null /* variables */);
     final validation = type.validate('key', value);
     if (!validation.successful) {
-      final ancestors = context.typeInfo.ancestors;
+      final ancestors = localCtx.ancestors();
       int _index = 1;
       Node? arg;
       while (ancestors.length > _index) {

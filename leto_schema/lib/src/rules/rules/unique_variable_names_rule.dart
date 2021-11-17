@@ -11,13 +11,13 @@ const _uniqueVariableNamesSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Variable-Uniqueness
 Visitor uniqueVariableNamesRule(
-  ValidationCtx context, // ASTValidationContext
+  SDLValidationCtx context, // ASTValidationContext
 ) {
   return _Visitor(context);
 }
 
 class _Visitor extends SimpleVisitor<void> {
-  final ValidationCtx context;
+  final SDLValidationCtx context;
 
   _Visitor(this.context);
 

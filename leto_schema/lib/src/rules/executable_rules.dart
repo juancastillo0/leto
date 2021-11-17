@@ -14,7 +14,9 @@ const _executableDefinitionsSpec = ErrorSpec(
 /// operation or fragment definitions.
 ///
 /// See https://spec.graphql.org/draft/#sec-Executable-Definitions
-Visitor executableDefinitionsRule(ValidationCtx ctx) =>
+Visitor executableDefinitionsRule(
+  SDLValidationCtx ctx, // ASTValidationContext
+) =>
     ExecutableDefinitionsRule();
 
 class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
@@ -52,7 +54,9 @@ const _uniqueOperationNamesSpec = ErrorSpec(
 /// defined operations have unique names.
 ///
 /// See https://spec.graphql.org/draft/#sec-Operation-Name-Uniqueness
-Visitor uniqueOperationNamesRule(ValidationCtx ctx) =>
+Visitor uniqueOperationNamesRule(
+  SDLValidationCtx ctx, // ASTValidationContext
+) =>
     UniqueOperationNamesRule();
 
 class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
@@ -98,7 +102,9 @@ const _loneAnonymousOperationSpec = ErrorSpec(
 /// (the query short-hand) that it contains only that one operation definition.
 ///
 /// See https://spec.graphql.org/draft/#sec-Lone-Anonymous-Operation
-Visitor loneAnonymousOperationRule(ValidationCtx ctx) =>
+Visitor loneAnonymousOperationRule(
+  SDLValidationCtx ctx, // ASTValidationContext
+) =>
     LoneAnonymousOperationRule();
 
 class LoneAnonymousOperationRule extends SimpleVisitor<List<GraphQLError>> {
@@ -144,49 +150,40 @@ const _knownTypeNamesSpec = ErrorSpec(
 /// by the type schema.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragment-Spread-Type-Existence
-Visitor knownTypeNamesRule(ValidationCtx ctx) => KnownTypeNamesRule(ctx);
-
-class KnownTypeNamesRule extends SimpleVisitor<List<GraphQLError>> {
-  final ValidationCtx ctx;
+Visitor knownTypeNamesRule(SDLValidationCtx ctx) {
   final typeNames = <String>{};
-
-  ///
-  KnownTypeNamesRule(this.ctx) {
-    final schema = ctx.schema;
-    if (schema != null) {
-      typeNames.addAll(schema.typeMap.keys);
-    }
-    for (final def
-        in ctx.document.definitions.whereType<TypeDefinitionNode>()) {
-      typeNames.add(def.name.value);
-    }
+  final schema = ctx.schema;
+  if (schema != null) {
+    typeNames.addAll(schema.typeMap.keys);
+  }
+  for (final def in ctx.document.definitions.whereType<TypeDefinitionNode>()) {
+    typeNames.add(def.name.value);
   }
 
-  @override
-  List<GraphQLError>? visitNamedTypeNode(NamedTypeNode node) {
+  final visitor = TypedVisitor();
+
+  visitor.add<NamedTypeNode>((NamedTypeNode node) {
     final name = node.name.value;
     if (!typeNames.contains(name)) {
+      final ancestors = visitor.ancestors();
       // TODO: check ancestors usage
-      final definitionNode = ctx.typeInfo.ancestors.length > 1
-          ? ctx.typeInfo.ancestors[1]
-          : ctx.typeInfo.ancestors[ctx.typeInfo.ancestors.length - 1];
-      final isSDL = definitionNode != null &&
-              definitionNode is TypeSystemDefinitionNode ||
+      final definitionNode =
+          ancestors.length > 1 ? ancestors[1] : ancestors[ancestors.length - 1];
+      final isSDL = definitionNode is TypeSystemDefinitionNode ||
           definitionNode is TypeSystemExtensionNode;
       if (isSDL &&
           (introspectionTypeNames.contains(name) ||
               specifiedScalarNames.contains(name))) {
         return null;
       }
-      return [
-        GraphQLError(
-          'Unknown type "$name".',
-          locations: GraphQLErrorLocation.listFromSource(node.name.span?.start),
-          extensions: _knownTypeNamesSpec.extensions(),
-        )
-      ];
+      ctx.reportError(GraphQLError(
+        'Unknown type "$name".',
+        locations: GraphQLErrorLocation.listFromSource(node.name.span?.start),
+        extensions: _knownTypeNamesSpec.extensions(),
+      ));
     }
-  }
+  });
+  return visitor;
 }
 
 const _fragmentsOnCompositeTypesSpec = ErrorSpec(
@@ -292,7 +289,10 @@ const _uniqueFragmentNamesSpec = ErrorSpec(
 /// A GraphQL document is only valid if all defined fragments have unique names.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragment-Name-Uniqueness
-Visitor uniqueFragmentNamesRule(ValidationCtx ctx) => UniqueFragmentNamesRule();
+Visitor uniqueFragmentNamesRule(
+  SDLValidationCtx ctx, // ASTValidationContext
+) =>
+    UniqueFragmentNamesRule();
 
 class UniqueFragmentNamesRule extends _UniqueNamesRule<FragmentDefinitionNode> {
   // TODO: OperationDefinition: () => false,
@@ -386,7 +386,9 @@ const _noUnusedFragmentsSpec = ErrorSpec(
 /// operations.
 ///
 /// See https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used
-Visitor noUnusedFragmentsRule(ValidationCtx context) {
+Visitor noUnusedFragmentsRule(
+  SDLValidationCtx context, // ASTValidationContext
+) {
   final visitor = TypedVisitor();
   final operationDefs = <OperationDefinitionNode>[];
   final fragmentDefs = <FragmentDefinitionNode>[];

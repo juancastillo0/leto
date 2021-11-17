@@ -51,7 +51,7 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
  * @internal
  */
 TypedVisitor knownArgumentNamesOnDirectivesRule(
-  ValidationCtx context, // SDLValidationContext
+  SDLValidationCtx context,
 ) {
   final visitor = TypedVisitor();
   final directiveArgs = <String, Set<String>>{};

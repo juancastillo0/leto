@@ -17,7 +17,7 @@ const _misplacedDirectivesSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Directives-Are-Defined
 Visitor knownDirectivesRule(
-  ValidationCtx context, //| SDLValidationContext,
+  SDLValidationCtx context,
 ) {
   final visitor = TypedVisitor();
   final locationsMap = <String, List<DirectiveLocation>>{};
@@ -53,8 +53,9 @@ Visitor knownDirectivesRule(
       return;
     }
 
-    final candidateLocation =
-        getDirectiveLocationForASTPath(context.typeInfo.ancestors);
+    final candidateLocation = getDirectiveLocationForASTPath(
+      visitor.ancestors(),
+    );
     if (candidateLocation != null && !locations.contains(candidateLocation)) {
       context.reportError(
         GraphQLError(

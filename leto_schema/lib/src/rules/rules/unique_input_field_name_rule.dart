@@ -12,7 +12,7 @@ const _uniqueInputFieldNamesSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Input-Object-Field-Uniqueness
 Visitor uniqueInputFieldNamesRule(
-  ValidationCtx context, // ASTValidationContext
+  SDLValidationCtx context, // ASTValidationContext
 ) {
   final visitor = TypedVisitor();
   final knownNameStack = <Map<String, NameNode>>[];

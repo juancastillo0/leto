@@ -12,7 +12,7 @@ const _uniqueArgumentNamesSpec = ErrorSpec(
 ///
 /// See https://spec.graphql.org/draft/#sec-Argument-Names
 Visitor uniqueArgumentNamesRule(
-  ValidationCtx context, // ASTValidationContext,
+  SDLValidationCtx context, // ASTValidationContext,
 ) {
   final visitor = TypedVisitor();
 

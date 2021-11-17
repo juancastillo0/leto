@@ -89,6 +89,7 @@ List<GraphQLError> validateDocument(
 }) {
   final _errors = <GraphQLError>[];
   final typeInfo = TypeInfo(schema);
+  late final WithTypeInfoVisitor visitor;
   final ctx = ValidationCtx(
     schema,
     document,
@@ -111,7 +112,7 @@ List<GraphQLError> validateDocument(
           sourceError: error.sourceError,
           stackTrace: error.stackTrace,
           locations: GraphQLErrorLocation.firstFromNodes(
-            typeInfo.ancestors.reversed,
+            visitor.ancestors.reversed,
           ),
         ));
       } else {
@@ -120,7 +121,7 @@ List<GraphQLError> validateDocument(
     },
   );
 
-  final visitor = WithTypeInfoVisitor(
+  visitor = WithTypeInfoVisitor(
     typeInfo,
     visitors: rules.map((e) => e(ctx)).toList(),
     onAccept: (result) {
