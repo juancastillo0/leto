@@ -211,6 +211,8 @@ GraphQLSchema buildSchema(
     serdeCtx: serdeCtx,
     directives: directives,
     otherTypes: typesMap.values.toList(),
+    astNode: schemaDoc,
+    // TODO: description
   );
 }
 

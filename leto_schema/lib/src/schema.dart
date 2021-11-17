@@ -67,7 +67,8 @@ class GraphQLSchema {
   late final String schemaStr = printSchema(this);
 
   /// The schema as a `package:gql` parsed node
-  late final DocumentNode schemaNode = parseString(schemaStr);
+  // late final DocumentNode schemaNode = parseString(schemaStr);
+  final DocumentNode? astNode;
 
   /// Other [GraphQLType] that you want to have in the schema
   final List<GraphQLType> otherTypes;
@@ -158,6 +159,7 @@ class GraphQLSchema {
     this.otherTypes = const [],
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
+    this.astNode,
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
         directives = directives ?? GraphQLDirective.specifiedDirectives {
     _collectTypes();
