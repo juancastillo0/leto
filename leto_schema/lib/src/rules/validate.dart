@@ -9,13 +9,19 @@ import 'package:leto_schema/src/rules/rules/no_undefined_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/no_unused_variables_rule.dart';
 import 'package:leto_schema/src/rules/rules/overlapping_fields_can_be_merged.dart';
 import 'package:leto_schema/src/rules/rules/possible_fragment_spreads_rule.dart';
+import 'package:leto_schema/src/rules/rules/possible_type_extensions_rule.dart';
 import 'package:leto_schema/src/rules/rules/provide_required_arguments_rule.dart';
 import 'package:leto_schema/src/rules/rules/scalar_leafs_rule.dart';
 import 'package:leto_schema/src/rules/rules/single_field_subscription_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_argument_definition_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_argument_names_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_directive_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_directive_per_location_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_enum_value_names_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_field_definition_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/unique_input_field_name_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_operation_types_rule.dart';
+import 'package:leto_schema/src/rules/rules/unique_type_names_rules.dart';
 import 'package:leto_schema/src/rules/rules/unique_variable_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/values_of_correct_type_rule.dart';
 import 'package:leto_schema/src/rules/rules/variables_in_allowed_position_rule.dart';
@@ -65,16 +71,16 @@ const specifiedRules = <ValidationRule>[
 /// Default schema validation rules from the GraphQL specification
 const specifiedSDLRules = <SDLValidationRule>[
   loneSchemaDefinitionRule,
-  // uniqueOperationTypesRule,
-  // uniqueTypeNamesRule,
-  // uniqueEnumValueNamesRule,
-  // uniqueFieldDefinitionNamesRule,
+  uniqueOperationTypesRule,
+  uniqueTypeNamesRule,
+  uniqueEnumValueNamesRule,
+  uniqueFieldDefinitionNamesRule,
   uniqueArgumentDefinitionNamesRule,
-  // uniqueDirectiveNamesRule,
+  uniqueDirectiveNamesRule,
   knownTypeNamesRule,
   knownDirectivesRule,
   uniqueDirectivesPerLocationRule,
-  // possibleTypeExtensionsRule, // TODO:
+  possibleTypeExtensionsRule,
   knownArgumentNamesOnDirectivesRule,
   uniqueArgumentNamesRule,
   uniqueInputFieldNamesRule,
@@ -191,7 +197,12 @@ const _allValidationRules = <String, ValidationRule>{
   'loneAnonymousOperationRule': loneAnonymousOperationRule,
   'singleFieldSubscriptionsRule': singleFieldSubscriptionsRule,
   'loneSchemaDefinitionRule': loneSchemaDefinitionRule,
+  'uniqueOperationTypesRule': uniqueOperationTypesRule,
+  'uniqueTypeNamesRule': uniqueTypeNamesRule,
+  'uniqueEnumValueNamesRule': uniqueEnumValueNamesRule,
+  'uniqueFieldDefinitionNamesRule': uniqueFieldDefinitionNamesRule,
   'uniqueArgumentDefinitionNamesRule': uniqueArgumentDefinitionNamesRule,
+  'uniqueDirectiveNamesRule': uniqueDirectiveNamesRule,
   'knownTypeNamesRule': knownTypeNamesRule,
   'fragmentsOnCompositeTypesRule': fragmentsOnCompositeTypesRule,
   'variablesAreInputTypesRule': variablesAreInputTypesRule,
@@ -206,6 +217,7 @@ const _allValidationRules = <String, ValidationRule>{
   'noUnusedVariablesRule': noUnusedVariablesRule,
   'knownDirectivesRule': knownDirectivesRule,
   'uniqueDirectivesPerLocationRule': uniqueDirectivesPerLocationRule,
+  'possibleTypeExtensionsRule': possibleTypeExtensionsRule,
   'knownArgumentNamesRule': knownArgumentNamesRule,
   'valuesOfCorrectTypeRule': valuesOfCorrectTypeRule,
   'uniqueArgumentNamesRule': uniqueArgumentNamesRule,
