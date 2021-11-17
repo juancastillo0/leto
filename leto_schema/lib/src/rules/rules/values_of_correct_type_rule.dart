@@ -136,7 +136,7 @@ VisitBehavior? isValidValueNode(
     final validation = type.validate('key', value);
     if (!validation.successful ||
         // Don't allow string inputs as enums
-        node is EnumValueNode && value is! EnumValue) {
+        node is StringValueNode && type is GraphQLEnumType) {
       final ancestors = localCtx.ancestors();
       int _index = 1;
       Node? arg;
