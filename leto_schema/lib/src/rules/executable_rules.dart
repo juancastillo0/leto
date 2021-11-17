@@ -35,7 +35,15 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
       return GraphQLError(
         'The $_str definition is not executable.',
         // TODO: get the span from schema nodes
-        locations: GraphQLErrorLocation.firstFromNodes([e, nameNode]),
+        locations: GraphQLErrorLocation.firstFromNodes([
+          e,
+          nameNode,
+          if (e is SchemaDefinitionNode)
+            e.operationTypes.firstOrNull?.type.name,
+          if (e is SchemaDefinitionNode) e.directives.firstOrNull?.name,
+          if (e is SchemaExtensionNode) e.operationTypes.firstOrNull?.type.name,
+          if (e is SchemaExtensionNode) e.directives.firstOrNull?.name,
+        ]),
         extensions: _executableDefinitionsSpec.extensions(),
       );
     }).toList();
