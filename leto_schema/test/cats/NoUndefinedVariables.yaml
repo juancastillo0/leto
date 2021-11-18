@@ -1,0 +1,264 @@
+scenario: "Validate: No undefined variables"
+background:
+  schema-file: validation.schema.graphql
+tests:
+  - name: all variables defined
+    given:
+      query: |-
+        query Foo($a: String, $b: String, $c: String) {
+          field(a: $a, b: $b, c: $c)
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: all variables deeply defined
+    given:
+      query: |-
+        query Foo($a: String, $b: String, $c: String) {
+          field(a: $a) {
+            field(b: $b) {
+              field(c: $c)
+            }
+          }
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: all variables deeply in inline fragments defined
+    given:
+      query: |-
+        query Foo($a: String, $b: String, $c: String) {
+          ... on Type {
+            field(a: $a) {
+              field(b: $b) {
+                ... on Type {
+                  field(c: $c)
+                }
+              }
+            }
+          }
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: all variables in fragments deeply defined
+    given:
+      query: |-
+        query Foo($a: String, $b: String, $c: String) {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a) {
+            ...FragB
+          }
+        }
+        fragment FragB on Type {
+          field(b: $b) {
+            ...FragC
+          }
+        }
+        fragment FragC on Type {
+          field(c: $c)
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: variable within single fragment defined in multiple operations
+    given:
+      query: |-
+        query Foo($a: String) {
+          ...FragA
+        }
+        query Bar($a: String) {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a)
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: variable within fragments defined in operations
+    given:
+      query: |-
+        query Foo($a: String) {
+          ...FragA
+        }
+        query Bar($b: String) {
+          ...FragB
+        }
+        fragment FragA on Type {
+          field(a: $a)
+        }
+        fragment FragB on Type {
+          field(b: $b)
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: variable within recursive fragment defined
+    given:
+      query: |-
+        query Foo($a: String) {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a) {
+            ...FragA
+          }
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      passes: true
+  - name: variable not defined
+    given:
+      query: |-
+        query Foo($a: String, $b: String, $c: String) {
+          field(a: $a, b: $b, c: $c, d: $d)
+        }
+    when:
+      validate:
+        - FieldsOnCorrectType
+    then:
+      - error-count: 1
+      - error-code: noUndefinedVariables
+        loc: [{ line: 3, column: 39 }, { line: 2, column: 7 }]
+  - name: variable not defined by un-named query
+    given:
+      query: |-
+        {
+          field(a: $a)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 1
+      - error-code: noUndefinedVariables
+  - name: multiple variables not defined
+    given:
+      query: |-
+        query Foo($b: String) {
+          field(a: $a, b: $b, c: $c)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 2
+      - error-code: noUndefinedVariables
+  - name: variable in fragment not defined by un-named query
+    given:
+      query: |-
+        {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 1
+      - error-code: noUndefinedVariables
+  - name: variable in fragment not defined by operation
+    given:
+      query: |-
+        query Foo($a: String, $b: String) {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a) {
+            ...FragB
+          }
+        }
+        fragment FragB on Type {
+          field(b: $b) {
+            ...FragC
+          }
+        }
+        fragment FragC on Type {
+          field(c: $c)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 1
+      - error-code: noUndefinedVariables
+  - name: multiple variables in fragments not defined
+    given:
+      query: |-
+        query Foo($b: String) {
+          ...FragA
+        }
+        fragment FragA on Type {
+          field(a: $a) {
+            ...FragB
+          }
+        }
+        fragment FragB on Type {
+          field(b: $b) {
+            ...FragC
+          }
+        }
+        fragment FragC on Type {
+          field(c: $c)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 1
+      - error-code: noUndefinedVariables
+  - name: single variable in fragment not defined by multiple operations
+    given:
+      query: |-
+        query Foo($a: String) {
+          ...FragAB
+        }
+        query Bar($a: String) {
+          ...FragAB
+        }
+        fragment FragAB on Type {
+          field(a: $a, b: $b)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 2
+      - error-code: noUndefinedVariables
+  - name: single variable in fragment not defined by multiple operations
+    given:
+      query: |-
+        query Foo($a: String) {
+          ...FragAB
+        }
+        query Bar($a: String) {
+          ...FragAB
+        }
+        fragment FragAB on Type {
+          field(a: $a, b: $b)
+        }
+    when:
+      validate:
+        - noUndefinedVariables
+    then:
+      - error-count: 2
+      - error-code: noUndefinedVariables
