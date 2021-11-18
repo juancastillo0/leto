@@ -218,9 +218,6 @@ class GraphQLSchema {
   }
 }
 
-/// A default resolver that always returns `null`.
-Object? resolveToNull(Object? _, Object? __) => null;
-
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}
 
