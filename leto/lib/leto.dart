@@ -1152,10 +1152,10 @@ class GraphQL {
         return null;
       }
       final path = [...ctx.path, pathItem];
-      Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
+      Future<Object?> _completeScalar(GraphQLType fieldType) async {
         Object? _result = result;
         if (fieldType.generic.isValueOfType(_result)) {
-          _result = fieldType.serialize(_result!);
+          _result = fieldType.serialize(_result);
         }
         final validation = fieldType.validate(fieldName, _result);
 

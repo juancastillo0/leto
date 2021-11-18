@@ -31,7 +31,7 @@ GraphQLEnumType<String> enumTypeFromStrings(
 ///
 /// Though these are serialized as strings, they carry
 /// special meaning with a type system.
-class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
+class GraphQLEnumType<Value> extends GraphQLType<Value, String>
     with _NonNullableMixin<Value, String> {
   /// The name of this enum type.
   @override
