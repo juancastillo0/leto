@@ -56,23 +56,4 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
           'If defaultsToNull is true, type $type should be nullable'
           ' and default value $defaultValue should be null',
         );
-
-  @override
-  bool operator ==(Object other) =>
-      other is GraphQLFieldInput &&
-      other.runtimeType == runtimeType &&
-      other.name == name &&
-      other.type == type &&
-      other.defaultValue == other.defaultValue &&
-      other.description == description &&
-      other.deprecationReason == deprecationReason;
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      name.hashCode ^
-      type.hashCode ^
-      defaultValue.hashCode ^
-      description.hashCode ^
-      deprecationReason.hashCode;
 }

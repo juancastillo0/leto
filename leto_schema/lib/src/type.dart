@@ -92,8 +92,6 @@ abstract class GraphQLType<Value, Serialized> {
     }
   }
 
-  Iterable<Object?> get props;
-
   @override
   String toString() => name!;
 
@@ -277,9 +275,6 @@ class _GraphQLNonNullListType<Value, Serialized>
   String toString() => '[$ofType]';
 
   @override
-  Iterable<Object?> get props => [ofType];
-
-  @override
   GraphQLType<List<Value>, List<Serialized?>> coerceToInputObject() =>
       _GraphQLNonNullListType<Value, Serialized>(ofType.coerceToInputObject());
 }
@@ -356,9 +351,6 @@ class _GraphQLNullableListType<Value, Serialized>
   String toString() => '[$ofType]';
 
   @override
-  Iterable<Object?> get props => [ofType];
-
-  @override
   GraphQLType<List<Value?>, List<Serialized?>> coerceToInputObject() =>
       _GraphQLNullableListType<Value, Serialized>(ofType.coerceToInputObject());
 }
@@ -415,9 +407,6 @@ class GraphQLNonNullType<Value, Serialized>
   String toString() {
     return '$ofType!';
   }
-
-  @override
-  Iterable<Object?> get props => [ofType];
 
   @override
   GraphQLNonNullType<Value, Serialized> coerceToInputObject() {

@@ -206,17 +206,6 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
       return _interfaces.any((t) => t.isImplementationOf(type));
     }
   }
-
-  @override
-  Iterable<Object?> get props => [
-        name,
-        description,
-        isInterface,
-        // Filter introspection fields TODO: should we do this?
-        fields.where((f) => !f.name.startsWith('__')),
-        interfaces,
-        possibleTypes
-      ];
 }
 
 typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
@@ -310,9 +299,6 @@ class GraphQLInputObjectType<Value>
     //   return out..[k.toString()] = field.type.deserialize(value[k]);
     // });
   }
-
-  @override
-  Iterable<Object?> get props => [name, description, customDeserialize, fields];
 
   @override
   GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;

@@ -35,7 +35,4 @@ class GraphQLUploadType extends GraphQLScalarType<Upload, Upload> {
     }
     return ValidationResult.failure(['Expected "$key" to be an Upload.']);
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }

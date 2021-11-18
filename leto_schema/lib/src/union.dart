@@ -104,7 +104,4 @@ class GraphQLUnionType<P> extends GraphQLCompositeType<P>
 
     return ValidationResult<Map<String, dynamic>>.failure(errors);
   }
-
-  @override
-  Iterable<Object?> get props => [name, description, possibleTypes];
 }

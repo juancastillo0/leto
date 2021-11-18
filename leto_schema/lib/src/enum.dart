@@ -81,9 +81,6 @@ class GraphQLEnumType<Value> extends GraphQLType<Value, String>
   }
 
   @override
-  Iterable<Object?> get props => [name, description, values];
-
-  @override
   GraphQLType<Value, String> coerceToInputObject() => this;
 }
 
@@ -124,21 +121,4 @@ class GraphQLEnumValue<Value> {
 
   /// Returns `true` if this value has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
-
-  @override
-  bool operator ==(Object other) =>
-      other is GraphQLEnumValue &&
-      other.runtimeType == runtimeType &&
-      other.name == name &&
-      other.value == value &&
-      other.description == description &&
-      other.deprecationReason == deprecationReason;
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      name.hashCode ^
-      value.hashCode ^
-      description.hashCode ^
-      deprecationReason.hashCode;
 }
