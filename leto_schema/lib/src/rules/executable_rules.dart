@@ -299,50 +299,28 @@ const _uniqueFragmentNamesSpec = ErrorSpec(
 /// See https://spec.graphql.org/draft/#sec-Fragment-Name-Uniqueness
 Visitor uniqueFragmentNamesRule(
   SDLValidationCtx ctx, // ASTValidationContext
-) =>
-    UniqueFragmentNamesRule();
+) {
+  final fragments = <String, FragmentDefinitionNode>{};
 
-class UniqueFragmentNamesRule extends _UniqueNamesRule<FragmentDefinitionNode> {
-  // TODO: OperationDefinition: () => false,
-  @override
-  List<GraphQLError>? visitFragmentDefinitionNode(FragmentDefinitionNode node) {
-    final name = node.name.value;
-    return super.process(
-      node: node,
-      nameNode: node.name,
-      error: 'There can be only one fragment named "$name".',
-      extensions: _uniqueFragmentNamesSpec.extensions(),
-    );
-    // return false;
-  }
-}
-
-class _UniqueNamesRule<T extends DefinitionNode>
-    extends SimpleVisitor<List<GraphQLError>> {
-  final operations = <String, T>{};
-
-  List<GraphQLError>? process({
-    required T node,
-    required NameNode nameNode,
-    required String error,
-    required Map<String, Object?> extensions,
-  }) {
-    final name = nameNode.value;
-    final prev = operations[name];
-    if (prev != null) {
-      return [
-        GraphQLError(
-          error,
-          locations: GraphQLErrorLocation.listFromSource(
-            node.span?.start ?? nameNode.span?.start,
-          ),
-          extensions: extensions,
-        )
-      ];
-    } else {
-      operations[name] = node;
-    }
-  }
+  return TypedVisitor()
+    ..add<OperationDefinitionNode>((_) => VisitBehavior.skipTree)
+    ..add<FragmentDefinitionNode>((node) {
+      final name = node.name.value;
+      final prev = fragments[name];
+      if (prev != null) {
+        ctx.reportError(GraphQLError(
+          'There can be only one fragment named "$name".',
+          locations: [
+            GraphQLErrorLocation.fromSourceLocation(prev.name.span!.start),
+            GraphQLErrorLocation.fromSourceLocation(node.name.span!.start),
+          ],
+          extensions: _uniqueFragmentNamesSpec.extensions(),
+        ));
+      } else {
+        fragments[name] = node;
+      }
+      return VisitBehavior.skipTree;
+    });
 }
 
 const _knownFragmentNamesSpec = ErrorSpec(
