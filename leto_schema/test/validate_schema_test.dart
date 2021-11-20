@@ -1,47 +1,65 @@
-// https://github.com/graphql/graphql-js/blob/11a08024a35b08104b291627f4fdb2e8c69f8cab/src/type/__tests__/validation-test.ts
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+// ignore_for_file: implicit_dynamic_list_literal
 
-import { dedent } from '../../__testUtils__/dedent';
-import { expectJSON } from '../../__testUtils__/expectJSON';
+import 'package:gql/language.dart';
+import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/src/rules/rules_prelude.dart';
+import 'package:leto_schema/src/rules/validate_schema.dart' as vs;
+import 'package:leto_schema/src/utilities/build_schema.dart' as bs;
+import 'package:leto_schema/src/utilities/extend_schema.dart' as es;
+import 'package:test/test.dart';
+import 'package:test/test.dart' as t;
 
-import { inspect } from '../../jsutils/inspect';
+List<Map<String, Object?>> validateSchema(Object schema) {
+  List<GraphQLError> errors;
+  try {
+    if (schema is List<GraphQLError>) {
+      errors = schema;
+    } else {
+      errors = vs.validateSchema(schema as GraphQLSchema);
+    }
+  } on GraphQLException catch (e) {
+    errors = e.errors;
+  }
+  return errors
+      .map((e) => {
+            'message': e.message,
+            // TODO: some ast nodes don't have spans from package:gql parsing
+            // if (e.locations.isNotEmpty)
+            //   'locations': e.locations
+            //       .map((e) => {'line': e.line + 2, 'column': e.column + 1})
+            //       .toList()
+          })
+      .toList();
+}
 
-import { parse } from '../../language/parser';
-import { DirectiveLocation } from '../../language/directiveLocation';
+Object buildSchema(String document) {
+  try {
+    return bs.buildSchema(document);
+  } on GraphQLException catch (e) {
+    return e.errors;
+  }
+}
 
-import { extendSchema } from '../../utilities/extendSchema';
-import { buildSchema } from '../../utilities/buildASTSchema';
+void expectJSON(Object? actual, Object? matcher) {
+  final exp = matcher is List
+      ? matcher.map((Object? e) => (e as Map)..remove('locations')).toList()
+      : matcher;
+  t.expect(actual, exp);
+}
 
-import type {
-  GraphQLNamedType,
-  GraphQLInputType,
-  GraphQLOutputType,
-  GraphQLFieldConfig,
-  GraphQLArgumentConfig,
-  GraphQLInputFieldConfig,
-} from '../definition';
-import { GraphQLSchema } from '../schema';
-import { GraphQLString } from '../scalars';
-import { validateSchema, assertValidSchema } from '../validate';
-import { GraphQLDirective, assertDirective } from '../directives';
-import {
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLInterfaceType,
-  GraphQLUnionType,
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  assertScalarType,
-  assertInterfaceType,
-  assertObjectType,
-  assertUnionType,
-  assertEnumType,
-  assertInputObjectType,
-} from '../definition';
+Object extendSchema(Object schema, DocumentNode document) {
+  if (schema is GraphQLSchema) {
+    try {
+      return es.extendSchema(schema, document);
+    } on GraphQLException catch (e) {
+      return e.errors;
+    }
+  } else {
+    return schema;
+  }
+}
 
-const SomeSchema = buildSchema(`
+final SomeSchema = buildSchema('''
   scalar SomeScalar
 
   interface SomeInterface { f: SomeObject }
@@ -55,34 +73,33 @@ const SomeSchema = buildSchema(`
   input SomeInputObject { val: String = "hello" }
 
   directive @SomeDirective on QUERY
-`);
+''') as GraphQLSchema;
 
-const SomeScalarType = assertScalarType(SomeSchema.getType('SomeScalar'));
-const SomeInterfaceType = assertInterfaceType(
-  SomeSchema.getType('SomeInterface'),
-);
-const SomeObjectType = assertObjectType(SomeSchema.getType('SomeObject'));
-const SomeUnionType = assertUnionType(SomeSchema.getType('SomeUnion'));
-const SomeEnumType = assertEnumType(SomeSchema.getType('SomeEnum'));
-const SomeInputObjectType = assertInputObjectType(
-  SomeSchema.getType('SomeInputObject'),
-);
+final SomeScalarType = SomeSchema.getType('SomeScalar') as GraphQLScalarType;
+final SomeInterfaceType = SomeSchema.getType('SomeInterface')
+    as GraphQLObjectType; // GraphQLInterfaceType
+final SomeObjectType = SomeSchema.getType('SomeObject') as GraphQLObjectType;
+final SomeUnionType = SomeSchema.getType('SomeUnion') as GraphQLUnionType;
+final SomeEnumType = SomeSchema.getType('SomeEnum') as GraphQLEnumType;
+final SomeInputObjectType =
+    SomeSchema.getType('SomeInputObject') as GraphQLInputObjectType;
+final SomeDirective =
+    SomeSchema.getDirective('SomeDirective') as GraphQLDirective;
 
-const SomeDirective = assertDirective(SomeSchema.getDirective('SomeDirective'));
-
-function withModifiers<T extends GraphQLNamedType>(
-  type: T,
-): Array<T | GraphQLList<T> | GraphQLNonNull<T | GraphQLList<T>>> {
+List<GraphQLType> withModifiers<T extends GraphQLNamedType<Object?, Object?>>(
+  T type,
+) {
   return [
     type,
-    new GraphQLList(type),
-    new GraphQLNonNull(type),
-    new GraphQLNonNull(new GraphQLList(type)),
+    type.list(),
+    type.nonNull(),
+    type.list().nonNull(),
   ];
 }
 
-const outputTypes: ReadonlyArray<GraphQLOutputType> = [
-  ...withModifiers(GraphQLString),
+// GraphQLOutputType
+final outputTypes = <GraphQLType>[
+  ...withModifiers(graphQLString),
   ...withModifiers(SomeScalarType),
   ...withModifiers(SomeEnumType),
   ...withModifiers(SomeObjectType),
@@ -90,42 +107,51 @@ const outputTypes: ReadonlyArray<GraphQLOutputType> = [
   ...withModifiers(SomeInterfaceType),
 ];
 
-const notOutputTypes: ReadonlyArray<GraphQLInputType> = [
+// GraphQLInputType
+final notOutputTypes = <GraphQLType>[
   ...withModifiers(SomeInputObjectType),
 ];
 
-const inputTypes: ReadonlyArray<GraphQLInputType> = [
-  ...withModifiers(GraphQLString),
+// GraphQLInputType
+final inputTypes = <GraphQLType>[
+  ...withModifiers(graphQLString),
   ...withModifiers(SomeScalarType),
   ...withModifiers(SomeEnumType),
   ...withModifiers(SomeInputObjectType),
 ];
 
-const notInputTypes: ReadonlyArray<GraphQLOutputType> = [
+// GraphQLOutputType
+final notInputTypes = <GraphQLType>[
   ...withModifiers(SomeObjectType),
   ...withModifiers(SomeUnionType),
   ...withModifiers(SomeInterfaceType),
 ];
 
-function schemaWithFieldType(type: GraphQLOutputType): GraphQLSchema {
-  return new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'Query',
-      fields: { f: { type } },
-    }),
-  });
+// GraphQLOutputType
+GraphQLSchema schemaWithFieldType(GraphQLType type) {
+  return GraphQLSchema(
+    queryType: GraphQLObjectType<Object?>(
+      'Query',
+      fields: [field('f', type)],
+    ),
+  );
 }
 
-describe('Type System: A Schema must have Object root types', () => {
-  it('accepts a Schema whose query type is an object type', () => {
-    const schema = buildSchema(`
+void main() {
+  /// Don't assert invariants in constructors so we can test errors
+  /// not caught by the type system
+  checkAsserts = false;
+
+  group('Type System: A Schema must have Object root types', () {
+    test('accepts a Schema whose query type is an object type', () {
+      final schema = buildSchema('''
       type Query {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
+    ''');
+      expectJSON(validateSchema(schema), []);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: QueryRoot
       }
@@ -133,12 +159,13 @@ describe('Type System: A Schema must have Object root types', () => {
       type QueryRoot {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), []);
+    });
 
-  it('accepts a Schema whose query and mutation types are object types', () => {
-    const schema = buildSchema(`
+    test('accepts a Schema whose query and mutation types are object types',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: String
       }
@@ -146,10 +173,10 @@ describe('Type System: A Schema must have Object root types', () => {
       type Mutation {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
+    ''');
+      expectJSON(validateSchema(schema), []);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: QueryRoot
         mutation: MutationRoot
@@ -162,12 +189,13 @@ describe('Type System: A Schema must have Object root types', () => {
       type MutationRoot {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), []);
+    });
 
-  it('accepts a Schema whose query and subscription types are object types', () => {
-    const schema = buildSchema(`
+    test('accepts a Schema whose query and subscription types are object types',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: String
       }
@@ -175,10 +203,10 @@ describe('Type System: A Schema must have Object root types', () => {
       type Subscription {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
+    ''');
+      expectJSON(validateSchema(schema), []);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: QueryRoot
         subscription: SubscriptionRoot
@@ -191,23 +219,23 @@ describe('Type System: A Schema must have Object root types', () => {
       type SubscriptionRoot {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), []);
+    });
 
-  it('rejects a Schema without a query type', () => {
-    const schema = buildSchema(`
+    test('rejects a Schema without a query type', () {
+      final schema = buildSchema('''
       type Mutation {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Query root type must be provided.',
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message': 'Query root type must be provided.',
+        },
+      ]);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         mutation: MutationRoot
       }
@@ -215,29 +243,33 @@ describe('Type System: A Schema must have Object root types', () => {
       type MutationRoot {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([
-      {
-        message: 'Query root type must be provided.',
-        locations: [{ line: 2, column: 7 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), [
+        {
+          'message': 'Query root type must be provided.',
+          'locations': [
+            {'line': 2, 'column': 7}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a Schema whose query root type is not an Object type', () => {
-    const schema = buildSchema(`
+    test('rejects a Schema whose query root type is not an Object type', () {
+      final schema = buildSchema('''
       input Query {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Query root type must be Object type, it cannot be Query.',
-        locations: [{ line: 2, column: 7 }],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message': 'Query root type must be Object type, it cannot be Query.',
+          'locations': [
+            {'line': 2, 'column': 7}
+          ],
+        },
+      ]);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: SomeInputObject
       }
@@ -245,18 +277,20 @@ describe('Type System: A Schema must have Object root types', () => {
       input SomeInputObject {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([
-      {
-        message:
-          'Query root type must be Object type, it cannot be SomeInputObject.',
-        locations: [{ line: 3, column: 16 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), [
+        {
+          'message':
+              'Query root type must be Object type, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 3, 'column': 16}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a Schema whose mutation type is an input type', () => {
-    const schema = buildSchema(`
+    test('rejects a Schema whose mutation type is an input type', () {
+      final schema = buildSchema('''
       type Query {
         field: String
       }
@@ -264,16 +298,18 @@ describe('Type System: A Schema must have Object root types', () => {
       input Mutation {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Mutation root type must be Object type if provided, it cannot be Mutation.',
-        locations: [{ line: 6, column: 7 }],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Mutation root type must be Object type if provided, it cannot be Mutation.',
+          'locations': [
+            {'line': 6, 'column': 7}
+          ],
+        },
+      ]);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: Query
         mutation: SomeInputObject
@@ -286,18 +322,20 @@ describe('Type System: A Schema must have Object root types', () => {
       input SomeInputObject {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([
-      {
-        message:
-          'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
-        locations: [{ line: 4, column: 19 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), [
+        {
+          'message':
+              'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 4, 'column': 19}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a Schema whose subscription type is an input type', () => {
-    const schema = buildSchema(`
+    test('rejects a Schema whose subscription type is an input type', () {
+      final schema = buildSchema('''
       type Query {
         field: String
       }
@@ -305,16 +343,18 @@ describe('Type System: A Schema must have Object root types', () => {
       input Subscription {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Subscription root type must be Object type if provided, it cannot be Subscription.',
-        locations: [{ line: 6, column: 7 }],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Subscription root type must be Object type if provided, it cannot be Subscription.',
+          'locations': [
+            {'line': 6, 'column': 7}
+          ],
+        },
+      ]);
 
-    const schemaWithDef = buildSchema(`
+      final schemaWithDef = buildSchema('''
       schema {
         query: Query
         subscription: SomeInputObject
@@ -327,110 +367,118 @@ describe('Type System: A Schema must have Object root types', () => {
       input SomeInputObject {
         test: String
       }
-    `);
-    expectJSON(validateSchema(schemaWithDef)).toDeepEqual([
-      {
-        message:
-          'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
-        locations: [{ line: 4, column: 23 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schemaWithDef), [
+        {
+          'message':
+              'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 4, 'column': 23}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a schema extended with invalid root types', () => {
-    let schema = buildSchema(`
+    test('rejects a schema extended with invalid root types', () {
+      var schema = buildSchema('''
       input SomeInputObject {
         test: String
       }
-    `);
+    ''');
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         extend schema {
           query: SomeInputObject
         }
-      `),
-    );
+      '''),
+      );
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         extend schema {
           mutation: SomeInputObject
         }
-      `),
-    );
+      '''),
+      );
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         extend schema {
           subscription: SomeInputObject
         }
-      `),
-    );
+      '''),
+      );
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Query root type must be Object type, it cannot be SomeInputObject.',
-        locations: [{ line: 3, column: 18 }],
-      },
-      {
-        message:
-          'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
-        locations: [{ line: 3, column: 21 }],
-      },
-      {
-        message:
-          'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
-        locations: [{ line: 3, column: 25 }],
-      },
-    ]);
-  });
-
-  it('rejects a Schema whose types are incorrectly typed', () => {
-    const schema = new GraphQLSchema({
-      query: SomeObjectType,
-      // @ts-expect-error
-      types: [{ name: 'SomeType' }, SomeDirective],
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Query root type must be Object type, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 3, 'column': 18}
+          ],
+        },
+        {
+          'message':
+              'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 3, 'column': 21}
+          ],
+        },
+        {
+          'message':
+              'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
+          'locations': [
+            {'line': 3, 'column': 25}
+          ],
+        },
+      ]);
     });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Expected GraphQL named type but got: { name: "SomeType" }.',
-      },
-      {
-        message: 'Expected GraphQL named type but got: @SomeDirective.',
-        locations: [{ line: 14, column: 3 }],
-      },
-    ]);
+
+    // test('rejects a Schema whose types are incorrectly typed', () {
+    //   final schema = new GraphQLSchema(
+    //     queryType: SomeObjectType,
+    //     // @ts-expect-error
+    //     otherTypes: [{ name: 'SomeType' }, SomeDirective],
+    //   );
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message': 'Expected GraphQL named type but got: { name: "SomeType" }.',
+    //     },
+    //     {
+    //       'message': 'Expected GraphQL named type but got: @SomeDirective.',
+    //       'locations': [{ 'line': 14, 'column': 3 }],
+    //     },
+    //   ]);
+    // });
+
+    // test('rejects a Schema whose directives are incorrectly typed', () {
+    //   final schema = new GraphQLSchema({
+    //     query: SomeObjectType,
+    //     // @ts-expect-error
+    //     directives: [null, 'SomeDirective', SomeScalarType],
+    //   });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message': 'Expected directive but got: null.',
+    //     },
+    //     {
+    //       'message': 'Expected directive but got: "SomeDirective".',
+    //     },
+    //     {
+    //       'message': 'Expected directive but got: SomeScalar.',
+    //       'locations': [{ 'line': 2, 'column': 3 }],
+    //     },
+    //   ]);
+    // });
   });
 
-  it('rejects a Schema whose directives are incorrectly typed', () => {
-    const schema = new GraphQLSchema({
-      query: SomeObjectType,
-      // @ts-expect-error
-      directives: [null, 'SomeDirective', SomeScalarType],
-    });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Expected directive but got: null.',
-      },
-      {
-        message: 'Expected directive but got: "SomeDirective".',
-      },
-      {
-        message: 'Expected directive but got: SomeScalar.',
-        locations: [{ line: 2, column: 3 }],
-      },
-    ]);
-  });
-});
-
-describe('Type System: Objects must have fields', () => {
-  it('accepts an Object type with fields object', () => {
-    const schema = buildSchema(`
+  group('Type System: Objects must have fields', () {
+    test('accepts an Object type with fields object', () {
+      final schema = buildSchema('''
       type Query {
         field: SomeObject
       }
@@ -438,115 +486,115 @@ describe('Type System: Objects must have fields', () => {
       type SomeObject {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Object type with missing fields', () => {
-    const schema = buildSchema(`
+    test('rejects an Object type with missing fields', () {
+      final schema = buildSchema('''
       type Query {
         test: IncompleteObject
       }
 
       type IncompleteObject
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Type IncompleteObject must define one or more fields.',
-        locations: [{ line: 6, column: 7 }],
-      },
-    ]);
-
-    const manualSchema = schemaWithFieldType(
-      new GraphQLObjectType({
-        name: 'IncompleteObject',
-        fields: {},
-      }),
-    );
-    expectJSON(validateSchema(manualSchema)).toDeepEqual([
-      {
-        message: 'Type IncompleteObject must define one or more fields.',
-      },
-    ]);
-
-    const manualSchema2 = schemaWithFieldType(
-      new GraphQLObjectType({
-        name: 'IncompleteObject',
-        fields() {
-          return {};
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message': 'Type IncompleteObject must define one or more fields.',
+          'locations': [
+            {'line': 4, 'column': 11}
+          ],
         },
-      }),
-    );
-    expectJSON(validateSchema(manualSchema2)).toDeepEqual([
-      {
-        message: 'Type IncompleteObject must define one or more fields.',
-      },
-    ]);
+      ]);
+
+      final manualSchema = schemaWithFieldType(
+        GraphQLObjectType<Object>(
+          'IncompleteObject',
+          fields: [],
+        ),
+      );
+      expectJSON(validateSchema(manualSchema), [
+        {
+          'message': 'Type IncompleteObject must define one or more fields.',
+        },
+      ]);
+
+      final manualSchema2 = schemaWithFieldType(
+        GraphQLObjectType<Object>(
+          'IncompleteObject',
+        ),
+      );
+      expectJSON(validateSchema(manualSchema2), [
+        {
+          'message': 'Type IncompleteObject must define one or more fields.',
+        },
+      ]);
+    });
+
+    test('rejects an Object type with incorrectly named fields', () {
+      final schema = schemaWithFieldType(
+        GraphQLObjectType<Object>(
+          'SomeObject',
+          fields: [
+            graphQLString.field('__badName'),
+          ],
+        ),
+      );
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
+        },
+      ]);
+    });
   });
 
-  it('rejects an Object type with incorrectly named fields', () => {
-    const schema = schemaWithFieldType(
-      new GraphQLObjectType({
-        name: 'SomeObject',
-        fields: {
-          __badName: { type: GraphQLString },
+  group('Type System: Fields args must be properly named', () {
+    test('accepts field args with valid names', () {
+      final schema = schemaWithFieldType(
+        GraphQLObjectType<Object>(
+          'SomeObject',
+          fields: [
+            graphQLString.field(
+              'goodField',
+              inputs: [
+                graphQLString.inputField('goodArg'),
+              ],
+            )
+          ],
+        ),
+      );
+      expectJSON(validateSchema(schema), []);
+    });
+
+    test('rejects field arg with invalid names', () {
+      final schema = schemaWithFieldType(
+        GraphQLObjectType<Object>(
+          'SomeObject',
+          fields: [
+            field(
+              'badField',
+              graphQLString,
+              inputs: [
+                inputField('__badName', graphQLString),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
         },
-      }),
-    );
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
-      },
-    ]);
-  });
-});
-
-describe('Type System: Fields args must be properly named', () => {
-  it('accepts field args with valid names', () => {
-    const schema = schemaWithFieldType(
-      new GraphQLObjectType({
-        name: 'SomeObject',
-        fields: {
-          goodField: {
-            type: GraphQLString,
-            args: {
-              goodArg: { type: GraphQLString },
-            },
-          },
-        },
-      }),
-    );
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
+      ]);
+    });
   });
 
-  it('rejects field arg with invalid names', () => {
-    const schema = schemaWithFieldType(
-      new GraphQLObjectType({
-        name: 'SomeObject',
-        fields: {
-          badField: {
-            type: GraphQLString,
-            args: {
-              __badName: { type: GraphQLString },
-            },
-          },
-        },
-      }),
-    );
-
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
-      },
-    ]);
-  });
-});
-
-describe('Type System: Union types must be valid', () => {
-  it('accepts a Union type with member types', () => {
-    const schema = buildSchema(`
+  group('Type System: Union types must be valid', () {
+    test('accepts a Union type with member types', () {
+      final schema = buildSchema('''
       type Query {
         test: GoodUnion
       }
@@ -562,41 +610,42 @@ describe('Type System: Union types must be valid', () => {
       union GoodUnion =
         | TypeA
         | TypeB
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects a Union type with empty types', () => {
-    let schema = buildSchema(`
+    test('rejects a Union type with empty types', () {
+      var schema = buildSchema('''
       type Query {
         test: BadUnion
       }
 
       union BadUnion
-    `);
+    ''');
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         directive @test on UNION
 
         extend union BadUnion @test
-      `),
-    );
+      '''),
+      );
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Union type BadUnion must define one or more member types.',
-        locations: [
-          { line: 6, column: 7 },
-          { line: 4, column: 9 },
-        ],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Union type BadUnion must define one or more member types.',
+          'locations': [
+            {'line': 6, 'column': 7},
+            {'line': 4, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a Union type with duplicated member type', () => {
-    let schema = buildSchema(`
+    test('rejects a Union type with duplicated member type', () {
+      var schema = buildSchema('''
       type Query {
         test: BadUnion
       }
@@ -613,40 +662,41 @@ describe('Type System: Union types must be valid', () => {
         | TypeA
         | TypeB
         | TypeA
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Union type BadUnion can only include type TypeA once.',
-        locations: [
-          { line: 15, column: 11 },
-          { line: 17, column: 11 },
-        ],
-      },
-    ]);
+      expectJSON(validateSchema(schema), [
+        {
+          'message': 'Union type BadUnion can only include type TypeA once.',
+          'locations': [
+            {'line': 15, 'column': 11},
+            {'line': 17, 'column': 11},
+          ],
+        },
+      ]);
 
-    schema = extendSchema(schema, parse('extend union BadUnion = TypeB'));
+      schema =
+          extendSchema(schema, parseString('extend union BadUnion = TypeB'));
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Union type BadUnion can only include type TypeA once.',
-        locations: [
-          { line: 15, column: 11 },
-          { line: 17, column: 11 },
-        ],
-      },
-      {
-        message: 'Union type BadUnion can only include type TypeB once.',
-        locations: [
-          { line: 16, column: 11 },
-          { line: 1, column: 25 },
-        ],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message': 'Union type BadUnion can only include type TypeA once.',
+          'locations': [
+            {'line': 15, 'column': 11},
+            {'line': 17, 'column': 11},
+          ],
+        },
+        {
+          'message': 'Union type BadUnion can only include type TypeB once.',
+          'locations': [
+            {'line': 16, 'column': 11},
+            {'line': 1, 'column': 25},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a Union type with non-Object members types', () => {
-    let schema = buildSchema(`
+    test('rejects a Union type with non-Object members types', () {
+      var schema = buildSchema('''
       type Query {
         test: BadUnion
       }
@@ -663,53 +713,56 @@ describe('Type System: Union types must be valid', () => {
         | TypeA
         | String
         | TypeB
-    `);
+    ''');
 
-    schema = extendSchema(schema, parse('extend union BadUnion = Int'));
+      schema = extendSchema(schema, parseString('extend union BadUnion = Int'));
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Union type BadUnion can only include Object types, it cannot include String.',
-        locations: [{ line: 16, column: 11 }],
-      },
-      {
-        message:
-          'Union type BadUnion can only include Object types, it cannot include Int.',
-        locations: [{ line: 1, column: 25 }],
-      },
-    ]);
-
-    const badUnionMemberTypes = [
-      GraphQLString,
-      new GraphQLNonNull(SomeObjectType),
-      new GraphQLList(SomeObjectType),
-      SomeInterfaceType,
-      SomeUnionType,
-      SomeEnumType,
-      SomeInputObjectType,
-    ];
-    for (const memberType of badUnionMemberTypes) {
-      const badUnion = new GraphQLUnionType({
-        name: 'BadUnion',
-        // @ts-expect-error
-        types: [memberType],
-      });
-      const badSchema = schemaWithFieldType(badUnion);
-      expectJSON(validateSchema(badSchema)).toDeepEqual([
+      expectJSON(validateSchema(schema), [
         {
-          message:
-            'Union type BadUnion can only include Object types, ' +
-            `it cannot include ${inspect(memberType)}.`,
+          'message':
+              'Union type BadUnion can only include Object types, it cannot include String.',
+          'locations': [
+            {'line': 16, 'column': 11}
+          ],
+        },
+        {
+          'message':
+              'Union type BadUnion can only include Object types, it cannot include Int.',
+          'locations': [
+            {'line': 1, 'column': 25}
+          ],
         },
       ]);
-    }
-  });
-});
 
-describe('Type System: Input Objects must have fields', () => {
-  it('accepts an Input Object type with fields', () => {
-    const schema = buildSchema(`
+      final badUnionMemberTypes = [
+        // graphQLString,
+        // SomeObjectType.nonNull(),
+        // SomeObjectType.list(),
+        SomeInterfaceType,
+        // SomeUnionType,
+        // SomeEnumType,
+        // SomeInputObjectType,
+      ];
+      for (final memberType in badUnionMemberTypes) {
+        final badUnion = GraphQLUnionType<Object>(
+          'BadUnion',
+          // @ts-expect-error
+          [memberType],
+        );
+        final badSchema = schemaWithFieldType(badUnion);
+        expectJSON(validateSchema(badSchema), [
+          {
+            'message': 'Union type BadUnion can only include Object types, '
+                'it cannot include ${inspect(memberType)}.',
+          },
+        ]);
+      }
+    });
+  });
+
+  group('Type System: Input Objects must have fields', () {
+    test('accepts an Input Object type with fields', () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -717,42 +770,42 @@ describe('Type System: Input Objects must have fields', () => {
       input SomeInputObject {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Input Object type with missing fields', () => {
-    let schema = buildSchema(`
+    test('rejects an Input Object type with missing fields', () {
+      var schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
 
       input SomeInputObject
-    `);
+    ''');
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         directive @test on INPUT_OBJECT
 
         extend input SomeInputObject @test
-      `),
-    );
+      '''),
+      );
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Input Object type SomeInputObject must define one or more fields.',
-        locations: [
-          { line: 6, column: 7 },
-          { line: 4, column: 9 },
-        ],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Input Object type SomeInputObject must define one or more fields.',
+          'locations': [
+            {'line': 6, 'column': 7},
+            {'line': 4, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Input Object with breakable circular reference', () => {
-    const schema = buildSchema(`
+    test('accepts an Input Object with breakable circular reference', () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -768,13 +821,13 @@ describe('Type System: Input Objects must have fields', () => {
       input AnotherInputObject {
         parent: SomeInputObject
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Input Object with non-breakable circular reference', () => {
-    const schema = buildSchema(`
+    test('rejects an Input Object with non-breakable circular reference', () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -782,19 +835,23 @@ describe('Type System: Input Objects must have fields', () => {
       input SomeInputObject {
         nonNullSelf: SomeInputObject!
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "nonNullSelf".',
-        locations: [{ line: 7, column: 9 }],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "nonNullSelf".',
+          'locations': [
+            {'line': 7, 'column': 9}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects Input Objects with non-breakable circular reference spread across them', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects Input Objects with non-breakable circular reference spread across them',
+        () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -810,23 +867,24 @@ describe('Type System: Input Objects must have fields', () => {
       input YetAnotherInputObject {
         closeLoop: SomeInputObject!
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.nextInLoop.closeLoop".',
-        locations: [
-          { line: 7, column: 9 },
-          { line: 11, column: 9 },
-          { line: 15, column: 9 },
-        ],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.nextInLoop.closeLoop".',
+          'locations': [
+            {'line': 7, 'column': 9},
+            {'line': 11, 'column': 9},
+            {'line': 15, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects Input Objects with multiple non-breakable circular reference', () => {
-    const schema = buildSchema(`
+    test('rejects Input Objects with multiple non-breakable circular reference',
+        () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -844,35 +902,37 @@ describe('Type System: Input Objects must have fields', () => {
         closeSecondLoop: AnotherInputObject!
         nonNullSelf: YetAnotherInputObject!
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.closeLoop".',
-        locations: [
-          { line: 7, column: 9 },
-          { line: 11, column: 9 },
-        ],
-      },
-      {
-        message:
-          'Cannot reference Input Object "AnotherInputObject" within itself through a series of non-null fields: "startSecondLoop.closeSecondLoop".',
-        locations: [
-          { line: 12, column: 9 },
-          { line: 16, column: 9 },
-        ],
-      },
-      {
-        message:
-          'Cannot reference Input Object "YetAnotherInputObject" within itself through a series of non-null fields: "nonNullSelf".',
-        locations: [{ line: 17, column: 9 }],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.closeLoop".',
+          'locations': [
+            {'line': 7, 'column': 9},
+            {'line': 11, 'column': 9},
+          ],
+        },
+        {
+          'message':
+              'Cannot reference Input Object "AnotherInputObject" within itself through a series of non-null fields: "startSecondLoop.closeSecondLoop".',
+          'locations': [
+            {'line': 12, 'column': 9},
+            {'line': 16, 'column': 9},
+          ],
+        },
+        {
+          'message':
+              'Cannot reference Input Object "YetAnotherInputObject" within itself through a series of non-null fields: "nonNullSelf".',
+          'locations': [
+            {'line': 17, 'column': 9}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Input Object type with incorrectly typed fields', () => {
-    const schema = buildSchema(`
+    test('rejects an Input Object type with incorrectly typed fields', () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -888,23 +948,29 @@ describe('Type System: Input Objects must have fields', () => {
         badUnion: SomeUnion
         goodInputObject: SomeInputObject
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of SomeInputObject.badObject must be Input Type but got: SomeObject.',
-        locations: [{ line: 13, column: 20 }],
-      },
-      {
-        message:
-          'The type of SomeInputObject.badUnion must be Input Type but got: SomeUnion.',
-        locations: [{ line: 14, column: 19 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'The type of SomeInputObject.badObject must be Input Type but got: SomeObject.',
+          'locations': [
+            {'line': 13, 'column': 20}
+          ],
+        },
+        {
+          'message':
+              'The type of SomeInputObject.badUnion must be Input Type but got: SomeUnion.',
+          'locations': [
+            {'line': 14, 'column': 19}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Input Object type with required argument that is deprecated', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects an Input Object type with required argument that is deprecated',
+        () {
+      final schema = buildSchema('''
       type Query {
         field(arg: SomeInputObject): String
       }
@@ -914,139 +980,144 @@ describe('Type System: Input Objects must have fields', () => {
         optionalField: String @deprecated
         anotherOptionalField: String! = "" @deprecated
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Required input field SomeInputObject.badField cannot be deprecated.',
-        locations: [
-          { line: 7, column: 27 },
-          { line: 7, column: 19 },
-        ],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Required input field SomeInputObject.badField cannot be deprecated.',
+          'locations': [
+            {'line': 7, 'column': 27},
+            {'line': 7, 'column': 19},
+          ],
+        },
+      ]);
+    });
   });
-});
 
-describe('Type System: Enum types must be well defined', () => {
-  it('rejects an Enum type without values', () => {
-    let schema = buildSchema(`
+  group('Type System: Enum types must be well defined', () {
+    test('rejects an Enum type without values', () {
+      var schema = buildSchema('''
       type Query {
         field: SomeEnum
       }
 
       enum SomeEnum
-    `);
+    ''');
 
-    schema = extendSchema(
-      schema,
-      parse(`
+      schema = extendSchema(
+        schema,
+        parseString('''
         directive @test on ENUM
 
         extend enum SomeEnum @test
-      `),
-    );
+      '''),
+      );
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Enum type SomeEnum must define one or more values.',
-        locations: [
-          { line: 6, column: 7 },
-          { line: 4, column: 9 },
-        ],
-      },
-    ]);
-  });
-
-  it('rejects an Enum type with incorrectly named values', () => {
-    const schema = schemaWithFieldType(
-      new GraphQLEnumType({
-        name: 'SomeEnum',
-        values: {
-          __badName: {},
-        },
-      }),
-    );
-
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
-      },
-    ]);
-  });
-});
-
-describe('Type System: Object fields must have output types', () => {
-  function schemaWithObjectField(
-    fieldConfig: GraphQLFieldConfig<unknown, unknown>,
-  ): GraphQLSchema {
-    const BadObjectType = new GraphQLObjectType({
-      name: 'BadObject',
-      fields: {
-        badField: fieldConfig,
-      },
-    });
-
-    return new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          f: { type: BadObjectType },
-        },
-      }),
-      types: [SomeObjectType],
-    });
-  }
-
-  for (const type of outputTypes) {
-    const typeName = inspect(type);
-    it(`accepts an output type as an Object field type: ${typeName}`, () => {
-      const schema = schemaWithObjectField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([]);
-    });
-  }
-
-  it('rejects an empty Object field type', () => {
-    // @ts-expect-error (type field must not be undefined)
-    const schema = schemaWithObjectField({ type: undefined });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadObject.badField must be Output Type but got: undefined.',
-      },
-    ]);
-  });
-
-  for (const type of notOutputTypes) {
-    const typeStr = inspect(type);
-    it(`rejects a non-output type as an Object field type: ${typeStr}`, () => {
-      // @ts-expect-error
-      const schema = schemaWithObjectField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([
+      expectJSON(validateSchema(schema), [
         {
-          message: `The type of BadObject.badField must be Output Type but got: ${typeStr}.`,
+          'message': 'Enum type SomeEnum must define one or more values.',
+          'locations': [
+            {'line': 6, 'column': 7},
+            {'line': 4, 'column': 9},
+          ],
         },
       ]);
     });
-  }
 
-  it('rejects a non-type value as an Object field type', () => {
-    // @ts-expect-error
-    const schema = schemaWithObjectField({ type: Number });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadObject.badField must be Output Type but got: [function Number].',
-      },
-      {
-        message: 'Expected GraphQL named type but got: [function Number].',
-      },
-    ]);
+    test('rejects an Enum type with incorrectly named values', () {
+      final schema = schemaWithFieldType(
+        GraphQLEnumType<Map<String, Object?>>(
+          'SomeEnum',
+          [
+            GraphQLEnumValue('__badName', {}),
+          ],
+        ),
+      );
+
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Name "__badName" must not begin with "__", which is reserved by GraphQL introspection.',
+        },
+      ]);
+    });
   });
 
-  it('rejects with relevant locations for a non-output type as an Object field type', () => {
-    const schema = buildSchema(`
+  group('Type System: Object fields must have output types', () {
+    GraphQLSchema schemaWithObjectField(
+      GraphQLObjectField<Object?, Object?, Object?> fieldConfig,
+    ) {
+      final BadObjectType = GraphQLObjectType<Object?>(
+        'BadObject',
+        fields: [
+          copyFieldWithName('badField', fieldConfig),
+        ],
+      );
+
+      return GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field('f', BadObjectType),
+          ],
+        ),
+        otherTypes: [SomeObjectType],
+      );
+    }
+
+    for (final type in outputTypes) {
+      final typeName = inspect(type);
+      test('''accepts an output type as an Object field type: ${typeName}''',
+          () {
+        final schema = schemaWithObjectField(type.field(''));
+        expectJSON(validateSchema(schema), []);
+      });
+    }
+
+    // test('rejects an empty Object field type', () {
+    //   // @ts-expect-error (type field must not be undefined)
+    //   final schema = schemaWithObjectField({type: undefined});
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //           'The type of BadObject.badField must be Output Type but got: undefined.',
+    //     },
+    //   ]);
+    // });
+
+    for (final type in notOutputTypes) {
+      final typeStr = inspect(type);
+      test('''rejects a non-output type as an Object field type: ${typeStr}''',
+          () {
+        // @ts-expect-error
+        final schema = schemaWithObjectField(type.field(''));
+        expectJSON(validateSchema(schema), [
+          {
+            'message':
+                '''The type of BadObject.badField must be Output Type but got: ${typeStr}.''',
+          },
+        ]);
+      });
+    }
+
+    // test('rejects a non-type value as an Object field type', () {
+    //   // @ts-expect-error
+    //   final schema = schemaWithObjectField({ type: Number });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of BadObject.badField must be Output Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message': 'Expected GraphQL named type but got: [function Number].',
+    //     },
+    //   ]);
+    // });
+
+    test(
+        'rejects with relevant locations for a non-output type as an Object field type',
+        () {
+      final schema = buildSchema('''
       type Query {
         field: [SomeInputObject]
       }
@@ -1054,38 +1125,40 @@ describe('Type System: Object fields must have output types', () => {
       input SomeInputObject {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of Query.field must be Output Type but got: [SomeInputObject].',
-        locations: [{ line: 3, column: 16 }],
-      },
-    ]);
-  });
-});
-
-describe('Type System: Objects can only implement unique interfaces', () => {
-  it('rejects an Object implementing a non-type values', () => {
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'BadObject',
-        // @ts-expect-error (interfaces must not contain undefined)
-        interfaces: [undefined],
-        fields: { f: { type: GraphQLString } },
-      }),
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'The type of Query.field must be Output Type but got: [SomeInputObject].',
+          'locations': [
+            {'line': 3, 'column': 16}
+          ],
+        },
+      ]);
     });
-
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type BadObject must only implement Interface types, it cannot implement undefined.',
-      },
-    ]);
   });
 
-  it('rejects an Object implementing a non-Interface type', () => {
-    const schema = buildSchema(`
+  group('Type System: Objects can only implement unique interfaces', () {
+    // test('rejects an Object implementing a non-type values', () {
+    //   final schema =  GraphQLSchema(
+    //     queryType:  GraphQLObjectType(
+    //       'BadObject',
+    //       // @ts-expect-error (interfaces must not contain undefined)
+    //       interfaces: [undefined],
+    //       fields: { f: { type: GraphQLString } },
+    //     ),
+    //   );
+
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'Type BadObject must only implement Interface types, it cannot implement undefined.',
+    //     },
+    //   ]);
+    // });
+
+    test('rejects an Object implementing a non-Interface type', () {
+      final schema = buildSchema('''
       type Query {
         test: BadObject
       }
@@ -1097,18 +1170,21 @@ describe('Type System: Objects can only implement unique interfaces', () => {
       type BadObject implements SomeInputObject {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type BadObject must only implement Interface types, it cannot implement SomeInputObject.',
-        locations: [{ line: 10, column: 33 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type BadObject must only implement Interface types, it cannot implement SomeInputObject.',
+          'locations': [
+            {'line': 10, 'column': 33}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object implementing the same interface twice', () => {
-    const schema = buildSchema(`
+    // TODO: interfaces
+    test('rejects an Object implementing the same interface twice', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1120,20 +1196,24 @@ describe('Type System: Objects can only implement unique interfaces', () => {
       type AnotherObject implements AnotherInterface & AnotherInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message: 'Type AnotherObject can only implement AnotherInterface once.',
-        locations: [
-          { line: 10, column: 37 },
-          { line: 10, column: 56 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type AnotherObject can only implement AnotherInterface once.',
+          'locations': [
+            {'line': 10, 'column': 37},
+            {'line': 10, 'column': 56},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object implementing the same interface twice due to extension', () => {
-    const schema = buildSchema(`
+    // TODO: interfaces
+    test(
+        'rejects an Object implementing the same interface twice due to extension',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1145,26 +1225,29 @@ describe('Type System: Objects can only implement unique interfaces', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    const extendedSchema = extendSchema(
-      schema,
-      parse('extend type AnotherObject implements AnotherInterface'),
-    );
-    expectJSON(validateSchema(extendedSchema)).toDeepEqual([
-      {
-        message: 'Type AnotherObject can only implement AnotherInterface once.',
-        locations: [
-          { line: 10, column: 37 },
-          { line: 1, column: 38 },
-        ],
-      },
-    ]);
+    ''');
+      final extendedSchema = extendSchema(
+        schema,
+        parseString('extend type AnotherObject implements AnotherInterface'),
+      );
+      expectJSON(validateSchema(extendedSchema), [
+        {
+          'message':
+              'Type AnotherObject can only implement AnotherInterface once.',
+          'locations': [
+            {'line': 10, 'column': 37},
+            {'line': 1, 'column': 38},
+          ],
+        },
+      ]);
+    });
   });
-});
 
-describe('Type System: Interface extensions should be valid', () => {
-  it('rejects an Object implementing the extended interface due to missing field', () => {
-    const schema = buildSchema(`
+  group('Type System: Interface extensions should be valid', () {
+    test(
+        'rejects an Object implementing the extended interface due to missing field',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1176,10 +1259,10 @@ describe('Type System: Interface extensions should be valid', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    const extendedSchema = extendSchema(
-      schema,
-      parse(`
+    ''');
+      final extendedSchema = extendSchema(
+        schema,
+        parseString('''
         extend interface AnotherInterface {
           newField: String
         }
@@ -1187,23 +1270,25 @@ describe('Type System: Interface extensions should be valid', () => {
         extend type AnotherObject {
           differentNewField: String
         }
-      `),
-    );
-    expectJSON(validateSchema(extendedSchema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.newField expected but AnotherObject does not provide it.',
-        locations: [
-          { line: 3, column: 11 },
-          { line: 10, column: 7 },
-          { line: 6, column: 9 },
-        ],
-      },
-    ]);
-  });
+      '''),
+      );
+      expectJSON(validateSchema(extendedSchema), [
+        {
+          'message':
+              'Interface field AnotherInterface.newField expected but AnotherObject does not provide it.',
+          'locations': [
+            {'line': 3, 'column': 11},
+            {'line': 10, 'column': 7},
+            {'line': 6, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object implementing the extended interface due to missing field args', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects an Object implementing the extended interface due to missing field args',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1215,10 +1300,10 @@ describe('Type System: Interface extensions should be valid', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    const extendedSchema = extendSchema(
-      schema,
-      parse(`
+    ''');
+      final extendedSchema = extendSchema(
+        schema,
+        parseString('''
         extend interface AnotherInterface {
           newField(test: Boolean): String
         }
@@ -1226,22 +1311,24 @@ describe('Type System: Interface extensions should be valid', () => {
         extend type AnotherObject {
           newField: String
         }
-      `),
-    );
-    expectJSON(validateSchema(extendedSchema)).toDeepEqual([
-      {
-        message:
-          'Interface field argument AnotherInterface.newField(test:) expected but AnotherObject.newField does not provide it.',
-        locations: [
-          { line: 3, column: 20 },
-          { line: 7, column: 11 },
-        ],
-      },
-    ]);
-  });
+      '''),
+      );
+      expectJSON(validateSchema(extendedSchema), [
+        {
+          'message':
+              'Interface field argument AnotherInterface.newField(test:) expected but AnotherObject.newField does not provide it.',
+          'locations': [
+            {'line': 3, 'column': 20},
+            {'line': 7, 'column': 11},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects Objects implementing the extended interface due to mismatching interface type', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects Objects implementing the extended interface due to mismatching interface type',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1253,10 +1340,10 @@ describe('Type System: Interface extensions should be valid', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    const extendedSchema = extendSchema(
-      schema,
-      parse(`
+    ''');
+      final extendedSchema = extendSchema(
+        schema,
+        parseString('''
         extend interface AnotherInterface {
           newInterfaceField: NewInterface
         }
@@ -1277,108 +1364,116 @@ describe('Type System: Interface extensions should be valid', () => {
         type DummyObject implements NewInterface & MismatchingInterface {
           newField: String
         }
-      `),
-    );
-    expectJSON(validateSchema(extendedSchema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.newInterfaceField expects type NewInterface but AnotherObject.newInterfaceField is type MismatchingInterface.',
-        locations: [
-          { line: 3, column: 30 },
-          { line: 15, column: 30 },
-        ],
-      },
-    ]);
-  });
-});
-
-describe('Type System: Interface fields must have output types', () => {
-  function schemaWithInterfaceField(
-    fieldConfig: GraphQLFieldConfig<unknown, unknown>,
-  ): GraphQLSchema {
-    const fields = { badField: fieldConfig };
-
-    const BadInterfaceType = new GraphQLInterfaceType({
-      name: 'BadInterface',
-      fields,
-    });
-
-    const BadImplementingType = new GraphQLObjectType({
-      name: 'BadImplementing',
-      interfaces: [BadInterfaceType],
-      fields,
-    });
-
-    return new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          f: { type: BadInterfaceType },
-        },
-      }),
-      types: [BadImplementingType, SomeObjectType],
-    });
-  }
-
-  for (const type of outputTypes) {
-    const typeName = inspect(type);
-    it(`accepts an output type as an Interface field type: ${typeName}`, () => {
-      const schema = schemaWithInterfaceField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([]);
-    });
-  }
-
-  it('rejects an empty Interface field type', () => {
-    // @ts-expect-error (type field must not be undefined)
-    const schema = schemaWithInterfaceField({ type: undefined });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadImplementing.badField must be Output Type but got: undefined.',
-      },
-      {
-        message:
-          'The type of BadInterface.badField must be Output Type but got: undefined.',
-      },
-    ]);
-  });
-
-  for (const type of notOutputTypes) {
-    const typeStr = inspect(type);
-    it(`rejects a non-output type as an Interface field type: ${typeStr}`, () => {
-      // @ts-expect-error
-      const schema = schemaWithInterfaceField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([
+      '''),
+      );
+      expectJSON(validateSchema(extendedSchema), [
         {
-          message: `The type of BadImplementing.badField must be Output Type but got: ${typeStr}.`,
-        },
-        {
-          message: `The type of BadInterface.badField must be Output Type but got: ${typeStr}.`,
+          'message':
+              'Interface field AnotherInterface.newInterfaceField expects type NewInterface but AnotherObject.newInterfaceField is type MismatchingInterface.',
+          'locations': [
+            {'line': 3, 'column': 30},
+            {'line': 15, 'column': 30},
+          ],
         },
       ]);
     });
-  }
-
-  it('rejects a non-type value as an Interface field type', () => {
-    // @ts-expect-error
-    const schema = schemaWithInterfaceField({ type: Number });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadImplementing.badField must be Output Type but got: [function Number].',
-      },
-      {
-        message:
-          'The type of BadInterface.badField must be Output Type but got: [function Number].',
-      },
-      {
-        message: 'Expected GraphQL named type but got: [function Number].',
-      },
-    ]);
   });
 
-  it('rejects a non-output type as an Interface field type with locations', () => {
-    const schema = buildSchema(`
+  group('Type System: Interface fields must have output types', () {
+    GraphQLSchema schemaWithInterfaceField(
+      GraphQLObjectField<Object?, Object?, Object?> fieldConfig,
+    ) {
+      final fields = [copyFieldWithName('badField', fieldConfig)];
+
+      final BadInterfaceType = GraphQLObjectType<Object?>(
+        // GraphQLInterfaceType
+        'BadInterface',
+        fields: fields,
+        isInterface: true,
+      );
+
+      final BadImplementingType = GraphQLObjectType<Object?>(
+        'BadImplementing',
+        interfaces: [BadInterfaceType],
+        fields: fields,
+      );
+
+      return GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field('f', BadInterfaceType),
+          ],
+        ),
+        otherTypes: [BadImplementingType, SomeObjectType],
+      );
+    }
+
+    for (final type in outputTypes) {
+      final typeName = inspect(type);
+      test('''accepts an output type as an Interface field type: ${typeName}''',
+          () {
+        final schema = schemaWithInterfaceField(type.field<Object>(''));
+        expectJSON(validateSchema(schema), []);
+      });
+    }
+
+    // test('rejects an empty Interface field type', () {
+    //   // @ts-expect-error (type field must not be undefined)
+    //   final schema = schemaWithInterfaceField({ type: undefined });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of BadImplementing.badField must be Output Type but got: undefined.',
+    //     },
+    //     {
+    //       'message':
+    //         'The type of BadInterface.badField must be Output Type but got: undefined.',
+    //     },
+    //   ]);
+    // });
+
+    for (final type in notOutputTypes) {
+      final typeStr = inspect(type);
+      test(
+          '''rejects a non-output type as an Interface field type: ${typeStr}''',
+          () {
+        // @ts-expect-error
+        final schema = schemaWithInterfaceField(type.field<Object>(''));
+        expectJSON(validateSchema(schema), [
+          {
+            'message':
+                '''The type of BadImplementing.badField must be Output Type but got: ${typeStr}.''',
+          },
+          {
+            'message':
+                '''The type of BadInterface.badField must be Output Type but got: ${typeStr}.''',
+          },
+        ]);
+      });
+    }
+
+    // test('rejects a non-type value as an Interface field type', () {
+    //   // @ts-expect-error
+    //   final schema = schemaWithInterfaceField({ type: Number });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of BadImplementing.badField must be Output Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message':
+    //         'The type of BadInterface.badField must be Output Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message': 'Expected GraphQL named type but got: [function Number].',
+    //     },
+    //   ]);
+    // });
+
+    test('rejects a non-output type as an Interface field type with locations',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: SomeInterface
       }
@@ -1394,23 +1489,27 @@ describe('Type System: Interface fields must have output types', () => {
       type SomeObject implements SomeInterface {
         field: SomeInputObject
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
-        locations: [{ line: 7, column: 16 }],
-      },
-      {
-        message:
-          'The type of SomeObject.field must be Output Type but got: SomeInputObject.',
-        locations: [{ line: 15, column: 16 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
+          'locations': [
+            {'line': 7, 'column': 16}
+          ],
+        },
+        {
+          'message':
+              'The type of SomeObject.field must be Output Type but got: SomeInputObject.',
+          'locations': [
+            {'line': 15, 'column': 16}
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an interface not implemented by at least one object', () => {
-    const schema = buildSchema(`
+    test('accepts an interface not implemented by at least one object', () {
+      final schema = buildSchema('''
       type Query {
         test: SomeInterface
       }
@@ -1418,103 +1517,106 @@ describe('Type System: Interface fields must have output types', () => {
       interface SomeInterface {
         foo: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
   });
-});
 
-describe('Type System: Arguments must have input types', () => {
-  function schemaWithArg(argConfig: GraphQLArgumentConfig): GraphQLSchema {
-    const BadObjectType = new GraphQLObjectType({
-      name: 'BadObject',
-      fields: {
-        badField: {
-          type: GraphQLString,
-          args: {
-            badArg: argConfig,
+  group('Type System: Arguments must have input types', () {
+    GraphQLSchema schemaWithArg(GraphQLType argConfig) {
+      final BadObjectType = GraphQLObjectType<Object>(
+        'BadObject',
+        fields: [
+          field(
+            'badField',
+            graphQLString,
+            inputs: [
+              inputField('badArg', argConfig),
+            ],
+          ),
+        ],
+      );
+
+      return GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field('f', BadObjectType),
+          ],
+        ),
+        directives: [
+          GraphQLDirective(
+            name: 'BadDirective',
+            inputs: [
+              inputField<Object?, Object?>('badArg', argConfig),
+            ],
+            locations: [DirectiveLocation.QUERY],
+          ),
+        ],
+      );
+    }
+
+    for (final type in inputTypes) {
+      final typeName = inspect(type);
+      test('''accepts an input type as a field arg type: ${typeName}''', () {
+        final schema = schemaWithArg(type);
+        expectJSON(validateSchema(schema), []);
+      });
+    }
+
+    // test('rejects an empty field arg type', () {
+    //   // @ts-expect-error (type field must not be undefined)
+    //   final schema = schemaWithArg({ type: undefined });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of @BadDirective(badArg:) must be Input Type but got: undefined.',
+    //     },
+    //     {
+    //       'message':
+    //         'The type of BadObject.badField(badArg:) must be Input Type but got: undefined.',
+    //     },
+    //   ]);
+    // });
+
+    for (final type in notInputTypes) {
+      final typeStr = inspect(type);
+      test('''rejects a non-input type as a field arg type: ${typeStr}''', () {
+        // @ts-expect-error
+        final schema = schemaWithArg(type);
+        expectJSON(validateSchema(schema), [
+          {
+            'message':
+                '''The type of @BadDirective(badArg:) must be Input Type but got: ${typeStr}.''',
           },
-        },
-      },
-    });
-
-    return new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          f: { type: BadObjectType },
-        },
-      }),
-      directives: [
-        new GraphQLDirective({
-          name: 'BadDirective',
-          args: {
-            badArg: argConfig,
+          {
+            'message':
+                '''The type of BadObject.badField(badArg:) must be Input Type but got: ${typeStr}.''',
           },
-          locations: [DirectiveLocation.QUERY],
-        }),
-      ],
-    });
-  }
+        ]);
+      });
+    }
 
-  for (const type of inputTypes) {
-    const typeName = inspect(type);
-    it(`accepts an input type as a field arg type: ${typeName}`, () => {
-      const schema = schemaWithArg({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([]);
-    });
-  }
+    // test('rejects a non-type value as a field arg type', () {
+    //   // @ts-expect-error
+    //   final schema = schemaWithArg({ type: Number });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of @BadDirective(badArg:) must be Input Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message':
+    //         'The type of BadObject.badField(badArg:) must be Input Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message': 'Expected GraphQL named type but got: [function Number].',
+    //     },
+    //   ]);
+    // });
 
-  it('rejects an empty field arg type', () => {
-    // @ts-expect-error (type field must not be undefined)
-    const schema = schemaWithArg({ type: undefined });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of @BadDirective(badArg:) must be Input Type but got: undefined.',
-      },
-      {
-        message:
-          'The type of BadObject.badField(badArg:) must be Input Type but got: undefined.',
-      },
-    ]);
-  });
-
-  for (const type of notInputTypes) {
-    const typeStr = inspect(type);
-    it(`rejects a non-input type as a field arg type: ${typeStr}`, () => {
-      // @ts-expect-error
-      const schema = schemaWithArg({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([
-        {
-          message: `The type of @BadDirective(badArg:) must be Input Type but got: ${typeStr}.`,
-        },
-        {
-          message: `The type of BadObject.badField(badArg:) must be Input Type but got: ${typeStr}.`,
-        },
-      ]);
-    });
-  }
-
-  it('rejects a non-type value as a field arg type', () => {
-    // @ts-expect-error
-    const schema = schemaWithArg({ type: Number });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of @BadDirective(badArg:) must be Input Type but got: [function Number].',
-      },
-      {
-        message:
-          'The type of BadObject.badField(badArg:) must be Input Type but got: [function Number].',
-      },
-      {
-        message: 'Expected GraphQL named type but got: [function Number].',
-      },
-    ]);
-  });
-
-  it('rejects an required argument that is deprecated', () => {
-    const schema = buildSchema(`
+    test('rejects an required argument that is deprecated', () {
+      final schema = buildSchema('''
       directive @BadDirective(
         badArg: String! @deprecated
         optionalArg: String @deprecated
@@ -1528,28 +1630,29 @@ describe('Type System: Arguments must have input types', () => {
           anotherOptionalArg: String! = "" @deprecated
         ): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Required argument @BadDirective(badArg:) cannot be deprecated.',
-        locations: [
-          { line: 3, column: 25 },
-          { line: 3, column: 17 },
-        ],
-      },
-      {
-        message: 'Required argument Query.test(badArg:) cannot be deprecated.',
-        locations: [
-          { line: 10, column: 27 },
-          { line: 10, column: 19 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Required argument @BadDirective(badArg:) cannot be deprecated.',
+          'locations': [
+            {'line': 3, 'column': 25},
+            {'line': 3, 'column': 17},
+          ],
+        },
+        {
+          'message':
+              'Required argument Query.test(badArg:) cannot be deprecated.',
+          'locations': [
+            {'line': 10, 'column': 27},
+            {'line': 10, 'column': 19},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a non-input type as a field arg with locations', () => {
-    const schema = buildSchema(`
+    test('rejects a non-input type as a field arg with locations', () {
+      final schema = buildSchema('''
       type Query {
         test(arg: SomeObject): String
       }
@@ -1557,91 +1660,97 @@ describe('Type System: Arguments must have input types', () => {
       type SomeObject {
         foo: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of Query.test(arg:) must be Input Type but got: SomeObject.',
-        locations: [{ line: 3, column: 19 }],
-      },
-    ]);
-  });
-});
-
-describe('Type System: Input Object fields must have input types', () => {
-  function schemaWithInputField(
-    inputFieldConfig: GraphQLInputFieldConfig,
-  ): GraphQLSchema {
-    const BadInputObjectType = new GraphQLInputObjectType({
-      name: 'BadInputObject',
-      fields: {
-        badField: inputFieldConfig,
-      },
-    });
-
-    return new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: 'Query',
-        fields: {
-          f: {
-            type: GraphQLString,
-            args: {
-              badArg: { type: BadInputObjectType },
-            },
-          },
-        },
-      }),
-    });
-  }
-
-  for (const type of inputTypes) {
-    const typeName = inspect(type);
-    it(`accepts an input type as an input field type: ${typeName}`, () => {
-      const schema = schemaWithInputField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([]);
-    });
-  }
-
-  it('rejects an empty input field type', () => {
-    // @ts-expect-error (type field must not be undefined)
-    const schema = schemaWithInputField({ type: undefined });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadInputObject.badField must be Input Type but got: undefined.',
-      },
-    ]);
-  });
-
-  for (const type of notInputTypes) {
-    const typeStr = inspect(type);
-    it(`rejects a non-input type as an input field type: ${typeStr}`, () => {
-      // @ts-expect-error
-      const schema = schemaWithInputField({ type });
-      expectJSON(validateSchema(schema)).toDeepEqual([
+    ''');
+      expectJSON(validateSchema(schema), [
         {
-          message: `The type of BadInputObject.badField must be Input Type but got: ${typeStr}.`,
+          'message':
+              'The type of Query.test(arg:) must be Input Type but got: SomeObject.',
+          'locations': [
+            {'line': 3, 'column': 19}
+          ],
         },
       ]);
     });
-  }
-
-  it('rejects a non-type value as an input field type', () => {
-    // @ts-expect-error
-    const schema = schemaWithInputField({ type: Number });
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of BadInputObject.badField must be Input Type but got: [function Number].',
-      },
-      {
-        message: 'Expected GraphQL named type but got: [function Number].',
-      },
-    ]);
   });
 
-  it('rejects a non-input type as an input object field with locations', () => {
-    const schema = buildSchema(`
+  group('Type System: Input Object fields must have input types', () {
+    GraphQLSchema schemaWithInputField(
+      GraphQLType inputFieldConfig,
+    ) {
+      final BadInputObjectType = GraphQLInputObjectType<Object>(
+        'BadInputObject',
+        fields: [
+          inputField('badField', inputFieldConfig),
+        ],
+      );
+
+      return GraphQLSchema(
+        queryType: GraphQLObjectType(
+          'Query',
+          fields: [
+            field(
+              'f',
+              graphQLString,
+              inputs: [
+                inputField('badArg', BadInputObjectType),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    for (final type in inputTypes) {
+      final typeName = inspect(type);
+      test('''accepts an input type as an input field type: ${typeName}''', () {
+        final schema = schemaWithInputField(type);
+        expectJSON(validateSchema(schema), []);
+      });
+    }
+
+    // test('rejects an empty input field type', () {
+    //   // @ts-expect-error (type field must not be undefined)
+    //   final schema = schemaWithInputField({ type: undefined });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of BadInputObject.badField must be Input Type but got: undefined.',
+    //     },
+    //   ]);
+    // });
+
+    for (final type in notInputTypes) {
+      final typeStr = inspect(type);
+      test('''rejects a non-input type as an input field type: ${typeStr}''',
+          () {
+        // @ts-expect-error
+        final schema = schemaWithInputField(type);
+        expectJSON(validateSchema(schema), [
+          {
+            'message':
+                '''The type of BadInputObject.badField must be Input Type but got: ${typeStr}.''',
+          },
+        ]);
+      });
+    }
+
+    // test('rejects a non-type value as an input field type', () {
+    //   // @ts-expect-error
+    //   final schema = schemaWithInputField({ type: Number });
+    //   expect(validateSchema(schema), [
+    //     {
+    //       'message':
+    //         'The type of BadInputObject.badField must be Input Type but got: [function Number].',
+    //     },
+    //     {
+    //       'message': 'Expected GraphQL named type but got: [function Number].',
+    //     },
+    //   ]);
+    // });
+
+    test('rejects a non-input type as an input object field with locations',
+        () {
+      final schema = buildSchema('''
       type Query {
         test(arg: SomeInputObject): String
       }
@@ -1653,20 +1762,22 @@ describe('Type System: Input Object fields must have input types', () => {
       type SomeObject {
         bar: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'The type of SomeInputObject.foo must be Input Type but got: SomeObject.',
-        locations: [{ line: 7, column: 14 }],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'The type of SomeInputObject.foo must be Input Type but got: SomeObject.',
+          'locations': [
+            {'line': 7, 'column': 14}
+          ],
+        },
+      ]);
+    });
   });
-});
 
-describe('Objects must adhere to Interface they implement', () => {
-  it('accepts an Object which implements an Interface', () => {
-    const schema = buildSchema(`
+  group('Objects must adhere to Interface they implement', () {
+    test('accepts an Object which implements an Interface', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1678,12 +1789,14 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field(input: String): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Object which implements an Interface along with more fields', () => {
-    const schema = buildSchema(`
+    test(
+        'accepts an Object which implements an Interface along with more fields',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1696,12 +1809,14 @@ describe('Objects must adhere to Interface they implement', () => {
         field(input: String): String
         anotherField: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Object which implements an Interface field along with additional optional arguments', () => {
-    const schema = buildSchema(`
+    test(
+        'accepts an Object which implements an Interface field along with additional optional arguments',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1713,12 +1828,12 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field(input: String, anotherInput: String): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Object missing an Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Object missing an Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1730,21 +1845,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         anotherField: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expected but AnotherObject does not provide it.',
-        locations: [
-          { line: 7, column: 9 },
-          { line: 10, column: 7 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expected but AnotherObject does not provide it.',
+          'locations': [
+            {'line': 7, 'column': 9},
+            {'line': 10, 'column': 7},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object with an incorrectly typed Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with an incorrectly typed Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1756,21 +1871,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field(input: String): Int
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
-        locations: [
-          { line: 7, column: 31 },
-          { line: 11, column: 31 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
+          'locations': [
+            {'line': 7, 'column': 31},
+            {'line': 11, 'column': 31},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object with a differently typed Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with a differently typed Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1785,21 +1900,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: B
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type A but AnotherObject.field is type B.',
-        locations: [
-          { line: 10, column: 16 },
-          { line: 14, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type A but AnotherObject.field is type B.',
+          'locations': [
+            {'line': 10, 'column': 16},
+            {'line': 14, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Object with a subtyped Interface field (interface)', () => {
-    const schema = buildSchema(`
+    test('accepts an Object with a subtyped Interface field (interface)', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1811,12 +1926,12 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: AnotherObject
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Object with a subtyped Interface field (union)', () => {
-    const schema = buildSchema(`
+    test('accepts an Object with a subtyped Interface field (union)', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1834,12 +1949,12 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: SomeObject
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Object missing an Interface argument', () => {
-    const schema = buildSchema(`
+    test('rejects an Object missing an Interface argument', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1851,21 +1966,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field argument AnotherInterface.field(input:) expected but AnotherObject.field does not provide it.',
-        locations: [
-          { line: 7, column: 15 },
-          { line: 11, column: 9 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field argument AnotherInterface.field(input:) expected but AnotherObject.field does not provide it.',
+          'locations': [
+            {'line': 7, 'column': 15},
+            {'line': 11, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object with an incorrectly typed Interface argument', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with an incorrectly typed Interface argument', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1877,21 +1992,22 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field(input: Int): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field argument AnotherInterface.field(input:) expects type String but AnotherObject.field(input:) is type Int.',
-        locations: [
-          { line: 7, column: 22 },
-          { line: 11, column: 22 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field argument AnotherInterface.field(input:) expects type String but AnotherObject.field(input:) is type Int.',
+          'locations': [
+            {'line': 7, 'column': 22},
+            {'line': 11, 'column': 22},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object with both an incorrectly typed field and argument', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with both an incorrectly typed field and argument',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1903,29 +2019,31 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field(input: Int): Int
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
-        locations: [
-          { line: 7, column: 31 },
-          { line: 11, column: 28 },
-        ],
-      },
-      {
-        message:
-          'Interface field argument AnotherInterface.field(input:) expects type String but AnotherObject.field(input:) is type Int.',
-        locations: [
-          { line: 7, column: 22 },
-          { line: 11, column: 22 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type String but AnotherObject.field is type Int.',
+          'locations': [
+            {'line': 7, 'column': 31},
+            {'line': 11, 'column': 28},
+          ],
+        },
+        {
+          'message':
+              'Interface field argument AnotherInterface.field(input:) expects type String but AnotherObject.field(input:) is type Int.',
+          'locations': [
+            {'line': 7, 'column': 22},
+            {'line': 11, 'column': 22},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object which implements an Interface field along with additional required arguments', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects an Object which implements an Interface field along with additional required arguments',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1942,21 +2060,22 @@ describe('Objects must adhere to Interface they implement', () => {
           optionalArg2: String = "",
         ): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Object field AnotherObject.field includes required argument requiredArg that is missing from the Interface field AnotherInterface.field.',
-        locations: [
-          { line: 13, column: 11 },
-          { line: 7, column: 9 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Object field AnotherObject.field includes required argument requiredArg that is missing from the Interface field AnotherInterface.field.',
+          'locations': [
+            {'line': 13, 'column': 11},
+            {'line': 7, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Object with an equivalently wrapped Interface field type', () => {
-    const schema = buildSchema(`
+    test('accepts an Object with an equivalently wrapped Interface field type',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1968,12 +2087,12 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: [String]!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Object with a non-list Interface field list type', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with a non-list Interface field list type', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -1985,21 +2104,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type [String] but AnotherObject.field is type String.',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type [String] but AnotherObject.field is type String.',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object with a list Interface field non-list type', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with a list Interface field non-list type', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -2011,21 +2130,21 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: [String]
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type String but AnotherObject.field is type [String].',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type String but AnotherObject.field is type [String].',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Object with a subset non-null Interface field type', () => {
-    const schema = buildSchema(`
+    test('accepts an Object with a subset non-null Interface field type', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -2037,12 +2156,12 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: String!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Object with a superset nullable Interface field type', () => {
-    const schema = buildSchema(`
+    test('rejects an Object with a superset nullable Interface field type', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -2054,21 +2173,22 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field AnotherInterface.field expects type String! but AnotherObject.field is type String.',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field AnotherInterface.field expects type String! but AnotherObject.field is type String.',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object missing a transitive interface', () => {
-    const schema = buildSchema(`
+    // TODO: interfaces
+    test('rejects an Object missing a transitive interface', () {
+      final schema = buildSchema('''
       type Query {
         test: AnotherObject
       }
@@ -2084,23 +2204,23 @@ describe('Objects must adhere to Interface they implement', () => {
       type AnotherObject implements AnotherInterface {
         field: String!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type AnotherObject must implement SuperInterface because it is implemented by AnotherInterface.',
-        locations: [
-          { line: 10, column: 45 },
-          { line: 14, column: 37 },
-        ],
-      },
-    ]);
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type AnotherObject must implement SuperInterface because it is implemented by AnotherInterface.',
+          'locations': [
+            {'line': 10, 'column': 45},
+            {'line': 14, 'column': 37},
+          ],
+        },
+      ]);
+    });
   });
-});
 
-describe('Interfaces must adhere to Interface they implement', () => {
-  it('accepts an Interface which implements an Interface', () => {
-    const schema = buildSchema(`
+  group('Interfaces must adhere to Interface they implement', () {
+    test('accepts an Interface which implements an Interface', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2112,12 +2232,14 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field(input: String): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Interface which implements an Interface along with more fields', () => {
-    const schema = buildSchema(`
+    test(
+        'accepts an Interface which implements an Interface along with more fields',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2130,12 +2252,14 @@ describe('Interfaces must adhere to Interface they implement', () => {
         field(input: String): String
         anotherField: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Interface which implements an Interface field along with additional optional arguments', () => {
-    const schema = buildSchema(`
+    test(
+        'accepts an Interface which implements an Interface field along with additional optional arguments',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2147,12 +2271,12 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field(input: String, anotherInput: String): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Interface missing an Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface missing an Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2164,21 +2288,21 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         anotherField: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expected but ChildInterface does not provide it.',
-        locations: [
-          { line: 7, column: 9 },
-          { line: 10, column: 7 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expected but ChildInterface does not provide it.',
+          'locations': [
+            {'line': 7, 'column': 9},
+            {'line': 10, 'column': 7},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface with an incorrectly typed Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with an incorrectly typed Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2190,21 +2314,21 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field(input: String): Int
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
-        locations: [
-          { line: 7, column: 31 },
-          { line: 11, column: 31 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
+          'locations': [
+            {'line': 7, 'column': 31},
+            {'line': 11, 'column': 31},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface with a differently typed Interface field', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with a differently typed Interface field', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2219,21 +2343,22 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: B
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type A but ChildInterface.field is type B.',
-        locations: [
-          { line: 10, column: 16 },
-          { line: 14, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type A but ChildInterface.field is type B.',
+          'locations': [
+            {'line': 10, 'column': 16},
+            {'line': 14, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Interface with a subtyped Interface field (interface)', () => {
-    const schema = buildSchema(`
+    test('accepts an Interface with a subtyped Interface field (interface)',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2245,12 +2370,12 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: ChildInterface
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('accepts an Interface with a subtyped Interface field (union)', () => {
-    const schema = buildSchema(`
+    test('accepts an Interface with a subtyped Interface field (union)', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2268,12 +2393,12 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: SomeObject
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Interface implementing a non-Interface type', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface implementing a non-Interface type', () {
+      final schema = buildSchema('''
       type Query {
         field: String
       }
@@ -2285,18 +2410,20 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface BadInterface implements SomeInputObject {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type BadInterface must only implement Interface types, it cannot implement SomeInputObject.',
-        locations: [{ line: 10, column: 41 }],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type BadInterface must only implement Interface types, it cannot implement SomeInputObject.',
+          'locations': [
+            {'line': 10, 'column': 41}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface missing an Interface argument', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface missing an Interface argument', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2308,21 +2435,22 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field argument ParentInterface.field(input:) expected but ChildInterface.field does not provide it.',
-        locations: [
-          { line: 7, column: 15 },
-          { line: 11, column: 9 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field argument ParentInterface.field(input:) expected but ChildInterface.field does not provide it.',
+          'locations': [
+            {'line': 7, 'column': 15},
+            {'line': 11, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface with an incorrectly typed Interface argument', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with an incorrectly typed Interface argument',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2334,21 +2462,23 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field(input: Int): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field argument ParentInterface.field(input:) expects type String but ChildInterface.field(input:) is type Int.',
-        locations: [
-          { line: 7, column: 22 },
-          { line: 11, column: 22 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field argument ParentInterface.field(input:) expects type String but ChildInterface.field(input:) is type Int.',
+          'locations': [
+            {'line': 7, 'column': 22},
+            {'line': 11, 'column': 22},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface with both an incorrectly typed field and argument', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects an Interface with both an incorrectly typed field and argument',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2360,29 +2490,31 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field(input: Int): Int
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
-        locations: [
-          { line: 7, column: 31 },
-          { line: 11, column: 28 },
-        ],
-      },
-      {
-        message:
-          'Interface field argument ParentInterface.field(input:) expects type String but ChildInterface.field(input:) is type Int.',
-        locations: [
-          { line: 7, column: 22 },
-          { line: 11, column: 22 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type String but ChildInterface.field is type Int.',
+          'locations': [
+            {'line': 7, 'column': 31},
+            {'line': 11, 'column': 28},
+          ],
+        },
+        {
+          'message':
+              'Interface field argument ParentInterface.field(input:) expects type String but ChildInterface.field(input:) is type Int.',
+          'locations': [
+            {'line': 7, 'column': 22},
+            {'line': 11, 'column': 22},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface which implements an Interface field along with additional required arguments', () => {
-    const schema = buildSchema(`
+    test(
+        'rejects an Interface which implements an Interface field along with additional required arguments',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2399,21 +2531,23 @@ describe('Interfaces must adhere to Interface they implement', () => {
           optionalArg2: String = "",
         ): String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Object field ChildInterface.field includes required argument requiredArg that is missing from the Interface field ParentInterface.field.',
-        locations: [
-          { line: 13, column: 11 },
-          { line: 7, column: 9 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Object field ChildInterface.field includes required argument requiredArg that is missing from the Interface field ParentInterface.field.',
+          'locations': [
+            {'line': 13, 'column': 11},
+            {'line': 7, 'column': 9},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Interface with an equivalently wrapped Interface field type', () => {
-    const schema = buildSchema(`
+    test(
+        'accepts an Interface with an equivalently wrapped Interface field type',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2425,12 +2559,12 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: [String]!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Interface with a non-list Interface field list type', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with a non-list Interface field list type', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2442,21 +2576,21 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type [String] but ChildInterface.field is type String.',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type [String] but ChildInterface.field is type String.',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Interface with a list Interface field non-list type', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with a list Interface field non-list type', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2468,21 +2602,22 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: [String]
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type String but ChildInterface.field is type [String].',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type String but ChildInterface.field is type [String].',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('accepts an Interface with a subset non-null Interface field type', () => {
-    const schema = buildSchema(`
+    test('accepts an Interface with a subset non-null Interface field type',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2494,12 +2629,13 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: String!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), []);
+    });
 
-  it('rejects an Interface with a superset nullable Interface field type', () => {
-    const schema = buildSchema(`
+    test('rejects an Interface with a superset nullable Interface field type',
+        () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2511,21 +2647,22 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: String
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Interface field ParentInterface.field expects type String! but ChildInterface.field is type String.',
-        locations: [
-          { line: 7, column: 16 },
-          { line: 11, column: 16 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Interface field ParentInterface.field expects type String! but ChildInterface.field is type String.',
+          'locations': [
+            {'line': 7, 'column': 16},
+            {'line': 11, 'column': 16},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects an Object missing a transitive interface', () => {
-    const schema = buildSchema(`
+    // TODO: interfaces
+    test('rejects an Object missing a transitive interface', () {
+      final schema = buildSchema('''
       type Query {
         test: ChildInterface
       }
@@ -2541,21 +2678,21 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface ChildInterface implements ParentInterface {
         field: String!
       }
-    `);
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type ChildInterface must implement SuperInterface because it is implemented by ParentInterface.',
-        locations: [
-          { line: 10, column: 44 },
-          { line: 14, column: 43 },
-        ],
-      },
-    ]);
-  });
+    ''');
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type ChildInterface must implement SuperInterface because it is implemented by ParentInterface.',
+          'locations': [
+            {'line': 10, 'column': 44},
+            {'line': 14, 'column': 43},
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a self reference interface', () => {
-    const schema = buildSchema(`
+    test('rejects a self reference interface', () {
+      final schema = buildSchema('''
       type Query {
         test: FooInterface
       }
@@ -2563,19 +2700,22 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface FooInterface implements FooInterface {
         field: String
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type FooInterface cannot implement itself because it would create a circular reference.',
-        locations: [{ line: 6, column: 41 }],
-      },
-    ]);
-  });
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type FooInterface cannot implement itself because it would create a circular reference.',
+          'locations': [
+            {'line': 6, 'column': 41}
+          ],
+        },
+      ]);
+    });
 
-  it('rejects a circular Interface implementation', () => {
-    const schema = buildSchema(`
+    // TODO: interfaces
+    test('rejects a circular Interface implementation', () {
+      final schema = buildSchema('''
       type Query {
         test: FooInterface
       }
@@ -2587,44 +2727,49 @@ describe('Interfaces must adhere to Interface they implement', () => {
       interface BarInterface implements FooInterface {
         field: String
       }
-    `);
+    ''');
 
-    expectJSON(validateSchema(schema)).toDeepEqual([
-      {
-        message:
-          'Type FooInterface cannot implement BarInterface because it would create a circular reference.',
-        locations: [
-          { line: 10, column: 41 },
-          { line: 6, column: 41 },
-        ],
-      },
-      {
-        message:
-          'Type BarInterface cannot implement FooInterface because it would create a circular reference.',
-        locations: [
-          { line: 6, column: 41 },
-          { line: 10, column: 41 },
-        ],
-      },
-    ]);
+      expectJSON(validateSchema(schema), [
+        {
+          'message':
+              'Type FooInterface cannot implement BarInterface because it would create a circular reference.',
+          'locations': [
+            {'line': 10, 'column': 41},
+            {'line': 6, 'column': 41},
+          ],
+        },
+        {
+          'message':
+              'Type BarInterface cannot implement FooInterface because it would create a circular reference.',
+          'locations': [
+            {'line': 6, 'column': 41},
+            {'line': 10, 'column': 41},
+          ],
+        },
+      ]);
+    });
   });
-});
 
-describe('assertValidSchema', () => {
-  it('do not throw on valid schemas', () => {
-    const schema = buildSchema(`
+  group('assertValidSchema', () {
+    test('do not throw on valid schemas', () {
+      final schema = buildSchema('''
       type Query {
         foo: String
       }
-    `);
-    expect(() => assertValidSchema(schema)).to.not.throw();
-  });
+    ''');
+      vs.assertValidSchema(schema as GraphQLSchema);
+    });
 
-  it('include multiple errors into a description', () => {
-    const schema = buildSchema('type SomeType');
-    expect(() => assertValidSchema(schema)).to.throw(dedent`
-      Query root type must be provided.
-
-      Type SomeType must define one or more fields.`);
+    test('include multiple errors into a description', () {
+      final schema = buildSchema('type SomeType');
+      expect(
+          () => vs.assertValidSchema(schema as GraphQLSchema),
+          throwsA(predicate((e) =>
+              e is GraphQLException &&
+              e.errors.length == 2 &&
+              e.errors.first.message == 'Query root type must be provided.' &&
+              e.errors[1].message ==
+                  'Type SomeType must define one or more fields.')));
+    });
   });
-});
+}

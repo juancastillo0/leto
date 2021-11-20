@@ -50,8 +50,9 @@ class GraphQLUnionType<P> extends GraphQLCompositeType<P>
         resolveType =
             resolveType == null ? null : ResolveTypeWrapper(resolveType),
         assert(
-          possibleTypes.every((t) => t.whenMaybe(
-              object: (obj) => !obj.isInterface, orElse: (_) => false)),
+          !checkAsserts ||
+              possibleTypes.every((t) => t.whenMaybe(
+                  object: (obj) => !obj.isInterface, orElse: (_) => false)),
           'The member types of a Union type must all be Object base types; '
           'Scalar, Interface and Union types must not be member types '
           'of a Union. Similarly, wrapping types must not be member '
