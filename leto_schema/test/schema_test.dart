@@ -278,10 +278,10 @@ type Subscription {
         field('sub', _testScalarType('QuerySub')),
       ],
     );
-    final schema = reflectSchema(GraphQLSchema(
+    final schema = GraphQLSchema(
       otherTypes: [zType, queryType, aType],
       queryType: queryType,
-    ));
+    );
 
     final typeNames = schema.typeMap.keys;
     expect(

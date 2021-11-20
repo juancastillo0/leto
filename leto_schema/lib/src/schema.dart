@@ -182,20 +182,6 @@ class GraphQLSchema {
       final prev = typeMap[name];
       if (prev == null) {
         typeMap[name] = type;
-      } else if ((queryType == prev || queryType == type) &&
-          (type is GraphQLObjectType && prev is GraphQLObjectType)) {
-        // Don't throw exception if it's an introspected queryType
-        final other = prev == queryType ? type : prev;
-        final difference = queryType!.fields
-            .map((e) => e.name)
-            .toSet()
-            .difference(other.fields.map((e) => e.name).toSet());
-        if (difference.length == 2 &&
-            const ['__type', '__schema'].every(difference.contains)) {
-          typeMap[name] = other;
-        } else {
-          throw SameNameGraphQLTypeException(type, prev);
-        }
       } else {
         throw SameNameGraphQLTypeException(type, prev);
       }

@@ -1,30 +1,6 @@
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show astFromValue, printAST;
 
-/// Performs introspection over a GraphQL [schema], and returns one
-/// containing introspection fields in the new [GraphQLSchema.queryType].
-GraphQLSchema reflectSchema(GraphQLSchema schema) {
-  final queryType = schema.queryType!;
-
-  return GraphQLSchema(
-    queryType: objectType(
-      queryType.name,
-      fields: [
-        schemaIntrospectionTypeField,
-        typeIntrospectionTypeField,
-        ...queryType.fields,
-      ],
-      description: queryType.description,
-    ),
-    mutationType: schema.mutationType,
-    subscriptionType: schema.subscriptionType,
-    serdeCtx: schema.serdeCtx,
-    description: schema.description,
-    directives: schema.directives,
-    otherTypes: schema.otherTypes,
-  );
-}
-
 /// The schema introspection [GraphQLType]
 final schemaGraphQLType = objectType<GraphQLSchema>('__Schema', fields: [
   field(
