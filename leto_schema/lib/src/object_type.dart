@@ -3,7 +3,9 @@ part of leto_schema.src.schema;
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
 class GraphQLObjectType<P> extends GraphQLCompositeType<P>
-    with _NonNullableMixin<P, Map<String, dynamic>> {
+    with
+        _NonNullableMixin<P, Map<String, dynamic>>,
+        _GraphQLBaseNestedType<P, GraphQLObjectField<Object?, Object?, P>> {
   /// The name of this type.
   @override
   final String name;
@@ -13,6 +15,7 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
   final String? description;
 
   /// The list of fields that an object of this type is expected to have.
+  @override
   final List<GraphQLObjectField<Object?, Object?, P>> fields = [];
 
   /// `true` if this type should be treated as an *interface*,
@@ -65,11 +68,6 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
     this.fields.addAll(fields);
 
     inheritFromMany(interfaces);
-  }
-
-  /// Returns the field with the given [name]
-  GraphQLObjectField<Object?, Object?, P>? fieldByName(String name) {
-    return fields.firstWhereOrNull((field) => field.name == name);
   }
 
   @override
@@ -138,16 +136,24 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
     }
   }
 
+  /// Returns `true` if this type, or any of its parents,
+  /// is a direct descendant of another given [type].
+  bool isImplementationOf(GraphQLObjectType type) {
+    final _interfaces = interfaces;
+    if (type == this) {
+      return true;
+    } else if (_interfaces.contains(type)) {
+      return true;
+    } else {
+      return _interfaces.any((t) => t.isImplementationOf(type));
+    }
+  }
+
   @override
   ValidationResult<Map<String, dynamic>> validate(
     String key,
     Object? input,
   ) {
-    if (input is! Map<String, Object?>) {
-      return ValidationResult.failure([
-        'Expected "$key" to be a Map of type $this. Got invalid value $input.'
-      ]);
-    }
     if (isInterface) {
       final List<String> errors = [];
 
@@ -164,58 +170,20 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
       return ValidationResult.failure(errors);
     }
 
-    return _validateObject(this, fields, key, input);
-  }
-
-  @override
-  Map<String, dynamic> serialize(P value) {
-    final map = _jsonFromValue(value!);
-    return _gqlFromJson(map, fields);
-    // return map.keys.fold(<String, dynamic>{}, (out, k) {
-    //   final field = fields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError(
-    //      'Cannot serialize field "$k", which was not defined in the schema.',
-    //     );
-    //   return out..[k.toString()] = field.serialize(value[k]);
-    // });
-  }
-
-  @override
-  P deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
-    return _valueFromJson(serdeCtx, serialized, fields);
-    // return value.keys.fold(<String, Object?>{}, (out, k) {
-    //   final field = fields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
-    //   return out..[k.toString()] = field.deserialize(serdeCtx, value[k]);
-    // });
-  }
-
-  /// Returns `true` if this type, or any of its parents,
-  /// is a direct descendant of another given [type].
-  bool isImplementationOf(GraphQLObjectType type) {
-    final _interfaces = interfaces;
-    if (type == this) {
-      return true;
-    } else if (_interfaces.contains(type)) {
-      return true;
-    } else {
-      return _interfaces.any((t) => t.isImplementationOf(type));
-    }
+    return super.validate(key, input);
   }
 }
 
 typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
-    Object, P, ResolveObjectCtx);
+    Object result, P type, ResolveObjectCtx);
 
 class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
-  final ResolveType<T> func;
+  final ResolveType<T> _func;
 
-  const ResolveTypeWrapper(this.func);
+  const ResolveTypeWrapper(this._func);
 
   String call(Object result, T type, ResolveObjectCtx ctx) =>
-      func(result, type, ctx);
+      _func(result, type, ctx);
 }
 
 /// A function that returns true if [result]
@@ -246,7 +214,9 @@ class IsTypeOfWrapper<P> {
 /// reuse an input structure across multiple fields in the hierarchy.
 class GraphQLInputObjectType<Value>
     extends GraphQLNamedType<Value, Map<String, dynamic>>
-    with _NonNullableMixin<Value, Map<String, dynamic>> {
+    with
+        _NonNullableMixin<Value, Map<String, dynamic>>,
+        _GraphQLBaseNestedType<Value, GraphQLFieldInput> {
   /// The name of this type.
   @override
   final String name;
@@ -257,6 +227,7 @@ class GraphQLInputObjectType<Value>
 
   /// A list of the fields that an input object of this
   /// type is expected to have.
+  @override
   final List<GraphQLFieldInput> fields = [];
 
   /// A function which parses a JSON Map into the [Value] type
@@ -278,35 +249,13 @@ class GraphQLInputObjectType<Value>
     this.fields.addAll(fields);
   }
 
-  /// Returns the field with the given [name]
-  GraphQLFieldInput? fieldByName(String name) {
-    return fields.firstWhereOrNull((field) => field.name == name);
-  }
-
-  @override
-  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
-    return _validateObject(this, fields, key, input);
-  }
-
-  @override
-  Map<String, dynamic> serialize(Value value) {
-    final map = _jsonFromValue(value!);
-    return _gqlFromJson(map, fields);
-  }
-
   @override
   Value deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
     if (customDeserialize != null) {
       return customDeserialize!(serialized);
     } else {
-      return _valueFromJson(serdeCtx, serialized, fields);
+      return super.deserialize(serdeCtx, serialized);
     }
-    // return value.keys.fold(<String, dynamic>{}, (out, k) {
-    //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
-    //   return out..[k.toString()] = field.type.deserialize(value[k]);
-    // });
   }
 
   @override
@@ -324,6 +273,38 @@ abstract class ObjectField implements GraphQLElement {
 
   /// The type of the field
   GraphQLType<Object?, Object?> get type;
+}
+
+/// A [GraphQLType] that specifies the shape of structured data,
+/// with multiple fields that can be resolved independently of one another.
+abstract class _GraphQLBaseNestedType<P, F extends ObjectField>
+    implements GraphQLType<P, Map<String, Object?>> {
+  /// The list of fields that an object of this type is expected to have
+  List<F> get fields;
+
+  /// Returns the field with the given [name]
+  F? fieldByName(String name) {
+    return fields.firstWhereOrNull((field) => field.name == name);
+  }
+
+  @override
+  ValidationResult<Map<String, dynamic>> validate(
+    String key,
+    Object? input,
+  ) {
+    return _validateObject(this, fields, key, input);
+  }
+
+  @override
+  Map<String, dynamic> serialize(P value) {
+    final map = _jsonFromValue(value!);
+    return _gqlFromJson(map, fields);
+  }
+
+  @override
+  P deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
+    return _valueFromJson(serdeCtx, serialized, fields);
+  }
 }
 
 ValidationResult<Map<String, dynamic>> _validateObject(
