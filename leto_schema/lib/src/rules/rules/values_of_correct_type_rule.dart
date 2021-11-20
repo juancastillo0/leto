@@ -172,11 +172,10 @@ VisitBehavior? isValidValueNode(
     } else {
       context.reportError(
         GraphQLError(
-          'Expected value of type "${typeStr}", found ${printNode(node)}; ' +
-              error.toString(),
+          'Expected value of type "$typeStr", found ${printNode(node)}; $error',
           locations: GraphQLErrorLocation.firstFromNodes([node]),
-          sourceError:
-              error, // Ensure a reference to the original error is maintained.
+          // Ensure a reference to the original error is maintained.
+          sourceError: error,
           stackTrace: stackTrace,
           extensions: _valuesOfCorrectTypeSpec.extensions(),
         ),

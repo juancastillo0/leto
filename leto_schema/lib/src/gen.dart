@@ -52,6 +52,7 @@ GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
   GraphQLSubscriptionFieldResolver<T>? subscribe,
   String? deprecationReason,
   String? description,
+  FieldDefinitionNode? astNode,
 }) {
   return GraphQLObjectField(
     name,
@@ -61,6 +62,7 @@ GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
     subscribe: subscribe == null ? null : FieldSubscriptionResolver(subscribe),
     description: description,
     deprecationReason: deprecationReason,
+    astNode: astNode,
   );
 }
 
@@ -87,6 +89,7 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
   T? defaultValue,
   String? deprecationReason,
   bool defaultsToNull = false,
+  InputValueDefinitionNode? astNode,
 }) {
   return GraphQLFieldInput(
     name,
@@ -95,6 +98,7 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
     deprecationReason: deprecationReason,
     defaultValue: defaultValue,
     defaultsToNull: defaultsToNull,
+    astNode: astNode,
   );
 }
 
@@ -113,6 +117,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     GraphQLFieldResolver<V, P>? resolve,
     GraphQLSubscriptionFieldResolver<V>? subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
+    FieldDefinitionNode? astNode,
   }) {
     return GraphQLObjectField(
       name,
@@ -123,6 +128,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
+      astNode: astNode,
     );
   }
 
@@ -154,6 +160,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     V? defaultValue,
     String? deprecationReason,
     bool defaultsToNull = false,
+    InputValueDefinitionNode? astNode,
   }) {
     return GraphQLFieldInput(
       name,
@@ -162,6 +169,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
       deprecationReason: deprecationReason,
       defaultValue: defaultValue,
       defaultsToNull: defaultsToNull,
+      astNode: astNode,
     );
   }
 }

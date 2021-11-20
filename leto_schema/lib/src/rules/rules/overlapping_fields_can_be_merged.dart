@@ -111,7 +111,7 @@ String _reasonMessage(ConflictReason reason) {
 
 /// Tuple defining a field node in a context.
 class NodeAndDef {
-  final GraphQLType? parentType;
+  final GraphQLNamedType? parentType;
   final FieldNode node;
   final GraphQLObjectField? def;
 
@@ -190,7 +190,7 @@ List<Conflict> findConflictsWithinSelectionSet(
   ValidationCtx context,
   Map<SelectionSetNode, FieldsAndFragmentNames> cachedFieldsAndFragmentNames,
   PairSet comparedFragmentPairs,
-  GraphQLType? parentType,
+  GraphQLNamedType? parentType,
   SelectionSetNode selectionSet,
 ) {
   final conflicts = <Conflict>[];
@@ -399,9 +399,9 @@ List<Conflict> findConflictsBetweenSubSelectionSets(
   Map<SelectionSetNode, FieldsAndFragmentNames> cachedFieldsAndFragmentNames,
   PairSet comparedFragmentPairs,
   bool areMutuallyExclusive,
-  GraphQLType? parentType1,
+  GraphQLNamedType? parentType1,
   SelectionSetNode selectionSet1,
-  GraphQLType? parentType2,
+  GraphQLNamedType? parentType2,
   SelectionSetNode selectionSet2,
 ) {
   final conflicts = <Conflict>[];
@@ -715,7 +715,7 @@ bool doTypesConflict(
 FieldsAndFragmentNames getFieldsAndFragmentNames(
   ValidationCtx context,
   Map<SelectionSetNode, FieldsAndFragmentNames> cachedFieldsAndFragmentNames,
-  GraphQLType? parentType,
+  GraphQLNamedType? parentType,
   SelectionSetNode selectionSet,
 ) {
   final cached = cachedFieldsAndFragmentNames[selectionSet];
@@ -753,7 +753,7 @@ FieldsAndFragmentNames getReferencedFieldsAndFragmentNames(
   final fragmentType = convertTypeOrNull(
     fragment.typeCondition.on,
     context.schema.typeMap,
-  );
+  ) as GraphQLNamedType?;
   return getFieldsAndFragmentNames(
     context,
     cachedFieldsAndFragmentNames,
@@ -764,7 +764,7 @@ FieldsAndFragmentNames getReferencedFieldsAndFragmentNames(
 
 void _collectFieldsAndFragmentNames(
   ValidationCtx context,
-  GraphQLType? parentType,
+  GraphQLNamedType? parentType,
   SelectionSetNode selectionSet,
   NodeAndDefCollection nodeAndDefs,
   Map<String, bool> fragmentNames,
@@ -792,6 +792,7 @@ void _collectFieldsAndFragmentNames(
         final typeCondition = selection.typeCondition;
         final inlineFragmentType = typeCondition != null
             ? convertTypeOrNull(typeCondition.on, context.schema.typeMap)
+                as GraphQLNamedType?
             : parentType;
         _collectFieldsAndFragmentNames(
           context,

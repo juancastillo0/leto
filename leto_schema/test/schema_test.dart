@@ -370,7 +370,7 @@ type Subscription {
             'Query',
             fields: [graphQLString.field('foo')],
           );
-          final types = <GraphQLType>[_testScalarType(''), query];
+          final types = <GraphQLNamedType>[_testScalarType(''), query];
 
           // @ts-expect-error
           expect(

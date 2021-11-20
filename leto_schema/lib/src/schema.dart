@@ -3,14 +3,7 @@ library leto_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:gql/ast.dart'
-    show
-        DocumentNode,
-        FieldNode,
-        Node,
-        OperationDefinitionNode,
-        OperationType,
-        SchemaDefinitionNode;
+import 'package:gql/ast.dart';
 import 'package:leto_schema/src/rules/ast_node_enum.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
@@ -218,6 +211,12 @@ class GraphQLSchema {
   }
 }
 
+/// Whether to check asserts in some GraphQL element constructors
+///
+/// For example output and input types
+/// in [GraphQLObjectField] and [GraphQLFieldInput]
+@visibleForTesting
+bool checkAsserts = true;
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}
 

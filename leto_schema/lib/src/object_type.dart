@@ -1,12 +1,5 @@
 part of leto_schema.src.schema;
 
-/// A [GraphQLType] with nested properties
-abstract class GraphQLCompositeType<P>
-    extends GraphQLType<P, Map<String, dynamic>> {
-  /// The possible implementations for this type
-  List<GraphQLObjectType> get possibleTypes;
-}
-
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
 class GraphQLObjectType<P> extends GraphQLCompositeType<P>
@@ -51,6 +44,11 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
   /// which are associated with this object type
   final IsTypeOfWrapper<P>? isTypeOf;
 
+  /// TODO: interface
+  @override
+  final GraphQLTypeDefinitionExtra<ObjectTypeDefinitionNode,
+      ObjectTypeExtensionNode> extra;
+
   /// A [GraphQLType] that specifies the shape of structured data,
   /// with multiple fields that can be resolved independently of one another.
   GraphQLObjectType(
@@ -61,6 +59,7 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
     IsTypeOf<P>? isTypeOf,
     Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   })  : isTypeOf = isTypeOf == null ? null : IsTypeOfWrapper(isTypeOf),
         resolveType =
             resolveType == null ? null : ResolveTypeWrapper(resolveType) {
@@ -220,16 +219,22 @@ class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
       func(result, type, ctx);
 }
 
+/// A function that returns true if [result]
+/// is an instance of [GraphQLObjectType] [type]
 typedef IsTypeOf<P> = bool Function(
-    Object, GraphQLObjectType<P>, ResolveObjectCtx);
+    Object result, GraphQLObjectType<P> type, ResolveObjectCtx);
 
+/// A function that returns true if [result]
+/// is an instance of [GraphQLObjectType] [type]
+///
+/// Type casting wrapper for [IsTypeOf]
 class IsTypeOfWrapper<P> {
-  final IsTypeOf<P> func;
+  final IsTypeOf<P> _func;
 
-  const IsTypeOfWrapper(this.func);
+  const IsTypeOfWrapper(this._func);
 
   bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
-      func(value, type, ctx);
+      _func(value, type, ctx);
 }
 
 /// A special [GraphQLType] that specifies the shape of an object that can only
@@ -241,7 +246,7 @@ class IsTypeOfWrapper<P> {
 /// reduce the number of parameters to a given field, and to potentially
 /// reuse an input structure across multiple fields in the hierarchy.
 class GraphQLInputObjectType<Value>
-    extends GraphQLType<Value, Map<String, dynamic>>
+    extends GraphQLNamedType<Value, Map<String, dynamic>>
     with _NonNullableMixin<Value, Map<String, dynamic>> {
   /// The name of this type.
   @override
@@ -258,6 +263,10 @@ class GraphQLInputObjectType<Value>
   /// A function which parses a JSON Map into the [Value] type
   final Value Function(Map<String, Object?>)? customDeserialize;
 
+  @override
+  final GraphQLTypeDefinitionExtra<InputObjectTypeDefinitionNode,
+      InputObjectTypeExtensionNode> extra;
+
   /// A special [GraphQLType] that specifies the shape of an object that can
   /// only be used as an input to a [GraphQLField].
   GraphQLInputObjectType(
@@ -265,6 +274,7 @@ class GraphQLInputObjectType<Value>
     this.description,
     Iterable<GraphQLFieldInput<Object?, Object?>> fields = const [],
     this.customDeserialize,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   }) {
     this.fields.addAll(fields);
   }
@@ -304,10 +314,13 @@ class GraphQLInputObjectType<Value>
   GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;
 }
 
+/// A field in a [GraphQLSchema]
+///
 /// Utility interface implemented by
 /// [GraphQLObjectField] and [GraphQLFieldInput]
-abstract class ObjectField {
+abstract class ObjectField implements GraphQLElement {
   /// The name of the field
+  @override
   String get name;
 
   /// The type of the field

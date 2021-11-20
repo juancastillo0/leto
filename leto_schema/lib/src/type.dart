@@ -202,6 +202,7 @@ GraphQLListType<Value?, Serialized> listOf<Value, Serialized>(
 /// A wrapper around a [GraphQLType].
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
+/// /// TODO: GraphQLWrappingType
 abstract class GraphQLWrapperType {
   /// The wrapped type
   GraphQLType<Object?, Object?> get ofType;
@@ -355,6 +356,109 @@ class _GraphQLNullableListType<Value, Serialized>
       _GraphQLNullableListType<Value, Serialized>(ofType.coerceToInputObject());
 }
 
+/// A [GraphQLType] with nested properties
+abstract class GraphQLCompositeType<P>
+    extends GraphQLType<P, Map<String, dynamic>>
+    implements GraphQLNamedType<P, Map<String, dynamic>> {
+  /// The possible implementations for this type
+  List<GraphQLObjectType> get possibleTypes;
+
+  @override
+  TypeDefinitionNode? get astNode => extra.astNode;
+
+  @override
+  GraphQLAttachments get attachments => extra.attachments;
+}
+
+/// A [GraphQLType] with non-null name.
+///
+/// This type will not be a [GraphQLWrapperType] like
+/// [GraphQLListType] or [GraphQLNonNullType].
+abstract class GraphQLNamedType<Value, Serialized>
+    extends GraphQLType<Value, Serialized> implements GraphQLElement {
+  @override
+  String get name;
+
+  GraphQLTypeDefinitionExtra get extra;
+
+  @override
+  TypeDefinitionNode? get astNode => extra.astNode;
+
+  @override
+  GraphQLAttachments get attachments => extra.attachments;
+}
+
+/// An element in a [GraphQLSchema]
+///
+/// [GraphQLNamedType], [GraphQLDirective], [GraphQLEnumValue]
+/// and [ObjectField]s such as [GraphQLObjectField] and [GraphQLFieldInput]
+abstract class GraphQLElement {
+  /// The name of the element
+  String get name;
+
+  /// If this was parsed from an ast, the node in that ast
+  Node? get astNode;
+
+  /// Other values that may modify the execution, validation or
+  /// introspection for this element
+  GraphQLAttachments get attachments;
+}
+
+typedef GraphQLAttachments = List<Object>;
+
+class GraphQLTypeDefinitionExtra<N extends TypeDefinitionNode,
+    E extends TypeExtensionNode> {
+  final GraphQLAttachments attachments;
+  final List<E> extensionAstNodes;
+  final N? astNode;
+
+  const GraphQLTypeDefinitionExtra.ast(
+    N astNode,
+    this.extensionAstNodes, {
+    this.attachments = const [],
+  })
+  // ignore: prefer_initializing_formals
+  : astNode = astNode;
+
+  const GraphQLTypeDefinitionExtra.attach(
+    this.attachments,
+  )   : astNode = null,
+        extensionAstNodes = const [];
+
+  Iterable<DirectiveNode> directives() {
+    if (astNode != null) {
+      return astNode!.directives
+          .followedBy(extensionAstNodes.expand((ext) => ext.directives))
+          .followedBy(attachments.whereType());
+    } else {
+      return attachments.whereType();
+    }
+  }
+}
+
+/// Extensions for [GraphQLNamedType]
+extension GraphQLNamedTypeExtension<Value, Serialized>
+    on GraphQLNamedType<Value, Serialized> {
+  /// Executes the passed callback for the given named type of [this]
+  O whenNamed<O>({
+    required O Function(GraphQLEnumType<Value>) enum_,
+    required O Function(GraphQLScalarType<Value, Serialized>) scalar,
+    required O Function(GraphQLObjectType<Value>) object,
+    required O Function(GraphQLInputObjectType<Value>) input,
+    required O Function(GraphQLUnionType<Value>) union,
+  }) {
+    return when(
+      enum_: enum_,
+      scalar: scalar,
+      object: object,
+      input: input,
+      union: union,
+      list: (_) => throw Error(),
+      nonNullable: (_) => throw Error(),
+    );
+  }
+}
+
 mixin _NonNullableMixin<Value, Serialized> on GraphQLType<Value, Serialized> {
   GraphQLNonNullType<Value, Serialized>? _nonNullableCache;
 
@@ -430,6 +534,7 @@ class GraphQLNonNullType<Value, Serialized>
     FutureOr<Stream<Value>> Function(Object parent, ReqCtx<Object> ctx)?
         subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
+    FieldDefinitionNode? astNode,
   }) {
     return GraphQLObjectField(
       name,
@@ -440,6 +545,7 @@ class GraphQLNonNullType<Value, Serialized>
           subscribe == null ? null : FieldSubscriptionResolver(subscribe),
       description: description,
       deprecationReason: deprecationReason,
+      astNode: astNode,
     );
   }
 
@@ -449,6 +555,7 @@ class GraphQLNonNullType<Value, Serialized>
     String? description,
     Value? defaultValue,
     String? deprecationReason,
+    InputValueDefinitionNode? astNode,
   }) {
     return GraphQLFieldInput(
       name,
@@ -457,6 +564,7 @@ class GraphQLNonNullType<Value, Serialized>
       deprecationReason: deprecationReason,
       defaultValue: defaultValue,
       defaultsToNull: false,
+      astNode: astNode,
     );
   }
 }

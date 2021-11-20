@@ -35,6 +35,12 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// doesn't have a default value
   bool get isRequired => type.isNonNullable && defaultValue == null;
 
+  @override
+  final GraphQLAttachments attachments;
+
+  @override
+  final InputValueDefinitionNode? astNode;
+
   /// An input to a GraphQL field. This is analogous
   /// to a function parameter in Dart.
   GraphQLFieldInput(
@@ -44,8 +50,10 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
     this.description,
     this.deprecationReason,
     this.defaultsToNull = false,
+    this.attachments = const [],
+    this.astNode,
   })  : assert(
-          isInputType(type),
+          !checkAsserts || isInputType(type),
           'All inputs to a GraphQL field must either be scalar types'
           ' or explicitly marked as INPUT_OBJECT. Call'
           ' `GraphQLObjectType.asInputObject()` on any'

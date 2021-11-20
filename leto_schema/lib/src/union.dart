@@ -17,6 +17,10 @@ class GraphQLUnionType<P> extends GraphQLCompositeType<P>
   @override
   final String? description;
 
+  @override
+  final GraphQLTypeDefinitionExtra<UnionTypeDefinitionNode,
+      UnionTypeExtensionNode> extra;
+
   /// Used to provide type resolution at runtime
   ///
   /// Should return the name of the type in [possibleTypes] which is
@@ -34,12 +38,14 @@ class GraphQLUnionType<P> extends GraphQLCompositeType<P>
     return p!;
   }
 
+  /// Default GraphQL union constructor
   GraphQLUnionType(
     this.name,
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
     ResolveType<GraphQLUnionType<P>>? resolveType,
     Object Function(P)? extractInner,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   })  : _extractInner = extractInner,
         resolveType =
             resolveType == null ? null : ResolveTypeWrapper(resolveType),

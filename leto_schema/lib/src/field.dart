@@ -32,6 +32,13 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   /// The reason that this field, if it is deprecated, was deprecated.
   final String? deprecationReason;
 
+  @override
+  final GraphQLAttachments attachments;
+
+  @override
+  final FieldDefinitionNode? astNode;
+
+  /// Default GraphQL field constructor
   GraphQLObjectField(
     this.name,
     this.type, {
@@ -40,27 +47,17 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
     this.subscribe,
     this.deprecationReason,
     this.description,
-  }) {
+    this.attachments = const [],
+    this.astNode,
+  }) : assert(
+          !checkAsserts || isOutputType(type),
+          'Only output types can be types in object fields, got: $type.',
+        ) {
     this.inputs.addAll(inputs);
   }
 
   /// Returns `true` if this field has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
-
-  @override
-  bool operator ==(Object other) =>
-      other is GraphQLObjectField &&
-      other.runtimeType == runtimeType &&
-      other.name == name &&
-      other.deprecationReason == deprecationReason &&
-      other.type == type &&
-      const ListEquality<GraphQLFieldInput>().equals(other.inputs, inputs);
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality()
-          .hash([name, deprecationReason, type, inputs]);
 }
 
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],

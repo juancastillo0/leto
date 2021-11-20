@@ -31,7 +31,7 @@ GraphQLEnumType<String> enumTypeFromStrings(
 ///
 /// Though these are serialized as strings, they carry
 /// special meaning with a type system.
-class GraphQLEnumType<Value> extends GraphQLType<Value, String>
+class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
     with _NonNullableMixin<Value, String> {
   /// The name of this enum type.
   @override
@@ -46,7 +46,17 @@ class GraphQLEnumType<Value> extends GraphQLType<Value, String>
   @override
   final String? description;
 
-  GraphQLEnumType(this.name, this.values, {this.description});
+  @override
+  final GraphQLTypeDefinitionExtra<EnumTypeDefinitionNode,
+      EnumTypeExtensionNode> extra;
+
+  /// Default GraphQL enum definition constructor
+  GraphQLEnumType(
+    this.name,
+    this.values, {
+    this.description,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
+  });
 
   @override
   String serialize(Value value) {
@@ -98,8 +108,9 @@ class EnumValue {
 ///
 /// In practice, you might not directly call this constructor very often.
 @immutable
-class GraphQLEnumValue<Value> {
+class GraphQLEnumValue<Value> implements GraphQLElement {
   /// The name of this value.
+  @override
   final String name;
 
   /// The Dart value associated with enum values bearing the given [name].
@@ -117,8 +128,16 @@ class GraphQLEnumValue<Value> {
     this.value, {
     this.description,
     this.deprecationReason,
+    this.astNode,
+    this.attachments = const [],
   });
 
   /// Returns `true` if this value has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
+
+  @override
+  final EnumValueDefinitionNode? astNode;
+
+  @override
+  final GraphQLAttachments attachments;
 }

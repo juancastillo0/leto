@@ -2,7 +2,7 @@ import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 /// Returns a Set of all named types in the [schema]
-Set<GraphQLType> fetchAllNamedTypes(GraphQLSchema schema) {
+Set<GraphQLNamedType> fetchAllNamedTypes(GraphQLSchema schema) {
   final data = <GraphQLType>[
     ...schema.otherTypes,
     if (schema.queryType != null) schema.queryType!,
@@ -19,7 +19,7 @@ Set<GraphQLType> fetchAllNamedTypes(GraphQLSchema schema) {
 
 class CollectTypes {
   /// The set of types collected at this point
-  final traversedTypes = <GraphQLType>{};
+  final traversedTypes = <GraphQLNamedType>{};
 
   /// Collects all named types from [types]
   CollectTypes(Iterable<GraphQLType> types) {
@@ -73,7 +73,7 @@ class CollectTypes {
       union: (type) {
         traversedTypes.add(type);
         for (final t in type.possibleTypes) {
-          _fetchAllTypesFromType(t);
+          _fetchAllTypesFromObject(t);
         }
       },
     );
