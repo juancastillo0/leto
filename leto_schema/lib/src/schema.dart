@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart';
 import 'package:leto_schema/src/rules/ast_node_enum.dart';
+import 'package:leto_schema/src/rules/validate_schema.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
 import 'package:leto_schema/src/utilities/predicates.dart';
@@ -142,6 +143,8 @@ class GraphQLSchema {
     return map.contains(maybeSubType.name);
   }
 
+  List<GraphQLError>? __validationErrors;
+
   /// The schema against which queries, mutations
   /// and subscriptions are executed.
   ///
@@ -206,6 +209,35 @@ class GraphQLSchema {
 /// in [GraphQLObjectField] and [GraphQLFieldInput]
 @visibleForTesting
 bool checkAsserts = true;
+
+/// Implements the "Type Validation" sub-sections of the specification's
+/// "Type System" section.
+///
+/// Validation runs synchronously, returning an array of encountered errors, or
+/// an empty array if no errors were encountered and the Schema is valid.
+List<GraphQLError> validateSchema(
+  GraphQLSchema schema,
+) {
+  // If this Schema has already been validated, return the previous results.
+  if (schema.__validationErrors != null) {
+    return schema.__validationErrors!;
+  }
+
+  // Validate the schema, producing a list of errors.
+  final context = SchemaValidationContext(schema);
+  validateRootTypes(context);
+  validateDirectives(context);
+  validateTypes(context);
+
+  // Persist the results of validation before returning to ensure validation
+  // does not run multiple times for this schema.
+  final errors = context.getErrors();
+  schema.__validationErrors = errors;
+  return errors;
+}
+
+// TODO: test errors toString()
+
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}
 
