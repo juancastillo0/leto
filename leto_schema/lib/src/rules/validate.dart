@@ -1,6 +1,7 @@
 import 'package:gql/ast.dart';
 
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/src/rules/rules/implement_interface_once_rule.dart';
 import 'package:leto_schema/src/rules/rules/known_argument_names_rule.dart';
 import 'package:leto_schema/src/rules/rules/known_directive_rule.dart';
 import 'package:leto_schema/src/rules/rules/lone_schema_definition_rule.dart';
@@ -86,6 +87,8 @@ const specifiedSDLRules = <SDLValidationRule>[
   uniqueArgumentNamesRule,
   uniqueInputFieldNamesRule,
   providedRequiredArgumentsOnDirectivesRule,
+  // TODO: valuesOfCorrectTypeRule https://github.com/graphql/graphql-js/issues/3222
+  implementInterfaceOnceRule,
 ];
 
 // NoDeprecatedCustomRule-test.ts
