@@ -27,6 +27,7 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   final GraphQLType<Value, Serialized> type;
 
   /// An optional description of this field; useful for tools like GraphiQL.
+  @override
   final String? description;
 
   /// The reason that this field, if it is deprecated, was deprecated.

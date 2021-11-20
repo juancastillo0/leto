@@ -396,10 +396,16 @@ abstract class GraphQLElement {
   /// The name of the element
   String get name;
 
+  /// An optional description of this element.
+  ///
+  /// Useful for documenting this element in tools like GraphiQL.
+  /// This will also be shown in the schema AST.
+  String? get description;
+
   /// If this was parsed from an ast, the node in that ast
   Node? get astNode;
 
-  /// Other values that may modify the execution, validation or
+  /// Other custom values that may modify the execution, validation or
   /// introspection for this element
   GraphQLAttachments get attachments;
 }
@@ -439,7 +445,7 @@ class GraphQLTypeDefinitionExtra<N extends TypeDefinitionNode,
 /// Extensions for [GraphQLNamedType]
 extension GraphQLNamedTypeExtension<Value, Serialized>
     on GraphQLNamedType<Value, Serialized> {
-  /// Executes the passed callback for the given named type of [this]
+  /// Executes the passed callback for the type of [this]
   O whenNamed<O>({
     required O Function(GraphQLEnumType<Value>) enum_,
     required O Function(GraphQLScalarType<Value, Serialized>) scalar,

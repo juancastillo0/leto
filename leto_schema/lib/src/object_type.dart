@@ -174,9 +174,15 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
   }
 }
 
+/// A function that returns the name of one of the possible types
+/// of an given abstract [type] that matches the type for [result].
 typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
     Object result, P type, ResolveObjectCtx);
 
+/// A function that returns the name of one of the possible types
+/// of an given abstract [type] that matches the type for [result].
+///
+/// Type casting wrapper for [ResolveType]
 class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
   final ResolveType<T> _func;
 

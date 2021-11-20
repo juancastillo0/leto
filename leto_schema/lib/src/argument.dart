@@ -11,6 +11,7 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// An optional description for this field.
   ///
   /// This is useful when documenting your API for consumers like GraphiQL.
+  @override
   final String? description;
 
   /// The type that input values must conform to.

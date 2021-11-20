@@ -117,6 +117,7 @@ class GraphQLEnumValue<Value> implements GraphQLElement {
   final Value value;
 
   /// An optional description of this value; useful for tools like GraphiQL.
+  @override
   final String? description;
 
   /// The reason, if any, that this value was deprecated,

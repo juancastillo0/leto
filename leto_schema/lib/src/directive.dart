@@ -10,6 +10,7 @@ class GraphQLDirective implements GraphQLElement {
   final String name;
 
   /// Provides documentation for this directive
+  @override
   final String? description;
 
   /// The places the a GraphQL document where this
