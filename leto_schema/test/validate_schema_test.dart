@@ -384,34 +384,45 @@ void main() {
       input SomeInputObject {
         test: String
       }
+
+      interface SomeInterface {
+        test: Int
+      }
+
+      schema {
+        query: SomeInputObject
+        mutation: SomeInterface
+        subscription: SomeInputObject
+      }
     ''');
 
-      schema = extendSchema(
-        schema,
-        parseString('''
-        extend schema {
-          query: SomeInputObject
-        }
-      '''),
-      );
+      // TODO: allow extending invalid schemas
+      // schema = extendSchema(
+      //   schema,
+      //   parseString('''
+      //   extend schema {
+      //     query: SomeInputObject
+      //   }
+      // '''),
+      // );
 
-      schema = extendSchema(
-        schema,
-        parseString('''
-        extend schema {
-          mutation: SomeInputObject
-        }
-      '''),
-      );
+      // schema = extendSchema(
+      //   schema,
+      //   parseString('''
+      //   extend schema {
+      //     mutation: SomeInputObject
+      //   }
+      // '''),
+      // );
 
-      schema = extendSchema(
-        schema,
-        parseString('''
-        extend schema {
-          subscription: SomeInputObject
-        }
-      '''),
-      );
+      // schema = extendSchema(
+      //   schema,
+      //   parseString('''
+      //   extend schema {
+      //     subscription: SomeInputObject
+      //   }
+      // '''),
+      // );
 
       expectJSON(validateSchema(schema), [
         {
@@ -423,7 +434,7 @@ void main() {
         },
         {
           'message':
-              'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
+              'Mutation root type must be Object type if provided, it cannot be SomeInterface.',
           'locations': [
             {'line': 3, 'column': 21}
           ],
@@ -713,9 +724,11 @@ void main() {
         | TypeA
         | String
         | TypeB
+        | Int
     ''');
 
-      schema = extendSchema(schema, parseString('extend union BadUnion = Int'));
+      // TODO: allow extending invalid schemas
+      // schema = extendSchema(schema, parseString('extend union BadUnion = Int'));
 
       expectJSON(validateSchema(schema), [
         {
