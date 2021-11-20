@@ -47,6 +47,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [Start the server](#start-the-server)
     - [Test the server](#test-the-server)
 - [Examples](#examples)
+  - [Code Generator example](#code-generator-example)
   - [Fullstack Dart Chat](#fullstack-dart-chat)
     - [Chat functionalities](#chat-functionalities)
   - [Server example](#server-example)
@@ -98,15 +99,19 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Map Error Extension](#map-error-extension)
   - [Custom Extensions](#custom-extensions)
 - [Directives](#directives)
+- [Attachments](#attachments)
 - [Utilities](#utilities)
     - [`buildSchema`](#buildschema)
     - [`printSchema`](#printschema)
-    - [`mergeSchema`](#mergeschema)
+    - [`extendSchema`](#extendschema)
+    - [`introspectionQuery`](#introspectionquery)
+    - [`mergeSchemas`](#mergeschemas)
+    - [`schemaFromJson`](#schemafromjson)
 - [Contributing](#contributing)
 
 # Quickstart
 
-This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
+This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
 ### Install
 
@@ -201,9 +206,17 @@ which generates the same `modelGraphqlType` in `model.g.dart` and `apiSchema` in
 
 # Examples
 
+Beside the tests from each package, you can find some usage example in the following directories:
+
+
+## Code Generator example
+
+An example with multiple ways of creating a GraphQLSchema with different types and resolvers from code generation can be found in https://github.com/juancastillo0/leto/tree/main/leto_generator/example.
+
+
 ## Fullstack Dart Chat
 
-A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example.
+A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example. The server is in the [server](https://github.com/juancastillo0/leto/tree/main/chat_example/server) folder.
 
 - Sqlite3 and Postgres database integrations
 - Subscriptions
@@ -227,7 +240,7 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 
 ## Server example
 
-A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto_graphql/chat_example
+A Leto/Shelf server example with multiple models, code generation, some utilities and tests can be found in https://github.com/juancastillo0/leto/tree/main/leto_shelf/example
 
 # Packages
 
@@ -243,13 +256,15 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 
 ## Server integrations
 
-### [Shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)
+### [Shelf](https://github.com/juancastillo0/leto/tree/main/leto_shelf)
+
+Using the [shelf](https://github.com/dart-lang/shelf) package.
 
 - [HTTP](https://graphql.org/learn/serving-over-http/) POST and GET
 - [Mutipart requests](https://github.com/jaydenseric/graphql-multipart-request-spec) for file Upload.
 - Subscriptions through WebSockets. Supporting [graphql-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) and [graphql-transport-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md) subprotocols
 - Batched queries
-- TODO: HTTP/2
+- TODO: HTTP/2 example
 - TODO: [Server-Sent Events](https://the-guild.dev/blog/graphql-over-sse)
 
 ## Web UI Explorers
@@ -316,11 +331,13 @@ enum SignUpError {
 import 'package:leto/leto.dart';
 
 final signUpErrorGraphQLType = enumTypeFromStrings(
-    'SignUpError', ['usernameTooShort',
-'usernameNotFound',
-'wrongPassword',
-'passwordTooSimple',]
-description: 'The error reason on a failed sign up attempt',
+'SignUpError', [
+    'usernameTooShort',
+    'usernameNotFound',
+    'wrongPassword',
+    'passwordTooSimple',
+  ],
+  description: 'The error reason on a failed sign up attempt',
 );
 
 
@@ -403,11 +420,11 @@ final inputModel = GraphQLInputObjectType(
 
 Field inputs (or Arguments) can be used in multiple places:
 
-- `GraphQLObjectType.fields.inputs`: Inputs/Arguments in field resolvers
+- `GraphQLObjectType.fields.inputs`: Inputs in field resolvers
 
 - `GraphQLInputObjectType.fields`: Fields in Input Objects
 
-- `GraphQLDirective.inputs`: Inputs/Arguments in directives
+- `GraphQLDirective.inputs`: Inputs in directives
 
 Not all types can be input types, in particular, object types and union types can't be input types nor part of a `GraphQLInputObjectType`.
 
@@ -823,6 +840,8 @@ dwd
 
 # Solving the N+1 problem
 
+Sometimes
+
 ## Lookahead
 
 ```dart
@@ -892,6 +911,8 @@ query getModelsBase {
 
 ## DataLoader
 
+The code in Leto is a port of [graphql/dataloader](https://github.com/graphql/dataloader).
+
 An easier to implement but probably less performant way of solving the N+1 problem is by using a `DataLoader`.
 
 ```dart
@@ -921,21 +942,30 @@ List<Model> getModels(ReqCtx ctx) {
 
 ```
 
-The code in Leto is a port from [graphql/dataloader](https://github.com/graphql/dataloader).
 
 # Extensions
 
-Extensions implement additional funcionalities to the server's parsing, validation and execution. For example, extensions for tracing [GraphQLTracingExtension], logging, error handling or caching [GraphQLPersistedQueries].
+Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response_cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
 
 ## Persisted Queries
 
-Save network bandwith by storing GraphQL documents on the server and not requiring the Client to send the full document String on each request.
+Save network bandwidth by storing GraphQL documents on the server and not requiring the Client to send the full document String on each request.
 
 More information: https://www.apollographql.com/docs/apollo-server/performance/apq/
 
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/persisted_queries.dart)
+
 ## Apollo Tracing
 
+Trace the parsing, validation and execution of your GraphQL server to monitor execution times of all GraphQL requests.
+
+More information: https://github.com/apollographql/apollo-tracing
+
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/tracing.dart)
+
 ## Response Cache
+
+Utility for caching responses in your GraphQL server and client.
 
 Client GQL Link implementation in:
 // TODO:
@@ -948,39 +978,87 @@ Client GQL Link implementation in:
 
 // TODO: retrive hash, updatedAt and maxAge in resolvers.
 
+
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/cache_extension.dart)
+
 ## Logging Extension
+
+The logging extension allows you monitor requests and responses executed by your server.
+
+Provides some utilities for printing and retrieving information from execution, logging errors and provides a default `GraphQLLog` class that contains aggregated information about the request.
+
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/logging_extension.dart)
 
 ## Map Error Extension
 
+Simple extension for mapping an error catched on resolver execution. 
+
+With a function that receives the thrown error and some context as parameter and returns a `GraphQLException?`, this extension will override the error and pass it to the executor, which will eventually return it to the user as an error in the response's `errors` list.
+
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/map_error_extension.dart)
 
 ## Custom Extensions
 
-To create a custom extension you can extend `GraphQLExtension` and override the necessary functions, all of which are executed throught a request's parsing, validation and execution.
+To create a custom extension you can extend [`GraphQLExtension`](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/extension.dart) and override the necessary functions, all of which are executed throughout a request's parsing, validation and execution.
 
 To save state scoped to a single request you can use the `ScopedMap.setScoped(key, value)` and retrieve the state in a different method with `final value = ScopedMap.get(key);`. Where the `ScopedMap` can be accessed with `ctx.globals`.
 
-The Persisted Queries and Response Cache extensions are implemented in this way.
-
+All extensions are implemented in this way, so you can look at the source code for some examples.
 
 # Directives
 
-`GraphQLSchema.directives`
+For more information: [GraphQL specification](http://spec.graphql.org/draft/#sec-Type-System.Directives)
+
+
+[`GraphQLDirective`](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/directive.dart) allows you to provide more information about different elements of your schema and queries.
+
+The default skip, include, deprecated and specifiedBy directives are provided. Fields in the different type system definition classes allow you to include the deprecated reason for fields or enum values, and a url of the specification for scalar types. This information will be printed when using the `printSchema` utility, can be retrieved in Dart through GraphQL extension for modifying the behavior of request execution or, if introspection is enabled, will be exposed by the GraphQL server.
+
+The skip and include directives are supported during document execution following the spec. Right now, custom directives on execution can be obtained by using the parsed `DocumentNode` from package:gql, in the future better support could be implemented.
+
+Provide custom directives supported by your server through the 
+`GraphQLSchema.directives` field.
+
+You can retrieve custom directives values in your GraphQL Schema definition when using the `buildSchema` utility, which will parse all directives and leave them accessible through the `astNode` Dart fields in the different GraphQL elements. Setting custom directives values through the GraphQL Schema Dart classes is a work in progress. Right now, you can add `DirectiveNode`s to the element's [attachments](#attachments) if you want to print it with `printSchema`, however the api will probably change. See https://github.com/graphql/graphql-js/issues/1343
+
+# Attachments
+
+This api is experimental.
+
+All GraphQL elements in the schema can have addition custom attachments. This can be used by other libraries or extensions to change the behavior of execution. For example, for supporting custom input validations or configuring the max age for some fields in an extension that caches responses.
 
 
 
 # Utilities
 
-### [`buildSchema`](https://github.com/juancastillo0/leto_graphql/leto_shelf)
+Most GraphQL utilities can be found in the [`utilities`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities) folder in package:leto_schema.
+
+### [`buildSchema`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/build_schema.dart)
 
 Create a `GraphQLSchema` from a GraphQL Schema Definition String.
 
-### `printSchema`
+### [`printSchema`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/print_schema.dart)
 
 Transform a `GraphQLSchema` into a String in the GraphQL Schema Definition Language (SDL).
 
-### `mergeSchema`
 
-Merge multiple `GraphQLSchema`. The output `GraphQLSchema` contains all the query, mutations and subscription fields from the input schemas. Nested objects are also merged.
+### [`extendSchema`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/extend_schema.dart)
+
+Experimental. Extend a `GraphQLSchema` with an SDL document. This will return an extended `GraphQLSchema` with the additional types, fields, inputs and directives provided in the document.
+
+### [`introspectionQuery`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/introspection_query.dart)
+
+Create an introspection document query for retrieving Schema information from a GraphQL server.
+
+### [`mergeSchemas`](https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/schema/graphql_utils.dart)
+
+Experimental. Merge multiple `GraphQLSchema`. The output `GraphQLSchema` contains all the query, mutations and subscription fields from the input schemas. Nested objects are also merged.
+
+
+### [`schemaFromJson`](https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/schema/schema_from_json.dart)
+
+Experimental. Build a GraphQLSchema from a JSON value, will add query, mutation, subscription and custom events on top of the provided JSON value. Will try to infer the types from the JSON structure.
+
 
 # Contributing
 
