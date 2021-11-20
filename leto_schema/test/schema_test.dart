@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:test/test.dart';
@@ -10,11 +9,11 @@ void main() {
   test('Define sample schema', () {
     final BlogImage = objectType<Object>(
       'Image',
-      fieldsMap: {
-        'url': graphQLString.fieldSpec(),
-        'width': graphQLInt.fieldSpec(),
-        'height': graphQLInt.fieldSpec(),
-      },
+      fields: [
+        field('url', graphQLString),
+        field('width', graphQLInt),
+        field('height', graphQLInt),
+      ],
     );
 
     final BlogAuthor = GraphQLObjectType<Object>(

@@ -6,7 +6,6 @@ GraphQLObjectType<P> objectType<P>(
   String? description,
   bool isInterface = false,
   Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
-  Map<String, GraphQLObjectField<Object?, Object?, P>>? fieldsMap,
   ResolveType<GraphQLObjectType<P>>? resolveType,
   IsTypeOf<P>? isTypeOf,
   Iterable<GraphQLObjectType> interfaces = const [],
@@ -17,11 +16,7 @@ GraphQLObjectType<P> objectType<P>(
     isInterface: isInterface,
     resolveType: resolveType,
     isTypeOf: isTypeOf,
-    fields: fieldsMap == null
-        ? fields
-        : fieldsMap.entries
-            .map((e) => copyFieldWithName(e.key, e.value))
-            .followedBy(fields),
+    fields: fields,
     interfaces: interfaces,
   );
 }
@@ -129,27 +124,6 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
       description: description,
       deprecationReason: deprecationReason,
       astNode: astNode,
-    );
-  }
-
-  /// Shorthand for generating a [GraphQLObjectField] without a name.
-  /// Useful in combination with [objectType]'s fieldsMap parameter.
-  GraphQLObjectField<V, S, P> fieldSpec<P>({
-    String? deprecationReason,
-    String? description,
-    GraphQLFieldResolver<V, P>? resolve,
-    GraphQLSubscriptionFieldResolver<V>? subscribe,
-    Iterable<GraphQLFieldInput<Object, Object>> inputs = const [],
-  }) {
-    return GraphQLObjectField(
-      '',
-      this,
-      inputs: inputs,
-      resolve: resolve == null ? null : FieldResolver(resolve),
-      subscribe:
-          subscribe == null ? null : FieldSubscriptionResolver(subscribe),
-      description: description,
-      deprecationReason: deprecationReason,
     );
   }
 

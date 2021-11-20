@@ -24,9 +24,9 @@ void main() {
     return GraphQLSchema(
       queryType: objectType(
         'Query',
-        fieldsMap: {
-          'test': testField,
-        },
+        fields: [
+          copyFieldWithName('test', testField),
+        ],
       ),
     );
   }
@@ -49,7 +49,7 @@ void main() {
 
   test('default function accesses properties', () async {
     final result = await execute(
-      testSchema(graphQLString.fieldSpec()),
+      testSchema(graphQLString.field('')),
       '{ test }',
       rootValue: {'test': 'testValue'},
     );
@@ -70,7 +70,7 @@ void main() {
     };
 
     final result = await execute(
-      testSchema(graphQLString.fieldSpec()),
+      testSchema(graphQLString.field('')),
       '{ test }',
       rootValue: rootValue,
     );
@@ -85,7 +85,8 @@ void main() {
     const rootValue = Adder(700);
 
     final schema = testSchema(
-      graphQLInt.fieldSpec<Adder>(
+      graphQLInt.field<Adder>(
+        '',
         inputs: [GraphQLFieldInput('addend1', graphQLInt)],
         resolve: (obj, ctx) => obj.test(ctx.args, ctx.globals),
       ),
@@ -105,7 +106,8 @@ void main() {
   });
 
   test('uses provided resolve function', () async {
-    final schema = testSchema(graphQLString.fieldSpec(
+    final schema = testSchema(graphQLString.field(
+      '',
       inputs: [
         GraphQLFieldInput('aStr', graphQLString),
         GraphQLFieldInput('aInt', graphQLInt),
