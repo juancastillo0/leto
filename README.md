@@ -89,8 +89,9 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Input Validation](#input-validation)
   - [Query Complexity (Not implemented, yet)](#query-complexity-not-implemented-yet)
 - [Solving the N+1 problem](#solving-the-n1-problem)
-  - [Lookahead](#lookahead)
+  - [LookAhead](#lookahead)
   - [DataLoader](#dataloader)
+  - [Combining LookAhead with DataLoader](#combining-lookahead-with-dataloader)
 - [Extensions](#extensions)
   - [Persisted Queries](#persisted-queries)
   - [Apollo Tracing](#apollo-tracing)
@@ -840,9 +841,11 @@ dwd
 
 # Solving the N+1 problem
 
-Sometimes
+When fetching nested fields, a specific resolvers could be executed multiple times for each request since the parent object will execute it for all its children. This may pose a problem when the resolver has to do non-trivial work for each execution. For example, retrieving a row from a database. To solve this problem, Leto provides you with two tools: LookAhead and DataLoader.
 
-## Lookahead
+## LookAhead
+
+You can mitigate the N+1 problem by fetching all the necessary information from the parent's resolver so that when the nested fields are executed they just return the previously fetch items. This would prevent all SQL queries for nested fields since the parent resolver has all the information about the selected nested fields and can use this information to execute a request with the necessary information.
 
 ```dart
 @GraphQLClass()
@@ -868,6 +871,8 @@ final modelRepo = RefWithDefault.global(
 
 class ModelRepo {
     List<Model> getModels({bool withNested = false}) {
+        // request the database
+        // if `withNested` = true, join with the `nestedModel` table
         throw Unimplemented();
     }
 }
@@ -885,7 +890,7 @@ FutureOr<List<Model>> getModels(ReqCtx ctx) {
 
 ```
 
-With this implementaton and given the following queries:
+With this implementation and given the following queries:
 
 ```graphql
 query getModelsWithNested {
@@ -907,13 +912,17 @@ query getModelsBase {
 }
 ```
 
-`ModelRepo.getModels` will receive `true` in the `withNested` param for the `getModelsWithNested` query since `lookaheadObj.contains('nested')` will be `true` and the `withNested` param will be `false` for the `getModelsBase` query since the "nested" field was not selected.
+`ModelRepo.getModels` will receive `true` in the `withNested` param for the `getModelsWithNested` query since `lookaheadObj.contains('nested')` will be `true`. On the other hand, the `withNested` param will be `false` for the `getModelsBase` query since the "nested" field was not selected.
+
+In this way, `ModelRepo.getModels` knows what nested fields it should return. It could add additional joins in a SQL query, for example.
+
+The `PossibleSelections` class has the information about all the nested selected fields when the type of the field is a Composite Type (Object, Interface or Union). When it's an Union, it will provide a map from the type name Object variants to the given variant selections. The @skip and @include directives are already taken into account. You can read more about the `PossibleSelections` class in the [source code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart).
 
 ## DataLoader
 
 The code in Leto is a port of [graphql/dataloader](https://github.com/graphql/dataloader).
 
-An easier to implement but probably less performant way of solving the N+1 problem is by using a `DataLoader`.
+An easier to implement but probably less performant way of solving the N+1 problem is by using a `DataLoader`. It allows you to batch multiple requests and execute the complete batch in a single function call.
 
 ```dart
 
@@ -926,12 +935,38 @@ class Model {
     const Model(this.id, this.name, this.nestedId);
 
     NestedModel nested(ReqCtx ctx) {
-        return modelNestedDataLoader.get(ctx).load(nestedId);
+        return modelNestedRepo.get(ctx).getNestedModel(nestedId);
     }
 }
 
-final modelNestedDataLoader = RefWithDefault.global(
-    (scope) => DataLoader((ids) => )
+class NestedModelRepo {
+
+  late final dataLoader = DataLoader.unmapped<String, NestedModel>(getNestedModelsFromIds);
+
+  Future<List<NestedModel>> getNestedModel(String id) {
+    // Batch the id, eventually `dataLoader` will execute
+    // `getNestedModelsFromIds` with a list of batched ids
+    return dataLoader.load(id);
+  }
+
+  Future<List<NestedModel>> getNestedModelsFromIds(List<String> ids) {
+      // Multiple calls to `Model.nested` will be batched and
+      // all ids will be passed in the `ids` argument
+
+      // request the database
+      final List<NestedModel> models = throw Unimplemented();
+
+      // Make a map from id to model instance
+      final Map<String, NestedModel> modelsMap = models.fold(
+        {}, (map, model) => map..[model.id] = model
+      );
+      // Return the models in the same order as the `ids` argument
+      return List.of(ids.map((id) => modelsMap[id]!));
+  }
+}
+
+final modelNestedRepo = RefWithDefault.global(
+    (scope) => NestedModelRepo()
 );
 
 
@@ -941,6 +976,14 @@ List<Model> getModels(ReqCtx ctx) {
 }
 
 ```
+
+The DataLoader has some options for configuring it. For example you can specify the maximum size of the batch (default: `2^53` or the maximum javascript integer), whether to batch requests or not (default: `true`) and provide a custom batch schedule function, by default it will use `Future.delayed(Duration.zero, executeBatch)`.
+
+You can also configure caching by providing a custom cache implementation, a custom function that maps the key passed to `DataLoader.load` to the cache's key or disabling caching in the DataLoader.
+
+## Combining LookAhead with DataLoader
+
+You can use both, LookAhead and DataLoader at the same time. The keys provided to the `DataLoader.load` function can be anything, so you could send the `PossibleSelection` information, for example.
 
 
 # Extensions
@@ -972,7 +1015,7 @@ Client GQL Link implementation in:
 
 - Hash: Similar to HTTP If-None-Match and Etag headers. Computes a hash of the payload (sha1 by default) and returns it to the Client when requested. If the Client makes a request with a hash (computed locally or saved from a previous server response), the extension compares the hash and only returns the full body when the hash do not match. If the hash match, the client already has the last version of the payload.
 
-- MaxAge: If passed a `Cache` object, it will save the responses and compare the saved date with the current date, if the maxAge para is greater than the difference, it returns the cached value.
+- MaxAge: If passed a `Cache` object, it will save the responses and compare the saved date with the current date, if the maxAge para is greater than the difference, it returns the cached value without executing the field's resolver.
 
 - UpdatedAt: Similar to HTTP If-Modified-Since and Last-Modified headers.
 
@@ -1035,7 +1078,7 @@ Most GraphQL utilities can be found in the [`utilities`](https://github.com/juan
 
 ### [`buildSchema`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/build_schema.dart)
 
-Create a `GraphQLSchema` from a GraphQL Schema Definition String.
+Create a `GraphQLSchema` from a GraphQL Schema Definition (SDL) document String.
 
 ### [`printSchema`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities/print_schema.dart)
 

@@ -323,8 +323,8 @@ void dispatchBatch<K extends Object, V>(
       final value = values[i];
       batch.callbacks[i].complete(value);
     }
-  }).catchError((Object error) {
-    _failedDispatch(loader, batch, error);
+  }).catchError((Object error, StackTrace stackTrace) {
+    _failedDispatch(loader, batch, error, stackTrace);
   });
 }
 
@@ -334,12 +334,13 @@ void _failedDispatch<K extends Object, V>(
   DataLoader<K, V, dynamic> loader,
   _Batch<K, V> batch,
   Object error,
+  StackTrace stackTrace,
 ) {
   // Cache hits are resolved, even though the batch failed.
   _resolveCacheHits(batch);
   for (var i = 0; i < batch.keys.length; i++) {
     loader.clear(batch.keys[i]);
-    batch.callbacks[i].completeError(error);
+    batch.callbacks[i].completeError(error, stackTrace);
   }
 }
 
