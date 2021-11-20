@@ -86,6 +86,25 @@ bool isSpecifiedDirective(GraphQLDirective directive) {
       .contains(directive.name);
 }
 
+/// Returns the directives applied to a given GraphQL [element]
+@experimental
+Iterable<DirectiveNode> getDirectivesFromElement(GraphQLElement element) {
+  if (element is GraphQLNamedType) {
+    return element.extra.directives();
+  } else if (element is GraphQLObjectField) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else if (element is GraphQLFieldInput) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else if (element is GraphQLEnumValue) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else {
+    return [];
+  }
+}
+
 /// Constant string used for default reason for a deprecation.
 const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 

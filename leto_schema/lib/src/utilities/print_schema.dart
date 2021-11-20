@@ -9,6 +9,7 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/utilities/ast_from_value.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
+import 'package:meta/meta.dart';
 
 String printSchema(
   GraphQLSchema schema, {
@@ -32,26 +33,56 @@ String printIntrospectionSchema(
   );
 }
 
-// TODO: GraphQLNamedType
-bool isDefinedType(GraphQLType type) {
+bool isDefinedType(GraphQLNamedType type) {
   return !isSpecifiedScalarType(type) && !isIntrospectionType(type);
 }
 
 class SchemaPrinter {
+  ///
   const SchemaPrinter({
     this.printTypeName = defPrintTypeName,
     this.printTypeReference = defPrintTypeReference,
   });
-  final String Function(GraphQLType) printTypeName;
+  final String Function(GraphQLNamedType) printTypeName;
   final String Function(GraphQLType) printTypeReference;
 
-  static String defPrintTypeName(GraphQLType type) => type.toString();
+  static String defPrintTypeName(GraphQLNamedType type) {
+    return type.toString();
+  }
+
   static String defPrintTypeReference(GraphQLType type) => type.toString();
+
+  String printTypeNameAndDirectives(GraphQLNamedType type) {
+    return '${printTypeName(type)}${printDirectives(type)}';
+  }
+
+  // TODO:
+  @experimental
+  String printDirectives(GraphQLElement element) {
+    final _excludedDirectiveNames = [
+      graphQLDeprecatedDirective.name,
+      graphQLSpecifiedByDirective.name,
+    ];
+    final filteredDirectives = getDirectivesFromElement(element).where(
+      (dir) => !_excludedDirectiveNames.contains(dir.name.value),
+    );
+    final directiveStrings = [
+      if (element is GraphQLScalarType) printSpecifiedByURL(element),
+      if (element is GraphQLObjectField)
+        printDeprecated(element.deprecationReason),
+      if (element is GraphQLFieldInput)
+        printDeprecated(element.deprecationReason),
+      if (element is GraphQLEnumValue)
+        printDeprecated(element.deprecationReason),
+      ...filteredDirectives.map(printNode),
+    ].where((str) => str.isNotEmpty);
+    return directiveStrings.isEmpty ? '' : ' ${directiveStrings.join(' ')}';
+  }
 
   String printFilteredSchema(
     GraphQLSchema schema,
     bool Function(GraphQLDirective) directiveFilter,
-    bool Function(GraphQLType) typeFilter,
+    bool Function(GraphQLNamedType) typeFilter,
   ) {
     final directives = schema.directives.where(directiveFilter);
     final types = fetchAllNamedTypes(schema).where(typeFilter);
@@ -120,23 +151,19 @@ class SchemaPrinter {
     return true;
   }
 
-// TODO: GraphQLNamedType
-  String printType(GraphQLType type) {
-    return type.when(
+  String printType(GraphQLNamedType type) {
+    return type.whenNamed(
       enum_: printEnum,
       scalar: printScalar,
       object: printObject,
       input: printInputObject,
       union: printUnion,
-      list: (_) => throw Exception('Unexpected type: $type'),
-      nonNullable: (_) => throw Exception('Unexpected type: $type'),
     );
   }
 
   String printScalar(GraphQLScalarType type) {
     return printDescription(type.description) +
-        'scalar ${printTypeName(type)}' +
-        printSpecifiedByURL(type);
+        'scalar ${printTypeNameAndDirectives(type)}';
   }
 
   String printImplementedInterfaces(
@@ -154,7 +181,7 @@ class SchemaPrinter {
       return printInterface(type);
     }
     return printDescription(type.description) +
-        'type ${printTypeName(type)}' +
+        'type ${printTypeNameAndDirectives(type)}' +
         printImplementedInterfaces(type) +
         printFields(type);
   }
@@ -162,7 +189,7 @@ class SchemaPrinter {
 // TODO: GraphQLInterfaceType
   String printInterface(GraphQLObjectType type) {
     return printDescription(type.description) +
-        'interface ${type.name}' +
+        'interface ${printTypeNameAndDirectives(type)}' +
         printImplementedInterfaces(type) +
         printFields(type);
   }
@@ -172,7 +199,7 @@ class SchemaPrinter {
     final possibleTypes = types.isNotEmpty ? ' = ' + types.join(' | ') : '';
     return printDescription(type.description) +
         'union ' +
-        printTypeName(type) +
+        printTypeNameAndDirectives(type) +
         possibleTypes;
   }
 
@@ -182,11 +209,11 @@ class SchemaPrinter {
           printDescription(value.description, '  ', i == 0) +
           '  ' +
           value.name +
-          printDeprecated(value.deprecationReason),
+          printDirectives(value),
     );
 
     return printDescription(type.description) +
-        'enum ${printTypeName(type)}' +
+        'enum ${printTypeNameAndDirectives(type)}' +
         printBlock(values);
   }
 
@@ -198,7 +225,7 @@ class SchemaPrinter {
           printInputValue(f),
     );
     return printDescription(type.description) +
-        'input ${printTypeName(type)}' +
+        'input ${printTypeNameAndDirectives(type)}' +
         printBlock(fields);
   }
 
@@ -211,7 +238,7 @@ class SchemaPrinter {
           printArgs(f.inputs, '  ') +
           ': ' +
           printTypeReference(f.type) +
-          printDeprecated(f.deprecationReason),
+          printDirectives(f),
     );
     return printBlock(fields);
   }
@@ -261,7 +288,7 @@ class SchemaPrinter {
     } else if (arg.defaultsToNull) {
       argDecl += ' = null';
     }
-    return argDecl + printDeprecated(arg.deprecationReason);
+    return argDecl + printDirectives(arg);
   }
 
   String printDirective(GraphQLDirective directive) {
@@ -280,9 +307,9 @@ class SchemaPrinter {
     }
     final reasonAST = astFromValue(reason, graphQLString);
     if (reasonAST != null && reason != DEFAULT_DEPRECATION_REASON) {
-      return ' @deprecated(reason: ' + printAST(reasonAST) + ')';
+      return '@deprecated(reason: ' + printAST(reasonAST) + ')';
     }
-    return ' @deprecated';
+    return '@deprecated';
   }
 
   String printSpecifiedByURL(GraphQLScalarType scalar) {
@@ -296,7 +323,7 @@ class SchemaPrinter {
         'Unexpected null value returned from `astFromValue` for specifiedByURL',
       );
     }
-    return ' @specifiedBy(url: ' + printAST(urlAST) + ')';
+    return '@specifiedBy(url: ' + printAST(urlAST) + ')';
   }
 
   String printDescription(
