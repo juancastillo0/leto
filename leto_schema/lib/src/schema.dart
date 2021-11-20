@@ -68,22 +68,24 @@ class GraphQLSchema {
   // late final DocumentNode schemaNode = parseString(schemaStr);
   final SchemaDefinitionNode? astNode;
 
-  /// Other [GraphQLType] that you want to have in the schema
-  final List<GraphQLType> otherTypes;
+  final List<SchemaExtensionNode> extensionAstNodes;
+
+  /// Other [GraphQLNamedType] that you want to have in the schema
+  final List<GraphQLNamedType> otherTypes;
 
   /// A Map from name to [GraphQLType].
   /// Contains all named types in the schema.
-  final typeMap = <String, GraphQLType>{};
+  final typeMap = <String, GraphQLNamedType>{};
 
   /// Contains all named types in the schema.
   /// Same as `typeMap.values.toList()`.
-  late final List<GraphQLType> allTypes = [
+  late final List<GraphQLNamedType> allTypes = [
     ...typeMap.values.where((t) => !isIntrospectionType(t)),
     ...typeMap.values.where(isIntrospectionType),
   ];
 
-  /// Returns the [GraphQLType] with the given [name]
-  GraphQLType? getType(String name) => typeMap[name];
+  /// Returns the [GraphQLNamedType] with the given [name]
+  GraphQLNamedType? getType(String name) => typeMap[name];
 
   /// A Map from name to [GraphQLDirective].
   final Map<String, GraphQLDirective> directiveMap = {};
@@ -135,7 +137,7 @@ class GraphQLSchema {
         }
       }
 
-      _subTypeMap[abstractType.name!] = map;
+      _subTypeMap[abstractType.name] = map;
     }
     return map.contains(maybeSubType.name);
   }
@@ -158,6 +160,7 @@ class GraphQLSchema {
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
     this.astNode,
+    this.extensionAstNodes = const [],
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
         directives = directives ?? GraphQLDirective.specifiedDirectives {
     _collectTypes();
@@ -170,7 +173,7 @@ class GraphQLSchema {
   void _collectTypes() {
     final allNamedTypes = fetchAllNamedTypes(this);
     for (final type in allNamedTypes) {
-      final name = type.name!;
+      final name = type.name;
       if (name.isEmpty) {
         throw UnnamedTypeException(this, type);
       } else if (!typeNameRegExp.hasMatch(name) && !isIntrospectionType(type)) {
