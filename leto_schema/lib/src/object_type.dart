@@ -46,8 +46,7 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
 
   /// TODO: interface
   @override
-  final GraphQLTypeDefinitionExtra<ObjectTypeDefinitionNode,
-      ObjectTypeExtensionNode> extra;
+  final GraphQLTypeDefinitionExtra<TypeDefinitionNode, TypeExtensionNode> extra;
 
   /// A [GraphQLType] that specifies the shape of structured data,
   /// with multiple fields that can be resolved independently of one another.
