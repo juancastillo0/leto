@@ -1,0 +1,84 @@
+{
+  "name": "Validate: Values of correct type_Valid values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Good int value",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: 2)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good negative int value",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: -2)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good boolean value",
+      "document": "\n        {\n          complicatedArgs {\n            booleanArgField(booleanArg: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good string value",
+      "document": "\n        {\n          complicatedArgs {\n            stringArgField(stringArg: \"foo\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good float value",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: 1.1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good negative float value",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: -1.1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Int into Float",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Int into ID",
+      "document": "\n        {\n          complicatedArgs {\n            idArgField(idArg: 1)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "String into ID",
+      "document": "\n        {\n          complicatedArgs {\n            idArgField(idArg: \"someIdString\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Good enum value",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: SIT)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Enum with undefined value",
+      "document": "\n        {\n          complicatedArgs {\n            enumArgField(enumArg: UNKNOWN)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Enum with null value",
+      "document": "\n        {\n          complicatedArgs {\n            enumArgField(enumArg: NO_FUR)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "null into nullable type",
+      "document": "\n        {\n          dog(a: null, b: null, c:{ requiredField: true, intField: null }) {\n            name\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "Validate: Known argument names_within SDL",
+  "tests": [
+    {
+      "name": "known arg on directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test(arg: \"\")\n        }\n\n        directive @test(arg: String) on FIELD_DEFINITION\n      ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "unknown arg on directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test(unknown: \"\")\n        }\n\n        directive @test(arg: String) on FIELD_DEFINITION\n      ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on directive \"@test\".",
+          "locations": [{ "line": 3, "column": 29 }]
+        }
+      ]
+    },
+    {
+      "name": "misspelled arg name is reported on directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test(agr: \"\")\n        }\n\n        directive @test(arg: String) on FIELD_DEFINITION\n      ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"agr\" on directive \"@test\". Did you mean \"arg\"?",
+          "locations": [{ "line": 3, "column": 29 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown arg on standard directive",
+      "document": "\n        type Query {\n          foo: String @deprecated(unknown: \"\")\n        }\n      ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on directive \"@deprecated\".",
+          "locations": [{ "line": 3, "column": 35 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown arg on overridden standard directive",
+      "document": "\n        type Query {\n          foo: String @deprecated(reason: \"\")\n        }\n        directive @deprecated(arg: String) on FIELD\n      ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Unknown argument \"reason\" on directive \"@deprecated\".",
+          "locations": [{ "line": 3, "column": 35 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown arg on directive defined in schema extension",
+      "document": "\n          directive @test(arg: String) on OBJECT\n\n          extend type Query  @test(unknown: \"\")\n        ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "schema": "type Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on directive \"@test\".",
+          "locations": [{ "line": 4, "column": 36 }]
+        }
+      ]
+    },
+    {
+      "name": "unknown arg on directive used in schema extension",
+      "document": "\n          extend type Query @test(unknown: \"\")\n        ",
+      "rules": ["KnownArgumentNamesOnDirectivesRule"],
+      "schema": "directive @test(arg: String) on OBJECT\n\ntype Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Unknown argument \"unknown\" on directive \"@test\".",
+          "locations": [{ "line": 2, "column": 35 }]
+        }
+      ]
+    }
+  ]
+}

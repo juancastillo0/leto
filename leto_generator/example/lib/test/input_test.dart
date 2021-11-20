@@ -102,7 +102,7 @@ void main() {
         mutation m($serde: InputJsonSerde, $gen:InputGenInputJsonSerdeReqList,
         $gen2: InputGen2StringReqIntReqListListReq) {
           mutationMultipleParamsOptionalPos(
-            serde: $serde2
+            serde: $serde
             defTwo: 32
             gen: $gen
             gen2: $gen2

@@ -1,0 +1,124 @@
+{
+  "name": "Validate: Unique type names",
+  "tests": [
+    {
+      "name": "no types",
+      "document": "\n      directive @test on SCHEMA\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one type",
+      "document": "\n      type Foo\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "many types",
+      "document": "\n      type Foo\n      type Bar\n      type Baz\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "type and non-type definitions named the same",
+      "document": "\n      query Foo { __typename }\n      fragment Foo on Query { __typename }\n      directive @Foo on SCHEMA\n\n      type Foo\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "types named the same",
+      "document": "\n      type Foo\n\n      scalar Foo\n      type Foo\n      interface Foo\n      union Foo\n      enum Foo\n      input Foo\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 4, "column": 14 }
+          ]
+        },
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 5, "column": 12 }
+          ]
+        },
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 6, "column": 17 }
+          ]
+        },
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 7, "column": 13 }
+          ]
+        },
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 8, "column": 12 }
+          ]
+        },
+        {
+          "message": "There can be only one type named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 12 },
+            { "line": 9, "column": 13 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "adding new type to existing schema",
+      "document": "type Bar",
+      "rules": ["UniqueTypeNamesRule"],
+      "schema": "type Foo",
+      "errors": []
+    },
+    {
+      "name": "adding new type to existing schema with same-named directive",
+      "document": "type Foo",
+      "rules": ["UniqueTypeNamesRule"],
+      "schema": "directive @Foo on SCHEMA",
+      "errors": []
+    },
+    {
+      "name": "adding conflicting types to existing schema",
+      "document": "\n      scalar Foo\n      type Foo\n      interface Foo\n      union Foo\n      enum Foo\n      input Foo\n    ",
+      "rules": ["UniqueTypeNamesRule"],
+      "schema": "type Foo",
+      "errors": [
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 2, "column": 14 }]
+        },
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 3, "column": 12 }]
+        },
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 4, "column": 17 }]
+        },
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 5, "column": 13 }]
+        },
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 6, "column": 12 }]
+        },
+        {
+          "message": "Type \"Foo\" already exists in the schema. It cannot also be defined in this type definition.",
+          "locations": [{ "line": 7, "column": 13 }]
+        }
+      ]
+    }
+  ]
+}

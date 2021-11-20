@@ -1,5 +1,11 @@
 import 'package:leto_schema/leto_schema.dart';
 
+bool isLeafType(GraphQLType? type) =>
+    type is GraphQLEnumType || type is GraphQLScalarType;
+
+bool isAbstractType(GraphQLType type) =>
+    type is GraphQLObjectType && type.isInterface || type is GraphQLUnionType;
+
 bool isCompositeType(GraphQLType? type) =>
     type is GraphQLObjectType || type is GraphQLUnionType;
 

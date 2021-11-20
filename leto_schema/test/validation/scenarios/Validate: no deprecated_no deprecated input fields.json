@@ -1,0 +1,33 @@
+{
+  "name": "Validate: no deprecated_no deprecated input fields",
+  "schema": "directive @someDirective(someArg: InputType) on FIELD\n\ninput InputType {\n  normalField: String\n  deprecatedField: String @deprecated(reason: \"Some input field reason.\")\n}\n\ntype Query {\n  someField(someArg: InputType): String\n}",
+  "tests": [
+    {
+      "name": "ignores input fields that are not deprecated",
+      "document": "\n        {\n          someField(\n            someArg: { normalField: \"\" }\n          ) @someDirective(someArg: { normalField: \"\" })\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores unknown input fields",
+      "document": "\n        {\n          someField(\n            someArg: { unknownField: \"\" }\n          )\n\n          someField(\n            unknownArg: { unknownField: \"\" }\n          )\n\n          unknownField(\n            unknownArg: { unknownField: \"\" }\n          )\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "reports error when a deprecated input field is used",
+      "document": "\n        {\n          someField(\n            someArg: { deprecatedField: \"\" }\n          ) @someDirective(someArg: { deprecatedField: \"\" })\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": [
+        {
+          "message": "The input field InputType.deprecatedField is deprecated. Some input field reason.",
+          "locations": [{ "line": 4, "column": 24 }]
+        },
+        {
+          "message": "The input field InputType.deprecatedField is deprecated. Some input field reason.",
+          "locations": [{ "line": 5, "column": 39 }]
+        }
+      ]
+    }
+  ]
+}

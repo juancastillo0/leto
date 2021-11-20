@@ -1,0 +1,120 @@
+{
+  "name": "Validate: Known directives_within SDL",
+  "tests": [
+    {
+      "name": "with directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test\n        }\n\n        directive @test on FIELD_DEFINITION\n      ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with standard directive",
+      "document": "\n        type Query {\n          foo: String @deprecated\n        }\n      ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with overridden standard directive",
+      "document": "\n        schema @deprecated {\n          query: Query\n        }\n        directive @deprecated on SCHEMA\n      ",
+      "rules": ["KnownDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "with directive defined in schema extension",
+      "document": "\n          directive @test on OBJECT\n\n          extend type Query @test\n        ",
+      "rules": ["KnownDirectivesRule"],
+      "schema": "type Query {\n  foo: String\n}",
+      "errors": []
+    },
+    {
+      "name": "with directive used in schema extension",
+      "document": "\n          extend type Query @test\n        ",
+      "rules": ["KnownDirectivesRule"],
+      "schema": "directive @test on OBJECT\n\ntype Query {\n  foo: String\n}",
+      "errors": []
+    },
+    {
+      "name": "with unknown directive in schema extension",
+      "document": "\n          extend type Query @unknown\n        ",
+      "rules": ["KnownDirectivesRule"],
+      "schema": "type Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Unknown directive \"@unknown\".",
+          "locations": [{ "line": 2, "column": 29 }]
+        }
+      ]
+    },
+    {
+      "name": "with well placed directives",
+      "document": "\n          type MyObj implements MyInterface @onObject {\n            myField(myArg: Int @onArgumentDefinition): String @onFieldDefinition\n          }\n\n          extend type MyObj @onObject\n\n          scalar MyScalar @onScalar\n\n          extend scalar MyScalar @onScalar\n\n          interface MyInterface @onInterface {\n            myField(myArg: Int @onArgumentDefinition): String @onFieldDefinition\n          }\n\n          extend interface MyInterface @onInterface\n\n          union MyUnion @onUnion = MyObj | Other\n\n          extend union MyUnion @onUnion\n\n          enum MyEnum @onEnum {\n            MY_VALUE @onEnumValue\n          }\n\n          extend enum MyEnum @onEnum\n\n          input MyInput @onInputObject {\n            myField: Int @onInputFieldDefinition\n          }\n\n          extend input MyInput @onInputObject\n\n          schema @onSchema {\n            query: MyQuery\n          }\n\n          extend schema @onSchema\n        ",
+      "rules": ["KnownDirectivesRule"],
+      "schema": "directive @onSchema on SCHEMA\n\ndirective @onScalar on SCALAR\n\ndirective @onObject on OBJECT\n\ndirective @onFieldDefinition on FIELD_DEFINITION\n\ndirective @onArgumentDefinition on ARGUMENT_DEFINITION\n\ndirective @onInterface on INTERFACE\n\ndirective @onUnion on UNION\n\ndirective @onEnum on ENUM\n\ndirective @onEnumValue on ENUM_VALUE\n\ndirective @onInputObject on INPUT_OBJECT\n\ndirective @onInputFieldDefinition on INPUT_FIELD_DEFINITION",
+      "errors": []
+    },
+    {
+      "name": "with misplaced directives",
+      "document": "\n          type MyObj implements MyInterface @onInterface {\n            myField(myArg: Int @onInputFieldDefinition): String @onInputFieldDefinition\n          }\n\n          scalar MyScalar @onEnum\n\n          interface MyInterface @onObject {\n            myField(myArg: Int @onInputFieldDefinition): String @onInputFieldDefinition\n          }\n\n          union MyUnion @onEnumValue = MyObj | Other\n\n          enum MyEnum @onScalar {\n            MY_VALUE @onUnion\n          }\n\n          input MyInput @onEnum {\n            myField: Int @onArgumentDefinition\n          }\n\n          schema @onObject {\n            query: MyQuery\n          }\n\n          extend schema @onObject\n        ",
+      "rules": ["KnownDirectivesRule"],
+      "schema": "directive @onSchema on SCHEMA\n\ndirective @onScalar on SCALAR\n\ndirective @onObject on OBJECT\n\ndirective @onFieldDefinition on FIELD_DEFINITION\n\ndirective @onArgumentDefinition on ARGUMENT_DEFINITION\n\ndirective @onInterface on INTERFACE\n\ndirective @onUnion on UNION\n\ndirective @onEnum on ENUM\n\ndirective @onEnumValue on ENUM_VALUE\n\ndirective @onInputObject on INPUT_OBJECT\n\ndirective @onInputFieldDefinition on INPUT_FIELD_DEFINITION",
+      "errors": [
+        {
+          "message": "Directive \"@onInterface\" may not be used on OBJECT.",
+          "locations": [{ "line": 2, "column": 45 }]
+        },
+        {
+          "message": "Directive \"@onInputFieldDefinition\" may not be used on ARGUMENT_DEFINITION.",
+          "locations": [{ "line": 3, "column": 32 }]
+        },
+        {
+          "message": "Directive \"@onInputFieldDefinition\" may not be used on FIELD_DEFINITION.",
+          "locations": [{ "line": 3, "column": 65 }]
+        },
+        {
+          "message": "Directive \"@onEnum\" may not be used on SCALAR.",
+          "locations": [{ "line": 6, "column": 27 }]
+        },
+        {
+          "message": "Directive \"@onObject\" may not be used on INTERFACE.",
+          "locations": [{ "line": 8, "column": 33 }]
+        },
+        {
+          "message": "Directive \"@onInputFieldDefinition\" may not be used on ARGUMENT_DEFINITION.",
+          "locations": [{ "line": 9, "column": 32 }]
+        },
+        {
+          "message": "Directive \"@onInputFieldDefinition\" may not be used on FIELD_DEFINITION.",
+          "locations": [{ "line": 9, "column": 65 }]
+        },
+        {
+          "message": "Directive \"@onEnumValue\" may not be used on UNION.",
+          "locations": [{ "line": 12, "column": 25 }]
+        },
+        {
+          "message": "Directive \"@onScalar\" may not be used on ENUM.",
+          "locations": [{ "line": 14, "column": 23 }]
+        },
+        {
+          "message": "Directive \"@onUnion\" may not be used on ENUM_VALUE.",
+          "locations": [{ "line": 15, "column": 22 }]
+        },
+        {
+          "message": "Directive \"@onEnum\" may not be used on INPUT_OBJECT.",
+          "locations": [{ "line": 18, "column": 25 }]
+        },
+        {
+          "message": "Directive \"@onArgumentDefinition\" may not be used on INPUT_FIELD_DEFINITION.",
+          "locations": [{ "line": 19, "column": 26 }]
+        },
+        {
+          "message": "Directive \"@onObject\" may not be used on SCHEMA.",
+          "locations": [{ "line": 22, "column": 18 }]
+        },
+        {
+          "message": "Directive \"@onObject\" may not be used on SCHEMA.",
+          "locations": [{ "line": 26, "column": 25 }]
+        }
+      ]
+    }
+  ]
+}

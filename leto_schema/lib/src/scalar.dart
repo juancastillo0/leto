@@ -25,7 +25,7 @@ final GraphQLScalarType<int, int> graphQLInt = _GraphQLNumType(
   'Int',
   'A signed integer.',
   'an integer',
-  (input) => input is int || input.round() == input ? input.round() : null,
+  (input) => input is int ? input : null,
 );
 
 /// A signed double-precision floating-point value.
@@ -68,7 +68,7 @@ const specifiedScalarNames = [
 /// A [GraphQLType] without nested properties.
 /// Can be used as an input type.
 abstract class GraphQLScalarType<Value, Serialized>
-    extends GraphQLType<Value, Serialized>
+    extends GraphQLNamedType<Value, Serialized>
     with _NonNullableMixin<Value, Serialized> {
   @override
   String get name;
@@ -78,6 +78,10 @@ abstract class GraphQLScalarType<Value, Serialized>
 
   @override
   GraphQLType<Value, Serialized> coerceToInputObject() => this;
+
+  @override
+  GraphQLTypeDefinitionExtra<ScalarTypeDefinitionNode, ScalarTypeExtensionNode>
+      get extra => const GraphQLTypeDefinitionExtra.attach([]);
 }
 
 /// A [GraphQLType] without nested properties.
@@ -96,6 +100,9 @@ class GraphQLScalarTypeValue<Value, Serialized>
       _validate;
   final Serialized Function(Value value) _serialize;
   final Value Function(SerdeCtx serdeCtx, Serialized serialized) _deserialize;
+  @override
+  final GraphQLTypeDefinitionExtra<ScalarTypeDefinitionNode,
+      ScalarTypeExtensionNode> extra;
 
   /// A [GraphQLType] without nested properties.
   /// Can be used as an input type.
@@ -109,6 +116,7 @@ class GraphQLScalarTypeValue<Value, Serialized>
     required Serialized Function(Value value) serialize,
     required Value Function(SerdeCtx serdeCtx, Serialized serialized)
         deserialize,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   })  : _validate = validate,
         _serialize = serialize,
         _deserialize = deserialize;
@@ -127,16 +135,6 @@ class GraphQLScalarTypeValue<Value, Serialized>
   ValidationResult<Serialized> validate(String key, Object? input) {
     return _validate(key, input);
   }
-
-  @override
-  Iterable<Object?> get props => [
-        name,
-        description,
-        specifiedByURL,
-        _validate,
-        _serialize,
-        _deserialize,
-      ];
 }
 
 class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
@@ -162,9 +160,6 @@ class _GraphQLBoolType extends GraphQLScalarType<bool, bool> {
   bool deserialize(SerdeCtx serdeCtx, bool serialized) {
     return serialized;
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }
 
 class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
@@ -204,9 +199,6 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   T serialize(num value) {
     return castNum(value)!;
   }
-
-  @override
-  Iterable<Object?> get props => [name];
 }
 
 class _GraphQLStringType extends GraphQLScalarType<String, String> {
@@ -230,9 +222,6 @@ class _GraphQLStringType extends GraphQLScalarType<String, String> {
           ? ValidationResult.ok(input)
           : ValidationResult.failure(
               ['Expected "$key" to be a string. Got invalid value $input.']);
-
-  @override
-  Iterable<Object?> get props => [name];
 }
 
 class _GraphQLIDType extends GraphQLScalarType<String, Object> {
@@ -267,9 +256,6 @@ class _GraphQLIDType extends GraphQLScalarType<String, Object> {
                 'Expected "$key" to be a ID, string or int. Got invalid value $input.'
               ],
             );
-
-  @override
-  Iterable<Object?> get props => [];
 }
 
 class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
@@ -293,9 +279,6 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
   ValidationResult<String> validate(String key, Object? input) {
     return _validateDateString(key, input);
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }
 
 ValidationResult<String> _validateDateString(String key, Object? input) {
@@ -347,7 +330,4 @@ class _GraphQLTimestampType extends GraphQLScalarType<DateTime, int>
       return err;
     }
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }

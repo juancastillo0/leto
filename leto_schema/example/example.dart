@@ -15,6 +15,9 @@ final GraphQLSchema todoSchema = new GraphQLSchema(
   ]),
 );
 
+/// A default resolver that always returns `null`.
+Object? resolveToNull(Object? _, Object? __) => null;
+
 void main() {
   // Validation
   var validation = todoSchema.queryType!.validate(

@@ -16,8 +16,11 @@ String fieldSelection(GraphQLObjectField<Object?, Object?, Object?> f) {
   if (type is GraphQLObjectType) {
     return ' ${f.name} { ${type.fields.map(fieldSelection).join(' ')} } ';
   } else if (type is GraphQLUnionType) {
+    int i = 0;
     return ' ${f.name} { ${type.possibleTypes.map((e) {
-      return ' ... on ${e.name} { ${e.fields.map(fieldSelection).join(' ')} } ';
+      final _fields =
+          e.fields.map(fieldSelection).map((e) => 'f${i++} : $e').join(' ');
+      return ' ... on ${e.name} { $_fields } ';
     }).join(' ')} }';
   }
   return ' ${f.name} ';

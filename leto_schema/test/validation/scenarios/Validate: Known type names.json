@@ -1,0 +1,52 @@
+{
+  "name": "Validate: Known type names",
+  "tests": [
+    {
+      "name": "known type names are valid",
+      "document": "\n      query Foo(\n        $var: String\n        $required: [Int!]!\n        $introspectionType: __EnumValue\n      ) {\n        user(id: 4) {\n          pets { ... on Pet { name }, ...PetFields, ... { name } }\n        }\n      }\n\n      fragment PetFields on Pet {\n        name\n      }\n    ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "testSchema",
+      "errors": []
+    },
+    {
+      "name": "unknown type names are invalid",
+      "document": "\n      query Foo($var: [JumbledUpLetters!]!) {\n        user(id: 4) {\n          name\n          pets { ... on Badger { name }, ...PetFields }\n        }\n      }\n      fragment PetFields on Peat {\n        name\n      }\n    ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "testSchema",
+      "errors": [
+        {
+          "message": "Unknown type \"JumbledUpLetters\".",
+          "locations": [{ "line": 2, "column": 24 }]
+        },
+        {
+          "message": "Unknown type \"Badger\".",
+          "locations": [{ "line": 5, "column": 25 }]
+        },
+        {
+          "message": "Unknown type \"Peat\". Did you mean \"Pet\" or \"Cat\"?",
+          "locations": [{ "line": 8, "column": 29 }]
+        }
+      ]
+    },
+    {
+      "name": "references to standard scalars that are missing in schema",
+      "document": "\n      query ($id: ID, $float: Float, $int: Int) {\n        __typename\n      }\n    ",
+      "rules": ["KnownTypeNamesRule"],
+      "schema": "type Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Unknown type \"ID\".",
+          "locations": [{ "line": 2, "column": 19 }]
+        },
+        {
+          "message": "Unknown type \"Float\".",
+          "locations": [{ "line": 2, "column": 31 }]
+        },
+        {
+          "message": "Unknown type \"Int\".",
+          "locations": [{ "line": 2, "column": 44 }]
+        }
+      ]
+    }
+  ]
+}

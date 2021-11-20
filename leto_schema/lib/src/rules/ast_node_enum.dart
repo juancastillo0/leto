@@ -143,4 +143,96 @@ extension EnumExt on Node {
 
     throw Error();
   }
+
+  NameNode? get nameNode {
+    final v = this;
+    if (v is ArgumentNode)
+      return v.name;
+    else if (v is BooleanValueNode)
+      return null;
+    else if (v is DefaultValueNode)
+      return null;
+    else if (v is DirectiveDefinitionNode)
+      return v.name;
+    else if (v is DirectiveNode)
+      return v.name;
+    else if (v is DocumentNode)
+      return null;
+    else if (v is EnumTypeDefinitionNode)
+      return v.name;
+    else if (v is EnumTypeExtensionNode)
+      return v.name;
+    else if (v is EnumValueDefinitionNode)
+      return v.name;
+    else if (v is EnumValueNode)
+      return v.name;
+    else if (v is FieldDefinitionNode)
+      return v.name;
+    else if (v is FieldNode)
+      return v.name;
+    else if (v is FloatValueNode)
+      return null;
+    else if (v is FragmentDefinitionNode)
+      return v.name;
+    else if (v is FragmentSpreadNode)
+      return v.name;
+    else if (v is InlineFragmentNode)
+      return null;
+    else if (v is InputObjectTypeDefinitionNode)
+      return v.name;
+    else if (v is InputObjectTypeExtensionNode)
+      return v.name;
+    else if (v is InputValueDefinitionNode)
+      return v.name;
+    else if (v is IntValueNode)
+      return null;
+    else if (v is InterfaceTypeDefinitionNode)
+      return v.name;
+    else if (v is InterfaceTypeExtensionNode)
+      return v.name;
+    else if (v is ListTypeNode)
+      return null;
+    else if (v is ListValueNode)
+      return null;
+    else if (v is NameNode)
+      return v;
+    else if (v is NamedTypeNode)
+      return v.name;
+    else if (v is NullValueNode)
+      return null;
+    else if (v is ObjectFieldNode)
+      return v.name;
+    else if (v is ObjectTypeDefinitionNode)
+      return v.name;
+    else if (v is ObjectTypeExtensionNode)
+      return v.name;
+    else if (v is ObjectValueNode)
+      return null;
+    else if (v is OperationDefinitionNode)
+      return v.name;
+    else if (v is OperationTypeDefinitionNode)
+      return v.type.name;
+    else if (v is ScalarTypeDefinitionNode)
+      return v.name;
+    else if (v is ScalarTypeExtensionNode)
+      return v.name;
+    else if (v is SchemaDefinitionNode)
+      return null;
+    else if (v is SchemaExtensionNode)
+      return null;
+    else if (v is SelectionSetNode)
+      return null;
+    else if (v is StringValueNode)
+      return null;
+    else if (v is TypeConditionNode)
+      return v.on.name;
+    else if (v is UnionTypeDefinitionNode)
+      return v.name;
+    else if (v is UnionTypeExtensionNode)
+      return v.name;
+    else if (v is VariableDefinitionNode)
+      return v.variable.name;
+    else if (v is VariableNode) return v.name;
+    return null;
+  }
 }

@@ -1,0 +1,209 @@
+{
+  "name": "Validate: Unique field definition names",
+  "tests": [
+    {
+      "name": "no fields",
+      "document": "\n      type SomeObject\n      interface SomeInterface\n      input SomeInputObject\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one field",
+      "document": "\n      type SomeObject {\n        foo: String\n      }\n\n      interface SomeInterface {\n        foo: String\n      }\n\n      input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple fields",
+      "document": "\n      type SomeObject {\n        foo: String\n        bar: String\n      }\n\n      interface SomeInterface {\n        foo: String\n        bar: String\n      }\n\n      input SomeInputObject {\n        foo: String\n        bar: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicate fields inside the same type definition",
+      "document": "\n      type SomeObject {\n        foo: String\n        bar: String\n        foo: String\n      }\n\n      interface SomeInterface {\n        foo: String\n        bar: String\n        foo: String\n      }\n\n      input SomeInputObject {\n        foo: String\n        bar: String\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 5, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" can only be defined once.",
+          "locations": [
+            { "line": 9, "column": 9 },
+            { "line": 11, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 15, "column": 9 },
+            { "line": 17, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "extend type with new field",
+      "document": "\n      type SomeObject {\n        foo: String\n      }\n      extend type SomeObject {\n        bar: String\n      }\n      extend type SomeObject {\n        baz: String\n      }\n\n      interface SomeInterface {\n        foo: String\n      }\n      extend interface SomeInterface {\n        bar: String\n      }\n      extend interface SomeInterface {\n        baz: String\n      }\n\n      input SomeInputObject {\n        foo: String\n      }\n      extend input SomeInputObject {\n        bar: String\n      }\n      extend input SomeInputObject {\n        baz: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "extend type with duplicate field",
+      "document": "\n      extend type SomeObject {\n        foo: String\n      }\n      type SomeObject {\n        foo: String\n      }\n\n      extend interface SomeInterface {\n        foo: String\n      }\n      interface SomeInterface {\n        foo: String\n      }\n\n      extend input SomeInputObject {\n        foo: String\n      }\n      input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" can only be defined once.",
+          "locations": [
+            { "line": 10, "column": 9 },
+            { "line": 13, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 17, "column": 9 },
+            { "line": 20, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate field inside extension",
+      "document": "\n      type SomeObject\n      extend type SomeObject {\n        foo: String\n        bar: String\n        foo: String\n      }\n\n      interface SomeInterface\n      extend interface SomeInterface {\n        foo: String\n        bar: String\n        foo: String\n      }\n\n      input SomeInputObject\n      extend input SomeInputObject {\n        foo: String\n        bar: String\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 4, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" can only be defined once.",
+          "locations": [
+            { "line": 11, "column": 9 },
+            { "line": 13, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 18, "column": 9 },
+            { "line": 20, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate field inside different extensions",
+      "document": "\n      type SomeObject\n      extend type SomeObject {\n        foo: String\n      }\n      extend type SomeObject {\n        foo: String\n      }\n\n      interface SomeInterface\n      extend interface SomeInterface {\n        foo: String\n      }\n      extend interface SomeInterface {\n        foo: String\n      }\n\n      input SomeInputObject\n      extend input SomeInputObject {\n        foo: String\n      }\n      extend input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 4, "column": 9 },
+            { "line": 7, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" can only be defined once.",
+          "locations": [
+            { "line": 12, "column": 9 },
+            { "line": 15, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 20, "column": 9 },
+            { "line": 23, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "adding new field to the type inside existing schema",
+      "document": "\n      extend type SomeObject {\n        foo: String\n      }\n\n      extend interface SomeInterface {\n        foo: String\n      }\n\n      extend input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "schema": "type SomeObject\n\ninterface SomeInterface\n\ninput SomeInputObject",
+      "errors": []
+    },
+    {
+      "name": "adding conflicting fields to existing schema twice",
+      "document": "\n      extend type SomeObject {\n        foo: String\n      }\n      extend interface SomeInterface {\n        foo: String\n      }\n      extend input SomeInputObject {\n        foo: String\n      }\n\n      extend type SomeObject {\n        foo: String\n      }\n      extend interface SomeInterface {\n        foo: String\n      }\n      extend input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "schema": "type SomeObject {\n  foo: String\n}\n\ninterface SomeInterface {\n  foo: String\n}\n\ninput SomeInputObject {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 3, "column": 9 }]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 6, "column": 9 }]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 9, "column": 9 }]
+        },
+        {
+          "message": "Field \"SomeObject.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 13, "column": 9 }]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 16, "column": 9 }]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 19, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "adding fields to existing schema twice",
+      "document": "\n      extend type SomeObject {\n        foo: String\n      }\n      extend type SomeObject {\n        foo: String\n      }\n\n      extend interface SomeInterface {\n        foo: String\n      }\n      extend interface SomeInterface {\n        foo: String\n      }\n\n      extend input SomeInputObject {\n        foo: String\n      }\n      extend input SomeInputObject {\n        foo: String\n      }\n    ",
+      "rules": ["UniqueFieldDefinitionNamesRule"],
+      "schema": "type SomeObject\n\ninterface SomeInterface\n\ninput SomeInputObject",
+      "errors": [
+        {
+          "message": "Field \"SomeObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInterface.foo\" can only be defined once.",
+          "locations": [
+            { "line": 10, "column": 9 },
+            { "line": 13, "column": 9 }
+          ]
+        },
+        {
+          "message": "Field \"SomeInputObject.foo\" can only be defined once.",
+          "locations": [
+            { "line": 17, "column": 9 },
+            { "line": 20, "column": 9 }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -45,9 +45,6 @@ class TestComplexScalar extends GraphQLScalarType<String, String> {
     return ValidationResult.failure(
         ['Expected $key = $input to be "SerializedValue"']);
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }
 
 final TestInputObject = GraphQLInputObjectType<Object>(

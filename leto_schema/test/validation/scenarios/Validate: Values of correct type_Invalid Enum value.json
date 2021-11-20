@@ -1,0 +1,72 @@
+{
+  "name": "Validate: Values of correct type_Invalid Enum value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Int into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: 2)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Enum \"DogCommand\" cannot represent non-enum value: 2.",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Float into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: 1.0)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Enum \"DogCommand\" cannot represent non-enum value: 1.0.",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "String into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: \"SIT\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Enum \"DogCommand\" cannot represent non-enum value: \"SIT\". Did you mean the enum value \"SIT\"?",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Boolean into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Enum \"DogCommand\" cannot represent non-enum value: true.",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Unknown Enum Value into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: JUGGLE)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Value \"JUGGLE\" does not exist in \"DogCommand\" enum.",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Different case Enum Value into Enum",
+      "document": "\n        {\n          dog {\n            doesKnowCommand(dogCommand: sit)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Value \"sit\" does not exist in \"DogCommand\" enum. Did you mean the enum value \"SIT\"?",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    }
+  ]
+}

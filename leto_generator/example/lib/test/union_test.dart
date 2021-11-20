@@ -29,16 +29,16 @@ void main() {
           {getUnionA {
             __typename
             ... on UnionA1 {
-              one
+              one1: one
             }
             ... on UnionA2 {
               dec
             }
             ... on UnionA3 {
-              one
+              one3: one
             }
             ... on UnionA4 {
-              oneRenamed
+              one4: oneRenamed
             }
           }}
           ''',
@@ -48,8 +48,8 @@ void main() {
         final json = item.toJson();
 
         final runtimeType = json.remove('runtimeType') as String;
-        if (runtimeType == 'a4') {
-          json['oneRenamed'] = json.remove('one');
+        if (runtimeType != 'a2') {
+          json['one${runtimeType.substring(1)}'] = json.remove('one');
         }
         expect(result.data, {
           'getUnionA': <String, Object?>{

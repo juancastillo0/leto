@@ -1,0 +1,61 @@
+{
+  "name": "Validate: Values of correct type_Invalid Int values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "String into Int",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: \"3\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: \"3\"",
+          "locations": [{ "line": 4, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "Big Int into Int",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: 829384293849283498239482938)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non 32-bit signed integer value: 829384293849283498239482938",
+          "locations": [{ "line": 4, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "Unquoted String into Int",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: FOO)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: FOO",
+          "locations": [{ "line": 4, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "Simple Float into Int",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: 3.0)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: 3.0",
+          "locations": [{ "line": 4, "column": 33 }]
+        }
+      ]
+    },
+    {
+      "name": "Float into Int",
+      "document": "\n        {\n          complicatedArgs {\n            intArgField(intArg: 3.333)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: 3.333",
+          "locations": [{ "line": 4, "column": 33 }]
+        }
+      ]
+    }
+  ]
+}

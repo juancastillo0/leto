@@ -229,8 +229,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: gql
-      ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
-      resolved-ref: e767a8dd62533f2ed8a1f9bd59187b4e838de204
+      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4
+      resolved-ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4
       url: "https://github.com/juancastillo0/gql"
     source: git
     version: "0.13.0"

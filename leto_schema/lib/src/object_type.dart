@@ -2,8 +2,10 @@ part of leto_schema.src.schema;
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
-    with _NonNullableMixin<P, Map<String, dynamic>> {
+class GraphQLObjectType<P> extends GraphQLCompositeType<P>
+    with
+        _NonNullableMixin<P, Map<String, dynamic>>,
+        _GraphQLBaseNestedType<P, GraphQLObjectField<Object?, Object?, P>> {
   /// The name of this type.
   @override
   final String name;
@@ -13,6 +15,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
   final String? description;
 
   /// The list of fields that an object of this type is expected to have.
+  @override
   final List<GraphQLObjectField<Object?, Object?, P>> fields = [];
 
   /// `true` if this type should be treated as an *interface*,
@@ -31,6 +34,7 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
       List.of(_interfaces.where((obj) => obj.isInterface));
 
   /// A list of other types that implement this interface.
+  @override
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
@@ -43,6 +47,10 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
   /// which are associated with this object type
   final IsTypeOfWrapper<P>? isTypeOf;
 
+  /// TODO: interface
+  @override
+  final GraphQLTypeDefinitionExtra<TypeDefinitionNode, TypeExtensionNode> extra;
+
   /// A [GraphQLType] that specifies the shape of structured data,
   /// with multiple fields that can be resolved independently of one another.
   GraphQLObjectType(
@@ -53,17 +61,13 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     IsTypeOf<P>? isTypeOf,
     Iterable<GraphQLObjectField<Object?, Object?, P>> fields = const [],
     Iterable<GraphQLObjectType> interfaces = const [],
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   })  : isTypeOf = isTypeOf == null ? null : IsTypeOfWrapper(isTypeOf),
         resolveType =
             resolveType == null ? null : ResolveTypeWrapper(resolveType) {
     this.fields.addAll(fields);
 
     inheritFromMany(interfaces);
-  }
-
-  /// Returns the field with the given [name]
-  GraphQLObjectField<Object?, Object?, P>? fieldByName(String name) {
-    return fields.firstWhereOrNull((field) => field.name == name);
   }
 
   @override
@@ -132,16 +136,24 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
     }
   }
 
+  /// Returns `true` if this type, or any of its parents,
+  /// is a direct descendant of another given [type].
+  bool isImplementationOf(GraphQLObjectType type) {
+    final _interfaces = interfaces;
+    if (type == this) {
+      return true;
+    } else if (_interfaces.contains(type)) {
+      return true;
+    } else {
+      return _interfaces.any((t) => t.isImplementationOf(type));
+    }
+  }
+
   @override
   ValidationResult<Map<String, dynamic>> validate(
     String key,
     Object? input,
   ) {
-    if (input is! Map<String, Object?>) {
-      return ValidationResult.failure([
-        'Expected "$key" to be a Map of type $this. Got invalid value $input.'
-      ]);
-    }
     if (isInterface) {
       final List<String> errors = [];
 
@@ -158,82 +170,44 @@ class GraphQLObjectType<P> extends GraphQLType<P, Map<String, dynamic>>
       return ValidationResult.failure(errors);
     }
 
-    return _validateObject(this, fields, key, input);
+    return super.validate(key, input);
   }
-
-  @override
-  Map<String, dynamic> serialize(P value) {
-    final map = _jsonFromValue(value!);
-    return _gqlFromJson(map, fields);
-    // return map.keys.fold(<String, dynamic>{}, (out, k) {
-    //   final field = fields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError(
-    //      'Cannot serialize field "$k", which was not defined in the schema.',
-    //     );
-    //   return out..[k.toString()] = field.serialize(value[k]);
-    // });
-  }
-
-  @override
-  P deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
-    return _valueFromJson(serdeCtx, serialized, fields);
-    // return value.keys.fold(<String, Object?>{}, (out, k) {
-    //   final field = fields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
-    //   return out..[k.toString()] = field.deserialize(serdeCtx, value[k]);
-    // });
-  }
-
-  /// Returns `true` if this type, or any of its parents,
-  /// is a direct descendant of another given [type].
-  bool isImplementationOf(GraphQLObjectType type) {
-    if (type == this) {
-      return true;
-    } else if (interfaces.contains(type)) {
-      return true;
-    } else if (interfaces.isNotEmpty) {
-      return interfaces.any((t) => t.isImplementationOf(type));
-    } else {
-      return false;
-    }
-  }
-
-  @override
-  Iterable<Object?> get props => [
-        name,
-        description,
-        isInterface,
-        // Filter introspection fields TODO: should we do this?
-        fields.where((f) => !f.name.startsWith('__')),
-        interfaces,
-        possibleTypes
-      ];
 }
 
+/// A function that returns the name of one of the possible types
+/// of an given abstract [type] that matches the type for [result].
 typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
-    Object, P, ResolveObjectCtx);
+    Object result, P type, ResolveObjectCtx);
 
+/// A function that returns the name of one of the possible types
+/// of an given abstract [type] that matches the type for [result].
+///
+/// Type casting wrapper for [ResolveType]
 class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
-  final ResolveType<T> func;
+  final ResolveType<T> _func;
 
-  const ResolveTypeWrapper(this.func);
+  const ResolveTypeWrapper(this._func);
 
   String call(Object result, T type, ResolveObjectCtx ctx) =>
-      func(result, type, ctx);
+      _func(result, type, ctx);
 }
 
+/// A function that returns true if [result]
+/// is an instance of [GraphQLObjectType] [type]
 typedef IsTypeOf<P> = bool Function(
-    Object, GraphQLObjectType<P>, ResolveObjectCtx);
+    Object result, GraphQLObjectType<P> type, ResolveObjectCtx);
 
+/// A function that returns true if [result]
+/// is an instance of [GraphQLObjectType] [type]
+///
+/// Type casting wrapper for [IsTypeOf]
 class IsTypeOfWrapper<P> {
-  final IsTypeOf<P> func;
+  final IsTypeOf<P> _func;
 
-  const IsTypeOfWrapper(this.func);
+  const IsTypeOfWrapper(this._func);
 
   bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
-      func(value, type, ctx);
+      _func(value, type, ctx);
 }
 
 /// A special [GraphQLType] that specifies the shape of an object that can only
@@ -245,8 +219,10 @@ class IsTypeOfWrapper<P> {
 /// reduce the number of parameters to a given field, and to potentially
 /// reuse an input structure across multiple fields in the hierarchy.
 class GraphQLInputObjectType<Value>
-    extends GraphQLType<Value, Map<String, dynamic>>
-    with _NonNullableMixin<Value, Map<String, dynamic>> {
+    extends GraphQLNamedType<Value, Map<String, dynamic>>
+    with
+        _NonNullableMixin<Value, Map<String, dynamic>>,
+        _GraphQLBaseNestedType<Value, GraphQLFieldInput> {
   /// The name of this type.
   @override
   final String name;
@@ -257,10 +233,15 @@ class GraphQLInputObjectType<Value>
 
   /// A list of the fields that an input object of this
   /// type is expected to have.
+  @override
   final List<GraphQLFieldInput> fields = [];
 
   /// A function which parses a JSON Map into the [Value] type
   final Value Function(Map<String, Object?>)? customDeserialize;
+
+  @override
+  final GraphQLTypeDefinitionExtra<InputObjectTypeDefinitionNode,
+      InputObjectTypeExtensionNode> extra;
 
   /// A special [GraphQLType] that specifies the shape of an object that can
   /// only be used as an input to a [GraphQLField].
@@ -269,24 +250,9 @@ class GraphQLInputObjectType<Value>
     this.description,
     Iterable<GraphQLFieldInput<Object?, Object?>> fields = const [],
     this.customDeserialize,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   }) {
     this.fields.addAll(fields);
-  }
-
-  /// Returns the field with the given [name]
-  GraphQLFieldInput? fieldByName(String name) {
-    return fields.firstWhereOrNull((field) => field.name == name);
-  }
-
-  @override
-  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
-    return _validateObject(this, fields, key, input);
-  }
-
-  @override
-  Map<String, dynamic> serialize(Value value) {
-    final map = _jsonFromValue(value!);
-    return _gqlFromJson(map, fields);
   }
 
   @override
@@ -294,31 +260,57 @@ class GraphQLInputObjectType<Value>
     if (customDeserialize != null) {
       return customDeserialize!(serialized);
     } else {
-      return _valueFromJson(serdeCtx, serialized, fields);
+      return super.deserialize(serdeCtx, serialized);
     }
-    // return value.keys.fold(<String, dynamic>{}, (out, k) {
-    //   final field = inputFields.firstWhereOrNull((f) => f.name == k);
-    //   if (field == null)
-    //     throw UnsupportedError('Unexpected field "$k" encountered in map.');
-    //   return out..[k.toString()] = field.type.deserialize(value[k]);
-    // });
   }
-
-  @override
-  Iterable<Object?> get props => [name, description, customDeserialize, fields];
 
   @override
   GraphQLType<Value, Map<String, dynamic>> coerceToInputObject() => this;
 }
 
+/// A field in a [GraphQLSchema]
+///
 /// Utility interface implemented by
 /// [GraphQLObjectField] and [GraphQLFieldInput]
-abstract class ObjectField {
+abstract class ObjectField implements GraphQLElement {
   /// The name of the field
+  @override
   String get name;
 
   /// The type of the field
   GraphQLType<Object?, Object?> get type;
+}
+
+/// A [GraphQLType] that specifies the shape of structured data,
+/// with multiple fields that can be resolved independently of one another.
+abstract class _GraphQLBaseNestedType<P, F extends ObjectField>
+    implements GraphQLType<P, Map<String, Object?>> {
+  /// The list of fields that an object of this type is expected to have
+  List<F> get fields;
+
+  /// Returns the field with the given [name]
+  F? fieldByName(String name) {
+    return fields.firstWhereOrNull((field) => field.name == name);
+  }
+
+  @override
+  ValidationResult<Map<String, dynamic>> validate(
+    String key,
+    Object? input,
+  ) {
+    return _validateObject(this, fields, key, input);
+  }
+
+  @override
+  Map<String, dynamic> serialize(P value) {
+    final map = _jsonFromValue(value!);
+    return _gqlFromJson(map, fields);
+  }
+
+  @override
+  P deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
+    return _valueFromJson(serdeCtx, serialized, fields);
+  }
 }
 
 ValidationResult<Map<String, dynamic>> _validateObject(

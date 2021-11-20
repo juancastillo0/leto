@@ -1,0 +1,254 @@
+{
+  "name": "Validate: Directives Are Unique Per Location",
+  "tests": [
+    {
+      "name": "no directives",
+      "document": "\n      fragment Test on Type {\n        field\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "unique directives in different locations",
+      "document": "\n      fragment Test on Type @directiveA {\n        field @directiveB\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "unique directives in same locations",
+      "document": "\n      fragment Test on Type @directiveA @directiveB {\n        field @directiveA @directiveB\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "same directives in different locations",
+      "document": "\n      fragment Test on Type @directiveA {\n        field @directiveA\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "same directives in similar locations",
+      "document": "\n      fragment Test on Type {\n        field @directive\n        field @directive\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "repeatable directives in same location",
+      "document": "\n      fragment Test on Type @repeatable @repeatable {\n        field @repeatable @repeatable\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "unknown directives must be ignored",
+      "document": "\n      type Test @unknown @unknown {\n        field: String! @unknown @unknown\n      }\n\n      extend type Test @unknown {\n        anotherField: String!\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": []
+    },
+    {
+      "name": "duplicate directives in one location",
+      "document": "\n      fragment Test on Type {\n        field @directive @directive\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": [
+        {
+          "message": "The directive \"@directive\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 26 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "many duplicate directives in one location",
+      "document": "\n      fragment Test on Type {\n        field @directive @directive @directive\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": [
+        {
+          "message": "The directive \"@directive\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 26 }
+          ]
+        },
+        {
+          "message": "The directive \"@directive\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 37 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "different duplicate directives in one location",
+      "document": "\n      fragment Test on Type {\n        field @directiveA @directiveB @directiveA @directiveB\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": [
+        {
+          "message": "The directive \"@directiveA\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 39 }
+          ]
+        },
+        {
+          "message": "The directive \"@directiveB\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 27 },
+            { "line": 3, "column": 51 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate directives in many locations",
+      "document": "\n      fragment Test on Type @directive @directive {\n        field @directive @directive\n      }\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "schema": "schema {\n  query: QueryRoot\n}\n\ndirective @onField on FIELD\n\ndirective @directive on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveA on FIELD | FRAGMENT_DEFINITION\n\ndirective @directiveB on FIELD | FRAGMENT_DEFINITION\n\ndirective @repeatable repeatable on FIELD | FRAGMENT_DEFINITION\n\ninterface Mammal {\n  mother: Mammal\n  father: Mammal\n}\n\ninterface Pet {\n  name(surname: Boolean): String\n}\n\ninterface Canine implements Mammal {\n  name(surname: Boolean): String\n  mother: Canine\n  father: Canine\n}\n\nenum DogCommand {\n  SIT\n  HEEL\n  DOWN\n}\n\ntype Dog implements Pet & Mammal & Canine {\n  name(surname: Boolean): String\n  nickname: String\n  barkVolume: Int\n  barks: Boolean\n  doesKnowCommand(dogCommand: DogCommand): Boolean\n  isHouseTrained(atOtherHomes: Boolean = true): Boolean\n  isAtLocation(x: Int, y: Int): Boolean\n  mother: Dog\n  father: Dog\n}\n\ntype Cat implements Pet {\n  name(surname: Boolean): String\n  nickname: String\n  meows: Boolean\n  meowsVolume: Int\n  furColor: FurColor\n}\n\nunion CatOrDog = Cat | Dog\n\ntype Human {\n  name(surname: Boolean): String\n  pets: [Pet]\n  relatives: [Human]\n}\n\nenum FurColor {\n  BROWN\n  BLACK\n  TAN\n  SPOTTED\n  NO_FUR\n  UNKNOWN\n}\n\ninput ComplexInput {\n  requiredField: Boolean!\n  nonNullField: Boolean! = false\n  intField: Int\n  stringField: String\n  booleanField: Boolean\n  stringListField: [String]\n}\n\ntype ComplicatedArgs {\n  intArgField(intArg: Int): String\n  nonNullIntArgField(nonNullIntArg: Int!): String\n  stringArgField(stringArg: String): String\n  booleanArgField(booleanArg: Boolean): String\n  enumArgField(enumArg: FurColor): String\n  floatArgField(floatArg: Float): String\n  idArgField(idArg: ID): String\n  stringListArgField(stringListArg: [String]): String\n  stringListNonNullArgField(stringListNonNullArg: [String!]): String\n  complexArgField(complexArg: ComplexInput): String\n  multipleReqs(req1: Int!, req2: Int!): String\n  nonNullFieldWithDefault(arg: Int! = 0): String\n  multipleOpts(opt1: Int = 0, opt2: Int = 0): String\n  multipleOptAndReq(req1: Int!, req2: Int!, opt1: Int = 0, opt2: Int = 0): String\n}\n\ntype QueryRoot {\n  human(id: ID): Human\n  dog: Dog\n  cat: Cat\n  pet: Pet\n  catOrDog: CatOrDog\n  complicatedArgs: ComplicatedArgs\n}",
+      "errors": [
+        {
+          "message": "The directive \"@directive\" can only be used once at this location.",
+          "locations": [
+            { "line": 2, "column": 29 },
+            { "line": 2, "column": 40 }
+          ]
+        },
+        {
+          "message": "The directive \"@directive\" can only be used once at this location.",
+          "locations": [
+            { "line": 3, "column": 15 },
+            { "line": 3, "column": 26 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate directives on SDL definitions",
+      "document": "\n      directive @nonRepeatable on\n        SCHEMA | SCALAR | OBJECT | INTERFACE | UNION | INPUT_OBJECT\n\n      schema @nonRepeatable @nonRepeatable { query: Dummy }\n\n      scalar TestScalar @nonRepeatable @nonRepeatable\n      type TestObject @nonRepeatable @nonRepeatable\n      interface TestInterface @nonRepeatable @nonRepeatable\n      union TestUnion @nonRepeatable @nonRepeatable\n      input TestInput @nonRepeatable @nonRepeatable\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "errors": [
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 5, "column": 14 },
+            { "line": 5, "column": 29 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 7, "column": 25 },
+            { "line": 7, "column": 40 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 8, "column": 23 },
+            { "line": 8, "column": 38 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 9, "column": 31 },
+            { "line": 9, "column": 46 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 10, "column": 23 },
+            { "line": 10, "column": 38 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 11, "column": 23 },
+            { "line": 11, "column": 38 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate directives on SDL extensions",
+      "document": "\n      directive @nonRepeatable on\n        SCHEMA | SCALAR | OBJECT | INTERFACE | UNION | INPUT_OBJECT\n\n      extend schema @nonRepeatable @nonRepeatable\n\n      extend scalar TestScalar @nonRepeatable @nonRepeatable\n      extend type TestObject @nonRepeatable @nonRepeatable\n      extend interface TestInterface @nonRepeatable @nonRepeatable\n      extend union TestUnion @nonRepeatable @nonRepeatable\n      extend input TestInput @nonRepeatable @nonRepeatable\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "errors": [
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 5, "column": 21 },
+            { "line": 5, "column": 36 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 7, "column": 32 },
+            { "line": 7, "column": 47 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 8, "column": 30 },
+            { "line": 8, "column": 45 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 9, "column": 38 },
+            { "line": 9, "column": 53 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 10, "column": 30 },
+            { "line": 10, "column": 45 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 11, "column": 30 },
+            { "line": 11, "column": 45 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate directives between SDL definitions and extensions",
+      "document": "\n      directive @nonRepeatable on OBJECT\n\n      extend type TestObject @nonRepeatable\n      type TestObject @nonRepeatable\n      extend type TestObject @nonRepeatable\n    ",
+      "rules": ["UniqueDirectivesPerLocationRule"],
+      "errors": [
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 4, "column": 30 },
+            { "line": 5, "column": 23 }
+          ]
+        },
+        {
+          "message": "The directive \"@nonRepeatable\" can only be used once at this location.",
+          "locations": [
+            { "line": 4, "column": 30 },
+            { "line": 6, "column": 30 }
+          ]
+        }
+      ]
+    }
+  ]
+}

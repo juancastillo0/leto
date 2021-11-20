@@ -112,6 +112,14 @@ extension DirectiveExtension on SelectionNode {
             : (selection as InlineFragmentNode).directives;
   }
 
+  SelectionSetNode? get selectionSet {
+    return when(
+      field: (field) => field.selectionSet,
+      fragmentSpread: (fragmentSpread) => fragmentSpread.selectionSet,
+      inlineFragment: (inlineFragment) => inlineFragment.selectionSet,
+    );
+  }
+
   T when<T>({
     required T Function(FieldNode) field,
     required T Function(FragmentSpreadNode) fragmentSpread,

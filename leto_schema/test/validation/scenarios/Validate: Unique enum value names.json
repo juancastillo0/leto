@@ -1,0 +1,123 @@
+{
+  "name": "Validate: Unique enum value names",
+  "tests": [
+    {
+      "name": "no values",
+      "document": "\n      enum SomeEnum\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one value",
+      "document": "\n      enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple values",
+      "document": "\n      enum SomeEnum {\n        FOO\n        BAR\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicate values inside the same enum definition",
+      "document": "\n      enum SomeEnum {\n        FOO\n        BAR\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 5, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "extend enum with new value",
+      "document": "\n      enum SomeEnum {\n        FOO\n      }\n      extend enum SomeEnum {\n        BAR\n      }\n      extend enum SomeEnum {\n        BAZ\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "extend enum with duplicate value",
+      "document": "\n      extend enum SomeEnum {\n        FOO\n      }\n      enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate value inside extension",
+      "document": "\n      enum SomeEnum\n      extend enum SomeEnum {\n        FOO\n        BAR\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" can only be defined once.",
+          "locations": [
+            { "line": 4, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate value inside different extensions",
+      "document": "\n      enum SomeEnum\n      extend enum SomeEnum {\n        FOO\n      }\n      extend enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" can only be defined once.",
+          "locations": [
+            { "line": 4, "column": 9 },
+            { "line": 7, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "adding new value to the type inside existing schema",
+      "document": "\n      extend enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "schema": "enum SomeEnum",
+      "errors": []
+    },
+    {
+      "name": "adding conflicting value to existing schema twice",
+      "document": "\n      extend enum SomeEnum {\n        FOO\n      }\n      extend enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "schema": "enum SomeEnum {\n  FOO\n}",
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 3, "column": 9 }]
+        },
+        {
+          "message": "Enum value \"SomeEnum.FOO\" already exists in the schema. It cannot also be defined in this type extension.",
+          "locations": [{ "line": 6, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "adding enum values to existing schema twice",
+      "document": "\n      extend enum SomeEnum {\n        FOO\n      }\n      extend enum SomeEnum {\n        FOO\n      }\n    ",
+      "rules": ["UniqueEnumValueNamesRule"],
+      "schema": "enum SomeEnum",
+      "errors": [
+        {
+          "message": "Enum value \"SomeEnum.FOO\" can only be defined once.",
+          "locations": [
+            { "line": 3, "column": 9 },
+            { "line": 6, "column": 9 }
+          ]
+        }
+      ]
+    }
+  ]
+}

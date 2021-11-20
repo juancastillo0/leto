@@ -97,14 +97,15 @@ class GraphQL {
   /// More information in: [reflectSchema]
   final bool introspect;
 
-  late final GraphQLSchema _schema;
+  /// The schema used for executing GraphQL requests
+  final GraphQLSchema schema;
 
   /// A Dart implementation of a GraphQL server.
   ///
   /// Parses, validates and executes GraphQL requests using the
   /// provided [GraphQLSchema].
   GraphQL(
-    GraphQLSchema schema, {
+    this.schema, {
     bool? introspect,
     bool? validate,
     this.defaultFieldResolver,
@@ -112,13 +113,7 @@ class GraphQL {
     Map<Object, Object?>? globalVariables,
   })  : baseGlobalVariables = globalVariables ?? const {},
         introspect = introspect ?? true,
-        validate = validate ?? true {
-    if (this.introspect) {
-      _schema = reflectSchema(schema);
-    } else {
-      _schema = schema;
-    }
-  }
+        validate = validate ?? true;
 
   /// Creates a [GraphQL] executor from a [GraphQLConfig]
   factory GraphQL.fromConfig(GraphQLSchema schema, GraphQLConfig config) =>
@@ -177,7 +172,7 @@ class GraphQL {
       query: query,
       rootValue: rootValue ?? _globalVariables,
       rawVariableValues: variableValues,
-      schema: _schema,
+      schema: schema,
     );
 
     return withExtensions(
@@ -205,7 +200,7 @@ class GraphQL {
             );
           }
           final result = await executeRequest(
-            _schema,
+            schema,
             document,
             rootValue: rootValue ?? _globalVariables,
             variableValues: variableValues,
@@ -514,8 +509,18 @@ class GraphQL {
     );
     final fields = groupedFieldSet.entries.first.value;
     final fieldNode = fields.first;
+    final fieldName = fieldNode.name.value;
+    final desiredField = subscriptionType.fields.firstWhere(
+      (f) => f.name == fieldName,
+      orElse: () => throw GraphQLError(
+        '${subscriptionType.name} has no field named "$fieldName".',
+        locations: GraphQLErrorLocation.listFromSource(
+            (fieldNode.span ?? fieldNode.name.span)?.start),
+      ),
+    );
+
     final argumentValues = coerceArgumentValues(
-        schema.serdeCtx, subscriptionType, fieldNode, baseCtx.variableValues);
+        schema.serdeCtx, desiredField, fieldNode, baseCtx.variableValues);
     final stream = await resolveFieldEventStream(
       objCtx,
       subscriptionType,
@@ -736,9 +741,16 @@ class GraphQL {
       if (fieldName == '__typename') {
         futureResponseValue = objectType.name;
       } else {
-        final objectField = objectType.fields.firstWhereOrNull(
-          (f) => f.name == fieldName,
-        );
+        final GraphQLObjectField? objectField;
+        final _introspect =
+            introspect && objectType == baseCtx.schema.queryType;
+        if (_introspect && fieldName == '__type') {
+          objectField = typeIntrospectionTypeField;
+        } else if (_introspect && fieldName == '__schema') {
+          objectField = schemaIntrospectionTypeField;
+        } else {
+          objectField = objectType.fieldByName(fieldName);
+        }
         if (objectField == null) {
           if (validate) {
             throw GraphQLError(
@@ -750,6 +762,7 @@ class GraphQL {
             continue;
           }
         }
+        final _objectField = objectField;
         if (validate &&
             objectField.type is GraphQLScalarType &&
             (field.selectionSet?.selections.isNotEmpty ?? false)) {
@@ -761,12 +774,12 @@ class GraphQL {
           );
         }
         futureResponseValue = withExtensions<FutureOr<Object?>>(
-          (n, e) => e.executeField(n, objectCtx, objectField, alias),
+          (n, e) => e.executeField(n, objectCtx, _objectField, alias),
           () {
             return executeField<Object?, Object?>(
               fields,
               objectCtx,
-              objectField,
+              _objectField,
             );
           },
         );
@@ -811,7 +824,7 @@ class GraphQL {
     try {
       argumentValues = coerceArgumentValues(
         ctx.resolveCtx.schema.serdeCtx,
-        ctx.objectType,
+        objectField,
         field,
         ctx.variableValues,
       );
@@ -864,21 +877,13 @@ class GraphQL {
 
   Map<String, dynamic> coerceArgumentValues(
     SerdeCtx serdeCtx,
-    GraphQLObjectType objectType,
+    GraphQLObjectField desiredField,
     FieldNode field,
     Map<String, dynamic> variableValues,
   ) {
     final coercedValues = <String, dynamic>{};
     final argumentValues = field.arguments;
     final fieldName = field.name.value;
-    final desiredField = objectType.fields.firstWhere(
-      (f) => f.name == fieldName,
-      orElse: () => throw GraphQLError(
-        '${objectType.name} has no field named "$fieldName".',
-        locations: GraphQLErrorLocation.listFromSource(
-            (field.span ?? field.name.span)?.start),
-      ),
-    );
     final argumentDefinitions = desiredField.inputs;
 
     for (final argumentDefinition in argumentDefinitions) {
@@ -1152,10 +1157,10 @@ class GraphQL {
         return null;
       }
       final path = [...ctx.path, pathItem];
-      Future<Object?> _completeScalar(GraphQLScalarType fieldType) async {
+      Future<Object?> _completeScalar(GraphQLType fieldType) async {
         Object? _result = result;
         if (fieldType.generic.isValueOfType(_result)) {
-          _result = fieldType.serialize(_result!);
+          _result = fieldType.serialize(_result);
         }
         final validation = fieldType.validate(fieldName, _result);
 

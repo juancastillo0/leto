@@ -1,0 +1,30 @@
+{
+  "name": "Validate: Values of correct type_Valid List value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Good list value",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: [\"one\", null, \"two\"])\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Empty list value",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: [])\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Null value",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: null)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    },
+    {
+      "name": "Single value into List",
+      "document": "\n        {\n          complicatedArgs {\n            stringListArgField(stringListArg: \"one\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": []
+    }
+  ]
+}

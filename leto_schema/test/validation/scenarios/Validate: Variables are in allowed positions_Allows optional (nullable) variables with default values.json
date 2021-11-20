@@ -1,0 +1,38 @@
+{
+  "name": "Validate: Variables are in allowed positions_Allows optional (nullable) variables with default values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Int => Int! fails when variable provides null default value",
+      "document": "\n        query Query($intVar: Int = null) {\n          complicatedArgs {\n            nonNullIntArgField(nonNullIntArg: $intVar)\n          }\n        }\n      ",
+      "rules": ["VariablesInAllowedPositionRule"],
+      "errors": [
+        {
+          "message": "Variable \"$intVar\" of type \"Int\" used in position expecting type \"Int!\".",
+          "locations": [
+            { "line": 2, "column": 21 },
+            { "line": 4, "column": 47 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Int => Int! when variable provides non-null default value",
+      "document": "\n        query Query($intVar: Int = 1) {\n          complicatedArgs {\n            nonNullIntArgField(nonNullIntArg: $intVar)\n          }\n        }",
+      "rules": ["VariablesInAllowedPositionRule"],
+      "errors": []
+    },
+    {
+      "name": "Int => Int! when optional argument provides default value",
+      "document": "\n        query Query($intVar: Int) {\n          complicatedArgs {\n            nonNullFieldWithDefault(nonNullIntArg: $intVar)\n          }\n        }",
+      "rules": ["VariablesInAllowedPositionRule"],
+      "errors": []
+    },
+    {
+      "name": "Boolean => Boolean! in directive with default value with option",
+      "document": "\n        query Query($boolVar: Boolean = false) {\n          dog @include(if: $boolVar)\n        }",
+      "rules": ["VariablesInAllowedPositionRule"],
+      "errors": []
+    }
+  ]
+}

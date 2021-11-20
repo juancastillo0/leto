@@ -1,0 +1,43 @@
+{
+  "name": "Validate: Values of correct type_Invalid non-nullable value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Incorrect value type",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req2: \"two\", req1: \"one\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: \"two\"",
+          "locations": [{ "line": 4, "column": 32 }]
+        },
+        {
+          "message": "Int cannot represent non-integer value: \"one\"",
+          "locations": [{ "line": 4, "column": 45 }]
+        }
+      ]
+    },
+    {
+      "name": "Incorrect value and missing argument (ProvidedRequiredArgumentsRule)",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req1: \"one\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Int cannot represent non-integer value: \"one\"",
+          "locations": [{ "line": 4, "column": 32 }]
+        }
+      ]
+    },
+    {
+      "name": "Null value",
+      "document": "\n        {\n          complicatedArgs {\n            multipleReqs(req1: null)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Expected value of type \"Int!\", found null.",
+          "locations": [{ "line": 4, "column": 32 }]
+        }
+      ]
+    }
+  ]
+}

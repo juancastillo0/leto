@@ -4,17 +4,22 @@ part of leto_schema.src.schema;
 /// be valid against one or more [possibleTypes].
 ///
 /// All provided types must be [GraphQLObjectType]s.
-class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
+class GraphQLUnionType<P> extends GraphQLCompositeType<P>
     with _NonNullableMixin<P, Map<String, dynamic>> {
   /// The name of this type.
   @override
   final String name;
 
   /// A list of all types that conform to this union.
+  @override
   final List<GraphQLObjectType> possibleTypes = [];
 
   @override
   final String? description;
+
+  @override
+  final GraphQLTypeDefinitionExtra<UnionTypeDefinitionNode,
+      UnionTypeExtensionNode> extra;
 
   /// Used to provide type resolution at runtime
   ///
@@ -33,18 +38,21 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
     return p!;
   }
 
+  /// Default GraphQL union constructor
   GraphQLUnionType(
     this.name,
     Iterable<GraphQLObjectType> possibleTypes, {
     this.description,
     ResolveType<GraphQLUnionType<P>>? resolveType,
     Object Function(P)? extractInner,
+    this.extra = const GraphQLTypeDefinitionExtra.attach([]),
   })  : _extractInner = extractInner,
         resolveType =
             resolveType == null ? null : ResolveTypeWrapper(resolveType),
         assert(
-          possibleTypes.every((t) => t.whenMaybe(
-              object: (obj) => !obj.isInterface, orElse: (_) => false)),
+          !checkAsserts ||
+              possibleTypes.every((t) => t.whenMaybe(
+                  object: (obj) => !obj.isInterface, orElse: (_) => false)),
           'The member types of a Union type must all be Object base types; '
           'Scalar, Interface and Union types must not be member types '
           'of a Union. Similarly, wrapping types must not be member '
@@ -103,7 +111,4 @@ class GraphQLUnionType<P> extends GraphQLType<P, Map<String, dynamic>>
 
     return ValidationResult<Map<String, dynamic>>.failure(errors);
   }
-
-  @override
-  Iterable<Object?> get props => [name, description, possibleTypes];
 }

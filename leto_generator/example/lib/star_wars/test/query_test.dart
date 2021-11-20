@@ -185,7 +185,7 @@ void main() {
           'Allows us to create a generic query, then use it to fetch Luke Skywalker using his ID',
           () async {
         const source = r'''
-        query FetchSomeIDQuery($someId: String!) {
+        query FetchSomeIDQuery($someId: ID!) {
           human(id: $someId) {
             name
           }
@@ -208,7 +208,7 @@ void main() {
           'Allows us to create a generic query, then use it to fetch Han Solo using his ID',
           () async {
         const source = r'''
-        query FetchSomeIDQuery($someId: String!) {
+        query FetchSomeIDQuery($someId: ID!) {
           human(id: $someId) {
             name
           }
@@ -231,7 +231,7 @@ void main() {
           'Allows us to create a generic query, then pass an invalid ID to get null back',
           () async {
         const source = r'''
-        query humanQuery($id: String!) {
+        query humanQuery($id: ID!) {
           human(id: $id) {
             name
           }

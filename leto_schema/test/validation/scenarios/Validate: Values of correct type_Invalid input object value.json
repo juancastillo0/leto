@@ -1,0 +1,73 @@
+{
+  "name": "Validate: Values of correct type_Invalid input object value",
+  "tests": [
+    {
+      "name": "Partial object, missing required",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: { intField: 4 })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "testSchema",
+      "errors": [
+        {
+          "message": "Field \"ComplexInput.requiredField\" of required type \"Boolean!\" was not provided.",
+          "locations": [{ "line": 4, "column": 41 }]
+        }
+      ]
+    },
+    {
+      "name": "Partial object, invalid field type",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: {\n              stringListField: [\"one\", 2],\n              requiredField: true,\n            })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "testSchema",
+      "errors": [
+        {
+          "message": "String cannot represent a non string value: 2",
+          "locations": [{ "line": 5, "column": 40 }]
+        }
+      ]
+    },
+    {
+      "name": "Partial object, null to non-null field",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: {\n              requiredField: true,\n              nonNullField: null,\n            })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "testSchema",
+      "errors": [
+        {
+          "message": "Expected value of type \"Boolean!\", found null.",
+          "locations": [{ "line": 6, "column": 29 }]
+        }
+      ]
+    },
+    {
+      "name": "Partial object, unknown field arg",
+      "document": "\n        {\n          complicatedArgs {\n            complexArgField(complexArg: {\n              requiredField: true,\n              invalidField: \"value\"\n            })\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "testSchema",
+      "errors": [
+        {
+          "message": "Field \"invalidField\" is not defined by type \"ComplexInput\". Did you mean \"intField\"?",
+          "locations": [{ "line": 6, "column": 15 }]
+        }
+      ]
+    },
+    { "name": "reports original error for custom scalar which throws" },
+    {
+      "name": "reports error for custom scalar that returns undefined",
+      "document": "{ invalidArg(arg: 123) }",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "type Query {\n  invalidArg(arg: CustomScalar): String\n}\n\nscalar CustomScalar",
+      "errors": [
+        {
+          "message": "Expected value of type \"CustomScalar\", found 123.",
+          "locations": [{ "line": 1, "column": 19 }]
+        }
+      ]
+    },
+    {
+      "name": "allows custom scalar to accept complex literals",
+      "document": "\n          {\n            test1: anyArg(arg: 123)\n            test2: anyArg(arg: \"abc\")\n            test3: anyArg(arg: [123, \"abc\"])\n            test4: anyArg(arg: {deep: [123, \"abc\"]})\n          }\n        ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "schema": "type Query {\n  anyArg(arg: Any): String\n}\n\nscalar Any",
+      "errors": []
+    }
+  ]
+}

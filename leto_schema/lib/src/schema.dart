@@ -3,10 +3,9 @@ library leto_schema.src.schema;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:gql/ast.dart'
-    show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
-
-import 'package:gql/language.dart' show parseString;
+import 'package:gql/ast.dart';
+import 'package:leto_schema/src/rules/ast_node_enum.dart';
+import 'package:leto_schema/src/rules/validate_schema.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
 import 'package:leto_schema/src/utilities/predicates.dart';
@@ -67,24 +66,27 @@ class GraphQLSchema {
   late final String schemaStr = printSchema(this);
 
   /// The schema as a `package:gql` parsed node
-  late final DocumentNode schemaNode = parseString(schemaStr);
+  // late final DocumentNode schemaNode = parseString(schemaStr);
+  final SchemaDefinitionNode? astNode;
 
-  /// Other [GraphQLType] that you want to have in the schema
-  final List<GraphQLType> otherTypes;
+  final List<SchemaExtensionNode> extensionAstNodes;
+
+  /// Other [GraphQLNamedType] that you want to have in the schema
+  final List<GraphQLNamedType> otherTypes;
 
   /// A Map from name to [GraphQLType].
   /// Contains all named types in the schema.
-  final typeMap = <String, GraphQLType>{};
+  final typeMap = <String, GraphQLNamedType>{};
 
   /// Contains all named types in the schema.
   /// Same as `typeMap.values.toList()`.
-  late final List<GraphQLType> allTypes = [
+  late final List<GraphQLNamedType> allTypes = [
     ...typeMap.values.where((t) => !isIntrospectionType(t)),
     ...typeMap.values.where(isIntrospectionType),
   ];
 
-  /// Returns the [GraphQLType] with the given [name]
-  GraphQLType? getType(String name) => typeMap[name];
+  /// Returns the [GraphQLNamedType] with the given [name]
+  GraphQLNamedType? getType(String name) => typeMap[name];
 
   /// A Map from name to [GraphQLDirective].
   final Map<String, GraphQLDirective> directiveMap = {};
@@ -104,6 +106,45 @@ class GraphQLSchema {
     }
   }
 
+  /// Returns all the [GraphQLObjectType] that implement a given abstract [type]
+  List<GraphQLObjectType>? getPossibleTypes(GraphQLCompositeType type) {
+    if (type is GraphQLUnionType) {
+      return type.possibleTypes;
+    } else if (type is GraphQLObjectType && type.isInterface) {
+      return type.possibleTypes.where((obj) => !obj.isInterface).toList();
+    }
+  }
+
+  final _subTypeMap = <String, Set<String>>{};
+
+  /// Returns `true` if [maybeSubType] is a possible type of [abstractType]
+  bool isSubType(
+    GraphQLCompositeType abstractType,
+    GraphQLObjectType maybeSubType,
+  ) {
+    if (!isAbstractType(abstractType)) return false;
+    Set<String>? map = _subTypeMap[abstractType.name];
+    if (map == null) {
+      map = {};
+
+      if (abstractType is GraphQLUnionType) {
+        for (final type in abstractType.possibleTypes) {
+          map.add(type.name);
+        }
+      } else if (abstractType is GraphQLObjectType) {
+        final implementations = abstractType.possibleTypes;
+        for (final type in implementations) {
+          map.add(type.name);
+        }
+      }
+
+      _subTypeMap[abstractType.name] = map;
+    }
+    return map.contains(maybeSubType.name);
+  }
+
+  List<GraphQLError>? __validationErrors;
+
   /// The schema against which queries, mutations
   /// and subscriptions are executed.
   ///
@@ -121,6 +162,8 @@ class GraphQLSchema {
     this.otherTypes = const [],
     List<GraphQLDirective>? directives,
     SerdeCtx? serdeCtx,
+    this.astNode,
+    this.extensionAstNodes = const [],
   })  : serdeCtx = serdeCtx ?? SerdeCtx(),
         directives = directives ?? GraphQLDirective.specifiedDirectives {
     _collectTypes();
@@ -133,7 +176,7 @@ class GraphQLSchema {
   void _collectTypes() {
     final allNamedTypes = fetchAllNamedTypes(this);
     for (final type in allNamedTypes) {
-      final name = type.name!;
+      final name = type.name;
       if (name.isEmpty) {
         throw UnnamedTypeException(this, type);
       } else if (!typeNameRegExp.hasMatch(name) && !isIntrospectionType(type)) {
@@ -142,20 +185,6 @@ class GraphQLSchema {
       final prev = typeMap[name];
       if (prev == null) {
         typeMap[name] = type;
-      } else if ((queryType == prev || queryType == type) &&
-          (type is GraphQLObjectType && prev is GraphQLObjectType)) {
-        // Don't throw exception if it's an introspected queryType
-        final other = prev == queryType ? type : prev;
-        final difference = queryType!.fields
-            .map((e) => e.name)
-            .toSet()
-            .difference(other.fields.map((e) => e.name).toSet());
-        if (difference.length == 2 &&
-            const ['__type', '__schema'].every(difference.contains)) {
-          typeMap[name] = other;
-        } else {
-          throw SameNameGraphQLTypeException(type, prev);
-        }
       } else {
         throw SameNameGraphQLTypeException(type, prev);
       }
@@ -174,8 +203,40 @@ class GraphQLSchema {
   }
 }
 
-/// A default resolver that always returns `null`.
-Object? resolveToNull(Object? _, Object? __) => null;
+/// Whether to check asserts in some GraphQL element constructors
+///
+/// For example output and input types
+/// in [GraphQLObjectField] and [GraphQLFieldInput]
+@visibleForTesting
+bool checkAsserts = true;
+
+/// Implements the "Type Validation" sub-sections of the specification's
+/// "Type System" section.
+///
+/// Validation runs synchronously, returning an array of encountered errors, or
+/// an empty array if no errors were encountered and the Schema is valid.
+List<GraphQLError> validateSchema(
+  GraphQLSchema schema,
+) {
+  // If this Schema has already been validated, return the previous results.
+  if (schema.__validationErrors != null) {
+    return schema.__validationErrors!;
+  }
+
+  // Validate the schema, producing a list of errors.
+  final context = SchemaValidationContext(schema);
+  validateRootTypes(context);
+  validateDirectives(context);
+  validateTypes(context);
+
+  // Persist the results of validation before returning to ensure validation
+  // does not run multiple times for this schema.
+  final errors = context.getErrors();
+  schema.__validationErrors = errors;
+  return errors;
+}
+
+// TODO: test errors toString()
 
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}

@@ -1,6 +1,11 @@
 import 'package:gql/ast.dart';
 
-typedef VisitFunc<N extends Node> = void Function(N);
+typedef VisitFunc<N extends Node> = VisitBehavior? Function(N);
+
+enum VisitBehavior {
+  skipTree,
+  stop,
+}
 
 class VisitNodeCallbacks<N extends Node> {
   final VisitFunc<N>? _enter;
@@ -8,8 +13,8 @@ class VisitNodeCallbacks<N extends Node> {
 
   const VisitNodeCallbacks(this._enter, this._leave);
 
-  void enter(N node) => _enter?.call(node);
-  void leave(N node) => _leave?.call(node);
+  VisitBehavior? enter(N node) => _enter?.call(node);
+  VisitBehavior? leave(N node) => _leave?.call(node);
 
   Type get nodeType => N;
 }
@@ -31,37 +36,114 @@ class TypedVisitor extends WrapperVisitor<void> {
     nodeVisitors.add(obj);
   }
 
+  void mergeInPlace(TypedVisitor other) {
+    other._visitors.forEach((key, value) {
+      final list = _visitors.putIfAbsent(key, () => []);
+      list.addAll(value);
+    });
+  }
+
+  List<Node> ancestors() => _ancestors ??= [];
+  List<Node>? _ancestors;
+  void _overrideAncestors(List<Node> ancestors) {
+    assert(_ancestors == null);
+    _ancestors = ancestors;
+  }
+
+  List<VisitNodeCallbacks<Node>>? defaultVisitors() => _visitors[Node];
+
   @override
   void visitNode<N extends Node>(N node) {
+    enter(node);
+    ancestors().add(node);
+    node.visitChildren(this);
+    ancestors().removeLast();
+    leave(node);
+  }
+
+  Node? _skippedNode;
+  bool _stopped = false;
+
+  List<VisitNodeCallbacks> _visitorsFor<N extends Node>() {
     final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.enter(node);
-      }
-      node.visitChildren(this);
-      for (final visitor in nodeVisitors) {
-        visitor.leave(node);
-      }
-    } else {
-      node.visitChildren(this);
-    }
+    final _defaultVisitors = defaultVisitors();
+
+    return [
+      if (nodeVisitors != null) ...nodeVisitors,
+      if (_defaultVisitors != null) ..._defaultVisitors,
+    ];
   }
 
   void enter<N extends Node>(N node) {
-    final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.enter(node);
+    if (_skippedNode != null || _stopped) return;
+
+    final nodeVisitors = _visitorsFor<N>();
+    for (final visitor in nodeVisitors) {
+      final value = visitor.enter(node);
+      if (value == VisitBehavior.skipTree) {
+        _skippedNode = node;
+      } else if (value == VisitBehavior.stop) {
+        _stopped = true;
       }
     }
   }
 
   void leave<N extends Node>(N node) {
-    final nodeVisitors = _visitors[N];
-    if (nodeVisitors != null) {
-      for (final visitor in nodeVisitors) {
-        visitor.leave(node);
+    if (_stopped) return;
+    if (_skippedNode != null) {
+      if (node == _skippedNode) {
+        _skippedNode = null;
+      } else {
+        return;
       }
+    }
+
+    final nodeVisitors = _visitorsFor<N>();
+    for (final visitor in nodeVisitors) {
+      final value = visitor.leave(node);
+      if (value == VisitBehavior.stop) {
+        _stopped = true;
+      }
+    }
+  }
+}
+
+class ParallelVisitor extends WrapperVisitor<void> {
+  final List<Visitor> visitors;
+  final void Function(Object?)? onAccept;
+
+  late final List<TypedVisitor> _typedVisitors = visitors
+      .whereType<TypedVisitor>()
+      .map((e) => e.._overrideAncestors(ancestors))
+      .toList();
+  late final List<Visitor> _otherVisitors =
+      visitors.where((v) => v is! TypedVisitor).toList();
+
+  final List<Node> ancestors = [];
+
+  ///
+  ParallelVisitor({
+    required this.visitors,
+    this.onAccept,
+  });
+
+  @override
+  void visitNode<N extends Node>(N node) {
+    for (int i = 0; i < _otherVisitors.length; i++) {
+      final visitor = _otherVisitors[i];
+      final value = node.accept<Object?>(visitor);
+      onAccept?.call(value);
+    }
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.enter(node);
+    }
+    ancestors.add(node);
+    node.visitChildren(this);
+    ancestors.removeLast();
+    for (int i = 0; i < _typedVisitors.length; i++) {
+      final visitor = _typedVisitors[i];
+      visitor.leave(node);
     }
   }
 }

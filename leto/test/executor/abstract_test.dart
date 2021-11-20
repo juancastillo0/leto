@@ -59,27 +59,27 @@ void main() {
     final PetType = objectType<Object>(
       'Pet',
       isInterface: true,
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+      ],
     );
 
     final DogType = objectType<Dog>(
       'Dog',
       interfaces: [PetType],
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'woofs': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('woofs', graphQLBoolean),
+      ],
     );
 
     final CatType = objectType<Cat>(
       'Cat',
       interfaces: [PetType],
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'meows': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('meows', graphQLBoolean),
+      ],
     );
 
     final schema = GraphQLSchema(
@@ -144,20 +144,20 @@ void main() {
         // }
         throw error;
       },
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'woofs': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('woofs', graphQLBoolean),
+      ],
     );
 
     final CatType = objectType<Cat>(
       'Cat',
       interfaces: [PetType],
       // isTypeOf: undefined,
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'meows': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('meows', graphQLBoolean),
+      ],
     );
 
     final schema = GraphQLSchema(
@@ -218,10 +218,10 @@ void main() {
       //   const isDog = obj instanceof Dog;
       //   return context.async ? Promise.resolve(isDog) : isDog;
       // },
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'woofs': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('woofs', graphQLBoolean),
+      ],
     );
 
     final CatType = objectType<Cat>(
@@ -230,10 +230,10 @@ void main() {
       //   const isCat = obj instanceof Cat;
       //   return context.async ? Promise.resolve(isCat) : isCat;
       // },
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'meows': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('meows', graphQLBoolean),
+      ],
     );
 
     final PetType = GraphQLUnionType<Object>(
@@ -295,28 +295,28 @@ void main() {
         // }
         throw error;
       },
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+      ],
       isInterface: true,
     );
 
     final DogType = objectType<Dog>(
       'Dog',
       interfaces: [PetType],
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'woofs': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('woofs', graphQLBoolean),
+      ],
     );
 
     final CatType = objectType<Cat>(
       'Cat',
       interfaces: [PetType],
-      fieldsMap: {
-        'name': graphQLString.fieldSpec(),
-        'meows': graphQLBoolean.fieldSpec(),
-      },
+      fields: [
+        field('name', graphQLString),
+        field('meows', graphQLBoolean),
+      ],
     );
 
     final schema = GraphQLSchema(

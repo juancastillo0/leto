@@ -1,0 +1,29 @@
+{
+  "name": "Validate: no deprecated_no deprecated arguments on directives",
+  "schema": "directive @someDirective(normalArg: String, deprecatedArg: String @deprecated(reason: \"Some arg reason.\")) on FIELD\n\ntype Query {\n  someField: String\n}",
+  "tests": [
+    {
+      "name": "ignores arguments that are not deprecated",
+      "document": "\n        {\n          someField @someDirective(normalArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores unknown arguments",
+      "document": "\n        {\n          someField @someDirective(unknownArg: \"\")\n          someField @unknownDirective(deprecatedArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "reports error when a deprecated argument is used",
+      "document": "\n        {\n          someField @someDirective(deprecatedArg: \"\")\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": [
+        {
+          "message": "Directive \"@someDirective\" argument \"deprecatedArg\" is deprecated. Some arg reason.",
+          "locations": [{ "line": 3, "column": 36 }]
+        }
+      ]
+    }
+  ]
+}

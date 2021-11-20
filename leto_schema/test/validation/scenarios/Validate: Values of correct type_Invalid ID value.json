@@ -1,0 +1,39 @@
+{
+  "name": "Validate: Values of correct type_Invalid ID value",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "Float into ID",
+      "document": "\n        {\n          complicatedArgs {\n            idArgField(idArg: 1.0)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "ID cannot represent a non-string and non-integer value: 1.0",
+          "locations": [{ "line": 4, "column": 31 }]
+        }
+      ]
+    },
+    {
+      "name": "Boolean into ID",
+      "document": "\n        {\n          complicatedArgs {\n            idArgField(idArg: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "ID cannot represent a non-string and non-integer value: true",
+          "locations": [{ "line": 4, "column": 31 }]
+        }
+      ]
+    },
+    {
+      "name": "Unquoted into ID",
+      "document": "\n        {\n          complicatedArgs {\n            idArgField(idArg: SOMETHING)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "ID cannot represent a non-string and non-integer value: SOMETHING",
+          "locations": [{ "line": 4, "column": 31 }]
+        }
+      ]
+    }
+  ]
+}

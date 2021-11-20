@@ -1,0 +1,84 @@
+{
+  "name": "Validate: Unique operation names",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "no operations",
+      "document": "\n      fragment fragA on Type {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one anon operation",
+      "document": "\n      {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one named operation",
+      "document": "\n      query Foo {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple operations",
+      "document": "\n      query Foo {\n        field\n      }\n\n      query Bar {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple operations of different types",
+      "document": "\n      query Foo {\n        field\n      }\n\n      mutation Bar {\n        field\n      }\n\n      subscription Baz {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "fragment and operation named the same",
+      "document": "\n      query Foo {\n        ...Foo\n      }\n      fragment Foo on Type {\n        field\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple operations of same name",
+      "document": "\n      query Foo {\n        fieldA\n      }\n      query Foo {\n        fieldB\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one operation named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 13 },
+            { "line": 5, "column": 13 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "multiple ops of same name of different types (mutation)",
+      "document": "\n      query Foo {\n        fieldA\n      }\n      mutation Foo {\n        fieldB\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one operation named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 13 },
+            { "line": 5, "column": 16 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "multiple ops of same name of different types (subscription)",
+      "document": "\n      query Foo {\n        fieldA\n      }\n      subscription Foo {\n        fieldB\n      }\n    ",
+      "rules": ["UniqueOperationNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one operation named \"Foo\".",
+          "locations": [
+            { "line": 2, "column": 13 },
+            { "line": 5, "column": 20 }
+          ]
+        }
+      ]
+    }
+  ]
+}

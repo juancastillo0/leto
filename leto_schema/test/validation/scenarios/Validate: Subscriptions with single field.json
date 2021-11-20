@@ -1,0 +1,170 @@
+{
+  "name": "Validate: Subscriptions with single field",
+  "tests": [
+    {
+      "name": "valid subscription",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": []
+    },
+    {
+      "name": "valid subscription with fragment",
+      "document": "\n      subscription sub {\n        ...newMessageFields\n      }\n\n      fragment newMessageFields on SubscriptionRoot {\n        newMessage {\n          body\n          sender\n        }\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": []
+    },
+    {
+      "name": "valid subscription with fragment and field",
+      "document": "\n      subscription sub {\n        newMessage {\n          body\n        }\n        ...newMessageFields\n      }\n\n      fragment newMessageFields on SubscriptionRoot {\n        newMessage {\n          body\n          sender\n        }\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": []
+    },
+    {
+      "name": "fails with more than one root field",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n        notImportantEmails\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must select only one top level field.",
+          "locations": [{ "line": 4, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "fails with more than one root field including introspection",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n        __typename\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must select only one top level field.",
+          "locations": [{ "line": 4, "column": 9 }]
+        },
+        {
+          "message": "Subscription \"ImportantEmails\" must not select an introspection top level field.",
+          "locations": [{ "line": 4, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "fails with more than one root field including aliased introspection via fragment",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n        ...Introspection\n      }\n      fragment Introspection on SubscriptionRoot {\n        typename: __typename\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must select only one top level field.",
+          "locations": [{ "line": 7, "column": 9 }]
+        },
+        {
+          "message": "Subscription \"ImportantEmails\" must not select an introspection top level field.",
+          "locations": [{ "line": 7, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "fails with many more than one root field",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n        notImportantEmails\n        spamEmails\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must select only one top level field.",
+          "locations": [
+            { "line": 4, "column": 9 },
+            { "line": 5, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fails with many more than one root field via fragments",
+      "document": "\n      subscription ImportantEmails {\n        importantEmails\n        ... {\n          more: moreImportantEmails\n        }\n        ...NotImportantEmails\n      }\n      fragment NotImportantEmails on SubscriptionRoot {\n        notImportantEmails\n        deleted: deletedEmails\n        ...SpamEmails\n      }\n      fragment SpamEmails on SubscriptionRoot {\n        spamEmails\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must select only one top level field.",
+          "locations": [
+            { "line": 5, "column": 11 },
+            { "line": 10, "column": 9 },
+            { "line": 11, "column": 9 },
+            { "line": 15, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "does not infinite loop on recursive fragments",
+      "document": "\n      subscription NoInfiniteLoop {\n        ...A\n      }\n      fragment A on SubscriptionRoot {\n        ...A\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": []
+    },
+    {
+      "name": "fails with many more than one root field via fragments (anonymous)",
+      "document": "\n      subscription {\n        importantEmails\n        ... {\n          more: moreImportantEmails\n          ...NotImportantEmails\n        }\n        ...NotImportantEmails\n      }\n      fragment NotImportantEmails on SubscriptionRoot {\n        notImportantEmails\n        deleted: deletedEmails\n        ... {\n          ... {\n            archivedEmails\n          }\n        }\n        ...SpamEmails\n      }\n      fragment SpamEmails on SubscriptionRoot {\n        spamEmails\n        ...NonExistentFragment\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Anonymous Subscription must select only one top level field.",
+          "locations": [
+            { "line": 5, "column": 11 },
+            { "line": 11, "column": 9 },
+            { "line": 12, "column": 9 },
+            { "line": 15, "column": 13 },
+            { "line": 21, "column": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fails with more than one root field in anonymous subscriptions",
+      "document": "\n      subscription {\n        importantEmails\n        notImportantEmails\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Anonymous Subscription must select only one top level field.",
+          "locations": [{ "line": 4, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "fails with introspection field",
+      "document": "\n      subscription ImportantEmails {\n        __typename\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Subscription \"ImportantEmails\" must not select an introspection top level field.",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "fails with introspection field in anonymous subscription",
+      "document": "\n      subscription {\n        __typename\n      }\n    ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "schema {\n  query: QueryRoot\n  subscription: SubscriptionRoot\n}\n\ntype Message {\n  body: String\n  sender: String\n}\n\ntype SubscriptionRoot {\n  importantEmails: [String]\n  notImportantEmails: [String]\n  moreImportantEmails: [String]\n  spamEmails: [String]\n  deletedEmails: [String]\n  newMessage: Message\n}\n\ntype QueryRoot {\n  dummy: String\n}",
+      "errors": [
+        {
+          "message": "Anonymous Subscription must not select an introspection top level field.",
+          "locations": [{ "line": 3, "column": 9 }]
+        }
+      ]
+    },
+    {
+      "name": "skips if not subscription type",
+      "document": "\n        subscription {\n          __typename\n        }\n      ",
+      "rules": ["SingleFieldSubscriptionsRule"],
+      "schema": "type Query {\n  dummy: String\n}",
+      "errors": []
+    }
+  ]
+}

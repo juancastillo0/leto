@@ -32,7 +32,4 @@ class GraphQLJsonType extends GraphQLScalarType<Json, Object?> {
     return ValidationResult.failure(
         ['Expected "$key" to be an Json. ${result.unwrapErr()}']);
   }
-
-  @override
-  Iterable<Object?> get props => [];
 }

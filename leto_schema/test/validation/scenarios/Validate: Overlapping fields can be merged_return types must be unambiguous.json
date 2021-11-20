@@ -1,0 +1,175 @@
+{
+  "name": "Validate: Overlapping fields can be merged_return types must be unambiguous",
+  "tests": [
+    {
+      "name": "conflicting return types which potentially overlap",
+      "document": "\n          {\n            someBox {\n              ...on IntBox {\n                scalar\n              }\n              ...on NonNullStringBox1 {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"scalar\" conflict because they return conflicting types \"Int\" and \"String!\". Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 17 },
+            { "line": 8, "column": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "compatible return shapes on different return types",
+      "document": "\n          {\n            someBox {\n              ... on SomeBox {\n                deepBox {\n                  unrelatedField\n                }\n              }\n              ... on StringBox {\n                deepBox {\n                  unrelatedField\n                }\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": []
+    },
+    {
+      "name": "disallows differing return types despite no overlap",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                scalar\n              }\n              ... on StringBox {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"scalar\" conflict because they return conflicting types \"Int\" and \"String\". Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 17 },
+            { "line": 8, "column": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reports correctly when a non-exclusive follows an exclusive",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                deepBox {\n                  ...X\n                }\n              }\n            }\n            someBox {\n              ... on StringBox {\n                deepBox {\n                  ...Y\n                }\n              }\n            }\n            memoed: someBox {\n              ... on IntBox {\n                deepBox {\n                  ...X\n                }\n              }\n            }\n            memoed: someBox {\n              ... on StringBox {\n                deepBox {\n                  ...Y\n                }\n              }\n            }\n            other: someBox {\n              ...X\n            }\n            other: someBox {\n              ...Y\n            }\n          }\n          fragment X on SomeBox {\n            scalar\n          }\n          fragment Y on SomeBox {\n            scalar: unrelatedField\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"other\" conflict because subfields \"scalar\" conflict because \"scalar\" and \"unrelatedField\" are different fields. Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 31, "column": 13 },
+            { "line": 39, "column": 13 },
+            { "line": 34, "column": 13 },
+            { "line": 42, "column": 13 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disallows differing return type nullability despite no overlap",
+      "document": "\n          {\n            someBox {\n              ... on NonNullStringBox1 {\n                scalar\n              }\n              ... on StringBox {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"scalar\" conflict because they return conflicting types \"String!\" and \"String\". Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 17 },
+            { "line": 8, "column": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disallows differing return type list despite no overlap",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                box: stringBox {\n                  scalar\n                }\n              }\n              ... on StringBox {\n                box: listStringBox {\n                  scalar\n                }\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"box\" conflict because they return conflicting types \"StringBox\" and \"[StringBox]\". Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 17 },
+            { "line": 10, "column": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disallows differing subfields",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                box: stringBox {\n                  val: scalar\n                  val: unrelatedField\n                }\n              }\n              ... on StringBox {\n                box: stringBox {\n                  val: scalar\n                }\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"val\" conflict because \"scalar\" and \"unrelatedField\" are different fields. Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 6, "column": 19 },
+            { "line": 7, "column": 19 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disallows differing deep return types despite no overlap",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                box: stringBox {\n                  scalar\n                }\n              }\n              ... on StringBox {\n                box: intBox {\n                  scalar\n                }\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"box\" conflict because subfields \"scalar\" conflict because they return conflicting types \"String\" and \"Int\". Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 17 },
+            { "line": 6, "column": 19 },
+            { "line": 10, "column": 17 },
+            { "line": 11, "column": 19 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "allows non-conflicting overlapping types",
+      "document": "\n          {\n            someBox {\n              ... on IntBox {\n                scalar: unrelatedField\n              }\n              ... on StringBox {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": []
+    },
+    {
+      "name": "same wrapped scalar return types",
+      "document": "\n          {\n            someBox {\n              ...on NonNullStringBox1 {\n                scalar\n              }\n              ...on NonNullStringBox2 {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": []
+    },
+    {
+      "name": "allows inline fragments without type condition",
+      "document": "\n          {\n            a\n            ... {\n              a\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": []
+    },
+    {
+      "name": "compares deep types including list",
+      "document": "\n          {\n            connection {\n              ...edgeID\n              edges {\n                node {\n                  id: name\n                }\n              }\n            }\n          }\n\n          fragment edgeID on Connection {\n            edges {\n              node {\n                id\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": [
+        {
+          "message": "Fields \"edges\" conflict because subfields \"node\" conflict because subfields \"id\" conflict because \"name\" and \"id\" are different fields. Use different aliases on the fields to fetch both if this was intentional.",
+          "locations": [
+            { "line": 5, "column": 15 },
+            { "line": 6, "column": 17 },
+            { "line": 7, "column": 19 },
+            { "line": 14, "column": 13 },
+            { "line": 15, "column": 15 },
+            { "line": 16, "column": 17 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ignores unknown types",
+      "document": "\n          {\n            someBox {\n              ...on UnknownType {\n                scalar\n              }\n              ...on NonNullStringBox2 {\n                scalar\n              }\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "interface SomeBox {\n  deepBox: SomeBox\n  unrelatedField: String\n}\n\ntype StringBox implements SomeBox {\n  scalar: String\n  deepBox: StringBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ntype IntBox implements SomeBox {\n  scalar: Int\n  deepBox: IntBox\n  unrelatedField: String\n  listStringBox: [StringBox]\n  stringBox: StringBox\n  intBox: IntBox\n}\n\ninterface NonNullStringBox1 {\n  scalar: String!\n}\n\ntype NonNullStringBox1Impl implements SomeBox & NonNullStringBox1 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ninterface NonNullStringBox2 {\n  scalar: String!\n}\n\ntype NonNullStringBox2Impl implements SomeBox & NonNullStringBox2 {\n  scalar: String!\n  unrelatedField: String\n  deepBox: SomeBox\n}\n\ntype Connection {\n  edges: [Edge]\n}\n\ntype Edge {\n  node: Node\n}\n\ntype Node {\n  id: ID\n  name: String\n}\n\ntype Query {\n  someBox: SomeBox\n  connection: Connection\n}",
+      "errors": []
+    },
+    {
+      "name": "works for field names that are JS keywords",
+      "document": "\n          {\n            foo {\n              constructor\n            }\n          }\n        ",
+      "rules": ["OverlappingFieldsCanBeMergedRule"],
+      "schema": "type Foo {\n  constructor: String\n}\n\ntype Query {\n  foo: Foo\n}",
+      "errors": []
+    }
+  ]
+}

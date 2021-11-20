@@ -1,0 +1,33 @@
+{
+  "name": "Validate: no deprecated_no deprecated fields",
+  "schema": "type Query {\n  normalField: String\n  deprecatedField: String @deprecated(reason: \"Some field reason.\")\n}",
+  "tests": [
+    {
+      "name": "ignores fields that are not deprecated",
+      "document": "\n        {\n          normalField\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "ignores unknown fields",
+      "document": "\n        {\n          unknownField\n        }\n\n        fragment UnknownFragment on UnknownType {\n          deprecatedField\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": []
+    },
+    {
+      "name": "reports error when a deprecated field is selected",
+      "document": "\n        {\n          deprecatedField\n        }\n\n        fragment QueryFragment on Query {\n          deprecatedField\n        }\n      ",
+      "rules": ["NoDeprecatedCustomRule"],
+      "errors": [
+        {
+          "message": "The field Query.deprecatedField is deprecated. Some field reason.",
+          "locations": [{ "line": 3, "column": 11 }]
+        },
+        {
+          "message": "The field Query.deprecatedField is deprecated. Some field reason.",
+          "locations": [{ "line": 7, "column": 11 }]
+        }
+      ]
+    }
+  ]
+}

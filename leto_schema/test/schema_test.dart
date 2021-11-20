@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:leto_schema/introspection.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:test/test.dart';
@@ -10,11 +9,11 @@ void main() {
   test('Define sample schema', () {
     final BlogImage = objectType<Object>(
       'Image',
-      fieldsMap: {
-        'url': graphQLString.fieldSpec(),
-        'width': graphQLInt.fieldSpec(),
-        'height': graphQLInt.fieldSpec(),
-      },
+      fields: [
+        field('url', graphQLString),
+        field('width', graphQLInt),
+        field('height', graphQLInt),
+      ],
     );
 
     final BlogAuthor = GraphQLObjectType<Object>(
@@ -278,10 +277,10 @@ type Subscription {
         field('sub', _testScalarType('QuerySub')),
       ],
     );
-    final schema = reflectSchema(GraphQLSchema(
+    final schema = GraphQLSchema(
       otherTypes: [zType, queryType, aType],
       queryType: queryType,
-    ));
+    );
 
     final typeNames = schema.typeMap.keys;
     expect(
@@ -370,7 +369,7 @@ type Subscription {
             'Query',
             fields: [graphQLString.field('foo')],
           );
-          final types = <GraphQLType>[_testScalarType(''), query];
+          final types = <GraphQLNamedType>[_testScalarType(''), query];
 
           // @ts-expect-error
           expect(

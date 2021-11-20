@@ -1,8 +1,11 @@
-import 'package:gql/ast.dart';
-import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
-import 'package:leto_schema/src/rules/validate.dart';
 import 'package:leto_schema/src/utilities/collect_fields.dart';
+
+import '../rules_prelude.dart';
+
+const _singleFieldSubscriptionsSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Single-root-field',
+  code: 'singleFieldSubscriptions',
+);
 
 /// Subscriptions must only include a non-introspection field.
 ///
@@ -37,6 +40,7 @@ Visitor singleFieldSubscriptionsRule(ValidationCtx context) {
                   ? 'Subscription "$operationName" must select only one top level field.'
                   : 'Anonymous Subscription must select only one top level field.',
               locations: locationsFromFields(extraFieldSelections),
+              extensions: _singleFieldSubscriptionsSpec.extensions(),
             ),
           );
         }
@@ -50,6 +54,7 @@ Visitor singleFieldSubscriptionsRule(ValidationCtx context) {
                     ? 'Subscription "${operationName}" must not select an introspection top level field.'
                     : 'Anonymous Subscription must not select an introspection top level field.',
                 locations: locationsFromFields(fieldNodes),
+                extensions: _singleFieldSubscriptionsSpec.extensions(),
               ),
             );
           }

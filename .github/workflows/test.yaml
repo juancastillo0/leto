@@ -2,9 +2,7 @@ name: Dart CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   # Check code formatting and static analysis on a single OS (linux)

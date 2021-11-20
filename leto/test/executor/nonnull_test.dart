@@ -704,6 +704,7 @@ void main() {
             withNonNullArg
           }
         ''',
+        validate: false,
       );
 
       expect(result, {
@@ -734,6 +735,7 @@ void main() {
             withNonNullArg(cannotBeNull: null)
           }
         ''',
+        validate: false,
       );
 
       expect(result, {
@@ -765,6 +767,7 @@ void main() {
             withNonNullArg(cannotBeNull: $testVar)
           }
         ''',
+        validate: false,
         variableValues: {
           // Intentionally missing variable
         },

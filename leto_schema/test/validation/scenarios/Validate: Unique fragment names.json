@@ -1,0 +1,64 @@
+{
+  "name": "Validate: Unique fragment names",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "no fragments",
+      "document": "\n      {\n        field\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "one fragment",
+      "document": "\n      {\n        ...fragA\n      }\n\n      fragment fragA on Type {\n        field\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "many fragments",
+      "document": "\n      {\n        ...fragA\n        ...fragB\n        ...fragC\n      }\n      fragment fragA on Type {\n        fieldA\n      }\n      fragment fragB on Type {\n        fieldB\n      }\n      fragment fragC on Type {\n        fieldC\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "inline fragments are always unique",
+      "document": "\n      {\n        ...on Type {\n          fieldA\n        }\n        ...on Type {\n          fieldB\n        }\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "fragment and operation named the same",
+      "document": "\n      query Foo {\n        ...Foo\n      }\n      fragment Foo on Type {\n        field\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "fragments named the same",
+      "document": "\n      {\n        ...fragA\n      }\n      fragment fragA on Type {\n        fieldA\n      }\n      fragment fragA on Type {\n        fieldB\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one fragment named \"fragA\".",
+          "locations": [
+            { "line": 5, "column": 16 },
+            { "line": 8, "column": 16 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fragments named the same without being referenced",
+      "document": "\n      fragment fragA on Type {\n        fieldA\n      }\n      fragment fragA on Type {\n        fieldB\n      }\n    ",
+      "rules": ["UniqueFragmentNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one fragment named \"fragA\".",
+          "locations": [
+            { "line": 2, "column": 16 },
+            { "line": 5, "column": 16 }
+          ]
+        }
+      ]
+    }
+  ]
+}

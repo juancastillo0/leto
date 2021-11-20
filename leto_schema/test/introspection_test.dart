@@ -1562,20 +1562,21 @@ void main() {
     expect(await graphqlSync(schema, source), {
       'errors': [
         {
-          'message': stringContainsInOrder(
-            ['Missing', '"name"', 'String!', '"__type"'],
-          ),
+          'message': 'Field "__type" argument "name" of type "String!"'
+              ' is required, but it was not provided.',
           // 'Field "__type" argument "name" of type "String!"'
           //     ' is required, but it was not provided.',
-          // TODO: there shouldn't be a 'path' property. support validation before execution
-          'path': ['__type'],
           'locations': [
             {'line': 1, 'column': 8}
           ],
+          'extensions': {
+            'validationError': {
+              'spec': 'https://spec.graphql.org/draft/#sec-Required-Arguments',
+              'code': 'providedRequiredArguments'
+            }
+          }
         },
       ],
-      // TODO: there shouldn't be a 'data' property. support validation before execution
-      'data': {'__type': null},
     });
   });
 

@@ -140,8 +140,10 @@ void main() {
         }
       ''';
 
-      final result =
-          await GraphQL(GraphQLSchema(queryType: DataType)).parseAndExecute(
+      final result = await GraphQL(
+        GraphQLSchema(queryType: DataType),
+        validate: false,
+      ).parseAndExecute(
         document,
         rootValue: data,
         variableValues: {'size': 100},
@@ -198,7 +200,10 @@ void main() {
       }
     ''';
 
-      final result = await GraphQL(schema).parseAndExecute(document);
+      final result = await GraphQL(
+        schema,
+        validate: false,
+      ).parseAndExecute(document);
       expect(result.toJson(), {
         'data': {
           'a': 'Apple',
@@ -235,8 +240,10 @@ void main() {
       final rootValue = {'root': 'val'};
       final variableValues = {'var': 'abc'};
 
-      await GraphQL(schema, introspect: false).parseAndExecute(document,
-          rootValue: rootValue, variableValues: variableValues);
+      await GraphQL(schema, validate: false, introspect: false).parseAndExecute(
+          document,
+          rootValue: rootValue,
+          variableValues: variableValues);
 
       // final operation = document.definitions[0];
       // invariant(operation.kind === Kind.OPERATION_DEFINITION);

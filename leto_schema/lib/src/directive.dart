@@ -4,11 +4,13 @@ part of leto_schema.src.schema;
 /// Provides documentation, information or functionalities over
 /// different aspects of a GraphQL parsing, validation, execution or
 /// interpretation of a [GraphQLSchema]
-class GraphQLDirective {
+class GraphQLDirective implements GraphQLElement {
   /// The name of this directive, should be unique
+  @override
   final String name;
 
   /// Provides documentation for this directive
+  @override
   final String? description;
 
   /// The places the a GraphQL document where this
@@ -16,23 +18,29 @@ class GraphQLDirective {
   final List<DirectiveLocation> locations;
 
   /// The input arguments for this directive
-  final List<GraphQLFieldInput> inputs;
+  final List<GraphQLFieldInput> inputs = [];
 
   /// Whether this directive can be applied multiple types
   final bool isRepeatable;
 
-  final Map<String, Object?>? extensions;
+  @override
+  final GraphQLAttachments attachments;
 
-  // DirectiveDefinitionNode? astNode;
+  @override
+  final DirectiveDefinitionNode? astNode;
 
-  const GraphQLDirective({
+  /// Default GraphQL directive definition constructor
+  GraphQLDirective({
     required this.name,
     this.description,
     required this.locations,
-    this.inputs = const [],
+    List<GraphQLFieldInput> inputs = const [],
     this.isRepeatable = false,
-    this.extensions,
-  });
+    this.attachments = const [],
+    this.astNode,
+  }) {
+    this.inputs.addAll(inputs);
+  }
 
   /// Default GraphQL directives
   static final specifiedDirectives = [
@@ -77,6 +85,25 @@ bool isSpecifiedDirective(GraphQLDirective directive) {
   return GraphQLDirective.specifiedDirectives
       .map((e) => e.name)
       .contains(directive.name);
+}
+
+/// Returns the directives applied to a given GraphQL [element]
+@experimental
+Iterable<DirectiveNode> getDirectivesFromElement(GraphQLElement element) {
+  if (element is GraphQLNamedType) {
+    return element.extra.directives();
+  } else if (element is GraphQLObjectField) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else if (element is GraphQLFieldInput) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else if (element is GraphQLEnumValue) {
+    return (element.astNode?.directives ?? [])
+        .followedBy(element.attachments.whereType());
+  } else {
+    return [];
+  }
 }
 
 /// Constant string used for default reason for a deprecation.

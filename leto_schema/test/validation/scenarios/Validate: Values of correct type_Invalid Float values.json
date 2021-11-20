@@ -1,0 +1,39 @@
+{
+  "name": "Validate: Values of correct type_Invalid Float values",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "String into Float",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: \"3.333\")\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Float cannot represent non numeric value: \"3.333\"",
+          "locations": [{ "line": 4, "column": 37 }]
+        }
+      ]
+    },
+    {
+      "name": "Boolean into Float",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: true)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Float cannot represent non numeric value: true",
+          "locations": [{ "line": 4, "column": 37 }]
+        }
+      ]
+    },
+    {
+      "name": "Unquoted into Float",
+      "document": "\n        {\n          complicatedArgs {\n            floatArgField(floatArg: FOO)\n          }\n        }\n      ",
+      "rules": ["ValuesOfCorrectTypeRule"],
+      "errors": [
+        {
+          "message": "Float cannot represent non numeric value: FOO",
+          "locations": [{ "line": 4, "column": 37 }]
+        }
+      ]
+    }
+  ]
+}

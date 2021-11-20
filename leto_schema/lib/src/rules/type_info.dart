@@ -7,19 +7,11 @@ import 'package:leto_schema/src/rules/typed_visitor.dart';
 import 'package:leto_schema/src/utilities/build_schema.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
 
-GraphQLType? getNamedType(GraphQLType? type) {
-  GraphQLType? _type = type;
-  while (_type is GraphQLWrapperType) {
-    _type = (_type! as GraphQLWrapperType).ofType;
-  }
-  return _type;
-}
-
 // TODO: GraphQLOutputType, GraphQLCompositeType, GraphQLInputType
 class TypeInfo {
   final GraphQLSchema _schema;
   final List<GraphQLType?> _typeStack = [];
-  final List<GraphQLType?> _parentTypeStack = [];
+  final List<GraphQLCompositeType?> _parentTypeStack = [];
   final List<GraphQLType?> _inputTypeStack = [];
   final List<GraphQLObjectField?> _fieldDefStack = [];
   final List<Object?> _defaultValueStack = [];
@@ -59,7 +51,7 @@ class TypeInfo {
     }
   }
 
-  GraphQLType? getParentType() {
+  GraphQLCompositeType? getParentType() {
     if (this._parentTypeStack.length > 0) {
       return this._parentTypeStack[this._parentTypeStack.length - 1];
     }
@@ -110,7 +102,7 @@ class TypeInfo {
     if (node is SelectionSetNode) {
       final namedType = getNamedType(this.getType());
       this._parentTypeStack.add(
-            isCompositeType(namedType) ? namedType : null,
+            namedType is GraphQLCompositeType ? namedType : null,
           );
     } else if (node is FieldNode) {
       final parentType = this.getParentType();
@@ -138,11 +130,11 @@ class TypeInfo {
           ? node.typeCondition
           : (node as FragmentDefinitionNode).typeCondition;
       final outputType = typeConditionAST != null
-          ? convertType(typeConditionAST.on, schema.typeMap)
+          ? convertTypeOrNull(typeConditionAST.on, schema.typeMap)
           : getNamedType(this.getType());
       this._typeStack.add(isOutputType(outputType) ? outputType : null);
     } else if (node is VariableDefinitionNode) {
-      final inputType = convertType(node.type, schema.typeMap);
+      final inputType = convertTypeOrNull(node.type, schema.typeMap);
       this._inputTypeStack.add(
             isInputType(inputType) ? inputType : null,
           );
@@ -288,40 +280,18 @@ GraphQLObjectField? globalGetFieldDef(
 // }
 
 ///
-class WithTypeInfoVisitor extends WrapperVisitor<void> {
+class WithTypeInfoVisitor extends ParallelVisitor {
   final TypeInfo typeInfo;
-  final List<Visitor> visitors;
-  final void Function(Object?)? onAccept;
-
-  late final List<TypedVisitor> _typedVisitors =
-      visitors.whereType<TypedVisitor>().toList();
-  late final List<Visitor> _otherVisitors =
-      visitors.where((v) => v is! TypedVisitor).toList();
 
   ///
   WithTypeInfoVisitor(
     this.typeInfo, {
-    required this.visitors,
-    this.onAccept,
-  });
-
-  @override
-  void visitNode<N extends Node>(N node) {
-    for (int i = 0; i < _otherVisitors.length; i++) {
-      final visitor = _otherVisitors[i];
-      final value = node.accept<Object?>(visitor);
-      onAccept?.call(value);
-    }
-    for (int i = 0; i < _typedVisitors.length; i++) {
-      final visitor = _typedVisitors[i];
-      visitor.enter(node);
-    }
-    node.visitChildren(this);
-    for (int i = 0; i < _typedVisitors.length; i++) {
-      final visitor = _typedVisitors[i];
-      visitor.leave(node);
-    }
-  }
+    required List<Visitor> visitors,
+    void Function(Object?)? onAccept,
+  }) : super(
+          visitors: visitors,
+          onAccept: onAccept,
+        );
 
   void _wrap<T extends Node>(T node, void Function(T) inner) {
     typeInfo.enter(node);

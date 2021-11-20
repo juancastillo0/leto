@@ -1,0 +1,68 @@
+{
+  "name": "Validate: Provided required arguments_within SDL",
+  "tests": [
+    {
+      "name": "Missing optional args on directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test\n        }\n\n        directive @test(arg1: String, arg2: String! = \"\") on FIELD_DEFINITION\n      ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "errors": []
+    },
+    {
+      "name": "Missing arg on directive defined inside SDL",
+      "document": "\n        type Query {\n          foo: String @test\n        }\n\n        directive @test(arg: String!) on FIELD_DEFINITION\n      ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Directive \"@test\" argument \"arg\" of type \"String!\" is required, but it was not provided.",
+          "locations": [{ "line": 3, "column": 23 }]
+        }
+      ]
+    },
+    {
+      "name": "Missing arg on standard directive",
+      "document": "\n        type Query {\n          foo: String @include\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Directive \"@include\" argument \"if\" of type \"Boolean!\" is required, but it was not provided.",
+          "locations": [{ "line": 3, "column": 23 }]
+        }
+      ]
+    },
+    {
+      "name": "Missing arg on overridden standard directive",
+      "document": "\n        type Query {\n          foo: String @deprecated\n        }\n        directive @deprecated(reason: String!) on FIELD\n      ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "errors": [
+        {
+          "message": "Directive \"@deprecated\" argument \"reason\" of type \"String!\" is required, but it was not provided.",
+          "locations": [{ "line": 3, "column": 23 }]
+        }
+      ]
+    },
+    {
+      "name": "Missing arg on directive defined in schema extension",
+      "document": "\n          directive @test(arg: String!) on OBJECT\n\n          extend type Query  @test\n        ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "schema": "type Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Directive \"@test\" argument \"arg\" of type \"String!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 30 }]
+        }
+      ]
+    },
+    {
+      "name": "Missing arg on directive used in schema extension",
+      "document": "\n          extend type Query @test\n        ",
+      "rules": ["ProvidedRequiredArgumentsOnDirectivesRule"],
+      "schema": "directive @test(arg: String!) on OBJECT\n\ntype Query {\n  foo: String\n}",
+      "errors": [
+        {
+          "message": "Directive \"@test\" argument \"arg\" of type \"String!\" is required, but it was not provided.",
+          "locations": [{ "line": 2, "column": 29 }]
+        }
+      ]
+    }
+  ]
+}

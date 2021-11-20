@@ -4,9 +4,14 @@ import 'package:gql/ast.dart' hide DirectiveLocation;
 import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/utilities/ast_from_value.dart';
+import 'package:leto_schema/utilities.dart';
+import 'package:leto_schema/validate.dart';
 
 /// Create a [GraphQLSchema] from a GraphQL Schema Definition
 /// Language (SDL) String [schemaStr].
+///
+/// throws [SourceSpanException] if there is an error on parsing
+/// throws [GraphQLException] if there is an error on SDL or schema validation
 GraphQLSchema buildSchema(
   String schemaStr, {
   Map<String, Object?>? payload,
@@ -14,175 +19,20 @@ GraphQLSchema buildSchema(
 }) {
   final schemaDoc = gql.parseString(schemaStr);
 
+  final errors = validateSDL(schemaDoc);
+  if (errors.isNotEmpty) {
+    throw GraphQLException(errors);
+  }
+
   final schemaDef = schemaDoc.definitions.whereType<SchemaDefinitionNode>();
   final typeDefs = schemaDoc.definitions.whereType<TypeDefinitionNode>();
   final directiveDefs =
       schemaDoc.definitions.whereType<DirectiveDefinitionNode>();
+  final typeDefsExtensions = schemaDoc.definitions
+      .whereType<TypeExtensionNode>()
+      .groupListsBy((element) => element.name.value);
 
-  final types =
-      <String, MapEntry<GraphQLType<Object?, Object?>, TypeDefinitionNode>>{};
-
-  for (final def in typeDefs) {
-    final name = def.name.value;
-    final GraphQLType type;
-    if (def is ScalarTypeDefinitionNode) {
-      type = GraphQLScalarTypeValue<Object?, Object?>(
-        name: name,
-        description: def.description?.value,
-        specifiedByURL:
-            getDirectiveValue('specifiedBy', 'url', def.directives, payload)
-                as String?,
-        serialize: (s) => s,
-        deserialize: (_, s) => s,
-        validate: (k, inp) => ValidationResult.ok(inp),
-      );
-    } else if (def is ObjectTypeDefinitionNode) {
-      type = GraphQLObjectType<Object?>(
-        name,
-        description: def.description?.value,
-        isInterface: false,
-      );
-    } else if (def is InterfaceTypeDefinitionNode) {
-      type = GraphQLObjectType<Object?>(
-        name,
-        description: def.description?.value,
-        isInterface: true,
-      );
-    } else if (def is UnionTypeDefinitionNode) {
-      type = GraphQLUnionType<Object?>(
-        name,
-        [],
-        description: def.description?.value,
-      );
-    } else if (def is EnumTypeDefinitionNode) {
-      type = GraphQLEnumType<Object?>(
-        name,
-        [
-          ...def.values.map(
-            (e) => GraphQLEnumValue(
-              e.name.value,
-              e.name.value,
-              description: e.description?.value,
-              deprecationReason: getDirectiveValue(
-                  'deprecated', 'reason', e.directives, payload) as String?,
-            ),
-          )
-        ],
-        description: def.description?.value,
-      );
-    } else if (def is InputObjectTypeDefinitionNode) {
-      type = GraphQLInputObjectType<Object?>(
-        name,
-        description: def.description?.value,
-      );
-    } else {
-      throw Error();
-    }
-    types[name] = MapEntry(type, def);
-  }
-  final typesMap = types.map((k, v) => MapEntry(k, v.key));
-
-  Iterable<GraphQLFieldInput<Object?, Object?>> arguments(
-    List<InputValueDefinitionNode> args,
-  ) {
-    return args.map(
-      (e) {
-        final type = convertType(e.type, typesMap);
-        return GraphQLFieldInput(
-          e.name.value,
-          type,
-          description: e.description?.value,
-          deprecationReason:
-              getDirectiveValue('deprecated', 'reason', e.directives, payload)
-                  as String?,
-          defaultValue: e.defaultValue == null
-              ? null
-              : computeValue(type, e.defaultValue!, null),
-          defaultsToNull: e.defaultValue is NullValueNode,
-        );
-      },
-    );
-  }
-
-  types.forEach((key, value) {
-    value.key.when(
-      list: (list) {},
-      nonNullable: (nonNullable) {},
-      enum_: (enum_) {},
-      scalar: (scalar) {},
-      object: (object) {
-        final List<FieldDefinitionNode> fields =
-            value.value is ObjectTypeDefinitionNode
-                ? (value.value as ObjectTypeDefinitionNode).fields
-                : (value.value as InterfaceTypeDefinitionNode).fields;
-
-        object.fields.addAll([
-          ...fields.map(
-            (e) => convertType(e.type, typesMap).field(
-              e.name.value,
-              description: e.description?.value,
-              deprecationReason: getDirectiveValue(
-                  'deprecated', 'reason', e.directives, payload) as String?,
-              inputs: arguments(e.args),
-            ),
-          )
-        ]);
-        final List<NamedTypeNode> interfaces =
-            value.value is ObjectTypeDefinitionNode
-                ? (value.value as ObjectTypeDefinitionNode).interfaces
-                : (value.value as InterfaceTypeDefinitionNode).interfaces;
-
-        for (final i in interfaces) {
-          object.inheritFrom(types[i.name.value]!.key as GraphQLObjectType);
-        }
-      },
-      input: (input) {
-        final v = value.value as InputObjectTypeDefinitionNode;
-        input.fields.addAll(arguments(v.fields));
-      },
-      union: (union) {
-        final v = value.value as UnionTypeDefinitionNode;
-        union.possibleTypes.addAll(
-          [
-            ...v.types.map((e) => types[e.name.value]!.key as GraphQLObjectType)
-          ],
-        );
-      },
-    );
-  });
-  GraphQLObjectType? queryType;
-  GraphQLObjectType? mutationType;
-  GraphQLObjectType? subscriptionType;
-  if (schemaDef.isEmpty) {
-    final _queryType = types['Query']?.key ?? types['Queries']?.key;
-    if (_queryType is GraphQLObjectType) {
-      queryType = _queryType;
-    }
-    final _mutationType = types['Mutation']?.key ?? types['Mutations']?.key;
-    if (_mutationType is GraphQLObjectType) {
-      mutationType = _mutationType;
-    }
-    final _subscriptionType =
-        types['Subscription']?.key ?? types['Subscriptions']?.key;
-    if (_subscriptionType is GraphQLObjectType) {
-      subscriptionType = _subscriptionType;
-    }
-  } else {
-    for (final op in schemaDef.first.operationTypes) {
-      final typeName = op.type.name.value;
-      switch (op.operation) {
-        case OperationType.query:
-          queryType = types[typeName]!.key as GraphQLObjectType;
-          break;
-        case OperationType.mutation:
-          mutationType = types[typeName]!.key as GraphQLObjectType;
-          break;
-        case OperationType.subscription:
-          subscriptionType = types[typeName]!.key as GraphQLObjectType;
-          break;
-      }
-    }
-  }
+  final typesMap = <String, GraphQLNamedType<Object?, Object?>>{};
 
   final directives = List.of(
     directiveDefs.map(
@@ -190,8 +40,8 @@ GraphQLSchema buildSchema(
         name: e.name.value,
         description: e.description?.value,
         isRepeatable: e.repeatable,
-        inputs: List.of(arguments(e.args)),
         locations: List.of(e.locations.map(mapDirectiveLocation)),
+        astNode: e,
       ),
     ),
   );
@@ -202,12 +52,335 @@ GraphQLSchema buildSchema(
     ),
   );
 
+  final Map<String, GraphQLDirective> directivesMap = directives
+      .fold({}, (previous, element) => previous..[element.name] = element);
+
+  for (final def in typeDefs) {
+    final name = def.name.value;
+    final extensions = typeDefsExtensions[name] ?? [];
+
+    final GraphQLNamedType type;
+    if (def is ScalarTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<ScalarTypeExtensionNode>().toList();
+      type = GraphQLScalarTypeValue<Object?, Object?>(
+        name: name,
+        description: def.description?.value,
+        specifiedByURL: getDirectiveValue(
+          'specifiedBy',
+          'url',
+          def.directives,
+          payload,
+          directivesMap: directivesMap,
+        ) as String?,
+        serialize: (s) => s,
+        deserialize: (_, s) => s,
+        validate: (k, inp) => ValidationResult.ok(inp),
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else if (def is ObjectTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<ObjectTypeExtensionNode>().toList();
+      type = GraphQLObjectType<Object?>(
+        name,
+        description: def.description?.value,
+        isInterface: false,
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else if (def is InterfaceTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<InterfaceTypeExtensionNode>().toList();
+      type = GraphQLObjectType<Object?>(
+        name,
+        description: def.description?.value,
+        isInterface: true,
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else if (def is UnionTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<UnionTypeExtensionNode>().toList();
+      type = GraphQLUnionType<Object?>(
+        name,
+        [],
+        description: def.description?.value,
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else if (def is EnumTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<EnumTypeExtensionNode>().toList();
+      type = GraphQLEnumType<Object?>(
+        name,
+        [
+          ...def.values.map(
+            (e) => GraphQLEnumValue(
+              e.name.value,
+              e.name.value,
+              description: e.description?.value,
+              deprecationReason: getDirectiveValue(
+                'deprecated',
+                'reason',
+                e.directives,
+                payload,
+                directivesMap: directivesMap,
+              ) as String?,
+              astNode: e,
+            ),
+          )
+        ],
+        description: def.description?.value,
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else if (def is InputObjectTypeDefinitionNode) {
+      final _extensions =
+          extensions.whereType<InputObjectTypeExtensionNode>().toList();
+      type = GraphQLInputObjectType<Object?>(
+        name,
+        description: def.description?.value,
+        extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+      );
+    } else {
+      throw Error();
+    }
+    typesMap[name] = type;
+    if (type.extra.extensionAstNodes.length != extensions.length) {
+      final wrongExtensions = extensions
+          .where((element) => !type.extra.extensionAstNodes.contains(element))
+          .toList();
+      errors.add(GraphQLError(
+        'Cannot extend $type with ${wrongExtensions.map((e) => e.runtimeType).join(', ')}.',
+        locations: [
+          ...wrongExtensions.map((e) =>
+              GraphQLErrorLocation.fromSourceLocation(e.name.span!.start)),
+        ],
+      ));
+    }
+  }
+
+  Iterable<GraphQLFieldInput<Object?, Object?>> arguments(
+    NameNode nameNode,
+    List<InputValueDefinitionNode> args, {
+    String? objectName,
+  }) {
+    return args.map(
+      (e) {
+        final type = convertTypeOrNull(e.type, typesMap);
+        if (!isInputType(type)) {
+          final fieldName = objectName == null
+              ? '${nameNode.value}.${e.name.value}'
+              : '$objectName.${nameNode.value}(${e.name.value}:)';
+          errors.add(
+            GraphQLError(
+              'The type of $fieldName must be Input Type but got: $type.',
+              locations: GraphQLErrorLocation.firstFromNodes([
+                e,
+                e.type,
+                nameNode,
+              ]),
+            ),
+          );
+          return null;
+        }
+        return GraphQLFieldInput(
+          e.name.value,
+          type!,
+          description: e.description?.value,
+          deprecationReason: getDirectiveValue(
+            'deprecated',
+            'reason',
+            e.directives,
+            payload,
+            directivesMap: directivesMap,
+          ) as String?,
+          defaultValue: e.defaultValue == null
+              ? null
+              : computeValue(type, e.defaultValue!, null),
+          defaultsToNull: e.defaultValue is NullValueNode,
+          astNode: e,
+        );
+      },
+    ).whereType();
+  }
+
+  directiveDefs.forEachIndexed((index, e) {
+    directives[index].inputs.addAll(arguments(e.name, e.args));
+  });
+
+  typesMap.forEach((key, value) {
+    value.whenNamed(
+      enum_: (enum_) {},
+      scalar: (scalar) {},
+      object: (object) {
+        final astNode = object.extra.astNode!;
+        final extensionAstNodes = object.extra.extensionAstNodes;
+        final List<FieldDefinitionNode> fields = [
+          ...astNode is ObjectTypeDefinitionNode
+              ? astNode.fields
+              : (astNode as InterfaceTypeDefinitionNode).fields,
+          ...extensionAstNodes is List<ObjectTypeExtensionNode>
+              ? extensionAstNodes.expand((e) => e.fields)
+              : (extensionAstNodes as List<InterfaceTypeExtensionNode>)
+                  .expand((e) => e.fields),
+        ];
+
+        object.fields.addAll([
+          ...fields.map(
+            (e) {
+              final type = convertTypeOrNull(e.type, typesMap);
+              if (!isOutputType(type)) {
+                errors.add(GraphQLError(
+                  'The type of ${object.name}.${e.name.value} must be Output Type but got: $type.',
+                ));
+                return null;
+              }
+              return type!.field<Object?>(
+                e.name.value,
+                description: e.description?.value,
+                deprecationReason: getDirectiveValue(
+                  'deprecated',
+                  'reason',
+                  e.directives,
+                  payload,
+                  directivesMap: directivesMap,
+                ) as String?,
+                inputs: arguments(e.name, e.args, objectName: object.name),
+                astNode: e,
+              );
+            },
+          ).whereType()
+        ]);
+
+        final List<NamedTypeNode> interfaces =
+            extensionAstNodes is List<ObjectTypeExtensionNode>
+                ? [
+                    ...(astNode as ObjectTypeDefinitionNode).interfaces,
+                    ...extensionAstNodes.expand((element) => element.interfaces)
+                  ]
+                : [
+                    ...(astNode as InterfaceTypeDefinitionNode).interfaces,
+                    ...(extensionAstNodes as List<InterfaceTypeExtensionNode>)
+                        .expand((element) => element.interfaces)
+                  ];
+
+        for (final i in interfaces) {
+          // TODO: could be null?
+          final type = typesMap[i.name.value];
+          if (type is! GraphQLObjectType || !type.isInterface) {
+            errors.add(
+              GraphQLError(
+                'Type $object must only implement Interface types, it cannot implement ${i.name.value}.',
+              ),
+            );
+            continue;
+          }
+          object.inheritFrom(type);
+        }
+      },
+      input: (input) {
+        final astNode = input.extra.astNode!;
+        final fields = [
+          ...astNode.fields,
+          ...input.extra.extensionAstNodes.expand((e) => e.fields)
+        ];
+        input.fields.addAll(arguments(astNode.name, fields));
+      },
+      union: (union) {
+        final typeNodes = [
+          ...union.extra.astNode!.types,
+          ...union.extra.extensionAstNodes.expand((e) => e.types)
+        ];
+        union.possibleTypes.addAll(
+          [
+            ...typeNodes.map((e) {
+              final type = typesMap[e.name.value];
+              if (type is! GraphQLObjectType || type.isInterface) {
+                errors.add(
+                  GraphQLError(
+                    'Union type $union can only include Object types, it cannot include ${e.name.value}.',
+                    locations: [
+                      GraphQLErrorLocation.fromSourceLocation(
+                          e.name.span!.start),
+                    ],
+                  ),
+                );
+                return null;
+              }
+              return type;
+            }).whereType()
+          ],
+        );
+      },
+    );
+  });
+  GraphQLObjectType? queryType;
+  GraphQLObjectType? mutationType;
+  GraphQLObjectType? subscriptionType;
+  SchemaDefinitionNode? schemaNode;
+  if (schemaDef.isEmpty) {
+    final _queryType = typesMap['Query'];
+    if (_queryType is GraphQLObjectType) {
+      queryType = _queryType;
+    }
+    final _mutationType = typesMap['Mutation'];
+    if (_mutationType is GraphQLObjectType) {
+      mutationType = _mutationType;
+    }
+    final _subscriptionType = typesMap['Subscription'];
+    if (_subscriptionType is GraphQLObjectType) {
+      subscriptionType = _subscriptionType;
+    }
+    [
+      _queryType,
+      _mutationType,
+      _subscriptionType,
+    ].forEachIndexed((index, element) {
+      if (element != null &&
+          (element is! GraphQLObjectType || element.isInterface)) {
+        final opType = const ['Query', 'Mutation', 'Subscription'][index];
+        errors.add(GraphQLError(
+          '$opType root type must be Object type${index != 0 ? ' if provided' : ''}, it cannot be $element.',
+        ));
+      }
+    });
+  } else {
+    schemaNode = schemaDef.first;
+    for (final op in schemaDef.first.operationTypes) {
+      final typeName = op.type.name.value;
+      final type = typesMap[typeName];
+      if (type != null && (type is! GraphQLObjectType || type.isInterface)) {
+        final opType = op.operation.toString().split('.').last;
+        errors.add(GraphQLError(
+          '${opType.substring(0, 1).toUpperCase()}${opType.substring(1)}'
+          ' root type must be Object type${op.operation != OperationType.query ? ' if provided' : ''}, it cannot be $type.',
+        ));
+        continue;
+      }
+      switch (op.operation) {
+        case OperationType.query:
+          queryType = queryType ?? type as GraphQLObjectType?;
+          break;
+        case OperationType.mutation:
+          mutationType = mutationType ?? type as GraphQLObjectType?;
+          break;
+        case OperationType.subscription:
+          subscriptionType = subscriptionType ?? type as GraphQLObjectType?;
+          break;
+      }
+    }
+  }
+
+  if (errors.isNotEmpty) {
+    throw GraphQLException(errors);
+  }
+
   return GraphQLSchema(
     queryType: queryType,
     mutationType: mutationType,
     subscriptionType: subscriptionType,
     serdeCtx: serdeCtx,
     directives: directives,
+    otherTypes: typesMap.values.toList(),
+    astNode: schemaNode,
+    // TODO: description
   );
 }
 
@@ -225,17 +398,23 @@ Object? getDirectiveValue(
   String name,
   String argumentName,
   List<DirectiveNode> directives,
-  Map<String, dynamic>? variableValues,
-) {
+  Map<String, dynamic>? variableValues, {
+  Map<String, GraphQLDirective> directivesMap = const {},
+}) {
   final directive = directives.firstWhereOrNull(
-    (d) => d.arguments.isNotEmpty && d.name.value == name,
+    (d) => d.name.value == name,
   );
   if (directive == null) return null;
 
   final argument = directive.arguments.firstWhereOrNull(
     (arg) => arg.name.value == argumentName,
   );
-  if (argument == null) return null;
+  if (argument == null) {
+    final arg = directivesMap[name]?.inputs.firstWhereOrNull(
+          (arg) => arg.name == argumentName,
+        );
+    return arg?.defaultValue;
+  }
 
   final value = argument.value;
   if (value is VariableNode) {
@@ -254,6 +433,25 @@ Object? getDirectiveValue(
     return variableValues[variableName];
   }
   return computeValue(null, value, variableValues);
+}
+
+GraphQLNamedType? getNamedType(GraphQLType? type) {
+  GraphQLType? _type = type;
+  while (_type is GraphQLWrapperType) {
+    _type = (_type! as GraphQLWrapperType).ofType;
+  }
+  return _type as GraphQLNamedType?;
+}
+
+GraphQLType<Object?, Object?>? convertTypeOrNull(
+  TypeNode node,
+  Map<String, GraphQLType> customTypes,
+) {
+  try {
+    return convertType(node, customTypes);
+  } catch (_) {
+    return null;
+  }
 }
 
 /// Returns a [GraphQLType] from a [TypeNode] and

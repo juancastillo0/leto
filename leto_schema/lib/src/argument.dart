@@ -11,6 +11,7 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// An optional description for this field.
   ///
   /// This is useful when documenting your API for consumers like GraphiQL.
+  @override
   final String? description;
 
   /// The type that input values must conform to.
@@ -31,6 +32,16 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
   /// "No longer supported" will be used.
   final String? deprecationReason;
 
+  /// Returns true if this type input is non-nullable and
+  /// doesn't have a default value
+  bool get isRequired => type.isNonNullable && defaultValue == null;
+
+  @override
+  final GraphQLAttachments attachments;
+
+  @override
+  final InputValueDefinitionNode? astNode;
+
   /// An input to a GraphQL field. This is analogous
   /// to a function parameter in Dart.
   GraphQLFieldInput(
@@ -40,8 +51,10 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
     this.description,
     this.deprecationReason,
     this.defaultsToNull = false,
+    this.attachments = const [],
+    this.astNode,
   })  : assert(
-          isInputType(type),
+          !checkAsserts || isInputType(type),
           'All inputs to a GraphQL field must either be scalar types'
           ' or explicitly marked as INPUT_OBJECT. Call'
           ' `GraphQLObjectType.asInputObject()` on any'
@@ -52,23 +65,4 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
           'If defaultsToNull is true, type $type should be nullable'
           ' and default value $defaultValue should be null',
         );
-
-  @override
-  bool operator ==(Object other) =>
-      other is GraphQLFieldInput &&
-      other.runtimeType == runtimeType &&
-      other.name == name &&
-      other.type == type &&
-      other.defaultValue == other.defaultValue &&
-      other.description == description &&
-      other.deprecationReason == deprecationReason;
-
-  @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      name.hashCode ^
-      type.hashCode ^
-      defaultValue.hashCode ^
-      description.hashCode ^
-      deprecationReason.hashCode;
 }

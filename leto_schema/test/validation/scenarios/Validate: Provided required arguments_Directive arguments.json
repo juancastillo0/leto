@@ -1,0 +1,33 @@
+{
+  "name": "Validate: Provided required arguments_Directive arguments",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "ignores unknown directives",
+      "document": "\n        {\n          dog @unknown\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": []
+    },
+    {
+      "name": "with directives of valid types",
+      "document": "\n        {\n          dog @include(if: true) {\n            name\n          }\n          human @skip(if: false) {\n            name\n          }\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": []
+    },
+    {
+      "name": "with directive with missing types",
+      "document": "\n        {\n          dog @include {\n            name @skip\n          }\n        }\n      ",
+      "rules": ["ProvidedRequiredArgumentsRule"],
+      "errors": [
+        {
+          "message": "Directive \"@include\" argument \"if\" of type \"Boolean!\" is required, but it was not provided.",
+          "locations": [{ "line": 3, "column": 15 }]
+        },
+        {
+          "message": "Directive \"@skip\" argument \"if\" of type \"Boolean!\" is required, but it was not provided.",
+          "locations": [{ "line": 4, "column": 18 }]
+        }
+      ]
+    }
+  ]
+}

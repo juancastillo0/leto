@@ -80,7 +80,7 @@ void main() {
       queryType: objectType('Query', fields: [field]),
     );
     final gqlServer = GraphQL(schema, introspect: false);
-    final schemaStr = printNode(schema.schemaNode);
+    final schemaStr = printNode(parseString(schema.schemaStr));
 
     expect(schemaStr, '''
 type Query {

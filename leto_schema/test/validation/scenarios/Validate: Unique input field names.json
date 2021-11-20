@@ -1,0 +1,79 @@
+{
+  "name": "Validate: Unique input field names",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "input object with fields",
+      "document": "\n      {\n        field(arg: { f: true })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "same input object within two args",
+      "document": "\n      {\n        field(arg1: { f: true }, arg2: { f: true })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "multiple input object fields",
+      "document": "\n      {\n        field(arg: { f1: \"value\", f2: \"value\", f3: \"value\" })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "allows for nested input objects with similar fields",
+      "document": "\n      {\n        field(arg: {\n          deep: {\n            deep: {\n              id: 1\n            }\n            id: 1\n          }\n          id: 1\n        })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": []
+    },
+    {
+      "name": "duplicate input object fields",
+      "document": "\n      {\n        field(arg: { f1: \"value\", f1: \"value\" })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one input field named \"f1\".",
+          "locations": [
+            { "line": 3, "column": 22 },
+            { "line": 3, "column": 35 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "many duplicate input object fields",
+      "document": "\n      {\n        field(arg: { f1: \"value\", f1: \"value\", f1: \"value\" })\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one input field named \"f1\".",
+          "locations": [
+            { "line": 3, "column": 22 },
+            { "line": 3, "column": 35 }
+          ]
+        },
+        {
+          "message": "There can be only one input field named \"f1\".",
+          "locations": [
+            { "line": 3, "column": 22 },
+            { "line": 3, "column": 48 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nested duplicate input object fields",
+      "document": "\n      {\n        field(arg: { f1: {f2: \"value\", f2: \"value\" }})\n      }\n    ",
+      "rules": ["UniqueInputFieldNamesRule"],
+      "errors": [
+        {
+          "message": "There can be only one input field named \"f2\".",
+          "locations": [
+            { "line": 3, "column": 27 },
+            { "line": 3, "column": 40 }
+          ]
+        }
+      ]
+    }
+  ]
+}

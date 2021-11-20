@@ -1,0 +1,37 @@
+{
+  "name": "Validate: Variables are input types",
+  "schema": "testSchema",
+  "tests": [
+    {
+      "name": "unknown types are ignored",
+      "document": "\n      query Foo($a: Unknown, $b: [[Unknown!]]!) {\n        field(a: $a, b: $b)\n      }\n    ",
+      "rules": ["VariablesAreInputTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "input types are valid",
+      "document": "\n      query Foo($a: String, $b: [Boolean!]!, $c: ComplexInput) {\n        field(a: $a, b: $b, c: $c)\n      }\n    ",
+      "rules": ["VariablesAreInputTypesRule"],
+      "errors": []
+    },
+    {
+      "name": "output types are invalid",
+      "document": "\n      query Foo($a: Dog, $b: [[CatOrDog!]]!, $c: Pet) {\n        field(a: $a, b: $b, c: $c)\n      }\n    ",
+      "rules": ["VariablesAreInputTypesRule"],
+      "errors": [
+        {
+          "locations": [{ "line": 2, "column": 21 }],
+          "message": "Variable \"$a\" cannot be non-input type \"Dog\"."
+        },
+        {
+          "locations": [{ "line": 2, "column": 30 }],
+          "message": "Variable \"$b\" cannot be non-input type \"[[CatOrDog!]]!\"."
+        },
+        {
+          "locations": [{ "line": 2, "column": 50 }],
+          "message": "Variable \"$c\" cannot be non-input type \"Pet\"."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Validate: Supports full validation",
+  "tests": [
+    { "name": "rejects invalid documents" },
+    { "name": "validates queries" },
+    { "name": "detects unknown fields" },
+    { "name": "Deprecated: validates using a custom TypeInfo" },
+    { "name": "validates using a custom rule" }
+  ]
+}
