@@ -1,7 +1,6 @@
 {
   "ignorePatterns": [
-    { "pattern": "^https://pub.dartlang.org/packages/" },
-    { "pattern": "^./leto_links$" },
-    { "pattern": "^https://pub.dartlang.org/documentation/" }
+    { "pattern": "^https://pub.dartlang.org" },
+    { "pattern": "^./leto_links$" }
   ]
 }
