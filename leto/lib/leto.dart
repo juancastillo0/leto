@@ -492,10 +492,12 @@ class GraphQL {
     final groupedFieldSet = collectFields(baseCtx.schema, fragments,
         subscriptionType, selectionSet, baseCtx.variableValues);
     if (validate && groupedFieldSet.length != 1) {
-      throw GraphQLException.fromMessage(
-        'The grouped field set from this query must have exactly one entry.',
-        // TODO:
-        // selectionSet.selections.elementAt(1).span!,
+      throw GraphQLError(
+        'The grouped field set for subscriptions must have exactly one entry.',
+        locations: [
+          if (selectionSet.selections.isNotEmpty)
+            ...GraphQLErrorLocation.firstFromNodes(selectionSet.selections)
+        ],
       );
     }
 
@@ -660,8 +662,11 @@ class GraphQL {
         final value = rootValue[fieldName];
         result = await _extractResult(value);
       } else {
-        throw Exception(
-          'Could not resolve subscription field event stream for $fieldName.',
+        result = null;
+      }
+      if (result is! Stream) {
+        throw GraphQLError(
+          'Could not resolve subscription field event stream for "$fieldName".',
         );
       }
     } catch (e, s) {
@@ -679,14 +684,7 @@ class GraphQL {
       );
     }
 
-    final Stream<Object?> stream;
-    if (result is Stream) {
-      stream = result;
-    } else {
-      stream = Stream.fromIterable([result]);
-    }
-
-    return stream; // Result.captureStream(stream).map((event) {});
+    return result; // Result.captureStream(stream).map((event) {});
   }
 
   Future<Map<String, dynamic>> executeSelectionSet(
@@ -1413,7 +1411,8 @@ class InvalidOperationType implements Exception {
 
   @override
   String toString() {
-    return 'InvalidOperationType(operationName: ${operation.name},'
+    return 'InvalidOperationType('
+        '${operation.name == null ? '' : 'operationName: ${operation.name!.value},'}'
         ' operationType: ${operation.type},'
         ' validOperationTypes: $validOperationTypes)';
   }
