@@ -505,7 +505,7 @@ final object = GraphQLObjectType(
             'someField',
             inputs: fields,
             resolve: (_, ReqCtx ctx) {
-                final Map<String, Object?> args ctx.args;
+                final Map<String, Object?> args = ctx.args;
                 assert(args.containKey('complex'));
                 assert(args['names'] is List<String>?);
                 assert(args['amount'] is int?);
@@ -532,15 +532,38 @@ final directive = GraphQLDirective(
 
 For code generation, each class annotated as `GraphQLInput` should have a factory constructor or static method name `fromJson` in its class definition. This will be used as the method for deserializing instances of this class.
 
-
-
 ## Unions
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
 
 Similar to enums, Unions are restricted to a set of predefined variants, however the possible types are always the more complex `GraphQLObjectType`.
 
 Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types can only be `GraphQLObjectType`.
 
+To have the following GraphQL type definitions:
+
+```graphql
+union ModelEvent = ModelAdded | ModelRemoved
+
+type ModelRemoved {
+  "The removed model id"
+  modelId: ID!
+}
+
+type ModelAdded {
+  model: Model!
+}
+
+type Model {
+  id: ID!
+}
+```
+
+You could provide this definitions:
+
 ```dart
+import 'package:leto_schema/leto_schema.dart';
+
 final model = objectType(
     'Model',
     fields: [
@@ -557,7 +580,8 @@ final modelRemovedGraphQLType = objectType(
 );
 
 final union = GraphQLUnionType(
-    'Model',
+    // name
+    'ModelEvent',
     // possibleTypes
     [
        modelAddedGraphQLType,
@@ -566,16 +590,128 @@ final union = GraphQLUnionType(
 );
 ```
 
-
 - `extractInner`
 
 When the members of the union type are not
 
 ### Freezed Unions
 
-Unions with [freezed](https://github.com/rrousselGit/freezed) also work without trouble.
+With code generation, Unions with [freezed](https://github.com/rrousselGit/freezed) also work without trouble.
 
 ```dart
+import 'package:leto_schema/leto_schema.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+@GraphQLClass()
+class Model {
+  final String id;
+
+  const Model(this.id);
+}
+
+@GraphQLClass()
+@freezed
+class ModelEvent with _$ModelEvent {
+  const factory ModelEvent.added(Model model) = ModelAdded;
+  const factory ModelEvent.removed(
+    @GraphQLDocumentation(type: 'graphQLIdType', description: 'The removed model id')
+    String modelId,
+    // you can also provide a private class
+  ) = _ModelRemoved;
+}
+```
+
+
+## Wrapping Types
+
+Wrapping types allow you to represent a collection of values. This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. 
+
+## Non-Nullable
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Non-Null)
+
+`GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
+
+In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` function present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
+
+## Lists
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
+
+`GraphQLListType` allows you to represent a collection of values.
+
+This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type.
+
+In GraphQL, you can present it like this:
+
+```graphql
+type Model {
+  listField(listInput: [String]!): [InterfaceModel!]
+}
+
+interface InterfaceModel {
+  name: String
+}
+```
+
+Using Dart:
+
+```dart
+import 'package:leto_schema/leto_schema.dart';
+
+abstract class InterfaceModel {
+  String get name;
+}
+
+class Model {
+  List<InterfaceModel>? list(List<String?> listInput) {
+    throw Unimplemented();
+  }
+}
+
+final interfaceModel = objectType<InterfaceModel>(
+  'InterfaceModel',
+  fields: [
+    graphQLString.field(
+      'name',
+      resolve: (InterfaceModel obj, ReqCtx ctx) => obj.name,
+    )
+  ],
+  isInterface: true,
+);
+
+final model = objectType<Model>(
+  'Model',
+  fields: [
+    interfaceModel.nonNull().list().field(
+      'listField',
+      inputs: [
+        listOf(graphQLString).nonNull().inputField('listInput'),
+      ],
+      resolve: (Model obj, ReqCtx ctx) => 
+        obj.listField(ctx.args['listInput'] as List<String?>) 
+    )
+  ]
+);
+
+```
+
+With code generation, you just annotate the different classes with `@GraphQLClass()` and the fields and models containing Dart Lists will be generated using `GraphQLListType`s.
+
+```dart
+import 'package:leto_schema/leto_schema.dart';
+
+@GraphQLClass()
+abstract class InterfaceModel {
+  String get name;
+}
+
+@GraphQLClass()
+class Model {
+  List<InterfaceModel>? list(List<String?> listInput) {
+    throw Unimplemented();
+  }
+}
 ```
 
 ## Abstract Types
