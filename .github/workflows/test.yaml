@@ -1,4 +1,4 @@
-name: Dart CI
+name: CI
 
 on:
   push:
@@ -48,6 +48,7 @@ jobs:
       - uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
           base-branch: main
+          config-file: md_link_check.json
 
   # Run tests on a matrix consisting of two dimensions:
   # 1. OS: ubuntu-latest, (macos-latest, windows-latest)
