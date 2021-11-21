@@ -1095,13 +1095,13 @@ For a complete subscriptions example with events from a database please see the 
 
 Guaranties that the `GraphQLSchema` instance is valid, verifies the Type System validations in the specification. For example, an Object field's type can only be an Output Type or an Union should have at least one possible type and all of them have to be Object types.
 
-This will be executed before stating a GraphQL server. Leto implements all of the Specification's schema validation. The code for all rules can be found in the [validate_schema.dart](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validation/validate_schema.dart) file in `package:leto_schema`.
+This will be executed before stating a GraphQL server. Leto implements all of the Specification's schema validation. The code for all rules can be found in the [validate_schema.dart](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validate/validate_schema.dart) file in `package:leto_schema`.
 
 ## Document Validation
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Validation)
 
-This will be executed before executing any request. Leto implements all of the Specification's document validation. The code for all rules can be found in the [validation](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validation) folder in `package:leto_schema`.
+This will be executed before executing any request. Leto implements all of the Specification's document validation. The code for all rules can be found in the [validate](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validate) folder in `package:leto_schema`.
 
 
 ## Input Validation
