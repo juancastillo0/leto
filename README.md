@@ -70,6 +70,9 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [InputObject.fromJson](#inputobjectfromjson)
   - [Unions](#unions)
     - [Freezed Unions](#freezed-unions)
+  - [Wrapping Types](#wrapping-types)
+  - [Non-Nullable](#non-nullable)
+  - [Lists](#lists)
   - [Abstract Types](#abstract-types)
     - [resolveType](#resolvetype)
     - [Generics](#generics)
@@ -81,16 +84,22 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [Cyclic Types](#cyclic-types)
     - [Custom Scalars](#custom-scalars)
     - [Generic Types](#generic-types)
-- [Subscriptions](#subscriptions)
+- [Resolvers](#resolvers)
+  - [Queries and Mutations](#queries-and-mutations)
+  - [Subscriptions](#subscriptions)
     - [Examples](#examples-1)
-- [Miscellaneous](#miscellaneous)
-  - [`ScopedMap`](#scopedmap)
-  - [Error Handling](#error-handling)
+- [Validation](#validation)
+  - [Schema Validation](#schema-validation)
+  - [Document Validation](#document-validation)
   - [Input Validation](#input-validation)
   - [Query Complexity (Not implemented, yet)](#query-complexity-not-implemented-yet)
+- [Miscellaneous](#miscellaneous)
+  - [`GraphQLResult`](#graphqlresult)
+  - [`ScopedMap`](#scopedmap)
+  - [Error Handling](#error-handling)
 - [Solving the N+1 problem](#solving-the-n1-problem)
-  - [LookAhead](#lookahead)
-  - [DataLoader](#dataloader)
+  - [LookAhead (Eager loading)](#lookahead-eager-loading)
+  - [DataLoader (Batching)](#dataloader-batching)
   - [Combining LookAhead with DataLoader](#combining-lookahead-with-dataloader)
 - [Extensions](#extensions)
   - [Persisted Queries](#persisted-queries)
@@ -272,13 +281,13 @@ Using the [shelf](https://github.com/dart-lang/shelf) package.
 
 ### [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme)
 
-with `graphiqlHandler`.
+With `graphiqlHandler`. The classic Graphql explorer
 ### [Playground](https://github.com/graphql/graphql-playground)
 
-with `playgroundHandler`.
+With `playgroundHandler`. Support for multiple tabs, subscriptions.
 ### [Altair](https://github.com/altair-graphql/altair)
 
-with `altairHandler`.
+With `altairHandler`. Support for file Upload, multiple tabs, subscriptions, plugins.
 
 
 ## Clients
@@ -297,14 +306,21 @@ The following sections introduce most of the concepts and small examples for bui
 
 # GraphQL Schema Types
 
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
+
+The GraphQL schema type systems provides 
+
 ## Scalars
 
-Standard `GraphQLScalarType`s: String, Int, Float, Boolean and Date types are already implemented and provided by Leto.
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Scalars)
 
-Other types are also provided:
+Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
+
+Other scalar types are also provided:
 
 - Json: a raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
+- Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and de-serialized with `DateTime.parse`.
 - Timestamp: same as Date, but serialized as an UNIX timestamp.
 - Time: // TODO:
 - Duration: // TODO:
@@ -313,6 +329,8 @@ Other types are also provided:
 To provide your own or support types from other packages you can use [Custom Scalars](#custom-scalars).
 
 ## Enums
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
 
 Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
 
@@ -356,6 +374,8 @@ enum SignUpError {
 ```
 ## Objects
 
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
+
 ```dart
 final type = objectType(
     'ObjectTypeName',
@@ -395,8 +415,9 @@ This would generate graphql_api.schema.dart
 ```
 
 
-
 ### Interfaces
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Interfaces)
 
 - inheritFrom
 
@@ -404,6 +425,8 @@ The `inheritFrom` function in `GraphQLObjectType` receives an Interface and assi
 a super type, now the Object will implement the Interface passed as parameter.
 
 ## Inputs and Input Objects
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
 
 Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
@@ -716,22 +739,21 @@ class Model {
 
 ## Abstract Types
 
-Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of tools. You can read the code in package:leto `GraphQL.resolveAbstractType`
+Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of tools explained in the following sections. You can read the code that executes the following logic in package:leto `GraphQL.resolveAbstractType`.
 
 ### resolveType
 
-`String Function(Object result, T abstractType, ResolveObjectCtx ctx)`. Given a resolved result, the abstract type itself and the ObjectCtx, return the name of the type associated with the result value.
+A parameter of Interface and Union types is a function with the signature: `String Function(Object result, T abstractType, ResolveObjectCtx ctx)`. Given a resolved result, the abstract type itself and the ObjectCtx, return the name of the type associated with the result value.
 
 ### Generics
 
-Similar to \_\_typeName, we compare the resolved result's type with the possible types `GraphQLType<Value, Serialized>`'s `Value` generic, if there is only one match, that will be the resolved type (this happens very often, specially with code generation).
+We compare the resolved result's Dart type with the possible types generic type parameter, if there is only one match (withing the possible types), that will be the resolved type. This happens very often, specially with code generation or when providing a distinct class for each `GraphQLObjectType`.
 
-This can't be used with Union types which are wrappers over the inner types (like `Result<V, E>`), since the `Value` generic (inner type) will not match the wrapper type. For this cases you will need to provide a `resolveType` and `extractInner`. With freezed-like union you don't have to do that since the variants extend the union type.
+This can't be used with Union types which are wrappers over the inner types (like `Result<V, E>`), since the `Value` generic of the possible types (inner types, `V` and `E`) will not match the wrapper type (`Result`). For this cases you will need to provide a `resolveType` and `extractInner` callbacks. With freezed-like unions you don't have to do that since the variants extend the union type.
 
 ### isTypeOf
 
-If any of the previous fail, you can provide a `isTypeOf` callback for objects, which determine whether a given values is an instance of that `GraphQLObjectType`.
-
+If any of the previous fail, you can provide a `isTypeOf` callback for objects, which determine whether a given value is an instance of that `GraphQLObjectType`.
 
 ### \_\_typename
 
@@ -779,7 +801,7 @@ Code generation already does it, so you don't have to worry about it when using 
 
 ### Custom Scalars
 
-You can extend the `GraphQLScalarType` or create an instance directly with `GraphQLScalarTypeValue`. For example, to support the `Decimal` type in https://github.com/a14n/dart-decimal you can use the following code:
+You can extend the `GraphQLScalarType` or create an instance directly with `GraphQLScalarTypeValue`. For example, to support the `Decimal` type from https://github.com/a14n/dart-decimal you can use the following code:
 
 ```dart
 import 'package:decimal/decimal.dart';
@@ -979,9 +1001,9 @@ dwd
 
 When fetching nested fields, a specific resolvers could be executed multiple times for each request since the parent object will execute it for all its children. This may pose a problem when the resolver has to do non-trivial work for each execution. For example, retrieving a row from a database. To solve this problem, Leto provides you with two tools: LookAhead and DataLoader.
 
-## LookAhead
+## LookAhead (Eager loading)
 
-You can mitigate the N+1 problem by fetching all the necessary information from the parent's resolver so that when the nested fields are executed they just return the previously fetch items. This would prevent all SQL queries for nested fields since the parent resolver has all the information about the selected nested fields and can use this information to execute a request with the necessary information.
+You can mitigate the N+1 problem by fetching all the necessary information from the parent's resolver so that when the nested fields are executed they just return the previously fetch items. This would prevent all SQL queries for nested fields since the parent resolver has all the information about the selected nested fields and can use this to execute a request that fetches the necessary columns or joins.
 
 ```dart
 @GraphQLClass()
@@ -1054,7 +1076,7 @@ In this way, `ModelRepo.getModels` knows what nested fields it should return. It
 
 The `PossibleSelections` class has the information about all the nested selected fields when the type of the field is a Composite Type (Object, Interface or Union). When it's an Union, it will provide a map from the type name Object variants to the given variant selections. The @skip and @include directives are already taken into account. You can read more about the `PossibleSelections` class in the [source code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart).
 
-## DataLoader
+## DataLoader (Batching)
 
 The code in Leto is a port of [graphql/dataloader](https://github.com/graphql/dataloader).
 
