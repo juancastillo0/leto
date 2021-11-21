@@ -1084,7 +1084,7 @@ For usage in a web server you can use any of the [web server integrations](#web-
 
 ### Examples
 
-For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto/tree/main/chat_example), in particular the [events](https://github.com/juancastillo0/leto/tree/main/chat_example/server/lib/events) directory.
+For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto/tree/main/chat_example), in particular the [events](https://github.com/juancatillo0/leto/tree/main/chat_example/server/lib/events) directory.
 
 
 # Validation
