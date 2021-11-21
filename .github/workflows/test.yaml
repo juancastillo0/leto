@@ -40,6 +40,15 @@ jobs:
           fail_ci_if_error: true
           files: "*/coverage/lcov.info"
 
+  # Check Markdown links
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          base-branch: main
+
   # Run tests on a matrix consisting of two dimensions:
   # 1. OS: ubuntu-latest, (macos-latest, windows-latest)
   # 2. release channel: dev
