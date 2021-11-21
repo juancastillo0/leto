@@ -930,9 +930,48 @@ GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
 
 ```
 
-# Subscriptions
+# Resolvers
 
-`GraphQLObjectField` contains a subscribe function `Stream<T> Function(ReqCtx<P> ctx, P parent)`
+## Queries and Mutations
+
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `resolve` parameter this will be used to execute .
+
+
+```graphql
+type Query {
+
+}
+
+type CustomMutation {
+
+}
+
+type schema {
+  query: Query
+  mutation: CustomMutation
+}
+
+```
+
+
+```dart
+
+final schema = GraphQLSchema(
+  queryType: 
+);
+```
+
+
+When using `package:leto_shelf`, POST requests can be used for Queries or Mutations. However, GET requests can only be used for Queries, if a Mutation operation is sent using a GET request, the server will return 405 (MethodNotAllowed) following the [GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
+
+
+## Subscriptions
+
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `subscribe` parameter that receives a `ReqCtx` and the parent value, and returns a Stream of values of the field's type `Stream<T> Function(ReqCtx<P> ctx, P parent)`. The Stream of values will be returned in the `data` field of the `GraphQLResult` returned in execution.
+
+You can only 
+
+If using a WebSocket server, the client should support either `graphql-transport-ws` or `graphql-ws` sub-protocols.
 
 ```dart
 
@@ -971,22 +1010,31 @@ Future<void> main() async {
 ```
 
 The `resolve` callback in a subscription field will always receive a `SubscriptionEvent` as it's parent.
-From that you can access the event value with `SubscriptionEvent.value` which will be the emitted by the Stream returned in the `subscribe` callback. The error handling in each callback is different, if an error is thrown in the `subscribe` callback, the Stream will end with an error. But if you throw an error in the `resolve` callback it will continue sending events, just the event resolved with a thrown Object will have GraphQLErrors as a result of processing the thrown Object ([More in Error Handling](#error-handling)).
+From that you can access the event value with `SubscriptionEvent.value` which will be the emitted by the Stream returned in the `subscribe` callback. The error handling in each callback is different, if an error is thrown in the `subscribe` callback, the Stream will end with an error. But if you throw an error in the `resolve` callback it will continue sending events, just the event resolved with a thrown Object will have `GraphQLError`s as a result of processing the thrown Object ([More in Error Handling](#error-handling)).
 
-For usage in the server you can use any of the [web server integrations](#web-integrations) (e.g. [leto_shelf](https://github.com/juancastillo0/leto_graphql/leto_shelf)) which support WebSocket subscriptions.
+For usage in the server you can use any of the [web server integrations](#web-integrations) (e.g. [leto_shelf](https://github.com/juancastillo0/leto/tree/main/leto_shelf)) which support WebSocket subscriptions.
 
 ### Examples
 
-For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto_graphql/chat_example) in particular the // TODO:
+For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto/tree/main/chat_example), in particular the [events](https://github.com/juancastillo0/leto/tree/main/chat_example/server/lib/events) directory.
 
-# Miscellaneous
-## `ScopedMap`
 
-da
+# Validation
 
-## Error Handling
+## Schema Validation
 
-daw
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Type-System)
+
+Guaranties that the `GraphQLSchema` instance is valid, verifies the Type System validations from the specification. For example, an Object field's type cn only be an Output Type or an Union should have at least one possible type and all of them have to be Object types. 
+
+This will be executed before stating a GraphQL server. Leto implements all of the Specification's schema validation. The code for all rules can be found in the [validate_schema.dart](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validation/validate_schema.dart) file in `package:leto_schema`.
+
+## Document Validation
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Validation)
+
+This will be executed before executing any request. Leto implements all of the Specification's document validation. The code for all rules can be found in the [validation](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validation) folder in `package:leto_schema`.
+
 
 ## Input Validation
 
@@ -995,6 +1043,21 @@ daw
 ## Query Complexity (Not implemented, yet)
 
 dwd
+
+# Miscellaneous
+
+## `GraphQLResult`
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Response)
+
+## `ScopedMap`
+
+da
+
+## Error Handling
+
+daw
+
 
 
 # Solving the N+1 problem
