@@ -85,6 +85,11 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [Custom Scalars](#custom-scalars)
     - [Generic Types](#generic-types)
 - [Resolvers](#resolvers)
+  - [Request Contexts](#request-contexts)
+    - [Ctx](#ctx)
+    - [ObjectExecutionCtx](#objectexecutionctx)
+    - [ExecutionCtx](#executionctx)
+    - [RequestCtx](#requestctx)
   - [Queries and Mutations](#queries-and-mutations)
   - [Subscriptions](#subscriptions)
     - [Examples](#examples-1)
@@ -129,6 +134,7 @@ Add dependencies to your pubspec.yaml
 
 ```yaml
 dependencies:
+  leto_schema: ^0.0.1
   leto: ^0.0.1
   leto_shelf: ^0.0.1
   shelf: ^1.0.0
@@ -161,9 +167,9 @@ class Model {
 final modelGraphqlType = objectType<Model>(
     'Model',
     fields: [
-       graphQLString.nonNull().field('stringField',resolve: (ReqCtx ctx, Model m)
+       graphQLString.nonNull().field('stringField',resolve: (Ctx ctx, Model m)
         => m.intField,),
-        field('intField', graphqlInt, resolve: (ReqCtx ctx, Model m)
+        field('intField', graphqlInt, resolve: (Ctx ctx, Model m)
         => m.intField,
         )
     ],
@@ -172,7 +178,7 @@ final modelGraphqlType = objectType<Model>(
 final apiSchema = GraphQLSchema(
     queryType: objectType(
         fields [
-modelGraphqlType.field('getModel', resolve: (ReqCtx ctx, Object rootValue) => const Model(stringField: 'sField', ))
+modelGraphqlType.field('getModel', resolve: (Ctx ctx, Object rootValue) => const Model(stringField: 'sField', ))
         ]
     )
 )
@@ -186,13 +192,13 @@ part 'main.g.dart';
 
 /// Get the current state
 @Query()
-String? getState(ReqCtx ctx) {
+String? getState(Ctx ctx) {
   return stateRef.get(ctx);
 }
 
 @Mutation()
 bool setState(
-  ReqCtx ctx,
+  Ctx ctx,
   // The new state, can't be 'WrongState'!.
   String newState,
 ) {
@@ -254,13 +260,15 @@ A Leto/Shelf server example with multiple models, code generation, some utilitie
 
 # Packages
 
-| Pub                                                                  | Source                                                    | Description                                                             |
-| -------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [![version][package:leto:version]][package:leto]                     | [`package:leto`][package:leto:source]                     | Base GraphQL server implementation                                      |
-| [![version][package:leto_schema:version]][package:leto_schema]       | [`package:leto_schema`][package:leto_schema:source]       | Define GraphQL executable schemas                                       |
-| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQLSchemas and GraphQLTypes from Dart annotations          |
-| [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server implementation using shelf                           |
-| [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQLExtensions defined in package:leto |
+This repository is a monorepo with the following packages
+
+| Pub                                                                  | Source                                                    | Description                                                                                |
+| -------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [![version][package:leto:version]][package:leto]                     | [`package:leto`][package:leto:source]                     | GraphQL server (executor) implementation, GraphQL extensions and DataLoader                |
+| [![version][package:leto_schema:version]][package:leto_schema]       | [`package:leto_schema`][package:leto_schema:source]       | Define GraphQL executable schemas, validate GraphQL documents and multiple utilities       |
+| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQL schemas, types and fields from Dart code annotations                      |
+| [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server bindings and utilities for  [shelf](https://github.com/dart-lang/shelf) |
+| [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQL extensions defined in package:leto                   |
 
 # Web integrations
 
@@ -279,15 +287,21 @@ Using the [shelf](https://github.com/dart-lang/shelf) package.
 
 ## Web UI Explorers
 
-### [GraphiQL](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme)
+These web pages will allow you to explore your GraphQL Schema, view all the types and fields, read each element's documentation, and execute requests against a GraphQL server. 
 
-With `graphiqlHandler`. The classic Graphql explorer
-### [Playground](https://github.com/graphql/graphql-playground)
+Usually exposed as static HTML in your deployed server. Each has multiple configurations for determining the default tabs, queries and variables, the GraphQL HTTP and WebSocket (subscription) endpoints, the UI's theme and more.
 
-With `playgroundHandler`. Support for multiple tabs, subscriptions.
-### [Altair](https://github.com/altair-graphql/altair)
+All of the static HTML files and configurations can be found in the [ graphql_ui folder](https://github.com/juancastillo0/leto/tree/main/leto_shelf/lib/src/graphql_ui).
 
-With `altairHandler`. Support for file Upload, multiple tabs, subscriptions, plugins.
+### GraphiQL
+
+[Documentation](https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme). Use `graphiqlHandler`. The classic GraphQL explorer
+### Playground
+
+[Documentation](https://github.com/graphql/graphql-playground). Use `playgroundHandler`. Support for multiple tabs, subscriptions.
+### Altair
+
+[Documentation](https://github.com/altair-graphql/altair). Use `altairHandler`. Support for file Upload, multiple tabs, subscriptions, plugins.
 
 
 ## Clients
@@ -403,7 +417,7 @@ class Model {
 }
 
 @Query
-Future<Model> getModel(ReqCtx ctx) {
+Future<Model> getModel(Ctx ctx) {
 
 }
 ```
@@ -527,7 +541,7 @@ final object = GraphQLObjectType(
         stringGraphQLType.field(
             'someField',
             inputs: fields,
-            resolve: (_, ReqCtx ctx) {
+            resolve: (_, Ctx ctx) {
                 final Map<String, Object?> args = ctx.args;
                 assert(args.containKey('complex'));
                 assert(args['names'] is List<String>?);
@@ -561,7 +575,7 @@ For code generation, each class annotated as `GraphQLInput` should have a factor
 
 Similar to enums, Unions are restricted to a set of predefined variants, however the possible types are always the more complex `GraphQLObjectType`.
 
-Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types can only be `GraphQLObjectType`.
+Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types is a non empty collection of unique `GraphQLObjectType`.
 
 To have the following GraphQL type definitions:
 
@@ -697,7 +711,7 @@ final interfaceModel = objectType<InterfaceModel>(
   fields: [
     graphQLString.field(
       'name',
-      resolve: (InterfaceModel obj, ReqCtx ctx) => obj.name,
+      resolve: (InterfaceModel obj, Ctx ctx) => obj.name,
     )
   ],
   isInterface: true,
@@ -711,7 +725,7 @@ final model = objectType<Model>(
       inputs: [
         listOf(graphQLString).nonNull().inputField('listInput'),
       ],
-      resolve: (Model obj, ReqCtx ctx) => 
+      resolve: (Model obj, Ctx ctx) => 
         obj.listField(ctx.args['listInput'] as List<String?>) 
     )
   ]
@@ -932,19 +946,44 @@ GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
 
 # Resolvers
 
+## Request Contexts
+### Ctx
+
+[Source Code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart)
+
+A unique context for each field resolver
+
+- args: the arguments passed as inputs to this field
+- object: the parent Object's value, same as the first parameter of `resolve`.
+- objectCtx: the parent Object's execution context ([ObjectExecutionCtx](#objectexecutionctx))
+- field: The `GraphQLObjectField` being resolved
+- path: The path to this field
+- executionCtx: The request's execution context ([ExecutionCtx](#executionctx))
+- lookahead: A function for retrieving nested selected fields. More in the [LookAhead section](#lookahead-eager-loading)
+
+### ObjectExecutionCtx
+
+### ExecutionCtx
+
+### RequestCtx
+
 ## Queries and Mutations
 
-Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `resolve` parameter this will be used to execute .
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `resolve` parameter this will be used to resolve all fields. The first argument to `resolve` with be the parent object, if this field is in the root Query or Mutation Object, the value will be the the root value passed as an argument to `GraphQL.parseAndExecute` and a `SubscriptionEvent` if this is a subscription field (more in the [subscription](#subscriptions) section). 
 
+To
 
 ```graphql
 type Query {
-
+  someField: String
 }
 
 type CustomMutation {
-
+  updateSomething(arg1: Float): Date
 }
+
+"""An ISO-8601 Date."""
+scalar Date
 
 type schema {
   query: Query
@@ -953,12 +992,41 @@ type schema {
 
 ```
 
+In Dart:
 
 ```dart
 
-final schema = GraphQLSchema(
-  queryType: 
+final query = objectType(
+  'Query',
+  fields: [
+    graphQLString.field(
+      'someField',
+      resolve: (Object? rootObject, Ctx ctx) => 'someFieldOutput',
+    ),
+  ],
 );
+
+final customMutation = objectType(
+  'CustomMutation',
+  fields: [
+    graphQLDate.field(
+      'updateSomething',
+      inputs: [
+        graphQLFloat.inputField('arg1')
+      ],
+      resolve: (Object? rootObject, Ctx ctx) {
+        final arg1 = ctx.args['arg1'] as double?;
+        return DateTime.now();
+      },
+    ),
+  ],
+);
+
+final schema = GraphQLSchema(
+  queryType: query,
+  mutation: customMutation,
+);
+
 ```
 
 
@@ -967,7 +1035,7 @@ When using `package:leto_shelf`, POST requests can be used for Queries or Mutati
 
 ## Subscriptions
 
-Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `subscribe` parameter that receives a `ReqCtx` and the parent value, and returns a Stream of values of the field's type `Stream<T> Function(ReqCtx<P> ctx, P parent)`. The Stream of values will be returned in the `data` field of the `GraphQLResult` returned in execution.
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `subscribe` parameter that receives the root value and a `Ctx`, and returns a Stream of values of the field's type `Stream<T> Function(Ctx<P> ctx, P parent)`. The Stream of values will be returned in the `data` field of the `GraphQLResult` returned in execution.
 
 You can only 
 
@@ -982,7 +1050,7 @@ final apiSchema = GraphQLSchema(
         fields: [
             graphQLInt.nonNull().fields(
                 'secondsSinceSubcription',
-                subscribe: (ReqCtx ctx, Object rootValue) {
+                subscribe: (Ctx ctx, Object rootValue) {
                     return Stream.periodic(const Duration(seconds: 1), (secs) {
                         return secs;
                     });
@@ -1010,9 +1078,9 @@ Future<void> main() async {
 ```
 
 The `resolve` callback in a subscription field will always receive a `SubscriptionEvent` as it's parent.
-From that you can access the event value with `SubscriptionEvent.value` which will be the emitted by the Stream returned in the `subscribe` callback. The error handling in each callback is different, if an error is thrown in the `subscribe` callback, the Stream will end with an error. But if you throw an error in the `resolve` callback it will continue sending events, just the event resolved with a thrown Object will have `GraphQLError`s as a result of processing the thrown Object ([More in Error Handling](#error-handling)).
+From that you can access the event value with `SubscriptionEvent.value` which will be the emitted by the Stream returned in the `subscribe` callback. The error handling in each callback is different, if an error is thrown in the `subscribe` callback, the Stream will end with an error. But if you throw an error in the `resolve` callback it will continue sending events, just the event resolved with a thrown Object will have `GraphQLError`s as a result of processing the thrown Object (More information in [Error Handling](#error-handling)).
 
-For usage in the server you can use any of the [web server integrations](#web-integrations) (e.g. [leto_shelf](https://github.com/juancastillo0/leto/tree/main/leto_shelf)) which support WebSocket subscriptions.
+For usage in a web server you can use any of the [web server integrations](#web-integrations) which support WebSocket subscriptions (For example, [leto_shelf](https://github.com/juancastillo0/leto/tree/main/leto_shelf)).
 
 ### Examples
 
@@ -1025,7 +1093,7 @@ For a complete subscriptions example with events from a database please see the 
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Type-System)
 
-Guaranties that the `GraphQLSchema` instance is valid, verifies the Type System validations from the specification. For example, an Object field's type cn only be an Output Type or an Union should have at least one possible type and all of them have to be Object types. 
+Guaranties that the `GraphQLSchema` instance is valid, verifies the Type System validations in the specification. For example, an Object field's type can only be an Output Type or an Union should have at least one possible type and all of them have to be Object types.
 
 This will be executed before stating a GraphQL server. Leto implements all of the Specification's schema validation. The code for all rules can be found in the [validate_schema.dart](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validation/validate_schema.dart) file in `package:leto_schema`.
 
@@ -1099,7 +1167,7 @@ class ModelRepo {
 }
 
 @Query()
-FutureOr<List<Model>> getModels(ReqCtx ctx) {
+FutureOr<List<Model>> getModels(Ctx ctx) {
     final PossibleSelections lookahead = ctx.lookahead();
     assert(!lookahead.isUnion);
     final PossibleSelectionsObject lookaheadObj = lookahead.asObject;
@@ -1155,7 +1223,7 @@ class Model {
 
     const Model(this.id, this.name, this.nestedId);
 
-    NestedModel nested(ReqCtx ctx) {
+    NestedModel nested(Ctx ctx) {
         return modelNestedRepo.get(ctx).getNestedModel(nestedId);
     }
 }
@@ -1192,7 +1260,7 @@ final modelNestedRepo = RefWithDefault.global(
 
 
 @Query()
-List<Model> getModels(ReqCtx ctx) {
+List<Model> getModels(Ctx ctx) {
     return modelRepo.get(ctx).getModels();
 }
 
