@@ -2,10 +2,10 @@
 
 import 'package:gql/language.dart';
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/rules_prelude.dart';
-import 'package:leto_schema/src/rules/validate_schema.dart' as vs;
 import 'package:leto_schema/src/utilities/build_schema.dart' as bs;
 import 'package:leto_schema/src/utilities/extend_schema.dart' as es;
+import 'package:leto_schema/src/validate/rules_prelude.dart';
+import 'package:leto_schema/src/validate/validate_schema.dart' as vs;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as t;
 

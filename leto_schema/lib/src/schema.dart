@@ -4,13 +4,13 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:gql/ast.dart';
-import 'package:leto_schema/src/rules/ast_node_enum.dart';
-import 'package:leto_schema/src/rules/validate_schema.dart';
 import 'package:leto_schema/src/utilities/fetch_all_types.dart'
     show fetchAllNamedTypes;
 import 'package:leto_schema/src/utilities/look_ahead.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
 import 'package:leto_schema/src/utilities/print_schema.dart';
+import 'package:leto_schema/src/validate/ast_node_enum.dart';
+import 'package:leto_schema/src/validate/validate_schema.dart';
 import 'package:meta/meta.dart';
 import 'package:meta/meta_meta.dart' show Target, TargetKind;
 import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;

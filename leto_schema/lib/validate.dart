@@ -1,1 +1,1 @@
-export 'src/rules/validate.dart';
+export 'src/validate/validate.dart';

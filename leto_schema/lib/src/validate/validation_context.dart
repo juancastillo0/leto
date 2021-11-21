@@ -1,8 +1,8 @@
 import 'package:gql/ast.dart';
 
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
+import 'package:leto_schema/src/validate/type_info.dart';
+import 'package:leto_schema/src/validate/typed_visitor.dart';
 import 'package:leto_schema/utilities.dart';
 
 class SDLValidationCtx {

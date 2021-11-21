@@ -1,33 +1,34 @@
 import 'package:gql/ast.dart';
 
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/rules/rules/implement_interface_once_rule.dart';
-import 'package:leto_schema/src/rules/rules/known_argument_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/known_directive_rule.dart';
-import 'package:leto_schema/src/rules/rules/lone_schema_definition_rule.dart';
-import 'package:leto_schema/src/rules/rules/no_fragment_cycles_rule.dart';
-import 'package:leto_schema/src/rules/rules/no_undefined_variables_rule.dart';
-import 'package:leto_schema/src/rules/rules/no_unused_variables_rule.dart';
-import 'package:leto_schema/src/rules/rules/overlapping_fields_can_be_merged.dart';
-import 'package:leto_schema/src/rules/rules/possible_fragment_spreads_rule.dart';
-import 'package:leto_schema/src/rules/rules/possible_type_extensions_rule.dart';
-import 'package:leto_schema/src/rules/rules/provide_required_arguments_rule.dart';
-import 'package:leto_schema/src/rules/rules/scalar_leafs_rule.dart';
-import 'package:leto_schema/src/rules/rules/single_field_subscription_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_argument_definition_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_argument_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_directive_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_directive_per_location_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_enum_value_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_field_definition_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_input_field_name_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_operation_types_rule.dart';
-import 'package:leto_schema/src/rules/rules/unique_type_names_rules.dart';
-import 'package:leto_schema/src/rules/rules/unique_variable_names_rule.dart';
-import 'package:leto_schema/src/rules/rules/values_of_correct_type_rule.dart';
-import 'package:leto_schema/src/rules/rules/variables_in_allowed_position_rule.dart';
-import 'package:leto_schema/src/rules/type_info.dart';
-import 'package:leto_schema/src/rules/typed_visitor.dart';
+import 'package:leto_schema/src/validate/rules/implement_interface_once_rule.dart';
+import 'package:leto_schema/src/validate/rules/known_argument_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/known_directive_rule.dart';
+import 'package:leto_schema/src/validate/rules/lone_schema_definition_rule.dart';
+import 'package:leto_schema/src/validate/rules/no_fragment_cycles_rule.dart';
+import 'package:leto_schema/src/validate/rules/no_undefined_variables_rule.dart';
+import 'package:leto_schema/src/validate/rules/no_unused_variables_rule.dart';
+import 'package:leto_schema/src/validate/rules/overlapping_fields_can_be_merged.dart';
+import 'package:leto_schema/src/validate/rules/possible_fragment_spreads_rule.dart';
+import 'package:leto_schema/src/validate/rules/possible_type_extensions_rule.dart';
+import 'package:leto_schema/src/validate/rules/provide_required_arguments_rule.dart';
+import 'package:leto_schema/src/validate/rules/scalar_leafs_rule.dart';
+import 'package:leto_schema/src/validate/rules/single_field_subscription_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_argument_definition_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_argument_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_directive_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_directive_per_location_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_enum_value_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_field_definition_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_input_field_name_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_operation_types_rule.dart';
+import 'package:leto_schema/src/validate/rules/unique_type_names_rules.dart';
+import 'package:leto_schema/src/validate/rules/unique_variable_names_rule.dart';
+import 'package:leto_schema/src/validate/rules/values_of_correct_type_rule.dart';
+import 'package:leto_schema/src/validate/rules/variables_in_allowed_position_rule.dart';
+import 'package:leto_schema/src/validate/type_info.dart';
+import 'package:leto_schema/src/validate/typed_visitor.dart';
+import 'package:leto_schema/src/validate/validate_schema.dart';
 
 import 'executable_rules.dart';
 import 'validation_context.dart';
@@ -104,6 +105,8 @@ List<GraphQLError> validateDocument(
   int maxErrors = 100,
   List<ValidationRule> rules = specifiedRules,
 }) {
+  // assertValidSchema(schema);
+
   final _errors = <GraphQLError>[];
   final typeInfo = TypeInfo(schema);
   late final WithTypeInfoVisitor visitor;
