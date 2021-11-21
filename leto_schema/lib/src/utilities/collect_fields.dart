@@ -74,6 +74,28 @@ Map<String, List<FieldNode>> collectFields(
   return groupedFields;
 }
 
+SelectionSetNode mergeSelectionSets(List<SelectionNode> fields) {
+  final selectionSet = <SelectionNode>[];
+
+  for (final field in fields) {
+    final fieldSelections = field.selectionSet?.selections;
+    if (fieldSelections != null) {
+      selectionSet.addAll(fieldSelections);
+    }
+  }
+
+  return SelectionSetNode(selections: selectionSet);
+}
+
+Map<String, FragmentDefinitionNode> fragmentsFromDocument(
+  DocumentNode document,
+) {
+  final allFragments = document.definitions.whereType<FragmentDefinitionNode>();
+  return Map.fromEntries(
+    allFragments.map((e) => MapEntry(e.name.value, e)),
+  );
+}
+
 bool doesFragmentTypeApply(
   GraphQLObjectType objectType,
   TypeConditionNode fragmentType,
@@ -131,13 +153,4 @@ extension DirectiveExtension on SelectionNode {
     if (selection is InlineFragmentNode) return inlineFragment(selection);
     throw Error();
   }
-}
-
-Map<String, FragmentDefinitionNode> fragmentsFromDocument(
-  DocumentNode document,
-) {
-  final allFragments = document.definitions.whereType<FragmentDefinitionNode>();
-  return Map.fromEntries(
-    allFragments.map((e) => MapEntry(e.name.value, e)),
-  );
 }

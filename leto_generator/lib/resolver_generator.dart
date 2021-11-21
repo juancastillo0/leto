@@ -193,7 +193,7 @@ String resolverFunctionBodyFromElement(ExecutableElement element) {
         validations.add(
           'final $value = '
           '${ReCase(typeName).camelCase}$serializerSuffix'
-          '.fromJson(ctx.baseCtx.schema.serdeCtx, args);',
+          '.fromJson(ctx.executionCtx.schema.serdeCtx, args);',
         );
       }
       if (_isValidation(e.type.element)) {

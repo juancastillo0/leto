@@ -11,7 +11,9 @@ import 'package:leto_schema/utilities.dart'
         computeValue,
         convertType,
         fragmentsFromDocument,
-        isInputType;
+        isInputType,
+        mergeSelectionSets,
+        possibleSelectionsCallback;
 import 'package:leto_schema/validate.dart';
 import 'package:source_span/source_span.dart';
 
@@ -40,8 +42,7 @@ class GraphQLConfig {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object? parent, Ctx)?
-      defaultFieldResolver;
+  final FutureOr<Object?> Function(Object? parent, Ctx)? defaultFieldResolver;
 
   /// If validate is false, a parsed document is executed without
   /// being validated with the provided schema
@@ -79,8 +80,7 @@ class GraphQL {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object? parent, Ctx)?
-      defaultFieldResolver;
+  final FutureOr<Object?> Function(Object? parent, Ctx)? defaultFieldResolver;
 
   /// Variables passed to all executed requests
   final Map<Object, Object?> baseGlobalVariables;
@@ -992,101 +992,6 @@ class GraphQL {
     return coercedValues;
   }
 
-  PossibleSelections? Function() possibleSelectionsCallback(
-    GraphQLSchema schema,
-    GraphQLType type,
-    List<FieldNode> fields,
-    DocumentNode document,
-    Map<String, Object?> variableValues,
-  ) {
-    bool calculated = false;
-    PossibleSelections? _value;
-    return () {
-      if (calculated) return _value;
-
-      final possibleObjects = <GraphQLObjectType>[];
-
-      void _mapperType(GraphQLWrapperType nn) {
-        final ofType = nn.ofType;
-        if (ofType is GraphQLObjectType) {
-          possibleObjects.add(ofType);
-        } else if (ofType is GraphQLUnionType) {
-          possibleObjects.addAll(ofType.possibleTypes);
-        } else if (ofType is GraphQLWrapperType) {
-          _mapperType(ofType as GraphQLWrapperType);
-        }
-      }
-
-      type.whenOrNull(
-        object: (obj) {
-          possibleObjects.add(obj);
-        },
-        union: (union) => possibleObjects.addAll(union.possibleTypes),
-        nonNullable: _mapperType,
-        list: _mapperType,
-      );
-      if (possibleObjects.isNotEmpty) {
-        final selectionSet = mergeSelectionSets(fields);
-        final fragments = fragmentsFromDocument(document);
-
-        _value = PossibleSelections(
-          Map.fromEntries(
-            possibleObjects.map((obj) {
-              final nonAlised = collectFields(
-                schema,
-                fragments,
-                obj,
-                selectionSet,
-                variableValues,
-                aliased: false,
-              );
-
-              Iterable<MapEntry<String, PossibleSelections? Function()>>
-                  _mapEntries(
-                Iterable<MapEntry<String, List<FieldNode>>> entries,
-              ) {
-                return entries.map(
-                  (e) {
-                    final fieldName = e.value.first.name.value;
-                    final field = obj.fields.firstWhereOrNull(
-                      (f) => f.name == fieldName,
-                    );
-                    if (field == null) {
-                      // TODO: should we do something else?
-                      return null;
-                    }
-                    return MapEntry(
-                      e.key,
-                      possibleSelectionsCallback(
-                        schema,
-                        field.type,
-                        e.value,
-                        document,
-                        variableValues,
-                      ),
-                    );
-                  },
-                ).whereType();
-              }
-
-              return MapEntry(
-                obj.name,
-                PossibleSelectionsObject(
-                  Map.fromEntries(
-                    _mapEntries(nonAlised.entries),
-                  ),
-                ),
-              );
-            }),
-          ),
-          fields,
-        );
-      }
-      calculated = true;
-      return _value;
-    };
-  }
-
   Future<T?> resolveFieldValue<T, P>(Ctx<P> fieldCtx) async {
     final objectValue = fieldCtx.object;
     final field = fieldCtx.field;
@@ -1433,20 +1338,6 @@ class GraphQL {
     // TODO: check if there is only one type matching
     // throw GraphQLException(errors);
     throw GraphQLException(errors);
-  }
-
-  SelectionSetNode mergeSelectionSets(List<SelectionNode> fields) {
-    final selections = <SelectionNode>[];
-
-    for (final field in fields) {
-      if (field is FieldNode && field.selectionSet != null) {
-        selections.addAll(field.selectionSet!.selections);
-      } else if (field is InlineFragmentNode) {
-        selections.addAll(field.selectionSet.selections);
-      }
-    }
-
-    return SelectionSetNode(selections: selections);
   }
 }
 

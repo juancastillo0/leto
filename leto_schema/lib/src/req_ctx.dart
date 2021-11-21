@@ -52,59 +52,6 @@ class Ctx<P> implements GlobalsHolder {
   }
 }
 
-class PossibleSelections {
-  /// a Map from a [GraphQLObjectType]'s name to it's selections
-  ///
-  /// If this selection is for an object it will have only one entry.
-  /// If it's for an union it will have as many entries as
-  /// [GraphQLUnionType.possibleTypes] there are in the union.
-  final Map<String, PossibleSelectionsObject> unionMap;
-
-  /// The selection field nodes which reference this selection
-  ///
-  /// Since [PossibleSelectionsObject] has its fields un-aliased,
-  /// this could be used in cases where you require aliased fields.
-  final List<FieldNode> fieldNodes;
-
-  /// Same as [unionMap.values.first], useful when you know
-  /// this selection is for an object an not an union
-  PossibleSelectionsObject get forObject {
-    assert(!isUnion);
-    return unionMap.values.first;
-  }
-
-  /// Whether this selection is for an union with one
-  /// [PossibleSelectionsObject] in [unionMap]
-  /// for every [GraphQLUnionType.possibleTypes].
-  bool get isUnion => unionMap.length > 1;
-
-  const PossibleSelections(
-    this.unionMap,
-    this.fieldNodes,
-  );
-}
-
-class PossibleSelectionsObject {
-  /// A map of un-aliased fields to a function which calculates
-  /// the selected properties for that field.
-  final Map<String, PossibleSelections? Function()> map;
-
-  const PossibleSelectionsObject(this.map);
-
-  /// true if [fieldName] was selected for this object
-  bool contains(String fieldName) => map.containsKey(fieldName);
-
-  /// Returns the nested selections for [fieldName]
-  ///
-  /// Will be null when [fieldName] was not selected or if [fieldName]
-  /// is not an Object or Union type (or list of those).
-  ///
-  /// If it's a scalar or an enum, for example, it would not have
-  /// any selections, so this functions returns null even if they are selected.
-  /// Use [contains] in this case.
-  PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
-}
-
 class RequestCtx implements GlobalsHolder {
   /// The schema used to execute the operation
   final GraphQLSchema schema;

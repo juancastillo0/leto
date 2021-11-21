@@ -87,7 +87,7 @@ GraphQLObjectType<Faction> get factionGraphQLType {
           resolve: (obj, ctx) {
         final args = ctx.args;
         final argsArg = connectionArgumentsSerializer.fromJson(
-            ctx.baseCtx.schema.serdeCtx, args);
+            ctx.executionCtx.schema.serdeCtx, args);
         if (argsArg != null) {
           final argsValidationResult =
               validateConnectionArguments(argsArg as ConnectionArguments);
