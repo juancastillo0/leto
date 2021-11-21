@@ -201,7 +201,7 @@ class ChatRoomUser {
     required this.createdAt,
   });
 
-  FutureOr<User> user(ReqCtx ctx) async {
+  FutureOr<User> user(Ctx ctx) async {
     final _user = await userDataLoaderRef.get(ctx).load(userId);
     return _user!;
   }
@@ -213,7 +213,7 @@ class ChatRoomUser {
 }
 
 Future<_ValidatedUserChat> validateEditPermission(
-  ReqCtx ctx, {
+  Ctx ctx, {
   required int chatId,
   required int? userId,
 }) async {
@@ -240,7 +240,7 @@ class _ValidatedUserChat {
 
 @Mutation()
 Future<ChatRoomUser?> addChatRoomUser(
-  ReqCtx ctx,
+  Ctx ctx,
   int chatId,
   int userId, {
   ChatRoomUserRole role = ChatRoomUserRole.peer,
@@ -269,7 +269,7 @@ Future<ChatRoomUser?> addChatRoomUser(
 
 @Mutation()
 Future<bool> deleteChatRoomUser(
-  ReqCtx ctx,
+  Ctx ctx,
   int chatId,
   int userId,
 ) async {

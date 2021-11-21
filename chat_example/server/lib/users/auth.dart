@@ -33,15 +33,15 @@ class WebSocketConnCtx {
     this.appVersion,
   });
 
-  static WebSocketConnCtx? fromCtx(ReqCtx ctx) => _webSocketConnCtxRef.get(ctx);
+  static WebSocketConnCtx? fromCtx(Ctx ctx) => _webSocketConnCtxRef.get(ctx);
 }
 
-String? getAuthToken(ReqCtx ctx) {
+String? getAuthToken(Ctx ctx) {
   return getCookie(ctx.request, AUTH_COOKIE_KEY) ??
       ctx.request.headers[HttpHeaders.authorizationHeader];
 }
 
-void setAuthCookie(ReqCtx ctx, String token, int maxAgeSecs) {
+void setAuthCookie(Ctx ctx, String token, int maxAgeSecs) {
   ctx.appendHeader(
     HttpHeaders.setCookieHeader,
     '$AUTH_COOKIE_KEY=$token; HttpOnly; SameSite=Lax; Max-Age=$maxAgeSecs',
@@ -117,7 +117,7 @@ class UserClaims {
 }
 
 Future<UserClaims> getUserClaimsUnwrap(
-  ReqCtx ctx, {
+  Ctx ctx, {
   bool isRefreshToken = false,
 }) async {
   final claims = await getUserClaims(
@@ -131,7 +131,7 @@ Future<UserClaims> getUserClaimsUnwrap(
 }
 
 Future<UserClaims?> getUserClaims(
-  ReqCtx ctx, {
+  Ctx ctx, {
   bool isRefreshToken = false,
 }) async {
   final webSocketClaims = WebSocketConnCtx.fromCtx(ctx)?.claims;

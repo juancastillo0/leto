@@ -23,7 +23,7 @@ const _validateTypeChecker = TypeChecker.fromRuntime(Valida);
 const _validationTypeChecker = TypeChecker.fromRuntime(Validation);
 
 bool isReqCtx(DartType type) =>
-    const TypeChecker.fromRuntime(ReqCtx).isAssignableFromType(type);
+    const TypeChecker.fromRuntime(Ctx).isAssignableFromType(type);
 
 class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
   final Config config;

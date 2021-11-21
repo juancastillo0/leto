@@ -148,17 +148,17 @@ class User implements Named {
 }
 
 @Query()
-List<Task> getTasks(ReqCtx ctx) {
+List<Task> getTasks(Ctx ctx) {
   return tasksRef.get(ctx).tasks;
 }
 
 @Mutation()
-bool addTask(ReqCtx ctx, Task task) {
+bool addTask(Ctx ctx, Task task) {
   tasksRef.get(ctx).addTask(task);
   return true;
 }
 
 @Subscription()
-Stream<Task> onAddTask(ReqCtx ctx) {
+Stream<Task> onAddTask(Ctx ctx) {
   return tasksRef.get(ctx).onAddTask.stream;
 }

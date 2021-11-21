@@ -584,8 +584,8 @@ void main() {
       isInterface: true,
       resolveType: (_source, type, ctx) {
         encounteredContext = ctx.globals;
-        encounteredSchema = ctx.resolveCtx.schema;
-        encounteredRootValue = ctx.resolveCtx.baseCtx.rootValue;
+        encounteredSchema = ctx.executionCtx.schema;
+        encounteredRootValue = ctx.executionCtx.requestCtx.rootValue;
         return 'Person';
       },
     );

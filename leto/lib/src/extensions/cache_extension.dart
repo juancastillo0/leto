@@ -7,7 +7,7 @@ import 'package:crypto/crypto.dart' show sha1;
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 
-CacheInfo? getCacheInfo(ReqCtx ctx) {
+CacheInfo? getCacheInfo(Ctx ctx) {
   return CacheExtension.getRootInfo(ctx)?.incoming.getNested(ctx.path);
 }
 
@@ -223,7 +223,7 @@ class CacheExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) async {
     final extensions = ctx.extensions;
     final extensionData = extensions?[mapKey] as Map<String, Object?>?;
@@ -281,7 +281,7 @@ class CacheExtension extends GraphQLExtension {
   @override
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     GraphQLObjectField field,
     String fieldAlias,
   ) {

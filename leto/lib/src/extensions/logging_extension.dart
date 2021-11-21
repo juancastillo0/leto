@@ -12,11 +12,11 @@ typedef LogFunction = void Function(GraphQLLog);
 /// or subscription events
 class GraphQLLog {
   /// The base request context
-  final ResolveBaseCtx baseCtx;
+  final RequestCtx baseCtx;
 
   /// The main execution context for the execution, null if there
   /// was an error before execution
-  final ResolveCtx? ctx;
+  final ExecutionCtx? ctx;
 
   /// The [GraphQLResult] for the execution, null if there
   /// was an error before execution
@@ -146,7 +146,7 @@ class LoggingExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) async {
     final startTime = clock.now();
     final watch = clock.stopwatch()..start();
@@ -181,7 +181,7 @@ class LoggingExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeSubscriptionEvent(
     FutureOr<GraphQLResult> Function() next,
-    ResolveCtx ctx,
+    ExecutionCtx ctx,
     ScopedMap parentGlobals,
   ) async {
     final startTime = clock.now();
@@ -195,7 +195,7 @@ class LoggingExtension extends GraphQLExtension {
           isSubscriptionEvent: true,
           result: result,
           ctx: ctx,
-          baseCtx: ctx.baseCtx,
+          baseCtx: ctx.requestCtx,
         ),
       );
       return result;
@@ -207,7 +207,7 @@ class LoggingExtension extends GraphQLExtension {
           isSubscriptionEvent: true,
           result: null,
           ctx: ctx,
-          baseCtx: ctx.baseCtx,
+          baseCtx: ctx.requestCtx,
           error: e,
           stackTrace: s,
         ),

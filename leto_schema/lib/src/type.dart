@@ -536,8 +536,8 @@ class GraphQLNonNullType<Value, Serialized>
     String name, {
     String? deprecationReason,
     String? description,
-    FutureOr<Value> Function(P parent, ReqCtx<P> ctx)? resolve,
-    FutureOr<Stream<Value>> Function(Object parent, ReqCtx<Object> ctx)?
+    FutureOr<Value> Function(P parent, Ctx<P> ctx)? resolve,
+    FutureOr<Stream<Value>> Function(Object parent, Ctx<Object> ctx)?
         subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
     FieldDefinitionNode? astNode,

@@ -63,11 +63,11 @@ GraphQLSchema makeGraphQLSchema() {
     fields: [
       graphQLString.nonNull().field(
             'state',
-            resolve: (Model model, ReqCtx ctx) => model.state,
+            resolve: (Model model, Ctx ctx) => model.state,
           ),
       graphQLDate.nonNull().field(
             'createdAt',
-            resolve: (Model model, ReqCtx ctx) => model.createdAt,
+            resolve: (Model model, Ctx ctx) => model.createdAt,
           ),
     ],
   );
@@ -101,7 +101,7 @@ type Subscription {
       modelGraphQLType.field(
         'getState',
         description: 'Get the current state',
-        resolve: (Object? rootValue, ReqCtx ctx) => stateRef.get(ctx).value,
+        resolve: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).value,
       ),
     ]),
     mutationType: objectType('Mutation', fields: [
@@ -114,7 +114,7 @@ type Subscription {
             description: "The new state, can't be 'WrongState'!.",
           ),
         ],
-        resolve: (Object? rootValue, ReqCtx ctx) {
+        resolve: (Object? rootValue, Ctx ctx) {
           final newState = ctx.args['newState']! as String;
           if (newState == 'WrongState') {
             return false;
@@ -127,8 +127,7 @@ type Subscription {
     subscriptionType: objectType('Subscription', fields: [
       modelGraphQLType.nonNull().field(
             'onStateChange',
-            subscribe: (Object rootValue, ReqCtx ctx) =>
-                stateRef.get(ctx).stream,
+            subscribe: (Object rootValue, Ctx ctx) => stateRef.get(ctx).stream,
           )
     ]),
   );
@@ -292,13 +291,13 @@ Future<void> testServer(Uri url) async {
 
 /// Get the current state
 @Query()
-Model? getState(ReqCtx ctx) {
+Model? getState(Ctx ctx) {
   return stateRef.get(ctx).value;
 }
 
 @Mutation()
 bool setState(
-  ReqCtx ctx,
+  Ctx ctx,
   // The new state, can't be 'WrongState'!.
   String newState,
 ) {
@@ -311,6 +310,6 @@ bool setState(
 }
 
 @Subscription()
-Stream<Model> onStateChange(ReqCtx ctx) {
+Stream<Model> onStateChange(Ctx ctx) {
   return stateRef.get(ctx).stream;
 }

@@ -4,7 +4,7 @@ import 'package:shelf/shelf.dart';
 final requestCtxKey = ScopeRef<Request>('__request');
 final responseCtxKey = ScopeRef<Response>('__response');
 
-extension ReqCtxShelf on ReqCtx {
+extension ReqCtxShelf on Ctx {
   Request get request => extractRequest(this);
   Response get response => extractResponse(this);
 
@@ -28,17 +28,17 @@ extension ReqCtxShelf on ReqCtx {
   }
 }
 
-Request extractRequest(ReqCtx ctx) {
+Request extractRequest(Ctx ctx) {
   return requestCtxKey.get(ctx)!;
 }
 
-Response extractResponse(ReqCtx ctx) {
+Response extractResponse(Ctx ctx) {
   return responseCtxKey.get(ctx) ?? Response.ok(null);
 }
 
 const _updateResponse = updateResponse;
 
-Response updateResponse(ReqCtx ctx, Response Function(Response) update) {
+Response updateResponse(Ctx ctx, Response Function(Response) update) {
   final prev = extractResponse(ctx);
   final response = update(prev);
   responseCtxKey.setScoped(ctx, response);

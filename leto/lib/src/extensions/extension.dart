@@ -34,7 +34,7 @@ abstract class GraphQLExtension {
   /// [GraphQLResult.subscriptionStream] event
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) =>
       next();
 
@@ -42,7 +42,7 @@ abstract class GraphQLExtension {
   /// from [query] or [extensions]
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) =>
       next();
 
@@ -50,7 +50,7 @@ abstract class GraphQLExtension {
   /// and the operation to perform
   GraphQLException? validate(
     GraphQLException? Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
     DocumentNode document,
   ) =>
       next();
@@ -58,7 +58,7 @@ abstract class GraphQLExtension {
   /// Parses argument values and a executes a [field] in [ctx]
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     GraphQLObjectField field,
     String fieldAlias,
   ) =>
@@ -67,14 +67,14 @@ abstract class GraphQLExtension {
   /// Resolves a field with [ctx]
   FutureOr<T> resolveField<T>(
     FutureOr<T> Function() next,
-    ReqCtx ctx,
+    Ctx ctx,
   ) =>
       next();
 
   /// Called for every [GraphQLResult.subscriptionStream] event
   FutureOr<GraphQLResult> executeSubscriptionEvent(
     FutureOr<GraphQLResult> Function() next,
-    ResolveCtx ctx,
+    ExecutionCtx ctx,
     ScopedMap parentGlobals,
   ) =>
       next();
@@ -82,7 +82,7 @@ abstract class GraphQLExtension {
   /// Maps a resolved value into a serialized value
   FutureOr<Object?> completeValue(
     FutureOr<Object?> Function() next,
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     String fieldName,
     GraphQLType fieldType,
     Object? result,

@@ -324,7 +324,7 @@ class UserSession {
   @GraphQLField(omit: true)
   static const deviceidKey = 'sgqlc-deviceid';
 
-  factory UserSession.create(int userId, ReqCtx ctx) {
+  factory UserSession.create(int userId, Ctx ctx) {
     final request = ctx.request;
     final webSocketConn = WebSocketConnCtx.fromCtx(ctx);
     final uuid = uuidBase64Url();
@@ -369,7 +369,7 @@ class User {
     required this.passwordHash,
   });
 
-  Future<List<UserSession>> sessions(ReqCtx ctx) async {
+  Future<List<UserSession>> sessions(Ctx ctx) async {
     final claims = await getUserClaimsUnwrap(ctx);
     if (claims.userId != id) {
       throw unauthorizedError;
@@ -382,7 +382,7 @@ class User {
 }
 
 @Query()
-Future<List<User>> searchUser(ReqCtx ctx, String name) {
+Future<List<User>> searchUser(Ctx ctx, String name) {
   return userTableRef.get(ctx).searchByName(name);
 }
 
@@ -407,14 +407,14 @@ class TokenWithUser {
 }
 
 @Query()
-Future<User?> getUser(ReqCtx ctx) async {
+Future<User?> getUser(Ctx ctx) async {
   final claims = await getUserClaimsUnwrap(ctx);
   return userTableRef.get(ctx).get(claims.userId);
 }
 
 @Mutation()
 Future<String?> refreshAuthToken(
-  ReqCtx ctx,
+  Ctx ctx,
 ) async {
   final claims = await getUserClaims(ctx, isRefreshToken: true);
   if (claims == null) {
@@ -439,7 +439,7 @@ enum SignUpError {
 
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
-  ReqCtx ctx,
+  Ctx ctx,
   @ValidaString(minLength: 2) String name,
   @ValidaString(minLength: 6) String password,
 ) async {
@@ -529,7 +529,7 @@ enum SignInError { wrong, alreadySignedIn }
 
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
-  ReqCtx ctx,
+  Ctx ctx,
   String? name,
   String? password,
 ) async {
@@ -570,7 +570,7 @@ Future<Result<TokenWithUser, ErrC<SignInError>>> signIn(
 }
 
 @Mutation()
-Future<String?> signOut(ReqCtx ctx) async {
+Future<String?> signOut(Ctx ctx) async {
   final claims = await getUserClaims(ctx);
   if (claims != null) {
     final success = await deactivateSession(ctx, claims);
@@ -587,7 +587,7 @@ Future<String?> signOut(ReqCtx ctx) async {
   return null;
 }
 
-Future<bool> deactivateSession(ReqCtx ctx, UserClaims claims) async {
+Future<bool> deactivateSession(Ctx ctx, UserClaims claims) async {
   final success = await userSessionRef.get(ctx).deactivate(claims);
   return success;
 }
@@ -595,7 +595,7 @@ Future<bool> deactivateSession(ReqCtx ctx, UserClaims claims) async {
 const refreshDuration = Duration(hours: 1);
 
 String setAuthToken(
-  ReqCtx ctx,
+  Ctx ctx,
   UserClaims claims,
 ) {
   final accessToken = createAuthToken(
@@ -612,7 +612,7 @@ String setAuthToken(
   return accessToken;
 }
 
-Future<TokenWithUser> signInUser(ReqCtx ctx, User user) async {
+Future<TokenWithUser> signInUser(Ctx ctx, User user) async {
   final session = UserSession.create(user.id, ctx);
   await userSessionRef.get(ctx).insert(session);
 

@@ -39,13 +39,13 @@ final schemaGraphQLType = objectType<GraphQLSchema>('__Schema', fields: [
 /// The schema introspection type [GraphQLObjectField]
 final schemaIntrospectionTypeField = schemaGraphQLType.nonNull().field(
       '__schema',
-      resolve: (_, ctx) => ctx.baseCtx.schema,
+      resolve: (_, ctx) => ctx.executionCtx.schema,
     );
 
 /// The introspection typename [GraphQLObjectField]
 final typenameIntrospectionField = graphQLString.nonNull().field(
       '__typename',
-      resolve: (_, ctx) => ctx.parentCtx.objectType.name,
+      resolve: (_, ctx) => ctx.objectCtx.objectType.name,
     );
 
 /// The type introspection type [GraphQLObjectField]
@@ -54,7 +54,7 @@ final typeIntrospectionTypeField = _reflectTypeType().field(
   inputs: [GraphQLFieldInput('name', graphQLString.nonNull())],
   resolve: (_, ctx) {
     final name = ctx.args['name'] as String?;
-    final type = ctx.baseCtx.schema.typeMap[name];
+    final type = ctx.executionCtx.schema.typeMap[name];
     if (type == null) {
       throw GraphQLException.fromMessage('No type named "$name" exists.');
     }

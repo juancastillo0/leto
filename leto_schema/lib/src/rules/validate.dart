@@ -36,7 +36,7 @@ import 'validation_context.dart';
 typedef ValidationRule = Visitor Function(ValidationCtx);
 
 /// Return a visitor that executes schema document
-/// validations for a [SDLValidationRule]
+/// validations for a [SDLValidationCtx]
 typedef SDLValidationRule = Visitor Function(SDLValidationCtx);
 
 /// Default validation rules from the GraphQL specification

@@ -44,7 +44,7 @@ class ChatMessage with _$ChatMessage {
   factory ChatMessage.fromJson(Map<String, Object?> json) =>
       _$ChatMessageFromJson(json);
 
-  Future<ChatMessage?> referencedMessage(ReqCtx ctx) async {
+  Future<ChatMessage?> referencedMessage(Ctx ctx) async {
     if (referencedMessageId == null) {
       return null;
     }
@@ -325,7 +325,7 @@ CREATE TABLE $tableName (
 
 @Mutation()
 Future<ChatMessage?> sendMessage(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int chatId,
   String message,
   int? referencedMessageId,
@@ -344,7 +344,7 @@ Future<ChatMessage?> sendMessage(
 
 @Mutation()
 Future<ChatMessage?> sendFileMessage(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int chatId,
   Upload file, {
   int? referencedMessageId,
@@ -390,7 +390,7 @@ Future<ChatMessage?> sendFileMessage(
 
 @Query()
 Future<List<ChatMessage>> getMessage(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int? chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
@@ -404,7 +404,7 @@ Future<LinksMetadata> getMessageLinksMetadata(String message) {
 
 @Subscription()
 Future<Stream<List<ChatMessage>>> onMessageSent(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);

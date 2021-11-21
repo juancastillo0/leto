@@ -336,7 +336,7 @@ class Faction implements Node {
   /// The ships used by the faction.
   @GraphQLField(name: 'ships')
   Connection<Ship> shipConnection(
-    ReqCtx ctx,
+    Ctx ctx,
     @GraphQLArg(inline: true) ConnectionArguments args,
   ) {
     final arr =
@@ -540,7 +540,7 @@ class MutationConfig<V extends MutationPayload> {
   // final GraphQLFieldExtensions<any, any>? extensions;
   final List<GraphQLFieldInput<Object, Object>> inputFields;
   final List<GraphQLObjectField<Object, Object, V>> outputFields;
-  final FutureOr<V?> Function(MutationValue<Map<String, Object?>>, ReqCtx)
+  final FutureOr<V?> Function(MutationValue<Map<String, Object?>>, Ctx)
       mutateAndGetPayload;
 
   MutationConfig({

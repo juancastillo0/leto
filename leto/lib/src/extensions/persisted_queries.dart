@@ -8,7 +8,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:leto/leto.dart'
     show GraphQLExtension, GraphQLResult, DocumentNode;
 import 'package:leto_schema/leto_schema.dart'
-    show GraphQLException, ResolveBaseCtx, ScopeRef;
+    show GraphQLException, RequestCtx, ScopeRef;
 
 /// Save network bandwidth by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.
@@ -62,7 +62,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) async {
     if (!returnHashInResponse) {
       return next();
@@ -78,7 +78,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) {
     final query = ctx.query;
     final extensions = ctx.extensions;

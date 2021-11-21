@@ -25,7 +25,7 @@ void main() {
           .field('nestedNonNullListNonNull'),
     ]);
 
-    late ReqCtx resolveCtx;
+    late Ctx resolveCtx;
     final schema = GraphQLSchema(
       queryType: objectType(
         'Query',
@@ -166,7 +166,7 @@ fragment All on NestedModel {
           .field('nestedNonNullListNonNull'),
     ]);
 
-    late ReqCtx resolveCtx;
+    late Ctx resolveCtx;
     final schema = GraphQLSchema(
       queryType: objectType(
         'Query',

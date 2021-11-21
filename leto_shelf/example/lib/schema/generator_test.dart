@@ -75,7 +75,7 @@ class EventUnion with _$EventUnion {
 /// the function uses [value] to do stuff
 @Mutation()
 TestModel? addTestModel(
-  ReqCtx context,
+  Ctx context,
   String realName, {
   TestModel? previous,
   @Deprecated('use realName') required String name,
@@ -91,7 +91,7 @@ TestModel? addTestModel(
 /// [position] is the pad
 @Query()
 List<TestModel> testModels(
-  ReqCtx ctx,
+  Ctx ctx,
   // pagination less than
   DateTime lessThan, {
   // pagination
@@ -109,7 +109,7 @@ List<TestModel> testModels(
 /// [position] is the pad
 @Query()
 List<EventUnion?> testUnionModels(
-  ReqCtx ctx, {
+  Ctx ctx, {
   // pagination
   List<int?> positions = const [],
 }) {

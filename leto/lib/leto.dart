@@ -40,7 +40,7 @@ class GraphQLConfig {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object? parent, ReqCtx)?
+  final FutureOr<Object?> Function(Object? parent, Ctx)?
       defaultFieldResolver;
 
   /// If validate is false, a parsed document is executed without
@@ -79,7 +79,7 @@ class GraphQL {
 
   /// An optional callback that can be used to resolve fields
   /// from objects that are not [Map]s, when the related field has no resolver.
-  final FutureOr<Object?> Function(Object? parent, ReqCtx)?
+  final FutureOr<Object?> Function(Object? parent, Ctx)?
       defaultFieldResolver;
 
   /// Variables passed to all executed requests
@@ -126,11 +126,11 @@ class GraphQL {
         globalVariables: config.globalVariables,
       );
 
-  static final _resolveCtxRef = ScopeRef<ResolveCtx>('ResolveCtx');
+  static final _resolveCtxRef = ScopeRef<ExecutionCtx>('ResolveCtx');
 
-  /// Gets the [ResolveCtx] of a request from a [scope].
+  /// Gets the [ExecutionCtx] of a request from a [scope].
   /// null when the execution stage hasn't started.
-  static ResolveCtx? getResolveCtx(GlobalsHolder scope) =>
+  static ExecutionCtx? getResolveCtx(GlobalsHolder scope) =>
       _resolveCtxRef.get(scope);
 
   static final _graphQLExecutorRef = ScopeRef<GraphQL>('GraphQLExecutor');
@@ -165,7 +165,7 @@ class GraphQL {
     }
     _graphQLExecutorRef.setScoped(_globalVariables, this);
 
-    final preExecuteCtx = ResolveBaseCtx(
+    final preExecuteCtx = RequestCtx(
       extensions: extensions,
       globals: _globalVariables,
       operationName: operationName,
@@ -243,7 +243,7 @@ class GraphQL {
     dynamic sourceUrl,
     Map<String, Object?>? extensions,
     required ScopedMap globals,
-    required ResolveBaseCtx ctx,
+    required RequestCtx ctx,
   }) {
     return withExtensions((next, ext) => ext.getDocumentNode(next, ctx), () {
       try {
@@ -275,7 +275,7 @@ class GraphQL {
     required Object rootValue,
     required ScopedMap globalVariables,
     Map<String, dynamic>? extensions,
-    required ResolveBaseCtx baseCtx,
+    required RequestCtx baseCtx,
     required OperationDefinitionNode operation,
   }) async {
     if (validate) {
@@ -296,12 +296,12 @@ class GraphQL {
 
     final coercedVariableValues =
         coerceVariableValues(schema, operation, variableValues);
-    final ctx = ResolveCtx(
+    final ctx = ExecutionCtx(
       document: document,
       operation: operation,
       globals: globalVariables,
       variableValues: coercedVariableValues,
-      baseCtx: baseCtx,
+      requestCtx: baseCtx,
     );
     _resolveCtxRef.setScoped(ctx.globals, ctx);
 
@@ -430,7 +430,7 @@ class GraphQL {
   }
 
   Future<Map<String, dynamic>> executeQuery(
-    ResolveCtx ctx,
+    ExecutionCtx ctx,
     OperationDefinitionNode query,
     GraphQLSchema schema,
     Object rootValue,
@@ -446,7 +446,7 @@ class GraphQL {
   }
 
   Future<Map<String, dynamic>> executeMutation(
-    ResolveCtx ctx,
+    ExecutionCtx ctx,
     OperationDefinitionNode mutation,
     GraphQLSchema schema,
     Object rootValue,
@@ -464,7 +464,7 @@ class GraphQL {
   }
 
   Future<Stream<GraphQLResult>> subscribe(
-    ResolveCtx baseCtx,
+    ExecutionCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Object rootValue,
@@ -476,7 +476,7 @@ class GraphQL {
   }
 
   Future<MapEntry<FieldNode, Stream<Object?>>> createSourceEventStream(
-    ResolveCtx baseCtx,
+    ExecutionCtx baseCtx,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
     Object rootValue,
@@ -499,8 +499,8 @@ class GraphQL {
       );
     }
 
-    final objCtx = ResolveObjectCtx(
-      resolveCtx: baseCtx,
+    final objCtx = ObjectExecutionCtx(
+      executionCtx: baseCtx,
       groupedFieldSet: groupedFieldSet,
       objectType: subscriptionType,
       objectValue: rootValue,
@@ -532,7 +532,7 @@ class GraphQL {
   }
 
   Stream<GraphQLResult> mapSourceToResponseEvent(
-    ResolveCtx streamCtx,
+    ExecutionCtx streamCtx,
     MapEntry<FieldNode, Stream<Object?>> sourceStream,
     OperationDefinitionNode subscription,
     GraphQLSchema schema,
@@ -546,8 +546,8 @@ class GraphQL {
 
     return sourceStream.value.asyncMap(
       (event) async {
-        final ctx = ResolveCtx(
-          baseCtx: streamCtx.baseCtx,
+        final ctx = ExecutionCtx(
+          requestCtx: streamCtx.requestCtx,
           document: streamCtx.document,
           operation: streamCtx.operation,
           globals: streamCtx.globals.child(),
@@ -621,7 +621,7 @@ class GraphQL {
   }
 
   Future<Stream<Object?>> resolveFieldEventStream(
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     GraphQLObjectType subscriptionType,
     Object rootValue,
     FieldNode fieldNode,
@@ -637,17 +637,17 @@ class GraphQL {
       },
     );
 
-    final reqCtx = ReqCtx<Object?>(
+    final reqCtx = Ctx<Object?>(
       args: argumentValues,
       field: field,
-      parentCtx: ctx,
+      objectCtx: ctx,
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
-        ctx.resolveCtx.schema,
+        ctx.executionCtx.schema,
         field.type,
         ctx.groupedFieldSet[pathItem]!,
-        ctx.resolveCtx.document,
-        ctx.variableValues,
+        ctx.executionCtx.document,
+        ctx.executionCtx.variableValues,
       ),
     );
 
@@ -671,7 +671,7 @@ class GraphQL {
           stackTrace: s,
           path: [pathItem],
           span: fieldNode.span ?? fieldNode.alias?.span ?? fieldNode.name.span,
-          objectCtx: reqCtx.parentCtx,
+          objectCtx: reqCtx.objectCtx,
           type: reqCtx.field.type,
           ctx: reqCtx,
           location: ThrownErrorLocation.subscribe,
@@ -690,12 +690,12 @@ class GraphQL {
   }
 
   Future<Map<String, dynamic>> executeSelectionSet(
-    ResolveCtx baseCtx,
+    ExecutionCtx baseCtx,
     SelectionSetNode selectionSet,
     GraphQLObjectType<Object?> objectType,
     Object objectValue, {
     required bool serial,
-    ResolveObjectCtx? parentCtx,
+    ObjectExecutionCtx? parentCtx,
     Object? pathItem,
   }) async {
     final fragments = fragmentsFromDocument(baseCtx.document);
@@ -709,8 +709,8 @@ class GraphQL {
     final resultMap = <String, dynamic>{};
     final futureResultMap = <String, FutureOr<dynamic>>{};
 
-    final objectCtx = ResolveObjectCtx(
-      resolveCtx: baseCtx,
+    final objectCtx = ObjectExecutionCtx(
+      executionCtx: baseCtx,
       objectType: objectType,
       objectValue: objectValue,
       parent: parentCtx,
@@ -801,13 +801,13 @@ class GraphQL {
   /// and serializing the result [completeValue]
   Future<T?> executeField<T, P>(
     List<FieldNode> fields,
-    ResolveObjectCtx<P> ctx,
+    ObjectExecutionCtx<P> ctx,
     GraphQLObjectField<T, Object?, P> objectField,
   ) async {
     T? _returnError(GraphQLException err) {
       if (objectField.type.isNullable) {
         // TODO: add only one error?
-        ctx.resolveCtx.errors.add(err.errors.first);
+        ctx.executionCtx.errors.add(err.errors.first);
         return null;
       } else {
         throw err;
@@ -823,10 +823,10 @@ class GraphQL {
     final Map<String, dynamic> argumentValues;
     try {
       argumentValues = coerceArgumentValues(
-        ctx.resolveCtx.schema.serdeCtx,
+        ctx.executionCtx.schema.serdeCtx,
         objectField,
         field,
-        ctx.variableValues,
+        ctx.executionCtx.variableValues,
       );
     } catch (e, s) {
       return _returnError(
@@ -834,17 +834,17 @@ class GraphQL {
       );
     }
 
-    final fieldCtx = ReqCtx<P>(
+    final fieldCtx = Ctx<P>(
       args: argumentValues,
-      parentCtx: ctx,
+      objectCtx: ctx,
       field: objectField,
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
-        ctx.resolveCtx.schema,
+        ctx.executionCtx.schema,
         objectField.type,
         ctx.groupedFieldSet[pathItem]!,
-        ctx.resolveCtx.document,
-        ctx.variableValues,
+        ctx.executionCtx.document,
+        ctx.executionCtx.variableValues,
       ),
     );
     try {
@@ -1087,7 +1087,7 @@ class GraphQL {
     };
   }
 
-  Future<T?> resolveFieldValue<T, P>(ReqCtx<P> fieldCtx) async {
+  Future<T?> resolveFieldValue<T, P>(Ctx<P> fieldCtx) async {
     final objectValue = fieldCtx.object;
     final field = fieldCtx.field;
     final fieldName = fieldCtx.field.name;
@@ -1107,7 +1107,7 @@ class GraphQL {
           // TODO: support functions with more params?
           return await _extractResult(value) as T?;
         } else {
-          final serialized = fieldCtx.parentCtx.serializedObject();
+          final serialized = fieldCtx.objectCtx.serializedObject();
           if (serialized != null && serialized.containsKey(fieldName)) {
             final value = serialized[fieldName];
             return await _extractResult(value) as T?;
@@ -1141,13 +1141,13 @@ class GraphQL {
   /// from a resolved [_result] for [fieldName]
   /// given the Object context [ctx]
   Future<Object?> completeValue(
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     String fieldName,
     GraphQLType fieldType,
     List<SelectionNode> fields,
     Object? _result, {
     required Object pathItem,
-    required ReqCtx reqCtx,
+    required Ctx reqCtx,
   }) async {
     final Object? result = await _extractResult(_result);
     return withExtensions(
@@ -1221,7 +1221,7 @@ class GraphQL {
 
         final subSelectionSet = mergeSelectionSets(fields);
         return executeSelectionSet(
-            ctx.resolveCtx, subSelectionSet, objectType, _result,
+            ctx.executionCtx, subSelectionSet, objectType, _result,
             serial: false, parentCtx: ctx, pathItem: pathItem);
       }
 
@@ -1264,8 +1264,8 @@ class GraphQL {
           final innerType = fieldType.ofType;
           final futureOut = <Future<Object?> Function()>[];
 
-          final listCtx = ResolveObjectCtx<Object?>(
-            resolveCtx: ctx.resolveCtx,
+          final listCtx = ObjectExecutionCtx<Object?>(
+            executionCtx: ctx.executionCtx,
             pathItem: pathItem,
             // TODO: objectType, objectValue, groupedFieldSet do not apply to lists
             objectType: ctx.objectType,
@@ -1305,7 +1305,7 @@ class GraphQL {
                     ctx: reqCtx,
                   ));
                   if (innerType.isNullable) {
-                    ctx.resolveCtx.errors.add(err.errors.first);
+                    ctx.executionCtx.errors.add(err.errors.first);
                     return null;
                   } else {
                     throw err;
@@ -1336,7 +1336,7 @@ class GraphQL {
   }
 
   GraphQLObjectType resolveAbstractType(
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     String fieldName,
     GraphQLType type,
     Object result,
@@ -1485,10 +1485,10 @@ class ThrownError {
   final ThrownErrorLocation location;
 
   /// The object context
-  final ResolveObjectCtx<Object?> objectCtx;
+  final ObjectExecutionCtx<Object?> objectCtx;
 
   /// The field's resolve context
-  final ReqCtx<Object?> ctx;
+  final Ctx<Object?> ctx;
 
   /// The type associated with the resolved field
   /// for [ThrownErrorLocation.executeField] or [ThrownErrorLocation.subscribe]
@@ -1508,7 +1508,7 @@ class ThrownError {
 }
 
 class InvalidOperationType implements Exception {
-  final ResolveBaseCtx ctx;
+  final RequestCtx ctx;
   final DocumentNode document;
   final OperationDefinitionNode operation;
   final List<OperationType> validOperationTypes;

@@ -389,7 +389,7 @@ class ChatRoom with _$ChatRoom {
   factory ChatRoom.fromJson(Map<String, Object?> json) =>
       _$ChatRoomFromJson(json);
 
-  Future<List<ChatMessage>> messages(ReqCtx<Object> ctx) async {
+  Future<List<ChatMessage>> messages(Ctx<Object> ctx) async {
     final controller = await chatControllerRef.get(ctx);
     return controller.messages.getAll(chatId: id);
   }
@@ -410,7 +410,7 @@ class ChatMessage with _$ChatMessage {
   factory ChatMessage.fromJson(Map<String, Object?> json) =>
       _$ChatMessageFromJson(json);
 
-  Future<ChatMessage?> referencedMessage(ReqCtx ctx) async {
+  Future<ChatMessage?> referencedMessage(Ctx ctx) async {
     if (referencedMessageId == null) {
       return null;
     }
@@ -421,7 +421,7 @@ class ChatMessage with _$ChatMessage {
 
 @Mutation()
 Future<ChatMessage?> sendMessage(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int chatId,
   String message,
   int? referencedMessageId,
@@ -436,7 +436,7 @@ Future<ChatMessage?> sendMessage(
 
 @Query()
 Future<List<ChatMessage>> getMessage(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int? chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
@@ -445,7 +445,7 @@ Future<List<ChatMessage>> getMessage(
 
 @Subscription()
 Future<Stream<List<ChatMessage>>> onMessageSent(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   int chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
@@ -460,7 +460,7 @@ Future<Stream<List<ChatMessage>>> onMessageSent(
 
 @Mutation()
 Future<ChatRoom?> createChatRoom(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   String name,
 ) async {
   final controller = await chatControllerRef.get(ctx);
@@ -469,7 +469,7 @@ Future<ChatRoom?> createChatRoom(
 
 @Query()
 Future<List<ChatRoom>> getChatRooms(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
 ) async {
   final controller = await chatControllerRef.get(ctx);
   return controller.chats.getAll();
@@ -477,7 +477,7 @@ Future<List<ChatRoom>> getChatRooms(
 
 @Subscription()
 Future<Stream<DBEvent>> onMessageEvent(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   EventType type,
 ) async {
   final controller = await chatControllerRef.get(ctx);

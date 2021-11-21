@@ -35,7 +35,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   FutureOr<GraphQLResult> executeRequest(
     FutureOr<GraphQLResult> Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) async {
     final tracing = TracingBuilder(version: 1);
     ref.setScoped(ctx, tracing);
@@ -53,7 +53,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   DocumentNode getDocumentNode(
     DocumentNode Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
   ) {
     final tracing = ref.get(ctx)!;
     return tracing.parsing.trace(next);
@@ -62,7 +62,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   GraphQLException? validate(
     GraphQLException? Function() next,
-    ResolveBaseCtx ctx,
+    RequestCtx ctx,
     DocumentNode document,
   ) {
     final tracing = ref.get(ctx)!;
@@ -72,7 +72,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   @override
   FutureOr<Object?> executeField(
     FutureOr<Object?> Function() next,
-    ResolveObjectCtx ctx,
+    ObjectExecutionCtx ctx,
     GraphQLObjectField field,
     String fieldAlias,
   ) async {

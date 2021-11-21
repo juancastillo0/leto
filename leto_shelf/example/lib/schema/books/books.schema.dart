@@ -3,7 +3,7 @@ import 'package:leto_schema/leto_schema.dart';
 import 'books.controller.dart';
 
 GraphQLSchema makeBooksSchema() {
-  BooksController books(ReqCtx ctx) => booksControllerRef.get(ctx);
+  BooksController books(Ctx ctx) => booksControllerRef.get(ctx);
 
   final _bookType = bookType();
 

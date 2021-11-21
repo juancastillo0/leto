@@ -177,7 +177,7 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
 /// A function that returns the name of one of the possible types
 /// of an given abstract [type] that matches the type for [result].
 typedef ResolveType<P extends GraphQLType<Object?, Object?>> = String Function(
-    Object result, P type, ResolveObjectCtx);
+    Object result, P type, ObjectExecutionCtx);
 
 /// A function that returns the name of one of the possible types
 /// of an given abstract [type] that matches the type for [result].
@@ -188,14 +188,14 @@ class ResolveTypeWrapper<T extends GraphQLType<Object?, Object?>> {
 
   const ResolveTypeWrapper(this._func);
 
-  String call(Object result, T type, ResolveObjectCtx ctx) =>
+  String call(Object result, T type, ObjectExecutionCtx ctx) =>
       _func(result, type, ctx);
 }
 
 /// A function that returns true if [result]
 /// is an instance of [GraphQLObjectType] [type]
 typedef IsTypeOf<P> = bool Function(
-    Object result, GraphQLObjectType<P> type, ResolveObjectCtx);
+    Object result, GraphQLObjectType<P> type, ObjectExecutionCtx);
 
 /// A function that returns true if [result]
 /// is an instance of [GraphQLObjectType] [type]
@@ -206,7 +206,7 @@ class IsTypeOfWrapper<P> {
 
   const IsTypeOfWrapper(this._func);
 
-  bool call(Object value, GraphQLObjectType<P> type, ResolveObjectCtx ctx) =>
+  bool call(Object value, GraphQLObjectType<P> type, ObjectExecutionCtx ctx) =>
       _func(value, type, ctx);
 }
 

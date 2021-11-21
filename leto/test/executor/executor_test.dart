@@ -222,7 +222,7 @@ void main() {
     });
 
     test('provides info about current execution state', () async {
-      ReqCtx<Object>? _resolvedInfo;
+      Ctx<Object>? _resolvedInfo;
       final testType = GraphQLObjectType<Object>(
         'Test',
         fields: [
@@ -251,16 +251,16 @@ void main() {
       if (resolvedInfo == null) {
         throw Error();
       }
-      final parentType = resolvedInfo.parentCtx.objectType;
+      final parentType = resolvedInfo.objectCtx.objectType;
 
       expect({
         'fieldName': resolvedInfo.field.name,
         'returnType': resolvedInfo.field.type,
         'path': resolvedInfo.path,
         'parentType': parentType,
-        'schema': resolvedInfo.parentCtx.resolveCtx.schema,
-        'rootValue': resolvedInfo.parentCtx.resolveCtx.baseCtx.rootValue,
-        'variableValues': resolvedInfo.parentCtx.resolveCtx.variableValues,
+        'schema': resolvedInfo.objectCtx.executionCtx.schema,
+        'rootValue': resolvedInfo.objectCtx.executionCtx.requestCtx.rootValue,
+        'variableValues': resolvedInfo.objectCtx.executionCtx.variableValues,
       }, {
         'fieldName': 'test',
         'returnType': graphQLString,

@@ -1,23 +1,23 @@
 part of leto_schema.src.schema;
 
-class ReqCtx<P> implements GlobalsHolder {
+class Ctx<P> implements GlobalsHolder {
   /// The arguments passed as input
   final Map<String, Object?> args;
 
   /// The parent object value
-  P get object => parentCtx.objectValue as P;
+  P get object => objectCtx.objectValue as P;
 
   @override
-  ScopedMap get globals => parentCtx.globals;
+  ScopedMap get globals => objectCtx.globals;
 
   /// The parent object context
-  final ResolveObjectCtx<Object?> parentCtx;
+  final ObjectExecutionCtx<Object?> objectCtx;
 
   /// The field associated with this resolve context
   final GraphQLObjectField<Object?, Object?, Object?> field;
 
   /// The complete path to this field in the GraphQL request
-  List<Object> get path => [...parentCtx.path, pathItem];
+  List<Object> get path => [...objectCtx.path, pathItem];
 
   /// The alias or field name
   final String pathItem;
@@ -26,24 +26,25 @@ class ReqCtx<P> implements GlobalsHolder {
   /// associated with this context
   final PossibleSelections? Function() lookahead;
 
-  ResolveCtx get baseCtx => parentCtx.resolveCtx;
+  /// The execution context for this request
+  ExecutionCtx get executionCtx => objectCtx.executionCtx;
 
-  const ReqCtx({
+  const Ctx({
     required this.args,
-    required this.parentCtx,
+    required this.objectCtx,
     required this.field,
     required this.pathItem,
     required this.lookahead,
   });
 
   /// Cast the [P] parent type into a generic [T]
-  ReqCtx<T> cast<T>() {
-    if (this is ReqCtx<T>) {
-      return this as ReqCtx<T>;
+  Ctx<T> cast<T>() {
+    if (this is Ctx<T>) {
+      return this as Ctx<T>;
     }
-    return ReqCtx(
+    return Ctx(
       args: args,
-      parentCtx: parentCtx,
+      objectCtx: objectCtx,
       pathItem: pathItem,
       field: field,
       lookahead: lookahead,
@@ -104,7 +105,7 @@ class PossibleSelectionsObject {
   PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
 }
 
-class ResolveBaseCtx implements GlobalsHolder {
+class RequestCtx implements GlobalsHolder {
   /// The schema used to execute the operation
   final GraphQLSchema schema;
 
@@ -127,7 +128,7 @@ class ResolveBaseCtx implements GlobalsHolder {
   @override
   final ScopedMap globals;
 
-  ResolveBaseCtx({
+  RequestCtx({
     required this.schema,
     required this.query,
     required this.operationName,
@@ -138,12 +139,12 @@ class ResolveBaseCtx implements GlobalsHolder {
   });
 }
 
-class ResolveCtx implements GlobalsHolder {
-  /// The errors populated through out the processing of a GraphQL request
+class ExecutionCtx implements GlobalsHolder {
+  /// The errors populated throughout the processing of a GraphQL request
   final errors = <GraphQLError>[];
 
   /// The schema used to execute the operation
-  GraphQLSchema get schema => baseCtx.schema;
+  GraphQLSchema get schema => requestCtx.schema;
 
   /// The GraphQL document of the GraphQL request
   final DocumentNode document;
@@ -152,7 +153,7 @@ class ResolveCtx implements GlobalsHolder {
   final OperationDefinitionNode operation;
 
   /// Base context of the request
-  final ResolveBaseCtx baseCtx;
+  final RequestCtx requestCtx;
 
   /// The parsed variables passes as arguments to
   /// the parameters in the [operation]
@@ -161,8 +162,8 @@ class ResolveCtx implements GlobalsHolder {
   @override
   final ScopedMap globals;
 
-  ResolveCtx({
-    required this.baseCtx,
+  ExecutionCtx({
+    required this.requestCtx,
     required this.document,
     required this.operation,
     required this.variableValues,
@@ -170,13 +171,12 @@ class ResolveCtx implements GlobalsHolder {
   });
 }
 
-class ResolveObjectCtx<P> implements GlobalsHolder {
-  /// The base context for this request
-  final ResolveCtx resolveCtx;
+class ObjectExecutionCtx<P> implements GlobalsHolder {
+  /// The context for this request
+  final ExecutionCtx executionCtx;
 
   @override
-  ScopedMap get globals => resolveCtx.globals;
-  Map<String, dynamic> get variableValues => resolveCtx.variableValues;
+  ScopedMap get globals => executionCtx.globals;
 
   /// The type associated with this resolve context
   final GraphQLObjectType<P> objectType;
@@ -185,7 +185,7 @@ class ResolveObjectCtx<P> implements GlobalsHolder {
   final P objectValue;
 
   /// The parent object context if any
-  final ResolveObjectCtx<Object?>? parent;
+  final ObjectExecutionCtx<Object?>? parent;
 
   /// The item of this object in [path]
   final Object? pathItem;
@@ -199,9 +199,9 @@ class ResolveObjectCtx<P> implements GlobalsHolder {
         if (pathItem != null) pathItem!,
       ];
 
-  ResolveObjectCtx({
+  ObjectExecutionCtx({
     required this.pathItem,
-    required this.resolveCtx,
+    required this.executionCtx,
     required this.objectType,
     required this.objectValue,
     required this.parent,
@@ -218,21 +218,6 @@ class ResolveObjectCtx<P> implements GlobalsHolder {
   Map<String, Object?>? serializedObject() {
     if (!_didSerialized) {
       try {
-        // try {
-        //   final serializer = serdeCtx.ofValue(objectType.generic.type);
-        //   if (serializer != null) {
-        //     _serializedObject =
-        //         serializer.toJson(objectValue)! as Map<String, dynamic>;
-        //   } else {
-        //     _serializedObject =
-        //         serdeCtx.toJson(objectValue)! as Map<String, dynamic>;
-        //   }
-        // } catch (e) {
-        // _serializedObject = objectType.serializeSafe(
-        //   objectValue,
-        //   nested: false,
-        // );
-        // }
         try {
           _serializedObject =
               // ignore: avoid_dynamic_calls
@@ -326,7 +311,7 @@ class RefWithDefault<T> {
 /// A Object which holds a scope
 ///
 /// Many ctx implement [GlobalsHolder], for example
-/// [ReqCtx], [ResolveCtx], [ResolveObjectCtx]
+/// [Ctx], [ExecutionCtx], [ObjectExecutionCtx]
 ///
 /// Usually used with a [RefWithDefault] for typed values
 /// with default or a simple [ScopeRef]

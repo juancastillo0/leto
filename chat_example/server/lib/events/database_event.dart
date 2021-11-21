@@ -271,7 +271,7 @@ CREATE TABLE $tableName (
 }
 
 @Subscription()
-Future<Stream<DBEvent>> onEvent(ReqCtx<Object> ctx) async {
+Future<Stream<DBEvent>> onEvent(Ctx<Object> ctx) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);
   final stream = await controller.events.subscribeToChanges(claims);
@@ -292,7 +292,7 @@ Future<Stream<DBEvent>> onEvent(ReqCtx<Object> ctx) async {
 }
 
 @Subscription()
-Future<Stream<DBEvent>> onMessageEvent(ReqCtx<Object> ctx) async {
+Future<Stream<DBEvent>> onMessageEvent(Ctx<Object> ctx) async {
   final stream = await onEvent(ctx);
 
   return stream.where(
@@ -314,7 +314,7 @@ class Paginated<T> {
 
 @Query()
 Future<Paginated<DBEvent>> getEvents(
-  ReqCtx<Object> ctx,
+  Ctx<Object> ctx,
   String? cursor,
   int delta,
 ) async {

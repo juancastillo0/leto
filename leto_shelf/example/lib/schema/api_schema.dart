@@ -35,7 +35,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
           description: "The api's GraphQL schema in the"
               ' GraphQL Schema Definition Language (SDL).',
           resolve: (obj, ctx) {
-            return _schemaString ??= printSchema(ctx.baseCtx.schema);
+            return _schemaString ??= printSchema(ctx.executionCtx.schema);
           },
         ),
         field(

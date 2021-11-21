@@ -14,11 +14,11 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
   final String name;
 
   /// A function used to evaluate the [Value] of this field, with
-  /// respect to the parent (root) value [P] and context [ReqCtx].
+  /// respect to the parent (root) value [P] and context [Ctx].
   final FieldResolver<Value, P>? resolve;
 
   /// A function used to evaluate the [Stream] of [Value]s of this field, with
-  /// respect to the parent (root) value [P] and context [ReqCtx].
+  /// respect to the parent (root) value [P] and context [Ctx].
   final FieldSubscriptionResolver<Value>? subscribe;
 
   /// The [GraphQLType] associated with values that this
@@ -64,12 +64,12 @@ class GraphQLObjectField<Value, Serialized, P> implements ObjectField {
 /// Typedef for a function that resolves the value of a [GraphQLObjectField],
 /// whether asynchronously or not.
 typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
-    P parent, ReqCtx<P> ctx);
+    P parent, Ctx<P> ctx);
 
 /// Typedef for a function that resolves the [Stream] of [Value]s
 /// of a [GraphQLObjectField], whether asynchronously or not.
 typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
-    Function(Object parent, ReqCtx<Object> ctx);
+    Function(Object parent, Ctx<Object> ctx);
 
 /// Wrapper class for [GraphQLFieldResolver]
 /// necessary for type casting.
@@ -78,7 +78,7 @@ class FieldResolver<Value, P> {
 
   const FieldResolver(this.resolve);
 
-  FutureOr<Value?> call(P parent, ReqCtx ctx) => resolve(parent, ctx.cast());
+  FutureOr<Value?> call(P parent, Ctx ctx) => resolve(parent, ctx.cast());
 }
 
 /// Wrapper class for [GraphQLSubscriptionFieldResolver]
@@ -88,6 +88,6 @@ class FieldSubscriptionResolver<Value> {
 
   const FieldSubscriptionResolver(this.subscribe);
 
-  FutureOr<Stream<Value?>> call(Object parent, ReqCtx ctx) =>
+  FutureOr<Stream<Value?>> call(Object parent, Ctx ctx) =>
       subscribe(parent, ctx.cast());
 }

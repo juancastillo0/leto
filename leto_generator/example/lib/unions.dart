@@ -22,7 +22,7 @@ class FreezedSingleInput with _$FreezedSingleInput {
 }
 
 @Query()
-int returnFiveFromFreezedInput(ReqCtx ctx, FreezedSingleInput input) {
+int returnFiveFromFreezedInput(Ctx ctx, FreezedSingleInput input) {
   return input.five;
 }
 
@@ -92,7 +92,7 @@ final unionARef = ScopeRef<UnionA>();
 
 @Query()
 @GraphQLDocumentation(description: 'gets Union A')
-FutureOr<UnionA?> getUnionA(ReqCtx ctx) {
+FutureOr<UnionA?> getUnionA(Ctx ctx) {
   return unionARef.get(ctx);
 }
 
@@ -206,16 +206,16 @@ class InterfaceState {
 }
 
 @Query()
-Future<NestedInterfaceImpl3?> getNestedInterfaceImpl3(ReqCtx ctx) async {
+Future<NestedInterfaceImpl3?> getNestedInterfaceImpl3(Ctx ctx) async {
   return interfaceState.get(ctx).m3;
 }
 
 @Query()
-NestedInterfaceImpl2 getNestedInterfaceImpl2(ReqCtx ctx) {
+NestedInterfaceImpl2 getNestedInterfaceImpl2(Ctx ctx) {
   return interfaceState.get(ctx).m2;
 }
 
 @Query()
-NestedInterface getNestedInterfaceImplByIndex(ReqCtx ctx, int index) {
+NestedInterface getNestedInterfaceImplByIndex(Ctx ctx, int index) {
   return index == 2 ? interfaceState.get(ctx).m2 : interfaceState.get(ctx).m3;
 }
