@@ -62,7 +62,6 @@ jobs:
           base-path: leto_shelf
           path-to-lcov: "./leto_shelf/coverage/lcov.info"
           flag-name: leto_shelf
-          parallel: true
           parallel-finished: true
 
   # Check Markdown links
