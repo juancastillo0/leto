@@ -45,18 +45,25 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           base-path: leto
           path-to-lcov: "./leto/coverage/lcov.info"
+          flag-name: leto
+          parallel: true
       - name: Upload leto_schema coverage to Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           base-path: leto_schema
           path-to-lcov: "./leto_schema/coverage/lcov.info"
+          flag-name: leto_schema
+          parallel: true
       - name: Upload leto_shelf coverage to Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           base-path: leto_shelf
           path-to-lcov: "./leto_shelf/coverage/lcov.info"
+          flag-name: leto_shelf
+          parallel: true
+          parallel-finished: true
 
   # Check Markdown links
   markdown-link-check:
