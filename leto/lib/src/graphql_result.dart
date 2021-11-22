@@ -68,7 +68,7 @@ class GraphQLResult {
     );
   }
 
-  /// Returns a Json Map following http://spec.graphql.org/October2021/
+  /// Returns a Json Map following http://spec.graphql.org/October2021/#sec-Response
   Map<String, Object?> toJson() {
     return {
       if (errors.isNotEmpty) 'errors': errors.map((x) => x.toJson()).toList(),

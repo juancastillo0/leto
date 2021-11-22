@@ -72,8 +72,8 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
   const httpPath = '/graphql';
   const wsPath = '/graphql-subscription';
 
-  app.all(httpPath, graphqlHttp(graphQL, globalVariables: globalVariables));
-  app.get(wsPath, graphqlWebSocket(graphQL, globalVariables: globalVariables));
+  app.all(httpPath, graphQLHttp(graphQL, globalVariables: globalVariables));
+  app.get(wsPath, graphQLWebSocket(graphQL, globalVariables: globalVariables));
 
   setUpGraphQLSchemaDefinition(app, schema);
   setUpGraphQLUi(

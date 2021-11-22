@@ -67,7 +67,7 @@ Future<Uri> simpleGraphQLHttpServer(
           jsonParse(),
         )
         .addHandler(
-          graphqlHttp(
+          graphQLHttp(
             graphQL,
             globalVariables: config?.globalVariables,
           ),

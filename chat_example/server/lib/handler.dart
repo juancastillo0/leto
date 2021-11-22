@@ -127,7 +127,7 @@ Future<void> setUpGraphQL(
 
   app.all(
     httpPath,
-    graphqlHttp(
+    graphQLHttp(
       graphQL,
       globalVariables: globalVariables,
       onEmptyGet: (_) {
@@ -137,7 +137,7 @@ Future<void> setUpGraphQL(
   );
   app.get(
     wsPath,
-    graphqlWebSocket(
+    graphQLWebSocket(
       graphQL,
       globalVariables: globalVariables,
       validateIncomingConnection: (map, server) async {

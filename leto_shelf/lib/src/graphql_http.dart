@@ -5,16 +5,17 @@ import 'package:leto/leto.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf/src/multipart_shelf.dart' show extractMultiPartData;
 
-Handler graphqlHttp(
+Handler graphQLHttp(
   GraphQL graphQL, {
   ScopedMap? globalVariables,
   Response Function(Request)? onEmptyGet,
   Response Function(Request, Object, StackTrace)? onError,
 }) {
   return (request) async {
-    final requestVariables = ScopedMap(
-      {requestCtxKey: request},
-      globalVariables,
+    final requestVariables = makeRequestScopedMap(
+      request,
+      parent: globalVariables,
+      isFromWebSocket: false,
     );
 
     try {
@@ -84,8 +85,7 @@ Handler graphqlHttp(
         responseBody = resultList.first.toJson();
       }
 
-      Response response =
-          requestVariables[responseCtxKey] as Response? ?? Response.ok(null);
+      Response response = extractResponse(requestVariables);
       if (response.statusCode != 200 || !response.isEmpty) {
         return response;
       }

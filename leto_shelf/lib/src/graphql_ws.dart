@@ -13,7 +13,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 /// This endpoint only supports WebSockets, and can be used
 /// to deliver subscription events.
 ///
-/// [graphqlWebSocket] supports the 'graphql-transport-ws' and
+/// [graphQLWebSocket] supports the 'graphql-transport-ws' and
 /// 'graphql-ws' (apollo subscriptions-transport-ws) subprotocols,
 /// for the sake of compatibility with existing tooling.
 ///
@@ -21,7 +21,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 /// * https://the-guild.dev/blog/graphql-over-websockets
 /// * https://github.com/apollographql/subscriptions-transport-ws
 /// * https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
-Handler graphqlWebSocket(
+Handler graphQLWebSocket(
   GraphQL graphQL, {
   Iterable<String>? allowedOrigins,
   Duration? keepAliveInterval,
@@ -42,9 +42,10 @@ Handler graphqlWebSocket(
           channel.sink.close,
           channel.protocol ?? 'graphql-ws',
         );
-        final _requestVariables = ScopedMap(
-          {requestCtxKey: request},
-          globalVariables,
+        final _requestVariables = makeRequestScopedMap(
+          request,
+          parent: globalVariables,
+          isFromWebSocket: true,
         );
         final server = GraphQLWebSocketServer(
           client,
