@@ -31,13 +31,15 @@ void main() {
       final m3 = s.m3;
       final m2 = s.m2;
 
-      final result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      final result = await GraphQL(
+        graphqlApiSchema,
+        globalVariables: scope,
+      ).parseAndExecute(
         '{ getNestedInterfaceImpl3 { name name3 dec }'
         ' getNestedInterfaceImpl2 { name name2 dec }'
         ' index2: getNestedInterfaceImplByIndex(index: 2) { dec }'
         ' index3: getNestedInterfaceImplByIndex(index: 3) { dec } '
         '}',
-        globalVariables: scope,
       );
 
       expect(result.data, {

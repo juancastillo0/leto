@@ -279,9 +279,11 @@ abstract class GlobalsHolder {
 /// will be available to it's children, but not to it's [parent].
 class ScopedMap implements GlobalsHolder {
   final ScopedMap? parent;
-  final Map<Object, Object?> values;
+  final Map<Object, Object?> values = {};
 
-  ScopedMap(this.values, [this.parent]);
+  ScopedMap(Map<Object, Object?> values, [this.parent]) {
+    this.values.addAll(values);
+  }
 
   ScopedMap child([Map<Object, Object?>? values]) =>
       ScopedMap(values ?? {}, this);

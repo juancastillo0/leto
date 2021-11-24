@@ -37,6 +37,7 @@ void main() {
 
   final executor = GraphQL(
     schema,
+    globalVariables: scope,
     extensions: [
       GraphQLTracingExtension(
         onExecute: onExecute,
@@ -49,12 +50,10 @@ void main() {
     String? operationName,
     Map<String, Object?>? extensions,
   }) async {
-    final childScope = scope.child();
     final result = await executor.parseAndExecute(
       query,
       operationName: operationName,
       extensions: extensions,
-      globalVariables: childScope,
     );
     return json.decode(json.encode(result)) as Map<String, Object?>;
   }

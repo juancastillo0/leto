@@ -100,10 +100,7 @@ Future<void> setWebSocketAuth(
       appVersion: map[UserSession.appversionKey] as String?,
     );
   }
-  _webSocketConnCtxRef.setScoped(
-    server.globalVariables,
-    connCtx,
-  );
+  server.globalVariables[_webSocketConnCtxRef] = connCtx;
 }
 
 class UserClaims {

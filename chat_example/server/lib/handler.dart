@@ -97,6 +97,7 @@ Future<void> setUpGraphQL(
   final graphQL = GraphQL(
     schema,
     introspect: true,
+    globalVariables: globalVariables,
     extensions: config?.extensions ??
         [
           if (const bool.fromEnvironment('TRACING')) GraphQLTracingExtension(),
@@ -129,7 +130,6 @@ Future<void> setUpGraphQL(
     httpPath,
     graphQLHttp(
       graphQL,
-      globalVariables: globalVariables,
       onEmptyGet: (_) {
         return Response.ok(schema.schemaStr);
       },
@@ -139,7 +139,6 @@ Future<void> setUpGraphQL(
     wsPath,
     graphQLWebSocket(
       graphQL,
-      globalVariables: globalVariables,
       validateIncomingConnection: (map, server) async {
         await setWebSocketAuth(map, globalVariables, server);
 

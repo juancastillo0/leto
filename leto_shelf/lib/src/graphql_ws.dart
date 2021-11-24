@@ -27,7 +27,7 @@ Handler graphQLWebSocket(
   Duration? keepAliveInterval,
   Duration? pingInterval,
   Duration? connectionInitWaitTimeout,
-  ScopedMap? globalVariables,
+  ScopeOverrides? scopeOverrides,
   FutureOr<bool> Function(
     Map<String, Object?>? payload,
     GraphQLWebSocketServer server,
@@ -42,11 +42,13 @@ Handler graphQLWebSocket(
           channel.sink.close,
           channel.protocol ?? 'graphql-ws',
         );
-        final _requestVariables = makeRequestScopedMap(
-          request,
-          parent: globalVariables,
-          isFromWebSocket: true,
-        );
+        final _requestVariables = {
+          ...makeRequestScopedMap(
+            request,
+            isFromWebSocket: true,
+          ),
+          if (scopeOverrides != null) ...scopeOverrides
+        };
         final server = GraphQLWebSocketServer(
           client,
           graphQL,
@@ -69,7 +71,7 @@ Handler graphQLWebSocket(
 class GraphQLWebSocketServer extends stw.Server {
   final GraphQL graphQL;
   final Request request;
-  final ScopedMap globalVariables;
+  final ScopeOverrides globalVariables;
   final FutureOr<bool> Function(
     Map<String, Object?>? payload,
     GraphQLWebSocketServer server,
@@ -108,12 +110,11 @@ class GraphQLWebSocketServer extends stw.Server {
     String? operationName,
     Map<String, Object?>? extensions,
   ]) async {
-    final _globalVariables = globalVariables.child();
     return graphQL.parseAndExecute(
       query,
       operationName: operationName,
       variableValues: variables,
-      globalVariables: _globalVariables,
+      globalVariables: globalVariables,
       extensions: extensions,
       sourceUrl: 'input',
     );

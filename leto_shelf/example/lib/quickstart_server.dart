@@ -151,6 +151,7 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
     schema,
     extensions: [],
     introspect: true,
+    globalVariables: scopedMap,
   );
 
   final port =
@@ -165,14 +166,13 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // GraphQL HTTP handler
   app.all(
     '/$graphqlPath',
-    graphQLHttp(letoGraphQL, globalVariables: scopedMap),
+    graphQLHttp(letoGraphQL),
   );
   // GraphQL WebSocket handler
   app.all(
     '/$graphqlSubscriptionPath',
     graphQLWebSocket(
       letoGraphQL,
-      globalVariables: scopedMap,
       pingInterval: const Duration(seconds: 10),
       validateIncomingConnection: (
         Map<String, Object?>? initialPayload,

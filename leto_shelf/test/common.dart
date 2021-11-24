@@ -59,6 +59,7 @@ Future<Uri> simpleGraphQLHttpServer(
     schema,
     introspect: true,
     extensions: config?.extensionList ?? [],
+    globalVariables: config?.globalVariables,
   );
 
   return simpleHttpServer(
@@ -69,7 +70,6 @@ Future<Uri> simpleGraphQLHttpServer(
         .addHandler(
           graphQLHttp(
             graphQL,
-            globalVariables: config?.globalVariables,
           ),
         ),
   );

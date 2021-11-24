@@ -202,7 +202,7 @@ void main() {
       ]),
     );
     final config = GraphQLConfig(
-      globalVariables: {ref: 'result text'},
+      globalVariables: ScopedMap({ref: 'result text'}),
     );
     final executor = GraphQL.fromConfig(schema, config);
     final result = await executor.parseAndExecute(

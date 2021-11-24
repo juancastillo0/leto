@@ -38,11 +38,13 @@ void main() {
     ScopedMap? globalVariables,
     Object? rootValue,
   }) async {
-    final values = await GraphQL(schema).parseAndExecute(
+    final values = await GraphQL(
+      schema,
+      globalVariables: globalVariables,
+    ).parseAndExecute(
       query,
       variableValues: variableValues,
       rootValue: rootValue,
-      globalVariables: globalVariables,
     );
     return values.toJson();
   }

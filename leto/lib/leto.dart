@@ -56,7 +56,7 @@ class GraphQLConfig {
   /// More information in: [reflectSchema]
   final bool? introspect;
 
-  final Map<Object, Object?>? globalVariables;
+  final ScopedMap? globalVariables;
 
   const GraphQLConfig({
     this.introspect,
@@ -83,7 +83,7 @@ class GraphQL {
   final FutureOr<Object?> Function(Object? parent, Ctx)? defaultFieldResolver;
 
   /// Variables passed to all executed requests
-  final Map<Object, Object?> baseGlobalVariables;
+  final ScopedMap baseGlobalVariables;
 
   /// If validate is false, a parsed document is executed without
   /// being validated with the provided schema
@@ -110,8 +110,8 @@ class GraphQL {
     bool? validate,
     this.defaultFieldResolver,
     this.extensions = const [],
-    Map<Object, Object?>? globalVariables,
-  })  : baseGlobalVariables = globalVariables ?? const {},
+    ScopedMap? globalVariables,
+  })  : baseGlobalVariables = globalVariables ?? ScopedMap.empty(),
         introspect = introspect ?? true,
         validate = validate ?? true;
 
@@ -156,13 +156,12 @@ class GraphQL {
     Map<String, Object?>? variableValues,
     Map<String, Object?>? extensions,
     Object? rootValue,
-    ScopedMap? globalVariables,
+    Map<Object, Object?>? globalVariables,
     List<OperationType> validOperationTypes = OperationType.values,
   }) async {
-    final _globalVariables = globalVariables ?? ScopedMap.empty();
-    for (final e in baseGlobalVariables.entries) {
-      _globalVariables.putScopedIfAbsent(e.key, () => e.value);
-    }
+    final _globalVariables = globalVariables == null
+        ? ScopedMap.empty(baseGlobalVariables)
+        : ScopedMap(globalVariables, baseGlobalVariables);
     _graphQLExecutorRef.setScoped(_globalVariables, this);
 
     final preExecuteCtx = RequestCtx(

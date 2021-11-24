@@ -14,7 +14,10 @@ void main() {
     final scope = ScopedMap.empty();
     final tasks = tasksRef.get(scope);
 
-    final result = await GraphQL(graphqlApiSchema).parseAndExecute(
+    final result = await GraphQL(
+      graphqlApiSchema,
+      globalVariables: scope,
+    ).parseAndExecute(
       '''
      { getTasks {
         id
@@ -29,7 +32,6 @@ void main() {
           name
         } } }
      ''',
-      globalVariables: scope,
     );
 
     expect(

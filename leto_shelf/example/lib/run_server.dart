@@ -64,6 +64,7 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
   final graphQL = GraphQL(
     schema,
     introspect: true,
+    globalVariables: globalVariables,
     extensions: config?.extensionList ??
         [GraphQLTracingExtension(), GraphQLPersistedQueries()],
   );
@@ -72,8 +73,8 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
   const httpPath = '/graphql';
   const wsPath = '/graphql-subscription';
 
-  app.all(httpPath, graphQLHttp(graphQL, globalVariables: globalVariables));
-  app.get(wsPath, graphQLWebSocket(graphQL, globalVariables: globalVariables));
+  app.all(httpPath, graphQLHttp(graphQL));
+  app.get(wsPath, graphQLWebSocket(graphQL));
 
   setUpGraphQLSchemaDefinition(app, schema);
   setUpGraphQLUi(

@@ -24,6 +24,7 @@ void main() {
     queriesCache = LruCacheSimple(10);
     executor = GraphQL(
       tasksSchema,
+      globalVariables: scope,
       extensions: [
         GraphQLPersistedQueries(
           returnHashInResponse: true,
@@ -39,12 +40,10 @@ void main() {
     String? operationName,
     Map<String, Object?>? extensions,
   }) async {
-    final childScope = scope.child();
     final result = await executor.parseAndExecute(
       query,
       operationName: operationName,
       extensions: extensions,
-      globalVariables: childScope,
     );
     return json.decode(json.encode(result)) as Map<String, Object?>;
   }

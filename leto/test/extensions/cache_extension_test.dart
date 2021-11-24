@@ -15,6 +15,7 @@ void main() {
   final cache = LruCacheSimple<String, CacheEntry>(10);
   final executor = GraphQL(
     tasksSchema,
+    globalVariables: scope,
     extensions: [
       CacheExtension(cache: cache),
     ],
@@ -41,12 +42,10 @@ void main() {
     String? operationName,
     Map<String, Object?>? extensions,
   }) async {
-    final childScope = scope.child();
     final result = await executor.parseAndExecute(
       query,
       operationName: operationName,
       extensions: extensions,
-      globalVariables: childScope,
     );
     return json.decode(json.encode(result)) as Map<String, Object?>;
   }

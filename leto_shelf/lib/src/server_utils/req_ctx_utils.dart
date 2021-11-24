@@ -6,21 +6,19 @@ import 'package:shelf/shelf.dart';
 
 final _requestCtxRef = ScopeRef<_LetoShelfRequest>('__request');
 
+typedef ScopeOverrides = Map<Object, Object?>;
+
 /// Creates a scope with leto_shelf request state
-ScopedMap makeRequestScopedMap(
+ScopeOverrides makeRequestScopedMap(
   Request request, {
-  required ScopedMap? parent,
   required bool isFromWebSocket,
 }) {
-  return ScopedMap(
-    {
-      _requestCtxRef: _LetoShelfRequest(
-        isFromWebSocket: isFromWebSocket,
-        request: request,
-      )
-    },
-    parent,
-  );
+  return {
+    _requestCtxRef: _LetoShelfRequest(
+      isFromWebSocket: isFromWebSocket,
+      request: request,
+    )
+  };
 }
 
 class _LetoShelfRequest {
@@ -109,6 +107,14 @@ bool extractIsFromWebSocket(GlobalsHolder ctx) {
 /// An empty response with 200 status code if it wasn't overridden
 Response extractResponse(GlobalsHolder ctx) {
   return _state(ctx).response ?? Response.ok(null);
+}
+
+/// Returns the response associated with this [ctx]
+///
+/// An empty response with 200 status code if it wasn't overridden
+Response extractResponseFromMap(ScopeOverrides ctx) {
+  return (ctx[_requestCtxRef]! as _LetoShelfRequest).response ??
+      Response.ok(null);
 }
 
 const _updateResponse = updateResponse;

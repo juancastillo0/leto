@@ -583,7 +583,7 @@ void main() {
       ],
       isInterface: true,
       resolveType: (_source, type, ctx) {
-        encounteredContext = ctx.globals;
+        encounteredContext = ctx.globals.parent!.values;
         encounteredSchema = ctx.executionCtx.schema;
         encounteredRootValue = ctx.executionCtx.requestCtx.rootValue;
         return 'Person';
@@ -606,10 +606,10 @@ void main() {
     final result = await GraphQL(
       schema2,
       introspect: false,
+      globalVariables: contextValue,
     ).parseAndExecute(
       document,
       rootValue: rootValue,
-      globalVariables: contextValue,
     );
     expect(result.toJson(), {
       'data': {
@@ -622,6 +622,6 @@ void main() {
 
     expect(encounteredSchema, schema2);
     expect(encounteredRootValue, rootValue);
-    expect(encounteredContext, contextValue);
+    expect(encounteredContext, contextValue.values);
   });
 }

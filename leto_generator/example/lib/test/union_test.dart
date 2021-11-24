@@ -21,10 +21,13 @@ void main() {
         UnionA.a3(one: [1, 2]),
         UnionA.a4(one: [1, 2]),
       ];
-
+      final executor = GraphQL(
+        graphqlApiSchema,
+        globalVariables: scope,
+      );
       for (final item in unionValues) {
         unionARef.setScoped(scope, item);
-        final result = await GraphQL(graphqlApiSchema).parseAndExecute(
+        final result = await executor.parseAndExecute(
           '''
           {getUnionA {
             __typename
@@ -42,7 +45,6 @@ void main() {
             }
           }}
           ''',
-          globalVariables: scope,
         );
 
         final json = item.toJson();
