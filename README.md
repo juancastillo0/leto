@@ -291,7 +291,7 @@ These web pages will allow you to explore your GraphQL Schema, view all the type
 
 Usually exposed as static HTML in your deployed server. Each has multiple configurations for determining the default tabs, queries and variables, the GraphQL HTTP and WebSocket (subscription) endpoints, the UI's theme and more.
 
-All of the static HTML files and configurations can be found in the [ graphql_ui folder](https://github.com/juancastillo0/leto/tree/main/leto_shelf/lib/src/graphql_ui).
+All of the static HTML files and configurations can be found in the [graphql_ui folder](https://github.com/juancastillo0/leto/tree/main/leto_shelf/lib/src/graphql_ui).
 
 ### GraphiQL
 
@@ -763,7 +763,7 @@ A parameter of Interface and Union types is a function with the signature: `Stri
 
 We compare the resolved result's Dart type with the possible types generic type parameter, if there is only one match (withing the possible types), that will be the resolved type. This happens very often, specially with code generation or when providing a distinct class for each `GraphQLObjectType`.
 
-This can't be used with Union types which are wrappers over the inner types (like `Result<V, E>`), since the `Value` generic of the possible types (inner types, `V` and `E`) will not match the wrapper type (`Result`). For this cases you will need to provide a `resolveType` and `extractInner` callbacks. With freezed-like unions you don't have to do that since the variants extend the union type.
+This can't be used with Union types which are wrappers over the inner types (like `Result<V, E>` or `Either<L, R>`), since generic type of the possible types (`V` and `E`) will not match the wrapper type (`Result`). For this cases you will need to provide a `resolveType` and `extractInner` callbacks. With freezed-like unions you don't have to do that since the variants extend the union type.
 
 ### isTypeOf
 

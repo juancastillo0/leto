@@ -181,8 +181,14 @@ class ObjectExecutionCtx<P> implements GlobalsHolder {
   }
 }
 
+///  A reference to a value of type [T] in a [ScopedMap]
+abstract class BaseRef<T> {
+  /// Returns the saved value from a scope
+  T get(GlobalsHolder scope);
+}
+
 /// A reference to a value of type [T] in a [ScopedMap]
-class ScopeRef<T> {
+class ScopeRef<T> implements BaseRef<T?> {
   /// A name primarily used for debugging
   final String? name;
 
@@ -216,7 +222,7 @@ class ScopeRef<T> {
 ///   final String value = valueRef.get(ctx);
 /// }
 /// ```
-class RefWithDefault<T> {
+class RefWithDefault<T> implements BaseRef<T> {
   final String? name;
   final T Function(ScopedMap scope) create;
   final bool scoped;
@@ -225,7 +231,7 @@ class RefWithDefault<T> {
   RefWithDefault.scoped(this.create, {this.name}) : scoped = true;
   RefWithDefault.global(this.create, {this.name}) : scoped = false;
 
-  /// Set (overrides if present) the value in the [holder]'s
+  /// Sets (overrides if present) the value in the [holder]'s
   /// [ScopedMap] in the appropriate scope.
   T set(GlobalsHolder holder, T value) {
     if (scoped) {

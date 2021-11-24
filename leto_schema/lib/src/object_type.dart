@@ -283,8 +283,8 @@ abstract class ObjectField implements GraphQLElement {
 
 /// A [GraphQLType] that specifies the shape of structured data,
 /// with multiple fields that can be resolved independently of one another.
-abstract class _GraphQLBaseNestedType<P, F extends ObjectField>
-    implements GraphQLType<P, Map<String, Object?>> {
+mixin _GraphQLBaseNestedType<P, F extends ObjectField>
+    on GraphQLType<P, Map<String, Object?>> {
   /// The list of fields that an object of this type is expected to have
   List<F> get fields;
 

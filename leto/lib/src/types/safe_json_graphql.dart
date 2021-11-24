@@ -2,7 +2,7 @@ import 'package:leto_schema/leto_schema.dart';
 
 import 'safe_json.dart';
 
-/// The canonical [Json] [GraphQLType] instance.
+/// The canonical [Json] class [GraphQLType] instance.
 final GraphQLJsonType jsonGraphQLType = GraphQLJsonType();
 
 /// A [GraphQLJsonType] represents a valid json object
