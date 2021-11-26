@@ -97,7 +97,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Schema Validation](#schema-validation)
   - [Document Validation](#document-validation)
   - [Input Validation](#input-validation)
-  - [Query Complexity (Not implemented, yet)](#query-complexity-not-implemented-yet)
+  - [Query Complexity](#query-complexity)
 - [Miscellaneous](#miscellaneous)
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
@@ -1093,6 +1093,8 @@ For a complete subscriptions example with events from a database please see the 
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Type-System)
 
+Implements the "Type Validation" sub-sections of the specification's "Type System" section.
+
 Guaranties that the `GraphQLSchema` instance is valid, verifies the Type System validations in the specification. For example, an Object field's type can only be an Output Type or an Union should have at least one possible type and all of them have to be Object types.
 
 This will be executed before stating a GraphQL server. Leto implements all of the Specification's schema validation. The code for all rules can be found in the [validate_schema.dart](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validate/validate_schema.dart) file in `package:leto_schema`.
@@ -1108,9 +1110,42 @@ This will be executed before executing any request. Leto implements all of the S
 
 daw
 
-## Query Complexity (Not implemented, yet)
+## Query Complexity
 
-dwd
+[Tests](https://github.com/juancastillo0/leto/tree/main/leto_schema/test/validation/query_complexity_test.dart)
+
+This document validation rule allows you to restrict the complexity of a GraphQL request.
+
+
+The provided `queryComplexityRuleBuilder` returns a `ValidationRule` that reports errors when the `maxComplexity` or `maxDepth` configuration parameters are reached.
+
+- `maxComplexity`
+
+Specifies the maximum complexity for a given operation. The complexity is measured based on the selected fields and should be. If this complexity is surpassed (is greater) a validation error will be reported.
+
+- `maxDepth`
+
+Specifies the maximum depth for a given operation. The depth is defined as the number of objects (including the root operation object) that have to be transversed to arrive to a given field. If this depth is surpassed (is greater) a validation error will be reported.
+
+
+The complexity for each fieldNode is given by:
+
+`complexity = fieldComplexity + (childrenComplexity + fieldTypeComplexity) * complexityMultiplier`
+
+Where fieldComplexity is the `ElementComplexity` in
+`GraphQLObjectField.attachments` or `defaultFieldComplexity`
+if there aren't any.
+
+childrenComplexity is:
+- scalar or enum (leaf types): 0
+- object or interface: sum(objectFieldsComplexities)
+- union: max(possibleTypesComplexities)
+
+fieldTypeComplexity will be taken as the `ElementComplexity`
+from `GraphQLNamedType.attachments` or 0 if there aren't any.
+
+If the fieldType is a `GraphQLListType`, complexityMultiplier
+will be the provided `listComplexityMultiplier`, otherwise 1.
 
 # Miscellaneous
 
