@@ -4,11 +4,11 @@ import 'package:leto_generator_example/star_wars/schema.dart';
 import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_generator_example/test/class_config_test.dart';
 import 'package:leto_generator_example/inputs.dart';
+import 'package:leto_generator_example/resolver_class.dart';
 import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
-import 'package:leto_generator_example/resolver_class.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
@@ -42,6 +42,12 @@ final graphqlApiSchema = GraphQLSchema(
       getClassConfigGraphQLField,
       testInputGenGraphQLField,
       queryMultipleParamsGraphQLField,
+      queryInClassGraphQLField,
+      queryInClass2GraphQLField,
+      queryInClass3GraphQLField,
+      queryInClass4GraphQLField,
+      queryInClass5GraphQLField,
+      queryInClass6GraphQLField,
       returnFiveFromFreezedInputGraphQLField,
       getUnionAGraphQLField,
       getNestedInterfaceImpl3GraphQLField,
@@ -53,12 +59,6 @@ final graphqlApiSchema = GraphQLSchema(
       resultObjectGraphQLField,
       resultObjectErrGraphQLField,
       testManyDefaultsGraphQLField,
-      queryInClassGraphQLField,
-      queryInClass2GraphQLField,
-      queryInClass3GraphQLField,
-      queryInClass4GraphQLField,
-      queryInClass5GraphQLField,
-      queryInClass6GraphQLField,
     ],
   ),
   mutationType: objectType(
@@ -73,9 +73,9 @@ final graphqlApiSchema = GraphQLSchema(
       getIntInterfaceEnumListGraphQLField,
       getIntInterfaceNEnumNullGraphQLField,
       mutationMultipleParamsOptionalPosGraphQLField,
+      mutationInClassGraphQLField,
       resultUnionObjectMutErrGraphQLField,
       resultObjectMutErrGraphQLField,
-      mutationInClassGraphQLField,
     ],
   ),
   subscriptionType: objectType(
