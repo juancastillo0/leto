@@ -14,9 +14,10 @@ class SDLValidationCtx {
       fragmentsFromDocument(document);
 
   final Map<OperationDefinitionNode, List<FragmentDefinitionNode>>
-      _recursivelyReferencedFragments = {};
+      _recursivelyReferencedFragments = Map.identity();
 
-  final Map<SelectionSetNode, List<FragmentSpreadNode>> _fragmentSpreads = {};
+  final Map<SelectionSetNode, List<FragmentSpreadNode>> _fragmentSpreads =
+      Map.identity();
 
   ///
   SDLValidationCtx({
@@ -85,10 +86,11 @@ class ValidationCtx extends SDLValidationCtx {
   GraphQLSchema get schema => super.schema!;
   final TypeInfo typeInfo;
 
-  final Map<ExecutableDefinitionNode, List<VariableUsage>> _variableUsages = {};
+  final Map<ExecutableDefinitionNode, List<VariableUsage>> _variableUsages =
+      Map.identity();
 
   final Map<OperationDefinitionNode, List<VariableUsage>>
-      _recursiveVariableUsages = {};
+      _recursiveVariableUsages = Map.identity();
 
   ///
   ValidationCtx(

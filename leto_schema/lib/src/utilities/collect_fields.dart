@@ -101,12 +101,7 @@ bool doesFragmentTypeApply(
   TypeConditionNode fragmentType,
   GraphQLSchema schema,
 ) {
-  final typeNode = NamedTypeNode(
-    name: fragmentType.on.name,
-    span: fragmentType.on.span,
-    isNonNull: fragmentType.on.isNonNull,
-  );
-  final type = convertType(typeNode, schema.typeMap);
+  final type = convertType(fragmentType.on, schema.typeMap);
 
   return type.whenMaybe(
     object: (type) {
