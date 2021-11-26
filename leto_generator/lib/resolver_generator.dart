@@ -330,8 +330,6 @@ Future<ClassResolver?> getClassResolver(
         );
 }
 
-
-
 // ExecutableElement? constructor = parent.getNamedConstructor('fromCtx') ??
 //     parent.lookUpMethod(
 //       'fromCtx',
