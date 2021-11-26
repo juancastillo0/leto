@@ -540,6 +540,7 @@ class GraphQLNonNullType<Value, Serialized>
     FutureOr<Stream<Value>> Function(Object parent, Ctx<Object> ctx)? subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
     FieldDefinitionNode? astNode,
+    GraphQLAttachments attachments = const [],
   }) {
     return GraphQLObjectField(
       name,
@@ -551,6 +552,7 @@ class GraphQLNonNullType<Value, Serialized>
       description: description,
       deprecationReason: deprecationReason,
       astNode: astNode,
+      attachments: attachments,
     );
   }
 

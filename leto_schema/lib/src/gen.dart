@@ -9,6 +9,8 @@ GraphQLObjectType<P> objectType<P>(
   ResolveType<GraphQLObjectType<P>>? resolveType,
   IsTypeOf<P>? isTypeOf,
   Iterable<GraphQLObjectType> interfaces = const [],
+  GraphQLTypeDefinitionExtra<TypeDefinitionNode, TypeExtensionNode> extra =
+      const GraphQLTypeDefinitionExtra.attach([]),
 }) {
   return GraphQLObjectType<P>(
     name,
@@ -18,6 +20,7 @@ GraphQLObjectType<P> objectType<P>(
     isTypeOf: isTypeOf,
     fields: fields,
     interfaces: interfaces,
+    extra: extra,
   );
 }
 
@@ -113,6 +116,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     GraphQLSubscriptionFieldResolver<V>? subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
     FieldDefinitionNode? astNode,
+    GraphQLAttachments attachments = const [],
   }) {
     return GraphQLObjectField(
       name,
@@ -124,6 +128,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
       description: description,
       deprecationReason: deprecationReason,
       astNode: astNode,
+      attachments: attachments,
     );
   }
 
