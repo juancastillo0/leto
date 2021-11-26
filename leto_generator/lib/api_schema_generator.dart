@@ -57,12 +57,19 @@ class ValidatorsLibGenerator implements Builder {
       } on NonLibraryAssetException catch (_) {
         continue;
       }
+      final classResolversMethods = reader.allElements
+          .whereType<ClassElement>()
+          .where((element) => const TypeChecker.fromRuntime(ClassResolver)
+              .hasAnnotationOf(element))
+          .expand((e) => e.methods);
 
       for (final e in [Query, Mutation, Subscription]) {
         final typeChecker = TypeChecker.fromRuntime(e);
         allResolvers[e]!.addAll(
           reader.allElements.where((w) => typeChecker.hasAnnotationOfExact(w)),
         );
+        allResolvers[e]!.addAll(classResolversMethods
+            .where((e) => typeChecker.hasAnnotationOfExact(e)));
       }
       allClasses.addAll(
         reader.classes.where(

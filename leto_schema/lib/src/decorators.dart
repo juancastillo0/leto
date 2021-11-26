@@ -142,11 +142,13 @@ class GraphQLField {
   final String? type;
 }
 
+abstract class BaseGraphQLResolver {}
+
 /// Signifies that a function should statically generate a [GraphQLObjectField].
 ///
 /// Use [Mutation], [Query] and [Subscription]
 @Target({TargetKind.function, TargetKind.method})
-abstract class GraphQLResolver {
+abstract class GraphQLResolver implements BaseGraphQLResolver {
   /// The name of the field to generate
   String? get name;
 
@@ -154,6 +156,16 @@ abstract class GraphQLResolver {
   /// this will be the name of that [GraphQLType]. This will be passed in the
   /// `name` parameter to the generic function which created the type
   String? get genericTypeName;
+}
+
+@Target({TargetKind.classType})
+class ClassResolver implements BaseGraphQLResolver {
+  final String? fieldName;
+
+  final String? instantiateCode;
+
+  ///
+  const ClassResolver({this.fieldName, this.instantiateCode});
 }
 
 /// Signifies that a function should statically generate
@@ -222,11 +234,6 @@ class Subscription implements GraphQLResolver {
   });
 }
 
-/// A function which returns a [GraphQLType].
-///
-/// Used to override the type inferred in code generation.
-typedef GraphQLTypeProvider = GraphQLType Function();
-
 /// A metadata annotation used to provide documentation and type information
 /// to `package:leto_generator` in code generation
 class GraphQLDocumentation {
@@ -239,7 +246,7 @@ class GraphQLDocumentation {
 
   /// A constant callback that returns an explicit type for the annotated field,
   /// rather than having it be assumed
-  final GraphQLTypeProvider? type;
+  final GraphQLType Function()? type;
 
   /// The name of an explicit type for the annotated field, rather than
   /// having it be assumed.

@@ -8,6 +8,7 @@ import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
+import 'package:leto_generator_example/resolver_class.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
@@ -52,6 +53,12 @@ final graphqlApiSchema = GraphQLSchema(
       resultObjectGraphQLField,
       resultObjectErrGraphQLField,
       testManyDefaultsGraphQLField,
+      queryInClassGraphQLField,
+      queryInClass2GraphQLField,
+      queryInClass3GraphQLField,
+      queryInClass4GraphQLField,
+      queryInClass5GraphQLField,
+      queryInClass6GraphQLField,
     ],
   ),
   mutationType: objectType(
@@ -68,6 +75,7 @@ final graphqlApiSchema = GraphQLSchema(
       mutationMultipleParamsOptionalPosGraphQLField,
       resultUnionObjectMutErrGraphQLField,
       resultObjectMutErrGraphQLField,
+      mutationInClassGraphQLField,
     ],
   ),
   subscriptionType: objectType(

@@ -150,7 +150,7 @@ Future<FieldInfo> fieldFromElement(
     name: annot.name ?? method.name!,
     defaultValueCode: getDefaultValue(method),
     getter: method is MethodElement
-        ? resolverFunctionBodyFromElement(method)
+        ? await resolverFunctionBodyFromElement(ctx, method)
         : method.name!,
     inputs: method is MethodElement
         ? await inputsFromElement(ctx, method)

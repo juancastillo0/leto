@@ -20,12 +20,14 @@ Builder graphQLResolverBuilder(BuilderOptions options) {
 }
 
 const _validateTypeChecker = TypeChecker.fromRuntime(Valida);
+const _resolverTypeChecker = TypeChecker.fromRuntime(GraphQLResolver);
 const _validationTypeChecker = TypeChecker.fromRuntime(Validation);
+const _classResolverTypeChecker = TypeChecker.fromRuntime(ClassResolver);
 
 bool isReqCtx(DartType type) =>
     const TypeChecker.fromRuntime(Ctx).isAssignableFromType(type);
 
-class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
+class _GraphQLGenerator extends GeneratorForAnnotation<BaseGraphQLResolver> {
   final Config config;
 
   _GraphQLGenerator(this.config);
@@ -36,53 +38,73 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
     ConstantReader annotation,
     BuildStep buildStep,
   ) async {
+    final ctx = GeneratorCtx(buildStep: buildStep, config: config);
     if (element is! FunctionElement) {
-      throw UnsupportedError(
-          '@GraphQLResolver() is only supported on functions.');
+      final classResolver = element is ClassElement
+          ? _classResolverTypeChecker.firstAnnotationOfExact(element)
+          : null;
+      if (classResolver == null) {
+        throw UnsupportedError(
+            '@GraphQLResolver() is only supported on functions.');
+      }
+
+      return (await Future.wait((element as ClassElement)
+              .methods
+              .where((method) => _resolverTypeChecker.hasAnnotationOf(method))
+              .map((e) => _buildForElement(ctx, e))))
+          .join('\n');
     }
-    try {
-      final _dartEmitter = DartEmitter();
-      final ctx = GeneratorCtx(buildStep: buildStep, config: config);
 
-      final inputs = await inputsFromElement(ctx, element);
+    return _buildForElement(ctx, element);
+  }
+}
 
-      final desc = getDescription(element, element.documentationComment);
+Future<String> _buildForElement(
+  GeneratorCtx ctx,
+  ExecutableElement element,
+) async {
+  try {
+    final _dartEmitter = DartEmitter();
 
-      final lib = Library((b) {
-        final deprecationReason = getDeprecationReason(element);
+    final inputs = await inputsFromElement(ctx, element);
 
-        final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
-            element.returnType;
+    final desc = getDescription(element, element.documentationComment);
 
-        final _returnType = getReturnType(_retType);
-        final returnType = _returnType.endsWith('?')
-            ? _returnType.substring(0, _returnType.length - 1)
-            : _returnType;
+    final funcDef = await resolverFunctionFromElement(ctx, element);
 
-        final resolverName = const TypeChecker.fromRuntime(GraphQLResolver)
-            .firstAnnotationOf(element)
-            ?.getField('name')
-            ?.toStringValue();
-        final genericTypeName = const TypeChecker.fromRuntime(GraphQLResolver)
-            .firstAnnotationOf(element)
-            ?.getField('genericTypeName')
-            ?.toStringValue();
+    final lib = Library((b) {
+      final deprecationReason = getDeprecationReason(element);
 
-        final returnGqlType = inferType(
-          config.customTypes,
-          element,
-          element.name,
-          element.returnType,
-          genericTypeName: genericTypeName,
-        ).accept(_dartEmitter).toString();
+      final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
+          element.returnType;
 
-        final funcDef = resolverFunctionFromElement(element);
+      final _returnType = getReturnType(_retType);
+      final returnType = _returnType.endsWith('?')
+          ? _returnType.substring(0, _returnType.length - 1)
+          : _returnType;
 
-        b.body.add(
-          Field(
-            (f) => f
-              ..assignment = Code(
-                '''
+      final resolverName = const TypeChecker.fromRuntime(GraphQLResolver)
+          .firstAnnotationOf(element)
+          ?.getField('name')
+          ?.toStringValue();
+      final genericTypeName = const TypeChecker.fromRuntime(GraphQLResolver)
+          .firstAnnotationOf(element)
+          ?.getField('genericTypeName')
+          ?.toStringValue();
+
+      final returnGqlType = inferType(
+        ctx.config.customTypes,
+        element,
+        element.name,
+        element.returnType,
+        genericTypeName: genericTypeName,
+      ).accept(_dartEmitter).toString();
+
+      b.body.add(
+        Field(
+          (f) => f
+            ..assignment = Code(
+              '''
                 field(
                   '${resolverName ?? element.name}', 
                   $returnGqlType,
@@ -92,21 +114,20 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLResolver> {
                   ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
                   )
                  ''',
-              )
-              ..name = '${element.name}$graphQLFieldSuffix'
-              ..type = refer(
-                'GraphQLObjectField<$returnType, Object, Object>',
-              )
-              ..modifier = FieldModifier.final$,
-          ),
-        );
-      });
-      return lib.accept(_dartEmitter).toString();
-    } catch (e, s) {
-      print('$e $s');
+            )
+            ..name = '${element.name}$graphQLFieldSuffix'
+            ..type = refer(
+              'GraphQLObjectField<$returnType, Object, Object>',
+            )
+            ..modifier = FieldModifier.final$,
+        ),
+      );
+    });
+    return lib.accept(DartEmitter()).toString();
+  } catch (e, s) {
+    print('$e $s');
 
-      return '/*$e $s*/';
-    }
+    return '/*$e $s*/';
   }
 }
 
@@ -169,7 +190,10 @@ GraphQLArg argInfoFromElement(Element element) {
   return argInfo;
 }
 
-String resolverFunctionBodyFromElement(ExecutableElement element) {
+Future<String> resolverFunctionBodyFromElement(
+  GeneratorCtx ctx,
+  ExecutableElement element,
+) async {
   bool _hasValidation(Element? element) =>
       element != null && _validateTypeChecker.hasAnnotationOfExact(element);
   bool _isValidation(Element? element) =>
@@ -218,26 +242,126 @@ if ($value != null) {
     }
   }
 
+  final _call = '${element.name}(${params.join(',')})';
+
+  final classResolver = await getClassResolver(ctx, element);
+  final handlingFuture =
+      element is MethodElement && classResolver?.instantiateCode != null;
+
+  String _getter = element is MethodElement
+      ? (classResolver?.instantiateCode ?? 'obj.')
+      : '';
+  if (handlingFuture) {
+    final _resolverClassName = element.enclosingElement.name;
+    _getter = 'final _call = ($_resolverClassName r) => r.$_call;\n'
+        ' // ignore: unnecessary_non_null_assertion\n'
+        ' final FutureOr<$_resolverClassName> _obj = $_getter;'
+        ' if (_obj is Future<$_resolverClassName>) return _obj.then(_call);'
+        ' else return _call(_obj);';
+  }
+  // if (handlingFuture) {
+  //   _getter = 'return Future.value($_getter).then('
+  //       ' (${element.enclosingElement.name} r) => r.$_call);';
+  // }
+
   return '''
 final args = ctx.args;
 ${validations.join('\n')}
-return ${element is MethodElement ? 'obj.' : ''}${element.name}(${params.join(',')});
+${handlingFuture ? _getter : 'return $_getter$_call;'}
 ''';
 }
 
-String resolverFunctionFromElement(ExecutableElement element) {
+Future<String> resolverFunctionFromElement(
+  GeneratorCtx ctx,
+  ExecutableElement element,
+) async {
   final hasSubsAnnot =
       const TypeChecker.fromRuntime(Subscription).hasAnnotationOfExact(element);
   final isStream = isStreamOrAsyncStream(element.returnType);
 
   if (hasSubsAnnot && !isStream || isStream && !hasSubsAnnot) {
-    print('$element should return a stream to be a Subscription.');
+    print('$element should return a Stream to be a Subscription.');
   }
 
-  final body = resolverFunctionBodyFromElement(element);
+  final body = await resolverFunctionBodyFromElement(ctx, element);
   return '''
 ${isStream ? 'subscribe' : 'resolve'}: (obj, ctx) {
   $body
 }
 ''';
 }
+
+Future<ClassResolver?> getClassResolver(
+  GeneratorCtx ctx,
+  ExecutableElement element,
+) async {
+  final classAnnot = _classResolverTypeChecker
+      .firstAnnotationOfExact(element.enclosingElement);
+
+  String? instantiateCode = classAnnot == null
+      ? null
+      : classAnnot.getField('instantiateCode')?.toStringValue() ??
+          ctx.config.instantiateCode;
+  if (classAnnot != null && instantiateCode == null) {
+    final parent = element.enclosingElement as ClassElement;
+    final ref = parent.getGetter('ref');
+    if (ref == null) {
+      throw Exception('');
+    } else if (!ref.isStatic) {
+      throw Exception('');
+    } else if (!const TypeChecker.fromRuntime(BaseRef)
+        .isAssignableFromType(ref.returnType)) {
+      throw Exception('');
+    }
+    instantiateCode = '${parent.name}.${ref.name}.get(ctx)!';
+  }
+  if (instantiateCode != null) {
+    instantiateCode = instantiateCode.replaceAll(
+      '{{name}}',
+      element.enclosingElement.name!,
+    );
+  }
+
+  return classAnnot == null
+      ? null
+      : ClassResolver(
+          fieldName: classAnnot.getField('fieldName')?.toStringValue(),
+          instantiateCode: instantiateCode,
+        );
+}
+
+
+
+// ExecutableElement? constructor = parent.getNamedConstructor('fromCtx') ??
+//     parent.lookUpMethod(
+//       'fromCtx',
+//       await ctx.buildStep.inputLibrary,
+//     ) ??
+//     parent.getGetter('fromCtx');
+// if (constructor == null) {
+//   throw Exception('');
+// } else if (constructor is! ConstructorElement && !constructor.isStatic) {
+//   throw Exception('');
+// } else if (constructor.parameters.length > 1) {
+//   throw Exception('');
+// }
+
+// if (constructor is PropertyAccessorElement &&
+//     constructor.returnType.isDartCoreFunction) {
+//   constructor = constructor.returnType.element! as ExecutableElement;
+// }
+
+// final param = constructor.parameters.firstOrNull;
+// if (param != null &&
+//     !const TypeChecker.fromRuntime(GlobalsHolder)
+//         .isAssignableFromType(param.type)) {
+//   throw Exception(param.type.getDisplayString(withNullability: false));
+// }
+
+// final _exec = param != null
+//     ? '(ctx)'
+//     : constructor is PropertyAccessorElement &&
+//             !constructor.returnType.isDartCoreFunction
+//         ? ''
+//         : '()';
+// instantiateCode = '${parent.name}.${constructor.name}$_exec';

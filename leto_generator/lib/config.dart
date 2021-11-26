@@ -5,8 +5,11 @@ class Config {
   final String graphQLFieldSuffix;
   final bool nullableFields;
   final bool omitFields;
+  final bool omitPrivateFields;
+  final String? instantiateCode;
   final List<CustomTypes> customTypes;
 
+  ///
   const Config({
     String? serializerSuffix,
     String? graphqlTypeSuffix,
@@ -14,13 +17,16 @@ class Config {
     String? graphQLFieldSuffix,
     bool? nullableFields,
     bool? omitFields,
+    bool? omitPrivateFields,
+    this.instantiateCode,
     required this.customTypes,
   })  : serializerSuffix = serializerSuffix ?? 'Serializer',
         graphqlTypeSuffix = graphqlTypeSuffix ?? 'GraphQLType',
         unionKeySuffix = unionKeySuffix ?? 'Discriminant',
         graphQLFieldSuffix = graphQLFieldSuffix ?? 'GraphQLField',
         nullableFields = nullableFields ?? false,
-        omitFields = omitFields ?? false;
+        omitFields = omitFields ?? false,
+        omitPrivateFields = omitPrivateFields ?? true;
 
   Map<String, Object?> toJson() {
     return {
@@ -31,6 +37,8 @@ class Config {
       'nullableFields': nullableFields,
       'omitFields': omitFields,
       'customTypes': customTypes,
+      'omitPrivateFields': omitPrivateFields,
+      'instantiateCode': instantiateCode,
     };
   }
 
@@ -42,6 +50,8 @@ class Config {
       graphQLFieldSuffix: map['graphQLFieldSuffix'] as String?,
       nullableFields: map['nullableFields'] as bool?,
       omitFields: map['omitFields'] as bool?,
+      omitPrivateFields: map['omitPrivateFields'] as bool?,
+      instantiateCode: map['instantiateCode'] as String?,
       customTypes: map['customTypes'] == null
           ? []
           : List.of(
