@@ -645,7 +645,7 @@ class GraphQL {
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
         ctx.executionCtx.schema,
-        field.type,
+        field,
         ctx.groupedFieldSet[pathItem]!,
         ctx.executionCtx.document,
         ctx.executionCtx.variableValues,
@@ -838,7 +838,7 @@ class GraphQL {
       pathItem: pathItem,
       lookahead: possibleSelectionsCallback(
         ctx.executionCtx.schema,
-        objectField.type,
+        objectField,
         ctx.groupedFieldSet[pathItem]!,
         ctx.executionCtx.document,
         ctx.executionCtx.variableValues,

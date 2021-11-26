@@ -22,10 +22,9 @@ Visitor singleFieldSubscriptionsRule(ValidationCtx context) {
       if (subscriptionType != null) {
         final operationName = node.name?.value;
         final variableValues = <String, Object?>{};
-        final document = context.document;
         final fields = collectFields(
           schema,
-          fragmentsFromDocument(document),
+          context.fragmentsMap,
           subscriptionType,
           node.selectionSet,
           variableValues,

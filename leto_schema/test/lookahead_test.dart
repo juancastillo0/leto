@@ -92,10 +92,10 @@ fragment All on NestedModel {
       'nestedNonNullListNonNull',
     ]);
 
-    final namePeek = peekMap['name']!();
+    final namePeek = peekMap['name']!.lookAhead();
     expect(namePeek, null);
 
-    final nestedPeek = peekMap['nested']!()!;
+    final nestedPeek = peekMap['nested']!.lookAhead()!;
     expect(nestedPeek.forObject.map.keys, ['nestedName', 'deep']);
     expect(nestedPeek.fieldNodes.length, 1);
 
@@ -103,28 +103,28 @@ fragment All on NestedModel {
     expect(nestedDeep.forObject.map.keys, ['nestedName']);
     expect(nestedDeep.fieldNodes.length, 1);
 
-    final nestedDeepPeek = nestedDeep.forObject.map['nestedName']!();
+    final nestedDeepPeek = nestedDeep.forObject.map['nestedName']!.lookAhead();
     expect(nestedDeepPeek, null);
 
-    final nestedNonNullPeek = peekMap['nestedNonNull']!()!;
+    final nestedNonNullPeek = peekMap['nestedNonNull']!.lookAhead()!;
     expect(nestedNonNullPeek.forObject.map.keys, ['nestedName']);
     expect(nestedNonNullPeek.fieldNodes.length, 1);
 
-    final nestedListPeek = peekMap['nestedList']!()!;
+    final nestedListPeek = peekMap['nestedList']!.lookAhead()!;
     expect(nestedListPeek.forObject.map.keys, ['nestedName', 'deep']);
     expect(nestedListPeek.fieldNodes.length, 2);
 
-    final nestedListNonNullPeek = peekMap['nestedListNonNull']!()!;
+    final nestedListNonNullPeek = peekMap['nestedListNonNull']!.lookAhead()!;
     expect(nestedListNonNullPeek.forObject.map.keys, ['nestedName', 'deep']);
     expect(nestedListNonNullPeek.fieldNodes.length, 1);
 
     final nestedListNonNullDeepPeek =
-        nestedListNonNullPeek.forObject.map['deep']!()!;
+        nestedListNonNullPeek.forObject.map['deep']!.lookAhead()!;
     expect(nestedListNonNullDeepPeek.forObject.map.keys, ['nestedName']);
     expect(nestedListNonNullDeepPeek.fieldNodes.length, 1);
 
     final nestedNonNullListNonNullPeek =
-        peekMap['nestedNonNullListNonNull']!()!;
+        peekMap['nestedNonNullListNonNull']!.lookAhead()!;
     expect(nestedNonNullListNonNullPeek.forObject.map.keys, ['nestedName']);
     expect(nestedNonNullListNonNullPeek.fieldNodes.length, 1);
   });
@@ -221,7 +221,7 @@ fragment All on NestedModel {
       // 'nestedNonNullListNonNull',
     ]);
 
-    final peekNested = peekMap['nested']!()!;
+    final peekNested = peekMap['nested']!.lookAhead()!;
 
     expect(peekNested.isUnion, true);
     expect(peekNested.unionMap.keys, ['Model1', 'Model2']);

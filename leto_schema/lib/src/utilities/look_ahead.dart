@@ -15,6 +15,8 @@ class PossibleSelections {
   /// this could be used in cases where you require aliased fields.
   final List<FieldNode> fieldNodes;
 
+  final GraphQLObjectField field;
+
   /// Same as [unionMap.values.first], useful when you know
   /// this selection is for an object an not an union
   PossibleSelectionsObject get forObject {
@@ -30,15 +32,24 @@ class PossibleSelections {
   const PossibleSelections(
     this.unionMap,
     this.fieldNodes,
+    this.field,
   );
 }
 
 class PossibleSelectionsObject {
   /// A map of un-aliased fields to a function which calculates
   /// the selected properties for that field.
-  final Map<String, PossibleSelections? Function()> map;
+  final Map<String, PossibleSelectionsField> map;
 
-  const PossibleSelectionsObject(this.map);
+  final Map<String, PossibleSelectionsField> mapAliased;
+
+  final GraphQLObjectType objectType;
+
+  const PossibleSelectionsObject({
+    required this.map,
+    required this.mapAliased,
+    required this.objectType,
+  });
 
   /// true if [fieldName] was selected for this object
   bool contains(String fieldName) => map.containsKey(fieldName);
@@ -51,12 +62,30 @@ class PossibleSelectionsObject {
   /// If it's a scalar or an enum, for example, it would not have
   /// any selections, so this functions returns null even if they are selected.
   /// Use [contains] in this case.
-  PossibleSelections? nested(String fieldName) => map[fieldName]?.call();
+  PossibleSelections? nested(String fieldName) => map[fieldName]?.lookAhead();
+}
+
+class PossibleSelectionsField {
+  /// The selection field nodes which reference this selection
+  ///
+  /// Since [PossibleSelectionsObject] has its fields un-aliased,
+  /// this could be used in cases where you require aliased fields.
+  final List<FieldNode> fieldNodes;
+
+  final GraphQLObjectField field;
+
+  final PossibleSelections? Function() lookAhead;
+
+  PossibleSelectionsField(
+    this.fieldNodes,
+    this.field,
+    this.lookAhead,
+  );
 }
 
 PossibleSelections? Function() possibleSelectionsCallback(
   GraphQLSchema schema,
-  GraphQLType type,
+  GraphQLObjectField field,
   List<FieldNode> fields,
   DocumentNode document,
   Map<String, Object?> variableValues,
@@ -79,7 +108,7 @@ PossibleSelections? Function() possibleSelectionsCallback(
       }
     }
 
-    type.whenOrNull(
+    field.type.whenOrNull(
       object: (obj) {
         possibleObjects.add(obj);
       },
@@ -102,9 +131,16 @@ PossibleSelections? Function() possibleSelectionsCallback(
               variableValues,
               aliased: false,
             );
+            final aliased = collectFields(
+              schema,
+              fragments,
+              obj,
+              selectionSet,
+              variableValues,
+              aliased: true,
+            );
 
-            Iterable<MapEntry<String, PossibleSelections? Function()>>
-                _mapEntries(
+            Iterable<MapEntry<String, PossibleSelectionsField>> _mapEntries(
               Iterable<MapEntry<String, List<FieldNode>>> entries,
             ) {
               return entries.map(
@@ -117,12 +153,16 @@ PossibleSelections? Function() possibleSelectionsCallback(
                   }
                   return MapEntry(
                     e.key,
-                    possibleSelectionsCallback(
-                      schema,
-                      field.type,
+                    PossibleSelectionsField(
                       e.value,
-                      document,
-                      variableValues,
+                      field,
+                      possibleSelectionsCallback(
+                        schema,
+                        field,
+                        e.value,
+                        document,
+                        variableValues,
+                      ),
                     ),
                   );
                 },
@@ -132,14 +172,19 @@ PossibleSelections? Function() possibleSelectionsCallback(
             return MapEntry(
               obj.name,
               PossibleSelectionsObject(
-                Map.fromEntries(
+                map: Map.fromEntries(
                   _mapEntries(nonAliased.entries),
                 ),
+                mapAliased: Map.fromEntries(
+                  _mapEntries(aliased.entries),
+                ),
+                objectType: obj,
               ),
             );
           }),
         ),
         fields,
+        field,
       );
     }
     calculated = true;
