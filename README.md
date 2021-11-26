@@ -1125,7 +1125,7 @@ Specifies the maximum complexity for a given operation. The complexity is measur
 
 - `maxDepth`
 
-Specifies the maximum depth for a given operation. The depth is defined as the number of objects (including the root operation object) that have to be transversed to arrive to a given field. If this depth is surpassed (is greater) a validation error will be reported.
+Specifies the maximum depth for a given operation. The depth is defined as the number of objects (including the root operation object) that have to be traversed to arrive to a given field. If this depth is surpassed (is greater) a validation error will be reported.
 
 
 The complexity for each fieldNode is given by:
