@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert' show json;
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 part 'inputs.g.dart';
@@ -13,15 +14,18 @@ input InputM {
   date: Date
   ints: [Int!]!
   doubles: [Float!]!
-  nested: [InputMN!]!
-  nestedNullItem: [InputMN]!
-  nestedNullItemNull: [InputMN]
-  nestedNull: [InputMN!]
+  nested: [InputMNRenamed!]!
+  nestedNullItem: [InputMNRenamed]!
+  nestedNullItemNull: [InputMNRenamed]
+  nestedNull: [InputMNRenamed!]
 }''',
   '''
-input InputMN {
+input InputMNRenamed {
   name: String!
   parent: InputM
+  json: Json!
+  jsonListArgDef: [Json!]! = [{}]
+  parentNullDef: [[InputM!]] = [null, [{name: "defaultName", date: null, ints: [0, 0], doubles: [0.0, 0.1], nested: [], nestedNullItem: [], nestedNullItemNull: null, nestedNull: null}]]
 }''',
   '''
 input InputJsonSerde {
@@ -66,28 +70,76 @@ class InputM {
     this.nestedNull,
   });
 
-  factory InputM.fromJson(Map<String, dynamic> json) => _$InputMFromJson(json);
+  factory InputM.fromJson(Map<String, Object?> json) => _$InputMFromJson(json);
   Map<String, Object?> toJson() => _$InputMToJson(this);
 }
 
-@GraphQLInput()
+@GraphQLInput(name: 'InputMNRenamed')
 class InputMN {
   final String name;
   final InputM? parent;
+  final Json json;
+  @GraphQLArg(defaultCode: 'const [JsonMap({})]')
+  final List<Json> jsonListArgDef;
+  @GraphQLArg(defaultFunc: parentNullDefDefault)
+  final List<List<InputM>?>? parentNullDef;
+
+  static List<List<InputM>?> parentNullDefDefault() => [
+        null,
+        [
+          const InputM(
+            name: 'defaultName',
+            nested: [],
+            nestedNullItem: [],
+            ints: [0, 0],
+            doubles: [0, 0.1],
+          )
+        ]
+      ];
 
   const InputMN({
     required this.name,
     this.parent,
+    this.json = const JsonList([JsonNumber(1)]),
+    required this.jsonListArgDef,
+    this.parentNullDef,
   });
 
-  factory InputMN.fromJson(Map<String, Object?> json) => InputMN(
-        name: json['name']! as String,
-        parent: json['parent'] != null
-            ? InputM.fromJson(json['parent']! as Map<String, Object?>)
-            : null,
-      );
+  factory InputMN.fromJson(Map<String, Object?> json) {
+    return InputMN(
+      name: json['name']! as String,
+      parent: json['parent'] != null
+          ? InputM.fromJson(json['parent']! as Map<String, Object?>)
+          : null,
+      json: Json.fromJson(json['json']),
+      jsonListArgDef: List.of(
+        (json['jsonListArgDef'] as List).map(
+          (Object? e) => Json.fromJson(e),
+        ),
+      ),
+      parentNullDef: json['parentNullDef'] != null
+          ? List.of(
+              (json['parentNullDef']! as List<Object?>).map(
+                (e) => e == null
+                    ? null
+                    : List.of(
+                        (e as List<Object?>).map(
+                          (e) => InputM.fromJson(e as Map<String, Object?>),
+                        ),
+                      ),
+              ),
+            )
+          : null,
+    );
+  }
 
-  Map<String, Object?> toJson() => {'name': name, 'parent': parent};
+  Map<String, Object?> toJson() => {
+        'name': name,
+        'parent': parent,
+        'json': json,
+        'jsonListArgDef': jsonListArgDef,
+        if (parentNullDef != null) 'parentNullDef': parentNullDef,
+      };
 }
 
 @GraphQLInput()

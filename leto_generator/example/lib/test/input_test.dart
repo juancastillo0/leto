@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:leto/leto.dart';
+import 'package:leto/types/json.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:test/test.dart';
@@ -17,20 +18,52 @@ void main() {
       doubles: [-2, 3.4],
       nested: [],
       nestedNullItem: [],
-      nestedNull: [InputMN(name: 'axa')],
+      nestedNull: [
+        InputMN(
+          name: 'axa',
+          jsonListArgDef: [],
+        )
+      ],
     );
     const gen = InputGen(name: 'daw', generic: null);
     const gen2 = InputGen(name: 'daw', generic: <Object?>[]);
     final serde = InputJsonSerde(
       name: 'dw',
-      inputGenM: const InputGen(
+      inputGenM: InputGen(
         name: 'daw',
         generic: InputM(
           name: 'amos',
           ints: [2],
           doubles: [],
           nested: [],
-          nestedNullItem: [null, InputMN(name: 'aca')],
+          nestedNullItem: [
+            null,
+            InputMN(
+              name: 'aca',
+              jsonListArgDef: [
+                Json.map({}),
+              ],
+              parentNullDef: [
+                [
+                  InputM(
+                    name: 'ddaw',
+                    doubles: [-2, 2.3],
+                    ints: [-2],
+                    nestedNullItem: [null],
+                    nested: [
+                      InputMN(
+                        name: 'd',
+                        jsonListArgDef: [
+                          Json.map({'dw': Json.list([])}),
+                        ],
+                        parentNullDef: InputMN.parentNullDefDefault(),
+                      )
+                    ],
+                  )
+                ]
+              ],
+            )
+          ],
         ),
       ),
     );
@@ -59,6 +92,9 @@ void main() {
     ''',
       variableValues: variablesQuery,
     );
+
+    (variablesQuery['mInput'] as Map)['nestedNull'][0]['parentNullDef'] =
+        jsonDecode(jsonEncode(InputMN.parentNullDefDefault()));
 
     final jsonResultQuery = resultQuery.toJson();
     final dataQuery = jsonResultQuery['data']! as Map<String, Object?>;

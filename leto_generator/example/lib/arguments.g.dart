@@ -6,10 +6,8 @@ part of 'arguments.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
-    field(
+final testManyDefaultsGraphQLField = graphQLString.nonNull().field<Object?>(
   'testManyDefaults',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -31,73 +29,63 @@ final GraphQLObjectField<String, Object, Object> testManyDefaultsGraphQLField =
         json: (args["json"] as Json));
   },
   inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "str",
-          defaultValue: 'def',
-        ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "intInput",
-          defaultValue: 2,
-        ),
-    graphQLFloat.nonNull().coerceToInputObject().inputField(
-          "doubleInput",
-          defaultValue: 3,
-        ),
-    graphQLFloat.coerceToInputObject().inputField(
-          "doubleInputNull",
-          defaultValue: 4.2,
-        ),
-    graphQLBoolean.nonNull().coerceToInputObject().inputField(
-          "boolean",
-          defaultValue: true,
-        ),
-    graphQLString.nonNull().list().nonNull().coerceToInputObject().inputField(
-      "listStr",
-      defaultValue: const ['dw', 'dd2'],
-    ),
-    decimalGraphQLType.list().coerceToInputObject().inputField(
-          "listDecimalNull",
-          defaultValue: _defaultListDecimalNull(),
-        ),
+    graphQLString
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('str', defaultValue: 'def'),
+    graphQLInt
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('intInput', defaultValue: 2),
+    graphQLFloat
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('doubleInput', defaultValue: 3),
+    graphQLFloat
+        .coerceToInputObject()
+        .inputField('doubleInputNull', defaultValue: 4.2),
+    graphQLBoolean
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('boolean', defaultValue: true),
+    graphQLString
+        .nonNull()
+        .list()
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('listStr', defaultValue: const ['dw', 'dd2']),
+    decimalGraphQLType
+        .list()
+        .coerceToInputObject()
+        .inputField('listDecimalNull', defaultValue: _defaultListDecimalNull()),
     graphQLUri.nonNull().list().nonNull().coerceToInputObject().inputField(
-      "listUri",
-      defaultValue: [Uri.parse('http://localhost:8060/')],
-    ),
-    graphQLDate.nonNull().coerceToInputObject().inputField(
-          "date",
-          defaultValue: DateTime.parse("2021-03-24"),
-        ),
-    inputGenGraphQLType<int>(graphQLInt.nonNull()).inputField(
-      "gen",
-      defaultValue: InputGen(name: 'gen', generic: 2),
-    ),
-    enumValueGraphQLType.nonNull().coerceToInputObject().inputField(
-          "enumValue",
-          defaultValue: EnumValue.v1,
-        ),
-    enumCustomGraphQLType.coerceToInputObject().inputField(
-          "enumCustom",
-          defaultValue: 3,
-        ),
+        'listUri',
+        defaultValue: [Uri.parse('http://localhost:8060/')]),
+    graphQLDate
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('date', defaultValue: DateTime.parse("2021-03-24")),
+    inputGenGraphQLType<int>(graphQLInt.nonNull())
+        .inputField('gen', defaultValue: InputGen(name: 'gen', generic: 2)),
+    enumValueGraphQLType
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('enumValue', defaultValue: EnumValue.v1),
+    enumCustomGraphQLType
+        .coerceToInputObject()
+        .inputField('enumCustom', defaultValue: 3),
     enumCustomGraphQLType
         .nonNull()
         .list()
         .nonNull()
         .coerceToInputObject()
-        .inputField(
-      "enumCustomList",
-      defaultValue: const [2],
-    ),
-    _timestampsType().coerceToInputObject().inputField(
-      "timestamps",
-      defaultValue: [DateTime.parse("2021-01-24"), null],
-    ),
-    Json.graphQLType.nonNull().coerceToInputObject().inputField(
-          "json",
-          defaultValue: const Json.map({
-            'd': Json.list([Json.number(2)])
-          }),
-        )
+        .inputField('enumCustomList', defaultValue: const [2]),
+    _timestampsType().coerceToInputObject().inputField('timestamps',
+        defaultValue: [DateTime.parse("2021-01-24"), null]),
+    Json.graphQLType.nonNull().coerceToInputObject().inputField('json',
+        defaultValue: const Json.map({
+          'd': Json.list([Json.number(2)])
+        }))
   ],
 );
 

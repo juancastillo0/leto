@@ -256,6 +256,41 @@ class GraphQLInputObjectType<Value>
   }
 
   @override
+  ValidationResult<Map<String, dynamic>> validate(
+    String key,
+    Object? input,
+  ) {
+    final result = super.validate(key, input);
+    if (result.successful) {
+      final inputWithDefault = addDefaults(result.value!);
+      return ValidationResult.ok(inputWithDefault);
+    }
+    return result;
+  }
+
+  Map<String, Object?> addDefaults(Map<String, Object?> values) {
+    return fields.fold(
+      {},
+      (map, e) {
+        final hasInput = values.containsKey(e.name);
+        if (!hasInput && e.defaultValue == null) {
+          return map;
+        }
+        Object? inputValue = values[e.name];
+        if (inputValue == null && (!hasInput || e.type.isNonNullable)) {
+          try {
+            inputValue = e.type.serialize(e.defaultValue);
+          } catch (_) {
+            inputValue = e.defaultValue;
+          }
+        }
+
+        return map..[e.name] = inputValue;
+      },
+    );
+  }
+
+  @override
   Value deserialize(SerdeCtx serdeCtx, Map<String, Object?> serialized) {
     if (customDeserialize != null) {
       return customDeserialize!(serialized);
@@ -417,6 +452,9 @@ Map<String, Object?> _gqlFromJson(
       //  'Cannot serialize field "$key", which was not defined in the schema.',
       // );
     }
-    return MapEntry(e.key, field.type.serializeSafe(e.value));
+    return MapEntry(
+      e.key,
+      e.value == null ? null : field.type.serializeSafe(e.value),
+    );
   }).whereType());
 }

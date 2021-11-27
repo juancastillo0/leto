@@ -23,6 +23,19 @@ final enumCustomGraphQLType = enumType<int>(
   },
 );
 
+const testManyDefaultsGraphQLStr =
+    'testManyDefaults(str: String! = "def", intInput: Int! = 2,'
+    ' doubleInput: Float! = 3.0, doubleInputNull: Float = 4.2,'
+    ' boolean: Boolean! = true, listStr: [String!]! = ["dw", "dd2"],'
+    ' listDecimalNull: [Decimal] = [null, "2"],'
+    ' listUri: [Uri!]! = ["http://localhost:8060/"],'
+    ' date: Date! = "2021-03-24T00:00:00.000",'
+    ' gen: InputGenIntReq = {name: "gen", generic: 2},'
+    ' enumValue: EnumValue! = v1, enumCustom: EnumCustom = THREE,'
+    ' enumCustomList: [EnumCustom!]! = [TWO],'
+    ' timestamps: [Timestamp]! = [1611446400000, null],'
+    ' json: Json! = {d: [2]}): String!';
+
 @Query()
 String testManyDefaults({
   String str = 'def',
