@@ -66,7 +66,14 @@ void setUpGraphQL(Router app, {ServerConfig? config}) {
     introspect: true,
     globalVariables: globalVariables,
     extensions: config?.extensionList ??
-        [GraphQLTracingExtension(), GraphQLPersistedQueries()],
+        [
+          GraphQLTracingExtension(
+            returnInResponse: true,
+          ),
+          GraphQLPersistedQueries(
+            returnHashInResponse: true,
+          )
+        ],
   );
 
   const port = 8060;

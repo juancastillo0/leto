@@ -32,7 +32,11 @@ Future<void> main() async {
     globalVariables: ScopedMap({
       testUnionModelsTestKey: _testUnionModels,
     }),
-    extensionList: [GraphQLPersistedQueries()],
+    extensionList: [
+      GraphQLPersistedQueries(
+        returnHashInResponse: false,
+      )
+    ],
   ));
   final url = _server.url;
 

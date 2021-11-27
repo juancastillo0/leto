@@ -5,13 +5,16 @@ import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:meta/meta.dart';
 
-/// Apollo Tracing is a GraphQL extension for performance tracing.
+/// Apollo Tracing is a GraphQL extension for performance monitoring.
 ///
 /// More information: https://github.com/apollographql/apollo-tracing
 class GraphQLTracingExtension extends GraphQLExtension {
+  /// Apollo Tracing is a GraphQL extension for performance monitoring.
+  ///
+  /// More information: https://github.com/apollographql/apollo-tracing
   GraphQLTracingExtension({
     this.onExecute,
-    this.returnInResponse = true,
+    required this.returnInResponse,
   });
 
   /// Allows you to access the tracing information for each
@@ -27,7 +30,10 @@ class GraphQLTracingExtension extends GraphQLExtension {
   /// If false, you probably want to pass an [onExecute] callback.
   final bool returnInResponse;
 
-  final ref = ScopeRef<TracingBuilder>('GraphQLTracingExtension');
+  final ref = RefWithDefault.scoped(
+    (_) => TracingBuilder(version: 1),
+    name: 'GraphQLTracingExtension',
+  );
 
   @override
   String get mapKey => 'tracing';
@@ -37,8 +43,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     FutureOr<GraphQLResult> Function() next,
     RequestCtx ctx,
   ) async {
-    final tracing = TracingBuilder(version: 1);
-    ref.setScoped(ctx, tracing);
+    final tracing = ref.get(ctx);
 
     final result = await next();
 
@@ -55,7 +60,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     DocumentNode Function() next,
     RequestCtx ctx,
   ) {
-    final tracing = ref.get(ctx)!;
+    final tracing = ref.get(ctx);
     return tracing.parsing.trace(next);
   }
 
@@ -65,7 +70,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     RequestCtx ctx,
     DocumentNode document,
   ) {
-    final tracing = ref.get(ctx)!;
+    final tracing = ref.get(ctx);
     return tracing.validation.trace(next);
   }
 
@@ -76,7 +81,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
     GraphQLObjectField field,
     String fieldAlias,
   ) async {
-    final tracing = ref.get(ctx)!;
+    final tracing = ref.get(ctx);
 
     final endTracing = tracing.execution.start(ResolverTracing(
       path: [...ctx.path, fieldAlias],

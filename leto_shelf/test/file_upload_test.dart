@@ -10,7 +10,11 @@ import 'common.dart';
 
 Future<void> main() async {
   final _server = await testServer(ServerConfig(
-    extensionList: [GraphQLPersistedQueries()],
+    extensionList: [
+      GraphQLPersistedQueries(
+        returnHashInResponse: true,
+      )
+    ],
   ));
   final url = _server.url;
 

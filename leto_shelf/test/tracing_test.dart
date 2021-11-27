@@ -19,7 +19,14 @@ Future<void> main() async {
     globalVariables: ScopedMap({
       booksControllerRef: books,
     }),
-    extensionList: [GraphQLTracingExtension(), GraphQLPersistedQueries()],
+    extensionList: [
+      GraphQLTracingExtension(
+        returnInResponse: true,
+      ),
+      GraphQLPersistedQueries(
+        returnHashInResponse: true,
+      )
+    ],
   ));
 
   test('tracing books', () async {

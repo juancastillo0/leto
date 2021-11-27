@@ -39,7 +39,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   GraphQLPersistedQueries({
     this.computeHash = defaultComputeHash,
     Cache<String, DocumentNode>? cache,
-    this.returnHashInResponse = false,
+    required this.returnHashInResponse,
   }) : cache = cache ?? LruCacheSimple(100);
 
   /// Uses package:crypto for computing the sha256 for [query]
