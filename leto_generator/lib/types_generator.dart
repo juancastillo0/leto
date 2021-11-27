@@ -32,15 +32,6 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
     if (element is ClassElement) {
       try {
         final ctx = GeneratorCtx(buildStep: buildStep, config: config);
-        // element.isEnum
-        //     ? null
-        //     : await buildContext(
-        //         element,
-        //         annotation,
-        //         buildStep,
-        //         buildStep.resolver,
-        //         false, // TODO: serializableTypeChecker.hasAnnotationOf(element),
-        //       );
         final lib = await buildSchemaLibrary(element, ctx, annotation);
         return lib.accept(DartEmitter()).toString();
       } catch (e, s) {
@@ -121,13 +112,12 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
 
       //   search = search.superclass;
       // }
-
       final classInfo = UnionVarianInfo(
         isInterface: isInterface(clazz),
         typeParams: clazz.typeParameters,
         hasFrezzed: false,
         isUnion: false,
-        isInput: isInputType(clazz),
+        inputConfig: inputTypeAnnotation(clazz),
         hasFromJson: hasFromJson(clazz),
         classConfig: getClassConfig(ctx, clazz),
         interfaces: getGraphQLInterfaces(ctx, clazz),
@@ -175,7 +165,8 @@ Future<Library> generateFromFreezed(
 
 // Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
 
-// GraphQLObjectField<String, String, P> $fieldName$unionKeySuffix<P extends $typeName>()
+// GraphQLObjectField<String, String, P>
+// $fieldName$unionKeySuffix<P extends $typeName>()
 //    => field(
 //   'runtimeType',
 //   enumTypeFromStrings('${typeName}Type', [

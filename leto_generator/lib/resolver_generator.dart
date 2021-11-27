@@ -67,22 +67,9 @@ Future<String> _buildForElement(
     final _dartEmitter = DartEmitter();
 
     final inputs = await inputsFromElement(ctx, element);
-
-    final desc = getDescription(element, element.documentationComment);
-
     final funcDef = await resolverFunctionFromElement(ctx, element);
 
     final lib = Library((b) {
-      final deprecationReason = getDeprecationReason(element);
-
-      final _retType = genericTypeWhenFutureOrStream(element.returnType) ??
-          element.returnType;
-
-      final _returnType = getReturnType(_retType);
-      final returnType = _returnType.endsWith('?')
-          ? _returnType.substring(0, _returnType.length - 1)
-          : _returnType;
-
       final resolverName = const TypeChecker.fromRuntime(GraphQLResolver)
           .firstAnnotationOf(element)
           ?.getField('name')
@@ -100,25 +87,26 @@ Future<String> _buildForElement(
         genericTypeName: genericTypeName,
       ).accept(_dartEmitter).toString();
 
+      final deprecationReason = getDeprecationReason(element);
+      final description = getDescription(element, element.documentationComment);
+      final attachments = getAttachments(element);
+
       b.body.add(
         Field(
           (f) => f
             ..assignment = Code(
               '''
-                field(
-                  '${resolverName ?? element.name}', 
-                  $returnGqlType,
-                  ${desc == null ? '' : 'description: r"$desc",'}
+                $returnGqlType.field<Object?>(
+                  '${resolverName ?? element.name}',
                   $funcDef,
                   ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
+                  ${description == null ? '' : 'description: r"$description",'}
                   ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
+                  ${attachments.isEmpty ? '' : 'attachments: [${attachments.join(',')}]'}
                   )
                  ''',
             )
             ..name = '${element.name}$graphQLFieldSuffix'
-            ..type = refer(
-              'GraphQLObjectField<$returnType, Object, Object>',
-            )
             ..modifier = FieldModifier.final$,
         ),
       );
@@ -136,7 +124,8 @@ Future<List<String>> inputsFromElement(
   ExecutableElement element,
 ) async {
   final _dartEmitter = DartEmitter();
-  final inputMaybe = await Future.wait(element.parameters.map((e) async {
+  final inputMaybe =
+      await Future.wait<String?>(element.parameters.map((e) async {
     if (isReqCtx(e.type)) {
       return null;
     } else {
@@ -147,7 +136,7 @@ Future<List<String>> inputsFromElement(
         e.name,
         e.type,
         nullable: argInfo.inline,
-      ).accept(_dartEmitter);
+      ).accept(_dartEmitter).toString();
 
       if (argInfo.inline) {
         // TODO; Check e.type is InputType?
@@ -156,15 +145,27 @@ Future<List<String>> inputsFromElement(
         final defaultValueCode = e.defaultValueCode ??
             argInfo.defaultCode ??
             argInfo.defaultFunc?.call() as String?;
-        final defaultValue =
-            defaultValueCode != null ? 'defaultValue: $defaultValueCode,' : '';
-
         final isInput = e.type.element != null && isInputType(e.type.element!);
-
-        final docs = await documentationOfParameter(e, ctx.buildStep);
-        return '$type${isInput ? '' : '.coerceToInputObject()'}.inputField('
-            ' "${e.name}",'
-            ' $defaultValue${docs.isEmpty ? '' : 'description: r"$docs",'})';
+        final description = await documentationOfParameter(e, ctx.buildStep);
+        final deprecationReason = getDeprecationReason(element);
+        final attachments = getAttachments(element);
+        return refer('$type${isInput ? '' : '.coerceToInputObject()'}')
+            .property('inputField')
+            .call(
+              [literalString(e.name)],
+              {
+                if (defaultValueCode != null)
+                  'defaultValue': refer(defaultValueCode),
+                if (description.isNotEmpty)
+                  'description': literalString(description),
+                if (deprecationReason != null)
+                  'deprecationReason': literalString(deprecationReason),
+                if (attachments.isNotEmpty)
+                  'attachments': literalList(List.of(attachments.map(refer)))
+              },
+            )
+            .accept(_dartEmitter)
+            .toString();
       }
     }
   }));
@@ -175,19 +176,30 @@ GraphQLArg argInfoFromElement(Element element) {
   final argAnnot =
       const TypeChecker.fromRuntime(GraphQLArg).firstAnnotationOfExact(element);
   final defaultFunc = argAnnot?.getField('defaultFunc')?.toFunctionValue();
-  final argInfo = GraphQLArg(
-    inline: argAnnot?.getField('inline')?.toBoolValue() ?? false,
-    defaultCode: argAnnot?.getField('defaultCode')?.toStringValue(),
-    defaultFunc: defaultFunc == null ? null : () => '${defaultFunc.name}()',
-  );
-  if (defaultFunc != null && argInfo.defaultCode != null) {
+  final defaultCode = argAnnot?.getField('defaultCode')?.toStringValue();
+  if (defaultFunc != null && defaultCode != null) {
     throw Exception(
       "Can't specify both defaultFunc: $defaultFunc and"
-      ' defaultCode: ${argInfo.defaultCode} in decorator GraphQLArg'
+      ' defaultCode: $defaultCode in decorator GraphQLArg'
       ' for ${element.name}.',
     );
   }
+  final String? _defaultFunc =
+      defaultFunc != null ? executeCodeForExecutable(defaultFunc) : null;
+
+  final argInfo = GraphQLArg(
+    inline: argAnnot?.getField('inline')?.toBoolValue(),
+    defaultCode: defaultCode ?? _defaultFunc,
+    defaultFunc: null,
+  );
   return argInfo;
+}
+
+String executeCodeForExecutable(ExecutableElement elem) {
+  final parent = elem.enclosingElement;
+  final prefix =
+      elem.isStatic && parent is ClassElement ? '${parent.name}.' : '';
+  return '$prefix${elem.name}()';
 }
 
 Future<String> resolverFunctionBodyFromElement(
@@ -280,7 +292,7 @@ Future<String> resolverFunctionFromElement(
   final isStream = isStreamOrAsyncStream(element.returnType);
 
   if (hasSubsAnnot && !isStream || isStream && !hasSubsAnnot) {
-    print('$element should return a Stream to be a Subscription.');
+    throw Exception('$element should return a Stream to be a Subscription.');
   }
 
   final body = await resolverFunctionBodyFromElement(ctx, element);
@@ -306,12 +318,19 @@ Future<ClassResolver?> getClassResolver(
     final parent = element.enclosingElement as ClassElement;
     final ref = parent.getGetter('ref');
     if (ref == null) {
-      throw Exception('');
+      throw Exception(
+        'You should provide a way to access an'
+        ' instance of $ClassResolver ${parent.name}.',
+      );
     } else if (!ref.isStatic) {
-      throw Exception('');
+      throw Exception(
+        'Getter "ref" of $ClassResolver ${parent.name} should be static.',
+      );
     } else if (!const TypeChecker.fromRuntime(BaseRef)
         .isAssignableFromType(ref.returnType)) {
-      throw Exception('');
+      throw Exception(
+        'Getter "ref" of $ClassResolver ${parent.name} should return a $BaseRef.',
+      );
     }
     instantiateCode = '${parent.name}.${ref.name}.get(ctx)!';
   }

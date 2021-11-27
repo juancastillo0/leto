@@ -69,7 +69,7 @@ typedef GraphQLFieldResolver<Value, P> = FutureOr<Value?> Function(
 /// Typedef for a function that resolves the [Stream] of [Value]s
 /// of a [GraphQLObjectField], whether asynchronously or not.
 typedef GraphQLSubscriptionFieldResolver<Value> = FutureOr<Stream<Value?>>
-    Function(Object parent, Ctx<Object> ctx);
+    Function(Object? parent, Ctx ctx);
 
 /// Wrapper class for [GraphQLFieldResolver]
 /// necessary for type casting.
@@ -88,6 +88,6 @@ class FieldSubscriptionResolver<Value> {
 
   const FieldSubscriptionResolver(this.subscribe);
 
-  FutureOr<Stream<Value?>> call(Object parent, Ctx ctx) =>
-      subscribe(parent, ctx.cast());
+  FutureOr<Stream<Value?>> call(Object? parent, Ctx ctx) =>
+      subscribe(parent, ctx);
 }

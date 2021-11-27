@@ -9,10 +9,15 @@ import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto_generator/config.dart';
+import 'package:leto_generator/resolver_generator.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:source_gen/source_gen.dart';
 
 export 'utils_graphql.dart';
+
+// [WARNING] leto_generator:graphql_types on lib/chat_room/chat_table.dart:
+// Cannot infer the GraphQL type for field listFromJson.json (type=Object?).
+// Generics
 
 final _docCommentRegExp = RegExp('(^/// )|(^// )', multiLine: true);
 const graphQLDocTypeChecker = TypeChecker.fromRuntime(GraphQLDocumentation);
@@ -55,19 +60,20 @@ GraphQLDocumentation? getDocumentation(Element element) {
   final annot = graphQLDocTypeChecker.firstAnnotationOfExact(element);
 
   if (annot != null) {
-    final typeFunc = annot.getField('type')?.toFunctionValue()?.name;
+    final typeFunc = annot.getField('type')?.toFunctionValue();
     final _typeName = annot.getField('typeName')?.toStringValue();
-    final typeName = _typeName ?? (typeFunc == null ? null : '$typeFunc()');
     if (typeFunc != null && _typeName != null) {
       throw Exception(
         "Can't have both type $typeFunc and typeName $_typeName set"
         ' in $GraphQLDocumentation, please use only one of them.',
       );
     }
+    final _typeFunc =
+        typeFunc == null ? null : executeCodeForExecutable(typeFunc);
     return GraphQLDocumentation(
       description: annot.getField('description')?.toStringValue(),
       deprecationReason: annot.getField('deprecationReason')?.toStringValue(),
-      typeName: typeName,
+      typeName: _typeName ?? _typeFunc,
     );
   }
 }
@@ -91,6 +97,11 @@ String? getDefaultValue(Element elem) {
   if (elem is ParameterElement && elem.defaultValueCode != null) {
     return elem.defaultValueCode;
   }
+  final argAnnot = argInfoFromElement(elem);
+  if (argAnnot.defaultCode != null) {
+    return argAnnot.defaultCode;
+  }
+
   final annotDefault = const TypeChecker.fromRuntime(Default)
       .firstAnnotationOfExact(elem)
       ?.getField('defaultValue');

@@ -13,8 +13,6 @@ void main() {
 
       expect(round, graphqlApiSchema.schemaStr);
     },
-    // TODO:
-    skip: '// TODO: fix print schema for custom scalars',
   );
 
   test('schema decimal', () {

@@ -64,7 +64,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
       typeName: isUnion ? redirectedName : className,
       constructorName: isUnion ? con.name : redirectedName,
       unionName: className,
-      isInput: isInputType(clazz),
+      inputConfig: inputTypeAnnotation(clazz),
       description: getDescription(con, con.documentationComment),
       deprecationReason: getDeprecationReason(con),
       fields: await Future.wait(
@@ -222,7 +222,8 @@ class UnionVarianInfo {
   final bool hasFromJson;
   final List<Expression> interfaces;
   final bool hasFrezzed;
-  final bool isInput;
+  final GraphQLInput? inputConfig;
+  bool get isInput => inputConfig != null;
   final bool isUnion;
   final List<TypeParameterElement> typeParams;
 
@@ -238,7 +239,7 @@ class UnionVarianInfo {
     required this.hasFromJson,
     required this.interfaces,
     required this.hasFrezzed,
-    required this.isInput,
+    required this.inputConfig,
     required this.isUnion,
     required this.typeParams,
   });
@@ -318,12 +319,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
         final _names = <String>{};
         return fields
             .where((e) => _names.add(e.getter) && e.fieldAnnot.omit != true)
-            .map((e) => e.expression(isInput: isInput))
-            // add union discriminant key
-            .followedBy([]
-                // TODO: should we generate this?
-                // [if (isUnion) refer(unionKeyName)],
-                );
+            .map((e) => e.expression(isInput: isInput));
       }(),
     ).accept(DartEmitter())},);
 
@@ -333,7 +329,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
   }
 
   String get graphQLTypeName =>
-      '${classConfig?.name ?? removeTrailingUnder(typeName)}${typeParams.map((t) {
+      '${classConfig?.name ?? inputConfig?.name ?? removeTrailingUnder(typeName)}${typeParams.map((t) {
         final _t = t.displayName;
         final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
         return '\${$ts.printableName}';
@@ -348,7 +344,7 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
           ? 'inputObjectType<$typeName${_typeList()}>'
           : 'objectType<$typeName${_typeList()}>',
     ).call(
-      [literalString(graphQLTypeName)],
+      [refer('__name')],
       {
         if (!isInput) 'isInterface': literalBool(isInterface),
         if (!isInput) 'interfaces': literalList(interfaces),
@@ -385,13 +381,11 @@ class FieldInfo {
   });
 
   Expression expression({bool isInput = false}) {
-    return refer(isInput ? 'inputField' : 'field').call(
+    final _type =
+        isInput ? gqlType.property('coerceToInputObject').call([]) : gqlType;
+    return _type.property(isInput ? 'inputField' : 'field').call(
       [
         literalString(name),
-        if (isInput)
-          gqlType.property('coerceToInputObject').call([])
-        else
-          gqlType,
       ],
       {
         if (!isInput)
