@@ -3,44 +3,63 @@ part of leto_schema.src.schema;
 /// Base object decorator.
 ///
 /// Use [GraphQLInput] or [GraphQLClass]
-class GraphQLObjectDec {
-  const GraphQLObjectDec();
-}
+class GraphQLObjectDec {}
 
 /// Signifies that a class should statically generate a [GraphQLInputObjectType]
-///
-/// The class should have a `fromJson` constructor or static method.
-/// For generic type parameters, `fromJson` should have other positional
-/// parameters with functions that receive an Object? and
-/// return an instance of the generic type
 @Target({TargetKind.classType})
-class GraphQLInput extends GraphQLObjectDec {
-  const GraphQLInput();
+class GraphQLInput implements GraphQLObjectDec {
+  /// Signifies that a class should statically
+  /// generate a [GraphQLInputObjectType]
+  ///
+  /// The class should have a `fromJson` constructor or static method.
+  /// For generic type parameters, `fromJson` should have other positional
+  /// parameters with functions that receive an Object? and
+  /// return an instance of the generic type
+  const GraphQLInput({
+    this.name,
+  });
+
+  /// The name of the generated [GraphQLInputObjectType]
+  final String? name;
+}
 }
 
 /// Signifies that a class should statically generate a [GraphQLType].
-///
-/// Generates a [GraphQLObjectType] for classes
-/// with [GraphQLObjectType.isInterface] == true for abstract classes,
-/// a [GraphQLEnumType] for enums
-/// and a [GraphQLUnionType] for freezed unions.
-///
-/// if [omitFields] is true, omits all fields by default, you would need to
-/// decorate explicitly with [GraphQLField]. No need to pass
-/// `omit: false` in [GraphQLField]'s constructor.
-/// [interfaces] are the getters of [GraphQLObjectType]
-/// implemented by this object.
 @Target({TargetKind.classType, TargetKind.enumType})
-class GraphQLClass extends GraphQLObjectDec {
+class GraphQLClass implements GraphQLObjectDec {
+  /// Signifies that a class should statically generate a [GraphQLType].
+  ///
+  /// Generates a [GraphQLObjectType] for classes
+  /// with [GraphQLObjectType.isInterface] == true for abstract classes,
+  /// a [GraphQLEnumType] for enums
+  /// and a [GraphQLUnionType] for freezed unions.
+  ///
+  /// if [omitFields] is true, omits all fields by default, you would need to
+  /// decorate explicitly with [GraphQLField]. No need to pass
+  /// `omit: false` in [GraphQLField]'s constructor.
+  /// [interfaces] are the getters of [GraphQLObjectType]
+  /// implemented by this object.
   const GraphQLClass({
     this.interfaces = const [],
     this.omitFields,
     this.nullableFields,
     this.name,
   });
+
+  /// The interfaces implemented by this [GraphQLObjectType]
   final List<String> interfaces;
+
+  /// Whether all fields should be omitted by default.
+  /// Can be overridden with [GraphQLField.omit] or globally configured
+  /// in your `build.yaml` file.
   final bool? omitFields;
+
+  /// Whether all fields should be nullable by default.
+  /// Can be overridden with [GraphQLField.nullable] or globally configured
+  /// in your `build.yaml` file.
   final bool? nullableFields;
+
+  /// The name of the generated [GraphQLType]
   final String? name;
 }
 
@@ -99,17 +118,23 @@ class GraphQLClass extends GraphQLObjectDec {
 /// }
 /// ```
 class GraphQLArg {
+  /// An annotation for configuring a [GraphQLFieldInput] within a resolver
+  ///
+  /// if [inline] is true, the properties of a [GraphQLInputObjectType] will be
+  /// inlined into the resolver inputs.
   const GraphQLArg({
-    this.inline = false,
+    bool? inline,
     this.defaultCode,
     this.defaultFunc,
-  });
+  }) : inline = inline ?? false;
 
   /// Whether to inline the fields of a [GraphQLInputObjectType]
   /// inside the parameters.
   final bool inline;
 
   /// The Dart code used to create the default value for the argument.
+  ///
+  /// Can't specify both [defaultCode] and [defaultFunc].
   final String? defaultCode;
 
   /// A function which returns the default value for the argument.
@@ -120,6 +145,7 @@ class GraphQLArg {
 
 /// An annotation for configuring the generated code of a GraphQL field
 class GraphQLField {
+  /// An annotation for configuring the generated code of a GraphQL field
   const GraphQLField({
     this.name,
     bool? omit,
@@ -142,6 +168,8 @@ class GraphQLField {
   final String? type;
 }
 
+/// Base annotation for GraphQL resolvers.
+/// use [GraphQLResolver] or [ClassResolver]
 abstract class BaseGraphQLResolver {}
 
 /// Signifies that a function should statically generate a [GraphQLObjectField].
@@ -158,32 +186,45 @@ abstract class GraphQLResolver implements BaseGraphQLResolver {
   String? get genericTypeName;
 }
 
+/// Signifies that a class should be used to generated and resolve
+/// a set of [GraphQLObjectField]s.
 @Target({TargetKind.classType})
 class ClassResolver implements BaseGraphQLResolver {
   final String? fieldName;
 
   final String? instantiateCode;
 
+  /// Signifies that a class should be used to generated and resolve
+  /// a set of [GraphQLObjectField]s.
   ///
-  const ClassResolver({this.fieldName, this.instantiateCode});
+  /// The class' methods and getters that you want to expose
+  /// as [GraphQLObjectField] should be annotated with [Query],
+  /// [Mutation] or [Subscription] to add them to the right root
+  /// [GraphQLObjectType] in the [GraphQLSchema].
+  const ClassResolver({
+    this.fieldName,
+    this.instantiateCode,
+  });
 }
 
 /// Signifies that a function should statically generate
 /// a [GraphQLObjectField] within the mutation type of a [GraphQLSchema].
-///
-/// ```dart
-/// @Mutation()
-/// String? someAction(ReqCtx ctx, {required DateTime createdAt}) {
-///    final value = ctx.globals[argSize];
-///    return value is String ? value : null;
-/// }
-/// ```
 class Mutation implements GraphQLResolver {
   @override
   final String? name;
   @override
   final String? genericTypeName;
 
+  /// Signifies that a function should statically generate
+  /// a [GraphQLObjectField] within the mutation type of a [GraphQLSchema].
+  ///
+  /// ```dart
+  /// @Mutation()
+  /// String? someAction(ReqCtx ctx, {required DateTime createdAt}) {
+  ///    final value = ctx.globals[argSize];
+  ///    return value is String ? value : null;
+  /// }
+  /// ```
   const Mutation({
     this.name,
     this.genericTypeName,
@@ -192,20 +233,22 @@ class Mutation implements GraphQLResolver {
 
 /// Signifies that a function should statically generate
 /// a [GraphQLObjectField] within the query type of a [GraphQLSchema].
-///
-/// ```dart
-/// @Query()
-/// Future<String> getName(ReqCtx ctx, {List<int>? ids}) {
-///    final value = ctx.globals[argSize];
-///    return value is String ? value : null;
-/// }
-/// ```
 class Query implements GraphQLResolver {
   @override
   final String? name;
   @override
   final String? genericTypeName;
 
+  /// Signifies that a function should statically generate
+  /// a [GraphQLObjectField] within the query type of a [GraphQLSchema].
+  ///
+  /// ```dart
+  /// @Query()
+  /// Future<String> getName(ReqCtx ctx, {List<int>? ids}) {
+  ///    final value = ctx.globals[argSize];
+  ///    return value is String ? value : null;
+  /// }
+  /// ```
   const Query({
     this.name,
     this.genericTypeName,
@@ -214,20 +257,22 @@ class Query implements GraphQLResolver {
 
 /// Signifies that a function should statically generate
 /// a [GraphQLObjectField] within the subscription type of a [GraphQLSchema].
-///
-/// ```dart
-/// /// @Subscription()
-/// Stream<String> onActionsPerformed(ReqCtx ctx, int? argSize) {
-///    final value = ctx.globals[argSize];
-///    return value is String ? value : null;
-/// }
-/// ```
 class Subscription implements GraphQLResolver {
   @override
   final String? name;
   @override
   final String? genericTypeName;
 
+  /// Signifies that a function should statically generate
+  /// a [GraphQLObjectField] within the subscription type of a [GraphQLSchema].
+  ///
+  /// ```dart
+  /// /// @Subscription()
+  /// Stream<String> onActionsPerformed(ReqCtx ctx, int? argSize) {
+  ///    final value = ctx.globals[argSize];
+  ///    return value is String ? value : null;
+  /// }
+  /// ```
   const Subscription({
     this.name,
     this.genericTypeName,
@@ -252,6 +297,8 @@ class GraphQLDocumentation {
   /// having it be assumed.
   final String? typeName;
 
+  /// A metadata annotation used to provide documentation and type information
+  /// to `package:leto_generator` in code generation
   const GraphQLDocumentation({
     this.description,
     this.deprecationReason,
