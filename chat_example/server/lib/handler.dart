@@ -100,7 +100,10 @@ Future<void> setUpGraphQL(
     globalVariables: globalVariables,
     extensions: config?.extensions ??
         [
-          if (const bool.fromEnvironment('TRACING')) GraphQLTracingExtension(),
+          if (const bool.fromEnvironment('TRACING'))
+            GraphQLTracingExtension(
+              returnInResponse: true,
+            ),
           GraphQLPersistedQueries(returnHashInResponse: true),
           CacheExtension(cache: LruCacheSimple(50)),
           LoggingExtension((log) {

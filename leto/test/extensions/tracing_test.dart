@@ -41,6 +41,7 @@ void main() {
     extensions: [
       GraphQLTracingExtension(
         onExecute: onExecute,
+        returnInResponse: true,
       )
     ],
   );
