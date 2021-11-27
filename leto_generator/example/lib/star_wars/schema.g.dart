@@ -6,19 +6,18 @@ part of 'schema.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<Droid, Object, Object> droidGraphQLField = field(
+final droidGraphQLField = droidGraphQLType.field<Object?>(
   'droid',
-  droidGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return droid((args["id"] as String));
   },
   inputs: [
-    graphQLId.nonNull().coerceToInputObject().inputField(
-          "id",
-          description: r"id of the droid",
-        )
+    graphQLId
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('id', description: 'id of the droid')
   ],
 );
 
@@ -40,26 +39,26 @@ GraphQLObjectType<Human> get humanGraphQLType {
   if (_humanGraphQLType != null)
     return _humanGraphQLType! as GraphQLObjectType<Human>;
 
-  final __humanGraphQLType = objectType<Human>('Human',
+  final __humanGraphQLType = objectType<Human>(__name,
       isInterface: false, interfaces: [characterInterface()]);
 
   _humanGraphQLType = __humanGraphQLType;
   __humanGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(),
+      graphQLId.nonNull().field('id',
           resolve: (obj, ctx) => obj.id, description: 'The id of the human.'),
-      field('name', graphQLString,
+      graphQLString.field('name',
           resolve: (obj, ctx) => obj.name,
           description: 'The name of the human.'),
-      field('appearsIn', listOf(episodeEnum),
+      listOf(episodeEnum).field('appearsIn',
           resolve: (obj, ctx) => obj.appearsIn,
           description: 'Which movies they appear in.'),
-      field('homePlanet', graphQLString,
+      graphQLString.field('homePlanet',
           resolve: (obj, ctx) => obj.homePlanet,
           description: 'The home planet of the human, or null if unknown.'),
-      field('friends', listOf(characterInterface()),
-          resolve: (obj, ctx) => obj.fetchFriends),
-      field('secretBackstory', graphQLString,
+      listOf(characterInterface())
+          .field('friends', resolve: (obj, ctx) => obj.fetchFriends),
+      graphQLString.field('secretBackstory',
           resolve: (obj, ctx) => obj.secretBackstory)
     ],
   );
@@ -75,7 +74,7 @@ GraphQLObjectType<Droid> get droidGraphQLType {
   if (_droidGraphQLType != null)
     return _droidGraphQLType! as GraphQLObjectType<Droid>;
 
-  final __droidGraphQLType = objectType<Droid>('Droid',
+  final __droidGraphQLType = objectType<Droid>(__name,
       isInterface: false,
       interfaces: [characterInterface()],
       description: 'A mechanical creature in the Star Wars universe.');
@@ -83,18 +82,18 @@ GraphQLObjectType<Droid> get droidGraphQLType {
   _droidGraphQLType = __droidGraphQLType;
   __droidGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(),
+      graphQLId.nonNull().field('id',
           resolve: (obj, ctx) => obj.id, description: 'The id of the droid.'),
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
-      field('appearsIn', listOf(episodeEnum),
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
+      listOf(episodeEnum).field('appearsIn',
           resolve: (obj, ctx) => obj.appearsIn,
           description: 'Which movies they appear in.'),
-      field('primaryFunction', graphQLString,
+      graphQLString.field('primaryFunction',
           resolve: (obj, ctx) => obj.primaryFunction,
           description: 'The primary function of the droid.'),
-      field('friends', listOf(characterInterface()),
-          resolve: (obj, ctx) => obj.fetchFriends),
-      field('secretBackstory', graphQLString,
+      listOf(characterInterface())
+          .field('friends', resolve: (obj, ctx) => obj.fetchFriends),
+      graphQLString.field('secretBackstory',
           resolve: (obj, ctx) => obj.secretBackstory)
     ],
   );

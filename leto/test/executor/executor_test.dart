@@ -222,7 +222,7 @@ void main() {
     });
 
     test('provides info about current execution state', () async {
-      Ctx<Object>? _resolvedInfo;
+      Ctx? _resolvedInfo;
       final testType = GraphQLObjectType<Object>(
         'Test',
         fields: [

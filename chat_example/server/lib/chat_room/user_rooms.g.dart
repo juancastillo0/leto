@@ -6,10 +6,8 @@ part of 'user_rooms.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<ChatRoomUser, Object, Object>
-    addChatRoomUserGraphQLField = field(
+final addChatRoomUserGraphQLField = chatRoomUserGraphQLType.field<Object?>(
   'addChatRoomUser',
-  chatRoomUserGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -18,23 +16,17 @@ final GraphQLObjectField<ChatRoomUser, Object, Object>
         role: (args["role"] as ChatRoomUserRole));
   },
   inputs: [
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "chatId",
-        ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "userId",
-        ),
-    chatRoomUserRoleGraphQLType.nonNull().coerceToInputObject().inputField(
-          "role",
-          defaultValue: ChatRoomUserRole.peer,
-        )
+    graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
+    graphQLInt.nonNull().coerceToInputObject().inputField('userId'),
+    chatRoomUserRoleGraphQLType
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('role', defaultValue: ChatRoomUserRole.peer)
   ],
 );
 
-final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
-    field(
+final deleteChatRoomUserGraphQLField = graphQLBoolean.nonNull().field<Object?>(
   'deleteChatRoomUser',
-  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -42,12 +34,8 @@ final GraphQLObjectField<bool, Object, Object> deleteChatRoomUserGraphQLField =
         ctx, (args["chatId"] as int), (args["userId"] as int));
   },
   inputs: [
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "chatId",
-        ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "userId",
-        )
+    graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
+    graphQLInt.nonNull().coerceToInputObject().inputField('userId')
   ],
 );
 
@@ -71,17 +59,16 @@ GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQLType {
     return _userChatAddedEventGraphQLType!
         as GraphQLObjectType<UserChatAddedEvent>;
 
-  final __userChatAddedEventGraphQLType = objectType<UserChatAddedEvent>(
-      'UserChatAddedEvent',
-      isInterface: false,
-      interfaces: []);
+  final __userChatAddedEventGraphQLType = objectType<UserChatAddedEvent>(__name,
+      isInterface: false, interfaces: []);
 
   _userChatAddedEventGraphQLType = __userChatAddedEventGraphQLType;
   __userChatAddedEventGraphQLType.fields.addAll(
     [
-      field('chatUser', chatRoomUserGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.chatUser),
-      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId)
+      chatRoomUserGraphQLType
+          .nonNull()
+          .field('chatUser', resolve: (obj, ctx) => obj.chatUser),
+      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId)
     ],
   );
 
@@ -105,15 +92,15 @@ GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQLType {
         as GraphQLObjectType<UserChatRemovedEvent>;
 
   final __userChatRemovedEventGraphQLType = objectType<UserChatRemovedEvent>(
-      'UserChatRemovedEvent',
+      __name,
       isInterface: false,
       interfaces: []);
 
   _userChatRemovedEventGraphQLType = __userChatRemovedEventGraphQLType;
   __userChatRemovedEventGraphQLType.fields.addAll(
     [
-      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
+      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -150,23 +137,25 @@ GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQLType {
   if (_chatRoomUserGraphQLType != null)
     return _chatRoomUserGraphQLType! as GraphQLObjectType<ChatRoomUser>;
 
-  final __chatRoomUserGraphQLType = objectType<ChatRoomUser>('ChatRoomUser',
-      isInterface: false, interfaces: []);
+  final __chatRoomUserGraphQLType =
+      objectType<ChatRoomUser>(__name, isInterface: false, interfaces: []);
 
   _chatRoomUserGraphQLType = __chatRoomUserGraphQLType;
   __chatRoomUserGraphQLType.fields.addAll(
     [
-      field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) {
+      userGraphQLType.nonNull().field('user', resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.user(ctx);
       }),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      field('chatId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.chatId),
-      field('role', chatRoomUserRoleGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.role),
-      field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt)
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
+      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
+      chatRoomUserRoleGraphQLType
+          .nonNull()
+          .field('role', resolve: (obj, ctx) => obj.role),
+      graphQLDate
+          .nonNull()
+          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
     ],
   );
 

@@ -6,10 +6,9 @@ part of 'class_config_test.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<ClassConfig2, Object, Object>
-    getClassConfig2GraphQLField = field(
+final getClassConfig2GraphQLField =
+    classConfig2GraphQLType.nonNull().field<Object?>(
   'getClassConfig2',
-  classConfig2GraphQLType.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -17,10 +16,9 @@ final GraphQLObjectField<ClassConfig2, Object, Object>
   },
 );
 
-final GraphQLObjectField<ClassConfig, Object, Object>
-    getClassConfigGraphQLField = field(
+final getClassConfigGraphQLField =
+    classConfigGraphQLType.nonNull().field<Object?>(
   'getClassConfig',
-  classConfigGraphQLType.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -40,19 +38,19 @@ GraphQLObjectType<ClassConfig> get classConfigGraphQLType {
   if (_classConfigGraphQLType != null)
     return _classConfigGraphQLType! as GraphQLObjectType<ClassConfig>;
 
-  final __classConfigGraphQLType = objectType<ClassConfig>('RenamedClassConfig',
-      isInterface: false, interfaces: []);
+  final __classConfigGraphQLType =
+      objectType<ClassConfig>(__name, isInterface: false, interfaces: []);
 
   _classConfigGraphQLType = __classConfigGraphQLType;
   __classConfigGraphQLType.fields.addAll(
     [
-      field('value', graphQLString.nonNull(),
+      graphQLString.nonNull().field('value',
           resolve: (obj, ctx) => obj.value,
           deprecationReason: 'value deprecated'),
-      field('valueOverridden', graphQLString,
+      graphQLString.field('valueOverridden',
           resolve: (obj, ctx) => obj.valueOverridden),
-      field('valueNull', graphQLString, resolve: (obj, ctx) => obj.valueNull),
-      field('value2', graphQLString, resolve: (obj, ctx) => obj.value2)
+      graphQLString.field('valueNull', resolve: (obj, ctx) => obj.valueNull),
+      graphQLString.field('value2', resolve: (obj, ctx) => obj.value2)
     ],
   );
 
@@ -67,17 +65,18 @@ GraphQLObjectType<ClassConfig2> get classConfig2GraphQLType {
   if (_classConfig2GraphQLType != null)
     return _classConfig2GraphQLType! as GraphQLObjectType<ClassConfig2>;
 
-  final __classConfig2GraphQLType = objectType<ClassConfig2>('ClassConfig2',
+  final __classConfig2GraphQLType = objectType<ClassConfig2>(__name,
       isInterface: false, interfaces: [customInterface]);
 
   _classConfig2GraphQLType = __classConfig2GraphQLType;
   __classConfig2GraphQLType.fields.addAll(
     [
-      field('value', graphQLString.nonNull(), resolve: (obj, ctx) => obj.value),
-      field('valueOverridden', graphQLString,
+      graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value),
+      graphQLString.field('valueOverridden',
           resolve: (obj, ctx) => obj.valueOverridden),
-      field('renamedValue2', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.value2)
+      graphQLString
+          .nonNull()
+          .field('renamedValue2', resolve: (obj, ctx) => obj.value2)
     ],
   );
 

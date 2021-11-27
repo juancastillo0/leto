@@ -6,10 +6,8 @@ part of 'resolver_class.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<String, Object, Object> queryInClassGraphQLField =
-    field(
+final queryInClassGraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -23,10 +21,8 @@ final GraphQLObjectField<String, Object, Object> queryInClassGraphQLField =
   },
 );
 
-final GraphQLObjectField<String, Object, Object> mutationInClassGraphQLField =
-    field(
+final mutationInClassGraphQLField = graphQLString.nonNull().field<Object?>(
   'mutationInClass',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -40,16 +36,12 @@ final GraphQLObjectField<String, Object, Object> mutationInClassGraphQLField =
       return _call(_obj);
   },
   inputs: [
-    graphQLInt.list().nonNull().coerceToInputObject().inputField(
-          "values",
-        )
+    graphQLInt.list().nonNull().coerceToInputObject().inputField('values')
   ],
 );
 
-final GraphQLObjectField<String, Object, Object> queryInClass2GraphQLField =
-    field(
+final queryInClass2GraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass2',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -63,10 +55,8 @@ final GraphQLObjectField<String, Object, Object> queryInClass2GraphQLField =
   },
 );
 
-final GraphQLObjectField<String, Object, Object> queryInClass3GraphQLField =
-    field(
+final queryInClass3GraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass3',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -80,10 +70,8 @@ final GraphQLObjectField<String, Object, Object> queryInClass3GraphQLField =
   },
 );
 
-final GraphQLObjectField<String, Object, Object> queryInClass4GraphQLField =
-    field(
+final queryInClass4GraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass4',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -97,10 +85,8 @@ final GraphQLObjectField<String, Object, Object> queryInClass4GraphQLField =
   },
 );
 
-final GraphQLObjectField<String, Object, Object> queryInClass5GraphQLField =
-    field(
+final queryInClass5GraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass5',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -114,10 +100,8 @@ final GraphQLObjectField<String, Object, Object> queryInClass5GraphQLField =
   },
 );
 
-final GraphQLObjectField<String, Object, Object> queryInClass6GraphQLField =
-    field(
+final queryInClass6GraphQLField = graphQLString.nonNull().field<Object?>(
   'queryInClass6',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 

@@ -6,9 +6,8 @@ part of 'main.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<String, Object, Object> getNameGraphQLField = field(
+final getNameGraphQLField = graphQLString.nonNull().field<Object?>(
   'getName',
-  graphQLString.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -35,14 +34,13 @@ GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType {
   if (_todoItemInputGraphQLType != null)
     return _todoItemInputGraphQLType! as GraphQLInputObjectType<TodoItemInput>;
 
-  final __todoItemInputGraphQLType =
-      inputObjectType<TodoItemInput>('TodoItemInput');
+  final __todoItemInputGraphQLType = inputObjectType<TodoItemInput>(__name);
 
   _todoItemInputGraphQLType = __todoItemInputGraphQLType;
   __todoItemInputGraphQLType.fields.addAll(
     [
-      inputField('text', graphQLString.nonNull().coerceToInputObject()),
-      inputField('nested', todoItemInputNestedGraphQLType.coerceToInputObject())
+      graphQLString.nonNull().coerceToInputObject().inputField('text'),
+      todoItemInputNestedGraphQLType.coerceToInputObject().inputField('nested')
     ],
   );
 
@@ -66,11 +64,11 @@ GraphQLInputObjectType<TodoItemInputNested> get todoItemInputNestedGraphQLType {
         as GraphQLInputObjectType<TodoItemInputNested>;
 
   final __todoItemInputNestedGraphQLType =
-      inputObjectType<TodoItemInputNested>('TodoItemInputNested');
+      inputObjectType<TodoItemInputNested>(__name);
 
   _todoItemInputNestedGraphQLType = __todoItemInputNestedGraphQLType;
   __todoItemInputNestedGraphQLType.fields.addAll(
-    [inputField('cost', decimalGraphQLType.coerceToInputObject())],
+    [decimalGraphQLType.coerceToInputObject().inputField('cost')],
   );
 
   return __todoItemInputNestedGraphQLType;
@@ -85,21 +83,21 @@ GraphQLObjectType<TodoItem> get todoItemGraphQLType {
     return _todoItemGraphQLType! as GraphQLObjectType<TodoItem>;
 
   final __todoItemGraphQLType =
-      objectType<TodoItem>('TodoItem', isInterface: false, interfaces: []);
+      objectType<TodoItem>(__name, isInterface: false, interfaces: []);
 
   _todoItemGraphQLType = __todoItemGraphQLType;
   __todoItemGraphQLType.fields.addAll(
     [
-      field('text', graphQLString,
+      graphQLString.field('text',
           resolve: (obj, ctx) => obj.text,
           description: 'A description of the todo item'),
-      field('isComplete', graphQLBoolean,
+      graphQLBoolean.field('isComplete',
           resolve: (obj, ctx) => obj.isComplete,
           description: 'Whether this item is complete.'),
-      field('createdAt', graphQLDate.nonNull(),
+      graphQLDate.nonNull().field('createdAt',
           resolve: (obj, ctx) => obj.createdAt,
           deprecationReason: 'Don\'t use this'),
-      field('cost', decimalGraphQLType, resolve: (obj, ctx) => obj.cost)
+      decimalGraphQLType.field('cost', resolve: (obj, ctx) => obj.cost)
     ],
   );
 

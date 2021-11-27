@@ -271,7 +271,7 @@ Droid? droid(
 ///   droid(id: String!): Droid
 /// }
 /// ```
-final queryType = objectType<Object>(
+final queryType = objectType<Object?>(
   'Query',
   fields: [
     characterInterface().field(

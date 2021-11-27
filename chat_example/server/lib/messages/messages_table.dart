@@ -325,7 +325,7 @@ CREATE TABLE $tableName (
 
 @Mutation()
 Future<ChatMessage?> sendMessage(
-  Ctx<Object> ctx,
+  Ctx ctx,
   int chatId,
   String message,
   int? referencedMessageId,
@@ -344,7 +344,7 @@ Future<ChatMessage?> sendMessage(
 
 @Mutation()
 Future<ChatMessage?> sendFileMessage(
-  Ctx<Object> ctx,
+  Ctx ctx,
   int chatId,
   Upload file, {
   int? referencedMessageId,
@@ -390,7 +390,7 @@ Future<ChatMessage?> sendFileMessage(
 
 @Query()
 Future<List<ChatMessage>> getMessage(
-  Ctx<Object> ctx,
+  Ctx ctx,
   int? chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);
@@ -404,7 +404,7 @@ Future<LinksMetadata> getMessageLinksMetadata(String message) {
 
 @Subscription()
 Future<Stream<List<ChatMessage>>> onMessageSent(
-  Ctx<Object> ctx,
+  Ctx ctx,
   int chatId,
 ) async {
   final controller = await chatControllerRef.get(ctx);

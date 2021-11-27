@@ -6,25 +6,19 @@ part of 'user_table.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<List<User>, Object, Object> searchUserGraphQLField =
-    field(
+final searchUserGraphQLField =
+    userGraphQLType.nonNull().list().nonNull().field<Object?>(
   'searchUser',
-  userGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return searchUser(ctx, (args["name"] as String));
   },
-  inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "name",
-        )
-  ],
+  inputs: [graphQLString.nonNull().coerceToInputObject().inputField('name')],
 );
 
-final GraphQLObjectField<User, Object, Object> getUserGraphQLField = field(
+final getUserGraphQLField = userGraphQLType.field<Object?>(
   'getUser',
-  userGraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -32,10 +26,8 @@ final GraphQLObjectField<User, Object, Object> getUserGraphQLField = field(
   },
 );
 
-final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
-    field(
+final refreshAuthTokenGraphQLField = graphQLString.field<Object?>(
   'refreshAuthToken',
-  graphQLString,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -43,37 +35,31 @@ final GraphQLObjectField<String, Object, Object> refreshAuthTokenGraphQLField =
   },
 );
 
-final GraphQLObjectField<Result<TokenWithUser, ErrC<SignUpError>>, Object,
-    Object> signUpGraphQLField = field(
+final signUpGraphQLField = resultGraphQLType<TokenWithUser, ErrC<SignUpError>>(
+        tokenWithUserGraphQLType.nonNull(),
+        errCGraphQLType<SignUpError>(signUpErrorGraphQLType.nonNull())
+            .nonNull())
+    .nonNull()
+    .field<Object?>(
   'signUp',
-  resultGraphQLType<TokenWithUser, ErrC<SignUpError>>(
-          tokenWithUserGraphQLType.nonNull(),
-          errCGraphQLType<SignUpError>(signUpErrorGraphQLType.nonNull())
-              .nonNull())
-      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return signUp(ctx, (args["name"] as String), (args["password"] as String));
   },
   inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "name",
-        ),
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "password",
-        )
+    graphQLString.nonNull().coerceToInputObject().inputField('name'),
+    graphQLString.nonNull().coerceToInputObject().inputField('password')
   ],
 );
 
-final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
-    Object> signInGraphQLField = field(
+final signInGraphQLField = resultGraphQLType<TokenWithUser, ErrC<SignInError>>(
+        tokenWithUserGraphQLType.nonNull(),
+        errCGraphQLType<SignInError>(signInErrorGraphQLType.nonNull())
+            .nonNull())
+    .nonNull()
+    .field<Object?>(
   'signIn',
-  resultGraphQLType<TokenWithUser, ErrC<SignInError>>(
-          tokenWithUserGraphQLType.nonNull(),
-          errCGraphQLType<SignInError>(signInErrorGraphQLType.nonNull())
-              .nonNull())
-      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -81,18 +67,13 @@ final GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object,
         ctx, (args["name"] as String?), (args["password"] as String?));
   },
   inputs: [
-    graphQLString.coerceToInputObject().inputField(
-          "name",
-        ),
-    graphQLString.coerceToInputObject().inputField(
-          "password",
-        )
+    graphQLString.coerceToInputObject().inputField('name'),
+    graphQLString.coerceToInputObject().inputField('password')
   ],
 );
 
-final GraphQLObjectField<String, Object, Object> signOutGraphQLField = field(
+final signOutGraphQLField = graphQLString.field<Object?>(
   'signOut',
-  graphQLString,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -119,16 +100,14 @@ GraphQLObjectType<UserCreatedEvent> get userCreatedEventGraphQLType {
   if (_userCreatedEventGraphQLType != null)
     return _userCreatedEventGraphQLType! as GraphQLObjectType<UserCreatedEvent>;
 
-  final __userCreatedEventGraphQLType = objectType<UserCreatedEvent>(
-      'UserCreatedEvent',
-      isInterface: false,
-      interfaces: []);
+  final __userCreatedEventGraphQLType =
+      objectType<UserCreatedEvent>(__name, isInterface: false, interfaces: []);
 
   _userCreatedEventGraphQLType = __userCreatedEventGraphQLType;
   __userCreatedEventGraphQLType.fields.addAll(
     [
-      field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) => obj.user),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
+      userGraphQLType.nonNull().field('user', resolve: (obj, ctx) => obj.user),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -151,17 +130,16 @@ GraphQLObjectType<UserSignedUpEvent> get userSignedUpEventGraphQLType {
     return _userSignedUpEventGraphQLType!
         as GraphQLObjectType<UserSignedUpEvent>;
 
-  final __userSignedUpEventGraphQLType = objectType<UserSignedUpEvent>(
-      'UserSignedUpEvent',
-      isInterface: false,
-      interfaces: []);
+  final __userSignedUpEventGraphQLType =
+      objectType<UserSignedUpEvent>(__name, isInterface: false, interfaces: []);
 
   _userSignedUpEventGraphQLType = __userSignedUpEventGraphQLType;
   __userSignedUpEventGraphQLType.fields.addAll(
     [
-      field('session', userSessionGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.session),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
+      userSessionGraphQLType
+          .nonNull()
+          .field('session', resolve: (obj, ctx) => obj.session),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -184,17 +162,16 @@ GraphQLObjectType<UserSignedInEvent> get userSignedInEventGraphQLType {
     return _userSignedInEventGraphQLType!
         as GraphQLObjectType<UserSignedInEvent>;
 
-  final __userSignedInEventGraphQLType = objectType<UserSignedInEvent>(
-      'UserSignedInEvent',
-      isInterface: false,
-      interfaces: []);
+  final __userSignedInEventGraphQLType =
+      objectType<UserSignedInEvent>(__name, isInterface: false, interfaces: []);
 
   _userSignedInEventGraphQLType = __userSignedInEventGraphQLType;
   __userSignedInEventGraphQLType.fields.addAll(
     [
-      field('session', userSessionGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.session),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId)
+      userSessionGraphQLType
+          .nonNull()
+          .field('session', resolve: (obj, ctx) => obj.session),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId)
     ],
   );
 
@@ -217,17 +194,16 @@ GraphQLObjectType<UserSignedOutEvent> get userSignedOutEventGraphQLType {
     return _userSignedOutEventGraphQLType!
         as GraphQLObjectType<UserSignedOutEvent>;
 
-  final __userSignedOutEventGraphQLType = objectType<UserSignedOutEvent>(
-      'UserSignedOutEvent',
-      isInterface: false,
-      interfaces: []);
+  final __userSignedOutEventGraphQLType = objectType<UserSignedOutEvent>(__name,
+      isInterface: false, interfaces: []);
 
   _userSignedOutEventGraphQLType = __userSignedOutEventGraphQLType;
   __userSignedOutEventGraphQLType.fields.addAll(
     [
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      field('sessionId', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.sessionId)
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
+      graphQLString
+          .nonNull()
+          .field('sessionId', resolve: (obj, ctx) => obj.sessionId)
     ],
   );
 
@@ -267,23 +243,25 @@ GraphQLObjectType<UserSession> get userSessionGraphQLType {
   if (_userSessionGraphQLType != null)
     return _userSessionGraphQLType! as GraphQLObjectType<UserSession>;
 
-  final __userSessionGraphQLType = objectType<UserSession>('UserSession',
-      isInterface: false, interfaces: []);
+  final __userSessionGraphQLType =
+      objectType<UserSession>(__name, isInterface: false, interfaces: []);
 
   _userSessionGraphQLType = __userSessionGraphQLType;
   __userSessionGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      field('userAgent', graphQLString, resolve: (obj, ctx) => obj.userAgent),
-      field('platform', graphQLString, resolve: (obj, ctx) => obj.platform),
-      field('appVersion', graphQLString, resolve: (obj, ctx) => obj.appVersion),
-      field('isActive', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.isActive),
-      field('ipAddress', graphQLString, resolve: (obj, ctx) => obj.ipAddress),
-      field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt),
-      field('endedAt', graphQLDate, resolve: (obj, ctx) => obj.endedAt)
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
+      graphQLString.field('userAgent', resolve: (obj, ctx) => obj.userAgent),
+      graphQLString.field('platform', resolve: (obj, ctx) => obj.platform),
+      graphQLString.field('appVersion', resolve: (obj, ctx) => obj.appVersion),
+      graphQLBoolean
+          .nonNull()
+          .field('isActive', resolve: (obj, ctx) => obj.isActive),
+      graphQLString.field('ipAddress', resolve: (obj, ctx) => obj.ipAddress),
+      graphQLDate
+          .nonNull()
+          .field('createdAt', resolve: (obj, ctx) => obj.createdAt),
+      graphQLDate.field('endedAt', resolve: (obj, ctx) => obj.endedAt)
     ],
   );
 
@@ -305,21 +283,22 @@ GraphQLObjectType<User> get userGraphQLType {
     return _userGraphQLType! as GraphQLObjectType<User>;
 
   final __userGraphQLType =
-      objectType<User>('User', isInterface: false, interfaces: []);
+      objectType<User>(__name, isInterface: false, interfaces: []);
 
   _userGraphQLType = __userGraphQLType;
   __userGraphQLType.fields.addAll(
     [
-      field('sessions', userSessionGraphQLType.nonNull().list().nonNull(),
+      userSessionGraphQLType.nonNull().list().nonNull().field('sessions',
           resolve: (obj, ctx) {
         final args = ctx.args;
 
         return obj.sessions(ctx);
       }),
-      field('id', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
-      field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt)
+      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
+      graphQLDate
+          .nonNull()
+          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
     ],
   );
 
@@ -341,19 +320,22 @@ GraphQLObjectType<TokenWithUser> get tokenWithUserGraphQLType {
   if (_tokenWithUserGraphQLType != null)
     return _tokenWithUserGraphQLType! as GraphQLObjectType<TokenWithUser>;
 
-  final __tokenWithUserGraphQLType = objectType<TokenWithUser>('TokenWithUser',
-      isInterface: false, interfaces: []);
+  final __tokenWithUserGraphQLType =
+      objectType<TokenWithUser>(__name, isInterface: false, interfaces: []);
 
   _tokenWithUserGraphQLType = __tokenWithUserGraphQLType;
   __tokenWithUserGraphQLType.fields.addAll(
     [
-      field('accessToken', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.accessToken),
-      field('refreshToken', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.refreshToken),
-      field('expiresInSecs', graphQLInt.nonNull(),
-          resolve: (obj, ctx) => obj.expiresInSecs),
-      field('user', userGraphQLType.nonNull(), resolve: (obj, ctx) => obj.user)
+      graphQLString
+          .nonNull()
+          .field('accessToken', resolve: (obj, ctx) => obj.accessToken),
+      graphQLString
+          .nonNull()
+          .field('refreshToken', resolve: (obj, ctx) => obj.refreshToken),
+      graphQLInt
+          .nonNull()
+          .field('expiresInSecs', resolve: (obj, ctx) => obj.expiresInSecs),
+      userGraphQLType.nonNull().field('user', resolve: (obj, ctx) => obj.user)
     ],
   );
 
@@ -371,10 +353,8 @@ GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
   if (_errCGraphQLType[__name] != null)
     return _errCGraphQLType[__name]! as GraphQLObjectType<ErrC<T>>;
 
-  final __errCGraphQLType = objectType<ErrC<T>>(
-      'ErrC${tGraphQLType.printableName}',
-      isInterface: false,
-      interfaces: []);
+  final __errCGraphQLType =
+      objectType<ErrC<T>>(__name, isInterface: false, interfaces: []);
   errCSerdeCtx.add(
     SerializerValue<ErrC<T>>(
       fromJson: (ctx, json) => ErrC.fromJson(json, ctx.fromJson),
@@ -383,8 +363,8 @@ GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
   _errCGraphQLType[__name] = __errCGraphQLType;
   __errCGraphQLType.fields.addAll(
     [
-      field('message', graphQLString, resolve: (obj, ctx) => obj.message),
-      field('value', tGraphQLType, resolve: (obj, ctx) => obj.value)
+      graphQLString.field('message', resolve: (obj, ctx) => obj.message),
+      tGraphQLType.field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 

@@ -6,42 +6,42 @@ part of 'generics_oxidized.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object, Object>
-    resultUnionObjectGraphQLField = field(
+final resultUnionObjectGraphQLField =
+    resultUGraphQLType<SuccessGet, UnionErrCode>(
+            successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull(),
+            name: 'UnionObjectResult')
+        .nonNull()
+        .field<Object?>(
   'resultUnionObject',
-  resultUGraphQLType<SuccessGet, UnionErrCode>(
-          successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull(),
-          name: 'UnionObjectResult')
-      .nonNull(),
-  description: r"resultUnionObject description",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return resultUnionObject();
   },
+  description: r"resultUnionObject description",
 );
 
-final GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object, Object>
-    resultUnionObjectErrGraphQLField = field(
+final resultUnionObjectErrGraphQLField =
+    resultUGraphQLType<SuccessGet, UnionErrCode>(
+            successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
+        .nonNull()
+        .field<Object?>(
   'resultUnionObjectErrRenamed',
-  resultUGraphQLType<SuccessGet, UnionErrCode>(
-          successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
-      .nonNull(),
-  description: r"resultUnionObjectErr description",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return resultUnionObjectErr();
   },
+  description: r"resultUnionObjectErr description",
   deprecationReason: r"use resultUnionObject",
 );
 
-final GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object, Object>
-    resultUnionObjectMutErrGraphQLField = field(
+final resultUnionObjectMutErrGraphQLField =
+    resultUGraphQLType<SuccessGet, UnionErrCode>(
+            successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
+        .nonNull()
+        .field<Object?>(
   'resultUnionObjectMutErrRenamed',
-  resultUGraphQLType<SuccessGet, UnionErrCode>(
-          successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
-      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -49,41 +49,40 @@ final GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object, Object>
   },
 );
 
-final GraphQLObjectField<Result<int, String>, Object, Object>
-    resultObjectGraphQLField = field(
+final resultObjectGraphQLField = resultGraphQLType<int, String>(
+        graphQLInt.nonNull(), graphQLString.nonNull(),
+        name: 'ObjectResult')
+    .nonNull()
+    .field<Object?>(
   'resultObject',
-  resultGraphQLType<int, String>(graphQLInt.nonNull(), graphQLString.nonNull(),
-          name: 'ObjectResult')
-      .nonNull(),
-  description: r"resultObject description",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return resultObject();
   },
+  description: r"resultObject description",
 );
 
-final GraphQLObjectField<Result<String, List<UnionErrCode?>>, Object, Object>
-    resultObjectErrGraphQLField = field(
+final resultObjectErrGraphQLField =
+    resultGraphQLType<String, List<UnionErrCode?>>(
+            graphQLString.nonNull(), unionErrCodeGraphQLType.list().nonNull())
+        .nonNull()
+        .field<Object?>(
   'resultObjectErrRenamed',
-  resultGraphQLType<String, List<UnionErrCode?>>(
-          graphQLString.nonNull(), unionErrCodeGraphQLType.list().nonNull())
-      .nonNull(),
-  description: r"resultObjectErr description",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return resultObjectErr();
   },
+  description: r"resultObjectErr description",
   deprecationReason: r"use resultObject",
 );
 
-final GraphQLObjectField<Result<SuccessGet, ErrCode>, Object, Object>
-    resultObjectMutErrGraphQLField = field(
+final resultObjectMutErrGraphQLField = resultGraphQLType<SuccessGet, ErrCode>(
+        successGetGraphQLType.nonNull(), errCodeGraphQLType.nonNull())
+    .nonNull()
+    .field<Object?>(
   'resultObjectMutErrRenamed',
-  resultGraphQLType<SuccessGet, ErrCode>(
-          successGetGraphQLType.nonNull(), errCodeGraphQLType.nonNull())
-      .nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -104,11 +103,11 @@ GraphQLObjectType<SuccessGet> get successGetGraphQLType {
     return _successGetGraphQLType! as GraphQLObjectType<SuccessGet>;
 
   final __successGetGraphQLType =
-      objectType<SuccessGet>('SuccessGet', isInterface: false, interfaces: []);
+      objectType<SuccessGet>(__name, isInterface: false, interfaces: []);
 
   _successGetGraphQLType = __successGetGraphQLType;
   __successGetGraphQLType.fields.addAll(
-    [field('value', graphQLString.nonNull(), resolve: (obj, ctx) => obj.value)],
+    [graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)],
   );
 
   return __successGetGraphQLType;
@@ -122,14 +121,14 @@ GraphQLObjectType<UnionErrCode> get unionErrCodeGraphQLType {
   if (_unionErrCodeGraphQLType != null)
     return _unionErrCodeGraphQLType! as GraphQLObjectType<UnionErrCode>;
 
-  final __unionErrCodeGraphQLType = objectType<UnionErrCode>('UnionErrCode',
+  final __unionErrCodeGraphQLType = objectType<UnionErrCode>(__name,
       isInterface: false, interfaces: [errCodeGraphQLType]);
 
   _unionErrCodeGraphQLType = __unionErrCodeGraphQLType;
   __unionErrCodeGraphQLType.fields.addAll(
     [
-      field('id', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('value', graphQLString.nonNull(), resolve: (obj, ctx) => obj.value)
+      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 

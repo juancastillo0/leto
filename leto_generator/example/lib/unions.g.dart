@@ -6,38 +6,31 @@ part of 'unions.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<int, Object, Object>
-    returnFiveFromFreezedInputGraphQLField = field(
+final returnFiveFromFreezedInputGraphQLField =
+    graphQLInt.nonNull().field<Object?>(
   'returnFiveFromFreezedInput',
-  graphQLInt.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return returnFiveFromFreezedInput(
         ctx, (args["input"] as FreezedSingleInput));
   },
-  inputs: [
-    freezedSingleInputGraphQLType.nonNull().inputField(
-          "input",
-        )
-  ],
+  inputs: [freezedSingleInputGraphQLType.nonNull().inputField('input')],
 );
 
-final GraphQLObjectField<UnionA, Object, Object> getUnionAGraphQLField = field(
+final getUnionAGraphQLField = unionAGraphQLType.field<Object?>(
   'getUnionA',
-  unionAGraphQLType,
-  description: r"gets Union A",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getUnionA(ctx);
   },
+  description: r"gets Union A",
 );
 
-final GraphQLObjectField<NestedInterfaceImpl3, Object, Object>
-    getNestedInterfaceImpl3GraphQLField = field(
+final getNestedInterfaceImpl3GraphQLField =
+    nestedInterfaceImpl3GraphQLType.field<Object?>(
   'getNestedInterfaceImpl3',
-  nestedInterfaceImpl3GraphQLType,
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -45,10 +38,9 @@ final GraphQLObjectField<NestedInterfaceImpl3, Object, Object>
   },
 );
 
-final GraphQLObjectField<NestedInterfaceImpl2, Object, Object>
-    getNestedInterfaceImpl2GraphQLField = field(
+final getNestedInterfaceImpl2GraphQLField =
+    nestedInterfaceImpl2GraphQLType.nonNull().field<Object?>(
   'getNestedInterfaceImpl2',
-  nestedInterfaceImpl2GraphQLType.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -56,20 +48,15 @@ final GraphQLObjectField<NestedInterfaceImpl2, Object, Object>
   },
 );
 
-final GraphQLObjectField<NestedInterface, Object, Object>
-    getNestedInterfaceImplByIndexGraphQLField = field(
+final getNestedInterfaceImplByIndexGraphQLField =
+    nestedInterfaceGraphQLType.nonNull().field<Object?>(
   'getNestedInterfaceImplByIndex',
-  nestedInterfaceGraphQLType.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getNestedInterfaceImplByIndex(ctx, (args["index"] as int));
   },
-  inputs: [
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "index",
-        )
-  ],
+  inputs: [graphQLInt.nonNull().coerceToInputObject().inputField('index')],
 );
 
 // **************************************************************************
@@ -93,14 +80,16 @@ GraphQLInputObjectType<FreezedSingleInput> get freezedSingleInputGraphQLType {
         as GraphQLInputObjectType<FreezedSingleInput>;
 
   final __freezedSingleInputGraphQLType =
-      inputObjectType<FreezedSingleInput>('FreezedSingleInput');
+      inputObjectType<FreezedSingleInput>(__name);
 
   _freezedSingleInputGraphQLType = __freezedSingleInputGraphQLType;
   __freezedSingleInputGraphQLType.fields.addAll(
     [
-      inputField('positional', graphQLString.coerceToInputObject()),
-      inputField('five', graphQLInt.nonNull().coerceToInputObject(),
-          defaultValue: 5, description: 'five with default')
+      graphQLString.coerceToInputObject().inputField('positional'),
+      graphQLInt
+          .nonNull()
+          .coerceToInputObject()
+          .inputField('five', defaultValue: 5, description: 'five with default')
     ],
   );
 
@@ -122,12 +111,12 @@ GraphQLObjectType<_UnionA1> get unionA1GraphQLType {
     return _unionA1GraphQLType! as GraphQLObjectType<_UnionA1>;
 
   final __unionA1GraphQLType =
-      objectType<_UnionA1>('UnionA1', isInterface: false, interfaces: []);
+      objectType<_UnionA1>(__name, isInterface: false, interfaces: []);
 
   _unionA1GraphQLType = __unionA1GraphQLType;
   __unionA1GraphQLType.fields.addAll(
     [
-      field('one', graphQLInt.nonNull(),
+      graphQLInt.nonNull().field('one',
           resolve: (obj, ctx) => obj.one, description: 'five with default')
     ],
   );
@@ -150,12 +139,12 @@ GraphQLObjectType<_UnionA2> get unionA2GraphQLType {
     return _unionA2GraphQLType! as GraphQLObjectType<_UnionA2>;
 
   final __unionA2GraphQLType =
-      objectType<_UnionA2>('UnionA2', isInterface: false, interfaces: []);
+      objectType<_UnionA2>(__name, isInterface: false, interfaces: []);
 
   _unionA2GraphQLType = __unionA2GraphQLType;
   __unionA2GraphQLType.fields.addAll(
     [
-      field('dec', decimalGraphQLType,
+      decimalGraphQLType.field('dec',
           resolve: (obj, ctx) => obj.dec,
           deprecationReason: 'custom deprecated msg')
     ],
@@ -179,12 +168,12 @@ GraphQLObjectType<UnionA3> get unionA3GraphQLType {
     return _unionA3GraphQLType! as GraphQLObjectType<UnionA3>;
 
   final __unionA3GraphQLType =
-      objectType<UnionA3>('UnionA3', isInterface: false, interfaces: []);
+      objectType<UnionA3>(__name, isInterface: false, interfaces: []);
 
   _unionA3GraphQLType = __unionA3GraphQLType;
   __unionA3GraphQLType.fields.addAll(
     [
-      field('one', graphQLInt.nonNull().list(),
+      graphQLInt.nonNull().list().field('one',
           resolve: (obj, ctx) => obj.one, description: 'description for one')
     ],
   );
@@ -207,13 +196,16 @@ GraphQLObjectType<_UnionA4> get unionA4GraphQLType {
     return _unionA4GraphQLType! as GraphQLObjectType<_UnionA4>;
 
   final __unionA4GraphQLType =
-      objectType<_UnionA4>('UnionA4', isInterface: false, interfaces: []);
+      objectType<_UnionA4>(__name, isInterface: false, interfaces: []);
 
   _unionA4GraphQLType = __unionA4GraphQLType;
   __unionA4GraphQLType.fields.addAll(
     [
-      field('oneRenamed', graphQLInt.nonNull().list().nonNull(),
-          resolve: (obj, ctx) => obj.one)
+      graphQLInt
+          .nonNull()
+          .list()
+          .nonNull()
+          .field('oneRenamed', resolve: (obj, ctx) => obj.one)
     ],
   );
 
@@ -247,16 +239,12 @@ GraphQLObjectType<NestedInterface> get nestedInterfaceGraphQLType {
   if (_nestedInterfaceGraphQLType != null)
     return _nestedInterfaceGraphQLType! as GraphQLObjectType<NestedInterface>;
 
-  final __nestedInterfaceGraphQLType = objectType<NestedInterface>(
-      'NestedInterface',
-      isInterface: true,
-      interfaces: []);
+  final __nestedInterfaceGraphQLType =
+      objectType<NestedInterface>(__name, isInterface: true, interfaces: []);
 
   _nestedInterfaceGraphQLType = __nestedInterfaceGraphQLType;
   __nestedInterfaceGraphQLType.fields.addAll(
-    [
-      field('dec', decimalGraphQLType.nonNull(), resolve: (obj, ctx) => obj.dec)
-    ],
+    [decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec)],
   );
 
   return __nestedInterfaceGraphQLType;
@@ -270,14 +258,12 @@ GraphQLObjectType<NamedInterface> get namedInterfaceGraphQLType {
   if (_namedInterfaceGraphQLType != null)
     return _namedInterfaceGraphQLType! as GraphQLObjectType<NamedInterface>;
 
-  final __namedInterfaceGraphQLType = objectType<NamedInterface>(
-      'NamedInterface',
-      isInterface: true,
-      interfaces: []);
+  final __namedInterfaceGraphQLType =
+      objectType<NamedInterface>(__name, isInterface: true, interfaces: []);
 
   _namedInterfaceGraphQLType = __namedInterfaceGraphQLType;
   __namedInterfaceGraphQLType.fields.addAll(
-    [field('name', graphQLString, resolve: (obj, ctx) => obj.name)],
+    [graphQLString.field('name', resolve: (obj, ctx) => obj.name)],
   );
 
   return __namedInterfaceGraphQLType;
@@ -293,16 +279,15 @@ GraphQLObjectType<NestedInterfaceImpl> get nestedInterfaceImplGraphQLType {
         as GraphQLObjectType<NestedInterfaceImpl>;
 
   final __nestedInterfaceImplGraphQLType = objectType<NestedInterfaceImpl>(
-      'NestedInterfaceImpl',
+      __name,
       isInterface: false,
       interfaces: [nestedInterfaceGraphQLType]);
 
   _nestedInterfaceImplGraphQLType = __nestedInterfaceImplGraphQLType;
   __nestedInterfaceImplGraphQLType.fields.addAll(
     [
-      field('dec', decimalGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.dec),
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name)
+      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name)
     ],
   );
 
@@ -319,17 +304,16 @@ GraphQLObjectType<NestedInterfaceImpl2> get nestedInterfaceImpl2GraphQLType {
         as GraphQLObjectType<NestedInterfaceImpl2>;
 
   final __nestedInterfaceImpl2GraphQLType = objectType<NestedInterfaceImpl2>(
-      'NestedInterfaceImpl2',
+      __name,
       isInterface: false,
       interfaces: [nestedInterfaceImplGraphQLType]);
 
   _nestedInterfaceImpl2GraphQLType = __nestedInterfaceImpl2GraphQLType;
   __nestedInterfaceImpl2GraphQLType.fields.addAll(
     [
-      field('dec', decimalGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.dec),
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
-      field('name2', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name2)
+      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString.nonNull().field('name2', resolve: (obj, ctx) => obj.name2)
     ],
   );
 
@@ -346,17 +330,16 @@ GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType {
         as GraphQLObjectType<NestedInterfaceImpl3>;
 
   final __nestedInterfaceImpl3GraphQLType = objectType<NestedInterfaceImpl3>(
-      'NestedInterfaceImpl3',
+      __name,
       isInterface: false,
       interfaces: [namedInterfaceGraphQLType, nestedInterfaceImplGraphQLType]);
 
   _nestedInterfaceImpl3GraphQLType = __nestedInterfaceImpl3GraphQLType;
   __nestedInterfaceImpl3GraphQLType.fields.addAll(
     [
-      field('name3', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name3),
-      field('dec', decimalGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.dec),
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name)
+      graphQLString.nonNull().field('name3', resolve: (obj, ctx) => obj.name3),
+      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name)
     ],
   );
 

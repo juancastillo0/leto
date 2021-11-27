@@ -6,9 +6,8 @@ part of 'database_event.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<DBEvent, Object, Object> onEventGraphQLField = field(
+final onEventGraphQLField = dBEventGraphQLType.nonNull().field<Object?>(
   'onEvent',
-  dBEventGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -16,10 +15,8 @@ final GraphQLObjectField<DBEvent, Object, Object> onEventGraphQLField = field(
   },
 );
 
-final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
-    field(
+final onMessageEventGraphQLField = dBEventGraphQLType.nonNull().field<Object?>(
   'onMessageEvent',
-  dBEventGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -27,22 +24,19 @@ final GraphQLObjectField<DBEvent, Object, Object> onMessageEventGraphQLField =
   },
 );
 
-final GraphQLObjectField<Paginated<DBEvent>, Object, Object>
-    getEventsGraphQLField = field(
+final getEventsGraphQLField =
+    paginatedGraphQLType<DBEvent>(dBEventGraphQLType.nonNull())
+        .nonNull()
+        .field<Object?>(
   'getEvents',
-  paginatedGraphQLType<DBEvent>(dBEventGraphQLType.nonNull()).nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getEvents(ctx, (args["cursor"] as String?), (args["delta"] as int));
   },
   inputs: [
-    graphQLString.coerceToInputObject().inputField(
-          "cursor",
-        ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "delta",
-        )
+    graphQLString.coerceToInputObject().inputField('cursor'),
+    graphQLInt.nonNull().coerceToInputObject().inputField('delta')
   ],
 );
 
@@ -65,16 +59,15 @@ GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType {
   if (_chatDBEventDataGraphQLType != null)
     return _chatDBEventDataGraphQLType! as GraphQLObjectType<ChatDBEventData>;
 
-  final __chatDBEventDataGraphQLType = objectType<ChatDBEventData>(
-      'ChatDBEventData',
-      isInterface: false,
-      interfaces: []);
+  final __chatDBEventDataGraphQLType =
+      objectType<ChatDBEventData>(__name, isInterface: false, interfaces: []);
 
   _chatDBEventDataGraphQLType = __chatDBEventDataGraphQLType;
   __chatDBEventDataGraphQLType.fields.addAll(
     [
-      field('value', chatEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value)
+      chatEventGraphQLType
+          .nonNull()
+          .field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -98,15 +91,16 @@ GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType {
         as GraphQLObjectType<UserChatDBEventData>;
 
   final __userChatDBEventDataGraphQLType = objectType<UserChatDBEventData>(
-      'UserChatDBEventData',
+      __name,
       isInterface: false,
       interfaces: []);
 
   _userChatDBEventDataGraphQLType = __userChatDBEventDataGraphQLType;
   __userChatDBEventDataGraphQLType.fields.addAll(
     [
-      field('value', userChatEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value)
+      userChatEventGraphQLType
+          .nonNull()
+          .field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -128,16 +122,15 @@ GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType {
   if (_userDBEventDataGraphQLType != null)
     return _userDBEventDataGraphQLType! as GraphQLObjectType<UserDBEventData>;
 
-  final __userDBEventDataGraphQLType = objectType<UserDBEventData>(
-      'UserDBEventData',
-      isInterface: false,
-      interfaces: []);
+  final __userDBEventDataGraphQLType =
+      objectType<UserDBEventData>(__name, isInterface: false, interfaces: []);
 
   _userDBEventDataGraphQLType = __userDBEventDataGraphQLType;
   __userDBEventDataGraphQLType.fields.addAll(
     [
-      field('value', userEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value)
+      userEventGraphQLType
+          .nonNull()
+          .field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -163,14 +156,15 @@ GraphQLObjectType<ChatMessageDBEventData>
         as GraphQLObjectType<ChatMessageDBEventData>;
 
   final __chatMessageDBEventDataGraphQLType =
-      objectType<ChatMessageDBEventData>('ChatMessageDBEventData',
+      objectType<ChatMessageDBEventData>(__name,
           isInterface: false, interfaces: []);
 
   _chatMessageDBEventDataGraphQLType = __chatMessageDBEventDataGraphQLType;
   __chatMessageDBEventDataGraphQLType.fields.addAll(
     [
-      field('value', chatMessageEventGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.value)
+      chatMessageEventGraphQLType
+          .nonNull()
+          .field('value', resolve: (obj, ctx) => obj.value)
     ],
   );
 
@@ -211,21 +205,25 @@ GraphQLObjectType<DBEvent> get dBEventGraphQLType {
     return _dBEventGraphQLType! as GraphQLObjectType<DBEvent>;
 
   final __dBEventGraphQLType =
-      objectType<DBEvent>('DBEvent', isInterface: false, interfaces: []);
+      objectType<DBEvent>(__name, isInterface: false, interfaces: []);
 
   _dBEventGraphQLType = __dBEventGraphQLType;
   __dBEventGraphQLType.fields.addAll(
     [
-      field('id', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('userId', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.userId),
-      field('sessionId', graphQLString.nonNull(),
-          resolve: (obj, ctx) => obj.sessionId),
-      field('type', eventTypeGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.type),
-      field('data', dBEventDataGraphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.data),
-      field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt)
+      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
+      graphQLString
+          .nonNull()
+          .field('sessionId', resolve: (obj, ctx) => obj.sessionId),
+      eventTypeGraphQLType
+          .nonNull()
+          .field('type', resolve: (obj, ctx) => obj.type),
+      dBEventDataGraphQLType
+          .nonNull()
+          .field('data', resolve: (obj, ctx) => obj.data),
+      graphQLDate
+          .nonNull()
+          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
     ],
   );
 
@@ -242,18 +240,19 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
   if (_paginatedGraphQLType[__name] != null)
     return _paginatedGraphQLType[__name]! as GraphQLObjectType<Paginated<T>>;
 
-  final __paginatedGraphQLType = objectType<Paginated<T>>(
-      'Paginated${tGraphQLType.printableName}',
-      isInterface: false,
-      interfaces: []);
+  final __paginatedGraphQLType =
+      objectType<Paginated<T>>(__name, isInterface: false, interfaces: []);
 
   _paginatedGraphQLType[__name] = __paginatedGraphQLType;
   __paginatedGraphQLType.fields.addAll(
     [
-      field('values', tGraphQLType.list().nonNull(),
-          resolve: (obj, ctx) => obj.values),
-      field('pageInfo', PageInfo.graphQLType.nonNull(),
-          resolve: (obj, ctx) => obj.pageInfo)
+      tGraphQLType
+          .list()
+          .nonNull()
+          .field('values', resolve: (obj, ctx) => obj.values),
+      PageInfo.graphQLType
+          .nonNull()
+          .field('pageInfo', resolve: (obj, ctx) => obj.pageInfo)
     ],
   );
 

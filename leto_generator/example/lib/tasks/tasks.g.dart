@@ -6,10 +6,9 @@ part of 'tasks.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<List<Task>, Object, Object> getTasksGraphQLField =
-    field(
+final getTasksGraphQLField =
+    taskGraphQLType.nonNull().list().nonNull().field<Object?>(
   'getTasks',
-  taskGraphQLType.nonNull().list().nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -17,24 +16,18 @@ final GraphQLObjectField<List<Task>, Object, Object> getTasksGraphQLField =
   },
 );
 
-final GraphQLObjectField<bool, Object, Object> addTaskGraphQLField = field(
+final addTaskGraphQLField = graphQLBoolean.nonNull().field<Object?>(
   'addTask',
-  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return addTask(ctx, (args["task"] as Task));
   },
-  inputs: [
-    taskGraphQLType.nonNull().coerceToInputObject().inputField(
-          "task",
-        )
-  ],
+  inputs: [taskGraphQLType.nonNull().coerceToInputObject().inputField('task')],
 );
 
-final GraphQLObjectField<Task, Object, Object> onAddTaskGraphQLField = field(
+final onAddTaskGraphQLField = taskGraphQLType.nonNull().field<Object?>(
   'onAddTask',
-  taskGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -55,11 +48,11 @@ GraphQLObjectType<WithId> get withIdGraphQLType {
     return _withIdGraphQLType! as GraphQLObjectType<WithId>;
 
   final __withIdGraphQLType =
-      objectType<WithId>('WithId', isInterface: true, interfaces: []);
+      objectType<WithId>(__name, isInterface: true, interfaces: []);
 
   _withIdGraphQLType = __withIdGraphQLType;
   __withIdGraphQLType.fields.addAll(
-    [field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id)],
+    [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
   );
 
   return __withIdGraphQLType;
@@ -73,14 +66,14 @@ GraphQLObjectType<Named> get namedGraphQLType {
   if (_namedGraphQLType != null)
     return _namedGraphQLType! as GraphQLObjectType<Named>;
 
-  final __namedGraphQLType = objectType<Named>('Named',
+  final __namedGraphQLType = objectType<Named>(__name,
       isInterface: true, interfaces: [withIdGraphQLType]);
 
   _namedGraphQLType = __namedGraphQLType;
   __namedGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id)
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)
     ],
   );
 
@@ -96,12 +89,12 @@ GraphQLObjectType<WithCreated> get withCreatedGraphQLType {
     return _withCreatedGraphQLType! as GraphQLObjectType<WithCreated>;
 
   final __withCreatedGraphQLType =
-      objectType<WithCreated>('WithCreated', isInterface: true, interfaces: []);
+      objectType<WithCreated>(__name, isInterface: true, interfaces: []);
 
   _withCreatedGraphQLType = __withCreatedGraphQLType;
   __withCreatedGraphQLType.fields.addAll(
     [
-      field('createdTimestamp', graphQLTimestamp.nonNull(),
+      graphQLTimestamp.nonNull().field('createdTimestamp',
           resolve: (obj, ctx) => obj.createdTimestamp)
     ],
   );
@@ -123,24 +116,27 @@ GraphQLObjectType<Task> get taskGraphQLType {
   if (_taskGraphQLType != null)
     return _taskGraphQLType! as GraphQLObjectType<Task>;
 
-  final __taskGraphQLType = objectType<Task>('Task',
+  final __taskGraphQLType = objectType<Task>(__name,
       isInterface: false,
       interfaces: [namedGraphQLType, withCreatedGraphQLType]);
 
   _taskGraphQLType = __taskGraphQLType;
   __taskGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
-      field('description', graphQLString,
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString.field('description',
           resolve: (obj, ctx) => obj.description),
-      field('image', graphQLUri.nonNull(), resolve: (obj, ctx) => obj.image),
-      field('weight', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.weight),
-      field('extra', Json.graphQLType, resolve: (obj, ctx) => obj.extra),
-      field('createdTimestamp', graphQLTimestamp.nonNull(),
+      graphQLUri.nonNull().field('image', resolve: (obj, ctx) => obj.image),
+      graphQLInt.nonNull().field('weight', resolve: (obj, ctx) => obj.weight),
+      Json.graphQLType.field('extra', resolve: (obj, ctx) => obj.extra),
+      graphQLTimestamp.nonNull().field('createdTimestamp',
           resolve: (obj, ctx) => obj.createdTimestamp),
-      field('assignedTo', userGraphQLType.nonNull().list().nonNull(),
-          resolve: (obj, ctx) => obj.assignedTo)
+      userGraphQLType
+          .nonNull()
+          .list()
+          .nonNull()
+          .field('assignedTo', resolve: (obj, ctx) => obj.assignedTo)
     ],
   );
 
@@ -161,14 +157,14 @@ GraphQLObjectType<User> get userGraphQLType {
   if (_userGraphQLType != null)
     return _userGraphQLType! as GraphQLObjectType<User>;
 
-  final __userGraphQLType = objectType<User>('User',
+  final __userGraphQLType = objectType<User>(__name,
       isInterface: false, interfaces: [namedGraphQLType]);
 
   _userGraphQLType = __userGraphQLType;
   __userGraphQLType.fields.addAll(
     [
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id),
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name)
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name)
     ],
   );
 

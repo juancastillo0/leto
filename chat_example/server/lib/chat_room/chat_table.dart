@@ -299,7 +299,7 @@ class ChatRoom with _$ChatRoom {
     }).toList();
   }
 
-  Future<List<ChatMessage>> messages(Ctx<Object> ctx) async {
+  Future<List<ChatMessage>> messages(Ctx ctx) async {
     if (messagesCache != null) {
       return messagesCache!;
     }
@@ -307,7 +307,7 @@ class ChatRoom with _$ChatRoom {
     return controller.messages.getAll(chatId: id);
   }
 
-  Future<List<ChatRoomUser>> users(Ctx<Object> ctx) async {
+  Future<List<ChatRoomUser>> users(Ctx ctx) async {
     if (usersCache != null) {
       return usersCache!;
     }
@@ -318,7 +318,7 @@ class ChatRoom with _$ChatRoom {
 
 @Mutation()
 Future<ChatRoom?> createChatRoom(
-  Ctx<Object> ctx,
+  Ctx ctx,
   String name,
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
@@ -328,7 +328,7 @@ Future<ChatRoom?> createChatRoom(
 
 @Mutation()
 Future<bool> deleteChatRoom(
-  Ctx<Object> ctx,
+  Ctx ctx,
   int id,
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
@@ -338,7 +338,7 @@ Future<bool> deleteChatRoom(
 
 @Query()
 Future<List<ChatRoom>> getChatRooms(
-  Ctx<Object> ctx,
+  Ctx ctx,
 ) async {
   final claims = await getUserClaimsUnwrap(ctx);
   final controller = await chatControllerRef.get(ctx);

@@ -6,38 +6,32 @@ part of 'quickstart_server.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<Model, Object, Object> getStateGraphQLField = field(
+final getStateGraphQLField = modelGraphQLType.field<Object?>(
   'getState',
-  modelGraphQLType,
-  description:
-      r"Code Generation\nUsing leto_generator, [makeGraphQLSchema] could be generated\nwith the following annotated functions and the [GraphQLClass]\nannotation over [Model]\nGet the current state",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return getState(ctx);
   },
+  description:
+      r"Code Generation\nUsing leto_generator, [makeGraphQLSchema] could be generated\nwith the following annotated functions and the [GraphQLClass]\nannotation over [Model]\nGet the current state",
 );
 
-final GraphQLObjectField<bool, Object, Object> setStateGraphQLField = field(
+final setStateGraphQLField = graphQLBoolean.nonNull().field<Object?>(
   'setState',
-  graphQLBoolean.nonNull(),
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return setState(ctx, (args["newState"] as String));
   },
   inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "newState",
-          description: r"The new state, can't be 'WrongState'!.",
-        )
+    graphQLString.nonNull().coerceToInputObject().inputField('newState',
+        description: 'The new state, can\'t be \'WrongState\'!.')
   ],
 );
 
-final GraphQLObjectField<Model, Object, Object> onStateChangeGraphQLField =
-    field(
+final onStateChangeGraphQLField = modelGraphQLType.nonNull().field<Object?>(
   'onStateChange',
-  modelGraphQLType.nonNull(),
   subscribe: (obj, ctx) {
     final args = ctx.args;
 
@@ -58,14 +52,15 @@ GraphQLObjectType<Model> get modelGraphQLType {
     return _modelGraphQLType! as GraphQLObjectType<Model>;
 
   final __modelGraphQLType =
-      objectType<Model>('Model', isInterface: false, interfaces: []);
+      objectType<Model>(__name, isInterface: false, interfaces: []);
 
   _modelGraphQLType = __modelGraphQLType;
   __modelGraphQLType.fields.addAll(
     [
-      field('state', graphQLString.nonNull(), resolve: (obj, ctx) => obj.state),
-      field('createdAt', graphQLDate.nonNull(),
-          resolve: (obj, ctx) => obj.createdAt)
+      graphQLString.nonNull().field('state', resolve: (obj, ctx) => obj.state),
+      graphQLDate
+          .nonNull()
+          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
     ],
   );
 

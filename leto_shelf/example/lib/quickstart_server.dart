@@ -127,7 +127,7 @@ type Subscription {
     subscriptionType: objectType('Subscription', fields: [
       modelGraphQLType.nonNull().field(
             'onStateChange',
-            subscribe: (Object rootValue, Ctx ctx) => stateRef.get(ctx).stream,
+            subscribe: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).stream,
           )
     ]),
   );

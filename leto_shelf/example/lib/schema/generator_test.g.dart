@@ -6,11 +6,8 @@ part of 'generator_test.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
-    field(
+final addTestModelGraphQLField = testModelGraphQLType.field<Object?>(
   'addTestModel',
-  testModelGraphQLType,
-  description: r"the function uses [value] to do stuff",
   resolve: (obj, ctx) {
     final args = ctx.args;
     if ((args["previous"] as TestModel?) != null) {
@@ -27,26 +24,22 @@ final GraphQLObjectField<TestModel, Object, Object> addTestModelGraphQLField =
         value: (args["value"] as List<int>));
   },
   inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "realName",
-        ),
-    testModelGraphQLType.coerceToInputObject().inputField(
-          "previous",
-        ),
-    graphQLString.nonNull().coerceToInputObject().inputField(
-          "name",
-        ),
-    graphQLInt.nonNull().list().nonNull().coerceToInputObject().inputField(
-          "value",
-        )
+    graphQLString.nonNull().coerceToInputObject().inputField('realName'),
+    testModelGraphQLType.coerceToInputObject().inputField('previous'),
+    graphQLString.nonNull().coerceToInputObject().inputField('name'),
+    graphQLInt
+        .nonNull()
+        .list()
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('value')
   ],
+  description: r"the function uses [value] to do stuff",
 );
 
-final GraphQLObjectField<List<TestModel>, Object, Object>
-    testModelsGraphQLField = field(
+final testModelsGraphQLField =
+    testModelGraphQLType.nonNull().list().nonNull().field<Object?>(
   'testModels',
-  testModelGraphQLType.nonNull().list().nonNull(),
-  description: r"Automatic documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
@@ -54,36 +47,32 @@ final GraphQLObjectField<List<TestModel>, Object, Object>
         position: (args["position"] as int));
   },
   inputs: [
-    graphQLDate.nonNull().coerceToInputObject().inputField(
-          "lessThan",
-          description: r"pagination less than",
-        ),
-    graphQLInt.nonNull().coerceToInputObject().inputField(
-          "position",
-          defaultValue: 0,
-          description: r"pagination",
-        )
+    graphQLDate
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('lessThan', description: 'pagination less than'),
+    graphQLInt
+        .nonNull()
+        .coerceToInputObject()
+        .inputField('position', defaultValue: 0, description: 'pagination')
   ],
+  description: r"Automatic documentation generated\n[position] is the pad",
 );
 
-final GraphQLObjectField<List<EventUnion?>, Object, Object>
-    testUnionModelsGraphQLField = field(
+final testUnionModelsGraphQLField =
+    eventUnionGraphQLType.list().nonNull().field<Object?>(
   'testUnionModels',
-  eventUnionGraphQLType.list().nonNull(),
-  description:
-      r"testUnionModels documentation generated\n[position] is the pad",
   resolve: (obj, ctx) {
     final args = ctx.args;
 
     return testUnionModels(ctx, positions: (args["positions"] as List<int?>));
   },
   inputs: [
-    graphQLInt.list().nonNull().coerceToInputObject().inputField(
-          "positions",
-          defaultValue: const [],
-          description: r"pagination",
-        )
+    graphQLInt.list().nonNull().coerceToInputObject().inputField('positions',
+        defaultValue: const [], description: 'pagination')
   ],
+  description:
+      r"testUnionModels documentation generated\n[position] is the pad",
 );
 
 // **************************************************************************
@@ -104,19 +93,22 @@ GraphQLObjectType<TestModel> get testModelGraphQLType {
   if (_testModelGraphQLType != null)
     return _testModelGraphQLType! as GraphQLObjectType<TestModel>;
 
-  final __testModelGraphQLType = objectType<TestModel>('TestModel',
+  final __testModelGraphQLType = objectType<TestModel>(__name,
       isInterface: false, interfaces: [], description: 'Custom doc');
 
   _testModelGraphQLType = __testModelGraphQLType;
   __testModelGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
-      field('description', graphQLString,
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString.field('description',
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', graphQLDate.nonNull().list(),
-          resolve: (obj, ctx) => obj.dates),
-      field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates)
+      graphQLDate
+          .nonNull()
+          .list()
+          .field('dates', resolve: (obj, ctx) => obj.dates),
+      graphQLBoolean
+          .nonNull()
+          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
@@ -131,21 +123,22 @@ GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
   if (_testModelFreezedGraphQLType != null)
     return _testModelFreezedGraphQLType! as GraphQLObjectType<TestModelFreezed>;
 
-  final __testModelFreezedGraphQLType = objectType<TestModelFreezed>(
-      'TestModelFreezed',
-      isInterface: false,
-      interfaces: []);
+  final __testModelFreezedGraphQLType =
+      objectType<TestModelFreezed>(__name, isInterface: false, interfaces: []);
 
   _testModelFreezedGraphQLType = __testModelFreezedGraphQLType;
   __testModelFreezedGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
-      field('description', graphQLString,
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString.field('description',
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', graphQLDate.nonNull().list(),
-          resolve: (obj, ctx) => obj.dates),
-      field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates)
+      graphQLDate
+          .nonNull()
+          .list()
+          .field('dates', resolve: (obj, ctx) => obj.dates),
+      graphQLBoolean
+          .nonNull()
+          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
@@ -167,21 +160,26 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
   if (_eventUnionAddGraphQLType != null)
     return _eventUnionAddGraphQLType! as GraphQLObjectType<_EventUnionAdd>;
 
-  final __eventUnionAddGraphQLType = objectType<_EventUnionAdd>('EventUnionAdd',
-      isInterface: false, interfaces: []);
+  final __eventUnionAddGraphQLType =
+      objectType<_EventUnionAdd>(__name, isInterface: false, interfaces: []);
 
   _eventUnionAddGraphQLType = __eventUnionAddGraphQLType;
   __eventUnionAddGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(), resolve: (obj, ctx) => obj.name),
-      field('description', graphQLString,
+      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString.field('description',
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      field('dates', graphQLDate.nonNull().list(),
-          resolve: (obj, ctx) => obj.dates),
-      field('models', testModelGraphQLType.list().nonNull(),
-          resolve: (obj, ctx) => obj.models),
-      field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates)
+      graphQLDate
+          .nonNull()
+          .list()
+          .field('dates', resolve: (obj, ctx) => obj.dates),
+      testModelGraphQLType
+          .list()
+          .nonNull()
+          .field('models', resolve: (obj, ctx) => obj.models),
+      graphQLBoolean
+          .nonNull()
+          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 
@@ -203,20 +201,21 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
   if (_eventUnionDeleteGraphQLType != null)
     return _eventUnionDeleteGraphQLType! as GraphQLObjectType<EventUnionDelete>;
 
-  final __eventUnionDeleteGraphQLType = objectType<EventUnionDelete>(
-      'EventUnionDelete',
-      isInterface: false,
-      interfaces: []);
+  final __eventUnionDeleteGraphQLType =
+      objectType<EventUnionDelete>(__name, isInterface: false, interfaces: []);
 
   _eventUnionDeleteGraphQLType = __eventUnionDeleteGraphQLType;
   __eventUnionDeleteGraphQLType.fields.addAll(
     [
-      field('name', graphQLString, resolve: (obj, ctx) => obj.name),
-      field('cost', graphQLInt.nonNull(), resolve: (obj, ctx) => obj.cost),
-      field('dates', graphQLDate.nonNull().list(),
-          resolve: (obj, ctx) => obj.dates),
-      field('hasDates', graphQLBoolean.nonNull(),
-          resolve: (obj, ctx) => obj.hasDates)
+      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
+      graphQLInt.nonNull().field('cost', resolve: (obj, ctx) => obj.cost),
+      graphQLDate
+          .nonNull()
+          .list()
+          .field('dates', resolve: (obj, ctx) => obj.dates),
+      graphQLBoolean
+          .nonNull()
+          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
     ],
   );
 

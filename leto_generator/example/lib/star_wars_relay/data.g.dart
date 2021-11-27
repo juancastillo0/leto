@@ -14,7 +14,7 @@ GraphQLObjectType<Node> get nodeGraphQLType {
   if (_nodeGraphQLType != null)
     return _nodeGraphQLType! as GraphQLObjectType<Node>;
 
-  final __nodeGraphQLType = objectType<Node>('Node',
+  final __nodeGraphQLType = objectType<Node>(__name,
       isInterface: true,
       interfaces: [],
       description:
@@ -22,7 +22,7 @@ GraphQLObjectType<Node> get nodeGraphQLType {
 
   _nodeGraphQLType = __nodeGraphQLType;
   __nodeGraphQLType.fields.addAll(
-    [field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.id)],
+    [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
   );
 
   return __nodeGraphQLType;
@@ -42,7 +42,7 @@ GraphQLObjectType<Ship> get shipGraphQLType {
   if (_shipGraphQLType != null)
     return _shipGraphQLType! as GraphQLObjectType<Ship>;
 
-  final __shipGraphQLType = objectType<Ship>('Ship',
+  final __shipGraphQLType = objectType<Ship>(__name,
       isInterface: false,
       interfaces: [nodeGraphQLType],
       description: 'A ship in the Star Wars saga');
@@ -50,10 +50,10 @@ GraphQLObjectType<Ship> get shipGraphQLType {
   _shipGraphQLType = __shipGraphQLType;
   __shipGraphQLType.fields.addAll(
     [
-      field('name', graphQLString.nonNull(),
+      graphQLString.nonNull().field('name',
           resolve: (obj, ctx) => obj.name,
           description: 'The name of the ship.'),
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.idResolve)
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.idResolve)
     ],
   );
 
@@ -74,7 +74,7 @@ GraphQLObjectType<Faction> get factionGraphQLType {
   if (_factionGraphQLType != null)
     return _factionGraphQLType! as GraphQLObjectType<Faction>;
 
-  final __factionGraphQLType = objectType<Faction>('Faction',
+  final __factionGraphQLType = objectType<Faction>(__name,
       isInterface: false,
       interfaces: [nodeGraphQLType],
       description: 'A faction in the Star Wars saga');
@@ -82,9 +82,9 @@ GraphQLObjectType<Faction> get factionGraphQLType {
   _factionGraphQLType = __factionGraphQLType;
   __factionGraphQLType.fields.addAll(
     [
-      field('ships',
-          connectionGraphQLType<Ship>(shipGraphQLType.nonNull()).nonNull(),
-          resolve: (obj, ctx) {
+      connectionGraphQLType<Ship>(shipGraphQLType.nonNull())
+          .nonNull()
+          .field('ships', resolve: (obj, ctx) {
         final args = ctx.args;
         final argsArg = connectionArgumentsSerializer.fromJson(
             ctx.executionCtx.schema.serdeCtx, args);
@@ -98,12 +98,12 @@ GraphQLObjectType<Faction> get factionGraphQLType {
 
         return obj.shipConnection(ctx, argsArg);
       },
-          inputs: [...connectionArgumentsGraphQLType.fields],
-          description: 'The ships used by the faction.'),
-      field('name', graphQLString.nonNull(),
+              inputs: [...connectionArgumentsGraphQLType.fields],
+              description: 'The ships used by the faction.'),
+      graphQLString.nonNull().field('name',
           resolve: (obj, ctx) => obj.name,
           description: 'The name of the faction.'),
-      field('id', graphQLId.nonNull(), resolve: (obj, ctx) => obj.idResolve)
+      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.idResolve)
     ],
   );
 
@@ -127,22 +127,22 @@ GraphQLInputObjectType<ConnectionArguments> get connectionArgumentsGraphQLType {
         as GraphQLInputObjectType<ConnectionArguments>;
 
   final __connectionArgumentsGraphQLType = inputObjectType<ConnectionArguments>(
-      'ConnectionArguments',
+      __name,
       description:
           'Returns a GraphQLFieldConfigArgumentMap appropriate to include on a field\nwhose return type is a connection type with forward pagination.');
 
   _connectionArgumentsGraphQLType = __connectionArgumentsGraphQLType;
   __connectionArgumentsGraphQLType.fields.addAll(
     [
-      inputField('before', graphQLString.coerceToInputObject(),
+      graphQLString.coerceToInputObject().inputField('before',
           description:
               'Returns the items in the list that come before the specified cursor.'),
-      inputField('after', graphQLString.coerceToInputObject(),
+      graphQLString.coerceToInputObject().inputField('after',
           description:
               'Returns the items in the list that come after the specified cursor.'),
-      inputField('first', graphQLInt.coerceToInputObject(),
+      graphQLInt.coerceToInputObject().inputField('first',
           description: 'Returns the first n items from the list.'),
-      inputField('last', graphQLInt.coerceToInputObject(),
+      graphQLInt.coerceToInputObject().inputField('last',
           description: 'Returns the last n items from the list.')
     ],
   );
