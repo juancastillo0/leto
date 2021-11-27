@@ -235,4 +235,96 @@ extension EnumExt on Node {
     else if (v is VariableNode) return v.name;
     return null;
   }
+
+  List<DirectiveNode>? get directivesNodes {
+    final v = this;
+    if (v is ArgumentNode)
+      return null;
+    else if (v is BooleanValueNode)
+      return null;
+    else if (v is DefaultValueNode)
+      return null;
+    else if (v is DirectiveDefinitionNode)
+      return null;
+    else if (v is DirectiveNode)
+      return null;
+    else if (v is DocumentNode)
+      return null;
+    else if (v is EnumTypeDefinitionNode)
+      return v.directives;
+    else if (v is EnumTypeExtensionNode)
+      return v.directives;
+    else if (v is EnumValueDefinitionNode)
+      return v.directives;
+    else if (v is EnumValueNode)
+      return null;
+    else if (v is FieldDefinitionNode)
+      return v.directives;
+    else if (v is FieldNode)
+      return v.directives;
+    else if (v is FloatValueNode)
+      return null;
+    else if (v is FragmentDefinitionNode)
+      return v.directives;
+    else if (v is FragmentSpreadNode)
+      return v.directives;
+    else if (v is InlineFragmentNode)
+      return v.directives;
+    else if (v is InputObjectTypeDefinitionNode)
+      return v.directives;
+    else if (v is InputObjectTypeExtensionNode)
+      return v.directives;
+    else if (v is InputValueDefinitionNode)
+      return v.directives;
+    else if (v is IntValueNode)
+      return null;
+    else if (v is InterfaceTypeDefinitionNode)
+      return v.directives;
+    else if (v is InterfaceTypeExtensionNode)
+      return v.directives;
+    else if (v is ListTypeNode)
+      return null;
+    else if (v is ListValueNode)
+      return null;
+    else if (v is NameNode)
+      return null;
+    else if (v is NamedTypeNode)
+      return null;
+    else if (v is NullValueNode)
+      return null;
+    else if (v is ObjectFieldNode)
+      return null;
+    else if (v is ObjectTypeDefinitionNode)
+      return v.directives;
+    else if (v is ObjectTypeExtensionNode)
+      return v.directives;
+    else if (v is ObjectValueNode)
+      return null;
+    else if (v is OperationDefinitionNode)
+      return v.directives;
+    else if (v is OperationTypeDefinitionNode)
+      return null;
+    else if (v is ScalarTypeDefinitionNode)
+      return v.directives;
+    else if (v is ScalarTypeExtensionNode)
+      return v.directives;
+    else if (v is SchemaDefinitionNode)
+      return v.directives;
+    else if (v is SchemaExtensionNode)
+      return v.directives;
+    else if (v is SelectionSetNode)
+      return null;
+    else if (v is StringValueNode)
+      return null;
+    else if (v is TypeConditionNode)
+      return null;
+    else if (v is UnionTypeDefinitionNode)
+      return v.directives;
+    else if (v is UnionTypeExtensionNode)
+      return v.directives;
+    else if (v is VariableDefinitionNode)
+      return v.directives;
+    else if (v is VariableNode) return null;
+    return null;
+  }
 }

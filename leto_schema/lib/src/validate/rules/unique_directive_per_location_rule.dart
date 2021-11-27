@@ -39,10 +39,7 @@ Visitor uniqueDirectivesPerLocationRule(
       // them all, just listen for entering any node, and check to see if it
       // defines any directives.
       (node) {
-    List<DirectiveNode>? directives;
-    try {
-      directives = (node as dynamic).directives as List<DirectiveNode>;
-    } catch (_) {}
+    final List<DirectiveNode>? directives = node.directivesNodes;
     if (directives == null) {
       return;
     }
