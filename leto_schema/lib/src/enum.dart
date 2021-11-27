@@ -56,7 +56,12 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
     this.values, {
     this.description,
     this.extra = const GraphQLTypeDefinitionExtra.attach([]),
-  });
+  }) : assert(
+          !checkAsserts ||
+              values.every(
+                (e) => !const ['true', 'false', 'null'].contains(e.name),
+              ),
+        );
 
   @override
   String serialize(Value value) {

@@ -99,7 +99,7 @@ class TypeInfo {
     // checked before continuing since TypeInfo is used as part of validation
     // which occurs before guarantees of schema and document validity.
     if (node is SelectionSetNode) {
-      final namedType = getNamedType(this.getType());
+      final namedType = _call(getNamedType, this.getType());
       this._parentTypeStack.add(
             namedType is GraphQLCompositeType ? namedType : null,
           );
@@ -130,7 +130,7 @@ class TypeInfo {
           : (node as FragmentDefinitionNode).typeCondition;
       final outputType = typeConditionAST != null
           ? convertTypeOrNull(typeConditionAST.on, schema.typeMap)
-          : getNamedType(this.getType());
+          : _call(getNamedType, this.getType());
       this._typeStack.add(isOutputType(outputType) ? outputType : null);
     } else if (node is VariableDefinitionNode) {
       final inputType = convertTypeOrNull(node.type, schema.typeMap);
@@ -161,7 +161,7 @@ class TypeInfo {
       this._defaultValueStack.add(null);
       this._inputTypeStack.add(isInputType(itemType) ? itemType : null);
     } else if (node is ObjectFieldNode) {
-      final objectType = getNamedType(this.getInputType());
+      final objectType = _call(getNamedType, this.getInputType());
       GraphQLType? inputFieldType;
       GraphQLFieldInput? inputField;
       if (objectType is GraphQLInputObjectType) {
@@ -175,7 +175,7 @@ class TypeInfo {
             isInputType(inputFieldType) ? inputFieldType : null,
           );
     } else if (node is EnumValueNode) {
-      final enumType = getNamedType(this.getInputType());
+      final enumType = _call(getNamedType, this.getInputType());
       GraphQLEnumValue? enumValue;
       if (enumType is GraphQLEnumType) {
         enumValue = enumType.getValue(node.name.value);
@@ -210,6 +210,8 @@ class TypeInfo {
     }
   }
 }
+
+T? _call<T, P>(T Function(P) func, P? arg) => arg == null ? null : func(arg);
 
 ///
 typedef GetFieldDefFn = GraphQLObjectField? Function(

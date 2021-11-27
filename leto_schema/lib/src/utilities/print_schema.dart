@@ -281,7 +281,8 @@ class SchemaPrinter {
     var argDecl = arg.name + ': ' + printTypeReference(arg.type);
     final Object? defaultValue = arg.defaultValue;
     if (defaultValue != null) {
-      final defaultAST = astFromValue(defaultValue, arg.type);
+      final defaultAST =
+          arg.astNode?.defaultValue ?? astFromValue(defaultValue, arg.type);
       if (defaultAST != null) {
         argDecl += ' = ${printAST(defaultAST)}';
       }

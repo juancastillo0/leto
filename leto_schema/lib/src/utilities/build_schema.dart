@@ -380,7 +380,7 @@ GraphQLSchema buildSchema(
     directives: directives,
     otherTypes: typesMap.values.toList(),
     astNode: schemaNode,
-    // TODO: description
+    // TODO: description and extensionAstNodes
   );
 }
 
@@ -398,7 +398,7 @@ Object? getDirectiveValue(
   String name,
   String argumentName,
   List<DirectiveNode> directives,
-  Map<String, dynamic>? variableValues, {
+  Map<String, Object?>? variableValues, {
   Map<String, GraphQLDirective> directivesMap = const {},
 }) {
   final directive = directives.firstWhereOrNull(
@@ -435,12 +435,12 @@ Object? getDirectiveValue(
   return computeValue(null, value, variableValues);
 }
 
-GraphQLNamedType? getNamedType(GraphQLType? type) {
-  GraphQLType? _type = type;
+GraphQLNamedType getNamedType(GraphQLType type) {
+  GraphQLType _type = type;
   while (_type is GraphQLWrapperType) {
-    _type = (_type! as GraphQLWrapperType).ofType;
+    _type = (_type as GraphQLWrapperType).ofType;
   }
-  return _type as GraphQLNamedType?;
+  return _type as GraphQLNamedType;
 }
 
 GraphQLType<Object?, Object?>? convertTypeOrNull(
@@ -476,9 +476,6 @@ GraphQLType<Object?, Object?> convertType(
           return graphQLBoolean;
         case 'ID':
           return graphQLId;
-        case 'Date':
-        case 'DateTime':
-          return graphQLDate;
         default:
           final type = customTypes[node.name.value];
           if (type == null) {

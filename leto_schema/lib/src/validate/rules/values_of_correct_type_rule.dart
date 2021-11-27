@@ -32,7 +32,8 @@ Visitor valuesOfCorrectTypeRule(
     }
   });
   visitor.add<ObjectValueNode>((node) {
-    final type = getNamedType(context.typeInfo.getInputType());
+    final _type = context.typeInfo.getInputType();
+    final type = _type == null ? null : getNamedType(_type);
     if (type is! GraphQLInputObjectType) {
       isValidValueNode(localCtx, node);
       return VisitBehavior.skipTree;
@@ -55,7 +56,8 @@ Visitor valuesOfCorrectTypeRule(
     }
   });
   visitor.add<ObjectFieldNode>((node) {
-    final parentType = getNamedType(context.typeInfo.getParentInputType());
+    final _parentType = context.typeInfo.getInputType();
+    final parentType = _parentType == null ? null : getNamedType(_parentType);
     final fieldType = context.typeInfo.getInputType();
     if (fieldType == null && parentType is GraphQLInputObjectType) {
       // final suggestions = suggestionList(
@@ -113,7 +115,7 @@ VisitBehavior? isValidValueNode(
     return null;
   }
 
-  final type = getNamedType(locationType)!;
+  final type = getNamedType(locationType);
 
   if (!isLeafType(type)) {
     final typeStr = inspect(locationType);

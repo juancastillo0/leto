@@ -649,9 +649,9 @@ Conflict? findConflict(
       cachedFieldsAndFragmentNames,
       comparedFragmentPairs,
       areMutuallyExclusive,
-      getNamedType(type1),
+      type1 == null ? null : getNamedType(type1),
       selectionSet1,
-      getNamedType(type2),
+      type2 == null ? null : getNamedType(type2),
       selectionSet2,
     );
     return subfieldConflicts(conflicts, responseName, field1.node, field2.node);
