@@ -180,7 +180,7 @@ FROM tmp_$tableName;''',
   }
 }
 
-@GraphQLClass()
+@GraphQLEnum()
 enum ChatRoomUserRole {
   admin,
   peer,

@@ -1,3 +1,5 @@
+import 'package:leto_schema/leto_schema.dart';
+
 class Config {
   final String serializerSuffix;
   final String graphqlTypeSuffix;
@@ -8,6 +10,7 @@ class Config {
   final bool omitPrivateFields;
   final String? instantiateCode;
   final List<CustomTypes> customTypes;
+  final EnumNameCase? enumValuesCase;
 
   ///
   const Config({
@@ -20,6 +23,7 @@ class Config {
     bool? omitPrivateFields,
     this.instantiateCode,
     required this.customTypes,
+    this.enumValuesCase,
   })  : serializerSuffix = serializerSuffix ?? 'Serializer',
         graphqlTypeSuffix = graphqlTypeSuffix ?? 'GraphQLType',
         unionKeySuffix = unionKeySuffix ?? 'Discriminant',
@@ -39,7 +43,26 @@ class Config {
       'customTypes': customTypes,
       'omitPrivateFields': omitPrivateFields,
       'instantiateCode': instantiateCode,
+      'enumValuesCase': enumValuesCase?.toString().split('.').last,
     };
+  }
+
+  static EnumNameCase? parseEnumCase(String? enumValuesCaseStr) {
+    EnumNameCase? enumValuesCase;
+    if (enumValuesCaseStr != null) {
+      final index = EnumNameCase.values.indexWhere(
+        (v) => v.toString().split('.').last == enumValuesCaseStr,
+      );
+      final errorMessage = 'enumValuesCase should be one of'
+          ' ${EnumNameCase.values.map((e) => '"${e.toString().split('.').last}"').join(', ')}.'
+          ' Got $enumValuesCaseStr.';
+      if (index != -1) {
+        enumValuesCase = EnumNameCase.values[index];
+      } else {
+        throw FormatException(errorMessage, enumValuesCase);
+      }
+    }
+    return enumValuesCase;
   }
 
   factory Config.fromJson(Map<String, dynamic> map) {
@@ -52,6 +75,7 @@ class Config {
       omitFields: map['omitFields'] as bool?,
       omitPrivateFields: map['omitPrivateFields'] as bool?,
       instantiateCode: map['instantiateCode'] as String?,
+      enumValuesCase: parseEnumCase(map['enumValuesCase'] as String?),
       customTypes: map['customTypes'] == null
           ? []
           : List.of(

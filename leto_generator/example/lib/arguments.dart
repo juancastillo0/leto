@@ -12,7 +12,7 @@ List<Decimal?> _defaultListDecimalNull() => [null, Decimal.parse('2')];
 GraphQLType<dynamic, dynamic> _timestampsType() =>
     graphQLTimestamp.list().nonNull();
 
-@GraphQLClass()
+@GraphQLEnum()
 enum EnumValue { v1, v2, v3 }
 
 final enumCustomGraphQLType = enumType<int>(

@@ -2,6 +2,7 @@
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_generator_example/star_wars/schema.dart';
 import 'package:leto_generator_example/tasks/tasks.dart';
+import 'package:leto_generator_example/test/enums_test.dart';
 import 'package:leto_generator_example/test/class_config_test.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_generator_example/resolver_class.dart';
@@ -38,6 +39,7 @@ final graphqlApiSchema = GraphQLSchema(
     fields: [
       droidGraphQLField,
       getTasksGraphQLField,
+      enumsTestQueryGraphQLField,
       getClassConfig2GraphQLField,
       getClassConfigGraphQLField,
       testInputGenGraphQLField,

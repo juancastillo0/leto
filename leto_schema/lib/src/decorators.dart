@@ -28,12 +28,12 @@ class GraphQLInput implements GraphQLObjectDec {
 /// Signifies that a class should statically generate a [GraphQLEnumType].
 @Target({TargetKind.classType, TargetKind.enumType})
 class GraphQLEnum implements GraphQLObjectDec {
+  /// Signifies that a class should statically generate a [GraphQLEnumType].
   const GraphQLEnum({this.valuesCase});
 
   /// The String case for each enum variant name
   final EnumNameCase? valuesCase;
 }
-// TODO: test deprecated
 
 enum EnumNameCase {
   /// CONSTANT_CASE
@@ -52,8 +52,20 @@ enum EnumNameCase {
   camelCase,
 }
 
+/// Signifies that a static field should statically
+/// generate a [GraphQLEnumValue] in a [GraphQLEnumType].
+@Target({TargetKind.field})
+class GraphQLEnumVariant {
+  /// Overrides the name of the variant, by default it will be the
+  /// name of the field subject to [EnumNameCase].
+  final String? name;
+
+  /// Signifies that a static field should statically
+  /// generate a [GraphQLEnumValue] in a [GraphQLEnumType].
+  const GraphQLEnumVariant({this.name});
+}
 /// Signifies that a class should statically generate a [GraphQLType].
-@Target({TargetKind.classType, TargetKind.enumType})
+@Target({TargetKind.classType})
 class GraphQLClass implements GraphQLObjectDec {
   /// Signifies that a class should statically generate a [GraphQLType].
   ///
@@ -231,6 +243,7 @@ class AttachFn {
 class ClassResolver implements BaseGraphQLResolver {
   final String? fieldName;
 
+  /// A custom Dart code getter for the annotated Class instance
   final String? instantiateCode;
 
   /// Signifies that a class should be used to generated and resolve

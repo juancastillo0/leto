@@ -261,19 +261,19 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
 
 /// Auto-generated from [EventType].
 final GraphQLEnumType<EventType> eventTypeGraphQLType =
-    enumType('EventType', const {
-  'chatCreated': EventType.chatCreated,
-  'chatDeleted': EventType.chatDeleted,
-  'userChatRemoved': EventType.userChatRemoved,
-  'userChatAdded': EventType.userChatAdded,
-  'userCreated': EventType.userCreated,
-  'userSessionSignedUp': EventType.userSessionSignedUp,
-  'userSessionSignedIn': EventType.userSessionSignedIn,
-  'userSessionSignedOut': EventType.userSessionSignedOut,
-  'messageSent': EventType.messageSent,
-  'messageDeleted': EventType.messageDeleted,
-  'messageUpdated': EventType.messageUpdated
-});
+    GraphQLEnumType('EventType', [
+  GraphQLEnumValue('chatCreated', EventType.chatCreated),
+  GraphQLEnumValue('chatDeleted', EventType.chatDeleted),
+  GraphQLEnumValue('userChatRemoved', EventType.userChatRemoved),
+  GraphQLEnumValue('userChatAdded', EventType.userChatAdded),
+  GraphQLEnumValue('userCreated', EventType.userCreated),
+  GraphQLEnumValue('userSessionSignedUp', EventType.userSessionSignedUp),
+  GraphQLEnumValue('userSessionSignedIn', EventType.userSessionSignedIn),
+  GraphQLEnumValue('userSessionSignedOut', EventType.userSessionSignedOut),
+  GraphQLEnumValue('messageSent', EventType.messageSent),
+  GraphQLEnumValue('messageDeleted', EventType.messageDeleted),
+  GraphQLEnumValue('messageUpdated', EventType.messageUpdated)
+]);
 
 // **************************************************************************
 // JsonSerializableGenerator

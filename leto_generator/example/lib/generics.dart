@@ -66,7 +66,7 @@ class ErrV<V, E> extends ResultV<V, E> {
   final E value;
 }
 
-@GraphQLClass()
+@GraphQLEnum()
 enum ErrCodeType {
   code1,
   code2,

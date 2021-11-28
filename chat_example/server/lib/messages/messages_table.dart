@@ -19,7 +19,7 @@ import 'package:server/utilities.dart';
 part 'messages_table.freezed.dart';
 part 'messages_table.g.dart';
 
-@GraphQLClass()
+@GraphQLEnum()
 enum MessageType {
   FILE,
   TEXT,

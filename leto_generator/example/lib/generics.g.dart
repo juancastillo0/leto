@@ -297,6 +297,8 @@ GraphQLObjectType<ErrCodeInterfaceNEE<T>>
 }
 
 /// Auto-generated from [ErrCodeType].
-final GraphQLEnumType<ErrCodeType> errCodeTypeGraphQLType = enumType(
-    'ErrCodeType',
-    const {'code1': ErrCodeType.code1, 'code2': ErrCodeType.code2});
+final GraphQLEnumType<ErrCodeType> errCodeTypeGraphQLType =
+    GraphQLEnumType('ErrCodeType', [
+  GraphQLEnumValue('code1', ErrCodeType.code1),
+  GraphQLEnumValue('code2', ErrCodeType.code2)
+]);

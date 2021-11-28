@@ -430,7 +430,7 @@ Future<String?> refreshAuthToken(
   );
 }
 
-@GraphQLClass()
+@GraphQLEnum()
 enum SignUpError {
   nameTaken,
   alreadySignedUp,
@@ -524,7 +524,7 @@ class ErrC<T> {
       _$ErrCFromJson(json, fromJsonT);
 }
 
-@GraphQLClass()
+@GraphQLEnum()
 enum SignInError { wrong, alreadySignedIn }
 
 @Mutation()

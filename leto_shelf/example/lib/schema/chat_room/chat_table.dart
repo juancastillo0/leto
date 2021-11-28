@@ -228,7 +228,7 @@ REFERENCES $tableName (id);''',
   }
 }
 
-@GraphQLClass()
+@GraphQLEnum()
 enum EventType { messageSent }
 
 extension SerdeEventType on EventType {

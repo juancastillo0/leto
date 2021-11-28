@@ -193,8 +193,8 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQLType {
 }
 
 /// Auto-generated from [EventType].
-final GraphQLEnumType<EventType> eventTypeGraphQLType =
-    enumType('EventType', const {'messageSent': EventType.messageSent});
+final GraphQLEnumType<EventType> eventTypeGraphQLType = GraphQLEnumType(
+    'EventType', [GraphQLEnumValue('messageSent', EventType.messageSent)]);
 
 // **************************************************************************
 // JsonSerializableGenerator

@@ -27,7 +27,7 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
 
   return [
     ...clazz.methods
-        .where((method) => method.name != 'toJson' && method.name != 'fromJson')
+        .where((method) => method.name != 'toJson' && !method.isStatic)
         .map((m) => fieldFromElement(config, m, m.returnType, ctx, generics)),
     ...clazz.fields
         .map((m) => fieldFromElement(config, m, m.type, ctx, generics)),

@@ -163,9 +163,11 @@ GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQLType {
 }
 
 /// Auto-generated from [ChatRoomUserRole].
-final GraphQLEnumType<ChatRoomUserRole> chatRoomUserRoleGraphQLType = enumType(
-    'ChatRoomUserRole',
-    const {'admin': ChatRoomUserRole.admin, 'peer': ChatRoomUserRole.peer});
+final GraphQLEnumType<ChatRoomUserRole> chatRoomUserRoleGraphQLType =
+    GraphQLEnumType('ChatRoomUserRole', [
+  GraphQLEnumValue('admin', ChatRoomUserRole.admin),
+  GraphQLEnumValue('peer', ChatRoomUserRole.peer)
+]);
 
 // **************************************************************************
 // JsonSerializableGenerator

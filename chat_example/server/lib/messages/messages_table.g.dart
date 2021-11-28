@@ -255,8 +255,11 @@ GraphQLUnionType<ChatMessageEvent> get chatMessageEventGraphQLType {
 }
 
 /// Auto-generated from [MessageType].
-final GraphQLEnumType<MessageType> messageTypeGraphQLType = enumType(
-    'MessageType', const {'FILE': MessageType.FILE, 'TEXT': MessageType.TEXT});
+final GraphQLEnumType<MessageType> messageTypeGraphQLType =
+    GraphQLEnumType('MessageType', [
+  GraphQLEnumValue('FILE', MessageType.FILE),
+  GraphQLEnumValue('TEXT', MessageType.TEXT)
+]);
 
 // **************************************************************************
 // JsonSerializableGenerator

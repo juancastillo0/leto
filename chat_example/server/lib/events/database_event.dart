@@ -15,7 +15,7 @@ import 'package:server/users/user_table.dart';
 part 'database_event.freezed.dart';
 part 'database_event.g.dart';
 
-@GraphQLClass()
+@GraphQLEnum()
 enum EventType {
   chatCreated,
   chatDeleted,

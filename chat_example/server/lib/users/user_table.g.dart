@@ -373,18 +373,18 @@ GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
 
 /// Auto-generated from [SignUpError].
 final GraphQLEnumType<SignUpError> signUpErrorGraphQLType =
-    enumType('SignUpError', const {
-  'nameTaken': SignUpError.nameTaken,
-  'alreadySignedUp': SignUpError.alreadySignedUp,
-  'unknown': SignUpError.unknown
-});
+    GraphQLEnumType('SignUpError', [
+  GraphQLEnumValue('nameTaken', SignUpError.nameTaken),
+  GraphQLEnumValue('alreadySignedUp', SignUpError.alreadySignedUp),
+  GraphQLEnumValue('unknown', SignUpError.unknown)
+]);
 
 /// Auto-generated from [SignInError].
-final GraphQLEnumType<SignInError> signInErrorGraphQLType = enumType(
-    'SignInError', const {
-  'wrong': SignInError.wrong,
-  'alreadySignedIn': SignInError.alreadySignedIn
-});
+final GraphQLEnumType<SignInError> signInErrorGraphQLType =
+    GraphQLEnumType('SignInError', [
+  GraphQLEnumValue('wrong', SignInError.wrong),
+  GraphQLEnumValue('alreadySignedIn', SignInError.alreadySignedIn)
+]);
 
 // **************************************************************************
 // JsonSerializableGenerator

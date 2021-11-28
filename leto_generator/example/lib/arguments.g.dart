@@ -94,5 +94,9 @@ final testManyDefaultsGraphQLField = graphQLString.nonNull().field<Object?>(
 // **************************************************************************
 
 /// Auto-generated from [EnumValue].
-final GraphQLEnumType<EnumValue> enumValueGraphQLType = enumType('EnumValue',
-    const {'v1': EnumValue.v1, 'v2': EnumValue.v2, 'v3': EnumValue.v3});
+final GraphQLEnumType<EnumValue> enumValueGraphQLType =
+    GraphQLEnumType('EnumValue', [
+  GraphQLEnumValue('v1', EnumValue.v1),
+  GraphQLEnumValue('v2', EnumValue.v2),
+  GraphQLEnumValue('v3', EnumValue.v3)
+]);
