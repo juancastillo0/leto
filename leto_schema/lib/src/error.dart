@@ -92,7 +92,7 @@ class GraphQLException implements Exception {
 
   @override
   String toString() {
-    return 'GraphQLException(${toJson()})';
+    return 'GraphQLException(${{'errors': errors}})';
   }
 }
 
@@ -128,14 +128,17 @@ class GraphQLError implements Exception, GraphQLException {
   /// information about the error, such as a specific error code.
   final Map<String, Object?>? extensions;
 
-  const GraphQLError(
+  /// An error that may occur during the execution of a GraphQL query.
+  ///
+  /// This will almost always be passed to a [GraphQLException].
+  GraphQLError(
     this.message, {
     this.locations = const [],
     this.path,
     this.extensions,
-    this.stackTrace,
+    StackTrace? stackTrace,
     this.sourceError,
-  });
+  }) : stackTrace = stackTrace ?? StackTrace.current;
 
   @override
   Map<String, Object?> toJson() {
@@ -165,7 +168,10 @@ class GraphQLError implements Exception, GraphQLException {
 
   @override
   String toString() {
-    return 'GraphQLExceptionError(${toJson()})';
+    final json = toJson();
+    if (sourceError != null) json['sourceError'] = sourceError;
+    if (stackTrace != null) json['stackTrace'] = stackTrace;
+    return 'GraphQLExceptionError($json)';
   }
 
   @override
