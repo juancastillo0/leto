@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 part of leto_schema.src.schema;
 
 /// Base object decorator.
@@ -22,6 +24,32 @@ class GraphQLInput implements GraphQLObjectDec {
   /// The name of the generated [GraphQLInputObjectType]
   final String? name;
 }
+
+/// Signifies that a class should statically generate a [GraphQLEnumType].
+@Target({TargetKind.classType, TargetKind.enumType})
+class GraphQLEnum implements GraphQLObjectDec {
+  const GraphQLEnum({this.valuesCase});
+
+  /// The String case for each enum variant name
+  final EnumNameCase? valuesCase;
+}
+// TODO: test deprecated
+
+enum EnumNameCase {
+  /// CONSTANT_CASE
+  CONSTANT_CASE,
+
+  /// snake_case
+  snake_case,
+
+  /// PascalCase
+  PascalCase,
+
+  /// Pascal_Underscore_Case
+  Pascal_Underscore_Case,
+
+  /// camelCase
+  camelCase,
 }
 
 /// Signifies that a class should statically generate a [GraphQLType].
