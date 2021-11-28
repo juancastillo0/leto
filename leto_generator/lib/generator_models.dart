@@ -72,6 +72,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
             .map((p) => fieldFromParam(ctx, classConfig, p))
             .followedBy(_unionClassFields),
       ),
+      attachments: getAttachments(clazz),
     );
   }));
 }
@@ -161,6 +162,7 @@ Future<FieldInfo> fieldFromElement(
     fieldAnnot: annot,
     description: getDescription(method, method.documentationComment),
     deprecationReason: getDeprecationReason(method),
+    attachments: getAttachments(method),
   );
 }
 
@@ -190,6 +192,7 @@ Future<FieldInfo> fieldFromParam(
     fieldAnnot: annot,
     description: await documentationOfParameter(param, ctx.buildStep),
     deprecationReason: getDeprecationReason(param),
+    attachments: getAttachments(param),
   );
 }
 
@@ -226,7 +229,10 @@ class UnionVarianInfo {
   bool get isInput => inputConfig != null;
   final bool isUnion;
   final List<TypeParameterElement> typeParams;
+  final String? attachments;
 
+  /// Contains The necessary information to generate a
+  /// [GraphQLObjectType] or [GraphQLInputObjectType].
   const UnionVarianInfo({
     required this.typeName,
     required this.constructorName,
@@ -242,6 +248,7 @@ class UnionVarianInfo {
     required this.inputConfig,
     required this.isUnion,
     required this.typeParams,
+    required this.attachments,
   });
 
   Code serializer() {
@@ -350,6 +357,10 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
         if (!isInput) 'interfaces': literalList(interfaces),
         if (description != null && description!.isNotEmpty)
           'description': literalString(description!),
+        if (attachments != null)
+          'extra': refer('GraphQLTypeDefinitionExtra.attach').call([
+            refer(attachments!),
+          ])
       },
     );
   }
@@ -366,7 +377,10 @@ class FieldInfo {
   final GraphQLField fieldAnnot;
   final String? deprecationReason;
   final String? defaultValueCode;
+  final String? attachments;
 
+  /// Necessary information for printing
+  /// a [GraphQLFieldInput] or [GraphQLObjectField]
   const FieldInfo({
     required this.name,
     required this.getter,
@@ -378,6 +392,7 @@ class FieldInfo {
     required this.description,
     required this.deprecationReason,
     required this.fieldAnnot,
+    required this.attachments,
   });
 
   Expression expression({bool isInput = false}) {
@@ -405,7 +420,8 @@ class FieldInfo {
         if (description != null && description!.isNotEmpty)
           'description': literalString(description!),
         if (deprecationReason != null)
-          'deprecationReason': literalString(deprecationReason!)
+          'deprecationReason': literalString(deprecationReason!),
+        if (attachments != null) 'attachments': refer(attachments!)
       },
     );
   }

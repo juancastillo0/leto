@@ -132,11 +132,9 @@ GraphQLObjectType<Task> get taskGraphQLType {
       Json.graphQLType.field('extra', resolve: (obj, ctx) => obj.extra),
       graphQLTimestamp.nonNull().field('createdTimestamp',
           resolve: (obj, ctx) => obj.createdTimestamp),
-      userGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('assignedTo', resolve: (obj, ctx) => obj.assignedTo)
+      userGraphQLType.nonNull().list().nonNull().field('assignedTo',
+          resolve: (obj, ctx) => obj.assignedTo,
+          attachments: [...Task.assignedToAttachments()])
     ],
   );
 
@@ -158,7 +156,9 @@ GraphQLObjectType<User> get userGraphQLType {
     return _userGraphQLType! as GraphQLObjectType<User>;
 
   final __userGraphQLType = objectType<User>(__name,
-      isInterface: false, interfaces: [namedGraphQLType]);
+      isInterface: false,
+      interfaces: [namedGraphQLType],
+      extra: GraphQLTypeDefinitionExtra.attach([...userAttachments()]));
 
   _userGraphQLType = __userGraphQLType;
   __userGraphQLType.fields.addAll(

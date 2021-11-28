@@ -115,6 +115,24 @@ String? getDefaultValue(Element elem) {
   }
 }
 
+String? getAttachments(Element element) {
+  // final annotDefault = const TypeChecker.fromRuntime(Attach)
+  //     .annotationsOf(element).expand((e) => e.toListValue()?.map((e) => e.));
+  // ignore: prefer_interpolation_to_compose_strings
+  final str = '[' +
+      const TypeChecker.fromRuntime(AttachFn)
+          .annotationsOf(element)
+          .map((e) {
+            final fun = e.getField('attachments')?.toFunctionValue();
+            return fun == null ? null : executeCodeForExecutable(fun);
+          })
+          .whereType<String>()
+          .map((e) => '...$e')
+          .join(',') +
+      ']';
+  return str.length > 2 ? str : null;
+}
+
 // taken from https://github.com/rrousselGit/freezed/blob/be88e13288b9a5aaddc0e7d0e9ee570d20a8cccf/packages/freezed/lib/src/utils.dart
 Future<String> documentationOfParameter(
   ParameterElement parameter,

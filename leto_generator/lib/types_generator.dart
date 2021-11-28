@@ -129,6 +129,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         fields: await Future.wait(
           fieldsFromClass(clazz, ctx),
         ),
+        attachments: getAttachments(clazz),
       );
       return Library((l) {
         // l.directives.addAll(

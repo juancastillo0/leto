@@ -102,7 +102,7 @@ Future<String> _buildForElement(
                   ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
                   ${description == null ? '' : 'description: r"$description",'}
                   ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
-                  ${attachments.isEmpty ? '' : 'attachments: [${attachments.join(',')}]'}
+                  ${attachments == null ? '' : 'attachments: $attachments'}
                   )
                  ''',
             )
@@ -160,8 +160,7 @@ Future<List<String>> inputsFromElement(
                   'description': literalString(description),
                 if (deprecationReason != null)
                   'deprecationReason': literalString(deprecationReason),
-                if (attachments.isNotEmpty)
-                  'attachments': literalList(List.of(attachments.map(refer)))
+                if (attachments != null) 'attachments': refer(attachments)
               },
             )
             .accept(_dartEmitter)

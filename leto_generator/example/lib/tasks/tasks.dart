@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/validate_rules.dart';
 
 part 'tasks.g.dart';
 
@@ -76,10 +77,10 @@ type Task implements Named & WithId & WithCreated {
   weight: Int!
   extra: Json
   createdTimestamp: Timestamp!
-  assignedTo: [User!]!
+  assignedTo: [User!]! @cost(complexity: 10)
 }''',
   '''
-type User implements Named & WithId {
+type User implements Named & WithId @cost(complexity: 5) {
   id: ID!
   name: String!
 }''',
@@ -115,7 +116,11 @@ class Task implements Named, WithCreated {
   @override
   @GraphQLField(type: 'graphQLTimestamp.nonNull()')
   final DateTime createdTimestamp;
+  @AttachFn(assignedToAttachments)
   final List<User> assignedTo;
+
+  static GraphQLAttachments assignedToAttachments() =>
+      const [ElementComplexity(10)];
 
   Task({
     required this.id,
@@ -133,6 +138,9 @@ class Task implements Named, WithCreated {
     ..['createdTimestamp'] = createdTimestamp.millisecondsSinceEpoch;
 }
 
+GraphQLAttachments userAttachments() => const [ElementComplexity(5)];
+
+@AttachFn(userAttachments)
 @GraphQLClass()
 @JsonSerializable()
 class User implements Named {

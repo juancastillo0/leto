@@ -19,8 +19,8 @@ final _webSocketSessionsRef = RefWithDefault.scoped(
   name: 'webSocketSessionsRef',
 );
 
-const unauthenticatedError = GraphQLError('Unauthenticated');
-const unauthorizedError = GraphQLError('Unauthorized');
+final unauthenticatedError = GraphQLError('Unauthenticated');
+final unauthorizedError = GraphQLError('Unauthorized');
 
 class WebSocketConnCtx {
   final UserClaims? claims;

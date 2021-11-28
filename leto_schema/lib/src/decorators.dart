@@ -186,6 +186,17 @@ abstract class GraphQLResolver implements BaseGraphQLResolver {
   String? get genericTypeName;
 }
 
+/// Adds [GraphQLAttachments] to a generated [GraphQLElement]
+class AttachFn {
+  /// A function that returns the [GraphQLAttachments]
+  /// to be included in the element
+  final GraphQLAttachments Function() attachments;
+
+  /// Adds [GraphQLAttachments] to a generated [GraphQLElement]
+  /// by using a static function [attachments]
+  const AttachFn(this.attachments);
+}
+
 /// Signifies that a class should be used to generated and resolve
 /// a set of [GraphQLObjectField]s.
 @Target({TargetKind.classType})
