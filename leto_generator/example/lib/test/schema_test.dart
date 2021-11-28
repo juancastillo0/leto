@@ -15,6 +15,17 @@ void main() {
     },
   );
 
+  test(
+    'schema generator validate',
+    () {
+      final errors = validateSchema(graphqlApiSchema);
+      expect(errors, isEmpty);
+      final built = buildSchema(graphqlApiSchema.schemaStr);
+      final errorsBuilt = validateSchema(built);
+      expect(errorsBuilt, isEmpty);
+    },
+  );
+
   test('schema decimal', () {
     final schema = GraphQLSchema(
       queryType: objectType(
