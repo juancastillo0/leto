@@ -80,12 +80,12 @@ final TestNestedInputObject = GraphQLInputObjectType<Map<String, Object?>>(
 //   ],
 // );
 
-final TestEnum = GraphQLEnumType<Json>(
+final TestEnum = GraphQLEnumType<Json?>(
   'TestEnum',
   const [
     GraphQLEnumValue('NULL', Json.null_),
     // TODO: {'value': undefined}
-    GraphQLEnumValue('UNDEFINED', Json.null_),
+    GraphQLEnumValue('UNDEFINED', null),
     GraphQLEnumValue('NAN', JsonNumber(double.nan)),
     GraphQLEnumValue('FALSE', JsonBoolean(false)),
     GraphQLEnumValue('CUSTOM', JsonStr('custom value')),

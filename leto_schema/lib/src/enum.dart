@@ -5,11 +5,14 @@ GraphQLEnumType<Value> enumType<Value>(
   String name,
   Map<String, Value> values, {
   String? description,
+  GraphQLTypeDefinitionExtra<EnumTypeDefinitionNode, EnumTypeExtensionNode>
+      extra = const GraphQLTypeDefinitionExtra.attach([]),
 }) {
   return GraphQLEnumType(
     name,
     values.entries.map((e) => GraphQLEnumValue(e.key, e.value)).toList(),
     description: description,
+    extra: extra,
   );
 }
 
@@ -19,11 +22,14 @@ GraphQLEnumType<String> enumTypeFromStrings(
   String name,
   Set<String> values, {
   String? description,
+  GraphQLTypeDefinitionExtra<EnumTypeDefinitionNode, EnumTypeExtensionNode>
+      extra = const GraphQLTypeDefinitionExtra.attach([]),
 }) {
   return GraphQLEnumType<String>(
     name,
     values.map((s) => GraphQLEnumValue(s, s)).toList(),
     description: description,
+    extra: extra,
   );
 }
 
@@ -56,12 +62,22 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
     this.values, {
     this.description,
     this.extra = const GraphQLTypeDefinitionExtra.attach([]),
-  }) : assert(
+  })  : assert(
           !checkAsserts ||
               values.every(
-                (e) => !const ['true', 'false', 'null'].contains(e.name),
-              ),
-        );
+                  (e) => !const ['true', 'false', 'null'].contains(e.name)),
+          "Can't have any of 'true', 'false' or 'null'"
+          ' as names of variants in enums.',
+        ),
+        // TODO: tests in validateSchema
+        assert(
+            !checkAsserts ||
+                values.map((e) => e.value).toSet().length == values.length,
+            'All enum variant values should be different.'),
+        assert(
+            !checkAsserts ||
+                values.map((e) => e.name).toSet().length == values.length,
+            'All enum variant names should be different.');
 
   @override
   String serialize(Value value) {
