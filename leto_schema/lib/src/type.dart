@@ -9,6 +9,14 @@ part of leto_schema.src.schema;
 /// values of type [Serialized]; for example, a
 /// [GraphQLType] that serializes objects into `String`s.
 abstract class GraphQLType<Value, Serialized> {
+  /// Strictly dictates the structure of some input data in a GraphQL query.
+  ///
+  /// GraphQL's rigid type system is primarily implemented in Dart using
+  /// classes that extend from [GraphQLType].
+  ///
+  /// A [GraphQLType] represents values of type [Value] as
+  /// values of type [Serialized]; for example, a
+  /// [GraphQLType] that serializes objects into `String`s.
   const GraphQLType();
 
   /// The name of this type.
@@ -261,14 +269,15 @@ class _GraphQLNonNullListType<Value, Serialized>
   }
 
   @override
-  List<Value> deserialize(SerdeCtx serdeCtx, List<Object?> serialized) {
+  List<Value> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
     return serialized
-        .map<Value>((v) => ofType.deserialize(serdeCtx, v as Serialized))
+        .map<Value>((v) =>
+            v is Value ? v : ofType.deserialize(serdeCtx, v as Serialized))
         .toList();
   }
 
   @override
-  List<Serialized?> serialize(List<Value?> value) {
+  List<Serialized?> serialize(List<Value> value) {
     return value.map(ofType.serializeSafe).toList();
   }
 
@@ -329,23 +338,25 @@ class _GraphQLNullableListType<Value, Serialized>
   }
 
   @override
-  List<Value?> deserialize(SerdeCtx serdeCtx, List<Object?> serialized) {
+  List<Value?> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
     if (ofType.isNonNullable) {
       return serialized
-          .map<Value>((v) => ofType.deserialize(serdeCtx, v! as Serialized))
+          .map<Value>((v) =>
+              v is Value ? v : ofType.deserialize(serdeCtx, v as Serialized))
           .toList();
     }
     return serialized
         .map<Value?>(
-          (v) =>
-              v == null ? null : ofType.deserialize(serdeCtx, v as Serialized),
+          (v) => v is Value? ? v : ofType.deserialize(serdeCtx, v),
         )
         .toList();
   }
 
   @override
   List<Serialized?> serialize(List<Value?> value) {
-    return value.map(ofType.serializeSafe).toList();
+    return value
+        .map((d) => d == null ? null : ofType.serializeSafe(d))
+        .toList();
   }
 
   @override
@@ -537,7 +548,7 @@ class GraphQLNonNullType<Value, Serialized>
     String? deprecationReason,
     String? description,
     FutureOr<Value> Function(P parent, Ctx<P> ctx)? resolve,
-    FutureOr<Stream<Value>> Function(Object parent, Ctx<Object> ctx)? subscribe,
+    FutureOr<Stream<Value>> Function(Object? parent, Ctx ctx)? subscribe,
     Iterable<GraphQLFieldInput<Object?, Object?>> inputs = const [],
     FieldDefinitionNode? astNode,
     GraphQLAttachments attachments = const [],
