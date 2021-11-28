@@ -46,15 +46,9 @@ class SchemaPrinter {
   final String Function(GraphQLNamedType) printTypeName;
   final String Function(GraphQLType) printTypeReference;
 
-  static String defPrintTypeName(GraphQLNamedType type) {
-    return type.toString();
-  }
+  static String defPrintTypeName(GraphQLNamedType type) => type.toString();
 
   static String defPrintTypeReference(GraphQLType type) => type.toString();
-
-  String printTypeNameAndDirectives(GraphQLNamedType type) {
-    return '${printTypeName(type)}${printDirectives(type)}';
-  }
 
   // TODO:
   @experimental
@@ -163,7 +157,7 @@ class SchemaPrinter {
 
   String printScalar(GraphQLScalarType type) {
     return printDescription(type.description) +
-        'scalar ${printTypeNameAndDirectives(type)}';
+        'scalar ${printTypeName(type)}${printDirectives(type)}';
   }
 
   String printImplementedInterfaces(
@@ -181,16 +175,18 @@ class SchemaPrinter {
       return printInterface(type);
     }
     return printDescription(type.description) +
-        'type ${printTypeNameAndDirectives(type)}' +
+        'type ${printTypeName(type)}' +
         printImplementedInterfaces(type) +
+        printDirectives(type) +
         printFields(type);
   }
 
 // TODO: GraphQLInterfaceType
   String printInterface(GraphQLObjectType type) {
     return printDescription(type.description) +
-        'interface ${printTypeNameAndDirectives(type)}' +
+        'interface ${printTypeName(type)}' +
         printImplementedInterfaces(type) +
+        printDirectives(type) +
         printFields(type);
   }
 
@@ -199,7 +195,8 @@ class SchemaPrinter {
     final possibleTypes = types.isNotEmpty ? ' = ' + types.join(' | ') : '';
     return printDescription(type.description) +
         'union ' +
-        printTypeNameAndDirectives(type) +
+        printTypeName(type) +
+        printDirectives(type) +
         possibleTypes;
   }
 
@@ -213,7 +210,7 @@ class SchemaPrinter {
     );
 
     return printDescription(type.description) +
-        'enum ${printTypeNameAndDirectives(type)}' +
+        'enum ${printTypeName(type)}${printDirectives(type)}' +
         printBlock(values);
   }
 
@@ -225,7 +222,7 @@ class SchemaPrinter {
           printInputValue(f),
     );
     return printDescription(type.description) +
-        'input ${printTypeNameAndDirectives(type)}' +
+        'input ${printTypeName(type)}${printDirectives(type)}' +
         printBlock(fields);
   }
 
@@ -299,7 +296,7 @@ class SchemaPrinter {
         printArgs(directive.inputs) +
         (directive.isRepeatable ? ' repeatable' : '') +
         ' on ' +
-        directive.locations.join(' | ');
+        directive.locations.map((loc) => loc.toJson()).join(' | ');
   }
 
   String printDeprecated(String? reason) {
