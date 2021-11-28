@@ -1,3 +1,4 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto/leto.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
 import 'package:leto_schema/leto_schema.dart';
@@ -11,7 +12,7 @@ void main() {
   test('simple enum', () {
     expect(graphqlApiSchema.schemaStr, contains('''
 """comments for docs"""
-enum SimpleEnum {
+enum SimpleEnumRenamed {
   simpleVariantOne
   SIMPLE_VARIANT_TWO
 }'''));
@@ -44,13 +45,13 @@ enum ClassEnum @cost(complexity: 2) {
       graphqlApiSchema.schemaStr,
       contains(
         'enumsTestQuery(classEnum: ClassEnum! = VARIANT_ONE,'
-        ' snake: SnakeCaseEnum! = variant_two, simple: SimpleEnum): ClassEnum!',
+        ' snake: SnakeCaseEnum! = variant_two, simple: SimpleEnumRenamed): ClassEnum!',
       ),
     );
 
     final result = await GraphQL(graphqlApiSchema).parseAndExecute(
       r'''
-    query ($classEnum: ClassEnum! = VARIANT_TWO, $simple: SimpleEnum = SIMPLE_VARIANT_TWO) {
+    query ($classEnum: ClassEnum! = VARIANT_TWO, $simple: SimpleEnumRenamed = SIMPLE_VARIANT_TWO) {
       enumsTestQuery(classEnum:$classEnum, snake: variant_one, simple: $simple)
     }''',
       variableValues: {
@@ -67,7 +68,7 @@ enum ClassEnum @cost(complexity: 2) {
 }
 
 /// comments for docs
-@GraphQLEnum()
+@GraphQLEnum(name: 'SimpleEnumRenamed')
 enum SimpleEnum {
   @AttachFn(simpleVariantAttachments)
   simpleVariantOne,
@@ -95,6 +96,7 @@ class CustomAttachment {
 
 @AttachFn(classEnumAttachments)
 @GraphQLEnum(valuesCase: EnumNameCase.CONSTANT_CASE)
+@immutable
 class ClassEnum {
   final int code;
   final bool isError;
@@ -119,6 +121,16 @@ class ClassEnum {
     variantTwo,
     variantErrorThree,
   ];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ClassEnum && other.code == code && other.isError == isError;
+  }
+
+  @override
+  int get hashCode => code.hashCode ^ isError.hashCode;
 }
 
 @Query()

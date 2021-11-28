@@ -170,7 +170,10 @@ Library generateEnum(
       enumAnnotation.getField('valuesCase')?.getField('index')?.toIntValue() ??
           ctx.config.enumValuesCase?.index;
   final valuesCase = index == null ? null : EnumNameCase.values[index];
-  // final annot = GraphQLEnum(valuesCase: valuesCase);
+  final annot = GraphQLEnum(
+    valuesCase: valuesCase,
+    name: enumAnnotation.getField('name')?.toStringValue(),
+  );
 
   String _mapVariantName(String name) {
     if (valuesCase == null) return name;
@@ -186,6 +189,8 @@ Library generateEnum(
         return _recase.camelCase;
       case EnumNameCase.snake_case:
         return _recase.snakeCase;
+      case EnumNameCase.none:
+        return name;
     }
   }
 
@@ -259,7 +264,7 @@ Library generateEnum(
   return Library((b) {
     b.body.add(Field((b) {
       final args = <Expression>[
-        literalString(clazz.name),
+        literalString(annot.name ?? clazz.name),
         literalList(variants),
       ];
       final description = getDescription(clazz, clazz.documentationComment);

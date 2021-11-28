@@ -29,12 +29,67 @@ class GraphQLInput implements GraphQLObjectDec {
 @Target({TargetKind.classType, TargetKind.enumType})
 class GraphQLEnum implements GraphQLObjectDec {
   /// Signifies that a class should statically generate a [GraphQLEnumType].
-  const GraphQLEnum({this.valuesCase});
+  ///
+  /// ```dart
+  /// @GraphQLEnum(valuesCase: EnumNameCase.CONSTANT_CASE)
+  /// enum SimpleEnum {
+  ///   @Deprecated('use VARIANT_ONE_NEW')
+  ///   variantOne,
+  ///   variantOneNew,
+  ///
+  ///   /// documentation for variant two
+  ///   variantTwo,
+  /// }
+  /// ```
+  ///
+  /// Will generated the following GraphQL enum definition:
+  ///
+  /// ```graphql
+  /// enum SimpleEnum {
+  ///   VARIANT_ONE @deprecated(reason: "use VARIANT_ONE_NEW")
+  ///   VARIANT_ONE_NEW
+  ///
+  ///   """documentation for variant two"""
+  ///    VARIANT_TWO
+  /// }
+  /// ```
+  ///
+  /// If used as an annotation for a class you should annotate the
+  /// different values with [GraphQLEnumVariant], they should all be static
+  /// fields with the same type as the annotated class.
+  ///
+  /// ```dart
+  /// @GraphQLEnum()
+  /// class ClassEnum {
+  ///   final int code;
+  ///   final String value;
+  ///
+  ///   const ClassEnum(this.code, this.value);
+  ///
+  ///   @GraphQLEnumVariant()
+  ///   static const variantOne = ClassEnum(100, 'value100');
+  ///   @GraphQLEnumVariant()
+  ///   static const variantOne = ClassEnum(200, 'value200');
+  ///
+  ///   // other stuff, probably a `ClassEnum.values` list,
+  ///   // override the `==` operator and `hashCode` getter or
+  ///   // a `package:freezed` style `when` method
+  /// }
+  /// ```
+  const GraphQLEnum({
+    this.valuesCase,
+    this.name,
+  });
 
   /// The String case for each enum variant name
   final EnumNameCase? valuesCase;
+
+  /// The name of the generated [GraphQLEnumType].
+  /// By default it will be the class or enum name.
+  final String? name;
 }
 
+/// The String case associated with an enum variant name
 enum EnumNameCase {
   /// CONSTANT_CASE
   CONSTANT_CASE,
@@ -50,6 +105,11 @@ enum EnumNameCase {
 
   /// camelCase
   camelCase,
+
+  /// overrides the default [EnumNameCase] provided
+  /// in the `build.yaml` config. Will use the Dart enum variant names
+  /// or static field names
+  none,
 }
 
 /// Signifies that a static field should statically

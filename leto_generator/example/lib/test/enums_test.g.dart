@@ -46,7 +46,7 @@ final GraphQLEnumType<ClassEnum> classEnumGraphQLType = GraphQLEnumType(
 
 /// Auto-generated from [SimpleEnum].
 final GraphQLEnumType<SimpleEnum> simpleEnumGraphQLType = GraphQLEnumType(
-    'SimpleEnum',
+    'SimpleEnumRenamed',
     [
       GraphQLEnumValue('simpleVariantOne', SimpleEnum.simpleVariantOne,
           attachments: [...simpleVariantAttachments()]),
