@@ -2,11 +2,11 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final typeType = enumTypeFromStrings('Type', [
+  final typeType = enumTypeFromStrings('Type', {
     'FIRE',
     'WATER',
     'GRASS',
-  ]);
+  });
 
   final pokemonType = objectType<Object>('Pokémon', fields: [
     field(

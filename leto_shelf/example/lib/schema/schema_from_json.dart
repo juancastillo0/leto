@@ -263,7 +263,7 @@ GraphQLSchema makeMutationSchema(
 
     final eventType = enumTypeFromStrings(
       '${fieldName}EventType',
-      ['add', 'update', 'delete'],
+      {'add', 'update', 'delete'},
     );
 
     subscriptionFields.add(
@@ -335,7 +335,7 @@ GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
     },
     enumV: (enumV) => enumTypeFromStrings(
       key,
-      enumV.values.map((Object? e) => e.toString().split('.').last).toList(),
+      enumV.values.map((Object? e) => e.toString().split('.').last).toSet(),
     ),
     // TODO:
     dynamic: () => jsonGraphQLType,

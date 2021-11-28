@@ -53,12 +53,12 @@ GraphQLUnionType<FileEvent> fileEventType() {
 
   final typeDiscriminator = field<String, String, FileEvent>(
     'runtimeType',
-    enumTypeFromStrings('FileEventType', [
+    enumTypeFromStrings('FileEventType', {
       'added',
       'renamed',
       'deleted',
       'many',
-    ]),
+    }),
   );
   _fileEventType!.possibleTypes.addAll(<GraphQLObjectType<FileEvent>>[
     objectType(

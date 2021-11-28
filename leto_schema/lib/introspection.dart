@@ -189,7 +189,7 @@ GraphQLObjectType<GraphQLType> _reflectTypeType() {
 }
 
 final GraphQLEnumType<String> _typeKindType =
-    enumTypeFromStrings('__TypeKind', [
+    enumTypeFromStrings('__TypeKind', {
   'SCALAR',
   'OBJECT',
   'INTERFACE',
@@ -198,7 +198,7 @@ final GraphQLEnumType<String> _typeKindType =
   'INPUT_OBJECT',
   'LIST',
   'NON_NULL'
-]);
+});
 
 GraphQLObjectType<GraphQLObjectField>? _fieldType;
 GraphQLObjectType<GraphQLObjectField> _reflectFieldType() {
@@ -302,9 +302,9 @@ GraphQLObjectType<GraphQLFieldInput> _reflectInputValueType() {
 
 final GraphQLEnumType<String> _directiveLocationType = enumTypeFromStrings(
   '__DirectiveLocation',
-  [
+  {
     ...DirectiveLocation.values.map((e) => e.toJson()),
-  ],
+  },
   description:
       'A Directive can be adjacent to many parts of the GraphQL language,'
       ' a __DirectiveLocation describes one such possible adjacencies.',

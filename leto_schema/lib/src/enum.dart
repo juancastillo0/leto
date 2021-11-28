@@ -17,7 +17,7 @@ GraphQLEnumType<Value> enumType<Value>(
 /// are mapped to Dart strings.
 GraphQLEnumType<String> enumTypeFromStrings(
   String name,
-  List<String> values, {
+  Set<String> values, {
   String? description,
 }) {
   return GraphQLEnumType<String>(
@@ -102,16 +102,22 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
 /// Enum value parsed from the ast.
 /// Useful for distinguishing between enum and string values.
 class EnumValue {
+  /// The name of the enum variant
   final String value;
+
+  /// Enum value parsed from the ast.
+  /// Useful for distinguishing between enum and string values.
   const EnumValue(this.value);
 
   @override
   String toString() => 'EnumValue($value)';
 }
 
-/// A known value of a [GraphQLEnumType].
+/// A variant of a [GraphQLEnumType].
 ///
 /// In practice, you might not directly call this constructor very often.
+/// However this will allow you to specify a [description] and
+/// a [deprecationReason]
 @immutable
 class GraphQLEnumValue<Value> implements GraphQLElement {
   /// The name of this value.
@@ -129,6 +135,17 @@ class GraphQLEnumValue<Value> implements GraphQLElement {
   /// if it indeed is deprecated.
   final String? deprecationReason;
 
+  @override
+  final EnumValueDefinitionNode? astNode;
+
+  @override
+  final GraphQLAttachments attachments;
+
+  /// A variant of a [GraphQLEnumType].
+  ///
+  /// In practice, you might not directly call this constructor very often.
+  /// However this will allow you to specify a [description] and
+  /// a [deprecationReason]
   const GraphQLEnumValue(
     this.name,
     this.value, {
@@ -140,10 +157,4 @@ class GraphQLEnumValue<Value> implements GraphQLElement {
 
   /// Returns `true` if this value has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
-
-  @override
-  final EnumValueDefinitionNode? astNode;
-
-  @override
-  final GraphQLAttachments attachments;
 }

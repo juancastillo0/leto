@@ -21,12 +21,12 @@ void main() {
   });
 
   test('enum', () {
-    final response = enumTypeFromStrings('Response', ['YES', 'NO']);
+    final response = enumTypeFromStrings('Response', {'YES', 'NO'});
     expect(response.serialize('YES'), 'YES');
   });
 
   test('enum only serializes correct values', () {
-    final response = enumTypeFromStrings('Response', ['YES', 'NO']);
+    final response = enumTypeFromStrings('Response', {'YES', 'NO'});
     expect(() => response.serialize('MAYBE'), throwsStateError);
   });
 
@@ -69,11 +69,11 @@ void main() {
   });
 
   test('union type lets any of its types serialize', () {
-    final typeType = enumTypeFromStrings('Type', [
+    final typeType = enumTypeFromStrings('Type', {
       'FIRE',
       'WATER',
       'GRASS',
-    ]);
+    });
 
     final pokemonType = objectType<Object>('Pokémon', fields: [
       field(
