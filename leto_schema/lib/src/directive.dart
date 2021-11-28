@@ -90,20 +90,31 @@ bool isSpecifiedDirective(GraphQLDirective directive) {
 /// Returns the directives applied to a given GraphQL [element]
 @experimental
 Iterable<DirectiveNode> getDirectivesFromElement(GraphQLElement element) {
+  final _fromAttachments = getDirectivesFromAttachments(element.attachments);
   if (element is GraphQLNamedType) {
     return element.extra.directives();
   } else if (element is GraphQLObjectField) {
-    return (element.astNode?.directives ?? [])
-        .followedBy(element.attachments.whereType());
+    return (element.astNode?.directives ?? []).followedBy(_fromAttachments);
   } else if (element is GraphQLFieldInput) {
-    return (element.astNode?.directives ?? [])
-        .followedBy(element.attachments.whereType());
+    return (element.astNode?.directives ?? []).followedBy(_fromAttachments);
   } else if (element is GraphQLEnumValue) {
-    return (element.astNode?.directives ?? [])
-        .followedBy(element.attachments.whereType());
+    return (element.astNode?.directives ?? []).followedBy(_fromAttachments);
   } else {
     return [];
   }
+}
+
+Iterable<DirectiveNode> getDirectivesFromAttachments(
+  GraphQLAttachments attachments,
+) {
+  return attachments.whereType<DirectiveNode>().followedBy(
+        attachments.whereType<ToDirectiveValue>().map((e) => e.directiveValue),
+      );
+}
+
+abstract class ToDirectiveValue {
+  DirectiveNode get directiveValue;
+  GraphQLDirective get directiveDefinition;
 }
 
 /// Constant string used for default reason for a deprecation.

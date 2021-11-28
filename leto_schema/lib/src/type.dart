@@ -421,6 +421,15 @@ abstract class GraphQLElement {
   GraphQLAttachments get attachments;
 }
 
+/// A Collection of extra or custom values associated with a [GraphQLElement].
+///
+/// This will allow you to configure the behavior of the given element
+/// with respect to external tools or some additional functionalities
+/// provided in this package.
+///
+/// An example of this is the [ElementComplexity] class for setting
+/// the query complexity of fields and types to be used in
+/// the [queryComplexityRuleBuilder] validation rule.
 typedef GraphQLAttachments = List<Object>;
 
 class GraphQLTypeDefinitionExtra<N extends TypeDefinitionNode,
@@ -443,12 +452,13 @@ class GraphQLTypeDefinitionExtra<N extends TypeDefinitionNode,
         extensionAstNodes = const [];
 
   Iterable<DirectiveNode> directives() {
+    final _fromAttachments = getDirectivesFromAttachments(attachments);
     if (astNode != null) {
       return astNode!.directives
           .followedBy(extensionAstNodes.expand((ext) => ext.directives))
-          .followedBy(attachments.whereType());
+          .followedBy(_fromAttachments);
     } else {
-      return attachments.whereType();
+      return _fromAttachments;
     }
   }
 }

@@ -58,7 +58,7 @@ class GraphQLSchema {
   /// Supported directives in this schema.
   ///
   /// Default: [GraphQLDirective.specifiedDirectives]
-  final List<GraphQLDirective> directives;
+  final List<GraphQLDirective> directives = [];
 
   /// Serialization and de-serialization context for [GraphQLType]s.
   /// Contains functions for creating objects from serialized values.
@@ -166,8 +166,8 @@ class GraphQLSchema {
     SerdeCtx? serdeCtx,
     this.astNode,
     this.extensionAstNodes = const [],
-  })  : serdeCtx = serdeCtx ?? SerdeCtx(),
-        directives = directives ?? GraphQLDirective.specifiedDirectives {
+  }) : serdeCtx = serdeCtx ?? SerdeCtx() {
+    this.directives.addAll(directives ?? GraphQLDirective.specifiedDirectives);
     _collectTypes();
     _collectDirectives();
   }
@@ -194,6 +194,13 @@ class GraphQLSchema {
   }
 
   void _collectDirectives() {
+    final elements = _typeElements();
+    final otherDirectives = elements
+        .expand((e) => e.attachments.whereType<ToDirectiveValue>())
+        .map((e) => e.directiveDefinition)
+        .toSet();
+    directives.addAll(otherDirectives);
+
     for (final dir in directives) {
       final prev = directiveMap[dir.name];
       if (prev == null) {
@@ -202,6 +209,19 @@ class GraphQLSchema {
         // TODO:
       }
     }
+  }
+
+  Iterable<GraphQLElement> _typeElements() {
+    return typeMap.values.expand(
+      (type) => type.whenNamed(
+        enum_: (type) => [type, ...type.values],
+        scalar: (type) => [type],
+        object: (type) =>
+            [type, ...type.fields, ...type.fields.expand((f) => f.inputs)],
+        input: (type) => [type, ...type.fields],
+        union: (type) => [type],
+      ),
+    );
   }
 }
 

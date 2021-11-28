@@ -5,10 +5,26 @@ import 'package:leto_schema/src/utilities/look_ahead.dart';
 
 import '../rules_prelude.dart';
 
-class ElementComplexity {
+class ElementComplexity implements ToDirectiveValue {
   final int complexity;
 
   const ElementComplexity(this.complexity);
+
+  @override
+  DirectiveNode get directiveValue {
+    return DirectiveNode(
+      name: const NameNode(value: 'cost'),
+      arguments: [
+        ArgumentNode(
+          name: const NameNode(value: 'complexity'),
+          value: IntValueNode(value: complexity.toString()),
+        ),
+      ],
+    );
+  }
+
+  @override
+  GraphQLDirective get directiveDefinition => costGraphQLDirective;
 
   @override
   String toString() {
@@ -16,12 +32,34 @@ class ElementComplexity {
   }
 }
 
-ElementComplexity _getTypeComplexity(GraphQLType type) {
-  return getNamedType(type)!
-          .attachments
-          .whereType<ElementComplexity>()
-          .firstOrNull ??
-      const ElementComplexity(0);
+final costGraphQLDirective = GraphQLDirective(
+  name: 'cost',
+  locations: [
+    // Types
+    DirectiveLocation.SCALAR,
+    DirectiveLocation.OBJECT,
+    DirectiveLocation.INTERFACE,
+    DirectiveLocation.UNION,
+    DirectiveLocation.ENUM,
+    // Fields
+    DirectiveLocation.FIELD_DEFINITION,
+  ],
+  description: 'The query complexity cost associated with a Field or Type',
+  isRepeatable: false,
+  inputs: [
+    graphQLInt.nonNull().inputField('complexity'),
+  ],
+);
+
+ElementComplexity? _getTypeComplexity(GraphQLType type) {
+  return _getElementComplexity(getNamedType(type));
+}
+
+ElementComplexity? _getElementComplexity(GraphQLElement element) {
+  final complexity = getDirectiveValue(
+      'cost', 'complexity', getDirectivesFromElement(element).toList(), {});
+  return element.attachments.whereType<ElementComplexity>().firstOrNull ??
+      (complexity is int ? ElementComplexity(complexity) : null);
 }
 
 /// Returns a [ValidationRule] that reports errors when
@@ -79,13 +117,12 @@ ValidationRule queryComplexityRuleBuilder({
           }
           currentDepth -= 1;
 
-          final fieldComplexity =
-              field.attachments.whereType<ElementComplexity>().firstOrNull ??
-                  ElementComplexity(defaultFieldComplexity);
+          final fieldComplexity = _getElementComplexity(field)?.complexity ??
+              defaultFieldComplexity;
 
           final type = field.type;
           final fieldTypeComplexity = selections == null || selections.isUnion
-              ? _getTypeComplexity(type).complexity
+              ? _getTypeComplexity(type)?.complexity ?? 0
               // object complexity already accounted for in childrenComplexity
               : 0;
 
@@ -94,14 +131,14 @@ ValidationRule queryComplexityRuleBuilder({
               ? listComplexityMultiplier
               : 1;
 
-          return fieldComplexity.complexity +
+          return fieldComplexity +
               (childrenComplexity + fieldTypeComplexity) *
                   _listComplexityMultiplier;
         }
 
         _compObj = (PossibleSelectionsObject forObject) {
           final objTypeComplexity =
-              _getTypeComplexity(forObject.objectType).complexity;
+              _getTypeComplexity(forObject.objectType)?.complexity ?? 0;
           final fieldsComplexity = forObject.mapAliased.values
               .map((value) => _comp(value.field, value.lookAhead()))
               .sum
