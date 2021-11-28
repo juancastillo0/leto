@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_schema/validate_rules.dart';
 
 part 'unions.freezed.dart';
 part 'unions.g.dart';
@@ -218,4 +219,59 @@ NestedInterfaceImpl2 getNestedInterfaceImpl2(Ctx ctx) {
 @Query()
 NestedInterface getNestedInterfaceImplByIndex(Ctx ctx, int index) {
   return index == 2 ? interfaceState.get(ctx).m2 : interfaceState.get(ctx).m3;
+}
+
+const unionNoFreezedSchemaStr = [
+  '''
+"""
+Description from annotation.
+
+Union generated from raw Dart classes
+"""
+union UnionNoFreezedRenamed @cost(complexity: 50) = UnionNoFreezedA | UnionNoFreezedB''',
+  '''
+type UnionNoFreezedA {
+  value: String!
+}''',
+  '''
+type UnionNoFreezedB {
+  value: Int!
+}'''
+];
+
+GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
+
+@AttachFn(unionNoFreezedAttachments)
+@GraphQLDocumentation(
+  description: '''
+Description from annotation.
+
+Union generated from raw Dart classes
+''',
+)
+@GraphQLUnion(name: 'UnionNoFreezedRenamed')
+class UnionNoFreezed {
+  const factory UnionNoFreezed.a(String value) =
+      UnionNoFreezedA.namedConstructor;
+
+  const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
+}
+
+@GraphQLClass()
+class UnionNoFreezedA implements UnionNoFreezed {
+  final String value;
+
+  const UnionNoFreezedA.namedConstructor(this.value);
+}
+
+@GraphQLClass()
+class UnionNoFreezedB implements UnionNoFreezed {
+  final int value;
+
+  const UnionNoFreezedB(this.value);
+}
+
+@Query()
+List<UnionNoFreezed> getUnionNoFrezzed() {
+  return const [UnionNoFreezed.a('value'), UnionNoFreezed.b(12)];
 }

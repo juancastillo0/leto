@@ -229,11 +229,19 @@ final eventUnionSerializer = SerializerValue<EventUnion>(
 );
 
 GraphQLUnionType<EventUnion>? _eventUnionGraphQLType;
+
+/// Generated from [EventUnion]
 GraphQLUnionType<EventUnion> get eventUnionGraphQLType {
-  return _eventUnionGraphQLType ??= GraphQLUnionType(
+  if (_eventUnionGraphQLType != null) return _eventUnionGraphQLType!;
+  _eventUnionGraphQLType = GraphQLUnionType(
     'EventUnion',
-    [eventUnionAddGraphQLType, eventUnionDeleteGraphQLType],
+    const [],
   );
+  _eventUnionGraphQLType!.possibleTypes.addAll([
+    eventUnionAddGraphQLType,
+    eventUnionDeleteGraphQLType,
+  ]);
+  return _eventUnionGraphQLType!;
 }
 
 // **************************************************************************

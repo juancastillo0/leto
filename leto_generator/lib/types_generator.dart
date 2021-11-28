@@ -44,17 +44,6 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
     }
   }
 
-  void _applyDescription(
-    Map<String, Expression> named,
-    Element element,
-    String? docComment,
-  ) {
-    final docString = getDescription(element, docComment);
-    if (docString != null) {
-      named['description'] = literalString(docString);
-    }
-  }
-
   Future<Library> buildSchemaLibrary(
     ClassElement clazz,
     GeneratorCtx ctx,
@@ -75,7 +64,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
     }
 
     if (hasFrezzed || unionAnnotation != null) {
-      return generateFromFreezed(clazz, ctx);
+      return generateFromConstructors(clazz, ctx);
     } else if (enumAnnotation != null) {
       return generateEnum(clazz, ctx, enumAnnotation);
     } else {
@@ -107,57 +96,81 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         // );
 
         l.body.add(classInfo.serializer());
-        l.body.add(Code(classInfo.fieldCode()));
+        l.body.add(Code(classInfo.typeDefinitionCode()));
       });
     }
   }
 }
 
-Future<Library> generateFromFreezed(
+Future<Library> generateFromConstructors(
   ClassElement clazz,
   GeneratorCtx ctx,
 ) async {
+  final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
+  final _annot =
+      const TypeChecker.fromRuntime(GraphQLUnion).firstAnnotationOfExact(clazz);
+
+  final annot = _annot == null
+      ? null
+      : GraphQLUnion(
+          name: _annot.getField('name')?.toStringValue(),
+          unnestIfEqual: _annot.getField('unnestIfEqual')?.toBoolValue(),
+        );
   final variants = await freezedVariants(clazz, ctx);
 
   return Library((l) {
     // l.directives.addAll(
     //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
     // );
-    for (final variant in variants) {
-      l.body.add(variant.serializer());
-      l.body.add(Code(variant.fieldCode()));
+
+    if (hasFrezzed) {
+      /// We need to generate each Object variant for freezed annotated classes
+      for (final variant in variants) {
+        l.body.add(variant.serializer());
+        l.body.add(Code(variant.typeDefinitionCode()));
+      }
     }
-    if (variants.length == 1) {
+    if (variants.length == 1 && annot == null) {
+      /// if it's a single freezed constructor, don't generate the union
       return;
     }
 
-    final fieldName = '${ReCase(clazz.name).camelCase}$graphqlTypeSuffix';
-    final typeName = clazz.name;
-
-// Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
-
-// GraphQLObjectField<String, String, P>
-// $fieldName$unionKeySuffix<P extends $typeName>()
-//    => field(
-//   'runtimeType',
-//   enumTypeFromStrings('${typeName}Type', [
-//     ${variants.map((e) => '"${e.constructorName}"').join(',')}
-//   ]),
-// );
+    final className = clazz.name;
+    final fieldName = '${ReCase(className).camelCase}$graphqlTypeSuffix';
+    final description = getDescription(clazz, clazz.documentationComment);
+    final attachments = getAttachments(clazz);
 
     l.body.add(Code('''
-${hasFromJson(clazz) ? serializerDefinitionCode(typeName, hasFrezzed: false) : ''}
+${hasFromJson(clazz) ? serializerDefinitionCode(className, hasFrezzed: false) : ''}
 
-GraphQLUnionType<$typeName>? _$fieldName;
-GraphQLUnionType<$typeName> get $fieldName {
-  return _$fieldName ??= GraphQLUnionType(
-    '$typeName',
-    [
-      ${variants.map((e) => e.fieldName).join(',')}
-    ],
+GraphQLUnionType<$className>? _$fieldName;
+
+/// Generated from [$className]
+GraphQLUnionType<$className> get $fieldName {
+  if (_$fieldName != null) return _$fieldName!;
+  _$fieldName = GraphQLUnionType(
+    '${annot?.name ?? className}',
+    const [],
+    ${description == null ? '' : 'description: "$description",'}
+    ${attachments == null ? '' : 'extra: GraphQLTypeDefinitionExtra.attach($attachments),'}
   );
+  _$fieldName!.possibleTypes.addAll([
+      ${variants.map((e) => e.fieldName).join(',')},
+  ]);
+  return _$fieldName!;
 }
 '''));
+
+    // Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();
+
+    // GraphQLObjectField<String, String, P>
+    // $fieldName$unionKeySuffix<P extends $typeName>()
+    //    => field(
+    //   'runtimeType',
+    //   enumTypeFromStrings('${typeName}Type', [
+    //     ${variants.map((e) => '"${e.constructorName}"').join(',')}
+    //   ]),
+    // );
   });
 }
 

@@ -62,4 +62,10 @@ void main() {
       }
     },
   );
+
+  test('no freezed union', () {
+    for (final subs in unionNoFreezedSchemaStr) {
+      expect(graphqlApiSchema.schemaStr, contains(subs));
+    }
+  });
 }

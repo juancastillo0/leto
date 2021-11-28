@@ -55,6 +55,7 @@ final graphqlApiSchema = GraphQLSchema(
       getNestedInterfaceImpl3GraphQLField,
       getNestedInterfaceImpl2GraphQLField,
       getNestedInterfaceImplByIndexGraphQLField,
+      getUnionNoFrezzedGraphQLField,
       getNameGraphQLField,
       resultUnionObjectGraphQLField,
       resultUnionObjectErrGraphQLField,

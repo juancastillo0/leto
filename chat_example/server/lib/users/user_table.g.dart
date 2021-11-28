@@ -217,16 +217,21 @@ final userEventSerializer = SerializerValue<UserEvent>(
 );
 
 GraphQLUnionType<UserEvent>? _userEventGraphQLType;
+
+/// Generated from [UserEvent]
 GraphQLUnionType<UserEvent> get userEventGraphQLType {
-  return _userEventGraphQLType ??= GraphQLUnionType(
+  if (_userEventGraphQLType != null) return _userEventGraphQLType!;
+  _userEventGraphQLType = GraphQLUnionType(
     'UserEvent',
-    [
-      userCreatedEventGraphQLType,
-      userSignedUpEventGraphQLType,
-      userSignedInEventGraphQLType,
-      userSignedOutEventGraphQLType
-    ],
+    const [],
   );
+  _userEventGraphQLType!.possibleTypes.addAll([
+    userCreatedEventGraphQLType,
+    userSignedUpEventGraphQLType,
+    userSignedInEventGraphQLType,
+    userSignedOutEventGraphQLType,
+  ]);
+  return _userEventGraphQLType!;
 }
 
 final userSessionSerializer = SerializerValue<UserSession>(

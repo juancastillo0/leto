@@ -59,6 +59,16 @@ final getNestedInterfaceImplByIndexGraphQLField =
   inputs: [graphQLInt.nonNull().coerceToInputObject().inputField('index')],
 );
 
+final getUnionNoFrezzedGraphQLField =
+    unionNoFreezedGraphQLType.nonNull().list().nonNull().field<Object?>(
+  'getUnionNoFrezzed',
+  resolve: (obj, ctx) {
+    final args = ctx.args;
+
+    return getUnionNoFrezzed();
+  },
+);
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
@@ -219,16 +229,21 @@ final unionASerializer = SerializerValue<UnionA>(
 );
 
 GraphQLUnionType<UnionA>? _unionAGraphQLType;
+
+/// Generated from [UnionA]
 GraphQLUnionType<UnionA> get unionAGraphQLType {
-  return _unionAGraphQLType ??= GraphQLUnionType(
+  if (_unionAGraphQLType != null) return _unionAGraphQLType!;
+  _unionAGraphQLType = GraphQLUnionType(
     'UnionA',
-    [
-      unionA1GraphQLType,
-      unionA2GraphQLType,
-      unionA3GraphQLType,
-      unionA4GraphQLType
-    ],
+    const [],
   );
+  _unionAGraphQLType!.possibleTypes.addAll([
+    unionA1GraphQLType,
+    unionA2GraphQLType,
+    unionA3GraphQLType,
+    unionA4GraphQLType,
+  ]);
+  return _unionAGraphQLType!;
 }
 
 GraphQLObjectType<NestedInterface>? _nestedInterfaceGraphQLType;
@@ -344,6 +359,63 @@ GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType {
   );
 
   return __nestedInterfaceImpl3GraphQLType;
+}
+
+GraphQLUnionType<UnionNoFreezed>? _unionNoFreezedGraphQLType;
+
+/// Generated from [UnionNoFreezed]
+GraphQLUnionType<UnionNoFreezed> get unionNoFreezedGraphQLType {
+  if (_unionNoFreezedGraphQLType != null) return _unionNoFreezedGraphQLType!;
+  _unionNoFreezedGraphQLType = GraphQLUnionType(
+    'UnionNoFreezedRenamed',
+    const [],
+    description:
+        "Description from annotation.\n\nUnion generated from raw Dart classes",
+    extra: GraphQLTypeDefinitionExtra.attach([...unionNoFreezedAttachments()]),
+  );
+  _unionNoFreezedGraphQLType!.possibleTypes.addAll([
+    unionNoFreezedAGraphQLType,
+    unionNoFreezedBGraphQLType,
+  ]);
+  return _unionNoFreezedGraphQLType!;
+}
+
+GraphQLObjectType<UnionNoFreezedA>? _unionNoFreezedAGraphQLType;
+
+/// Auto-generated from [UnionNoFreezedA].
+GraphQLObjectType<UnionNoFreezedA> get unionNoFreezedAGraphQLType {
+  final __name = 'UnionNoFreezedA';
+  if (_unionNoFreezedAGraphQLType != null)
+    return _unionNoFreezedAGraphQLType! as GraphQLObjectType<UnionNoFreezedA>;
+
+  final __unionNoFreezedAGraphQLType =
+      objectType<UnionNoFreezedA>(__name, isInterface: false, interfaces: []);
+
+  _unionNoFreezedAGraphQLType = __unionNoFreezedAGraphQLType;
+  __unionNoFreezedAGraphQLType.fields.addAll(
+    [graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)],
+  );
+
+  return __unionNoFreezedAGraphQLType;
+}
+
+GraphQLObjectType<UnionNoFreezedB>? _unionNoFreezedBGraphQLType;
+
+/// Auto-generated from [UnionNoFreezedB].
+GraphQLObjectType<UnionNoFreezedB> get unionNoFreezedBGraphQLType {
+  final __name = 'UnionNoFreezedB';
+  if (_unionNoFreezedBGraphQLType != null)
+    return _unionNoFreezedBGraphQLType! as GraphQLObjectType<UnionNoFreezedB>;
+
+  final __unionNoFreezedBGraphQLType =
+      objectType<UnionNoFreezedB>(__name, isInterface: false, interfaces: []);
+
+  _unionNoFreezedBGraphQLType = __unionNoFreezedBGraphQLType;
+  __unionNoFreezedBGraphQLType.fields.addAll(
+    [graphQLInt.nonNull().field('value', resolve: (obj, ctx) => obj.value)],
+  );
+
+  return __unionNoFreezedBGraphQLType;
 }
 
 // **************************************************************************

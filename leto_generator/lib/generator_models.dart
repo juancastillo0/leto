@@ -291,7 +291,7 @@ class UnionVarianInfo {
   String removeTrailingUnder(String value) =>
       value.startsWith('_') ? value.substring(1) : value;
 
-  String fieldCode() {
+  String typeDefinitionCode() {
     final hasTypeParams = typeParams.isNotEmpty;
     final _typeParamsStr = typeParams.map((e) {
       final _t = e.displayName;

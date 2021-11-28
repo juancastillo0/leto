@@ -124,6 +124,22 @@ class GraphQLEnumVariant {
   /// generate a [GraphQLEnumValue] in a [GraphQLEnumType].
   const GraphQLEnumVariant({this.name});
 }
+
+/// Signifies that a class should statically generate a [GraphQLUnionType].
+@Target({TargetKind.classType})
+class GraphQLUnion implements GraphQLObjectDec {
+  final bool? unnestIfEqual;
+
+  /// The name of the generated [GraphQLUnionType]
+  final String? name;
+
+  /// Signifies that a class should statically generate a [GraphQLUnionType].
+  const GraphQLUnion({
+    this.unnestIfEqual,
+    this.name,
+  });
+}
+
 /// Signifies that a class should statically generate a [GraphQLType].
 @Target({TargetKind.classType})
 class GraphQLClass implements GraphQLObjectDec {

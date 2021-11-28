@@ -178,16 +178,21 @@ final dBEventDataSerializer = SerializerValue<DBEventData>(
 );
 
 GraphQLUnionType<DBEventData>? _dBEventDataGraphQLType;
+
+/// Generated from [DBEventData]
 GraphQLUnionType<DBEventData> get dBEventDataGraphQLType {
-  return _dBEventDataGraphQLType ??= GraphQLUnionType(
+  if (_dBEventDataGraphQLType != null) return _dBEventDataGraphQLType!;
+  _dBEventDataGraphQLType = GraphQLUnionType(
     'DBEventData',
-    [
-      chatDBEventDataGraphQLType,
-      userChatDBEventDataGraphQLType,
-      userDBEventDataGraphQLType,
-      chatMessageDBEventDataGraphQLType
-    ],
+    const [],
   );
+  _dBEventDataGraphQLType!.possibleTypes.addAll([
+    chatDBEventDataGraphQLType,
+    userChatDBEventDataGraphQLType,
+    userDBEventDataGraphQLType,
+    chatMessageDBEventDataGraphQLType,
+  ]);
+  return _dBEventDataGraphQLType!;
 }
 
 final dBEventSerializer = SerializerValue<DBEvent>(

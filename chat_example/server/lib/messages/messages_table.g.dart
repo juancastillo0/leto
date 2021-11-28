@@ -243,15 +243,21 @@ final chatMessageEventSerializer = SerializerValue<ChatMessageEvent>(
 );
 
 GraphQLUnionType<ChatMessageEvent>? _chatMessageEventGraphQLType;
+
+/// Generated from [ChatMessageEvent]
 GraphQLUnionType<ChatMessageEvent> get chatMessageEventGraphQLType {
-  return _chatMessageEventGraphQLType ??= GraphQLUnionType(
+  if (_chatMessageEventGraphQLType != null)
+    return _chatMessageEventGraphQLType!;
+  _chatMessageEventGraphQLType = GraphQLUnionType(
     'ChatMessageEvent',
-    [
-      chatMessageSentEventGraphQLType,
-      chatMessageDeletedEventGraphQLType,
-      chatMessageUpdatedEventGraphQLType
-    ],
+    const [],
   );
+  _chatMessageEventGraphQLType!.possibleTypes.addAll([
+    chatMessageSentEventGraphQLType,
+    chatMessageDeletedEventGraphQLType,
+    chatMessageUpdatedEventGraphQLType,
+  ]);
+  return _chatMessageEventGraphQLType!;
 }
 
 /// Auto-generated from [MessageType].
