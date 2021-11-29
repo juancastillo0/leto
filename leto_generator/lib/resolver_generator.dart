@@ -90,23 +90,32 @@ Future<String> _buildForElement(
       final deprecationReason = getDeprecationReason(element);
       final description = getDescription(element, element.documentationComment);
       final attachments = getAttachments(element);
+      final returnType = (genericTypeWhenFutureOrStream(element.returnType) ??
+              element.returnType)
+          .getDisplayString(withNullability: true);
+
+      b.body.add(Code('''
+GraphQLObjectField<$returnType, Object?, Object?> get 
+  ${element.name}$graphQLFieldSuffix => _${element.name}$graphQLFieldSuffix.value;
+'''));
 
       b.body.add(
         Field(
           (f) => f
             ..assignment = Code(
               '''
-                $returnGqlType.field<Object?>(
+                HotReloadableDefinition<GraphQLObjectField<$returnType, Object?, Object?>>(
+                (setValue) => setValue($returnGqlType.field<Object?>(
                   '${resolverName ?? element.name}',
                   $funcDef,
-                  ${inputs.isEmpty ? '' : 'inputs: [${inputs.join(',')}],'}
                   ${description == null ? '' : 'description: r"$description",'}
                   ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
                   ${attachments == null ? '' : 'attachments: $attachments'}
-                  )
+                  ))${inputs.isEmpty ? '' : '..inputs.addAll([${inputs.join(',')}])'}
+                )
                  ''',
             )
-            ..name = '${element.name}$graphQLFieldSuffix'
+            ..name = '_${element.name}$graphQLFieldSuffix'
             ..modifier = FieldModifier.final$,
         ),
       );

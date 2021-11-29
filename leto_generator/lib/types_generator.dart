@@ -143,22 +143,22 @@ Future<Library> generateFromConstructors(
     l.body.add(Code('''
 ${hasFromJson(clazz) ? serializerDefinitionCode(className, hasFrezzed: false) : ''}
 
-GraphQLUnionType<$className>? _$fieldName;
-
 /// Generated from [$className]
-GraphQLUnionType<$className> get $fieldName {
-  if (_$fieldName != null) return _$fieldName!;
-  _$fieldName = GraphQLUnionType(
+GraphQLUnionType<$className> get $fieldName => _$fieldName.value;
+
+final _$fieldName = HotReloadableDefinition<GraphQLUnionType<$className>>((setValue) {
+  final type = GraphQLUnionType<$className>(
     '${annot?.name ?? className}',
     const [],
     ${description == null ? '' : 'description: "$description",'}
     ${attachments == null ? '' : 'extra: GraphQLTypeDefinitionExtra.attach($attachments),'}
   );
-  _$fieldName!.possibleTypes.addAll([
+  setValue(type);
+  type.possibleTypes.addAll([
       ${variants.map((e) => e.fieldName).join(',')},
   ]);
-  return _$fieldName!;
-}
+  return type;
+});
 '''));
 
     // Map<String, Object?> _\$${typeName}ToJson($typeName instance) => instance.toJson();

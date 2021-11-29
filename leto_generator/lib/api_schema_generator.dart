@@ -124,20 +124,31 @@ class ValidatorsLibGenerator implements Builder {
 import 'package:leto_schema/leto_schema.dart';
 ${allElements.map((e) => "import '${cleanImport(basePath, e.source!.uri)}';").toSet().join()}
 
-final graphqlApiSchema = GraphQLSchema(
+GraphQLSchema recreateGraphQLApiSchema() {
+  HotReloadableDefinition.incrementCounter();
+  _graphqlApiSchema = null;
+  return graphqlApiSchema;
+}
+
+GraphQLSchema? _graphqlApiSchema;
+GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
   serdeCtx: SerdeCtx()..addAll([$_serializers])..children.addAll([$_genericSerializersCtx]),
   queryType: objectType(
     'Query',
     fields: [${queries.join()}],
   ),
+  ${mutations.isEmpty ? '' : '''
   mutationType: objectType(
     'Mutation',
     fields: [${mutations.join()}],
   ),
+  '''}
+  ${subscriptions.isEmpty ? '' : '''
   subscriptionType: objectType(
     'Subscription',
     fields: [${subscriptions.join()}],
   ),
+  '''}
 );
 
 ''';

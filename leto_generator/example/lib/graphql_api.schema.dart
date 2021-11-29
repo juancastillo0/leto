@@ -13,78 +13,85 @@ import 'package:leto_generator_example/arguments.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
-final graphqlApiSchema = GraphQLSchema(
-  serdeCtx: SerdeCtx()
-    ..addAll([
-      humanSerializer,
-      taskSerializer,
-      userSerializer,
-      inputMSerializer,
-      inputMNSerializer,
-      inputJsonSerdeSerializer,
-      freezedSingleInputSerializer,
-      unionASerializer,
-      todoItemInputSerializer,
-      todoItemInputNestedSerializer,
-      shipSerializer,
-      factionSerializer,
-      connectionArgumentsSerializer,
-    ])
-    ..children.addAll([
-      inputGenSerdeCtx,
-      inputGen2SerdeCtx,
-    ]),
-  queryType: objectType(
-    'Query',
-    fields: [
-      droidGraphQLField,
-      getTasksGraphQLField,
-      enumsTestQueryGraphQLField,
-      getClassConfig2GraphQLField,
-      getClassConfigGraphQLField,
-      testInputGenGraphQLField,
-      queryMultipleParamsGraphQLField,
-      queryInClassGraphQLField,
-      queryInClass2GraphQLField,
-      queryInClass3GraphQLField,
-      queryInClass4GraphQLField,
-      queryInClass5GraphQLField,
-      queryInClass6GraphQLField,
-      returnFiveFromFreezedInputGraphQLField,
-      getUnionAGraphQLField,
-      getNestedInterfaceImpl3GraphQLField,
-      getNestedInterfaceImpl2GraphQLField,
-      getNestedInterfaceImplByIndexGraphQLField,
-      getUnionNoFrezzedGraphQLField,
-      getNameGraphQLField,
-      resultUnionObjectGraphQLField,
-      resultUnionObjectErrGraphQLField,
-      resultObjectGraphQLField,
-      resultObjectErrGraphQLField,
-      testManyDefaultsGraphQLField,
-    ],
-  ),
-  mutationType: objectType(
-    'Mutation',
-    fields: [
-      addTaskGraphQLField,
-      getIntGraphQLField,
-      getIntReqGraphQLField,
-      getIntNullGraphQLField,
-      getIntInterfaceGraphQLField,
-      getIntInterfaceEnumGraphQLField,
-      getIntInterfaceEnumListGraphQLField,
-      getIntInterfaceNEnumNullGraphQLField,
-      mutationMultipleParamsOptionalPosGraphQLField,
-      mutationInClassGraphQLField,
-      resultUnionObjectMutErrGraphQLField,
-      resultObjectMutErrGraphQLField,
-    ],
-  ),
-  subscriptionType: objectType(
-    'Subscription',
-    fields: [
-      onAddTaskGraphQLField,
-    ],
-  ),
-);
+GraphQLSchema recreateGraphQLApiSchema() {
+  HotReloadableDefinition.incrementCounter();
+  _graphqlApiSchema = null;
+  return graphqlApiSchema;
+}
+
+GraphQLSchema? _graphqlApiSchema;
+GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
+      serdeCtx: SerdeCtx()
+        ..addAll([
+          humanSerializer,
+          taskSerializer,
+          userSerializer,
+          inputMSerializer,
+          inputMNSerializer,
+          inputJsonSerdeSerializer,
+          freezedSingleInputSerializer,
+          unionASerializer,
+          todoItemInputSerializer,
+          todoItemInputNestedSerializer,
+          shipSerializer,
+          factionSerializer,
+          connectionArgumentsSerializer,
+        ])
+        ..children.addAll([
+          inputGenSerdeCtx,
+          inputGen2SerdeCtx,
+        ]),
+      queryType: objectType(
+        'Query',
+        fields: [
+          droidGraphQLField,
+          getTasksGraphQLField,
+          enumsTestQueryGraphQLField,
+          getClassConfig2GraphQLField,
+          getClassConfigGraphQLField,
+          testInputGenGraphQLField,
+          queryMultipleParamsGraphQLField,
+          queryInClassGraphQLField,
+          queryInClass2GraphQLField,
+          queryInClass3GraphQLField,
+          queryInClass4GraphQLField,
+          queryInClass5GraphQLField,
+          queryInClass6GraphQLField,
+          returnFiveFromFreezedInputGraphQLField,
+          getUnionAGraphQLField,
+          getNestedInterfaceImpl3GraphQLField,
+          getNestedInterfaceImpl2GraphQLField,
+          getNestedInterfaceImplByIndexGraphQLField,
+          getUnionNoFrezzedGraphQLField,
+          getNameGraphQLField,
+          resultUnionObjectGraphQLField,
+          resultUnionObjectErrGraphQLField,
+          resultObjectGraphQLField,
+          resultObjectErrGraphQLField,
+          testManyDefaultsGraphQLField,
+        ],
+      ),
+      mutationType: objectType(
+        'Mutation',
+        fields: [
+          addTaskGraphQLField,
+          getIntGraphQLField,
+          getIntReqGraphQLField,
+          getIntNullGraphQLField,
+          getIntInterfaceGraphQLField,
+          getIntInterfaceEnumGraphQLField,
+          getIntInterfaceEnumListGraphQLField,
+          getIntInterfaceNEnumNullGraphQLField,
+          mutationMultipleParamsOptionalPosGraphQLField,
+          mutationInClassGraphQLField,
+          resultUnionObjectMutErrGraphQLField,
+          resultObjectMutErrGraphQLField,
+        ],
+      ),
+      subscriptionType: objectType(
+        'Subscription',
+        fields: [
+          onAddTaskGraphQLField,
+        ],
+      ),
+    );

@@ -152,3 +152,51 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     );
   }
 }
+
+/// Creates an instance of a cached value that should be re-instantiated
+/// once [_hotReloadCounter] changes. Useful for hot reload.
+class HotReloadableDefinition<T extends Object> {
+  static int _hotReloadCounter = 0;
+
+  /// Increases [_hotReloadCounter] by one, call it if you
+  /// want to re-instantiated all GraphQL elements (type and field definitions)
+  /// that use [HotReloadableDefinition]
+  static void incrementCounter() => _hotReloadCounter++;
+
+  /// Callback to instantiate the cached value.
+  ///
+  /// The parameter to [create] is a function that should be called
+  /// as soon as you instantiate the value within [create],
+  /// this is only necessary for cyclic value. The parameter returns the
+  /// same value, useful for method chaining.
+  final T Function(T Function(T) setValue) create;
+
+  /// Creates an instance of a cached value that will be re-instantiated
+  /// once [_hotReloadCounter] changes. Useful for hot reload.
+  HotReloadableDefinition(this.create);
+
+  /// Current cached value
+  T? _value;
+
+  /// If non-null, the value of [_hotReloadCounter]
+  /// when [_value] was instantiated
+  int? _counter;
+
+  /// Retrieves the value if [_hotReloadCounter] is equal to [_counter],
+  /// otherwise uses the provided [create] to instantiate
+  /// and return the new [_value].
+  T get value {
+    if (_hotReloadCounter == _counter) {
+      return _value!;
+    }
+    _setValue(create(_setValue));
+    return _value!;
+  }
+
+  // ignore: use_setters_to_change_properties
+  T _setValue(T newValue) {
+    _counter = _hotReloadCounter;
+    _value = newValue;
+    return newValue;
+  }
+}

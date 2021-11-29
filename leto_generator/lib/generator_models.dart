@@ -302,24 +302,16 @@ class UnionVarianInfo {
         'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName${_typeList()}>';
 
     final _typeNoExt = 'GraphQL${isInput ? 'Input' : ''}ObjectType<$typeName>';
-    final _cacheGetter = hasTypeParams ? '_$fieldName[__name]' : '_$fieldName';
+    final _cacheGetter = hasTypeParams ? '_$fieldName.value[__name]' : null;
+    final _genericSerializer = hasTypeParams && hasFromJson;
 
-    return '''
-${hasTypeParams && hasFromJson ? 'final ${ReCase(typeName).camelCase}SerdeCtx = SerdeCtx();' : ''}
-${hasTypeParams ? 'Map<String, $_typeNoExt> _$fieldName = {}' : '$_type? _$fieldName'};
-/// Auto-generated from [$typeName].
-$_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 'get $fieldName'} {
+    final body = '''
+{
   final __name = '$graphQLTypeName';
-  if ($_cacheGetter != null) return $_cacheGetter! as $_type;
-
+  ${hasTypeParams ? 'if ($_cacheGetter != null) return $_cacheGetter! as $_type;' : ''}
   final __$fieldName = ${expression().accept(DartEmitter())};
-  ${hasTypeParams && hasFromJson ? '''
-  ${ReCase(typeName).camelCase}SerdeCtx.add(
-    SerializerValue<$typeName${_typeList()}>(
-      fromJson: (ctx, json) => $typeName.fromJson(json, ${typeParams.map((p) => 'ctx.fromJson').join(',')}),
-    ),
-  );''' : ''}
-  $_cacheGetter = __$fieldName;
+  ${_genericSerializer ? _setGenericSerializer() : ''}
+  ${hasTypeParams ? '$_cacheGetter = __$fieldName;' : 'setValue(__$fieldName);'}
   __$fieldName.fields.addAll(${literalList(
       () {
         // deduplicate field names
@@ -331,9 +323,30 @@ $_type ${hasTypeParams ? '$fieldName${_typeList(ext: true)}($_typeParamsStr)' : 
     ).accept(DartEmitter())},);
 
   return __$fieldName;
-}
+}''';
+
+    if (hasTypeParams) {
+      return '''
+${_genericSerializer ? 'final ${ReCase(typeName).camelCase}SerdeCtx = SerdeCtx();' : ''}
+final _$fieldName = HotReloadableDefinition<Map<String, $_typeNoExt>>((_) => {});
+/// Auto-generated from [$typeName].
+$_type $fieldName${_typeList(ext: true)}($_typeParamsStr) $body
 ''';
+    } else {
+      return '''
+final _$fieldName = HotReloadableDefinition<$_type>((setValue) $body);
+/// Auto-generated from [$typeName].
+$_type get $fieldName => _$fieldName.value;
+''';
+    }
   }
+
+  String _setGenericSerializer() => '''
+${ReCase(typeName).camelCase}SerdeCtx.add(
+  SerializerValue<$typeName${_typeList()}>(
+    fromJson: (ctx, json) => $typeName.fromJson(json, ${typeParams.map((p) => 'ctx.fromJson').join(',')}),
+  ),
+);''';
 
   String get graphQLTypeName =>
       '${classConfig?.name ?? inputConfig?.name ?? removeTrailingUnder(typeName)}${typeParams.map((t) {
