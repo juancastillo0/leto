@@ -6,14 +6,18 @@ part of 'main.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final getNameGraphQLField = graphQLString.nonNull().field<Object?>(
-  'getName',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<String, Object?, Object?> get getNameGraphQLField =>
+    _getNameGraphQLField.value;
+final _getNameGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
+        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+              'getName',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return getName();
-  },
-);
+                return getName();
+              },
+            )));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -25,18 +29,13 @@ final todoItemInputSerializer = SerializerValue<TodoItemInput>(
       TodoItemInput.fromJson(json), // _$TodoItemInputFromJson,
   // toJson: (m) => _$TodoItemInputToJson(m as TodoItemInput),
 );
-
-GraphQLInputObjectType<TodoItemInput>? _todoItemInputGraphQLType;
-
-/// Auto-generated from [TodoItemInput].
-GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType {
+final _todoItemInputGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<TodoItemInput>>((setValue) {
   final __name = 'TodoItemInput';
-  if (_todoItemInputGraphQLType != null)
-    return _todoItemInputGraphQLType! as GraphQLInputObjectType<TodoItemInput>;
 
   final __todoItemInputGraphQLType = inputObjectType<TodoItemInput>(__name);
 
-  _todoItemInputGraphQLType = __todoItemInputGraphQLType;
+  setValue(__todoItemInputGraphQLType);
   __todoItemInputGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('text'),
@@ -45,7 +44,11 @@ GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType {
   );
 
   return __todoItemInputGraphQLType;
-}
+});
+
+/// Auto-generated from [TodoItemInput].
+GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType =>
+    _todoItemInputGraphQLType.value;
 
 final todoItemInputNestedSerializer = SerializerValue<TodoItemInputNested>(
   key: "TodoItemInputNested",
@@ -53,39 +56,34 @@ final todoItemInputNestedSerializer = SerializerValue<TodoItemInputNested>(
       TodoItemInputNested.fromJson(json), // _$TodoItemInputNestedFromJson,
   // toJson: (m) => _$TodoItemInputNestedToJson(m as TodoItemInputNested),
 );
-
-GraphQLInputObjectType<TodoItemInputNested>? _todoItemInputNestedGraphQLType;
-
-/// Auto-generated from [TodoItemInputNested].
-GraphQLInputObjectType<TodoItemInputNested> get todoItemInputNestedGraphQLType {
+final _todoItemInputNestedGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<TodoItemInputNested>>(
+        (setValue) {
   final __name = 'TodoItemInputNested';
-  if (_todoItemInputNestedGraphQLType != null)
-    return _todoItemInputNestedGraphQLType!
-        as GraphQLInputObjectType<TodoItemInputNested>;
 
   final __todoItemInputNestedGraphQLType =
       inputObjectType<TodoItemInputNested>(__name);
 
-  _todoItemInputNestedGraphQLType = __todoItemInputNestedGraphQLType;
+  setValue(__todoItemInputNestedGraphQLType);
   __todoItemInputNestedGraphQLType.fields.addAll(
     [decimalGraphQLType.coerceToInputObject().inputField('cost')],
   );
 
   return __todoItemInputNestedGraphQLType;
-}
+});
 
-GraphQLObjectType<TodoItem>? _todoItemGraphQLType;
+/// Auto-generated from [TodoItemInputNested].
+GraphQLInputObjectType<TodoItemInputNested>
+    get todoItemInputNestedGraphQLType => _todoItemInputNestedGraphQLType.value;
 
-/// Auto-generated from [TodoItem].
-GraphQLObjectType<TodoItem> get todoItemGraphQLType {
+final _todoItemGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<TodoItem>>((setValue) {
   final __name = 'TodoItem';
-  if (_todoItemGraphQLType != null)
-    return _todoItemGraphQLType! as GraphQLObjectType<TodoItem>;
 
   final __todoItemGraphQLType =
       objectType<TodoItem>(__name, isInterface: false, interfaces: []);
 
-  _todoItemGraphQLType = __todoItemGraphQLType;
+  setValue(__todoItemGraphQLType);
   __todoItemGraphQLType.fields.addAll(
     [
       graphQLString.field('text',
@@ -102,4 +100,8 @@ GraphQLObjectType<TodoItem> get todoItemGraphQLType {
   );
 
   return __todoItemGraphQLType;
-}
+});
+
+/// Auto-generated from [TodoItem].
+GraphQLObjectType<TodoItem> get todoItemGraphQLType =>
+    _todoItemGraphQLType.value;

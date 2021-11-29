@@ -6,69 +6,85 @@ part of 'inputs.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final testInputGenGraphQLField = graphQLInt.nonNull().field<Object?>(
-  'testInputGen',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<int, Object?, Object?> get testInputGenGraphQLField =>
+    _testInputGenGraphQLField.value;
+final _testInputGenGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<int, Object?, Object?>>(
+        (setValue) => setValue(graphQLInt.nonNull().field<Object?>(
+              'testInputGen',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return testInputGen((args["input"] as InputGen<int>));
-  },
-  inputs: [
-    inputGenGraphQLType<int>(graphQLInt.nonNull()).nonNull().inputField('input')
-  ],
-);
+                return testInputGen((args["input"] as InputGen<int>));
+              },
+            ))
+              ..inputs.addAll([
+                inputGenGraphQLType<int>(graphQLInt.nonNull())
+                    .nonNull()
+                    .inputField('input')
+              ]));
 
-final queryMultipleParamsGraphQLField = graphQLString.nonNull().field<Object?>(
-  'queryMultipleParams',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<String, Object?, Object?>
+    get queryMultipleParamsGraphQLField =>
+        _queryMultipleParamsGraphQLField.value;
+final _queryMultipleParamsGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
+        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+              'queryMultipleParams',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return queryMultipleParams((args["serde"] as InputJsonSerde?),
-        serdeReq: (args["serdeReq"] as InputJsonSerde),
-        defTwo: (args["defTwo"] as int),
-        mInput: (args["mInput"] as InputM?),
-        gen: (args["gen"] as InputGen<InputJsonSerde?>));
-  },
-  inputs: [
-    inputJsonSerdeGraphQLType.inputField('serde'),
-    inputJsonSerdeGraphQLType.nonNull().inputField('serdeReq'),
-    graphQLInt
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('defTwo', defaultValue: 2),
-    inputMGraphQLType.inputField('mInput'),
-    inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType)
-        .nonNull()
-        .inputField('gen')
-  ],
-);
+                return queryMultipleParams((args["serde"] as InputJsonSerde?),
+                    serdeReq: (args["serdeReq"] as InputJsonSerde),
+                    defTwo: (args["defTwo"] as int),
+                    mInput: (args["mInput"] as InputM?),
+                    gen: (args["gen"] as InputGen<InputJsonSerde?>));
+              },
+            ))
+              ..inputs.addAll([
+                inputJsonSerdeGraphQLType.inputField('serde'),
+                inputJsonSerdeGraphQLType.nonNull().inputField('serdeReq'),
+                graphQLInt
+                    .nonNull()
+                    .coerceToInputObject()
+                    .inputField('defTwo', defaultValue: 2),
+                inputMGraphQLType.inputField('mInput'),
+                inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType)
+                    .nonNull()
+                    .inputField('gen')
+              ]));
 
-final mutationMultipleParamsOptionalPosGraphQLField =
-    graphQLString.nonNull().field<Object?>(
-  'mutationMultipleParamsOptionalPos',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<String, Object?, Object?>
+    get mutationMultipleParamsOptionalPosGraphQLField =>
+        _mutationMultipleParamsOptionalPosGraphQLField.value;
+final _mutationMultipleParamsOptionalPosGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
+        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+              'mutationMultipleParamsOptionalPos',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return mutationMultipleParamsOptionalPos(
-        (args["serde"] as InputJsonSerde?),
-        (args["defTwo"] as int),
-        (args["gen"] as InputGen<List<InputJsonSerde>?>?),
-        (args["gen2"] as InputGen2<String, List<List<int>?>>?));
-  },
-  inputs: [
-    inputJsonSerdeGraphQLType.inputField('serde'),
-    graphQLInt
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('defTwo', defaultValue: 2),
-    inputGenGraphQLType<List<InputJsonSerde>?>(
-            inputJsonSerdeGraphQLType.nonNull().list())
-        .inputField('gen'),
-    inputGen2GraphQLType<String, List<List<int>?>>(graphQLString.nonNull(),
-            graphQLInt.nonNull().list().list().nonNull())
-        .inputField('gen2')
-  ],
-);
+                return mutationMultipleParamsOptionalPos(
+                    (args["serde"] as InputJsonSerde?),
+                    (args["defTwo"] as int),
+                    (args["gen"] as InputGen<List<InputJsonSerde>?>?),
+                    (args["gen2"] as InputGen2<String, List<List<int>?>>?));
+              },
+            ))
+              ..inputs.addAll([
+                inputJsonSerdeGraphQLType.inputField('serde'),
+                graphQLInt
+                    .nonNull()
+                    .coerceToInputObject()
+                    .inputField('defTwo', defaultValue: 2),
+                inputGenGraphQLType<List<InputJsonSerde>?>(
+                        inputJsonSerdeGraphQLType.nonNull().list())
+                    .inputField('gen'),
+                inputGen2GraphQLType<String, List<List<int>?>>(
+                        graphQLString.nonNull(),
+                        graphQLInt.nonNull().list().list().nonNull())
+                    .inputField('gen2')
+              ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -79,18 +95,13 @@ final inputMSerializer = SerializerValue<InputM>(
   fromJson: (ctx, json) => InputM.fromJson(json), // _$InputMFromJson,
   // toJson: (m) => _$InputMToJson(m as InputM),
 );
-
-GraphQLInputObjectType<InputM>? _inputMGraphQLType;
-
-/// Auto-generated from [InputM].
-GraphQLInputObjectType<InputM> get inputMGraphQLType {
+final _inputMGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<InputM>>((setValue) {
   final __name = 'InputM';
-  if (_inputMGraphQLType != null)
-    return _inputMGraphQLType! as GraphQLInputObjectType<InputM>;
 
   final __inputMGraphQLType = inputObjectType<InputM>(__name);
 
-  _inputMGraphQLType = __inputMGraphQLType;
+  setValue(__inputMGraphQLType);
   __inputMGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('name'),
@@ -131,25 +142,24 @@ GraphQLInputObjectType<InputM> get inputMGraphQLType {
   );
 
   return __inputMGraphQLType;
-}
+});
+
+/// Auto-generated from [InputM].
+GraphQLInputObjectType<InputM> get inputMGraphQLType =>
+    _inputMGraphQLType.value;
 
 final inputMNSerializer = SerializerValue<InputMN>(
   key: "InputMN",
   fromJson: (ctx, json) => InputMN.fromJson(json), // _$InputMNFromJson,
   // toJson: (m) => _$InputMNToJson(m as InputMN),
 );
-
-GraphQLInputObjectType<InputMN>? _inputMNGraphQLType;
-
-/// Auto-generated from [InputMN].
-GraphQLInputObjectType<InputMN> get inputMNGraphQLType {
+final _inputMNGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<InputMN>>((setValue) {
   final __name = 'InputMNRenamed';
-  if (_inputMNGraphQLType != null)
-    return _inputMNGraphQLType! as GraphQLInputObjectType<InputMN>;
 
   final __inputMNGraphQLType = inputObjectType<InputMN>(__name);
 
-  _inputMNGraphQLType = __inputMNGraphQLType;
+  setValue(__inputMNGraphQLType);
   __inputMNGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('name'),
@@ -172,7 +182,11 @@ GraphQLInputObjectType<InputMN> get inputMNGraphQLType {
   );
 
   return __inputMNGraphQLType;
-}
+});
+
+/// Auto-generated from [InputMN].
+GraphQLInputObjectType<InputMN> get inputMNGraphQLType =>
+    _inputMNGraphQLType.value;
 
 final inputJsonSerdeSerializer = SerializerValue<InputJsonSerde>(
   key: "InputJsonSerde",
@@ -180,19 +194,13 @@ final inputJsonSerdeSerializer = SerializerValue<InputJsonSerde>(
       InputJsonSerde.fromJson(json), // _$InputJsonSerdeFromJson,
   // toJson: (m) => _$InputJsonSerdeToJson(m as InputJsonSerde),
 );
-
-GraphQLInputObjectType<InputJsonSerde>? _inputJsonSerdeGraphQLType;
-
-/// Auto-generated from [InputJsonSerde].
-GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLType {
+final _inputJsonSerdeGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<InputJsonSerde>>((setValue) {
   final __name = 'InputJsonSerde';
-  if (_inputJsonSerdeGraphQLType != null)
-    return _inputJsonSerdeGraphQLType!
-        as GraphQLInputObjectType<InputJsonSerde>;
 
   final __inputJsonSerdeGraphQLType = inputObjectType<InputJsonSerde>(__name);
 
-  _inputJsonSerdeGraphQLType = __inputJsonSerdeGraphQLType;
+  setValue(__inputJsonSerdeGraphQLType);
   __inputJsonSerdeGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('name'),
@@ -207,26 +215,32 @@ GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLType {
   );
 
   return __inputJsonSerdeGraphQLType;
-}
+});
+
+/// Auto-generated from [InputJsonSerde].
+GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLType =>
+    _inputJsonSerdeGraphQLType.value;
 
 final inputGenSerdeCtx = SerdeCtx();
-Map<String, GraphQLInputObjectType<InputGen>> _inputGenGraphQLType = {};
+final _inputGenGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLInputObjectType<InputGen>>>(
+        (_) => {});
 
 /// Auto-generated from [InputGen].
 GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'InputGen${tGraphQLType.printableName}';
-  if (_inputGenGraphQLType[__name] != null)
-    return _inputGenGraphQLType[__name]! as GraphQLInputObjectType<InputGen<T>>;
-
+  if (_inputGenGraphQLType.value[__name] != null)
+    return _inputGenGraphQLType.value[__name]!
+        as GraphQLInputObjectType<InputGen<T>>;
   final __inputGenGraphQLType = inputObjectType<InputGen<T>>(__name);
   inputGenSerdeCtx.add(
     SerializerValue<InputGen<T>>(
       fromJson: (ctx, json) => InputGen.fromJson(json, ctx.fromJson),
     ),
   );
-  _inputGenGraphQLType[__name] = __inputGenGraphQLType;
+  _inputGenGraphQLType.value[__name] = __inputGenGraphQLType;
   __inputGenGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('name'),
@@ -238,7 +252,9 @@ GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
 }
 
 final inputGen2SerdeCtx = SerdeCtx();
-Map<String, GraphQLInputObjectType<InputGen2>> _inputGen2GraphQLType = {};
+final _inputGen2GraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLInputObjectType<InputGen2>>>(
+        (_) => {});
 
 /// Auto-generated from [InputGen2].
 GraphQLInputObjectType<InputGen2<T, O>>
@@ -248,10 +264,9 @@ GraphQLInputObjectType<InputGen2<T, O>>
 ) {
   final __name =
       'InputGen2${tGraphQLType.printableName}${oGraphQLType.printableName}';
-  if (_inputGen2GraphQLType[__name] != null)
-    return _inputGen2GraphQLType[__name]!
+  if (_inputGen2GraphQLType.value[__name] != null)
+    return _inputGen2GraphQLType.value[__name]!
         as GraphQLInputObjectType<InputGen2<T, O>>;
-
   final __inputGen2GraphQLType = inputObjectType<InputGen2<T, O>>(__name);
   inputGen2SerdeCtx.add(
     SerializerValue<InputGen2<T, O>>(
@@ -259,7 +274,7 @@ GraphQLInputObjectType<InputGen2<T, O>>
           InputGen2.fromJson(json, ctx.fromJson, ctx.fromJson),
     ),
   );
-  _inputGen2GraphQLType[__name] = __inputGen2GraphQLType;
+  _inputGen2GraphQLType.value[__name] = __inputGen2GraphQLType;
   __inputGen2GraphQLType.fields.addAll(
     [
       graphQLString.nonNull().coerceToInputObject().inputField('name'),

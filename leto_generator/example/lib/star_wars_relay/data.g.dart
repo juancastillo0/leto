@@ -6,13 +6,9 @@ part of 'data.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-GraphQLObjectType<Node>? _nodeGraphQLType;
-
-/// Auto-generated from [Node].
-GraphQLObjectType<Node> get nodeGraphQLType {
+final _nodeGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Node>>((setValue) {
   final __name = 'Node';
-  if (_nodeGraphQLType != null)
-    return _nodeGraphQLType! as GraphQLObjectType<Node>;
 
   final __nodeGraphQLType = objectType<Node>(__name,
       isInterface: true,
@@ -20,34 +16,32 @@ GraphQLObjectType<Node> get nodeGraphQLType {
       description:
           'This defines a basic set of data for our Star Wars Schema.\n///\nThis data is hard coded for the sake of the demo, but you could imagine\nfetching this data from a backend service rather than from hardcoded\nJSON objects in a more complex demo.\nAn object with an ID');
 
-  _nodeGraphQLType = __nodeGraphQLType;
+  setValue(__nodeGraphQLType);
   __nodeGraphQLType.fields.addAll(
     [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
   );
 
   return __nodeGraphQLType;
-}
+});
+
+/// Auto-generated from [Node].
+GraphQLObjectType<Node> get nodeGraphQLType => _nodeGraphQLType.value;
 
 final shipSerializer = SerializerValue<Ship>(
   key: "Ship",
   fromJson: (ctx, json) => Ship.fromJson(json), // _$ShipFromJson,
   // toJson: (m) => _$ShipToJson(m as Ship),
 );
-
-GraphQLObjectType<Ship>? _shipGraphQLType;
-
-/// Auto-generated from [Ship].
-GraphQLObjectType<Ship> get shipGraphQLType {
+final _shipGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Ship>>((setValue) {
   final __name = 'Ship';
-  if (_shipGraphQLType != null)
-    return _shipGraphQLType! as GraphQLObjectType<Ship>;
 
   final __shipGraphQLType = objectType<Ship>(__name,
       isInterface: false,
       interfaces: [nodeGraphQLType],
       description: 'A ship in the Star Wars saga');
 
-  _shipGraphQLType = __shipGraphQLType;
+  setValue(__shipGraphQLType);
   __shipGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('name',
@@ -58,28 +52,26 @@ GraphQLObjectType<Ship> get shipGraphQLType {
   );
 
   return __shipGraphQLType;
-}
+});
+
+/// Auto-generated from [Ship].
+GraphQLObjectType<Ship> get shipGraphQLType => _shipGraphQLType.value;
 
 final factionSerializer = SerializerValue<Faction>(
   key: "Faction",
   fromJson: (ctx, json) => Faction.fromJson(json), // _$FactionFromJson,
   // toJson: (m) => _$FactionToJson(m as Faction),
 );
-
-GraphQLObjectType<Faction>? _factionGraphQLType;
-
-/// Auto-generated from [Faction].
-GraphQLObjectType<Faction> get factionGraphQLType {
+final _factionGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Faction>>((setValue) {
   final __name = 'Faction';
-  if (_factionGraphQLType != null)
-    return _factionGraphQLType! as GraphQLObjectType<Faction>;
 
   final __factionGraphQLType = objectType<Faction>(__name,
       isInterface: false,
       interfaces: [nodeGraphQLType],
       description: 'A faction in the Star Wars saga');
 
-  _factionGraphQLType = __factionGraphQLType;
+  setValue(__factionGraphQLType);
   __factionGraphQLType.fields.addAll(
     [
       connectionGraphQLType<Ship>(shipGraphQLType.nonNull())
@@ -108,7 +100,10 @@ GraphQLObjectType<Faction> get factionGraphQLType {
   );
 
   return __factionGraphQLType;
-}
+});
+
+/// Auto-generated from [Faction].
+GraphQLObjectType<Faction> get factionGraphQLType => _factionGraphQLType.value;
 
 final connectionArgumentsSerializer = SerializerValue<ConnectionArguments>(
   key: "ConnectionArguments",
@@ -116,22 +111,17 @@ final connectionArgumentsSerializer = SerializerValue<ConnectionArguments>(
       ConnectionArguments.fromJson(json), // _$ConnectionArgumentsFromJson,
   // toJson: (m) => _$ConnectionArgumentsToJson(m as ConnectionArguments),
 );
-
-GraphQLInputObjectType<ConnectionArguments>? _connectionArgumentsGraphQLType;
-
-/// Auto-generated from [ConnectionArguments].
-GraphQLInputObjectType<ConnectionArguments> get connectionArgumentsGraphQLType {
+final _connectionArgumentsGraphQLType =
+    HotReloadableDefinition<GraphQLInputObjectType<ConnectionArguments>>(
+        (setValue) {
   final __name = 'ConnectionArguments';
-  if (_connectionArgumentsGraphQLType != null)
-    return _connectionArgumentsGraphQLType!
-        as GraphQLInputObjectType<ConnectionArguments>;
 
   final __connectionArgumentsGraphQLType = inputObjectType<ConnectionArguments>(
       __name,
       description:
           'Returns a GraphQLFieldConfigArgumentMap appropriate to include on a field\nwhose return type is a connection type with forward pagination.');
 
-  _connectionArgumentsGraphQLType = __connectionArgumentsGraphQLType;
+  setValue(__connectionArgumentsGraphQLType);
   __connectionArgumentsGraphQLType.fields.addAll(
     [
       graphQLString.coerceToInputObject().inputField('before',
@@ -148,7 +138,11 @@ GraphQLInputObjectType<ConnectionArguments> get connectionArgumentsGraphQLType {
   );
 
   return __connectionArgumentsGraphQLType;
-}
+});
+
+/// Auto-generated from [ConnectionArguments].
+GraphQLInputObjectType<ConnectionArguments>
+    get connectionArgumentsGraphQLType => _connectionArgumentsGraphQLType.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

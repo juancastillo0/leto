@@ -6,70 +6,82 @@ part of 'tasks.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final getTasksGraphQLField =
-    taskGraphQLType.nonNull().list().nonNull().field<Object?>(
-  'getTasks',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<List<Task>, Object?, Object?> get getTasksGraphQLField =>
+    _getTasksGraphQLField.value;
+final _getTasksGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<List<Task>, Object?, Object?>>(
+        (setValue) =>
+            setValue(taskGraphQLType.nonNull().list().nonNull().field<Object?>(
+              'getTasks',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return getTasks(ctx);
-  },
-);
+                return getTasks(ctx);
+              },
+            )));
 
-final addTaskGraphQLField = graphQLBoolean.nonNull().field<Object?>(
-  'addTask',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<bool, Object?, Object?> get addTaskGraphQLField =>
+    _addTaskGraphQLField.value;
+final _addTaskGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<bool, Object?, Object?>>(
+        (setValue) => setValue(graphQLBoolean.nonNull().field<Object?>(
+              'addTask',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return addTask(ctx, (args["task"] as Task));
-  },
-  inputs: [taskGraphQLType.nonNull().coerceToInputObject().inputField('task')],
-);
+                return addTask(ctx, (args["task"] as Task));
+              },
+            ))
+              ..inputs.addAll([
+                taskGraphQLType
+                    .nonNull()
+                    .coerceToInputObject()
+                    .inputField('task')
+              ]));
 
-final onAddTaskGraphQLField = taskGraphQLType.nonNull().field<Object?>(
-  'onAddTask',
-  subscribe: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<Task, Object?, Object?> get onAddTaskGraphQLField =>
+    _onAddTaskGraphQLField.value;
+final _onAddTaskGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<Task, Object?, Object?>>(
+        (setValue) => setValue(taskGraphQLType.nonNull().field<Object?>(
+              'onAddTask',
+              subscribe: (obj, ctx) {
+                final args = ctx.args;
 
-    return onAddTask(ctx);
-  },
-);
+                return onAddTask(ctx);
+              },
+            )));
 
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
 
-GraphQLObjectType<WithId>? _withIdGraphQLType;
-
-/// Auto-generated from [WithId].
-GraphQLObjectType<WithId> get withIdGraphQLType {
+final _withIdGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<WithId>>((setValue) {
   final __name = 'WithId';
-  if (_withIdGraphQLType != null)
-    return _withIdGraphQLType! as GraphQLObjectType<WithId>;
 
   final __withIdGraphQLType =
       objectType<WithId>(__name, isInterface: true, interfaces: []);
 
-  _withIdGraphQLType = __withIdGraphQLType;
+  setValue(__withIdGraphQLType);
   __withIdGraphQLType.fields.addAll(
     [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
   );
 
   return __withIdGraphQLType;
-}
+});
 
-GraphQLObjectType<Named>? _namedGraphQLType;
+/// Auto-generated from [WithId].
+GraphQLObjectType<WithId> get withIdGraphQLType => _withIdGraphQLType.value;
 
-/// Auto-generated from [Named].
-GraphQLObjectType<Named> get namedGraphQLType {
+final _namedGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Named>>((setValue) {
   final __name = 'Named';
-  if (_namedGraphQLType != null)
-    return _namedGraphQLType! as GraphQLObjectType<Named>;
 
   final __namedGraphQLType = objectType<Named>(__name,
       isInterface: true, interfaces: [withIdGraphQLType]);
 
-  _namedGraphQLType = __namedGraphQLType;
+  setValue(__namedGraphQLType);
   __namedGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
@@ -78,20 +90,19 @@ GraphQLObjectType<Named> get namedGraphQLType {
   );
 
   return __namedGraphQLType;
-}
+});
 
-GraphQLObjectType<WithCreated>? _withCreatedGraphQLType;
+/// Auto-generated from [Named].
+GraphQLObjectType<Named> get namedGraphQLType => _namedGraphQLType.value;
 
-/// Auto-generated from [WithCreated].
-GraphQLObjectType<WithCreated> get withCreatedGraphQLType {
+final _withCreatedGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<WithCreated>>((setValue) {
   final __name = 'WithCreated';
-  if (_withCreatedGraphQLType != null)
-    return _withCreatedGraphQLType! as GraphQLObjectType<WithCreated>;
 
   final __withCreatedGraphQLType =
       objectType<WithCreated>(__name, isInterface: true, interfaces: []);
 
-  _withCreatedGraphQLType = __withCreatedGraphQLType;
+  setValue(__withCreatedGraphQLType);
   __withCreatedGraphQLType.fields.addAll(
     [
       graphQLTimestamp.nonNull().field('createdTimestamp',
@@ -100,27 +111,26 @@ GraphQLObjectType<WithCreated> get withCreatedGraphQLType {
   );
 
   return __withCreatedGraphQLType;
-}
+});
+
+/// Auto-generated from [WithCreated].
+GraphQLObjectType<WithCreated> get withCreatedGraphQLType =>
+    _withCreatedGraphQLType.value;
 
 final taskSerializer = SerializerValue<Task>(
   key: "Task",
   fromJson: (ctx, json) => Task.fromJson(json), // _$TaskFromJson,
   // toJson: (m) => _$TaskToJson(m as Task),
 );
-
-GraphQLObjectType<Task>? _taskGraphQLType;
-
-/// Auto-generated from [Task].
-GraphQLObjectType<Task> get taskGraphQLType {
+final _taskGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Task>>((setValue) {
   final __name = 'Task';
-  if (_taskGraphQLType != null)
-    return _taskGraphQLType! as GraphQLObjectType<Task>;
 
   final __taskGraphQLType = objectType<Task>(__name,
       isInterface: false,
       interfaces: [namedGraphQLType, withCreatedGraphQLType]);
 
-  _taskGraphQLType = __taskGraphQLType;
+  setValue(__taskGraphQLType);
   __taskGraphQLType.fields.addAll(
     [
       graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
@@ -139,28 +149,26 @@ GraphQLObjectType<Task> get taskGraphQLType {
   );
 
   return __taskGraphQLType;
-}
+});
+
+/// Auto-generated from [Task].
+GraphQLObjectType<Task> get taskGraphQLType => _taskGraphQLType.value;
 
 final userSerializer = SerializerValue<User>(
   key: "User",
   fromJson: (ctx, json) => User.fromJson(json), // _$UserFromJson,
   // toJson: (m) => _$UserToJson(m as User),
 );
-
-GraphQLObjectType<User>? _userGraphQLType;
-
-/// Auto-generated from [User].
-GraphQLObjectType<User> get userGraphQLType {
+final _userGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<User>>((setValue) {
   final __name = 'User';
-  if (_userGraphQLType != null)
-    return _userGraphQLType! as GraphQLObjectType<User>;
 
   final __userGraphQLType = objectType<User>(__name,
       isInterface: false,
       interfaces: [namedGraphQLType],
       extra: GraphQLTypeDefinitionExtra.attach([...userAttachments()]));
 
-  _userGraphQLType = __userGraphQLType;
+  setValue(__userGraphQLType);
   __userGraphQLType.fields.addAll(
     [
       graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
@@ -169,7 +177,10 @@ GraphQLObjectType<User> get userGraphQLType {
   );
 
   return __userGraphQLType;
-}
+});
+
+/// Auto-generated from [User].
+GraphQLObjectType<User> get userGraphQLType => _userGraphQLType.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

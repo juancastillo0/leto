@@ -6,20 +6,24 @@ part of 'schema.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final droidGraphQLField = droidGraphQLType.field<Object?>(
-  'droid',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<Droid?, Object?, Object?> get droidGraphQLField =>
+    _droidGraphQLField.value;
+final _droidGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<Droid?, Object?, Object?>>(
+        (setValue) => setValue(droidGraphQLType.field<Object?>(
+              'droid',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return droid((args["id"] as String));
-  },
-  inputs: [
-    graphQLId
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('id', description: 'id of the droid')
-  ],
-);
+                return droid((args["id"] as String));
+              },
+            ))
+              ..inputs.addAll([
+                graphQLId
+                    .nonNull()
+                    .coerceToInputObject()
+                    .inputField('id', description: 'id of the droid')
+              ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -30,19 +34,14 @@ final humanSerializer = SerializerValue<Human>(
   fromJson: (ctx, json) => Human.fromJson(json), // _$$_HumanFromJson,
   // toJson: (m) => _$$_HumanToJson(m as _$_Human),
 );
-
-GraphQLObjectType<Human>? _humanGraphQLType;
-
-/// Auto-generated from [Human].
-GraphQLObjectType<Human> get humanGraphQLType {
+final _humanGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Human>>((setValue) {
   final __name = 'Human';
-  if (_humanGraphQLType != null)
-    return _humanGraphQLType! as GraphQLObjectType<Human>;
 
   final __humanGraphQLType = objectType<Human>(__name,
       isInterface: false, interfaces: [characterInterface()]);
 
-  _humanGraphQLType = __humanGraphQLType;
+  setValue(__humanGraphQLType);
   __humanGraphQLType.fields.addAll(
     [
       graphQLId.nonNull().field('id',
@@ -64,22 +63,21 @@ GraphQLObjectType<Human> get humanGraphQLType {
   );
 
   return __humanGraphQLType;
-}
+});
 
-GraphQLObjectType<Droid>? _droidGraphQLType;
+/// Auto-generated from [Human].
+GraphQLObjectType<Human> get humanGraphQLType => _humanGraphQLType.value;
 
-/// Auto-generated from [Droid].
-GraphQLObjectType<Droid> get droidGraphQLType {
+final _droidGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<Droid>>((setValue) {
   final __name = 'Droid';
-  if (_droidGraphQLType != null)
-    return _droidGraphQLType! as GraphQLObjectType<Droid>;
 
   final __droidGraphQLType = objectType<Droid>(__name,
       isInterface: false,
       interfaces: [characterInterface()],
       description: 'A mechanical creature in the Star Wars universe.');
 
-  _droidGraphQLType = __droidGraphQLType;
+  setValue(__droidGraphQLType);
   __droidGraphQLType.fields.addAll(
     [
       graphQLId.nonNull().field('id',
@@ -99,7 +97,10 @@ GraphQLObjectType<Droid> get droidGraphQLType {
   );
 
   return __droidGraphQLType;
-}
+});
+
+/// Auto-generated from [Droid].
+GraphQLObjectType<Droid> get droidGraphQLType => _droidGraphQLType.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

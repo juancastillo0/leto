@@ -6,39 +6,52 @@ part of 'database_event.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final onEventGraphQLField = dBEventGraphQLType.nonNull().field<Object?>(
-  'onEvent',
-  subscribe: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<DBEvent, Object?, Object?> get onEventGraphQLField =>
+    _onEventGraphQLField.value;
+final _onEventGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<DBEvent, Object?, Object?>>(
+        (setValue) => setValue(dBEventGraphQLType.nonNull().field<Object?>(
+              'onEvent',
+              subscribe: (obj, ctx) {
+                final args = ctx.args;
 
-    return onEvent(ctx);
-  },
-);
+                return onEvent(ctx);
+              },
+            )));
 
-final onMessageEventGraphQLField = dBEventGraphQLType.nonNull().field<Object?>(
-  'onMessageEvent',
-  subscribe: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<DBEvent, Object?, Object?> get onMessageEventGraphQLField =>
+    _onMessageEventGraphQLField.value;
+final _onMessageEventGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<DBEvent, Object?, Object?>>(
+        (setValue) => setValue(dBEventGraphQLType.nonNull().field<Object?>(
+              'onMessageEvent',
+              subscribe: (obj, ctx) {
+                final args = ctx.args;
 
-    return onMessageEvent(ctx);
-  },
-);
+                return onMessageEvent(ctx);
+              },
+            )));
 
-final getEventsGraphQLField =
-    paginatedGraphQLType<DBEvent>(dBEventGraphQLType.nonNull())
-        .nonNull()
-        .field<Object?>(
-  'getEvents',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<Paginated<DBEvent>, Object?, Object?>
+    get getEventsGraphQLField => _getEventsGraphQLField.value;
+final _getEventsGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<Paginated<DBEvent>, Object?, Object?>>(
+    (setValue) => setValue(
+            paginatedGraphQLType<DBEvent>(dBEventGraphQLType.nonNull())
+                .nonNull()
+                .field<Object?>(
+          'getEvents',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return getEvents(ctx, (args["cursor"] as String?), (args["delta"] as int));
-  },
-  inputs: [
-    graphQLString.coerceToInputObject().inputField('cursor'),
-    graphQLInt.nonNull().coerceToInputObject().inputField('delta')
-  ],
-);
+            return getEvents(
+                ctx, (args["cursor"] as String?), (args["delta"] as int));
+          },
+        ))
+          ..inputs.addAll([
+            graphQLString.coerceToInputObject().inputField('cursor'),
+            graphQLInt.nonNull().coerceToInputObject().inputField('delta')
+          ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -50,19 +63,14 @@ final chatDBEventDataSerializer = SerializerValue<ChatDBEventData>(
       ChatDBEventData.fromJson(json), // _$$ChatDBEventDataFromJson,
   // toJson: (m) => _$$ChatDBEventDataToJson(m as _$ChatDBEventData),
 );
-
-GraphQLObjectType<ChatDBEventData>? _chatDBEventDataGraphQLType;
-
-/// Auto-generated from [ChatDBEventData].
-GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType {
+final _chatDBEventDataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ChatDBEventData>>((setValue) {
   final __name = 'ChatDBEventData';
-  if (_chatDBEventDataGraphQLType != null)
-    return _chatDBEventDataGraphQLType! as GraphQLObjectType<ChatDBEventData>;
 
   final __chatDBEventDataGraphQLType =
       objectType<ChatDBEventData>(__name, isInterface: false, interfaces: []);
 
-  _chatDBEventDataGraphQLType = __chatDBEventDataGraphQLType;
+  setValue(__chatDBEventDataGraphQLType);
   __chatDBEventDataGraphQLType.fields.addAll(
     [
       chatEventGraphQLType
@@ -72,7 +80,11 @@ GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType {
   );
 
   return __chatDBEventDataGraphQLType;
-}
+});
+
+/// Auto-generated from [ChatDBEventData].
+GraphQLObjectType<ChatDBEventData> get chatDBEventDataGraphQLType =>
+    _chatDBEventDataGraphQLType.value;
 
 final userChatDBEventDataSerializer = SerializerValue<UserChatDBEventData>(
   key: "UserChatDBEventData",
@@ -80,22 +92,16 @@ final userChatDBEventDataSerializer = SerializerValue<UserChatDBEventData>(
       UserChatDBEventData.fromJson(json), // _$$UserChatDBEventDataFromJson,
   // toJson: (m) => _$$UserChatDBEventDataToJson(m as _$UserChatDBEventData),
 );
-
-GraphQLObjectType<UserChatDBEventData>? _userChatDBEventDataGraphQLType;
-
-/// Auto-generated from [UserChatDBEventData].
-GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType {
+final _userChatDBEventDataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<UserChatDBEventData>>((setValue) {
   final __name = 'UserChatDBEventData';
-  if (_userChatDBEventDataGraphQLType != null)
-    return _userChatDBEventDataGraphQLType!
-        as GraphQLObjectType<UserChatDBEventData>;
 
   final __userChatDBEventDataGraphQLType = objectType<UserChatDBEventData>(
       __name,
       isInterface: false,
       interfaces: []);
 
-  _userChatDBEventDataGraphQLType = __userChatDBEventDataGraphQLType;
+  setValue(__userChatDBEventDataGraphQLType);
   __userChatDBEventDataGraphQLType.fields.addAll(
     [
       userChatEventGraphQLType
@@ -105,7 +111,11 @@ GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType {
   );
 
   return __userChatDBEventDataGraphQLType;
-}
+});
+
+/// Auto-generated from [UserChatDBEventData].
+GraphQLObjectType<UserChatDBEventData> get userChatDBEventDataGraphQLType =>
+    _userChatDBEventDataGraphQLType.value;
 
 final userDBEventDataSerializer = SerializerValue<UserDBEventData>(
   key: "UserDBEventData",
@@ -113,19 +123,14 @@ final userDBEventDataSerializer = SerializerValue<UserDBEventData>(
       UserDBEventData.fromJson(json), // _$$UserDBEventDataFromJson,
   // toJson: (m) => _$$UserDBEventDataToJson(m as _$UserDBEventData),
 );
-
-GraphQLObjectType<UserDBEventData>? _userDBEventDataGraphQLType;
-
-/// Auto-generated from [UserDBEventData].
-GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType {
+final _userDBEventDataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<UserDBEventData>>((setValue) {
   final __name = 'UserDBEventData';
-  if (_userDBEventDataGraphQLType != null)
-    return _userDBEventDataGraphQLType! as GraphQLObjectType<UserDBEventData>;
 
   final __userDBEventDataGraphQLType =
       objectType<UserDBEventData>(__name, isInterface: false, interfaces: []);
 
-  _userDBEventDataGraphQLType = __userDBEventDataGraphQLType;
+  setValue(__userDBEventDataGraphQLType);
   __userDBEventDataGraphQLType.fields.addAll(
     [
       userEventGraphQLType
@@ -135,7 +140,11 @@ GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType {
   );
 
   return __userDBEventDataGraphQLType;
-}
+});
+
+/// Auto-generated from [UserDBEventData].
+GraphQLObjectType<UserDBEventData> get userDBEventDataGraphQLType =>
+    _userDBEventDataGraphQLType.value;
 
 final chatMessageDBEventDataSerializer =
     SerializerValue<ChatMessageDBEventData>(
@@ -144,22 +153,16 @@ final chatMessageDBEventDataSerializer =
       json), // _$$ChatMessageDBEventDataFromJson,
   // toJson: (m) => _$$ChatMessageDBEventDataToJson(m as _$ChatMessageDBEventData),
 );
-
-GraphQLObjectType<ChatMessageDBEventData>? _chatMessageDBEventDataGraphQLType;
-
-/// Auto-generated from [ChatMessageDBEventData].
-GraphQLObjectType<ChatMessageDBEventData>
-    get chatMessageDBEventDataGraphQLType {
+final _chatMessageDBEventDataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ChatMessageDBEventData>>(
+        (setValue) {
   final __name = 'ChatMessageDBEventData';
-  if (_chatMessageDBEventDataGraphQLType != null)
-    return _chatMessageDBEventDataGraphQLType!
-        as GraphQLObjectType<ChatMessageDBEventData>;
 
   final __chatMessageDBEventDataGraphQLType =
       objectType<ChatMessageDBEventData>(__name,
           isInterface: false, interfaces: []);
 
-  _chatMessageDBEventDataGraphQLType = __chatMessageDBEventDataGraphQLType;
+  setValue(__chatMessageDBEventDataGraphQLType);
   __chatMessageDBEventDataGraphQLType.fields.addAll(
     [
       chatMessageEventGraphQLType
@@ -169,7 +172,12 @@ GraphQLObjectType<ChatMessageDBEventData>
   );
 
   return __chatMessageDBEventDataGraphQLType;
-}
+});
+
+/// Auto-generated from [ChatMessageDBEventData].
+GraphQLObjectType<ChatMessageDBEventData>
+    get chatMessageDBEventDataGraphQLType =>
+        _chatMessageDBEventDataGraphQLType.value;
 
 final dBEventDataSerializer = SerializerValue<DBEventData>(
   key: "DBEventData",
@@ -177,42 +185,39 @@ final dBEventDataSerializer = SerializerValue<DBEventData>(
   // toJson: (m) => _$DBEventDataToJson(m as DBEventData),
 );
 
-GraphQLUnionType<DBEventData>? _dBEventDataGraphQLType;
-
 /// Generated from [DBEventData]
-GraphQLUnionType<DBEventData> get dBEventDataGraphQLType {
-  if (_dBEventDataGraphQLType != null) return _dBEventDataGraphQLType!;
-  _dBEventDataGraphQLType = GraphQLUnionType(
+GraphQLUnionType<DBEventData> get dBEventDataGraphQLType =>
+    _dBEventDataGraphQLType.value;
+
+final _dBEventDataGraphQLType =
+    HotReloadableDefinition<GraphQLUnionType<DBEventData>>((setValue) {
+  final type = GraphQLUnionType<DBEventData>(
     'DBEventData',
     const [],
   );
-  _dBEventDataGraphQLType!.possibleTypes.addAll([
+  setValue(type);
+  type.possibleTypes.addAll([
     chatDBEventDataGraphQLType,
     userChatDBEventDataGraphQLType,
     userDBEventDataGraphQLType,
     chatMessageDBEventDataGraphQLType,
   ]);
-  return _dBEventDataGraphQLType!;
-}
+  return type;
+});
 
 final dBEventSerializer = SerializerValue<DBEvent>(
   key: "DBEvent",
   fromJson: (ctx, json) => DBEvent.fromJson(json), // _$DBEventFromJson,
   // toJson: (m) => _$DBEventToJson(m as DBEvent),
 );
-
-GraphQLObjectType<DBEvent>? _dBEventGraphQLType;
-
-/// Auto-generated from [DBEvent].
-GraphQLObjectType<DBEvent> get dBEventGraphQLType {
+final _dBEventGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<DBEvent>>((setValue) {
   final __name = 'DBEvent';
-  if (_dBEventGraphQLType != null)
-    return _dBEventGraphQLType! as GraphQLObjectType<DBEvent>;
 
   final __dBEventGraphQLType =
       objectType<DBEvent>(__name, isInterface: false, interfaces: []);
 
-  _dBEventGraphQLType = __dBEventGraphQLType;
+  setValue(__dBEventGraphQLType);
   __dBEventGraphQLType.fields.addAll(
     [
       graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
@@ -233,22 +238,27 @@ GraphQLObjectType<DBEvent> get dBEventGraphQLType {
   );
 
   return __dBEventGraphQLType;
-}
+});
 
-Map<String, GraphQLObjectType<Paginated>> _paginatedGraphQLType = {};
+/// Auto-generated from [DBEvent].
+GraphQLObjectType<DBEvent> get dBEventGraphQLType => _dBEventGraphQLType.value;
+
+final _paginatedGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<Paginated>>>(
+        (_) => {});
 
 /// Auto-generated from [Paginated].
 GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'Paginated${tGraphQLType.printableName}';
-  if (_paginatedGraphQLType[__name] != null)
-    return _paginatedGraphQLType[__name]! as GraphQLObjectType<Paginated<T>>;
-
+  if (_paginatedGraphQLType.value[__name] != null)
+    return _paginatedGraphQLType.value[__name]!
+        as GraphQLObjectType<Paginated<T>>;
   final __paginatedGraphQLType =
       objectType<Paginated<T>>(__name, isInterface: false, interfaces: []);
 
-  _paginatedGraphQLType[__name] = __paginatedGraphQLType;
+  _paginatedGraphQLType.value[__name] = __paginatedGraphQLType;
   __paginatedGraphQLType.fields.addAll(
     [
       tGraphQLType

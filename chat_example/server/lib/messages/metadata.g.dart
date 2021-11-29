@@ -12,19 +12,14 @@ final messageMetadataSerializer = SerializerValue<MessageMetadata>(
       MessageMetadata.fromJson(json), // _$$_MessageMetadataFromJson,
   // toJson: (m) => _$$_MessageMetadataToJson(m as _$_MessageMetadata),
 );
-
-GraphQLObjectType<MessageMetadata>? _messageMetadataGraphQLType;
-
-/// Auto-generated from [MessageMetadata].
-GraphQLObjectType<MessageMetadata> get messageMetadataGraphQLType {
+final _messageMetadataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<MessageMetadata>>((setValue) {
   final __name = 'MessageMetadata';
-  if (_messageMetadataGraphQLType != null)
-    return _messageMetadataGraphQLType! as GraphQLObjectType<MessageMetadata>;
 
   final __messageMetadataGraphQLType =
       objectType<MessageMetadata>(__name, isInterface: false, interfaces: []);
 
-  _messageMetadataGraphQLType = __messageMetadataGraphQLType;
+  setValue(__messageMetadataGraphQLType);
   __messageMetadataGraphQLType.fields.addAll(
     [
       fileMetadataGraphQLType.field('fileMetadata',
@@ -38,7 +33,11 @@ GraphQLObjectType<MessageMetadata> get messageMetadataGraphQLType {
   );
 
   return __messageMetadataGraphQLType;
-}
+});
+
+/// Auto-generated from [MessageMetadata].
+GraphQLObjectType<MessageMetadata> get messageMetadataGraphQLType =>
+    _messageMetadataGraphQLType.value;
 
 final linksMetadataSerializer = SerializerValue<LinksMetadata>(
   key: "LinksMetadata",
@@ -46,19 +45,14 @@ final linksMetadataSerializer = SerializerValue<LinksMetadata>(
       LinksMetadata.fromJson(json), // _$$_LinksMetadataFromJson,
   // toJson: (m) => _$$_LinksMetadataToJson(m as _$_LinksMetadata),
 );
-
-GraphQLObjectType<LinksMetadata>? _linksMetadataGraphQLType;
-
-/// Auto-generated from [LinksMetadata].
-GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType {
+final _linksMetadataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<LinksMetadata>>((setValue) {
   final __name = 'LinksMetadata';
-  if (_linksMetadataGraphQLType != null)
-    return _linksMetadataGraphQLType! as GraphQLObjectType<LinksMetadata>;
 
   final __linksMetadataGraphQLType =
       objectType<LinksMetadata>(__name, isInterface: false, interfaces: []);
 
-  _linksMetadataGraphQLType = __linksMetadataGraphQLType;
+  setValue(__linksMetadataGraphQLType);
   __linksMetadataGraphQLType.fields.addAll(
     [
       linkMetadataGraphQLType
@@ -81,7 +75,11 @@ GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType {
   );
 
   return __linksMetadataGraphQLType;
-}
+});
+
+/// Auto-generated from [LinksMetadata].
+GraphQLObjectType<LinksMetadata> get linksMetadataGraphQLType =>
+    _linksMetadataGraphQLType.value;
 
 final linkMetadataSerializer = SerializerValue<LinkMetadata>(
   key: "LinkMetadata",
@@ -89,19 +87,14 @@ final linkMetadataSerializer = SerializerValue<LinkMetadata>(
       LinkMetadata.fromJson(json), // _$$_LinkMetadataFromJson,
   // toJson: (m) => _$$_LinkMetadataToJson(m as _$_LinkMetadata),
 );
-
-GraphQLObjectType<LinkMetadata>? _linkMetadataGraphQLType;
-
-/// Auto-generated from [LinkMetadata].
-GraphQLObjectType<LinkMetadata> get linkMetadataGraphQLType {
+final _linkMetadataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<LinkMetadata>>((setValue) {
   final __name = 'LinkMetadata';
-  if (_linkMetadataGraphQLType != null)
-    return _linkMetadataGraphQLType! as GraphQLObjectType<LinkMetadata>;
 
   final __linkMetadataGraphQLType =
       objectType<LinkMetadata>(__name, isInterface: false, interfaces: []);
 
-  _linkMetadataGraphQLType = __linkMetadataGraphQLType;
+  setValue(__linkMetadataGraphQLType);
   __linkMetadataGraphQLType.fields.addAll(
     [
       graphQLString.field('title', resolve: (obj, ctx) => obj.title),
@@ -113,7 +106,11 @@ GraphQLObjectType<LinkMetadata> get linkMetadataGraphQLType {
   );
 
   return __linkMetadataGraphQLType;
-}
+});
+
+/// Auto-generated from [LinkMetadata].
+GraphQLObjectType<LinkMetadata> get linkMetadataGraphQLType =>
+    _linkMetadataGraphQLType.value;
 
 final fileMetadataSerializer = SerializerValue<FileMetadata>(
   key: "FileMetadata",
@@ -121,19 +118,14 @@ final fileMetadataSerializer = SerializerValue<FileMetadata>(
       FileMetadata.fromJson(json), // _$$_FileMetadataFromJson,
   // toJson: (m) => _$$_FileMetadataToJson(m as _$_FileMetadata),
 );
-
-GraphQLObjectType<FileMetadata>? _fileMetadataGraphQLType;
-
-/// Auto-generated from [FileMetadata].
-GraphQLObjectType<FileMetadata> get fileMetadataGraphQLType {
+final _fileMetadataGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<FileMetadata>>((setValue) {
   final __name = 'FileMetadata';
-  if (_fileMetadataGraphQLType != null)
-    return _fileMetadataGraphQLType! as GraphQLObjectType<FileMetadata>;
 
   final __fileMetadataGraphQLType =
       objectType<FileMetadata>(__name, isInterface: false, interfaces: []);
 
-  _fileMetadataGraphQLType = __fileMetadataGraphQLType;
+  setValue(__fileMetadataGraphQLType);
   __fileMetadataGraphQLType.fields.addAll(
     [
       graphQLInt
@@ -154,7 +146,11 @@ GraphQLObjectType<FileMetadata> get fileMetadataGraphQLType {
   );
 
   return __fileMetadataGraphQLType;
-}
+});
+
+/// Auto-generated from [FileMetadata].
+GraphQLObjectType<FileMetadata> get fileMetadataGraphQLType =>
+    _fileMetadataGraphQLType.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

@@ -6,74 +6,88 @@ part of 'generator_test.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final addTestModelGraphQLField = testModelGraphQLType.field<Object?>(
-  'addTestModel',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
-    if ((args["previous"] as TestModel?) != null) {
-      final previousValidationResult =
-          validateTestModel((args["previous"] as TestModel?) as TestModel);
-      if (previousValidationResult.hasErrors) {
-        throw previousValidationResult;
-      }
-    }
+GraphQLObjectField<TestModel?, Object?, Object?> get addTestModelGraphQLField =>
+    _addTestModelGraphQLField.value;
+final _addTestModelGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<TestModel?, Object?,
+        Object?>>((setValue) => setValue(testModelGraphQLType.field<Object?>(
+      'addTestModel',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
+        if ((args["previous"] as TestModel?) != null) {
+          final previousValidationResult =
+              validateTestModel((args["previous"] as TestModel?) as TestModel);
+          if (previousValidationResult.hasErrors) {
+            throw previousValidationResult;
+          }
+        }
 
-    return addTestModel(ctx, (args["realName"] as String),
-        previous: (args["previous"] as TestModel?),
-        name: (args["name"] as String),
-        value: (args["value"] as List<int>));
-  },
-  inputs: [
-    graphQLString.nonNull().coerceToInputObject().inputField('realName'),
-    testModelGraphQLType.coerceToInputObject().inputField('previous'),
-    graphQLString.nonNull().coerceToInputObject().inputField('name'),
-    graphQLInt
-        .nonNull()
-        .list()
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('value')
-  ],
-  description: r"the function uses [value] to do stuff",
-);
+        return addTestModel(ctx, (args["realName"] as String),
+            previous: (args["previous"] as TestModel?),
+            name: (args["name"] as String),
+            value: (args["value"] as List<int>));
+      },
+      description: r"the function uses [value] to do stuff",
+    ))
+      ..inputs.addAll([
+        graphQLString.nonNull().coerceToInputObject().inputField('realName'),
+        testModelGraphQLType.coerceToInputObject().inputField('previous'),
+        graphQLString.nonNull().coerceToInputObject().inputField('name'),
+        graphQLInt
+            .nonNull()
+            .list()
+            .nonNull()
+            .coerceToInputObject()
+            .inputField('value')
+      ]));
 
-final testModelsGraphQLField =
-    testModelGraphQLType.nonNull().list().nonNull().field<Object?>(
-  'testModels',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<List<TestModel>, Object?, Object?>
+    get testModelsGraphQLField => _testModelsGraphQLField.value;
+final _testModelsGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<List<TestModel>, Object?, Object?>>(
+    (setValue) =>
+        setValue(testModelGraphQLType.nonNull().list().nonNull().field<Object?>(
+          'testModels',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return testModels(ctx, (args["lessThan"] as DateTime),
-        position: (args["position"] as int));
-  },
-  inputs: [
-    graphQLDate
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('lessThan', description: 'pagination less than'),
-    graphQLInt
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('position', defaultValue: 0, description: 'pagination')
-  ],
-  description: r"Automatic documentation generated\n[position] is the pad",
-);
+            return testModels(ctx, (args["lessThan"] as DateTime),
+                position: (args["position"] as int));
+          },
+          description:
+              r"Automatic documentation generated\n[position] is the pad",
+        ))
+          ..inputs.addAll([
+            graphQLDate
+                .nonNull()
+                .coerceToInputObject()
+                .inputField('lessThan', description: 'pagination less than'),
+            graphQLInt.nonNull().coerceToInputObject().inputField('position',
+                defaultValue: 0, description: 'pagination')
+          ]));
 
-final testUnionModelsGraphQLField =
-    eventUnionGraphQLType.list().nonNull().field<Object?>(
-  'testUnionModels',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<List<EventUnion?>, Object?, Object?>
+    get testUnionModelsGraphQLField => _testUnionModelsGraphQLField.value;
+final _testUnionModelsGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<List<EventUnion?>, Object?, Object?>>(
+    (setValue) =>
+        setValue(eventUnionGraphQLType.list().nonNull().field<Object?>(
+          'testUnionModels',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return testUnionModels(ctx, positions: (args["positions"] as List<int?>));
-  },
-  inputs: [
-    graphQLInt.list().nonNull().coerceToInputObject().inputField('positions',
-        defaultValue: const [], description: 'pagination')
-  ],
-  description:
-      r"testUnionModels documentation generated\n[position] is the pad",
-);
+            return testUnionModels(ctx,
+                positions: (args["positions"] as List<int?>));
+          },
+          description:
+              r"testUnionModels documentation generated\n[position] is the pad",
+        ))
+          ..inputs.addAll([
+            graphQLInt.list().nonNull().coerceToInputObject().inputField(
+                'positions',
+                defaultValue: const [],
+                description: 'pagination')
+          ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -84,19 +98,14 @@ final testModelSerializer = SerializerValue<TestModel>(
   fromJson: (ctx, json) => TestModel.fromJson(json), // _$TestModelFromJson,
   // toJson: (m) => _$TestModelToJson(m as TestModel),
 );
-
-GraphQLObjectType<TestModel>? _testModelGraphQLType;
-
-/// Auto-generated from [TestModel].
-GraphQLObjectType<TestModel> get testModelGraphQLType {
+final _testModelGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<TestModel>>((setValue) {
   final __name = 'TestModel';
-  if (_testModelGraphQLType != null)
-    return _testModelGraphQLType! as GraphQLObjectType<TestModel>;
 
   final __testModelGraphQLType = objectType<TestModel>(__name,
       isInterface: false, interfaces: [], description: 'Custom doc');
 
-  _testModelGraphQLType = __testModelGraphQLType;
+  setValue(__testModelGraphQLType);
   __testModelGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
@@ -113,20 +122,20 @@ GraphQLObjectType<TestModel> get testModelGraphQLType {
   );
 
   return __testModelGraphQLType;
-}
+});
 
-GraphQLObjectType<TestModelFreezed>? _testModelFreezedGraphQLType;
+/// Auto-generated from [TestModel].
+GraphQLObjectType<TestModel> get testModelGraphQLType =>
+    _testModelGraphQLType.value;
 
-/// Auto-generated from [TestModelFreezed].
-GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
+final _testModelFreezedGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<TestModelFreezed>>((setValue) {
   final __name = 'TestModelFreezed';
-  if (_testModelFreezedGraphQLType != null)
-    return _testModelFreezedGraphQLType! as GraphQLObjectType<TestModelFreezed>;
 
   final __testModelFreezedGraphQLType =
       objectType<TestModelFreezed>(__name, isInterface: false, interfaces: []);
 
-  _testModelFreezedGraphQLType = __testModelFreezedGraphQLType;
+  setValue(__testModelFreezedGraphQLType);
   __testModelFreezedGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
@@ -143,7 +152,11 @@ GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType {
   );
 
   return __testModelFreezedGraphQLType;
-}
+});
+
+/// Auto-generated from [TestModelFreezed].
+GraphQLObjectType<TestModelFreezed> get testModelFreezedGraphQLType =>
+    _testModelFreezedGraphQLType.value;
 
 final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
   key: "_EventUnionAdd",
@@ -151,19 +164,14 @@ final eventUnionAddSerializer = SerializerValue<_EventUnionAdd>(
       _EventUnionAdd.fromJson(json), // _$$_EventUnionAddFromJson,
   // toJson: (m) => _$$_EventUnionAddToJson(m as _$_EventUnionAdd),
 );
-
-GraphQLObjectType<_EventUnionAdd>? _eventUnionAddGraphQLType;
-
-/// Auto-generated from [_EventUnionAdd].
-GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
+final _eventUnionAddGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<_EventUnionAdd>>((setValue) {
   final __name = 'EventUnionAdd';
-  if (_eventUnionAddGraphQLType != null)
-    return _eventUnionAddGraphQLType! as GraphQLObjectType<_EventUnionAdd>;
 
   final __eventUnionAddGraphQLType =
       objectType<_EventUnionAdd>(__name, isInterface: false, interfaces: []);
 
-  _eventUnionAddGraphQLType = __eventUnionAddGraphQLType;
+  setValue(__eventUnionAddGraphQLType);
   __eventUnionAddGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
@@ -184,7 +192,11 @@ GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType {
   );
 
   return __eventUnionAddGraphQLType;
-}
+});
+
+/// Auto-generated from [_EventUnionAdd].
+GraphQLObjectType<_EventUnionAdd> get eventUnionAddGraphQLType =>
+    _eventUnionAddGraphQLType.value;
 
 final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
   key: "EventUnionDelete",
@@ -192,19 +204,14 @@ final eventUnionDeleteSerializer = SerializerValue<EventUnionDelete>(
       EventUnionDelete.fromJson(json), // _$$EventUnionDeleteFromJson,
   // toJson: (m) => _$$EventUnionDeleteToJson(m as _$EventUnionDelete),
 );
-
-GraphQLObjectType<EventUnionDelete>? _eventUnionDeleteGraphQLType;
-
-/// Auto-generated from [EventUnionDelete].
-GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
+final _eventUnionDeleteGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<EventUnionDelete>>((setValue) {
   final __name = 'EventUnionDelete';
-  if (_eventUnionDeleteGraphQLType != null)
-    return _eventUnionDeleteGraphQLType! as GraphQLObjectType<EventUnionDelete>;
 
   final __eventUnionDeleteGraphQLType =
       objectType<EventUnionDelete>(__name, isInterface: false, interfaces: []);
 
-  _eventUnionDeleteGraphQLType = __eventUnionDeleteGraphQLType;
+  setValue(__eventUnionDeleteGraphQLType);
   __eventUnionDeleteGraphQLType.fields.addAll(
     [
       graphQLString.field('name', resolve: (obj, ctx) => obj.name),
@@ -220,7 +227,11 @@ GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType {
   );
 
   return __eventUnionDeleteGraphQLType;
-}
+});
+
+/// Auto-generated from [EventUnionDelete].
+GraphQLObjectType<EventUnionDelete> get eventUnionDeleteGraphQLType =>
+    _eventUnionDeleteGraphQLType.value;
 
 final eventUnionSerializer = SerializerValue<EventUnion>(
   key: "EventUnion",
@@ -228,21 +239,23 @@ final eventUnionSerializer = SerializerValue<EventUnion>(
   // toJson: (m) => _$EventUnionToJson(m as EventUnion),
 );
 
-GraphQLUnionType<EventUnion>? _eventUnionGraphQLType;
-
 /// Generated from [EventUnion]
-GraphQLUnionType<EventUnion> get eventUnionGraphQLType {
-  if (_eventUnionGraphQLType != null) return _eventUnionGraphQLType!;
-  _eventUnionGraphQLType = GraphQLUnionType(
+GraphQLUnionType<EventUnion> get eventUnionGraphQLType =>
+    _eventUnionGraphQLType.value;
+
+final _eventUnionGraphQLType =
+    HotReloadableDefinition<GraphQLUnionType<EventUnion>>((setValue) {
+  final type = GraphQLUnionType<EventUnion>(
     'EventUnion',
     const [],
   );
-  _eventUnionGraphQLType!.possibleTypes.addAll([
+  setValue(type);
+  type.possibleTypes.addAll([
     eventUnionAddGraphQLType,
     eventUnionDeleteGraphQLType,
   ]);
-  return _eventUnionGraphQLType!;
-}
+  return type;
+});
 
 // **************************************************************************
 // JsonSerializableGenerator

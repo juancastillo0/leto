@@ -6,110 +6,146 @@ part of 'generics.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final getIntGraphQLField =
-    resultVGraphQLType<int, String?>(graphQLInt.nonNull(), graphQLString)
-        .nonNull()
-        .field<Object?>(
-  'getInt',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ResultV<int, String?>, Object?, Object?>
+    get getIntGraphQLField => _getIntGraphQLField.value;
+final _getIntGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<ResultV<int, String?>, Object?, Object?>>(
+    (setValue) => setValue(resultVGraphQLType<int, String?>(
+                graphQLInt.nonNull(), graphQLString)
+            .nonNull()
+            .field<Object?>(
+          'getInt',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return getInt();
-  },
-);
+            return getInt();
+          },
+        )));
 
-final getIntReqGraphQLField = resultVGraphQLType<int, String>(
-        graphQLInt.nonNull(), graphQLString.nonNull())
-    .nonNull()
-    .field<Object?>(
-  'getIntReq',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ResultV<int, String>, Object?, Object?>
+    get getIntReqGraphQLField => _getIntReqGraphQLField.value;
+final _getIntReqGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<ResultV<int, String>, Object?, Object?>>(
+    (setValue) => setValue(resultVGraphQLType<int, String>(
+                graphQLInt.nonNull(), graphQLString.nonNull())
+            .nonNull()
+            .field<Object?>(
+          'getIntReq',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return getIntReq();
-  },
-);
+            return getIntReq();
+          },
+        )));
 
-final getIntNullGraphQLField =
-    resultVGraphQLType<int?, String?>(graphQLInt, graphQLString)
-        .nonNull()
-        .field<Object?>(
-  'getIntNull',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ResultV<int?, String?>, Object?, Object?>
+    get getIntNullGraphQLField => _getIntNullGraphQLField.value;
+final _getIntNullGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<ResultV<int?, String?>, Object?, Object?>>(
+    (setValue) => setValue(
+            resultVGraphQLType<int?, String?>(graphQLInt, graphQLString)
+                .nonNull()
+                .field<Object?>(
+          'getIntNull',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return getIntNull();
-  },
-);
+            return getIntNull();
+          },
+        )));
 
-final getIntInterfaceGraphQLField =
-    resultVGraphQLType<int?, ErrCodeInterface<String>>(
+GraphQLObjectField<ResultV<int?, ErrCodeInterface<String>>, Object?, Object?>
+    get getIntInterfaceGraphQLField => _getIntInterfaceGraphQLField.value;
+final _getIntInterfaceGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<ResultV<int?, ErrCodeInterface<String>>, Object?,
+        Object?>>((setValue) =>
+    setValue(resultVGraphQLType<int?, ErrCodeInterface<String>>(
             graphQLInt,
             errCodeInterfaceGraphQLType<String>(graphQLString.nonNull())
                 .nonNull())
         .nonNull()
         .field<Object?>(
-  'getIntInterface',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+      'getIntInterface',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
 
-    return getIntInterface();
-  },
-);
+        return getIntInterface();
+      },
+    )));
 
-final getIntInterfaceEnumGraphQLField =
-    resultVGraphQLType<int, ErrCodeInterface<ErrCodeType>>(
+GraphQLObjectField<ResultV<int, ErrCodeInterface<ErrCodeType>>, Object?,
+        Object?>
+    get getIntInterfaceEnumGraphQLField =>
+        _getIntInterfaceEnumGraphQLField.value;
+final _getIntInterfaceEnumGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<ResultV<int, ErrCodeInterface<ErrCodeType>>, Object?,
+        Object?>>((setValue) =>
+    setValue(resultVGraphQLType<int, ErrCodeInterface<ErrCodeType>>(
             graphQLInt.nonNull(),
             errCodeInterfaceGraphQLType<ErrCodeType>(
                     errCodeTypeGraphQLType.nonNull())
                 .nonNull())
         .nonNull()
         .field<Object?>(
-  'getIntInterfaceEnum',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+      'getIntInterfaceEnum',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
 
-    return getIntInterfaceEnum();
-  },
-);
+        return getIntInterfaceEnum();
+      },
+    )));
 
-final getIntInterfaceEnumListGraphQLField =
-    resultVGraphQLType<List<int?>, ErrCodeInterface<List<ErrCodeType>>>(
-            graphQLInt.list().nonNull(),
-            errCodeInterfaceGraphQLType<List<ErrCodeType>>(
-                    errCodeTypeGraphQLType.nonNull().list().nonNull())
-                .nonNull())
-        .nonNull()
-        .field<Object?>(
-  'getIntInterfaceEnumList',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ResultV<List<int?>, ErrCodeInterface<List<ErrCodeType>>>,
+        Object?, Object?>
+    get getIntInterfaceEnumListGraphQLField =>
+        _getIntInterfaceEnumListGraphQLField.value;
+final _getIntInterfaceEnumListGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<ResultV<List<int?>, ErrCodeInterface<List<ErrCodeType>>>,
+        Object?, Object?>>((setValue) =>
+    setValue(
+        resultVGraphQLType<List<int?>, ErrCodeInterface<List<ErrCodeType>>>(
+                graphQLInt.list().nonNull(),
+                errCodeInterfaceGraphQLType<List<ErrCodeType>>(
+                        errCodeTypeGraphQLType.nonNull().list().nonNull())
+                    .nonNull())
+            .nonNull()
+            .field<Object?>(
+      'getIntInterfaceEnumList',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
 
-    return getIntInterfaceEnumList();
-  },
-);
+        return getIntInterfaceEnumList();
+      },
+    )));
 
-final getIntInterfaceNEnumNullGraphQLField =
-    resultVGraphQLType<int, ErrCodeInterfaceN<ErrCodeType?>>(
+GraphQLObjectField<ResultV<int, ErrCodeInterfaceN<ErrCodeType?>>, Object?,
+        Object?>
+    get getIntInterfaceNEnumNullGraphQLField =>
+        _getIntInterfaceNEnumNullGraphQLField.value;
+final _getIntInterfaceNEnumNullGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<ResultV<int, ErrCodeInterfaceN<ErrCodeType?>>, Object?,
+        Object?>>((setValue) =>
+    setValue(resultVGraphQLType<int, ErrCodeInterfaceN<ErrCodeType?>>(
             graphQLInt.nonNull(),
             errCodeInterfaceNGraphQLType<ErrCodeType?>(errCodeTypeGraphQLType)
                 .nonNull(),
             name: 'LastGetIntResult')
         .nonNull()
         .field<Object?>(
-  'getIntInterfaceNEnumNull',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+      'getIntInterfaceNEnumNull',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
 
-    return getIntInterfaceNEnumNull();
-  },
-);
+        return getIntInterfaceNEnumNull();
+      },
+    )));
 
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
 
-Map<String, GraphQLObjectType<OkV>> _okVGraphQLType = {};
+final _okVGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<OkV>>>((_) => {});
 
 /// Auto-generated from [OkV].
 GraphQLObjectType<OkV<V, E>> okVGraphQLType<V, E>(
@@ -118,13 +154,12 @@ GraphQLObjectType<OkV<V, E>> okVGraphQLType<V, E>(
 ) {
   final __name =
       'OkV${vGraphQLType.printableName}${eGraphQLType.printableName}';
-  if (_okVGraphQLType[__name] != null)
-    return _okVGraphQLType[__name]! as GraphQLObjectType<OkV<V, E>>;
-
+  if (_okVGraphQLType.value[__name] != null)
+    return _okVGraphQLType.value[__name]! as GraphQLObjectType<OkV<V, E>>;
   final __okVGraphQLType =
       objectType<OkV<V, E>>(__name, isInterface: false, interfaces: []);
 
-  _okVGraphQLType[__name] = __okVGraphQLType;
+  _okVGraphQLType.value[__name] = __okVGraphQLType;
   __okVGraphQLType.fields.addAll(
     [
       vGraphQLType.field('value', resolve: (obj, ctx) => obj.value),
@@ -135,7 +170,8 @@ GraphQLObjectType<OkV<V, E>> okVGraphQLType<V, E>(
   return __okVGraphQLType;
 }
 
-Map<String, GraphQLObjectType<ErrV>> _errVGraphQLType = {};
+final _errVGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<ErrV>>>((_) => {});
 
 /// Auto-generated from [ErrV].
 GraphQLObjectType<ErrV<V, E>> errVGraphQLType<V, E>(
@@ -144,13 +180,12 @@ GraphQLObjectType<ErrV<V, E>> errVGraphQLType<V, E>(
 ) {
   final __name =
       'ErrV${vGraphQLType.printableName}${eGraphQLType.printableName}';
-  if (_errVGraphQLType[__name] != null)
-    return _errVGraphQLType[__name]! as GraphQLObjectType<ErrV<V, E>>;
-
+  if (_errVGraphQLType.value[__name] != null)
+    return _errVGraphQLType.value[__name]! as GraphQLObjectType<ErrV<V, E>>;
   final __errVGraphQLType =
       objectType<ErrV<V, E>>(__name, isInterface: false, interfaces: []);
 
-  _errVGraphQLType[__name] = __errVGraphQLType;
+  _errVGraphQLType.value[__name] = __errVGraphQLType;
   __errVGraphQLType.fields.addAll(
     [
       eGraphQLType.field('value', resolve: (obj, ctx) => obj.value),
@@ -161,8 +196,9 @@ GraphQLObjectType<ErrV<V, E>> errVGraphQLType<V, E>(
   return __errVGraphQLType;
 }
 
-Map<String, GraphQLObjectType<ErrCodeInterface>> _errCodeInterfaceGraphQLType =
-    {};
+final _errCodeInterfaceGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<ErrCodeInterface>>>(
+        (_) => {});
 
 /// Auto-generated from [ErrCodeInterface].
 GraphQLObjectType<ErrCodeInterface<T>>
@@ -170,14 +206,13 @@ GraphQLObjectType<ErrCodeInterface<T>>
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'ErrCodeInterface${tGraphQLType.printableName}';
-  if (_errCodeInterfaceGraphQLType[__name] != null)
-    return _errCodeInterfaceGraphQLType[__name]!
+  if (_errCodeInterfaceGraphQLType.value[__name] != null)
+    return _errCodeInterfaceGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterface<T>>;
-
   final __errCodeInterfaceGraphQLType = objectType<ErrCodeInterface<T>>(__name,
       isInterface: false, interfaces: []);
 
-  _errCodeInterfaceGraphQLType[__name] = __errCodeInterfaceGraphQLType;
+  _errCodeInterfaceGraphQLType.value[__name] = __errCodeInterfaceGraphQLType;
   __errCodeInterfaceGraphQLType.fields.addAll(
     [
       graphQLString.field('message', resolve: (obj, ctx) => obj.message),
@@ -188,8 +223,9 @@ GraphQLObjectType<ErrCodeInterface<T>>
   return __errCodeInterfaceGraphQLType;
 }
 
-Map<String, GraphQLObjectType<ErrCodeInterfaceN>>
-    _errCodeInterfaceNGraphQLType = {};
+final _errCodeInterfaceNGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<ErrCodeInterfaceN>>>(
+        (_) => {});
 
 /// Auto-generated from [ErrCodeInterfaceN].
 GraphQLObjectType<ErrCodeInterfaceN<T>>
@@ -197,16 +233,15 @@ GraphQLObjectType<ErrCodeInterfaceN<T>>
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'ErrCodeInterfaceN${tGraphQLType.printableName}';
-  if (_errCodeInterfaceNGraphQLType[__name] != null)
-    return _errCodeInterfaceNGraphQLType[__name]!
+  if (_errCodeInterfaceNGraphQLType.value[__name] != null)
+    return _errCodeInterfaceNGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceN<T>>;
-
   final __errCodeInterfaceNGraphQLType = objectType<ErrCodeInterfaceN<T>>(
       __name,
       isInterface: false,
       interfaces: []);
 
-  _errCodeInterfaceNGraphQLType[__name] = __errCodeInterfaceNGraphQLType;
+  _errCodeInterfaceNGraphQLType.value[__name] = __errCodeInterfaceNGraphQLType;
   __errCodeInterfaceNGraphQLType.fields.addAll(
     [
       graphQLString.field('message', resolve: (obj, ctx) => obj.message),
@@ -217,24 +252,25 @@ GraphQLObjectType<ErrCodeInterfaceN<T>>
   return __errCodeInterfaceNGraphQLType;
 }
 
-Map<String, GraphQLObjectType<ErrCodeInterfaceNE>>
-    _errCodeInterfaceNEGraphQLType = {};
+final _errCodeInterfaceNEGraphQLType =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<ErrCodeInterfaceNE>>>(
+        (_) => {});
 
 /// Auto-generated from [ErrCodeInterfaceNE].
 GraphQLObjectType<ErrCodeInterfaceNE<T>> errCodeInterfaceNEGraphQLType<T>(
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'ErrCodeInterfaceNE${tGraphQLType.printableName}';
-  if (_errCodeInterfaceNEGraphQLType[__name] != null)
-    return _errCodeInterfaceNEGraphQLType[__name]!
+  if (_errCodeInterfaceNEGraphQLType.value[__name] != null)
+    return _errCodeInterfaceNEGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceNE<T>>;
-
   final __errCodeInterfaceNEGraphQLType = objectType<ErrCodeInterfaceNE<T>>(
       __name,
       isInterface: false,
       interfaces: []);
 
-  _errCodeInterfaceNEGraphQLType[__name] = __errCodeInterfaceNEGraphQLType;
+  _errCodeInterfaceNEGraphQLType.value[__name] =
+      __errCodeInterfaceNEGraphQLType;
   __errCodeInterfaceNEGraphQLType.fields.addAll(
     [
       graphQLString.field('message', resolve: (obj, ctx) => obj.message),
@@ -245,18 +281,14 @@ GraphQLObjectType<ErrCodeInterfaceNE<T>> errCodeInterfaceNEGraphQLType<T>(
   return __errCodeInterfaceNEGraphQLType;
 }
 
-GraphQLObjectType<ErrCode>? _errCodeGraphQLType;
-
-/// Auto-generated from [ErrCode].
-GraphQLObjectType<ErrCode> get errCodeGraphQLType {
+final _errCodeGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ErrCode>>((setValue) {
   final __name = 'ErrCode';
-  if (_errCodeGraphQLType != null)
-    return _errCodeGraphQLType! as GraphQLObjectType<ErrCode>;
 
   final __errCodeGraphQLType =
       objectType<ErrCode>(__name, isInterface: true, interfaces: []);
 
-  _errCodeGraphQLType = __errCodeGraphQLType;
+  setValue(__errCodeGraphQLType);
   __errCodeGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value),
@@ -265,10 +297,13 @@ GraphQLObjectType<ErrCode> get errCodeGraphQLType {
   );
 
   return __errCodeGraphQLType;
-}
+});
 
-Map<String, GraphQLObjectType<ErrCodeInterfaceNEE>>
-    _errCodeInterfaceNEEGraphQLType = {};
+/// Auto-generated from [ErrCode].
+GraphQLObjectType<ErrCode> get errCodeGraphQLType => _errCodeGraphQLType.value;
+
+final _errCodeInterfaceNEEGraphQLType = HotReloadableDefinition<
+    Map<String, GraphQLObjectType<ErrCodeInterfaceNEE>>>((_) => {});
 
 /// Auto-generated from [ErrCodeInterfaceNEE].
 GraphQLObjectType<ErrCodeInterfaceNEE<T>>
@@ -276,16 +311,16 @@ GraphQLObjectType<ErrCodeInterfaceNEE<T>>
   GraphQLType<T, Object> tGraphQLType,
 ) {
   final __name = 'ErrCodeInterfaceNEE${tGraphQLType.printableName}';
-  if (_errCodeInterfaceNEEGraphQLType[__name] != null)
-    return _errCodeInterfaceNEEGraphQLType[__name]!
+  if (_errCodeInterfaceNEEGraphQLType.value[__name] != null)
+    return _errCodeInterfaceNEEGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceNEE<T>>;
-
   final __errCodeInterfaceNEEGraphQLType = objectType<ErrCodeInterfaceNEE<T>>(
       __name,
       isInterface: false,
       interfaces: []);
 
-  _errCodeInterfaceNEEGraphQLType[__name] = __errCodeInterfaceNEEGraphQLType;
+  _errCodeInterfaceNEEGraphQLType.value[__name] =
+      __errCodeInterfaceNEEGraphQLType;
   __errCodeInterfaceNEEGraphQLType.fields.addAll(
     [
       graphQLString.field('message', resolve: (obj, ctx) => obj.message),

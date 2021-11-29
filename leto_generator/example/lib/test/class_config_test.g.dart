@@ -6,42 +6,44 @@ part of 'class_config_test.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final getClassConfig2GraphQLField =
-    classConfig2GraphQLType.nonNull().field<Object?>(
-  'getClassConfig2',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ClassConfig2, Object?, Object?>
+    get getClassConfig2GraphQLField => _getClassConfig2GraphQLField.value;
+final _getClassConfig2GraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<ClassConfig2, Object?, Object?>>(
+        (setValue) => setValue(classConfig2GraphQLType.nonNull().field<Object?>(
+              'getClassConfig2',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return getClassConfig2();
-  },
-);
+                return getClassConfig2();
+              },
+            )));
 
-final getClassConfigGraphQLField =
-    classConfigGraphQLType.nonNull().field<Object?>(
-  'getClassConfig',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ClassConfig, Object?, Object?>
+    get getClassConfigGraphQLField => _getClassConfigGraphQLField.value;
+final _getClassConfigGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<ClassConfig, Object?, Object?>>(
+        (setValue) => setValue(classConfigGraphQLType.nonNull().field<Object?>(
+              'getClassConfig',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return getClassConfig();
-  },
-);
+                return getClassConfig();
+              },
+            )));
 
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
 
-GraphQLObjectType<ClassConfig>? _classConfigGraphQLType;
-
-/// Auto-generated from [ClassConfig].
-GraphQLObjectType<ClassConfig> get classConfigGraphQLType {
+final _classConfigGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ClassConfig>>((setValue) {
   final __name = 'RenamedClassConfig';
-  if (_classConfigGraphQLType != null)
-    return _classConfigGraphQLType! as GraphQLObjectType<ClassConfig>;
 
   final __classConfigGraphQLType =
       objectType<ClassConfig>(__name, isInterface: false, interfaces: []);
 
-  _classConfigGraphQLType = __classConfigGraphQLType;
+  setValue(__classConfigGraphQLType);
   __classConfigGraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('value',
@@ -55,20 +57,20 @@ GraphQLObjectType<ClassConfig> get classConfigGraphQLType {
   );
 
   return __classConfigGraphQLType;
-}
+});
 
-GraphQLObjectType<ClassConfig2>? _classConfig2GraphQLType;
+/// Auto-generated from [ClassConfig].
+GraphQLObjectType<ClassConfig> get classConfigGraphQLType =>
+    _classConfigGraphQLType.value;
 
-/// Auto-generated from [ClassConfig2].
-GraphQLObjectType<ClassConfig2> get classConfig2GraphQLType {
+final _classConfig2GraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ClassConfig2>>((setValue) {
   final __name = 'ClassConfig2';
-  if (_classConfig2GraphQLType != null)
-    return _classConfig2GraphQLType! as GraphQLObjectType<ClassConfig2>;
 
   final __classConfig2GraphQLType = objectType<ClassConfig2>(__name,
       isInterface: false, interfaces: [customInterface]);
 
-  _classConfig2GraphQLType = __classConfig2GraphQLType;
+  setValue(__classConfig2GraphQLType);
   __classConfig2GraphQLType.fields.addAll(
     [
       graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value),
@@ -81,4 +83,8 @@ GraphQLObjectType<ClassConfig2> get classConfig2GraphQLType {
   );
 
   return __classConfig2GraphQLType;
-}
+});
+
+/// Auto-generated from [ClassConfig2].
+GraphQLObjectType<ClassConfig2> get classConfig2GraphQLType =>
+    _classConfig2GraphQLType.value;

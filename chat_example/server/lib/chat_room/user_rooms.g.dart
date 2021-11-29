@@ -6,38 +6,46 @@ part of 'user_rooms.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final addChatRoomUserGraphQLField = chatRoomUserGraphQLType.field<Object?>(
-  'addChatRoomUser',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<ChatRoomUser?, Object?, Object?>
+    get addChatRoomUserGraphQLField => _addChatRoomUserGraphQLField.value;
+final _addChatRoomUserGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<ChatRoomUser?, Object?, Object?>>(
+    (setValue) => setValue(chatRoomUserGraphQLType.field<Object?>(
+          'addChatRoomUser',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-    return addChatRoomUser(
-        ctx, (args["chatId"] as int), (args["userId"] as int),
-        role: (args["role"] as ChatRoomUserRole));
-  },
-  inputs: [
-    graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
-    graphQLInt.nonNull().coerceToInputObject().inputField('userId'),
-    chatRoomUserRoleGraphQLType
-        .nonNull()
-        .coerceToInputObject()
-        .inputField('role', defaultValue: ChatRoomUserRole.peer)
-  ],
-);
+            return addChatRoomUser(
+                ctx, (args["chatId"] as int), (args["userId"] as int),
+                role: (args["role"] as ChatRoomUserRole));
+          },
+        ))
+          ..inputs.addAll([
+            graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
+            graphQLInt.nonNull().coerceToInputObject().inputField('userId'),
+            chatRoomUserRoleGraphQLType
+                .nonNull()
+                .coerceToInputObject()
+                .inputField('role', defaultValue: ChatRoomUserRole.peer)
+          ]));
 
-final deleteChatRoomUserGraphQLField = graphQLBoolean.nonNull().field<Object?>(
-  'deleteChatRoomUser',
-  resolve: (obj, ctx) {
-    final args = ctx.args;
+GraphQLObjectField<bool, Object?, Object?> get deleteChatRoomUserGraphQLField =>
+    _deleteChatRoomUserGraphQLField.value;
+final _deleteChatRoomUserGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<bool, Object?, Object?>>(
+        (setValue) => setValue(graphQLBoolean.nonNull().field<Object?>(
+              'deleteChatRoomUser',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-    return deleteChatRoomUser(
-        ctx, (args["chatId"] as int), (args["userId"] as int));
-  },
-  inputs: [
-    graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
-    graphQLInt.nonNull().coerceToInputObject().inputField('userId')
-  ],
-);
+                return deleteChatRoomUser(
+                    ctx, (args["chatId"] as int), (args["userId"] as int));
+              },
+            ))
+              ..inputs.addAll([
+                graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
+                graphQLInt.nonNull().coerceToInputObject().inputField('userId')
+              ]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -49,20 +57,14 @@ final userChatAddedEventSerializer = SerializerValue<UserChatAddedEvent>(
       UserChatAddedEvent.fromJson(json), // _$$UserChatAddedEventFromJson,
   // toJson: (m) => _$$UserChatAddedEventToJson(m as _$UserChatAddedEvent),
 );
-
-GraphQLObjectType<UserChatAddedEvent>? _userChatAddedEventGraphQLType;
-
-/// Auto-generated from [UserChatAddedEvent].
-GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQLType {
+final _userChatAddedEventGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<UserChatAddedEvent>>((setValue) {
   final __name = 'UserChatAddedEvent';
-  if (_userChatAddedEventGraphQLType != null)
-    return _userChatAddedEventGraphQLType!
-        as GraphQLObjectType<UserChatAddedEvent>;
 
   final __userChatAddedEventGraphQLType = objectType<UserChatAddedEvent>(__name,
       isInterface: false, interfaces: []);
 
-  _userChatAddedEventGraphQLType = __userChatAddedEventGraphQLType;
+  setValue(__userChatAddedEventGraphQLType);
   __userChatAddedEventGraphQLType.fields.addAll(
     [
       chatRoomUserGraphQLType
@@ -73,7 +75,11 @@ GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQLType {
   );
 
   return __userChatAddedEventGraphQLType;
-}
+});
+
+/// Auto-generated from [UserChatAddedEvent].
+GraphQLObjectType<UserChatAddedEvent> get userChatAddedEventGraphQLType =>
+    _userChatAddedEventGraphQLType.value;
 
 final userChatRemovedEventSerializer = SerializerValue<UserChatRemovedEvent>(
   key: "UserChatRemovedEvent",
@@ -81,22 +87,17 @@ final userChatRemovedEventSerializer = SerializerValue<UserChatRemovedEvent>(
       UserChatRemovedEvent.fromJson(json), // _$$UserChatRemovedEventFromJson,
   // toJson: (m) => _$$UserChatRemovedEventToJson(m as _$UserChatRemovedEvent),
 );
-
-GraphQLObjectType<UserChatRemovedEvent>? _userChatRemovedEventGraphQLType;
-
-/// Auto-generated from [UserChatRemovedEvent].
-GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQLType {
+final _userChatRemovedEventGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<UserChatRemovedEvent>>(
+        (setValue) {
   final __name = 'UserChatRemovedEvent';
-  if (_userChatRemovedEventGraphQLType != null)
-    return _userChatRemovedEventGraphQLType!
-        as GraphQLObjectType<UserChatRemovedEvent>;
 
   final __userChatRemovedEventGraphQLType = objectType<UserChatRemovedEvent>(
       __name,
       isInterface: false,
       interfaces: []);
 
-  _userChatRemovedEventGraphQLType = __userChatRemovedEventGraphQLType;
+  setValue(__userChatRemovedEventGraphQLType);
   __userChatRemovedEventGraphQLType.fields.addAll(
     [
       graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
@@ -105,7 +106,11 @@ GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQLType {
   );
 
   return __userChatRemovedEventGraphQLType;
-}
+});
+
+/// Auto-generated from [UserChatRemovedEvent].
+GraphQLObjectType<UserChatRemovedEvent> get userChatRemovedEventGraphQLType =>
+    _userChatRemovedEventGraphQLType.value;
 
 final userChatEventSerializer = SerializerValue<UserChatEvent>(
   key: "UserChatEvent",
@@ -114,21 +119,23 @@ final userChatEventSerializer = SerializerValue<UserChatEvent>(
   // toJson: (m) => _$UserChatEventToJson(m as UserChatEvent),
 );
 
-GraphQLUnionType<UserChatEvent>? _userChatEventGraphQLType;
-
 /// Generated from [UserChatEvent]
-GraphQLUnionType<UserChatEvent> get userChatEventGraphQLType {
-  if (_userChatEventGraphQLType != null) return _userChatEventGraphQLType!;
-  _userChatEventGraphQLType = GraphQLUnionType(
+GraphQLUnionType<UserChatEvent> get userChatEventGraphQLType =>
+    _userChatEventGraphQLType.value;
+
+final _userChatEventGraphQLType =
+    HotReloadableDefinition<GraphQLUnionType<UserChatEvent>>((setValue) {
+  final type = GraphQLUnionType<UserChatEvent>(
     'UserChatEvent',
     const [],
   );
-  _userChatEventGraphQLType!.possibleTypes.addAll([
+  setValue(type);
+  type.possibleTypes.addAll([
     userChatAddedEventGraphQLType,
     userChatRemovedEventGraphQLType,
   ]);
-  return _userChatEventGraphQLType!;
-}
+  return type;
+});
 
 final chatRoomUserSerializer = SerializerValue<ChatRoomUser>(
   key: "ChatRoomUser",
@@ -136,19 +143,14 @@ final chatRoomUserSerializer = SerializerValue<ChatRoomUser>(
       ChatRoomUser.fromJson(json), // _$ChatRoomUserFromJson,
   // toJson: (m) => _$ChatRoomUserToJson(m as ChatRoomUser),
 );
-
-GraphQLObjectType<ChatRoomUser>? _chatRoomUserGraphQLType;
-
-/// Auto-generated from [ChatRoomUser].
-GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQLType {
+final _chatRoomUserGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ChatRoomUser>>((setValue) {
   final __name = 'ChatRoomUser';
-  if (_chatRoomUserGraphQLType != null)
-    return _chatRoomUserGraphQLType! as GraphQLObjectType<ChatRoomUser>;
 
   final __chatRoomUserGraphQLType =
       objectType<ChatRoomUser>(__name, isInterface: false, interfaces: []);
 
-  _chatRoomUserGraphQLType = __chatRoomUserGraphQLType;
+  setValue(__chatRoomUserGraphQLType);
   __chatRoomUserGraphQLType.fields.addAll(
     [
       userGraphQLType.nonNull().field('user', resolve: (obj, ctx) {
@@ -168,7 +170,11 @@ GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQLType {
   );
 
   return __chatRoomUserGraphQLType;
-}
+});
+
+/// Auto-generated from [ChatRoomUser].
+GraphQLObjectType<ChatRoomUser> get chatRoomUserGraphQLType =>
+    _chatRoomUserGraphQLType.value;
 
 /// Auto-generated from [ChatRoomUserRole].
 final GraphQLEnumType<ChatRoomUserRole> chatRoomUserRoleGraphQLType =
