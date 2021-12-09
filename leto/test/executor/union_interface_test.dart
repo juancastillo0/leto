@@ -158,9 +158,10 @@ final PersonType = () {
     field('name', graphQLString),
     field('pets', listOf(PetType)),
     field('friends', listOf(NamedType)),
-    field('progeny', listOf(PersonType)),
-    field('mother', PersonType),
-    field('father', PersonType),
+    // TODO: deprecate toJson?
+    field('progeny', listOf(PersonType), resolve: (_, __) => null),
+    field('mother', PersonType, resolve: (_, __) => null),
+    field('father', PersonType, resolve: (_, __) => null),
   ]);
   return PersonType;
 }();

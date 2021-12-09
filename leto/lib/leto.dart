@@ -694,6 +694,8 @@ class GraphQL {
           rootValue.containsKey(fieldName)) {
         final value = rootValue[fieldName];
         result = await _extractResult(value);
+      } else if (defaultFieldResolver != null) {
+        result = defaultFieldResolver!(rootValue, reqCtx);
       } else {
         result = null;
       }
@@ -1055,8 +1057,10 @@ class GraphQL {
             );
             return value as T?;
           }
-
-          return null;
+          final objectName = fieldCtx.objectCtx.objectType.name;
+          throw GraphQLError(
+            'No resolver found for field "$fieldName" in object "$objectName".',
+          );
         }
       },
     );

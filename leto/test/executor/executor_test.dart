@@ -1136,8 +1136,21 @@ void main() {
         type Query { bar: String }
       ''',
         {
+          'errors': [
+            {
+              'message': 'No resolver found for field "foo" in object "Type".',
+              'path': ['foo'],
+              'locations': [
+                {'line': 0, 'column': 10}
+              ]
+            }
+          ],
           'data': {'foo': null}
         },
+        // TODO: was
+        // {
+        //   'data': {'foo': null}
+        // },
       );
     });
 
