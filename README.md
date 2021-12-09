@@ -103,6 +103,8 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
   - [Error Handling](#error-handling)
+    - [Result types](#result-types)
+  - [Hot Reload and Cycles](#hot-reload-and-cycles)
 - [Solving the N+1 problem](#solving-the-n1-problem)
   - [LookAhead (Eager loading)](#lookahead-eager-loading)
   - [DataLoader (Batching)](#dataloader-batching)
@@ -1196,6 +1198,14 @@ Using the `PersistedQueriesExtensions` you can set the `skipValidation` paramete
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Response)
 
+The returned `GraphQLResult` is the output of the execution of a GraphQL request it contains the encountered `GraphQLError`s, the output `extensions` and the `data` payload. The `GraphQLResult.toJson` Map is used by `package:leto_shelf` when constructing an HTTP response's body.
+
+- The `data` is a `Map<String, Object?>?` for Queries and Mutations or a `Stream<GraphQLResult>` for subscriptions. It has the payload returned by the resolvers during execution. Will be null if there was an error in validation or in the execution of a non-nullable root field. If there was an error in validation, the `data` property will not be set in the `GraphQLResult.toJson` Map following the [spec](http://spec.graphql.org/draft/#sec-Response).
+  
+- The `errors` contain the `GraphQLError`s encountered during validation or execution. If a resolver throws an error, it will appear in this error list. If the field's return type is nullable, a null value will be set as the output for that field. If the type is non-nullable the resolver will continue to throw an exception until a nullable field is reached or the root resolver is reached (in this case the `GraphQLResult.data` property will be null).
+
+- The `extensions` is a  `Map<String, Object?>?` with custom values that you may want to provide to the client. All values should be serializable since they may be returned as part of an HTTP response. Most `GraphQLExtensions` modify this values to provide additional functionalities. The keys for the `extensions` Map should be unique, you may want to prefix them with an identifier such as a package name.
+
 ## `ScopedMap`
 
 da
@@ -1204,6 +1214,29 @@ da
 
 daw
 
+### Result types
+
+- Result
+
+- ResultU
+
+## Hot Reload and Cycles
+
+Since type and field schema definitions should probably be reused, this may pose a conflict to the beautifully hot reload capabilities of Dart. The cached instances will not change unless you execute the more expensive hot restart, which may also cause you to lose other state when developing.
+
+Because of this, we provide an utility class `HotReloadableDefinition` that handles definition caching, helps with cycles in instantiation and controls the re-instantiation of values. It receives a `create` function that should return a new instance of the value. This value will be cached and reused throughout the schema's construction. To retrieve the current instance you can use the `HotReloadableDefinition.value` getter. 
+
+The provided `create` function receives a `setValue` callback that should be called right after the instance's creation (with the newly constructed instance as argument), this is only necessary if the instance definition may contain cycles.
+
+To re-instantiate all values that use `HotReloadableDefinition` you can execute the static `HotReloadableDefinition.incrementCounter` which will invalidate previously created instances, if you call `HotReloadableDefinition.value` again, a new instance will be created with the, potentially new, hot reloaded code.
+
+When using code generation all schema definitions use the `HotReloadableDefinition` class to create type and field instances, you only need to call the generated `recreateGraphQLApiSchema` function to instantiate the `GraphQLSchema` each time the application hot reloads.
+
+You can use other packages to hot reload the dart virtual machine (vm), for example:
+
+- If using shelf you may want to try https://pub.dev/packages/shelf_hotreload. Most shelf examples in this repository already use this package.
+  
+- You could also search in https://pub.dev or try https://pub.dev/packages/hotreloader, which is used by `package:shelf_hotreload`.
 
 
 # Solving the N+1 problem
