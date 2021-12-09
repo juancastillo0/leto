@@ -114,7 +114,7 @@ GraphQLSchema buildSchema(
           ...def.values.map(
             (e) => GraphQLEnumValue(
               e.name.value,
-              e.name.value,
+              EnumValue(e.name.value),
               description: e.description?.value,
               deprecationReason: getDirectiveValue(
                 'deprecated',

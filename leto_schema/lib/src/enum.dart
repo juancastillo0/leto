@@ -100,7 +100,7 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
     final input = _input is EnumValue ? _input.value : _input;
     if (input is! String) {
       return ValidationResult<String>.failure(
-          ['The enum "$name" does not accept null values.']);
+          ['The enum "$name" does not accept non String values.']);
     }
     final value = values.firstWhereOrNull((v) => v.name == input);
     if (value == null) {
@@ -127,6 +127,16 @@ class EnumValue {
 
   @override
   String toString() => 'EnumValue($value)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is EnumValue && other.value == value;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 /// A variant of a [GraphQLEnumType].
