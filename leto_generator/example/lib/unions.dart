@@ -239,6 +239,7 @@ type UnionNoFreezedB {
 }'''
 ];
 
+// @example-start{unions-example-generator}
 GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
 
 @AttachFn(unionNoFreezedAttachments)
@@ -251,9 +252,7 @@ Union generated from raw Dart classes
 )
 @GraphQLUnion(name: 'UnionNoFreezedRenamed')
 class UnionNoFreezed {
-  const factory UnionNoFreezed.a(String value) =
-      UnionNoFreezedA.namedConstructor;
-
+  const factory UnionNoFreezed.a(String value) = UnionNoFreezedA.named;
   const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
 }
 
@@ -261,7 +260,7 @@ class UnionNoFreezed {
 class UnionNoFreezedA implements UnionNoFreezed {
   final String value;
 
-  const UnionNoFreezedA.namedConstructor(this.value);
+  const UnionNoFreezedA.named(this.value);
 }
 
 @GraphQLClass()
@@ -275,3 +274,4 @@ class UnionNoFreezedB implements UnionNoFreezed {
 List<UnionNoFreezed> getUnionNoFrezzed() {
   return const [UnionNoFreezed.a('value'), UnionNoFreezed.b(12)];
 }
+// @example-end{unions-example-generator}

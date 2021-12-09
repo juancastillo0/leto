@@ -658,6 +658,44 @@ class ModelEvent with _$ModelEvent {
 }
 ```
 
+<!-- include{unions-example-generator} -->
+```dart
+GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
+
+@AttachFn(unionNoFreezedAttachments)
+@GraphQLDocumentation(
+  description: '''
+Description from annotation.
+
+Union generated from raw Dart classes
+''',
+)
+@GraphQLUnion(name: 'UnionNoFreezedRenamed')
+class UnionNoFreezed {
+  const factory UnionNoFreezed.a(String value) = UnionNoFreezedA.named;
+  const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
+}
+
+@GraphQLClass()
+class UnionNoFreezedA implements UnionNoFreezed {
+  final String value;
+
+  const UnionNoFreezedA.named(this.value);
+}
+
+@GraphQLClass()
+class UnionNoFreezedB implements UnionNoFreezed {
+  final int value;
+
+  const UnionNoFreezedB(this.value);
+}
+
+@Query()
+List<UnionNoFreezed> getUnionNoFrezzed() {
+  return const [UnionNoFreezed.a('value'), UnionNoFreezed.b(12)];
+}
+```
+<!-- include-end{unions-example-generator} -->
 
 ## Wrapping Types
 

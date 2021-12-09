@@ -1,0 +1,194 @@
+import 'dart:io';
+
+Future<void> main() async {
+  final Map<String, Example> examples = {};
+  final List<String> errors = [];
+  final allEntities = Directory.current.list(
+    followLinks: false,
+    recursive: true,
+  );
+  await for (final entity in allEntities) {
+    final startRegExp = RegExp('^// @example-start{([^}]+)}');
+    final endRegExp = RegExp('^// @example-end{([^}]+)}');
+    if (entity is File && entity.path.endsWith('.dart')) {
+      List<String> lines = await entity.readAsLines();
+      final lineRanges = await findLineRanges(
+        lines,
+        startRegExp,
+        endRegExp,
+      );
+      for (final lineRange in lineRanges) {
+        final match = startRegExp.firstMatch(lines[lineRange.startLine])!;
+        final name = match.group(1)!;
+        final endName =
+            endRegExp.firstMatch(lines[lineRange.endLine!])!.group(1);
+        if (examples.containsKey(name)) {
+          errors.add(
+            'Duplicate example definition "$name"'
+            ' in line ${lineRange.startLine} of file "${entity.path}".',
+          );
+        }
+        if (endName != name) {
+          errors.add(
+            'Example start name "$name" does not match end name "$endName"'
+            ' in line ${lineRange.startLine}:${lineRange.endLine} of file "${entity.path}".',
+          );
+        }
+        examples[name] = Example(
+          file: entity,
+          lineRange: lineRange,
+          name: name,
+          content: lines.sublist(
+            lineRange.startLine + 1,
+            lineRange.endLine,
+          ),
+        );
+      }
+    }
+  }
+
+  print(
+    'Found ${examples.length} example${examples.length == 1 ? '' : 's'}',
+  );
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n\n'));
+  }
+  int includedExamples = 0;
+
+  final docsDir = await Directory('./generated_docs').create();
+  for (final example in examples.values) {
+    final file = File(
+      [docsDir.path, Platform.pathSeparator, '${example.name}.md'].join(),
+    );
+
+    await file.writeAsString(
+      ['```dart', ...example.content, '```'].join('\n'),
+    );
+  }
+
+  final readme = File('./README.md');
+  final readmeLines = await readme.readAsLines();
+  final startRegExp = RegExp(r'^<!--\s*include{([^}]+)}\s*-->');
+  final endRegExp = RegExp(r'^<!--\s*include-end{([^}]+)}\s*-->');
+  final includeRanges = await findLineRanges(
+    readmeLines,
+    startRegExp,
+    endRegExp,
+    endOptional: true,
+  );
+
+  final List<String> warnings = [];
+  final List<String> newLines = [];
+  int delta = 0;
+  for (final range in includeRanges) {
+    final startLine = range.startLine;
+    final endLine = range.endLine;
+
+    if (startLine > delta) {
+      newLines.addAll(readmeLines.sublist(delta, startLine + 1));
+      delta = startLine + 1;
+    }
+    final name = startRegExp.firstMatch(readmeLines[startLine])!.group(1)!;
+    final example = examples[name];
+    if (example == null) {
+      warnings.add(
+        'Example "$name" not found. README.md line ${startLine}',
+      );
+      continue;
+    }
+    if (endLine != null) {
+      final endName = endRegExp.firstMatch(readmeLines[endLine])!.group(1)!;
+      if (endName != name) {
+        errors.add(
+          'Include start name "$name" does not match end name "$endName".'
+          ' README.md lines $startLine:$endLine',
+        );
+        continue;
+      }
+    }
+    includedExamples++;
+    final _toAdd = [
+      '```dart',
+      ...example.content,
+      '```',
+      if (endLine != null)
+        readmeLines[endLine]
+      else
+        '<!-- include-end{$name} -->'
+    ];
+    newLines.addAll(_toAdd);
+    delta += (endLine ?? startLine) - startLine;
+  }
+
+  if (readmeLines.length > delta) {
+    newLines.addAll(readmeLines.sublist(delta));
+  }
+
+  if (warnings.isNotEmpty) {
+    print(warnings.join('\n\n'));
+  }
+  if (errors.isNotEmpty) {
+    throw Exception(errors.join('\n\n'));
+  }
+  print(
+    'Included $includedExamples example${includedExamples == 1 ? '' : 's'} in README',
+  );
+  await readme.writeAsString(newLines.join('\n'));
+}
+
+class Example {
+  final File file;
+  final String name;
+  final List<String> content;
+  final LineRange lineRange;
+
+  Example({
+    required this.file,
+    required this.name,
+    required this.content,
+    required this.lineRange,
+  });
+}
+
+class LineRange {
+  final int startLine;
+  final int? endLine;
+
+  LineRange(this.startLine, this.endLine);
+}
+
+Future<List<LineRange>> findLineRanges(
+  List<String> lines,
+  RegExp startRegExp,
+  RegExp endRegExp, {
+  bool endOptional = false,
+}) async {
+  final List<LineRange> examples = [];
+  int? index = 0;
+  while (index != null) {
+    int? _startIndex;
+    int? _endIndex;
+    for (int i = index; i < lines.length; i++) {
+      final _matchesStart = startRegExp.hasMatch(lines[i]);
+      if (_startIndex == null && _matchesStart) {
+        _startIndex = i;
+      } else if (endOptional && _matchesStart) {
+        break;
+      } else if (_startIndex != null && endRegExp.hasMatch(lines[i])) {
+        _endIndex = i;
+        break;
+      }
+    }
+
+    if (_endIndex != null) {
+      examples.add(LineRange(_startIndex!, _endIndex));
+      index = _endIndex + 1;
+    } else if (endOptional && _startIndex != null) {
+      examples.add(LineRange(_startIndex, _endIndex));
+      index = _startIndex + 1;
+    } else {
+      index = null;
+    }
+  }
+  return examples;
+}
