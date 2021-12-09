@@ -33,6 +33,8 @@ export 'package:leto_schema/leto_schema.dart'
 export 'src/extensions/extension.dart';
 export 'src/graphql_result.dart';
 
+/// Configuration properties for [GraphQL], use [GraphQL.fromConfig] for
+/// instantiating an executor from this
 class GraphQLConfig {
   /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
@@ -56,14 +58,22 @@ class GraphQLConfig {
   /// More information in: [reflectSchema]
   final bool? introspect;
 
+  /// The scope associated with the [GraphQL] executor
   final ScopedMap? globalVariables;
 
+  /// Custom validation rules performed to a request's document
+  /// before the execution phase
+  final List<ValidationRule> customValidationRules;
+
+  /// Configuration properties for [GraphQL], use [GraphQL.fromConfig] for
+  /// instantiating an executor from this
   const GraphQLConfig({
     this.introspect,
     this.validate,
     this.defaultFieldResolver,
-    this.extensions = const <GraphQLExtension>[],
+    this.extensions = const [],
     this.globalVariables,
+    this.customValidationRules = const [],
   });
 }
 
@@ -94,26 +104,45 @@ class GraphQL {
   /// This will change the Query type of the [schema] by adding
   /// introspection fields, useful for client code generators or other
   /// tools like UI explorers.
-  /// More information in: [reflectSchema]
   final bool introspect;
 
   /// The schema used for executing GraphQL requests
   final GraphQLSchema schema;
 
+  /// Custom validation rules performed to a request's document
+  /// before the execution phase
+  final List<ValidationRule> customValidationRules;
+
+  late final List<ValidationRule> _allValidationRules =
+      customValidationRules.isEmpty
+          ? specifiedRules
+          : [...specifiedRules, ...customValidationRules];
+
   /// A Dart implementation of a GraphQL server.
   ///
   /// Parses, validates and executes GraphQL requests using the
   /// provided [GraphQLSchema].
+  ///
+  /// Throws a [GraphQLException] with validation errors if the [schema]
+  /// definition is invalid. More information in [validateSchema].
   GraphQL(
     this.schema, {
     bool? introspect,
     bool? validate,
     this.defaultFieldResolver,
     this.extensions = const [],
+    this.customValidationRules = const [],
     ScopedMap? globalVariables,
   })  : baseGlobalVariables = globalVariables ?? ScopedMap.empty(),
         introspect = introspect ?? true,
-        validate = validate ?? true;
+        validate = validate ?? true {
+    if (this.validate) {
+      final errors = validateSchema(schema);
+      if (errors.isNotEmpty) {
+        throw GraphQLException(errors);
+      }
+    }
+  }
 
   /// Creates a [GraphQL] executor from a [GraphQLConfig]
   factory GraphQL.fromConfig(GraphQLSchema schema, GraphQLConfig config) =>
@@ -124,6 +153,7 @@ class GraphQL {
         defaultFieldResolver: config.defaultFieldResolver,
         extensions: config.extensions,
         globalVariables: config.globalVariables,
+        customValidationRules: config.customValidationRules,
       );
 
   static final _resolveCtxRef = ScopeRef<ExecutionCtx>('ResolveCtx');
@@ -281,7 +311,11 @@ class GraphQL {
       final validationException = withExtensions<GraphQLException?>(
         (n, e) => e.validate(n, baseCtx, document),
         () {
-          final errors = validateDocument(schema, document);
+          final errors = validateDocument(
+            schema,
+            document,
+            rules: _allValidationRules,
+          );
           if (errors.isEmpty) {
             return null;
           }
