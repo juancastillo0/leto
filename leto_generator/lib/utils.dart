@@ -176,6 +176,7 @@ Future<AstNode> tryGetAstNodeForElement(
 }
 
 /// taken from https://github.com/angel-dart-archive/serialize/blob/be6a3669cca34cd83d189a1169edf6f381101cd8/angel_serialize_generator/lib/angel_serialize_generator.dart#L77
+/// check https://github.com/google/json_serializable.dart/blob/d2fe5141a333e2109fd1511e1520bc13374a63e9/json_serializable/lib/src/json_key_utils.dart#L44
 String dartObjectToString(DartObject v) {
   final type = v.type;
   if (v.isNull) return 'null';

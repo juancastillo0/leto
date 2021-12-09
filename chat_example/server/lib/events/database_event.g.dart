@@ -249,9 +249,10 @@ final _paginatedGraphQLType =
 
 /// Auto-generated from [Paginated].
 GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'Paginated${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'Paginated${tGraphQLType.printableName}';
   if (_paginatedGraphQLType.value[__name] != null)
     return _paginatedGraphQLType.value[__name]!
         as GraphQLObjectType<Paginated<T>>;

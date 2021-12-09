@@ -213,7 +213,8 @@ Expression inferType(
 
   // Firstly, check if it's a GraphQL class.
   if (type is! InterfaceType ||
-      (!isGraphQLClass(type) && !isInputType(type.element))) {
+      !const TypeChecker.fromRuntime(GraphQLObjectDec)
+          .hasAnnotationOf(type.element)) {
     if (type is TypeParameterType && generics != null) {
       final generic = generics[typeName];
       if (generic != null) {
@@ -248,9 +249,14 @@ Expression inferType(
         return _wrapNullability(prop);
       }
     }
-
-    log.warning('Cannot infer the GraphQL type for '
-        'field ${typeElement.name}.$name (type=$type).');
+    final _namePrefix = typeElement.enclosingElement is ClassElement
+        ? '${typeElement.enclosingElement!.name!}.'
+        : '';
+    log.warning(
+      'Cannot infer the GraphQLType for field $_namePrefix$name (type=$type).'
+      ' Please annotate the Dart type, provide a $typeName.graphQLType'
+      ' static getter or add the type to `build.yaml` "customTypes" property.',
+    );
   }
   return _wrapNullability(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix'),

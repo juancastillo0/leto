@@ -307,7 +307,7 @@ class UnionVarianInfo {
 
     final body = '''
 {
-  final __name = '$graphQLTypeName';
+  final __name = ${hasTypeParams ? 'name ?? ' : ''}'$graphQLTypeName';
   ${hasTypeParams ? 'if ($_cacheGetter != null) return $_cacheGetter! as $_type;' : ''}
   final __$fieldName = ${expression().accept(DartEmitter())};
   ${_genericSerializer ? _setGenericSerializer() : ''}
@@ -330,7 +330,7 @@ class UnionVarianInfo {
 ${_genericSerializer ? 'final ${ReCase(typeName).camelCase}SerdeCtx = SerdeCtx();' : ''}
 final _$fieldName = HotReloadableDefinition<Map<String, $_typeNoExt>>((_) => {});
 /// Auto-generated from [$typeName].
-$_type $fieldName${_typeList(ext: true)}($_typeParamsStr) $body
+$_type $fieldName${_typeList(ext: true)}($_typeParamsStr {String? name,}) $body
 ''';
     } else {
       return '''

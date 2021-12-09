@@ -228,9 +228,10 @@ final _inputGenGraphQLType =
 
 /// Auto-generated from [InputGen].
 GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'InputGen${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'InputGen${tGraphQLType.printableName}';
   if (_inputGenGraphQLType.value[__name] != null)
     return _inputGenGraphQLType.value[__name]!
         as GraphQLInputObjectType<InputGen<T>>;
@@ -260,9 +261,10 @@ final _inputGen2GraphQLType =
 GraphQLInputObjectType<InputGen2<T, O>>
     inputGen2GraphQLType<T, O extends Object>(
   GraphQLType<T, Object> tGraphQLType,
-  GraphQLType<O, Object> oGraphQLType,
-) {
-  final __name =
+  GraphQLType<O, Object> oGraphQLType, {
+  String? name,
+}) {
+  final __name = name ??
       'InputGen2${tGraphQLType.printableName}${oGraphQLType.printableName}';
   if (_inputGen2GraphQLType.value[__name] != null)
     return _inputGen2GraphQLType.value[__name]!

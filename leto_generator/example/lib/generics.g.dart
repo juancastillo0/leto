@@ -150,10 +150,11 @@ final _okVGraphQLType =
 /// Auto-generated from [OkV].
 GraphQLObjectType<OkV<V, E>> okVGraphQLType<V, E>(
   GraphQLType<V, Object> vGraphQLType,
-  GraphQLType<E, Object> eGraphQLType,
-) {
+  GraphQLType<E, Object> eGraphQLType, {
+  String? name,
+}) {
   final __name =
-      'OkV${vGraphQLType.printableName}${eGraphQLType.printableName}';
+      name ?? 'OkV${vGraphQLType.printableName}${eGraphQLType.printableName}';
   if (_okVGraphQLType.value[__name] != null)
     return _okVGraphQLType.value[__name]! as GraphQLObjectType<OkV<V, E>>;
   final __okVGraphQLType =
@@ -176,10 +177,11 @@ final _errVGraphQLType =
 /// Auto-generated from [ErrV].
 GraphQLObjectType<ErrV<V, E>> errVGraphQLType<V, E>(
   GraphQLType<V, Object> vGraphQLType,
-  GraphQLType<E, Object> eGraphQLType,
-) {
+  GraphQLType<E, Object> eGraphQLType, {
+  String? name,
+}) {
   final __name =
-      'ErrV${vGraphQLType.printableName}${eGraphQLType.printableName}';
+      name ?? 'ErrV${vGraphQLType.printableName}${eGraphQLType.printableName}';
   if (_errVGraphQLType.value[__name] != null)
     return _errVGraphQLType.value[__name]! as GraphQLObjectType<ErrV<V, E>>;
   final __errVGraphQLType =
@@ -203,9 +205,10 @@ final _errCodeInterfaceGraphQLType =
 /// Auto-generated from [ErrCodeInterface].
 GraphQLObjectType<ErrCodeInterface<T>>
     errCodeInterfaceGraphQLType<T extends Object>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'ErrCodeInterface${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrCodeInterface${tGraphQLType.printableName}';
   if (_errCodeInterfaceGraphQLType.value[__name] != null)
     return _errCodeInterfaceGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterface<T>>;
@@ -230,9 +233,10 @@ final _errCodeInterfaceNGraphQLType =
 /// Auto-generated from [ErrCodeInterfaceN].
 GraphQLObjectType<ErrCodeInterfaceN<T>>
     errCodeInterfaceNGraphQLType<T extends Object?>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'ErrCodeInterfaceN${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrCodeInterfaceN${tGraphQLType.printableName}';
   if (_errCodeInterfaceNGraphQLType.value[__name] != null)
     return _errCodeInterfaceNGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceN<T>>;
@@ -258,9 +262,10 @@ final _errCodeInterfaceNEGraphQLType =
 
 /// Auto-generated from [ErrCodeInterfaceNE].
 GraphQLObjectType<ErrCodeInterfaceNE<T>> errCodeInterfaceNEGraphQLType<T>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'ErrCodeInterfaceNE${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrCodeInterfaceNE${tGraphQLType.printableName}';
   if (_errCodeInterfaceNEGraphQLType.value[__name] != null)
     return _errCodeInterfaceNEGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceNE<T>>;
@@ -308,9 +313,10 @@ final _errCodeInterfaceNEEGraphQLType = HotReloadableDefinition<
 /// Auto-generated from [ErrCodeInterfaceNEE].
 GraphQLObjectType<ErrCodeInterfaceNEE<T>>
     errCodeInterfaceNEEGraphQLType<T extends ErrCode>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'ErrCodeInterfaceNEE${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrCodeInterfaceNEE${tGraphQLType.printableName}';
   if (_errCodeInterfaceNEEGraphQLType.value[__name] != null)
     return _errCodeInterfaceNEEGraphQLType.value[__name]!
         as GraphQLObjectType<ErrCodeInterfaceNEE<T>>;

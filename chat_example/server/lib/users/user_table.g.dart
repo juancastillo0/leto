@@ -373,9 +373,10 @@ final _errCGraphQLType =
 
 /// Auto-generated from [ErrC].
 GraphQLObjectType<ErrC<T>> errCGraphQLType<T>(
-  GraphQLType<T, Object> tGraphQLType,
-) {
-  final __name = 'ErrC${tGraphQLType.printableName}';
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrC${tGraphQLType.printableName}';
   if (_errCGraphQLType.value[__name] != null)
     return _errCGraphQLType.value[__name]! as GraphQLObjectType<ErrC<T>>;
   final __errCGraphQLType =
