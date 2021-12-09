@@ -98,6 +98,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Document Validation](#document-validation)
   - [Input Validation](#input-validation)
   - [Query Complexity](#query-complexity)
+  - [Skip validation with Persisted Queries](#skip-validation-with-persisted-queries)
 - [Miscellaneous](#miscellaneous)
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
@@ -1184,6 +1185,10 @@ from `GraphQLNamedType.attachments` or 0 if there aren't any.
 
 If the fieldType is a `GraphQLListType`, complexityMultiplier
 will be the provided `listComplexityMultiplier`, otherwise 1.
+
+## Skip validation with Persisted Queries
+
+Using the `PersistedQueriesExtensions` you can set the `skipValidation` parameter so that the validation is skipped for already cached (and validated) documents.
 
 # Miscellaneous
 

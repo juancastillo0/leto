@@ -6,7 +6,7 @@ import 'dart:convert' show utf8;
 
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:leto/leto.dart'
-    show GraphQLExtension, GraphQLResult, DocumentNode;
+    show DocumentNode, GraphQL, GraphQLExtension, GraphQLResult;
 import 'package:leto_schema/leto_schema.dart'
     show GraphQLException, RequestCtx, ScopeRef;
 
@@ -73,6 +73,34 @@ class GraphQLPersistedQueries extends GraphQLExtension {
       return response.copyWithExtension(mapKey, {'sha256Hash': hash});
     }
     return response;
+  }
+
+  /// Executes validations given a schema,
+  /// and the operation to perform
+  GraphQLException? validate(
+    GraphQLException? Function() next,
+    RequestCtx ctx,
+    DocumentNode document,
+  ) {
+    // TODO:
+    final bool cached = 'false' == '';
+    if (!cached) return next();
+    final otherExtensions =
+        GraphQL.fromCtx(ctx)!.extensions.where((e) => e != this);
+
+    GraphQLException? _error;
+    for (final e in otherExtensions) {
+      final current = e.validate(() => _error, ctx, document);
+      if (current != null) {
+        if (_error != null) {
+          _error.errors.addAll(current.errors);
+        } else {
+          _error = current;
+        }
+      }
+    }
+
+    return _error;
   }
 
   @override
