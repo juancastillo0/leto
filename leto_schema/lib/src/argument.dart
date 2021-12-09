@@ -65,4 +65,18 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
           'If defaultsToNull is true, type $type should be nullable'
           ' and default value $defaultValue should be null',
         );
+
+  /// Throws an exception if the default value cannot be deserialized
+  static void validateDefaultSerialization(
+    SerdeCtx serdeCtx,
+    GraphQLFieldInput field,
+  ) {
+    Object? serialized = field.defaultValue;
+    if (serialized != null) {
+      try {
+        serialized = field.type.serialize(serialized);
+      } catch (_) {}
+      field.type.deserialize(serdeCtx, serialized);
+    }
+  }
 }

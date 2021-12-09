@@ -114,27 +114,12 @@ void validateDirectives(SchemaValidationContext context) {
 
     // Ensure the arguments are valid.
     for (final arg in directive.inputs) {
-      // Ensure they are named correctly.
-      validateName(context, arg);
-
-      // Ensure the type is an input type.
-      if (!isInputType(arg.type)) {
-        context.reportError(
-          'The type of @${directive.name}(${arg.name}:) must be Input Type '
-          'but got: ${inspect(arg.type)}.',
-          [arg.astNode],
-        );
-      }
-
-      if (arg.isRequired && arg.deprecationReason != null) {
-        context.reportError(
-          'Required argument @${directive.name}(${arg.name}:) cannot be deprecated.',
-          [
-            getDeprecatedDirectiveNode(arg.astNode?.directives),
-            arg.astNode?.type
-          ],
-        );
-      }
+      validateInputField(
+        context,
+        '@${directive.name}(${arg.name}:)',
+        arg,
+        isArgument: true,
+      );
     }
   }
 }
@@ -237,30 +222,62 @@ void validateFields(
 
     // Ensure the arguments are valid
     for (final arg in field.inputs) {
-      final argName = arg.name;
-
-      // Ensure they are named correctly.
-      validateName(context, arg);
-
-      // Ensure the type is an input type
-      if (!isInputType(arg.type)) {
-        context.reportError(
-          'The type of ${type.name}.${field.name}(${argName}:) must be Input '
-          'Type but got: ${inspect(arg.type)}.',
-          [arg.astNode?.type],
-        );
-      }
-
-      if (arg.isRequired && arg.deprecationReason != null) {
-        context.reportError(
-          'Required argument ${type.name}.${field.name}(${argName}:) cannot be deprecated.',
-          [
-            getDeprecatedDirectiveNode(arg.astNode?.directives),
-            arg.astNode?.type
-          ],
-        );
-      }
+      validateInputField(
+        context,
+        '${type.name}.${field.name}(${arg.name}:)',
+        arg,
+        isArgument: true,
+      );
     }
+  }
+}
+
+void validateInputField(
+  SchemaValidationContext context,
+  String key,
+  GraphQLFieldInput arg, {
+  required bool isArgument,
+}) {
+  // Ensure they are named correctly.
+  validateName(context, arg);
+
+  // Ensure the type is an input type
+  if (!isInputType(arg.type)) {
+    context.reportError(
+      'The type of $key must be Input Type but got: ${inspect(arg.type)}.',
+      [arg.astNode?.type],
+    );
+  }
+
+  if (arg.isRequired && arg.deprecationReason != null) {
+    context.reportError(
+      'Required ${isArgument ? 'argument' : 'input field'} $key cannot be deprecated.',
+      [getDeprecatedDirectiveNode(arg.astNode?.directives), arg.astNode?.type],
+    );
+  }
+
+  if (arg.defaultsToNull &&
+      (!arg.type.isNullable || arg.defaultValue != null)) {
+    context.reportError(
+      'If defaultsToNull is true, type ${arg.type} should be nullable'
+      ' and default value ${arg.defaultValue} should be null',
+      [],
+    );
+  }
+
+  try {
+    GraphQLFieldInput.validateDefaultSerialization(
+      context.schema.serdeCtx,
+      arg,
+    );
+  } catch (e, s) {
+    context.reportError(
+      'Default value for argument $key should be de-serializable.'
+      ' Support instances of the type ${arg.type.generic.type} in the'
+      ' `fromJson` factory or provide a `toJson` method that "roundTrips"'
+      ' the serialization. Default value: ${arg.defaultValue}. Error: $e $s',
+      [getDeprecatedDirectiveNode(arg.astNode?.directives), arg.astNode?.type],
+    );
   }
 }
 
@@ -477,28 +494,12 @@ void validateInputFields(
 
   // Ensure the arguments are valid
   for (final field in fields) {
-    // Ensure they are named correctly.
-    validateName(context, field);
-
-    // Ensure the type is an input type
-    if (!isInputType(field.type)) {
-      context.reportError(
-        'The type of ${inputObj.name}.${field.name} must be Input Type '
-        'but got: ${inspect(field.type)}.',
-        [field.astNode?.type],
-      );
-    }
-
-    if (field.isRequired && field.deprecationReason != null) {
-      context.reportError(
-        'Required input field ${inputObj.name}.${field.name} cannot be deprecated.',
-        [
-          getDeprecatedDirectiveNode(field.astNode?.directives),
-          // istanbul ignore next (TODO need to write coverage tests)
-          field.astNode?.type,
-        ],
-      );
-    }
+    validateInputField(
+      context,
+      '${inputObj.name}.${field.name}',
+      field,
+      isArgument: false,
+    );
   }
 }
 
