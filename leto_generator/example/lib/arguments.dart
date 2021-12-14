@@ -7,6 +7,7 @@ import 'package:leto_schema/leto_schema.dart';
 
 part 'arguments.g.dart';
 
+// @example-start{code-generation-arguments}
 List<Decimal?> _defaultListDecimalNull() => [null, Decimal.parse('2')];
 
 GraphQLType<dynamic, dynamic> _timestampsType() =>
@@ -66,6 +67,7 @@ String testManyDefaults({
     'd': Json.list([Json.number(2)])
   }),
 }) {
+// @example-end{code-generation-arguments}
   return jsonEncode({
     'str': str,
     'intInput': intInput,
