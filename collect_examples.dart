@@ -1,8 +1,12 @@
 import 'dart:io';
 
 Future<void> main() async {
+  const examplesFilePath = './generated_docs/dart_examples.dart';
+
   final Map<String, Example> examples = {};
   final List<String> errors = [];
+  final Set<File> mdFiles = {};
+
   final allEntities = Directory.current.list(
     followLinks: false,
     recursive: true,
@@ -10,7 +14,11 @@ Future<void> main() async {
   await for (final entity in allEntities) {
     final startRegExp = RegExp('^// @example-start{([^}]+)}');
     final endRegExp = RegExp('^// @example-end{([^}]+)}');
-    if (entity is File && entity.path.endsWith('.dart')) {
+    if (entity is File && entity.path.endsWith('.md')) {
+      if (entity.parent.uri.pathSegments.last != 'generated_docs') {
+        mdFiles.add(entity);
+      }
+    } else if (entity is File && entity.path.endsWith('.dart')) {
       List<String> lines = await entity.readAsLines();
       final lineRanges = await findLineRanges(
         lines,
@@ -53,8 +61,8 @@ Future<void> main() async {
   if (errors.isNotEmpty) {
     throw Exception(errors.join('\n\n'));
   }
-  int includedExamples = 0;
 
+  /// Generate .md for each example
   final docsDir = await Directory('./generated_docs').create();
   for (final example in examples.values) {
     final file = File(
@@ -66,74 +74,89 @@ Future<void> main() async {
     );
   }
 
-  final readme = File('./README.md');
-  final readmeLines = await readme.readAsLines();
-  final startRegExp = RegExp(r'^<!--\s*include{([^}]+)}\s*-->');
-  final endRegExp = RegExp(r'^<!--\s*include-end{([^}]+)}\s*-->');
-  final includeRanges = await findLineRanges(
-    readmeLines,
-    startRegExp,
-    endRegExp,
-    endOptional: true,
-  );
+  /// Generate Dart file with Strings for each example
+  final dartExamplesFile = await File(examplesFilePath).create();
+  await dartExamplesFile.writeAsString(examples.values.map((e) {
+    final _name = e.name.replaceAll(RegExp(r'[-\s]'), '_');
+    final _content =
+        e.content.map((e) => e.replaceAll("'''", '"""')).join('\n');
+    return "final $_name = r'''\n$_content'''; ";
+  }).join('\n\n'));
 
-  final List<String> warnings = [];
-  final List<String> newLines = [];
-  int delta = 0;
-  for (final range in includeRanges) {
-    final startLine = range.startLine;
-    final endLine = range.endLine;
+  /// Replace all include comments in .md files with the contents of the Dart examples
+  for (final readme in mdFiles) {
+    int includedExamples = 0;
 
-    if (startLine > delta) {
-      newLines.addAll(readmeLines.sublist(delta, startLine + 1));
-      delta = startLine + 1;
-    }
-    final name = startRegExp.firstMatch(readmeLines[startLine])!.group(1)!;
-    final example = examples[name];
-    if (example == null) {
-      warnings.add(
-        'Example "$name" not found. README.md line ${startLine}',
-      );
-      continue;
-    }
-    if (endLine != null) {
-      final endName = endRegExp.firstMatch(readmeLines[endLine])!.group(1)!;
-      if (endName != name) {
-        errors.add(
-          'Include start name "$name" does not match end name "$endName".'
-          ' README.md lines $startLine:$endLine',
+    final readmeLines = await readme.readAsLines();
+    final startRegExp = RegExp(r'^<!--\s*include{([^}]+)}\s*-->');
+    final endRegExp = RegExp(r'^<!--\s*include-end{([^}]+)}\s*-->');
+    final includeRanges = await findLineRanges(
+      readmeLines,
+      startRegExp,
+      endRegExp,
+      endOptional: true,
+    );
+
+    final List<String> warnings = [];
+    final List<String> newLines = [];
+    int delta = 0;
+    for (final range in includeRanges) {
+      final startLine = range.startLine;
+      final endLine = range.endLine;
+
+      if (startLine > delta) {
+        newLines.addAll(readmeLines.sublist(delta, startLine + 1));
+        delta = startLine + 1;
+      }
+      final name = startRegExp.firstMatch(readmeLines[startLine])!.group(1)!;
+      final example = examples[name];
+      if (example == null) {
+        warnings.add(
+          'Example "$name" not found. README.md line ${startLine}',
         );
         continue;
       }
+      if (endLine != null) {
+        final endName = endRegExp.firstMatch(readmeLines[endLine])!.group(1)!;
+        if (endName != name) {
+          errors.add(
+            'Include start name "$name" does not match end name "$endName".'
+            ' README.md lines $startLine:$endLine',
+          );
+          continue;
+        }
+      }
+      includedExamples++;
+      final _toAdd = [
+        '```dart',
+        ...example.content,
+        '```',
+        if (endLine != null)
+          readmeLines[endLine]
+        else
+          '<!-- include-end{$name} -->'
+      ];
+      newLines.addAll(_toAdd);
+      delta += (endLine ?? startLine) - startLine;
     }
-    includedExamples++;
-    final _toAdd = [
-      '```dart',
-      ...example.content,
-      '```',
-      if (endLine != null)
-        readmeLines[endLine]
-      else
-        '<!-- include-end{$name} -->'
-    ];
-    newLines.addAll(_toAdd);
-    delta += (endLine ?? startLine) - startLine;
-  }
 
-  if (readmeLines.length > delta) {
-    newLines.addAll(readmeLines.sublist(delta));
-  }
+    if (readmeLines.length > delta) {
+      newLines.addAll(readmeLines.sublist(delta));
+    }
 
-  if (warnings.isNotEmpty) {
-    print(warnings.join('\n\n'));
+    if (warnings.isNotEmpty) {
+      print(warnings.join('\n\n'));
+    }
+    if (errors.isNotEmpty) {
+      throw Exception(errors.join('\n\n'));
+    }
+    if (includedExamples > 0) {
+      print(
+        'Included $includedExamples example${includedExamples == 1 ? '' : 's'} in "${readme.path}"',
+      );
+      await readme.writeAsString(newLines.join('\n'));
+    }
   }
-  if (errors.isNotEmpty) {
-    throw Exception(errors.join('\n\n'));
-  }
-  print(
-    'Included $includedExamples example${includedExamples == 1 ? '' : 's'} in README',
-  );
-  await readme.writeAsString(newLines.join('\n'));
 }
 
 class Example {
