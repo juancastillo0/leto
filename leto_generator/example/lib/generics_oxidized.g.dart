@@ -116,6 +116,29 @@ final _resultObjectMutErrGraphQLField = HotReloadableDefinition<
           },
         )));
 
+GraphQLObjectField<Result<ResultU<SuccessGet, UnionErrCode>, ErrCode>, Object?,
+        Object?>
+    get resultUnionInSuccessGraphQLField =>
+        _resultUnionInSuccessGraphQLField.value;
+final _resultUnionInSuccessGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<Result<ResultU<SuccessGet, UnionErrCode>, ErrCode>,
+        Object?, Object?>>((setValue) =>
+    setValue(resultGraphQLType<ResultU<SuccessGet, UnionErrCode>, ErrCode>(
+            resultUGraphQLType<SuccessGet, UnionErrCode>(
+                    successGetGraphQLType.nonNull(),
+                    unionErrCodeGraphQLType.nonNull())
+                .nonNull(),
+            errCodeGraphQLType.nonNull())
+        .nonNull()
+        .field<Object?>(
+      'resultUnionInSuccess',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return resultUnionInSuccess();
+      },
+    )));
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************

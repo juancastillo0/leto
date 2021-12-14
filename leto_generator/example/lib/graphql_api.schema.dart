@@ -86,6 +86,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           mutationInClassGraphQLField,
           resultUnionObjectMutErrGraphQLField,
           resultObjectMutErrGraphQLField,
+          resultUnionInSuccessGraphQLField,
         ],
       ),
       subscriptionType: objectType(

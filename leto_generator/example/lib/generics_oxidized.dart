@@ -97,6 +97,18 @@ type ResultSuccessGetErrCode {
   resultObjectErrRenamed: ResultStringUnionErrCodeList! @deprecated(reason: "use resultObject")''',
   '''
   resultObjectMutErrRenamed: ResultSuccessGetErrCode!''',
+  '''
+"""
+ResultUSuccessGetUnionErrCode! when the operation was successful or ErrCode! when an error was encountered.
+"""
+type ResultResultUSuccessGetUnionErrCodeErrCode {
+  ok: ResultUSuccessGetUnionErrCode
+  err: ErrCode
+  isOk: Boolean!
+}
+''',
+  '''
+  resultUnionInSuccess: ResultResultUSuccessGetUnionErrCodeErrCode''',
 ];
 
 @GraphQLClass()
@@ -156,6 +168,10 @@ Result<SuccessGet, ErrCode> resultObjectMutErr() {
   return Err(UnionErrCode(0, 'msj'));
 }
 
+@Mutation()
+Result<ResultU<SuccessGet, UnionErrCode>, ErrCode> resultUnionInSuccess() {
+  return Ok(ErrU(UnionErrCode(10, 'msj 10')));
+}
 abstract class ResultU<T extends Object, E extends Object>
     implements
         // ignore: avoid_implementing_value_types
