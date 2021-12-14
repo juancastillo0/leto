@@ -85,20 +85,20 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [Custom Scalars](#custom-scalars)
     - [Generic Types](#generic-types)
 - [Resolvers](#resolvers)
+  - [Queries and Mutations](#queries-and-mutations)
+  - [Subscriptions](#subscriptions)
+    - [Examples](#examples-1)
   - [Request Contexts](#request-contexts)
     - [Ctx](#ctx)
     - [ObjectExecutionCtx](#objectexecutionctx)
     - [ExecutionCtx](#executionctx)
     - [RequestCtx](#requestctx)
-  - [Queries and Mutations](#queries-and-mutations)
-  - [Subscriptions](#subscriptions)
-    - [Examples](#examples-1)
 - [Validation](#validation)
   - [Schema Validation](#schema-validation)
   - [Document Validation](#document-validation)
-  - [Input Validation](#input-validation)
   - [Query Complexity](#query-complexity)
   - [Skip validation with Persisted Queries](#skip-validation-with-persisted-queries)
+  - [Input Validation](#input-validation)
 - [Miscellaneous](#miscellaneous)
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
@@ -987,26 +987,7 @@ GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
 
 # Resolvers
 
-## Request Contexts
-### Ctx
-
-[Source Code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart)
-
-A unique context for each field resolver
-
-- args: the arguments passed as inputs to this field
-- object: the parent Object's value, same as the first parameter of `resolve`.
-- objectCtx: the parent Object's execution context ([ObjectExecutionCtx](#objectexecutionctx))
-- field: The `GraphQLObjectField` being resolved
-- path: The path to this field
-- executionCtx: The request's execution context ([ExecutionCtx](#executionctx))
-- lookahead: A function for retrieving nested selected fields. More in the [LookAhead section](#lookahead-eager-loading)
-
-### ObjectExecutionCtx
-
-### ExecutionCtx
-
-### RequestCtx
+GraphQL resolvers execute the logic for each field and return the expected value typed according to the schema's field that will be resolved. In Dart this are function tha receive the parent's object value and the field's [`Ctx`](#ctx) to return the result of the fields execution. For simple fields, they may only return a property of the parent object value, however, the may only be complex resolvers such as mutations that validate the input data and create rows in a database or queries that retrieve multiple rows according to complex authorization logic.
 
 ## Queries and Mutations
 
@@ -1071,7 +1052,7 @@ final schema = GraphQLSchema(
 ```
 
 
-When using `package:leto_shelf`, POST requests can be used for Queries or Mutations. However, GET requests can only be used for Queries, if a Mutation operation is sent using a GET request, the server will return 405 (MethodNotAllowed) following the [GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
+When using `package:leto_shelf`, POST requests can be used for Queries or Mutations. However, GET requests can only be used for Queries, if a Mutation operation is sent using a GET request, the server will return a 405 status code (MethodNotAllowed) following the [GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md).
 
 
 ## Subscriptions
@@ -1128,6 +1109,36 @@ For usage in a web server you can use any of the [web server integrations](#web-
 For a complete subscriptions example with events from a database please see the [chat_example](https://github.com/juancastillo0/leto/tree/main/chat_example), in particular the [events](https://github.com/juancastillo0/leto/tree/main/chat_example/server/lib/events) directory.
 
 
+## Request Contexts
+
+All `Ctx`s implement `GlobalsHolder`, so that then can be used to retrieve values from the scoped map, more in [`ScopedMap`](#scopedmap).
+### Ctx
+
+[Source Code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart)
+
+A unique context for each field resolver
+
+- args: the arguments passed as inputs to this field
+- object: the parent Object's value, same as the first parameter of `resolve`.
+- objectCtx: the parent Object's execution context ([ObjectExecutionCtx](#objectexecutionctx))
+- field: The `GraphQLObjectField` being resolved
+- path: The path to this field
+- executionCtx: The request's execution context ([ExecutionCtx](#executionctx))
+- lookahead: A function for retrieving nested selected fields. More in the [LookAhead section](#lookahead-eager-loading)
+
+### ObjectExecutionCtx
+
+This is the context associated with an object execution, can be retrieved through `Ctx.objectCtx`. There will be as many instances as there are objects to execute in the request. Contains the value of the object, the field selections and the path in the GraphQL request to this object.
+
+### ExecutionCtx
+
+This is the context associated with the execution phase of the request, created after the validation phase.
+Contains validated and coerced (parsed) input values and the specific validated operation within the request's document to execute. It has an `errors` list with the encountered errors during execution. Can be retrieved with `ObjectExecutionCtx.executionCtx`.
+
+### RequestCtx
+
+This is the base context associated with the request, contains the raw information about the GraphQL document, the raw (not validated nor parsed) input values, input extensions, the schema, root value and the scoped map for this request. Can be retrieved with `ExecutionCtx.requestCtx`.
+
 # Validation
 
 ## Schema Validation
@@ -1146,10 +1157,8 @@ This will be executed before stating a GraphQL server. Leto implements all of th
 
 This will be executed before executing any request. Leto implements all of the Specification's document validation. The code for all rules can be found in the [validate](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validate) folder in `package:leto_schema`.
 
+You can add custom validation rules to a server with the `GraphQL.customValidationRules` parameter, they will be added on top of the `specifiedValidationRules`. One example of a custom validation rule is the [Query Complexity](#query-complexity) validation.
 
-## Input Validation
-
-daw
 
 ## Query Complexity
 
@@ -1192,6 +1201,10 @@ will be the provided `listComplexityMultiplier`, otherwise 1.
 
 Using the `PersistedQueriesExtensions` you can set the `skipValidation` parameter so that the validation is skipped for already cached (and validated) documents.
 
+## Input Validation
+
+daw
+
 # Miscellaneous
 
 ## `GraphQLResult`
@@ -1218,7 +1231,25 @@ daw
 
 - Result
 
+```graphql
+"""
+SomethingT! when the operation was successful or SomethingE! when an error was encountered.
+"""
+type ResultSomethingTSomethingE {
+  ok: SomethingT
+  err: SomethingE
+  isOk: Boolean!
+}
+```
+
 - ResultU
+
+```graphql
+"""
+SomethingT when the operation was successful or SomethingE when an error was encountered.
+"""
+union ResultUSomethingTSomethingE = SomethingT | SomethingE
+```
 
 ## Hot Reload and Cycles
 

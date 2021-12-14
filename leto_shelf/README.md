@@ -70,8 +70,11 @@ Handles POST and GET requests for "application/graphql", "application/json", "ap
 - Support for file Upload with "multipart/form-data" bodies
 
 A 200 status code with a JSON body will be sent by default, with a structure following the [spec](http://spec.graphql.org/draft/#sec-Response).
+
 A 400 status code will be sent for requests that do not follow the specifications.
+
 // TODO: A 400 status code will be sent for requests with validation errors.
+
 A 405, method not allowed, status code will be sent for Mutation operations in GET requests
 
 ## graphQLWebSocket
@@ -196,5 +199,3 @@ Other shelf middlewares not really specific to GraphQL servers.
 ## jsonParse
 
 Parse JSON bodies
-
-
