@@ -131,6 +131,8 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
+The source code for this quickstart can be found in https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/quickstart_server.dart.
+
 ### Install
 
 Add dependencies to your pubspec.yaml
@@ -148,55 +150,160 @@ dependencies:
 dev_dependencies:
   # Only if you use code generation
   leto_generator: ^0.0.1
+  build_runner: ^1.0.0
 ```
 
 ### Create a `GraphQLSchema`
 
+
+Specify the logic for your server, this could be anything such as accessing a database, reading a file or sending and http request. We will use a controller class with a stream that emits events on mutation to support subscriptions.
+
+<!-- include{quickstart-controller-state-definition} -->
 ```dart
-
+// this annotations is only necessary for code generation
+@GraphQLClass()
 class Model {
-    final String stringField;
-    final int intField;
-    final List<Model>? optionalNested;
+  final String state;
+  final DateTime createdAt;
 
-    const Model({
-        required this.stringField,
-        required this.intField,
-        required this.optionalNested,
-    });
+  const Model(this.state, this.createdAt);
 }
 
-
-final modelGraphqlType = objectType<Model>(
-    'Model',
-    fields: [
-       graphQLString.nonNull().field('stringField',resolve: (Ctx ctx, Model m)
-        => m.intField,),
-        field('intField', graphqlInt, resolve: (Ctx ctx, Model m)
-        => m.intField,
-        )
-    ],
+/// Set up your state.
+/// This could be anything such as a database connection
+final stateRef = RefWithDefault<ModelController>.global(
+  (scope) => ModelController(
+    Model('InitialState', DateTime.now()),
+  ),
 );
 
-final apiSchema = GraphQLSchema(
-    queryType: objectType(
-        fields [
-modelGraphqlType.field('getModel', resolve: (Ctx ctx, Object rootValue) => const Model(stringField: 'sField', ))
-        ]
-    )
-)
+class ModelController {
+  Model? _value;
+  Model? get value => _value;
+
+  final _streamController = StreamController<Model>.broadcast();
+  Stream<Model> get stream => _streamController.stream;
+
+  ModelController(this._value);
+
+  void setValue(Model newValue) {
+    if (newValue.state == 'InvalidState') {
+      // This will appear as an GraphQLError in the response.
+      // You can pass more information using custom extensions.
+      throw GraphQLError(
+        "Can't be in InvalidState.",
+        extensions: {'errorCodeExtension': 'INVALID_STATE'},
+      );
+    }
+    _value = newValue;
+    _streamController.add(newValue);
+  }
+}
+```
+<!-- include-end{quickstart-controller-state-definition} -->
+
+With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: more docs in the code
+
+<!-- include{quickstart-make-schema} -->
+```dart
+/// Create a [GraphQLSchema]
+GraphQLSchema makeGraphQLSchema() {
+  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
+    'Model',
+    fields: [
+      graphQLString.nonNull().field(
+            'state',
+            resolve: (Model model, Ctx ctx) => model.state,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (Model model, Ctx ctx) => model.createdAt,
+          ),
+    ],
+  );
+  final schema = GraphQLSchema(
+    queryType: objectType('Query', fields: [
+      modelGraphQLType.field(
+        'getState',
+        description: 'Get the current state',
+        resolve: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).value,
+      ),
+    ]),
+    mutationType: objectType('Mutation', fields: [
+      graphQLBoolean.nonNull().field(
+        'setState',
+        inputs: [
+          GraphQLFieldInput(
+            'newState',
+            graphQLString.nonNull(),
+            description: "The new state, can't be 'WrongState'!.",
+          ),
+        ],
+        resolve: (Object? rootValue, Ctx ctx) {
+          final newState = ctx.args['newState']! as String;
+          if (newState == 'WrongState') {
+            return false;
+          }
+          stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
+          return true;
+        },
+      ),
+    ]),
+    subscriptionType: objectType('Subscription', fields: [
+      modelGraphQLType.nonNull().field(
+            'onStateChange',
+            subscribe: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).stream,
+          )
+    ]),
+  );
+  assert(schema.schemaStr == schemaString);
+  return schema;
+}
+
+```
+<!-- include-end{quickstart-make-schema} -->
+
+This will represent the following GraphQL Schema definition:
+
+```graphql
+type Query {
+  """Get the current state"""
+  getState: Model
+}
+
+type Model {
+  state: String!
+  createdAt: Date!
+}
+
+"""An ISO-8601 Date."""
+scalar Date
+
+type Mutation {
+  setState(
+    """The new state, can't be 'WrongState'!."""
+    newState: String!
+  ): Boolean!
+}
+
+type Subscription {
+  onStateChange: Model!
+}
 ```
 
-Or with code generation
+You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 
+<!-- include{quickstart-make-schema-code-gen} -->
 ```dart
-import 'package:leto_shelf/leto_shelf.dart';
-part 'main.g.dart';
+/// Code Generation
+/// Using leto_generator, [makeGraphQLSchema] could be generated
+/// with the following annotated functions and the [GraphQLClass]
+/// annotation over [Model]
 
 /// Get the current state
 @Query()
-String? getState(Ctx ctx) {
-  return stateRef.get(ctx);
+Model? getState(Ctx ctx) {
+  return stateRef.get(ctx).value;
 }
 
 @Mutation()
@@ -208,20 +315,213 @@ bool setState(
   if (newState == 'WrongState') {
     return false;
   }
-  stateRef.set(ctx, newState);
+
+  stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
   return true;
 }
 
+@Subscription()
+Stream<Model> onStateChange(Ctx ctx) {
+  return stateRef.get(ctx).stream;
+}
 ```
+<!-- include-end{quickstart-make-schema-code-gen} -->
 
-which generates the same `modelGraphqlType` in `model.g.dart` and `apiSchema` in 'lib/graphql_api.schema.dart' (TODO: configurable).
+This generates the same `modelGraphQLType` in `<file>.g.dart` and `graphqlApiSchema` in 'lib/graphql_api.schema.dart' (TODO: configurable). The documentation comments will be used as description in the generated schema. More information on code generation can be found in the following sections, in the `package:leto_generator`'s [README](https://github.com/juancastillo0/leto/tree/main/leto_generator) or in the code generation [example](https://github.com/juancastillo0/leto/tree/main/leto_generator/example).
 
 ### Start the server
 
+With the `GraphQLSchema` and the resolver logic implemented, we can set up the shelf handlers for each route. In this case we will use the `graphQLHttp` handlers for the "/graphql" endpoint and `graphQLWebSocket` for "/graphql-subscription" which supports subscriptions. You could provide custom extensions, document validations or a `ScopedMap` to override the state in the `GraphQL` executor constructor.
+
+<!-- include{quickstart-setup-graphql-server} -->
+```dart
+Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
+  // you can override state with ScopedMap.setGlobal/setScoped
+  final ScopedMap scopedMap = globals ?? ScopedMap.empty();
+  if (globals == null) {
+    // if it wasn't overridden it should be the default
+    assert(stateRef.get(scopedMap).value?.state == 'InitialState');
+  }
+  // Instantiate the GraphQLSchema
+  final schema = makeGraphQLSchema();
+  // Instantiate the GraphQL executor, you can pass extensions and
+  // decide whether you want to introspect the schema
+  // and validate the requests
+  final letoGraphQL = GraphQL(
+    schema,
+    extensions: [],
+    introspect: true,
+    globalVariables: scopedMap,
+  );
+
+  final port =
+      serverPort ?? const int.fromEnvironment('PORT', defaultValue: 8080);
+  const graphqlPath = 'graphql';
+  const graphqlSubscriptionPath = 'graphql-subscription';
+  final endpoint = 'http://localhost:$port/$graphqlPath';
+  final subscriptionEndpoint = 'ws://localhost:$port/$graphqlSubscriptionPath';
+
+  // Setup server endpoints
+  final app = Router();
+  // GraphQL HTTP handler
+  app.all(
+    '/$graphqlPath',
+    graphQLHttp(letoGraphQL),
+  );
+  // GraphQL WebSocket handler
+  app.all(
+    '/$graphqlSubscriptionPath',
+    graphQLWebSocket(
+      letoGraphQL,
+      pingInterval: const Duration(seconds: 10),
+      validateIncomingConnection: (
+        Map<String, Object?>? initialPayload,
+        GraphQLWebSocketServer wsServer,
+      ) {
+        if (initialPayload != null) {
+          // you can authenticated an user with the initialPayload:
+          // final token = initialPayload['token']! as String;
+          // ...
+        }
+        return true;
+      },
+    ),
+  );
+```
+<!-- include-end{quickstart-setup-graphql-server} -->
+
+In the shelf router you can specify other handlers such as static files or other utilities. In the following code we set up a [GraphQL UI explorer](#web-ui-explorers) in the "/playground" route using the `playgroundHandler` handler and a "/graphql-schema" endpoint that returns the GraphQL schema String in the body of the response.
+
+<!-- include{quickstart-setup-graphql-server-utilities} -->
+```dart
+  // GraphQL schema and endpoint explorer web UI.
+  // Available UI handlers: playgroundHandler, graphiqlHandler and altairHandler
+  app.get(
+    '/playground',
+    playgroundHandler(
+      config: PlaygroundConfig(
+        endpoint: endpoint,
+        subscriptionEndpoint: subscriptionEndpoint,
+      ),
+    ),
+  );
+  // Simple endpoint to download the GraphQLSchema as a SDL file.
+  // $ curl http://localhost:8080/graphql-schema > schema.graphql
+  const downloadSchemaOnOpen = true;
+  const schemaFilename = 'schema.graphql';
+  app.get('/graphql-schema', (Request request) {
+    return Response.ok(
+      schema.schemaStr,
+      headers: {
+        'content-type': 'text/plain',
+        'content-disposition': downloadSchemaOnOpen
+            ? 'attachment; filename="$schemaFilename"'
+            : 'inline',
+      },
+    );
+  });
+```
+<!-- include-end{quickstart-setup-graphql-server-utilities} -->
+
+Once you set up all the handlers, you can start the server adding middlewares if necessary. In this example, we will use the `etag` and `cors` middlewares from  `package:leto_shelf`. You can read more about the in the [package's README](https://github.com/juancastillo0/leto/tree/main/leto_shelf).
+
+<!-- include{quickstart-start-server} -->
+```dart
+  // Set up other shelf handlers such as static files
+
+  // Start the server
+  final server = await shelf_io.serve(
+    const Pipeline()
+        // Configure middlewares
+        .addMiddleware(customLog(log: (msg) {
+          // TODO:
+          if (!msg.contains('IntrospectionQuery')) {
+            print(msg);
+          }
+        }))
+        .addMiddleware(cors())
+        .addMiddleware(etag())
+        .addMiddleware(jsonParse())
+        // Add Router handler
+        .addHandler(app),
+    '0.0.0.0',
+    port,
+  );
+  print(
+    'GraphQL Endpoint at $endpoint\n'
+    'GraphQL Subscriptions at $subscriptionEndpoint\n'
+    'GraphQL Playground UI at http://localhost:$port/playground',
+  );
+
+  return server;
+}
+```
+<!-- include-end{quickstart-start-server} -->
+
+With the `runServer` function finished, we can now create a main function that executes it and servers the implemented logic in a GraphQL server. This function can also be used for test as shown in the `testServer` function from the next section. 
+
+<!-- include{quickstart-main-fn} -->
+```dart
+Future<void> main() async {
+  final server = await runServer();
+  final url = Uri.parse('http://${server.address.host}:${server.port}/graphql');
+  await testServer(url);
+}
+```
+<!-- include-end{quickstart-main-fn} -->
+
 ### Test the server
 
-/graphql-schema
-/playground
+You can test the server programmatically by sending HTTP requests to the server. You could also test the GraphQL executor directly using the `GraphQL.parseAndExecute` function without running the shelf server.
+
+<!-- include{quickstart-test-server} -->
+```dart
+/// For a complete GraphQL client you probably want to use
+/// Ferry (https://github.com/gql-dart/ferry)
+/// Artemis (https://github.com/comigor/artemis)
+/// or raw GQL Links (https://github.com/gql-dart/gql/tree/master/links)
+Future<void> testServer(Uri url) async {
+  final before = DateTime.now();
+  const newState = 'NewState';
+  // POST request which sets the state
+  final response = await http.post(
+    url,
+    body: jsonEncode({
+      'query':
+          r'mutation setState ($state: String!) { setState(newState: $state) }',
+      'variables': {'state': newState}
+    }),
+    headers: {'content-type': 'application/json'},
+  );
+  assert(response.statusCode == 200);
+  final body = jsonDecode(response.body) as Map<String, Object?>;
+  final data = body['data']! as Map<String, Object?>;
+  assert(data['setState'] == true);
+
+  // Also works with GET
+  final responseGet = await http.get(url.replace(
+    queryParameters: <String, String>{
+      'query': '{ getState { state createdAt } }'
+    },
+  ));
+  assert(responseGet.statusCode == 200);
+  final bodyGet = jsonDecode(responseGet.body) as Map<String, Object?>;
+  final dataGet = bodyGet['data']! as Map<String, dynamic>;
+  assert(dataGet['getState']['state'] == newState);
+  final createdAt = DateTime.parse(dataGet['getState']['createdAt'] as String);
+  assert(createdAt.isAfter(before));
+  assert(createdAt.isBefore(DateTime.now()));
+
+  // To test subscriptions you can open the playground web UI at /playground
+  // or programatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
+  // an example can be found in test/mutation_and_subscription_test.dart
+}
+```
+<!-- include-end{quickstart-test-server} -->
+
+Test and explore the server manually in the explorer interface "http://localhost:8080/playground". It supports subscriptions, subscribe in one tab and send a mutation request in another to test it. There are other UI explorers that you can set up (for example, GraphiQL and Altair), for more information [Web UI explorers section](#web-ui-explorers).
+
+We also set up a "http://localhost:8080/graphql-schema" endpoint which returns the GraphQL schema String in the schema definition language, this could be useful for other tools such as client side code generators.
 
 # Examples
 
@@ -987,7 +1287,7 @@ GraphQLObjectType<ErrC<T>> errCGraphQlType<T extends Object>(
 
 # Resolvers
 
-GraphQL resolvers execute the logic for each field and return the expected value typed according to the schema's field that will be resolved. In Dart this are function tha receive the parent's object value and the field's [`Ctx`](#ctx) to return the result of the fields execution. For simple fields, they may only return a property of the parent object value, however, the may only be complex resolvers such as mutations that validate the input data and create rows in a database or queries that retrieve multiple rows according to complex authorization logic.
+GraphQL resolvers execute the logic for each field and return the expected value typed according to the schema. In Dart this are functions that receive the parent's object value and the field's [`Ctx`](#ctx), and return the execution result. Simple fields may only return a property of the parent object value. However, there may also be complex resolvers, such as mutations, that validate the input data and create rows in a database, or queries that retrieve multiple rows according to complex authorization logic.
 
 ## Queries and Mutations
 

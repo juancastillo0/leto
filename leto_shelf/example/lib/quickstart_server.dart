@@ -11,10 +11,22 @@ import 'package:shelf_router/shelf_router.dart' show Router;
 
 part 'quickstart_server.g.dart';
 
+// @example-start{quickstart-main-fn}
 Future<void> main() async {
   final server = await runServer();
   final url = Uri.parse('http://${server.address.host}:${server.port}/graphql');
   await testServer(url);
+}
+// @example-end{quickstart-main-fn}
+
+// @example-start{quickstart-controller-state-definition}
+// this annotations is only necessary for code generation
+@GraphQLClass()
+class Model {
+  final String state;
+  final DateTime createdAt;
+
+  const Model(this.state, this.createdAt);
 }
 
 /// Set up your state.
@@ -47,32 +59,9 @@ class ModelController {
     _streamController.add(newValue);
   }
 }
+// @example-end{quickstart-controller-state-definition}
 
-@GraphQLClass()
-class Model {
-  final String state;
-  final DateTime createdAt;
-
-  const Model(this.state, this.createdAt);
-}
-
-/// Create a [GraphQLSchema]
-GraphQLSchema makeGraphQLSchema() {
-  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
-    'Model',
-    fields: [
-      graphQLString.nonNull().field(
-            'state',
-            resolve: (Model model, Ctx ctx) => model.state,
-          ),
-      graphQLDate.nonNull().field(
-            'createdAt',
-            resolve: (Model model, Ctx ctx) => model.createdAt,
-          ),
-    ],
-  );
-
-  const schemaString = '''
+const schemaString = '''
 type Query {
   """Get the current state"""
   getState: Model
@@ -96,6 +85,23 @@ type Mutation {
 type Subscription {
   onStateChange: Model!
 }''';
+
+// @example-start{quickstart-make-schema}
+/// Create a [GraphQLSchema]
+GraphQLSchema makeGraphQLSchema() {
+  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
+    'Model',
+    fields: [
+      graphQLString.nonNull().field(
+            'state',
+            resolve: (Model model, Ctx ctx) => model.state,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (Model model, Ctx ctx) => model.createdAt,
+          ),
+    ],
+  );
   final schema = GraphQLSchema(
     queryType: objectType('Query', fields: [
       modelGraphQLType.field(
@@ -135,6 +141,8 @@ type Subscription {
   return schema;
 }
 
+// @example-end{quickstart-make-schema}
+// @example-start{quickstart-setup-graphql-server}
 Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // you can override state with ScopedMap.setGlobal/setScoped
   final ScopedMap scopedMap = globals ?? ScopedMap.empty();
@@ -187,6 +195,8 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
       },
     ),
   );
+// @example-end{quickstart-setup-graphql-server}
+// @example-start{quickstart-setup-graphql-server-utilities}
   // GraphQL schema and endpoint explorer web UI.
   // Available UI handlers: playgroundHandler, graphiqlHandler and altairHandler
   app.get(
@@ -213,7 +223,8 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
       },
     );
   });
-
+// @example-end{quickstart-setup-graphql-server-utilities}
+// @example-start{quickstart-start-server}
   // Set up other shelf handlers such as static files
 
   // Start the server
@@ -242,7 +253,9 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
 
   return server;
 }
+// @example-end{quickstart-start-server}
 
+// @example-start{quickstart-test-server}
 /// For a complete GraphQL client you probably want to use
 /// Ferry (https://github.com/gql-dart/ferry)
 /// Artemis (https://github.com/comigor/artemis)
@@ -283,7 +296,9 @@ Future<void> testServer(Uri url) async {
   // or programatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
   // an example can be found in test/mutation_and_subscription_test.dart
 }
+// @example-end{quickstart-test-server}
 
+// @example-start{quickstart-make-schema-code-gen}
 /// Code Generation
 /// Using leto_generator, [makeGraphQLSchema] could be generated
 /// with the following annotated functions and the [GraphQLClass]
@@ -313,3 +328,4 @@ bool setState(
 Stream<Model> onStateChange(Ctx ctx) {
   return stateRef.get(ctx).stream;
 }
+// @example-end{quickstart-make-schema-code-gen}
