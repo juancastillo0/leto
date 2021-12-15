@@ -1,7 +1,27 @@
 import 'dart:io';
 
-Future<void> main() async {
-  const examplesFilePath = './generated_docs/dart_examples.dart';
+String? getOptionalArg(
+  List<String> args,
+  String tag, {
+  required String defaultValue,
+}) {
+  final flagIndex = args.indexOf('--$tag');
+  if (flagIndex == -1) return null;
+  final _file = flagIndex + 1 < args.length ? args[flagIndex + 1] : '--';
+  return _file.startsWith('--') ? defaultValue : _file;
+}
+
+Future<void> main(List<String> args) async {
+  final examplesFilePath = getOptionalArg(
+    args,
+    'dart-file',
+    defaultValue: './generated_docs/dart_examples.dart',
+  );
+  final mdsDirPath = getOptionalArg(
+    args,
+    'mds-dir',
+    defaultValue: './generated_docs',
+  );
 
   final Map<String, Example> examples = {};
   final List<String> errors = [];
@@ -63,25 +83,29 @@ Future<void> main() async {
   }
 
   /// Generate .md for each example
-  final docsDir = await Directory('./generated_docs').create();
-  for (final example in examples.values) {
-    final file = File(
-      [docsDir.path, Platform.pathSeparator, '${example.name}.md'].join(),
-    );
+  if (mdsDirPath != null) {
+    final docsDir = await Directory(mdsDirPath).create();
+    for (final example in examples.values) {
+      final file = File(
+        [docsDir.path, Platform.pathSeparator, '${example.name}.md'].join(),
+      );
 
-    await file.writeAsString(
-      ['```dart', ...example.content, '```'].join('\n'),
-    );
+      await file.writeAsString(
+        ['```dart', ...example.content, '```'].join('\n'),
+      );
+    }
   }
 
   /// Generate Dart file with Strings for each example
-  final dartExamplesFile = await File(examplesFilePath).create();
-  await dartExamplesFile.writeAsString(examples.values.map((e) {
-    final _name = e.name.replaceAll(RegExp(r'[-\s]'), '_');
-    final _content =
-        e.content.map((e) => e.replaceAll("'''", '"""')).join('\n');
-    return "final $_name = r'''\n$_content'''; ";
-  }).join('\n\n'));
+  if (examplesFilePath != null) {
+    final dartExamplesFile = await File(examplesFilePath).create();
+    await dartExamplesFile.writeAsString(examples.values.map((e) {
+      final _name = e.name.replaceAll(RegExp(r'[-\s]'), '_');
+      final _content =
+          e.content.map((e) => e.replaceAll("'''", '"""')).join('\n');
+      return "final $_name = r'''\n$_content'''; ";
+    }).join('\n\n'));
+  }
 
   /// Replace all include comments in .md files with the contents of the Dart examples
   for (final readme in mdFiles) {
