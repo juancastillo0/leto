@@ -172,6 +172,7 @@ Result<SuccessGet, ErrCode> resultObjectMutErr() {
 Result<ResultU<SuccessGet, UnionErrCode>, ErrCode> resultUnionInSuccess() {
   return Ok(ErrU(UnionErrCode(10, 'msj 10')));
 }
+
 abstract class ResultU<T extends Object, E extends Object>
     implements
         // ignore: avoid_implementing_value_types
