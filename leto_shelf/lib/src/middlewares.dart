@@ -155,8 +155,13 @@ Response setEtag(Response response, String etag) {
   return response.change(headers: {HttpHeaders.etagHeader: etag});
 }
 
+bool _defaultShouldProcessResponse(Request _, Response response) =>
+    response.statusCode < 300;
+
 Middleware etag({
   Future<String> Function(Stream<List<int>>, Encoding?)? hasher,
+  bool Function(Request, Response) shouldProcessResponse =
+      _defaultShouldProcessResponse,
 }) {
   return (handler) {
     return (request) async {
@@ -164,7 +169,7 @@ Middleware etag({
         return handler(request);
       }
       final response = await handler(request);
-      if (response.statusCode >= 300) {
+      if (!shouldProcessResponse(request, response)) {
         return response;
       }
 

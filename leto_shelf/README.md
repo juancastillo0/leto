@@ -190,6 +190,10 @@ Other shelf middlewares not really specific to GraphQL servers.
 
 [ETag](https://developer.mozilla.org/docs/Web/HTTP/Headers/ETag) and [If-None-Match](https://developer.mozilla.org/docs/Web/HTTP/Headers/If-None-Match) headers computation and verification.
 
+This middleware will compute an ETag for every response that returns `true` in the provided `shouldProcessResponse` function (default: response with a status code less than 300) and set it in the "ETag" response header. If an ETag was already set, it will leave it as is. With the ETag, it will compare it with the request's "If-None-Match" values. If the ETag is found, a 304 status code will be sent with the ETag in the response header.
+
+You can specify a custom `hasher` function that returns the ETag given the response's body, by default we use `package:crypt`'s `sha256` encoder.
+
 ## cors
 
 [Tests](https://github.com/juancastillo0/leto/blob/main/leto_shelf/test/cors_test.dart)
