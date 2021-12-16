@@ -14,14 +14,16 @@ String? getOptionalArg(
 Future<void> main(List<String> args) async {
   final examplesFilePath = getOptionalArg(
     args,
-    'dart-file',
+    'generate-dart-file',
     defaultValue: './generated_docs/dart_examples.dart',
   );
   final mdsDirPath = getOptionalArg(
     args,
-    'mds-dir',
+    'generate-md-dir',
     defaultValue: './generated_docs',
   );
+  final justCheck =
+      getOptionalArg(args, 'check', defaultValue: 'true') == 'true';
 
   final Map<String, Example> examples = {};
   final List<String> errors = [];
@@ -47,7 +49,9 @@ Future<void> main(List<String> args) async {
       );
       for (final lineRange in lineRanges) {
         final match = startRegExp.firstMatch(lines[lineRange.startLine])!;
-        final name = match.group(1)!;
+        final config = ExampleConfig.parse(match.group(1)!);
+        final name = config.name;
+
         final endName =
             endRegExp.firstMatch(lines[lineRange.endLine!])!.group(1);
         if (examples.containsKey(name)) {
@@ -62,14 +66,13 @@ Future<void> main(List<String> args) async {
             ' in line ${lineRange.startLine}:${lineRange.endLine} of file "${entity.path}".',
           );
         }
+
+        final mappedRange = config.mapRange(lineRange);
         examples[name] = Example(
           file: entity,
           lineRange: lineRange,
-          name: name,
-          content: lines.sublist(
-            lineRange.startLine + 1,
-            lineRange.endLine,
-          ),
+          config: config,
+          content: lines.sublist(mappedRange.startLine, mappedRange.endLine),
         );
       }
     }
@@ -87,11 +90,13 @@ Future<void> main(List<String> args) async {
     final docsDir = await Directory(mdsDirPath).create();
     for (final example in examples.values) {
       final file = File(
-        [docsDir.path, Platform.pathSeparator, '${example.name}.md'].join(),
+        [docsDir.path, Platform.pathSeparator, '${example.config.name}.md']
+            .join(),
       );
 
       await file.writeAsString(
-        ['```dart', ...example.content, '```'].join('\n'),
+        ['```${example.config.extension ?? 'dart'}', ...example.content, '```']
+            .join('\n'),
       );
     }
   }
@@ -100,12 +105,14 @@ Future<void> main(List<String> args) async {
   if (examplesFilePath != null) {
     final dartExamplesFile = await File(examplesFilePath).create();
     await dartExamplesFile.writeAsString(examples.values.map((e) {
-      final _name = e.name.replaceAll(RegExp(r'[-\s]'), '_');
+      final _name = e.config.name.replaceAll(RegExp(r'[-\s]'), '_');
       final _content =
           e.content.map((e) => e.replaceAll("'''", '"""')).join('\n');
       return "final $_name = r'''\n$_content'''; ";
     }).join('\n\n'));
   }
+
+  final List<String> checkErrors = [];
 
   /// Replace all include comments in .md files with the contents of the Dart examples
   for (final readme in mdFiles) {
@@ -152,7 +159,7 @@ Future<void> main(List<String> args) async {
       }
       includedExamples++;
       final _toAdd = [
-        '```dart',
+        '```${example.config.extension ?? 'dart'}',
         ...example.content,
         '```',
         if (endLine != null)
@@ -162,6 +169,20 @@ Future<void> main(List<String> args) async {
       ];
       newLines.addAll(_toAdd);
       delta += (endLine ?? startLine) - startLine;
+      if (justCheck) {
+        if (endLine == null) {
+          checkErrors.add(
+            'Error in ${example.config.name}: example not included.',
+          );
+        } else {
+          final err = areErrorDifferent(
+            readmeLines.sublist(startLine + 1, endLine + 1),
+            _toAdd,
+          );
+          if (err != null)
+            checkErrors.add('Error in ${example.config.name}: $err');
+        }
+      }
     }
 
     if (readmeLines.length > delta) {
@@ -178,20 +199,93 @@ Future<void> main(List<String> args) async {
       print(
         'Included $includedExamples example${includedExamples == 1 ? '' : 's'} in "${readme.path}"',
       );
-      await readme.writeAsString(newLines.join('\n'));
+      if (!justCheck) {
+        await readme.writeAsString(newLines.join('\n'));
+      }
     }
+  }
+  if (checkErrors.isNotEmpty) {
+    throw Exception(checkErrors.join('\n\n'));
+  }
+}
+
+String? areErrorDifferent(List<String> a, List<String> b) {
+  if (a.length != b.length) {
+    return 'Mismatch size.';
+  }
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return 'Mismatch in line: $i. Previous: ${a[i]} != Current: ${b[i]}.';
+    }
+  }
+}
+
+class ExampleConfig {
+  final String name;
+  final String? extension;
+  final int? start;
+  final int? end;
+
+  const ExampleConfig({
+    required this.name,
+    this.extension,
+    this.start,
+    this.end,
+  });
+
+  static ExampleConfig parse(String value) {
+    final values = value.split(',');
+
+    String? _find(String name) {
+      final key = '$name:';
+      for (final v in values) {
+        if (v.startsWith(key)) {
+          return v.substring(key.length);
+        }
+      }
+    }
+
+    final end = _find('end') == null ? null : int.parse(_find('end')!);
+    final start = _find('start') == null ? null : int.parse(_find('start')!);
+
+    return ExampleConfig(
+      name: values.first,
+      end: end,
+      start: start,
+      extension: _find('extension'),
+    );
+  }
+
+  LineRange mapRange(LineRange lineRange) {
+    final int startLine;
+    if (start == null) {
+      startLine = lineRange.startLine + 1;
+    } else if (start! < 0) {
+      startLine = lineRange.endLine! + start!;
+    } else {
+      startLine = lineRange.startLine + 1 + start!;
+    }
+    final int? endLine;
+    if (end == null) {
+      endLine = lineRange.endLine;
+    } else if (end! < 0) {
+      endLine = lineRange.endLine! + end!;
+    } else {
+      endLine = lineRange.startLine + end!;
+    }
+    return LineRange(startLine, endLine);
   }
 }
 
 class Example {
   final File file;
-  final String name;
+  final ExampleConfig config;
   final List<String> content;
   final LineRange lineRange;
 
   Example({
     required this.file,
-    required this.name,
+    required this.config,
     required this.content,
     required this.lineRange,
   });

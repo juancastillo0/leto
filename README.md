@@ -256,7 +256,7 @@ GraphQLSchema makeGraphQLSchema() {
           )
     ]),
   );
-  assert(schema.schemaStr == schemaString);
+  assert(schema.schemaStr == schemaString.trim());
   return schema;
 }
 
@@ -265,6 +265,7 @@ GraphQLSchema makeGraphQLSchema() {
 
 This will represent the following GraphQL Schema definition:
 
+<!-- include{quickstart-schema-string} -->
 ```graphql
 type Query {
   """Get the current state"""
@@ -290,6 +291,7 @@ type Subscription {
   onStateChange: Model!
 }
 ```
+<!-- include-end{quickstart-schema-string} -->
 
 You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 

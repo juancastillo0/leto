@@ -61,6 +61,7 @@ class ModelController {
 }
 // @example-end{quickstart-controller-state-definition}
 
+// @example-start{quickstart-schema-string,extension:graphql,start:1,end:-1}
 const schemaString = '''
 type Query {
   """Get the current state"""
@@ -84,7 +85,9 @@ type Mutation {
 
 type Subscription {
   onStateChange: Model!
-}''';
+}
+''';
+// @example-end{quickstart-schema-string}
 
 // @example-start{quickstart-make-schema}
 /// Create a [GraphQLSchema]
@@ -137,7 +140,7 @@ GraphQLSchema makeGraphQLSchema() {
           )
     ]),
   );
-  assert(schema.schemaStr == schemaString);
+  assert(schema.schemaStr == schemaString.trim());
   return schema;
 }
 
