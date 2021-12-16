@@ -73,7 +73,8 @@ class InputM {
   factory InputM.fromJson(Map<String, Object?> json) => _$InputMFromJson(json);
   Map<String, Object?> toJson() => _$InputMToJson(this);
 }
-// example-start{generator-input-object}
+
+// @example-start{generator-input-object}
 @GraphQLInput(name: 'InputMNRenamed')
 class InputMN {
   final String name;
@@ -141,7 +142,7 @@ class InputMN {
         if (parentNullDef != null) 'parentNullDef': parentNullDef,
       };
 }
-// example-end{generator-input-object}
+// @example-end{generator-input-object}
 
 @GraphQLInput()
 @JsonSerializable()
@@ -163,7 +164,8 @@ class InputJsonSerde {
 
   Map<String, Object?> toJson() => _$InputJsonSerdeToJson(this);
 }
-// example-start{generator-input-object-generic}
+
+// @example-start{generator-input-object-generic}
 @GraphQLInput()
 @JsonSerializable(genericArgumentFactories: true)
 class InputGen<T> {
@@ -183,7 +185,7 @@ class InputGen<T> {
 
   Map<String, Object?> toJson() => {'name': name, 'generic': generic};
 }
-// example-end{generator-input-object-generic}
+// @example-end{generator-input-object-generic}
 
 // TODO: add schema string tests
 @GraphQLInput()

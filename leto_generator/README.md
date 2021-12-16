@@ -55,6 +55,8 @@ Multiple examples with tests can be found in the [examples](https://github.com/j
 
 # Annotations (Decorators)
 
+All annotations with documentation and the supported configuration parameters can be found in  `package:leto_schema`'s [decorators file](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/decorators.dart).
+
 ## TODO: BeforeResolver
 
 
@@ -63,11 +65,211 @@ Multiple examples with tests can be found in the [examples](https://github.com/j
 ### GraphQLClass
 
 ### GraphQLField
+
+<!-- include{generator-class-renamed-graphql} -->
+```graphql
+type RenamedClassConfig {
+  value: String! @deprecated(reason: "value deprecated")
+  valueOverridden: String
+  valueNull: String
+  value2: String
+}
+```
+<!-- include-end{generator-class-renamed-graphql} -->
+
+<!-- include{generator-class-graphql} -->
+```graphql
+type ClassConfig2 implements ClassConfig2Interface {
+  value: String!
+  valueOverridden: String
+  renamedValue2: String!
+}
+```
+<!-- include-end{generator-class-graphql} -->
+
+<!-- include{generator-object-class-renamed} -->
+```dart
+@GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
+class ClassConfig {
+  @GraphQLDocumentation(deprecationReason: 'value deprecated')
+  @GraphQLField()
+  final String value;
+  final String valueOverridden;
+  final String? valueNull;
+  @GraphQLField(nullable: true)
+  final String value2;
+
+  ClassConfig({
+    required this.value2,
+    required this.value,
+    required this.valueOverridden,
+    this.valueNull,
+  });
+}
+```
+<!-- include-end{generator-object-class-renamed} -->
+
+<!-- include{generator-object-class} -->
+```dart
+final customInterface = objectType<Object>(
+  'ClassConfig2Interface',
+  fields: [
+    graphQLString.nonNull().field('value'),
+  ],
+  isInterface: true,
+);
+
+@GraphQLClass(omitFields: true, interfaces: ['customInterface'])
+class ClassConfig2 {
+  @GraphQLField()
+  final String value;
+  @GraphQLField(nullable: true)
+  final String valueOverridden;
+  final String notFound;
+  @GraphQLField(name: 'renamedValue2')
+  final String value2;
+
+  const ClassConfig2({
+    required this.value,
+    required this.valueOverridden,
+    required this.notFound,
+    required this.value2,
+  });
+}
+```
+<!-- include-end{generator-object-class} -->
+
 ### GraphQLUnion
+
+<!-- include{generator-unions-freezed} -->
+```dart
+@GraphQLClass()
+@freezed
+class UnionA with _$UnionA {
+  const factory UnionA.a1({
+    // five with default
+    @Default(5) int one,
+  }) = _UnionA1;
+
+  const factory UnionA.a2({
+    @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
+    @Deprecated('custom deprecated msg')
+        Decimal? dec,
+  }) = _UnionA2;
+
+  const factory UnionA.a3({
+    @GraphQLDocumentation(description: 'description for one') List<int>? one,
+  }) = UnionA3;
+
+  const factory UnionA.a4({
+    @GraphQLField(name: 'oneRenamed') required List<int> one,
+  }) = _UnionA4;
+
+  factory UnionA.fromJson(Map<String, Object?> json) => _$UnionAFromJson(json);
+}
+```
+<!-- include-end{generator-unions-freezed} -->
 
 ## Inputs
 
 ### GraphQLInput
+
+<!-- include{generator-input-object} -->
+```dart
+@GraphQLInput(name: 'InputMNRenamed')
+class InputMN {
+  final String name;
+  final InputM? parent;
+  final Json json;
+  @GraphQLArg(defaultCode: 'const [JsonMap({})]')
+  final List<Json> jsonListArgDef;
+  @GraphQLArg(defaultFunc: parentNullDefDefault)
+  final List<List<InputM>?>? parentNullDef;
+
+  static List<List<InputM>?> parentNullDefDefault() => [
+        null,
+        [
+          const InputM(
+            name: 'defaultName',
+            nested: [],
+            nestedNullItem: [],
+            ints: [0, 0],
+            doubles: [0, 0.1],
+          )
+        ]
+      ];
+
+  const InputMN({
+    required this.name,
+    this.parent,
+    this.json = const JsonList([JsonNumber(1)]),
+    required this.jsonListArgDef,
+    this.parentNullDef,
+  });
+
+  factory InputMN.fromJson(Map<String, Object?> json) {
+    return InputMN(
+      name: json['name']! as String,
+      parent: json['parent'] != null
+          ? InputM.fromJson(json['parent']! as Map<String, Object?>)
+          : null,
+      json: Json.fromJson(json['json']),
+      jsonListArgDef: List.of(
+        (json['jsonListArgDef'] as List).map(
+          (Object? e) => Json.fromJson(e),
+        ),
+      ),
+      parentNullDef: json['parentNullDef'] != null
+          ? List.of(
+              (json['parentNullDef']! as List<Object?>).map(
+                (e) => e == null
+                    ? null
+                    : List.of(
+                        (e as List<Object?>).map(
+                          (e) => InputM.fromJson(e as Map<String, Object?>),
+                        ),
+                      ),
+              ),
+            )
+          : null,
+    );
+  }
+
+  Map<String, Object?> toJson() => {
+        'name': name,
+        'parent': parent,
+        'json': json,
+        'jsonListArgDef': jsonListArgDef,
+        if (parentNullDef != null) 'parentNullDef': parentNullDef,
+      };
+}
+```
+<!-- include-end{generator-input-object} -->
+
+<!-- include{generator-input-object-generic} -->
+```dart
+@GraphQLInput()
+@JsonSerializable(genericArgumentFactories: true)
+class InputGen<T> {
+  final String name;
+  final T generic;
+
+  const InputGen({
+    required this.name,
+    required this.generic,
+  });
+
+  factory InputGen.fromJson(
+    Map<String, Object?> json,
+    T Function(Object?) fromJsonT,
+  ) =>
+      _$InputGenFromJson(json, fromJsonT);
+
+  Map<String, Object?> toJson() => {'name': name, 'generic': generic};
+}
+```
+<!-- include-end{generator-input-object-generic} -->
+
 ### GraphQLArg
 
 <!-- include{code-generation-arguments} -->
@@ -143,10 +345,77 @@ The GraphQLType of a field, input field, argument or class can be configured usi
 
 ### GraphQLEnum
 
+<!-- include{generator-enum-example} -->
+```dart
+/// comments for docs
+@GraphQLEnum(name: 'SimpleEnumRenamed')
+enum SimpleEnum {
+  @AttachFn(simpleVariantAttachments)
+  simpleVariantOne,
 
+  SIMPLE_VARIANT_TWO,
+}
 
+GraphQLAttachments simpleVariantAttachments() => const [CustomAttachment()];
 
+@GraphQLEnum(valuesCase: EnumNameCase.snake_case)
+enum SnakeCaseEnum {
+  @GraphQLDocumentation(description: 'description from annotation')
+  @Deprecated('custom deprecated')
+  variantOne,
 
+  /// Documentation for variant two
+  variantTwo,
+}
+```
+<!-- include-end{generator-enum-example} -->
+
+<!-- include{generator-class-enum-example} -->
+```dart
+GraphQLAttachments classEnumAttachments() => const [ElementComplexity(2)];
+
+@AttachFn(classEnumAttachments)
+@GraphQLEnum(valuesCase: EnumNameCase.CONSTANT_CASE)
+@immutable
+class ClassEnum {
+  final int code;
+  final bool isError;
+
+  const ClassEnum._(this.code, this.isError);
+
+  @GraphQLEnumVariant()
+  static const variantOne = ClassEnum._(100, false);
+
+  /// The second variant docs
+  @GraphQLEnumVariant()
+  static const variantTwo = ClassEnum._(201, false);
+  @GraphQLEnumVariant(name: 'errorRenamed')
+  @AttachFn(variantErrorAttachments)
+  static const variantErrorThree = ClassEnum._(300, true);
+
+  static GraphQLAttachments variantErrorAttachments() =>
+      const [CustomAttachment()];
+
+  static const List<ClassEnum> values = [
+    variantOne,
+    variantTwo,
+    variantErrorThree,
+  ];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ClassEnum && other.code == code && other.isError == isError;
+  }
+
+  @override
+  int get hashCode => code.hashCode ^ isError.hashCode;
+}
+```
+<!-- include-end{generator-class-enum-example} -->
+
+### Generics
 
 
 # Dart Type to GraphQLType coercion

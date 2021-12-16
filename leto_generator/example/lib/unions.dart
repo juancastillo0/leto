@@ -64,7 +64,7 @@ type UnionA4 {
   getUnionA: UnionA''',
 ];
 
-// example-start{generator-unions-freezed}
+// @example-start{generator-unions-freezed}
 @GraphQLClass()
 @freezed
 class UnionA with _$UnionA {
@@ -89,7 +89,7 @@ class UnionA with _$UnionA {
 
   factory UnionA.fromJson(Map<String, Object?> json) => _$UnionAFromJson(json);
 }
-// example-end{generator-unions-freezed}
+// @example-end{generator-unions-freezed}
 
 final unionARef = ScopeRef<UnionA>();
 

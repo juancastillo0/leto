@@ -66,7 +66,7 @@ enum ClassEnum @cost(complexity: 2) {
     });
   });
 }
-
+// @example-start{generator-enum-example}
 /// comments for docs
 @GraphQLEnum(name: 'SimpleEnumRenamed')
 enum SimpleEnum {
@@ -87,12 +87,14 @@ enum SnakeCaseEnum {
   /// Documentation for variant two
   variantTwo,
 }
+// @example-end{generator-enum-example}
 
-GraphQLAttachments classEnumAttachments() => const [ElementComplexity(2)];
 
 class CustomAttachment {
   const CustomAttachment();
 }
+// @example-start{generator-class-enum-example}
+GraphQLAttachments classEnumAttachments() => const [ElementComplexity(2)];
 
 @AttachFn(classEnumAttachments)
 @GraphQLEnum(valuesCase: EnumNameCase.CONSTANT_CASE)
@@ -132,6 +134,7 @@ class ClassEnum {
   @override
   int get hashCode => code.hashCode ^ isError.hashCode;
 }
+// @example-end{generator-class-enum-example}
 
 @Query()
 ClassEnum enumsTestQuery(

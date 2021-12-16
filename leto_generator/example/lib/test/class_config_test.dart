@@ -5,25 +5,32 @@ import 'package:test/test.dart';
 part 'class_config_test.g.dart';
 
 const classConfigSchemaStr = [
+// @example-start{generator-class-renamed-graphql,extension:graphql,start:1,end:-1}
   '''
 type RenamedClassConfig {
   value: String! @deprecated(reason: "value deprecated")
   valueOverridden: String
   valueNull: String
   value2: String
-}''',
+}
+''',
+// @example-end{generator-class-renamed-graphql}
   '''
 interface ClassConfig2Interface {
   value: String!
 }''',
+// @example-start{generator-class-graphql,extension:graphql,start:1,end:-1}
   '''
 type ClassConfig2 implements ClassConfig2Interface {
   value: String!
   valueOverridden: String
   renamedValue2: String!
-}''',
+}
+''',
+// @example-end{generator-class-graphql}
 ];
 
+// @example-start{generator-object-class-renamed}
 @GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
 class ClassConfig {
   @GraphQLDocumentation(deprecationReason: 'value deprecated')
@@ -41,7 +48,9 @@ class ClassConfig {
     this.valueNull,
   });
 }
+// @example-end{generator-object-class-renamed}
 
+// @example-start{generator-object-class}
 final customInterface = objectType<Object>(
   'ClassConfig2Interface',
   fields: [
@@ -67,6 +76,7 @@ class ClassConfig2 {
     required this.value2,
   });
 }
+// @example-end{generator-object-class}
 
 void main() {
   test('class config generator', () {
