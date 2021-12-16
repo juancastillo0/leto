@@ -66,6 +66,7 @@ enum ClassEnum @cost(complexity: 2) {
     });
   });
 }
+
 // @example-start{generator-enum-example}
 /// comments for docs
 @GraphQLEnum(name: 'SimpleEnumRenamed')
@@ -89,10 +90,10 @@ enum SnakeCaseEnum {
 }
 // @example-end{generator-enum-example}
 
-
 class CustomAttachment {
   const CustomAttachment();
 }
+
 // @example-start{generator-class-enum-example}
 GraphQLAttachments classEnumAttachments() => const [ElementComplexity(2)];
 
