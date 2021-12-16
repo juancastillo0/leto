@@ -10,6 +10,7 @@ import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
+import 'package:leto_generator_example/interfaces.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
@@ -59,9 +60,6 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           queryInClass6GraphQLField,
           returnFiveFromFreezedInputGraphQLField,
           getUnionAGraphQLField,
-          getNestedInterfaceImpl3GraphQLField,
-          getNestedInterfaceImpl2GraphQLField,
-          getNestedInterfaceImplByIndexGraphQLField,
           getUnionNoFrezzedGraphQLField,
           getNameGraphQLField,
           resultUnionObjectGraphQLField,
@@ -69,6 +67,9 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           resultObjectGraphQLField,
           resultObjectErrGraphQLField,
           testManyDefaultsGraphQLField,
+          getNestedInterfaceImpl3GraphQLField,
+          getNestedInterfaceImpl2GraphQLField,
+          getNestedInterfaceImplByIndexGraphQLField,
         ],
       ),
       mutationType: objectType(

@@ -1,7 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:leto/leto.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
-import 'package:leto_generator_example/unions.dart';
+import 'package:leto_generator_example/interfaces.dart';
 import 'package:test/test.dart';
 
 void main() {
