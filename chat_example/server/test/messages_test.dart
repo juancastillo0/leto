@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:http/http.dart' as http;
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf/leto_shelf.dart';
-import 'package:server/events/database_event.dart';
+import 'package:server/events/events_api.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';

@@ -12,7 +12,7 @@ import 'package:server/data_utils/sqlite_utils.dart';
 import 'package:server/file_system.dart';
 import 'package:server/handler.dart';
 import 'package:server/users/auth.dart';
-import 'package:server/users/user_table.dart';
+import 'package:server/users/user_api.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:test/test.dart';
 

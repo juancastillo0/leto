@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_table.dart';
+part of 'user_api.dart';
 
 // **************************************************************************
 // _GraphQLGenerator

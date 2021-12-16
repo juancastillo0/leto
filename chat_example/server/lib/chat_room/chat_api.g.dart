@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'chat_table.dart';
+part of 'chat_api.dart';
 
 // **************************************************************************
 // _GraphQLGenerator

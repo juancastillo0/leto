@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_rooms.dart';
+part of 'user_rooms_api.dart';
 
 // **************************************************************************
 // _GraphQLGenerator

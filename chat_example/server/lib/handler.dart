@@ -8,7 +8,7 @@ import 'package:leto_shelf/leto_shelf.dart';
 import 'package:server/api_schema.dart' show makeApiSchema;
 import 'package:server/chat_room/chat_table.dart';
 import 'package:server/chat_room/user_rooms.dart' show userChatsRef;
-import 'package:server/events/database_event.dart';
+import 'package:server/events/events_api.dart';
 import 'package:server/file_system.dart';
 import 'package:server/users/auth.dart'
     show closeWebSocketSessionConnections, setWebSocketAuth;

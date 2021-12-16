@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'database_event.dart';
+part of 'events_api.dart';
 
 // **************************************************************************
 // _GraphQLGenerator
