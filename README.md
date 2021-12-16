@@ -423,7 +423,7 @@ In the shelf router you can specify other handlers such as static files or other
 ```
 <!-- include-end{quickstart-setup-graphql-server-utilities} -->
 
-Once you set up all the handlers, you can start the server adding middlewares if necessary. In this example, we will use the `etag` and `cors` middlewares from  `package:leto_shelf`. You can read more about the in the [package's README](https://github.com/juancastillo0/leto/tree/main/leto_shelf).
+Once you set up all the handlers, you can start the server adding middlewares if necessary. In this example, we will use the `etag` and `cors` middlewares from `package:leto_shelf`. You can read more about them in the [package's README](https://github.com/juancastillo0/leto/tree/main/leto_shelf).
 
 <!-- include{quickstart-start-server} -->
 ```dart
@@ -1002,7 +1002,7 @@ List<UnionNoFreezed> getUnionNoFrezzed() {
 
 ## Wrapping Types
 
-Wrapping types allow you to represent a collection of values. This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. 
+Wrapping types allow to modify the behavior of the inner (wrapped) type. The inner types can be of any `GraphQLType` and wrapping types can be Output or Input Types if the wrapped type is an Output or Input type. GraphQL has two wrapping types, `GraphQLNonNullType` and `GraphQLListType`.
 
 ## Non-Nullable
 
@@ -1010,7 +1010,7 @@ Wrapping types allow you to represent a collection of values. This values can be
 
 `GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
 
-In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` function present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
+In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` method present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
 
 ## Lists
 
@@ -1018,9 +1018,11 @@ In GraphQL this is represented using the `!` exclamation mark after a given type
 
 `GraphQLListType` allows you to represent a collection of values.
 
-This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type.
+This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type. You can use the `<type>.list()` method present in each `GraphQLType` or the `listOf(<type>)` global utility function to create a `GraphQLListType`. For example, `graphQLString.list()` will be a `[String]` in GraphQL.
 
-In GraphQL, you can present it like this:
+### Example <!-- omit in toc -->
+
+In GraphQL, you can represent it like this:
 
 ```graphql
 type Model {
@@ -1074,7 +1076,7 @@ final model = objectType<Model>(
 
 ```
 
-With code generation, you just annotate the different classes with `@GraphQLClass()` and the fields and models containing Dart Lists will be generated using `GraphQLListType`s.
+With code generation, you just annotate the different classes with `@GraphQLClass()` (or the expected annotation) and the fields and models containing Dart Lists or non-nullable types will be generated using `GraphQLListType` or `GraphQLNonNullType` as required.
 
 ```dart
 import 'package:leto_schema/leto_schema.dart';
@@ -1094,7 +1096,7 @@ class Model {
 
 ## Abstract Types
 
-Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of tools explained in the following sections. You can read the code that executes the following logic in package:leto `GraphQL.resolveAbstractType`.
+Abstract types like Interfaces and Unions, require type resolution of its variants on execution. For that, we provide a couple of tools explained in the following sections. You can read the code that executes the following logic in package:leto's `GraphQL.resolveAbstractType` method.
 
 ### resolveType
 
@@ -1182,15 +1184,14 @@ For code generation you need to provide `customTypes` in the [build.yaml](https:
 
 ```yaml
 target:
-    default:
-        builders:
-            leto_generator:
-                options:
-                    customTypes:
-                        - name: "Decimal"
-                        import: "package:<your_package_name>/<path_to_implementation>.dart"
-                        getter: "fe"
-
+  default:
+    builders:
+      leto_generator:
+        options:
+          customTypes:
+            - name: "Decimal"
+            import: "package:<your_package_name>/<path_to_implementation>.dart"
+            getter: "decimalGraphQLType"
 ```
 
 ### Generic Types
@@ -1291,9 +1292,8 @@ GraphQL resolvers execute the logic for each field and return the expected value
 
 ## Queries and Mutations
 
-Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `resolve` parameter this will be used to resolve all fields. The first argument to `resolve` with be the parent object, if this field is in the root Query or Mutation Object, the value will be the the root value passed as an argument to `GraphQL.parseAndExecute` and a `SubscriptionEvent` if this is a subscription field (more in the [subscription](#subscriptions) section). 
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `resolve` parameter, this will be used to resolve all fields. The first argument to `resolve` with be the parent object, if this field is in the root Query or Mutation Object, the value will be the the root value passed as an argument to `GraphQL.parseAndExecute` and a `SubscriptionEvent` if this is a subscription field (more in the [subscription](#subscriptions) section). The second argument will be the field's [`Ctx`](#ctx), with it you can access defined Refs with `Ref.get(ctx)` and view more information about the resolved field or GraphQL request. When using `package:leto_shelf`, you can access the HTTP request and modify the HTTP response, more information in the [package's README](https://github.com/juancastillo0/leto/tree/main/leto_shelf).
 
-To
 
 ```graphql
 type Query {
