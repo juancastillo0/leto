@@ -10,6 +10,10 @@
   <img src="https://codecov.io/gh/juancastillo0/leto/branch/main/graph/badge.svg?token=QJLQSCIJ42" alt="Code coverage"/>
 </a>
 
+<a href='https://coveralls.io/github/juancastillo0/leto?branch=main'>
+  <img src='https://coveralls.io/repos/github/juancastillo0/leto/badge.svg?branch=main' alt='Coverage Status' />
+</a>
+
 <a href="https://github.com/juancastillo0/leto/actions/workflows/test.yaml">
   <img src="https://img.shields.io/github/checks-status/juancastillo0/leto/main" alt="CI checks"/>
 </a>
