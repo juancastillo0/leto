@@ -4,7 +4,7 @@ mutation refreshAuthToken {
 
 mutation signIn($name: String, $password: String) {
   signIn(name: $name, password: $password) {
-    ... on ErrCSignInError {
+    ... on ErrCSignInErrorReq {
       message
       value
     }
@@ -16,7 +16,7 @@ mutation signIn($name: String, $password: String) {
 
 mutation signUp($name: String!, $password: String!) {
   signUp(name: $name, password: $password) {
-    ... on ErrCSignUpError {
+    ... on ErrCSignUpErrorReq {
       message
       value
     }

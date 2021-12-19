@@ -86,6 +86,9 @@ Future<RootStore> initClient(PersistenceStore persistence) async {
     ],
   );
   final authStore = ref.read(authStoreProv.notifier);
+  if (authStore.user != null) {
+    await authStore.refreshAuthToken(url: url, httpClient: httpClient);
+  }
   if (authStore.user == null) {
     await authStore.signInAnnon();
   }

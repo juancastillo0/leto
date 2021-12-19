@@ -44,7 +44,7 @@ final userIdProvider = Provider((ref) => ref.watch(authStoreProv)?.user.id);
 class AuthStore extends StateNotifier<GSTokenWithUserData?> {
   final T Function<T>(ProviderBase<T> provider) _read;
   AuthStore(this._read, [GSTokenWithUserData? state]) : super(state) {
-    this.addListener((state) {
+    addListener((state) {
       print('AuthStore state $state');
       _read(authStorageProv).set(state);
       if (state == null) {
@@ -79,22 +79,29 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
       return null;
     }
     String? authToken;
+    bool success = false;
     try {
       final response = await httpClient.post(
         Uri.parse(url),
-        body: {'query': r'mutation { refreshAuthToken }'},
-        headers: {HttpHeaders.authorizationHeader: refreshToken},
+        body: jsonEncode({'query': 'mutation { refreshAuthToken }'}),
+        headers: {
+          HttpHeaders.authorizationHeader: refreshToken,
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
       );
       if (response.statusCode == 200) {
         final bodyMap = jsonDecode(response.body) as Map<String, Object?>;
         final data = bodyMap['data'];
         if (bodyMap['errors'] == null && data is Map<String, Object?>) {
           authToken = data['refreshAuthToken'] as String?;
+          success = true;
         }
       }
     } catch (e) {}
     if (authToken != null) {
       state = state!.rebuild((p0) => p0..accessToken = authToken);
+    } else if (success) {
+      state = null;
     }
     _refreshAuthTokenComp!.complete(authToken);
     _refreshAuthTokenComp = null;
@@ -165,7 +172,7 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
       return;
     }
     final data = event.data!.signIn;
-    if (data is GsignInData_signIn__asErrCSignInError) {
+    if (data is GsignInData_signIn__asErrCSignInErrorReq) {
       switch (data.value) {
         case GSignInError.alreadySignedIn:
           alreadySignedError(data.message);
@@ -219,7 +226,7 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
         }
 
         final data = event.data!.signUp;
-        if (data is GsignUpData_signUp__asErrCSignUpError) {
+        if (data is GsignUpData_signUp__asErrCSignUpErrorReq) {
           switch (data.value) {
             case GSignUpError.alreadySignedUp:
               alreadySignedError(data.message);
