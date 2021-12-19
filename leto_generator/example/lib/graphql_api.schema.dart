@@ -5,12 +5,12 @@ import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_generator_example/test/enums_test.dart';
 import 'package:leto_generator_example/test/class_config_test.dart';
 import 'package:leto_generator_example/inputs.dart';
+import 'package:leto_generator_example/interfaces.dart';
 import 'package:leto_generator_example/resolver_class.dart';
 import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
-import 'package:leto_generator_example/interfaces.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
@@ -52,6 +52,9 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           getClassConfigGraphQLField,
           testInputGenGraphQLField,
           queryMultipleParamsGraphQLField,
+          getNestedInterfaceImpl3GraphQLField,
+          getNestedInterfaceImpl2GraphQLField,
+          getNestedInterfaceImplByIndexGraphQLField,
           queryInClassGraphQLField,
           queryInClass2GraphQLField,
           queryInClass3GraphQLField,
@@ -67,9 +70,6 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           resultObjectGraphQLField,
           resultObjectErrGraphQLField,
           testManyDefaultsGraphQLField,
-          getNestedInterfaceImpl3GraphQLField,
-          getNestedInterfaceImpl2GraphQLField,
-          getNestedInterfaceImplByIndexGraphQLField,
         ],
       ),
       mutationType: objectType(

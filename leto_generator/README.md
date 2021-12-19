@@ -1,11 +1,45 @@
-# leto_generator
+# leto_generator <!-- omit in toc -->
 [![Pub](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dartlang.org/packages/leto_generator)
 [![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
 
-Generates `package:leto_schema` schemas for
-annotated class.
+Generates `package:leto_schema`'s `GraphQLSchema`s for annotated Dart classes and functions.
 
-Replaces `convertDartType` from `package:leto`.
+# Table of contents <!-- omit in toc -->
+
+- [Examples](#examples)
+- [Annotations (Decorators)](#annotations-decorators)
+  - [Outputs](#outputs)
+    - [GraphQLClass](#graphqlclass)
+    - [GraphQLField](#graphqlfield)
+    - [GraphQLUnion](#graphqlunion)
+  - [Inputs](#inputs)
+    - [GraphQLInput](#graphqlinput)
+    - [GraphQLArg](#graphqlarg)
+    - [Resolver Inputs](#resolver-inputs)
+  - [Other](#other)
+    - [GraphQLDocumentation](#graphqldocumentation)
+    - [GraphQLEnum](#graphqlenum)
+    - [Generics](#generics)
+- [Dart Type to GraphQLType coercion](#dart-type-to-graphqltype-coercion)
+  - [Default type mappings](#default-type-mappings)
+  - [Provided type annotations](#provided-type-annotations)
+  - [Class.graphQLType static getter](#classgraphqltype-static-getter)
+  - [customTypes in build.yaml](#customtypes-in-buildyaml)
+  - [@GraphQLDocumentation(type: Function, typeName: String)](#graphqldocumentationtype-function-typename-string)
+- [Resolvers](#resolvers)
+  - [TODO: BeforeResolver](#todo-beforeresolver)
+  - [Function Resolvers](#function-resolvers)
+  - [Class Resolvers](#class-resolvers)
+- [Global Configuration (build.yaml)](#global-configuration-buildyaml)
+  - [Fields](#fields)
+    - [Name for ID GraphQLType (default: "id")](#name-for-id-graphqltype-default-id)
+    - [nullableFields (default: false)](#nullablefields-default-false)
+    - [omitFields (default: false)](#omitfields-default-false)
+    - [omitPrivateFields (default: true)](#omitprivatefields-default-true)
+  - [Resolvers](#resolvers-1)
+    - [instantiateCode (default: null)](#instantiatecode-default-null)
+    - [customTypes](#customtypes)
+    - [graphQLApiSchemaFile](#graphqlapischemafile)
 
 ## Usage
 Usage is very simple. You just need a `@graphQLClass` or `@GraphQLClass()` annotation
@@ -57,57 +91,17 @@ Multiple examples with tests can be found in the [examples](https://github.com/j
 
 All annotations with documentation and the supported configuration parameters can be found in  `package:leto_schema`'s [decorators file](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/decorators.dart).
 
-## TODO: BeforeResolver
-
-
 ## Outputs
+
+Annotations for GraphQL Output Types
 
 ### GraphQLClass
 
+Generate `GraphQLObjectType`s and Interfaces with this annotation. The constructor provides a couple of parameters to configure the generated fields. 
+
 ### GraphQLField
 
-<!-- include{generator-class-renamed-graphql} -->
-```graphql
-type RenamedClassConfig {
-  value: String! @deprecated(reason: "value deprecated")
-  valueOverridden: String
-  valueNull: String
-  value2: String
-}
-```
-<!-- include-end{generator-class-renamed-graphql} -->
-
-<!-- include{generator-class-graphql} -->
-```graphql
-type ClassConfig2 implements ClassConfig2Interface {
-  value: String!
-  valueOverridden: String
-  renamedValue2: String!
-}
-```
-<!-- include-end{generator-class-graphql} -->
-
-<!-- include{generator-object-class-renamed} -->
-```dart
-@GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
-class ClassConfig {
-  @GraphQLDocumentation(deprecationReason: 'value deprecated')
-  @GraphQLField()
-  final String value;
-  final String valueOverridden;
-  final String? valueNull;
-  @GraphQLField(nullable: true)
-  final String value2;
-
-  ClassConfig({
-    required this.value2,
-    required this.value,
-    required this.valueOverridden,
-    this.valueNull,
-  });
-}
-```
-<!-- include-end{generator-object-class-renamed} -->
+Configures the generation of a `GraphQLObjectField` in a `GraphQLObjectType`.
 
 <!-- include{generator-object-class} -->
 ```dart
@@ -139,7 +133,58 @@ class ClassConfig2 {
 ```
 <!-- include-end{generator-object-class} -->
 
+Fields annotated with `@GraphQLField()` will appear in the type definition, but `notFound` will not since `omitFields: true` and `notFound` is not annotated with `@GraphQLField()`. The type implements the interface specified in the annotation.
+
+<!-- include{generator-class-graphql} -->
+```graphql
+type ClassConfig2 implements ClassConfig2Interface {
+  value: String!
+  valueOverridden: String
+  renamedValue2: String!
+}
+```
+<!-- include-end{generator-class-graphql} -->
+
+The following class uses the `nullableFields` parameter to override the default nullability type inference. When true, all fields will be nullable by default.
+
+<!-- include{generator-object-class-renamed} -->
+```dart
+@GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
+class ClassConfig {
+  @GraphQLDocumentation(deprecationReason: 'value deprecated')
+  @GraphQLField()
+  final String value;
+  final String valueOverridden;
+  final String? valueNull;
+  @GraphQLField(nullable: true)
+  final String value2;
+
+  ClassConfig({
+    required this.value2,
+    required this.value,
+    required this.valueOverridden,
+    this.valueNull,
+  });
+}
+```
+<!-- include-end{generator-object-class-renamed} -->
+
+The previous Dart code will generate a GraphQL Object Type with the following definition:
+
+<!-- include{generator-class-renamed-graphql} -->
+```graphql
+type RenamedClassConfig {
+  value: String! @deprecated(reason: "value deprecated")
+  valueOverridden: String
+  valueNull: String
+  value2: String
+}
+```
+<!-- include-end{generator-class-renamed-graphql} -->
+
 ### GraphQLUnion
+
+[Unions](https://github.com/juancastillo0/leto#unions) allow you to specify that a given value can be one of multiple possible objects. For code generation we use [freezed](https://github.com/rrousselGit/freezed)-like unions where factory constructors specify the different properties for the different objects. Other annotations such as `@GraphQLField()`, `@GraphQLDocumentation()` and freezed's `@Default` will also work as shown in the example.
 
 <!-- include{generator-unions-freezed} -->
 ```dart
@@ -172,7 +217,16 @@ class UnionA with _$UnionA {
 
 ## Inputs
 
+Annotations for GraphQL Input Types
+
 ### GraphQLInput
+
+Specifies that a given class should generate a [`GraphQLInputObject`](https://github.com/juancastillo0/leto#inputs-and-input-objects). All classes annotated with `@GraphQLInput()` should provide a `fromJson` factory or static method as shown in the following examples. You can use packages such us `json_serializable` to generate the serialization code.
+
+### GraphQLArg
+
+This annotation allows you to specify a default value for Input types in the schema. The type with a default value should support de-serializing the provided default value or should be able to be serialized with a `toJson` method. This will also work for arguments in resolvers as shown in the [Resolver Inputs](#resolver-inputs) section.
+
 
 <!-- include{generator-input-object} -->
 ```dart
@@ -246,6 +300,8 @@ class InputMN {
 ```
 <!-- include-end{generator-input-object} -->
 
+Generic input types are supported. However the api may change in the future. Your `fromJson` method should have generic argument factories as parameters, functions that return the generic instance from a serialized value. You can use the `@JsonSerializable(genericArgumentFactories: true)` if using `json_serializable` as shown in the example.
+
 <!-- include{generator-input-object-generic} -->
 ```dart
 @GraphQLInput()
@@ -270,7 +326,13 @@ class InputGen<T> {
 ```
 <!-- include-end{generator-input-object-generic} -->
 
-### GraphQLArg
+### Resolver Inputs
+
+// TODO: `@FromCtx()` Type.fromCtx;
+
+Authentication (admin|role);
+
+For resolvers, you just specify the type that you want as input and the input GraphQL type will be included in the generated field definition.  You can use the `@GraphQLArg()` annotation to specify a default value or specify the default value directly in the dart code if it can be a `const` Dart definition.
 
 <!-- include{code-generation-arguments} -->
 ```dart
@@ -345,6 +407,8 @@ The GraphQLType of a field, input field, argument or class can be configured usi
 
 ### GraphQLEnum
 
+Enums work as expected using the `@GraphQLEnum()` annotation. The `valuesCase` parameter can be used to specify the case of the generated GraphQL enum definition. Some example of simple enums:
+
 <!-- include{generator-enum-example} -->
 ```dart
 /// comments for docs
@@ -369,6 +433,10 @@ enum SnakeCaseEnum {
 }
 ```
 <!-- include-end{generator-enum-example} -->
+
+// TODO: generated graphql SDL
+
+You can also provide a custom enum class, you will need to annotate each static variant with the `@GraphQLEnumVariant()` decorator and have a `Class.values` static getter. All variants should be of the same type as the Enum class. An example of this is shown in the following code snippet.
 
 <!-- include{generator-class-enum-example} -->
 ```dart
@@ -417,10 +485,11 @@ class ClassEnum {
 
 ### Generics
 
+// TODO:
 
 # Dart Type to GraphQLType coercion
 
-
+Dart types specified as fields of classes or input parameters in resolvers will be coerced into `GraphQLType`s using the following rules.
 
 ## Default type mappings
 
@@ -462,15 +531,12 @@ If you want to customize a single field or argument with a GraphQLType different
 
 # Resolvers
 
-A Class annotated with `@GraphQLClass()` will generate fields for all its methods.
+A Class annotated with `@GraphQLClass()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
 
-### Resolver Inputs
+## TODO: BeforeResolver
 
-// TODO: `@FromCtx()` Type.fromCtx;
 
-Authentication (admin|role);
-
-### Function Resolvers
+## Function Resolvers
 
 You can use the `@Query()`, `@Mutation()` and `@Subscription()` annotation to specify that a given method or function is a field in the given root object type (Query, Mutation or Subscription root objects).All function annotated with `@Subscription()` should return a `Stream` of values.
 
@@ -486,7 +552,7 @@ When the return type is a generic type, you can override the GraphQL type name w
 
 - TODO: nullable return type
 
-### Class Resolvers
+## Class Resolvers
 
 With `@ClassResolver()` you can specify that a set of fields will be resolved by executing the methods of the decorated class. This allows you to group the fields into a separate class which give you a couple of nice features. Since in Dart all classes specify an "interface" this could be useful if you want to unit test the interface or implement the class resolver's API in other contexts. This also allows you to easily access common dependencies shared between the fields in the resolver class. Instead of using `final dependencyName = dependencyRef.get(ctx);` in each field's resolver method body, you could create a field or getter within the class.
 
