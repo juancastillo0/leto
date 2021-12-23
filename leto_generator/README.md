@@ -2,7 +2,7 @@
 [![Pub](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dartlang.org/packages/leto_generator)
 [![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
 
-Generates `package:leto_schema`'s `GraphQLSchema`s for annotated Dart classes and functions.
+Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes and functions. This is a code-first generator which will generate different GraphQL elements based on annotations in Dart code.
 
 # Table of contents <!-- omit in toc -->
 
@@ -11,6 +11,7 @@ Generates `package:leto_schema`'s `GraphQLSchema`s for annotated Dart classes an
   - [Outputs](#outputs)
     - [GraphQLClass](#graphqlclass)
     - [GraphQLField](#graphqlfield)
+      - [Interfaces](#interfaces)
     - [GraphQLUnion](#graphqlunion)
   - [Inputs](#inputs)
     - [GraphQLInput](#graphqlinput)
@@ -39,48 +40,28 @@ Generates `package:leto_schema`'s `GraphQLSchema`s for annotated Dart classes an
   - [Resolvers](#resolvers-1)
     - [instantiateCode (default: null)](#instantiatecode-default-null)
     - [customTypes](#customtypes)
+      - [Example](#example)
     - [graphQLApiSchemaFile](#graphqlapischemafile)
 
 ## Usage
-Usage is very simple. You just need a `@graphQLClass` or `@GraphQLClass()` annotation
+Usage is very simple. You just need `@GraphQLClass()` annotation
 on any class you want to generate an object type for.
 
 Individual fields can have a `@GraphQLDocumentation()` annotation, to provide information
 like descriptions, deprecation reasons, etc.
 
-```dart
-@graphQLClass
-class Todo {
-  String text;
-
-  @GraphQLDocumentation(description: 'Whether this item is complete.')
-  bool isComplete;
-}
-
-void main() {
-  print(todoGraphQLType.fields.map((f) => f.name));
-}
+```yaml
+dependencies:
+  leto_schema:
+dependencies:
+  leto_generator:
+  build_runner:
 ```
 
-The following is generated (as of April 18th, 2019):
+Run the code generator:
 
-```dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'main.dart';
-
-// **************************************************************************
-// _GraphQLGenerator
-// **************************************************************************
-
-/// Auto-generated from [Todo].
-final GraphQLObjectType todoGraphQLType = objectType('Todo',
-    isInterface: false,
-    interfaces: [],
-    fields: [
-      field('text', graphQLString),
-      field('isComplete', graphQLBoolean)
-    ]);
+```
+dart pub run build_runner watch --delete-conflicting-outputs
 ```
 
 # Examples
@@ -102,6 +83,8 @@ Generate `GraphQLObjectType`s and Interfaces with this annotation. The construct
 ### GraphQLField
 
 Configures the generation of a `GraphQLObjectField` in a `GraphQLObjectType`.
+
+In this example, the `omitFields` parameter is used to omit all fields by default from the generation. Also an usage of the `interfaces` parameter is shown, a better approach for specifying interfaces is shown in the [Interfaces section](#interfaces).
 
 <!-- include{generator-object-class} -->
 ```dart
@@ -182,6 +165,95 @@ type RenamedClassConfig {
 ```
 <!-- include-end{generator-class-renamed-graphql} -->
 
+#### Interfaces
+
+You may use abstract classes to specify that a given class annotated with `@GraphQLClass()` should generate a GraphQLInterface. Implemented classes that generate GraphQLInterfaces will appear as an interface of a the generated Object or Interface.
+
+The following annotated Dart classes show the behavior.
+
+<!-- include{generator-interfaces} -->
+```dart
+@GraphQLClass()
+abstract class NestedInterface {
+  Decimal get dec;
+}
+
+@GraphQLClass()
+abstract class NamedInterface {
+  String? get name;
+}
+
+@GraphQLClass()
+class NestedInterfaceImpl implements NestedInterface {
+  @override
+  final Decimal dec;
+
+  final String? name;
+
+  NestedInterfaceImpl(this.name, this.dec);
+}
+
+@GraphQLClass()
+class NestedInterfaceImpl2 implements NestedInterfaceImpl {
+  @override
+  final Decimal dec;
+
+  @override
+  final String? name;
+  final String name2;
+
+  NestedInterfaceImpl2({
+    required this.dec,
+    required this.name,
+    required this.name2,
+  });
+}
+
+@GraphQLClass()
+class NestedInterfaceImpl3 extends NestedInterfaceImpl
+    implements NamedInterface {
+  final String name3;
+
+  NestedInterfaceImpl3({
+    required Decimal dec,
+    required String? name,
+    required this.name3,
+  }) : super(name, dec);
+}
+```
+<!-- include-end{generator-interfaces} -->
+
+Will generate the following GraphQL definitions:
+
+<!-- include{generator-interfaces-graphql} -->
+```graphql
+interface NestedInterface {
+  dec: Decimal!
+}
+
+interface NamedInterface {
+  name: String
+}
+
+type NestedInterfaceImpl implements NestedInterface {
+  dec: Decimal!
+  name: String
+}
+
+type NestedInterfaceImpl2 implements NestedInterface {
+  dec: Decimal!
+  name: String
+  name2: String!
+}
+
+type NestedInterfaceImpl3 implements NamedInterface & NestedInterface {
+  name3: String!
+  dec: Decimal!
+  name: String
+}
+```
+<!-- include-end{generator-interfaces-graphql} -->
+
 ### GraphQLUnion
 
 [Unions](https://github.com/juancastillo0/leto#unions) allow you to specify that a given value can be one of multiple possible objects. For code generation we use [freezed](https://github.com/rrousselGit/freezed)-like unions where factory constructors specify the different properties for the different objects. Other annotations such as `@GraphQLField()`, `@GraphQLDocumentation()` and freezed's `@Default` will also work as shown in the example.
@@ -214,6 +286,93 @@ class UnionA with _$UnionA {
 }
 ```
 <!-- include-end{generator-unions-freezed} -->
+
+
+<!-- include{generator-unions-freezed-graphql} -->
+```graphql
+union UnionA = UnionA1 | UnionA2 | UnionA3 | UnionA4
+
+type UnionA1 {
+  """five with default"""
+  one: Int!
+}
+
+type UnionA2 {
+  dec: Decimal @deprecated(reason: "custom deprecated msg")
+}
+
+type UnionA3 {
+  """description for one"""
+  one: [Int!]
+}
+
+type UnionA4 {
+  oneRenamed: [Int!]!
+}
+```
+<!-- include-end{generator-unions-freezed-graphql} -->
+
+If you don't use `package:freezed`, your can still generate unions with the same Dart definition, but actually defining the constructors for each possible object in the union:
+
+<!-- include{unions-example-generator} -->
+```dart
+GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
+
+@AttachFn(unionNoFreezedAttachments)
+@GraphQLDocumentation(
+  description: '''
+Description from annotation.
+
+Union generated from raw Dart classes
+''',
+)
+@GraphQLUnion(name: 'UnionNoFreezedRenamed')
+class UnionNoFreezed {
+  const factory UnionNoFreezed.a(String value) = UnionNoFreezedA.named;
+  const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
+}
+
+@GraphQLClass()
+class UnionNoFreezedA implements UnionNoFreezed {
+  final String value;
+
+  const UnionNoFreezedA.named(this.value);
+}
+
+@GraphQLClass()
+class UnionNoFreezedB implements UnionNoFreezed {
+  final int value;
+
+  const UnionNoFreezedB(this.value);
+}
+
+@Query()
+List<UnionNoFreezed> getUnionNoFrezzed() {
+  return const [UnionNoFreezed.a('value'), UnionNoFreezed.b(12)];
+}
+```
+<!-- include-end{unions-example-generator} -->
+
+Which generates code for the following GraphQL definitions:
+
+<!-- include{unions-example-generator-graphql} -->
+```graphql
+"""
+Description from annotation.
+
+Union generated from raw Dart classes
+"""
+union UnionNoFreezedRenamed @cost(complexity: 50) = UnionNoFreezedA | UnionNoFreezedB
+
+type UnionNoFreezedA {
+  value: String!
+}
+
+type UnionNoFreezedB {
+  value: Int!
+}
+```
+<!-- include-end{unions-example-generator-graphql} -->
 
 ## Inputs
 
@@ -434,7 +593,33 @@ enum SnakeCaseEnum {
 ```
 <!-- include-end{generator-enum-example} -->
 
-// TODO: generated graphql SDL
+The `SimpleEnum` Dart enum will generate the following GraphQL definition:
+
+<!-- include{generator-enum-example-graphql} -->
+```graphql
+enum ClassEnum @cost(complexity: 2) {
+  VARIANT_ONE
+
+  """The second variant docs"""
+  VARIANT_TWO
+  errorRenamed
+}
+```
+<!-- include-end{generator-enum-example-graphql} -->
+
+And the `SnakeCaseEnum` Dart enum will generate the following GraphQL definition:
+
+<!-- include{generator-enum-example-case-graphql} -->
+```graphql
+enum SnakeCaseEnum {
+  """description from annotation"""
+  variant_one @deprecated(reason: "custom deprecated")
+
+  """Documentation for variant two"""
+  variant_two
+}
+```
+<!-- include-end{generator-enum-example-case-graphql} -->
 
 You can also provide a custom enum class, you will need to annotate each static variant with the `@GraphQLEnumVariant()` decorator and have a `Class.values` static getter. All variants should be of the same type as the Enum class. An example of this is shown in the following code snippet.
 
@@ -640,6 +825,50 @@ The getter is the name of the Dart getter or property of returns the `GraphQLTyp
 
 The file path where the `GraphQLType`'s `getter` can be found.
 
+#### Example
 
+To support the `Decimal` type from https://github.com/a14n/dart-decimal you can use the following code:
+
+<!-- include{custom-scalar-decimal} -->
+```dart
+import 'package:decimal/decimal.dart';
+import 'package:leto_schema/leto_schema.dart';
+
+export 'package:decimal/decimal.dart';
+
+final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
+  name: 'Decimal',
+  deserialize: (_, serialized) => decimalFromJson(serialized)!,
+  serialize: (value) => decimalToJson(value)!,
+  validate: (key, input) => (input is num || input is String) &&
+          Decimal.tryParse(input.toString()) != null
+      ? ValidationResult.ok(input.toString())
+      : ValidationResult.failure(
+          ['Expected $key to be a number or a numeric String.'],
+        ),
+  description: 'A number that allows computation without losing precision.',
+  specifiedByURL: null,
+);
+
+Decimal? decimalFromJson(Object? value) =>
+    value == null ? null : Decimal.parse(value as String);
+
+String? decimalToJson(Decimal? value) => value?.toString();
+```
+<!-- include-end{custom-scalar-decimal} -->
+
+And specify the following config in the [build.yaml](https://github.com/dart-lang/build/blob/master/docs/faq.md) file.
+
+```yaml
+target:
+  default:
+    builders:
+      leto_generator:
+        options:
+          customTypes:
+            - name: "Decimal"
+            import: "package:<your_package_name>/<path_to_implementation>.dart"
+            getter: "decimalGraphQLType"
+```
 
 ### graphQLApiSchemaFile

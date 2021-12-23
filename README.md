@@ -154,7 +154,7 @@ dependencies:
 dev_dependencies:
   # Only if you use code generation
   leto_generator: ^0.0.1
-  build_runner: ^1.0.0
+  build_runner: ^2.0.0
 ```
 
 ### Create a `GraphQLSchema`
@@ -580,6 +580,8 @@ This repository is a monorepo with the following packages
 | [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQL extensions defined in package:leto                   |
 
 # Web integrations
+
+Although you can use `package:leto_schema` to create and validate schemas and `package:leto` to execute GraphQL requests in any Dart application, GraphQL servers are usually deployed to the web. We provide a couple of utilities and integrations for creating and using GraphQL web servers powered by Leto.
 
 ## Server integrations
 
@@ -1166,15 +1168,18 @@ Code generation already does it, so you don't have to worry about it when using 
 
 You can extend the `GraphQLScalarType` or create an instance directly with `GraphQLScalarTypeValue`. For example, to support the `Decimal` type from https://github.com/a14n/dart-decimal you can use the following code:
 
+<!-- include{custom-scalar-decimal} -->
 ```dart
 import 'package:decimal/decimal.dart';
 import 'package:leto_schema/leto_schema.dart';
 
+export 'package:decimal/decimal.dart';
+
 final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
   name: 'Decimal',
-  deserialize: (SerdeCtx _, String serialized) => Decimal.parse(serialized),
-  serialize: (Decimal value) => value.toString(),
-  validate: (String key, Object? input) => (input is num || input is String) &&
+  deserialize: (_, serialized) => decimalFromJson(serialized)!,
+  serialize: (value) => decimalToJson(value)!,
+  validate: (key, input) => (input is num || input is String) &&
           Decimal.tryParse(input.toString()) != null
       ? ValidationResult.ok(input.toString())
       : ValidationResult.failure(
@@ -1184,7 +1189,12 @@ final decimalGraphQLType = GraphQLScalarTypeValue<Decimal, String>(
   specifiedByURL: null,
 );
 
+Decimal? decimalFromJson(Object? value) =>
+    value == null ? null : Decimal.parse(value as String);
+
+String? decimalToJson(Decimal? value) => value?.toString();
 ```
+<!-- include-end{custom-scalar-decimal} -->
 
 For code generation you need to provide `customTypes` in the [build.yaml](https://github.com/dart-lang/build/blob/master/docs/faq.md) file of you project:
 
