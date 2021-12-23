@@ -38,27 +38,30 @@ input FreezedSingleInput {
   '''
 returnFiveFromFreezedInput(input: FreezedSingleInput!): Int!
 ''',
-  '''
+// @example-start{generator-unions-freezed-graphql,extension:graphql,start:1,end:-2}
+  ...'''
 union UnionA = UnionA1 | UnionA2 | UnionA3 | UnionA4
-''',
-  '''
+
 type UnionA1 {
   """five with default"""
   one: Int!
-}''',
-  '''
+}
+
 type UnionA2 {
   dec: Decimal @deprecated(reason: "custom deprecated msg")
-}''',
-  '''
+}
+
 type UnionA3 {
   """description for one"""
   one: [Int!]
-}''',
-  '''
+}
+
 type UnionA4 {
   oneRenamed: [Int!]!
-}''',
+}
+'''
+      .split('\n\n'),
+// @example-end{generator-unions-freezed-graphql}
   '''
 """gets Union A"""
   getUnionA: UnionA''',
@@ -99,22 +102,26 @@ FutureOr<UnionA?> getUnionA(Ctx ctx) {
   return unionARef.get(ctx);
 }
 
-const unionNoFreezedSchemaStr = [
-  '''
+final unionNoFreezedSchemaStr = [
+// @example-start{unions-example-generator-graphql,extension:graphql,start:1,end:-2}
+  ...'''
 """
 Description from annotation.
 
 Union generated from raw Dart classes
 """
-union UnionNoFreezedRenamed @cost(complexity: 50) = UnionNoFreezedA | UnionNoFreezedB''',
-  '''
+union UnionNoFreezedRenamed @cost(complexity: 50) = UnionNoFreezedA | UnionNoFreezedB
+
 type UnionNoFreezedA {
   value: String!
-}''',
-  '''
+}
+
 type UnionNoFreezedB {
   value: Int!
-}'''
+}
+'''
+      .split(RegExp(r'[^\.]\n\n')),
+// @example-end{unions-example-generator-graphql}
 ];
 
 // @example-start{unions-example-generator}

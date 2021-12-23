@@ -1,3 +1,4 @@
+// @example-start{custom-scalar-decimal}
 import 'package:decimal/decimal.dart';
 import 'package:leto_schema/leto_schema.dart';
 
@@ -21,3 +22,4 @@ Decimal? decimalFromJson(Object? value) =>
     value == null ? null : Decimal.parse(value as String);
 
 String? decimalToJson(Decimal? value) => value?.toString();
+// @example-end{custom-scalar-decimal}

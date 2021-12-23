@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:shelf/shelf.dart';
 import 'package:leto_shelf/src/graphql_ui/playground_css.dart';
+import 'package:shelf/shelf.dart';
 
 import 'playground_config.dart';
 

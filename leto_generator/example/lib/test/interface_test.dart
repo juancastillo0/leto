@@ -8,7 +8,7 @@ void main() {
   test('interface generator', () async {
     final scope = ScopedMap.empty();
 
-    for (final subs in unionsSchemaString.split('||')) {
+    for (final subs in unionsSchemaString) {
       expect(graphqlApiSchema.schemaStr, contains(subs.trim()));
     }
 

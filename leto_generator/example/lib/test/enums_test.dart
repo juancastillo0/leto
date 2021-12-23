@@ -19,25 +19,37 @@ enum SimpleEnumRenamed {
   });
 
   test('EnumNameCase.snake_case enum', () {
-    expect(graphqlApiSchema.schemaStr, contains('''
+    expect(
+      graphqlApiSchema.schemaStr,
+// @example-start{generator-enum-example-case-graphql,extension:graphql,start:1,end:-1}
+      contains('''
 enum SnakeCaseEnum {
   """description from annotation"""
   variant_one @deprecated(reason: "custom deprecated")
 
   """Documentation for variant two"""
   variant_two
-}'''));
+}
+'''),
+// @example-end{generator-enum-example-case-graphql}
+    );
   });
 
   test('class enum', () {
-    expect(graphqlApiSchema.schemaStr, contains('''
+    expect(
+      graphqlApiSchema.schemaStr,
+// @example-start{generator-enum-example-graphql,extension:graphql,start:1,end:-1}
+      contains('''
 enum ClassEnum @cost(complexity: 2) {
   VARIANT_ONE
 
   """The second variant docs"""
   VARIANT_TWO
   errorRenamed
-}'''));
+}
+'''),
+// @example-end{generator-enum-example-graphql}
+    );
   });
 
   test('query field with enums', () async {

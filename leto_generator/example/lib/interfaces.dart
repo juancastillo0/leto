@@ -5,32 +5,37 @@ import 'package:leto_schema/leto_schema.dart';
 
 part 'interfaces.g.dart';
 
-final unionsSchemaString = '''
+final unionsSchemaString = [
+// @example-start{generator-interfaces-graphql,extension:graphql,start:1,end:-2}
+  ...'''
 interface NestedInterface {
   dec: Decimal!
 }
-||
+
 interface NamedInterface {
   name: String
 }
-||
+
 type NestedInterfaceImpl implements NestedInterface {
   dec: Decimal!
   name: String
 }
-||
+
 type NestedInterfaceImpl2 implements NestedInterface {
   dec: Decimal!
   name: String
   name2: String!
 }
-||
+
 type NestedInterfaceImpl3 implements NamedInterface & NestedInterface {
   name3: String!
   dec: Decimal!
   name: String
 }
-||
+'''
+      .split('\n\n'),
+// @example-end{generator-interfaces-graphql}
+  ...'''
 """${decimalGraphQLType.description}"""
 scalar Decimal
 ||
@@ -39,8 +44,11 @@ getNestedInterfaceImpl3: NestedInterfaceImpl3
 getNestedInterfaceImpl2: NestedInterfaceImpl2
 ||
 getNestedInterfaceImplByIndex(index: Int!): NestedInterface
-''';
+'''
+      .split('||'),
+];
 
+// @example-start{generator-interfaces}
 @GraphQLClass()
 abstract class NestedInterface {
   Decimal get dec;
@@ -88,6 +96,7 @@ class NestedInterfaceImpl3 extends NestedInterfaceImpl
     required this.name3,
   }) : super(name, dec);
 }
+// @example-end{generator-interfaces}
 
 final interfaceState = RefWithDefault.global(
   (scope) => InterfaceState(
