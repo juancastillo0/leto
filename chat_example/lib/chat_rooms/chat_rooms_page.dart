@@ -48,7 +48,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grafos Chat'),
+        title: const Text('Leto Chat'),
         actions: [
           _tabButton(PageName.chats, 'Chats'),
           _tabButton(PageName.profile, 'Profile'),
