@@ -14,8 +14,9 @@ import 'package:source_gen/source_gen.dart';
 
 Iterable<Future<FieldInfo>> fieldsFromClass(
   ClassElement clazz,
-  GeneratorCtx ctx,
-) {
+  GeneratorCtx ctx, {
+  bool isInput = false,
+}) {
   if (clazz.name == 'Object') {
     return [];
   }
@@ -26,14 +27,16 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
   final config = getClassConfig(ctx, clazz);
 
   return [
-    ...clazz.methods
-        .where((method) => method.name != 'toJson' && !method.isStatic)
-        .map((m) => fieldFromElement(config, m, m.returnType, ctx, generics)),
+    if (!isInput)
+      ...clazz.methods
+          .where((method) => method.name != 'toJson' && !method.isStatic)
+          .map((m) => fieldFromElement(config, m, m.returnType, ctx, generics)),
     ...clazz.fields
         .map((m) => fieldFromElement(config, m, m.type, ctx, generics)),
     if (clazz.supertype != null)
-      ...fieldsFromClass(clazz.supertype!.element, ctx),
-    ...clazz.interfaces.expand((m) => fieldsFromClass(m.element, ctx)),
+      ...fieldsFromClass(clazz.supertype!.element, ctx, isInput: isInput),
+    ...clazz.interfaces
+        .expand((m) => fieldsFromClass(m.element, ctx, isInput: isInput)),
   ];
 }
 
@@ -41,40 +44,30 @@ Future<List<UnionVarianInfo>> freezedVariants(
   ClassElement clazz,
   GeneratorCtx ctx,
 ) async {
-  final isUnion =
-      clazz.constructors.where(isFreezedVariantConstructor).length > 1;
-  final className = ReCase(clazz.name).pascalCase;
-  final _unionClassFields = fieldsFromClass(clazz, ctx);
+  final constructors =
+      clazz.constructors.where(isFreezedVariantConstructor).toList();
+  final isUnion = constructors.length > 1;
+  final inputConfig = inputTypeAnnotation(clazz);
   final classConfig = getClassConfig(ctx, clazz);
+  final _unionClassFields = fieldsFromClass(
+    clazz,
+    ctx,
+    isInput: inputConfig != null,
+  );
 
   return Future.wait(
-      clazz.constructors.where(isFreezedVariantConstructor).map((con) async {
-    final redirectedName = con.redirectedConstructor?.returnType
-            .getDisplayString(withNullability: false) ??
-        con.name;
-
-    return UnionVarianInfo(
-      isInterface: isInterface(clazz),
-      typeParams: clazz.typeParameters,
-      hasFrezzed: true,
-      isUnion: isUnion,
-      interfaces: getGraphQLInterfaces(ctx, clazz),
-      hasFromJson: hasFromJson(clazz),
-      classConfig: classConfig,
-      typeName: isUnion ? redirectedName : className,
-      constructorName: isUnion ? con.name : redirectedName,
-      unionName: className,
-      inputConfig: inputTypeAnnotation(clazz),
-      description: getDescription(con, con.documentationComment),
-      deprecationReason: getDeprecationReason(con),
-      fields: await Future.wait(
-        con.parameters
-            .map((p) => fieldFromParam(ctx, classConfig, p))
-            .followedBy(_unionClassFields),
+    constructors.map(
+      (con) => classInfoFromConstructor(
+        ctx,
+        clazz,
+        con,
+        isUnion: isUnion,
+        unionClassFields: _unionClassFields,
+        classConfig: classConfig,
+        inputConfig: inputConfig,
       ),
-      attachments: getAttachments(clazz),
-    );
-  }));
+    ),
+  );
 }
 
 GraphQLField getFieldAnnot(GraphQLClass? clazz, Element e) {
@@ -129,6 +122,48 @@ bool isFreezedVariantConstructor(ConstructorElement con) =>
 //   );
 // }
 
+Future<UnionVarianInfo> classInfoFromConstructor(
+  GeneratorCtx ctx,
+  ClassElement clazz,
+  ConstructorElement con, {
+  required bool isUnion,
+  required Iterable<Future<FieldInfo>> unionClassFields,
+  GraphQLInput? inputConfig,
+  GraphQLClass? classConfig,
+}) async {
+  final className = ReCase(clazz.name).pascalCase;
+  final redirectedName = con.redirectedConstructor?.returnType
+          .getDisplayString(withNullability: false) ??
+      con.name;
+
+  return UnionVarianInfo(
+    isInterface: isInterface(clazz),
+    typeParams: clazz.typeParameters,
+    hasFrezzed: true,
+    isUnion: isUnion,
+    interfaces: getGraphQLInterfaces(ctx, clazz),
+    hasFromJson: hasFromJson(clazz),
+    classConfig: classConfig,
+    typeName: isUnion ? redirectedName : className,
+    constructorName: isUnion ? con.name : redirectedName,
+    unionName: className,
+    inputConfig: inputConfig,
+    description: getDescription(con, con.documentationComment),
+    deprecationReason: getDeprecationReason(con),
+    fields: await Future.wait(
+      con.parameters
+          .map((p) => fieldFromParam(
+                ctx,
+                classConfig,
+                p,
+                isInput: inputConfig != null,
+              ))
+          .followedBy(unionClassFields),
+    ),
+    attachments: getAttachments(clazz),
+  );
+}
+
 Future<FieldInfo> fieldFromElement(
   GraphQLClass? clazz,
   Element method,
@@ -169,8 +204,9 @@ Future<FieldInfo> fieldFromElement(
 Future<FieldInfo> fieldFromParam(
   GeneratorCtx ctx,
   GraphQLClass? clazz,
-  ParameterElement param,
-) async {
+  ParameterElement param, {
+  required bool isInput,
+}) async {
   final annot = getFieldAnnot(clazz, param);
 
   return FieldInfo(
@@ -182,6 +218,7 @@ Future<FieldInfo> fieldFromParam(
             param.name,
             param.type,
             nullable: annot.nullable,
+            isInput: isInput,
           ),
     name: annot.name ?? param.name,
     defaultValueCode: getDefaultValue(param),
@@ -263,7 +300,8 @@ class UnionVarianInfo {
     );
   }
 
-  String get fieldName => '${ReCase(typeName).camelCase}$graphqlTypeSuffix';
+  String get fieldName =>
+      '${ReCase(typeName).camelCase}$graphqlTypeSuffix${isInput ? 'Input' : ''}';
 
   // Field field() {
   //   return Field(
@@ -317,7 +355,7 @@ class UnionVarianInfo {
         // deduplicate field names
         final _names = <String>{};
         return fields
-            .where((e) => _names.add(e.getter) && e.fieldAnnot.omit != true)
+            .where((e) => _names.add(e.name) && e.fieldAnnot.omit != true)
             .map((e) => e.expression(isInput: isInput));
       }(),
     ).accept(DartEmitter())},);
@@ -348,15 +386,24 @@ ${ReCase(typeName).camelCase}SerdeCtx.add(
   ),
 );''';
 
-  String get graphQLTypeName =>
-      '${classConfig?.name ?? inputConfig?.name ?? removeTrailingUnder(typeName)}${typeParams.map((t) {
-        final _t = t.displayName;
-        final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
-        return '\${$ts.printableName}';
-      }).join()}';
+  String get graphQLTypeName {
+    final _generics = typeParams.map((t) {
+      final _t = t.displayName;
+      final ts = '${ReCase(_t).camelCase}$graphqlTypeSuffix';
+      return '\${$ts.printableName}';
+    }).join();
+    if (inputConfig != null && classConfig != null) {
+      if (inputConfig!.name != null) return inputConfig!.name!;
+      final rawName = classConfig?.name ?? removeTrailingUnder(typeName);
+      return '$rawName${_generics}Input';
+    }
+    final rawName =
+        classConfig?.name ?? inputConfig?.name ?? removeTrailingUnder(typeName);
+    return '$rawName$_generics';
+  }
 
-  String get unionKeyName =>
-      '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
+  // String get unionKeyName =>
+  //     '${ReCase(unionName).camelCase}$graphqlTypeSuffix$unionKeySuffix()';
 
   Expression expression() {
     return refer(

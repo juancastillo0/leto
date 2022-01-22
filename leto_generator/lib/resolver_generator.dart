@@ -145,6 +145,7 @@ Future<List<String>> inputsFromElement(
         e.name,
         e.type,
         nullable: argInfo.inline,
+        isInput: true,
       ).accept(_dartEmitter).toString();
 
       if (argInfo.inline) {

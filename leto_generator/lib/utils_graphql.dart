@@ -124,6 +124,7 @@ Expression inferType(
   bool? nullable,
   String? genericTypeName,
   Map<String, TypeParameterElement>? generics,
+  bool isInput = false,
 }) {
   final docs = getDocumentation(typeElement);
   if (docs?.typeName != null) {
@@ -144,6 +145,7 @@ Expression inferType(
       name,
       genericWhenAsync,
       generics: generics,
+      isInput: isInput,
     );
   }
   final nonNullable = type.nullabilitySuffix == NullabilitySuffix.none;
@@ -180,6 +182,7 @@ Expression inferType(
       name,
       arg,
       generics: generics,
+      isInput: isInput,
     );
     return _wrapNullability(inner.property('list').call([]));
   } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
@@ -192,6 +195,7 @@ Expression inferType(
             name,
             e,
             generics: generics,
+            isInput: isInput,
           );
         }),
       ], {
@@ -258,8 +262,15 @@ Expression inferType(
       ' static getter or add the type to `build.yaml` "customTypes" property.',
     );
   }
+  final _inputSuffix = isInput &&
+          type.element != null &&
+          const TypeChecker.fromRuntime(GraphQLInput)
+              .hasAnnotationOf(type.element!)
+      ? 'Input'
+      : '';
+
   return _wrapNullability(
-    refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix'),
+    refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix$_inputSuffix'),
   );
 
   // Nothing else is allowed.
