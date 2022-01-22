@@ -137,6 +137,7 @@ GraphQLSchema buildSchema(
         name,
         description: def.description?.value,
         extra: GraphQLTypeDefinitionExtra.ast(def, _extensions),
+        isOneOf: def.directives.any((d) => d.name.value == 'oneOf'),
       );
     } else {
       throw Error();
@@ -267,7 +268,8 @@ GraphQLSchema buildSchema(
           if (type is! GraphQLObjectType || !type.isInterface) {
             errors.add(
               GraphQLError(
-                'Type $object must only implement Interface types, it cannot implement ${i.name.value}.',
+                'Type $object must only implement Interface types,'
+                ' it cannot implement ${i.name.value}.',
               ),
             );
             continue;
@@ -295,7 +297,8 @@ GraphQLSchema buildSchema(
               if (type is! GraphQLObjectType || type.isInterface) {
                 errors.add(
                   GraphQLError(
-                    'Union type $union can only include Object types, it cannot include ${e.name.value}.',
+                    'Union type $union can only include Object types,'
+                    ' it cannot include ${e.name.value}.',
                     locations: [
                       GraphQLErrorLocation.fromSourceLocation(
                           e.name.span!.start),

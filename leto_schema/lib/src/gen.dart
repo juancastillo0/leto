@@ -70,12 +70,14 @@ GraphQLInputObjectType<T> inputObjectType<T>(
   String? description,
   Iterable<GraphQLFieldInput> fields = const [],
   T Function(Map<String, Object?>)? customDeserialize,
+  bool isOneOf = false,
 }) {
   return GraphQLInputObjectType(
     name,
     description: description,
     fields: fields,
     customDeserialize: customDeserialize,
+    isOneOf: isOneOf,
   );
 }
 

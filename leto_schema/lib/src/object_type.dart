@@ -243,6 +243,9 @@ class GraphQLInputObjectType<Value>
   final GraphQLTypeDefinitionExtra<InputObjectTypeDefinitionNode,
       InputObjectTypeExtensionNode> extra;
 
+  /// If this is true, only one of the [fields] should be non null when parsing
+  final bool isOneOf;
+
   /// A special [GraphQLType] that specifies the shape of an object that can
   /// only be used as an input to a [GraphQLField].
   GraphQLInputObjectType(
@@ -251,6 +254,7 @@ class GraphQLInputObjectType<Value>
     Iterable<GraphQLFieldInput<Object?, Object?>> fields = const [],
     this.customDeserialize,
     this.extra = const GraphQLTypeDefinitionExtra.attach([]),
+    this.isOneOf = false,
   }) {
     this.fields.addAll(fields);
   }
@@ -262,8 +266,17 @@ class GraphQLInputObjectType<Value>
   ) {
     final result = super.validate(key, input);
     if (result.successful) {
-      final inputWithDefault = addDefaults(result.value!);
-      return ValidationResult.ok(inputWithDefault);
+      if (isOneOf) {
+        final _map = input! as Map<String, dynamic>;
+        return _map.length == 1 && _map.values.first != null
+            ? ValidationResult.ok(_map)
+            : const ValidationResult.failure(
+                ['A @oneOf() input type can only have one field.'],
+              );
+      } else {
+        final inputWithDefault = addDefaults(result.value!);
+        return ValidationResult.ok(inputWithDefault);
+      }
     }
     return result;
   }

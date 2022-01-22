@@ -11,6 +11,8 @@ import 'package:leto_schema/src/utilities/fetch_all_types.dart';
 import 'package:leto_schema/src/utilities/predicates.dart';
 import 'package:meta/meta.dart';
 
+/// Returns the Schema Definition Language (SDL) string representation of the
+/// given [schema].
 String printSchema(
   GraphQLSchema schema, {
   SchemaPrinter printer = const SchemaPrinter(),
@@ -22,6 +24,8 @@ String printSchema(
   );
 }
 
+/// Returns the Schema Definition Language (SDL) string representation of the
+/// introspection types in the given [schema].
 String printIntrospectionSchema(
   GraphQLSchema schema, {
   SchemaPrinter printer = const SchemaPrinter(),
@@ -33,6 +37,8 @@ String printIntrospectionSchema(
   );
 }
 
+/// Returns true when [type] is a defined type, not one of the
+/// provided standard GraphQL types
 bool isDefinedType(GraphQLNamedType type) {
   return !isSpecifiedScalarType(type) && !isIntrospectionType(type);
 }
@@ -56,11 +62,13 @@ class SchemaPrinter {
     final _excludedDirectiveNames = [
       graphQLDeprecatedDirective.name,
       graphQLSpecifiedByDirective.name,
+      graphQLOneOfDirective.name,
     ];
     final filteredDirectives = getDirectivesFromElement(element).where(
       (dir) => !_excludedDirectiveNames.contains(dir.name.value),
     );
     final directiveStrings = [
+      if (element is GraphQLInputObjectType && element.isOneOf) '@oneOf',
       if (element is GraphQLScalarType) printSpecifiedByURL(element),
       if (element is GraphQLObjectField)
         printDeprecated(element.deprecationReason),

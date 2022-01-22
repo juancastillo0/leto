@@ -48,6 +48,7 @@ class GraphQLDirective implements GraphQLElement {
     graphQLSkipDirective,
     graphQLDeprecatedDirective,
     graphQLSpecifiedByDirective,
+    graphQLOneOfDirective,
   ];
 }
 
@@ -189,4 +190,15 @@ final graphQLSpecifiedByDirective = GraphQLDirective(
       description: 'The URL that specifies the behaviour of this scalar.',
     ),
   ],
+);
+
+final graphQLOneOfDirective = GraphQLDirective(
+  name: 'oneOf',
+  description:
+      'Specifies that an input can only have one of the input object fields.'
+      ' All fields should be nullable and have no default value.'
+      ' For an input value of the annotate type to be valid, exactly'
+      ' one of the provided fields should be present and non-null.',
+  locations: [DirectiveLocation.INPUT_OBJECT],
+  isRepeatable: false,
 );

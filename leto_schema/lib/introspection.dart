@@ -183,6 +183,12 @@ GraphQLObjectType<GraphQLType> _reflectTypeType() {
         );
       },
     ),
+    field(
+      'oneOf',
+      graphQLBoolean.nonNull(),
+      resolve: (type, _) =>
+          type.whenOrNull(input: (type) => type.isOneOf) ?? false,
+    ),
   ]);
 
   return _type;

@@ -182,6 +182,19 @@ void validateTypes(SchemaValidationContext context) {
         // Ensure Input Object fields are valid.
         validateInputFields(context, type);
 
+        final nonNullable = type.fields
+            .where((field) =>
+                field.type.isNonNullable ||
+                field.defaultValue != null ||
+                field.defaultsToNull)
+            .toList();
+        if (type.isOneOf && nonNullable.isNotEmpty) {
+          context.reportError(
+            'A @oneOf input type should have all fields nullable and without default.',
+            nonNullable.map((e) => e.astNode).toList(),
+          );
+        }
+
         // Ensure Input Objects do not contain non-nullable circular references
         validateInputObjectCircularRefs(type);
       },
