@@ -71,6 +71,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Objects](#objects)
     - [Interfaces](#interfaces)
   - [Inputs and Input Objects](#inputs-and-input-objects)
+    - [InputObject.isOneOf](#inputobjectisoneof)
     - [InputObject.fromJson](#inputobjectfromjson)
   - [Unions](#unions)
     - [Freezed Unions](#freezed-unions)
@@ -874,6 +875,32 @@ final directive = GraphQLDirective(
     inputs: fields,
     // ...
 );
+```
+
+### InputObject.isOneOf
+
+[Discussion](https://github.com/graphql/graphql-spec/pull/825)
+
+oneOf input object types allow you to specify that an object should contain only one of the provided fields. The fields should be nullable and should not have a default value. This is similar to [union](#unions) types. However, oneOf input types can be used as inputs and their variants (or fields) can be any input type such as a custom scalar, they are not constrained to object types.
+
+```graphql
+input EmailPassword {
+  email: String!
+  password: String!
+}
+
+input LogInOption @oneOf {
+  email: EmailPassword
+  token: String
+}
+
+type Mutation {
+  login(option: LogInOption!): Boolean!
+}
+
+mutation loginMut {
+  login(option: { email: { email: "email@example.com" password: "pass" } })
+}
 ```
 
 ### InputObject.fromJson
