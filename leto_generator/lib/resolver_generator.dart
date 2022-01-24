@@ -155,11 +155,11 @@ Future<List<String>> inputsFromElement(
         final defaultValueCode = e.defaultValueCode ??
             argInfo.defaultCode ??
             argInfo.defaultFunc?.call() as String?;
-        final isInput = e.type.element != null && isInputType(e.type.element!);
+        // final isInput = e.type.element != null && isInputType(e.type.element!);
         final description = await documentationOfParameter(e, ctx.buildStep);
         final deprecationReason = getDeprecationReason(element);
         final attachments = getAttachments(element);
-        return refer('$type${isInput ? '' : '.coerceToInputObject()'}')
+        return refer(type)
             .property('inputField')
             .call(
               [literalString(e.name)],

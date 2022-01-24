@@ -29,9 +29,9 @@ bool isGraphQLClass(InterfaceType clazz) {
 }
 
 List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
-  if (isInputType(clazz)) {
-    return [];
-  }
+  // if (isInputType(clazz)) {
+  //   return [];
+  // }
   final List<String> interfaces = getClassConfig(ctx, clazz)?.interfaces ?? [];
   final superType = clazz.supertype;
 
@@ -113,6 +113,8 @@ GraphQLInput? inputTypeAnnotation(Element elem) {
       ? null
       : GraphQLInput(
           name: _isInput.getField('name')?.toStringValue(),
+          constructor: _isInput.getField('constructor')?.toStringValue(),
+          oneOf: _isInput.getField('oneOf')?.toBoolValue(),
         );
 }
 
@@ -171,6 +173,13 @@ Expression inferType(
     }
   }
 
+  final _inputSuffix = isInput &&
+          type.element != null &&
+          const TypeChecker.fromRuntime(GraphQLInput)
+              .hasAnnotationOf(type.element!)
+      ? 'Input'
+      : '';
+
   // Next, check to see if it's a List.
   if (type is InterfaceType &&
       type.typeArguments.isNotEmpty &&
@@ -186,8 +195,10 @@ Expression inferType(
     );
     return _wrapNullability(inner.property('list').call([]));
   } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
+    // Generics
     return _wrapNullability(
-      refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix').call([
+      refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix$_inputSuffix')
+          .call([
         ...type.typeArguments.map((e) {
           return inferType(
             customTypes,
@@ -262,12 +273,6 @@ Expression inferType(
       ' static getter or add the type to `build.yaml` "customTypes" property.',
     );
   }
-  final _inputSuffix = isInput &&
-          type.element != null &&
-          const TypeChecker.fromRuntime(GraphQLInput)
-              .hasAnnotationOf(type.element!)
-      ? 'Input'
-      : '';
 
   return _wrapNullability(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix$_inputSuffix'),

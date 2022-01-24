@@ -42,18 +42,21 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
 
 Future<List<UnionVarianInfo>> freezedVariants(
   ClassElement clazz,
-  GeneratorCtx ctx,
-) async {
+  GeneratorCtx ctx, {
+  required bool isInput,
+}) async {
   final constructors =
       clazz.constructors.where(isFreezedVariantConstructor).toList();
-  final isUnion = constructors.length > 1;
+  final isUnion = !isInput && constructors.length > 1;
   final inputConfig = inputTypeAnnotation(clazz);
   final classConfig = getClassConfig(ctx, clazz);
-  final _unionClassFields = fieldsFromClass(
-    clazz,
-    ctx,
-    isInput: inputConfig != null,
-  );
+  final Iterable<Future<FieldInfo>> _unionClassFields = isInput
+      ? []
+      : fieldsFromClass(
+          clazz,
+          ctx,
+          isInput: isInput,
+        );
 
   return Future.wait(
     constructors.map(
@@ -136,6 +139,10 @@ Future<UnionVarianInfo> classInfoFromConstructor(
           .getDisplayString(withNullability: false) ??
       con.name;
 
+  final generics = Map.fromEntries(
+    clazz.typeParameters.map((e) => MapEntry(e.name, e)),
+  );
+
   return UnionVarianInfo(
     isInterface: isInterface(clazz),
     typeParams: clazz.typeParameters,
@@ -157,6 +164,7 @@ Future<UnionVarianInfo> classInfoFromConstructor(
                 classConfig,
                 p,
                 isInput: inputConfig != null,
+                generics: generics,
               ))
           .followedBy(unionClassFields),
     ),
@@ -206,6 +214,7 @@ Future<FieldInfo> fieldFromParam(
   GraphQLClass? clazz,
   ParameterElement param, {
   required bool isInput,
+  required Map<String, TypeParameterElement> generics,
 }) async {
   final annot = getFieldAnnot(clazz, param);
 
@@ -219,6 +228,7 @@ Future<FieldInfo> fieldFromParam(
             param.type,
             nullable: annot.nullable,
             isInput: isInput,
+            generics: generics,
           ),
     name: annot.name ?? param.name,
     defaultValueCode: getDefaultValue(param),
@@ -355,7 +365,7 @@ class UnionVarianInfo {
         // deduplicate field names
         final _names = <String>{};
         return fields
-            .where((e) => _names.add(e.name) && e.fieldAnnot.omit != true)
+            .where((e) => _names.add(e.getter) && e.fieldAnnot.omit != true)
             .map((e) => e.expression(isInput: isInput));
       }(),
     ).accept(DartEmitter())},);
@@ -415,6 +425,7 @@ ${ReCase(typeName).camelCase}SerdeCtx.add(
       {
         if (!isInput) 'isInterface': literalBool(isInterface),
         if (!isInput) 'interfaces': literalList(interfaces),
+        if (isInput && inputConfig!.oneOf == true) 'isOneOf': literalBool(true),
         if (description != null && description!.isNotEmpty)
           'description': literalString(description!),
         if (attachments != null)
@@ -456,8 +467,7 @@ class FieldInfo {
   });
 
   Expression expression({bool isInput = false}) {
-    final _type =
-        isInput ? gqlType.property('coerceToInputObject').call([]) : gqlType;
+    final _type = gqlType;
     return _type.property(isInput ? 'inputField' : 'field').call(
       [
         literalString(name),

@@ -19,10 +19,19 @@ class GraphQLInput implements GraphQLObjectDec {
   /// return an instance of the generic type
   const GraphQLInput({
     this.name,
+    this.oneOf,
+    this.constructor,
   });
 
   /// The name of the generated [GraphQLInputObjectType]
   final String? name;
+
+  /// Whether the input object should contain only one of the class' fields
+  /// For more information: [GraphQLInputObjectType.isOneOf]
+  final bool? oneOf;
+
+  /// The name of the constructor used to extract the input object's fields
+  final String? constructor;
 }
 
 /// Signifies that a class should statically generate a [GraphQLEnumType].

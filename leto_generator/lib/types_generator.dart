@@ -50,6 +50,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
     ConstantReader ann,
   ) async {
     final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
+    final inputConfig = inputTypeAnnotation(clazz);
     final hasJsonAnnotation =
         jsonSerializableTypeChecker.hasAnnotationOf(clazz);
     final enumAnnotation = const TypeChecker.fromRuntime(GraphQLEnum)
@@ -63,52 +64,59 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
       );
     }
 
-    if (hasFrezzed || unionAnnotation != null) {
+    if (hasFrezzed || unionAnnotation != null || inputConfig != null) {
       return generateFromConstructors(clazz, ctx);
     } else if (enumAnnotation != null) {
       return generateEnum(clazz, ctx, enumAnnotation);
     } else {
-      final className = clazz.name;
-      final redirectedName =
-          clazz.constructors.firstWhere(isFreezedVariantConstructor).name;
-      final classInfo = UnionVarianInfo(
-        isInterface: isInterface(clazz),
-        typeParams: clazz.typeParameters,
-        hasFrezzed: false,
-        isUnion: false,
-        inputConfig: inputTypeAnnotation(clazz),
-        hasFromJson: hasFromJson(clazz),
-        classConfig: getClassConfig(ctx, clazz),
-        interfaces: getGraphQLInterfaces(ctx, clazz),
-        typeName: className,
-        constructorName: redirectedName.isEmpty ? className : redirectedName,
-        unionName: className,
-        description: getDescription(clazz, clazz.documentationComment),
-        deprecationReason: getDeprecationReason(clazz),
-        fields: await Future.wait(
-          fieldsFromClass(clazz, ctx),
-        ),
-        attachments: getAttachments(clazz),
-      );
-      return Library((l) {
-        // l.directives.addAll(
-        //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
-        // );
-
-        l.body.add(classInfo.serializer());
-        l.body.add(Code(classInfo.typeDefinitionCode()));
-      });
+      return generateObjectFromFields(ctx, clazz);
     }
   }
+}
+
+Future<Library> generateObjectFromFields(
+  GeneratorCtx ctx,
+  ClassElement clazz,
+) async {
+  final className = clazz.name;
+  final redirectedName =
+      clazz.constructors.firstWhere(isFreezedVariantConstructor).name;
+  final classInfo = UnionVarianInfo(
+    isInterface: isInterface(clazz),
+    typeParams: clazz.typeParameters,
+    hasFrezzed: false,
+    isUnion: false,
+    inputConfig: null,
+    hasFromJson: hasFromJson(clazz),
+    classConfig: getClassConfig(ctx, clazz),
+    interfaces: getGraphQLInterfaces(ctx, clazz),
+    typeName: className,
+    constructorName: redirectedName.isEmpty ? className : redirectedName,
+    unionName: className,
+    description: getDescription(clazz, clazz.documentationComment),
+    deprecationReason: getDeprecationReason(clazz),
+    fields: await Future.wait(fieldsFromClass(clazz, ctx)),
+    attachments: getAttachments(clazz),
+  );
+  return Library((l) {
+    // l.directives.addAll(
+    //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
+    // );
+
+    l.body.add(classInfo.serializer());
+    l.body.add(Code(classInfo.typeDefinitionCode()));
+  });
 }
 
 Future<Library> generateFromConstructors(
   ClassElement clazz,
   GeneratorCtx ctx,
 ) async {
+  final inputConfig = inputTypeAnnotation(clazz);
   final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
   final _annot =
       const TypeChecker.fromRuntime(GraphQLUnion).firstAnnotationOfExact(clazz);
+  final classAnnot = getClassConfig(ctx, clazz);
 
   final annot = _annot == null
       ? null
@@ -116,17 +124,50 @@ Future<Library> generateFromConstructors(
           name: _annot.getField('name')?.toStringValue(),
           unnestIfEqual: _annot.getField('unnestIfEqual')?.toBoolValue(),
         );
-  final variants = await freezedVariants(clazz, ctx);
+  final variants = await freezedVariants(
+    clazz,
+    ctx,
+    isInput: inputConfig != null,
+  );
+  if (inputConfig != null &&
+      (inputConfig.constructor != null || variants.length > 1)) {
+    final constructor = inputConfig.constructor ?? '';
+    variants.removeWhere((v) => v.constructorName != constructor);
+  }
+
+  if (inputConfig != null && variants.length != 1) {
+    if (inputConfig.constructor == null) {
+      throw Exception(
+        'A class annotated with @GraphQLInput should only have one constructor'
+        ' or the `GraphQLInput.constructor` parameter should be set.',
+      );
+    } else {
+      throw Exception(
+        'Could not find constructor "${inputConfig.constructor}" for'
+        ' @GraphQLInput annotated class "${clazz.name}".'
+        ' Available constructors: ${variants.map((v) => v.constructorName).join(', ')}',
+      );
+    }
+  }
+
+  final _classLib = classAnnot != null && inputConfig != null
+      ? await generateObjectFromFields(ctx, clazz)
+      : null;
 
   return Library((l) {
     // l.directives.addAll(
     //   ctx.config.customTypes.map((e) => Directive.import(e.import)),
     // );
-
-    if (hasFrezzed) {
+    if (_classLib != null) {
+      l.replace(_classLib);
+    }
+    if (hasFrezzed || inputConfig != null) {
       /// We need to generate each Object variant for freezed annotated classes
       for (final variant in variants) {
-        l.body.add(variant.serializer());
+        if (_classLib == null) {
+          // `variant.serializer()` is already present in _classLib for inputs
+          l.body.add(variant.serializer());
+        }
         l.body.add(Code(variant.typeDefinitionCode()));
       }
     }
