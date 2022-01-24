@@ -90,7 +90,7 @@ final _factionGraphQLType =
 
         return obj.shipConnection(ctx, argsArg);
       },
-              inputs: [...connectionArgumentsGraphQLType.fields],
+              inputs: [...connectionArgumentsGraphQLTypeInput.fields],
               description: 'The ships used by the faction.'),
       graphQLString.nonNull().field('name',
           resolve: (obj, ctx) => obj.name,
@@ -107,42 +107,34 @@ GraphQLObjectType<Faction> get factionGraphQLType => _factionGraphQLType.value;
 
 final connectionArgumentsSerializer = SerializerValue<ConnectionArguments>(
   key: "ConnectionArguments",
-  fromJson: (ctx, json) =>
-      ConnectionArguments.fromJson(json), // _$ConnectionArgumentsFromJson,
-  // toJson: (m) => _$ConnectionArgumentsToJson(m as ConnectionArguments),
+  fromJson: (ctx, json) => ConnectionArguments.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _connectionArgumentsGraphQLType =
+final _connectionArgumentsGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<ConnectionArguments>>(
         (setValue) {
   final __name = 'ConnectionArguments';
 
-  final __connectionArgumentsGraphQLType = inputObjectType<ConnectionArguments>(
-      __name,
-      description:
-          'Returns a GraphQLFieldConfigArgumentMap appropriate to include on a field\nwhose return type is a connection type with forward pagination.');
+  final __connectionArgumentsGraphQLTypeInput =
+      inputObjectType<ConnectionArguments>(__name);
 
-  setValue(__connectionArgumentsGraphQLType);
-  __connectionArgumentsGraphQLType.fields.addAll(
+  setValue(__connectionArgumentsGraphQLTypeInput);
+  __connectionArgumentsGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.coerceToInputObject().inputField('before',
-          description:
-              'Returns the items in the list that come before the specified cursor.'),
-      graphQLString.coerceToInputObject().inputField('after',
-          description:
-              'Returns the items in the list that come after the specified cursor.'),
-      graphQLInt.coerceToInputObject().inputField('first',
-          description: 'Returns the first n items from the list.'),
-      graphQLInt.coerceToInputObject().inputField('last',
-          description: 'Returns the last n items from the list.')
+      graphQLString.inputField('before'),
+      graphQLString.inputField('after'),
+      graphQLInt.inputField('first'),
+      graphQLInt.inputField('last')
     ],
   );
 
-  return __connectionArgumentsGraphQLType;
+  return __connectionArgumentsGraphQLTypeInput;
 });
 
 /// Auto-generated from [ConnectionArguments].
 GraphQLInputObjectType<ConnectionArguments>
-    get connectionArgumentsGraphQLType => _connectionArgumentsGraphQLType.value;
+    get connectionArgumentsGraphQLTypeInput =>
+        _connectionArgumentsGraphQLTypeInput.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

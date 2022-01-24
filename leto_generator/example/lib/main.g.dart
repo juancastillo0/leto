@@ -25,56 +25,56 @@ final _getNameGraphQLField =
 
 final todoItemInputSerializer = SerializerValue<TodoItemInput>(
   key: "TodoItemInput",
-  fromJson: (ctx, json) =>
-      TodoItemInput.fromJson(json), // _$TodoItemInputFromJson,
-  // toJson: (m) => _$TodoItemInputToJson(m as TodoItemInput),
+  fromJson: (ctx, json) => TodoItemInput.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _todoItemInputGraphQLType =
+final _todoItemInputGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<TodoItemInput>>((setValue) {
   final __name = 'TodoItemInput';
 
-  final __todoItemInputGraphQLType = inputObjectType<TodoItemInput>(__name);
+  final __todoItemInputGraphQLTypeInput =
+      inputObjectType<TodoItemInput>(__name);
 
-  setValue(__todoItemInputGraphQLType);
-  __todoItemInputGraphQLType.fields.addAll(
+  setValue(__todoItemInputGraphQLTypeInput);
+  __todoItemInputGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('text'),
-      todoItemInputNestedGraphQLType.coerceToInputObject().inputField('nested')
+      graphQLString.nonNull().inputField('text'),
+      todoItemInputNestedGraphQLTypeInput.inputField('nested')
     ],
   );
 
-  return __todoItemInputGraphQLType;
+  return __todoItemInputGraphQLTypeInput;
 });
 
 /// Auto-generated from [TodoItemInput].
-GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLType =>
-    _todoItemInputGraphQLType.value;
+GraphQLInputObjectType<TodoItemInput> get todoItemInputGraphQLTypeInput =>
+    _todoItemInputGraphQLTypeInput.value;
 
 final todoItemInputNestedSerializer = SerializerValue<TodoItemInputNested>(
   key: "TodoItemInputNested",
-  fromJson: (ctx, json) =>
-      TodoItemInputNested.fromJson(json), // _$TodoItemInputNestedFromJson,
-  // toJson: (m) => _$TodoItemInputNestedToJson(m as TodoItemInputNested),
+  fromJson: (ctx, json) => TodoItemInputNested.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _todoItemInputNestedGraphQLType =
+final _todoItemInputNestedGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<TodoItemInputNested>>(
         (setValue) {
   final __name = 'TodoItemInputNested';
 
-  final __todoItemInputNestedGraphQLType =
+  final __todoItemInputNestedGraphQLTypeInput =
       inputObjectType<TodoItemInputNested>(__name);
 
-  setValue(__todoItemInputNestedGraphQLType);
-  __todoItemInputNestedGraphQLType.fields.addAll(
-    [decimalGraphQLType.coerceToInputObject().inputField('cost')],
+  setValue(__todoItemInputNestedGraphQLTypeInput);
+  __todoItemInputNestedGraphQLTypeInput.fields.addAll(
+    [decimalGraphQLType.inputField('cost')],
   );
 
-  return __todoItemInputNestedGraphQLType;
+  return __todoItemInputNestedGraphQLTypeInput;
 });
 
 /// Auto-generated from [TodoItemInputNested].
 GraphQLInputObjectType<TodoItemInputNested>
-    get todoItemInputNestedGraphQLType => _todoItemInputNestedGraphQLType.value;
+    get todoItemInputNestedGraphQLTypeInput =>
+        _todoItemInputNestedGraphQLTypeInput.value;
 
 final _todoItemGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<TodoItem>>((setValue) {

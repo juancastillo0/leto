@@ -18,9 +18,7 @@ final _createChatRoomGraphQLField =
                 return createChatRoom(ctx, (args["name"] as String));
               },
             ))
-              ..inputs.addAll([
-                graphQLString.nonNull().coerceToInputObject().inputField('name')
-              ]));
+              ..inputs.addAll([graphQLString.nonNull().inputField('name')]));
 
 GraphQLObjectField<bool, Object?, Object?> get deleteChatRoomGraphQLField =>
     _deleteChatRoomGraphQLField.value;
@@ -34,9 +32,7 @@ final _deleteChatRoomGraphQLField =
                 return deleteChatRoom(ctx, (args["id"] as int));
               },
             ))
-              ..inputs.addAll([
-                graphQLInt.nonNull().coerceToInputObject().inputField('id')
-              ]));
+              ..inputs.addAll([graphQLInt.nonNull().inputField('id')]));
 
 GraphQLObjectField<List<ChatRoom>, Object?, Object?>
     get getChatRoomsGraphQLField => _getChatRoomsGraphQLField.value;

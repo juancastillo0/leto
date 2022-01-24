@@ -22,22 +22,17 @@ final _getTasksGraphQLField =
 
 GraphQLObjectField<bool, Object?, Object?> get addTaskGraphQLField =>
     _addTaskGraphQLField.value;
-final _addTaskGraphQLField =
-    HotReloadableDefinition<GraphQLObjectField<bool, Object?, Object?>>(
-        (setValue) => setValue(graphQLBoolean.nonNull().field<Object?>(
-              'addTask',
-              resolve: (obj, ctx) {
-                final args = ctx.args;
+final _addTaskGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<bool, Object?, Object?>>(
+    (setValue) => setValue(graphQLBoolean.nonNull().field<Object?>(
+          'addTask',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-                return addTask(ctx, (args["task"] as Task));
-              },
-            ))
-              ..inputs.addAll([
-                taskGraphQLType
-                    .nonNull()
-                    .coerceToInputObject()
-                    .inputField('task')
-              ]));
+            return addTask(ctx, (args["task"] as Task));
+          },
+        ))
+          ..inputs.addAll([taskGraphQLTypeInput.nonNull().inputField('task')]));
 
 GraphQLObjectField<Task, Object?, Object?> get onAddTaskGraphQLField =>
     _onAddTaskGraphQLField.value;
@@ -153,6 +148,32 @@ final _taskGraphQLType =
 
 /// Auto-generated from [Task].
 GraphQLObjectType<Task> get taskGraphQLType => _taskGraphQLType.value;
+final _taskGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<Task>>((setValue) {
+  final __name = 'TaskInput';
+
+  final __taskGraphQLTypeInput = inputObjectType<Task>(__name);
+
+  setValue(__taskGraphQLTypeInput);
+  __taskGraphQLTypeInput.fields.addAll(
+    [
+      graphQLId.nonNull().inputField('id'),
+      graphQLString.nonNull().inputField('name'),
+      graphQLUri.nonNull().inputField('image'),
+      graphQLString.inputField('description'),
+      graphQLInt.nonNull().inputField('weight'),
+      Json.graphQLType.inputField('extra'),
+      graphQLDate.nonNull().inputField('createdTimestamp'),
+      userGraphQLTypeInput.nonNull().list().nonNull().inputField('assignedTo')
+    ],
+  );
+
+  return __taskGraphQLTypeInput;
+});
+
+/// Auto-generated from [Task].
+GraphQLInputObjectType<Task> get taskGraphQLTypeInput =>
+    _taskGraphQLTypeInput.value;
 
 final userSerializer = SerializerValue<User>(
   key: "User",
@@ -164,9 +185,7 @@ final _userGraphQLType =
   final __name = 'User';
 
   final __userGraphQLType = objectType<User>(__name,
-      isInterface: false,
-      interfaces: [namedGraphQLType],
-      extra: GraphQLTypeDefinitionExtra.attach([...userAttachments()]));
+      isInterface: false, interfaces: [namedGraphQLType]);
 
   setValue(__userGraphQLType);
   __userGraphQLType.fields.addAll(
@@ -181,6 +200,26 @@ final _userGraphQLType =
 
 /// Auto-generated from [User].
 GraphQLObjectType<User> get userGraphQLType => _userGraphQLType.value;
+final _userGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<User>>((setValue) {
+  final __name = 'UserInput';
+
+  final __userGraphQLTypeInput = inputObjectType<User>(__name);
+
+  setValue(__userGraphQLTypeInput);
+  __userGraphQLTypeInput.fields.addAll(
+    [
+      graphQLId.nonNull().inputField('id'),
+      graphQLString.nonNull().inputField('name')
+    ],
+  );
+
+  return __userGraphQLTypeInput;
+});
+
+/// Auto-generated from [User].
+GraphQLInputObjectType<User> get userGraphQLTypeInput =>
+    _userGraphQLTypeInput.value;
 
 // **************************************************************************
 // JsonSerializableGenerator

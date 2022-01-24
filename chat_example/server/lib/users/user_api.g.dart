@@ -19,9 +19,7 @@ final _searchUserGraphQLField =
                 return searchUser(ctx, (args["name"] as String));
               },
             ))
-              ..inputs.addAll([
-                graphQLString.nonNull().coerceToInputObject().inputField('name')
-              ]));
+              ..inputs.addAll([graphQLString.nonNull().inputField('name')]));
 
 GraphQLObjectField<User?, Object?, Object?> get getUserGraphQLField =>
     _getUserGraphQLField.value;
@@ -69,8 +67,8 @@ final _signUpGraphQLField = HotReloadableDefinition<
       },
     ))
       ..inputs.addAll([
-        graphQLString.nonNull().coerceToInputObject().inputField('name'),
-        graphQLString.nonNull().coerceToInputObject().inputField('password')
+        graphQLString.nonNull().inputField('name'),
+        graphQLString.nonNull().inputField('password')
       ]));
 
 GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object?, Object?>
@@ -93,8 +91,8 @@ final _signInGraphQLField = HotReloadableDefinition<
       },
     ))
       ..inputs.addAll([
-        graphQLString.coerceToInputObject().inputField('name'),
-        graphQLString.coerceToInputObject().inputField('password')
+        graphQLString.inputField('name'),
+        graphQLString.inputField('password')
       ]));
 
 GraphQLObjectField<String?, Object?, Object?> get signOutGraphQLField =>

@@ -21,7 +21,7 @@ final _returnFiveFromFreezedInputGraphQLField =
               },
             ))
               ..inputs.addAll([
-                freezedSingleInputGraphQLType.nonNull().inputField('input')
+                freezedSingleInputGraphQLTypeInput.nonNull().inputField('input')
               ]));
 
 GraphQLObjectField<UnionA?, Object?, Object?> get getUnionAGraphQLField =>
@@ -62,31 +62,31 @@ final freezedSingleInputSerializer = SerializerValue<FreezedSingleInput>(
       FreezedSingleInput.fromJson(json), // _$$_FreezedSingleInputFromJson,
   // toJson: (m) => _$$_FreezedSingleInputToJson(m as _$_FreezedSingleInput),
 );
-final _freezedSingleInputGraphQLType =
+final _freezedSingleInputGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<FreezedSingleInput>>(
         (setValue) {
   final __name = 'FreezedSingleInput';
 
-  final __freezedSingleInputGraphQLType =
+  final __freezedSingleInputGraphQLTypeInput =
       inputObjectType<FreezedSingleInput>(__name);
 
-  setValue(__freezedSingleInputGraphQLType);
-  __freezedSingleInputGraphQLType.fields.addAll(
+  setValue(__freezedSingleInputGraphQLTypeInput);
+  __freezedSingleInputGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.coerceToInputObject().inputField('positional'),
+      graphQLString.inputField('positional'),
       graphQLInt
           .nonNull()
-          .coerceToInputObject()
           .inputField('five', defaultValue: 5, description: 'five with default')
     ],
   );
 
-  return __freezedSingleInputGraphQLType;
+  return __freezedSingleInputGraphQLTypeInput;
 });
 
 /// Auto-generated from [FreezedSingleInput].
-GraphQLInputObjectType<FreezedSingleInput> get freezedSingleInputGraphQLType =>
-    _freezedSingleInputGraphQLType.value;
+GraphQLInputObjectType<FreezedSingleInput>
+    get freezedSingleInputGraphQLTypeInput =>
+        _freezedSingleInputGraphQLTypeInput.value;
 
 final unionA1Serializer = SerializerValue<_UnionA1>(
   key: "_UnionA1",

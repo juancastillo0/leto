@@ -21,7 +21,6 @@ final _droidGraphQLField =
               ..inputs.addAll([
                 graphQLId
                     .nonNull()
-                    .coerceToInputObject()
                     .inputField('id', description: 'id of the droid')
               ]));
 

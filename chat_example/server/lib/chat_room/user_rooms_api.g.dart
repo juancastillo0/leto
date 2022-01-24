@@ -21,11 +21,10 @@ final _addChatRoomUserGraphQLField = HotReloadableDefinition<
           },
         ))
           ..inputs.addAll([
-            graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
-            graphQLInt.nonNull().coerceToInputObject().inputField('userId'),
+            graphQLInt.nonNull().inputField('chatId'),
+            graphQLInt.nonNull().inputField('userId'),
             chatRoomUserRoleGraphQLType
                 .nonNull()
-                .coerceToInputObject()
                 .inputField('role', defaultValue: ChatRoomUserRole.peer)
           ]));
 
@@ -43,8 +42,8 @@ final _deleteChatRoomUserGraphQLField =
               },
             ))
               ..inputs.addAll([
-                graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
-                graphQLInt.nonNull().coerceToInputObject().inputField('userId')
+                graphQLInt.nonNull().inputField('chatId'),
+                graphQLInt.nonNull().inputField('userId')
               ]));
 
 // **************************************************************************

@@ -34,8 +34,7 @@ final _setStateGraphQLField =
               },
             ))
               ..inputs.addAll([
-                graphQLString.nonNull().coerceToInputObject().inputField(
-                    'newState',
+                graphQLString.nonNull().inputField('newState',
                     description: 'The new state, can\'t be \'WrongState\'!.')
               ]));
 

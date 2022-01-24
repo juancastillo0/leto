@@ -48,9 +48,7 @@ final _getNestedInterfaceImplByIndexGraphQLField = HotReloadableDefinition<
             return getNestedInterfaceImplByIndex(ctx, (args["index"] as int));
           },
         ))
-          ..inputs.addAll([
-            graphQLInt.nonNull().coerceToInputObject().inputField('index')
-          ]));
+          ..inputs.addAll([graphQLInt.nonNull().inputField('index')]));
 
 // **************************************************************************
 // _GraphQLGenerator

@@ -8,38 +8,33 @@ part of 'generator_test.dart';
 
 GraphQLObjectField<TestModel?, Object?, Object?> get addTestModelGraphQLField =>
     _addTestModelGraphQLField.value;
-final _addTestModelGraphQLField = HotReloadableDefinition<
-    GraphQLObjectField<TestModel?, Object?,
-        Object?>>((setValue) => setValue(testModelGraphQLType.field<Object?>(
-      'addTestModel',
-      resolve: (obj, ctx) {
-        final args = ctx.args;
-        if ((args["previous"] as TestModel?) != null) {
-          final previousValidationResult =
-              validateTestModel((args["previous"] as TestModel?) as TestModel);
-          if (previousValidationResult.hasErrors) {
-            throw previousValidationResult;
-          }
-        }
+final _addTestModelGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<TestModel?, Object?, Object?>>(
+        (setValue) => setValue(testModelGraphQLType.field<Object?>(
+              'addTestModel',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
+                if ((args["previous"] as TestModel?) != null) {
+                  final previousValidationResult = validateTestModel(
+                      (args["previous"] as TestModel?) as TestModel);
+                  if (previousValidationResult.hasErrors) {
+                    throw previousValidationResult;
+                  }
+                }
 
-        return addTestModel(ctx, (args["realName"] as String),
-            previous: (args["previous"] as TestModel?),
-            name: (args["name"] as String),
-            value: (args["value"] as List<int>));
-      },
-      description: r"the function uses [value] to do stuff",
-    ))
-      ..inputs.addAll([
-        graphQLString.nonNull().coerceToInputObject().inputField('realName'),
-        testModelGraphQLType.coerceToInputObject().inputField('previous'),
-        graphQLString.nonNull().coerceToInputObject().inputField('name'),
-        graphQLInt
-            .nonNull()
-            .list()
-            .nonNull()
-            .coerceToInputObject()
-            .inputField('value')
-      ]));
+                return addTestModel(ctx, (args["realName"] as String),
+                    previous: (args["previous"] as TestModel?),
+                    name: (args["name"] as String),
+                    value: (args["value"] as List<int>));
+              },
+              description: r"the function uses [value] to do stuff",
+            ))
+              ..inputs.addAll([
+                graphQLString.nonNull().inputField('realName'),
+                testModelGraphQLTypeInput.inputField('previous'),
+                graphQLString.nonNull().inputField('name'),
+                graphQLInt.nonNull().list().nonNull().inputField('value')
+              ]));
 
 GraphQLObjectField<List<TestModel>, Object?, Object?>
     get testModelsGraphQLField => _testModelsGraphQLField.value;
@@ -60,9 +55,8 @@ final _testModelsGraphQLField = HotReloadableDefinition<
           ..inputs.addAll([
             graphQLDate
                 .nonNull()
-                .coerceToInputObject()
                 .inputField('lessThan', description: 'pagination less than'),
-            graphQLInt.nonNull().coerceToInputObject().inputField('position',
+            graphQLInt.nonNull().inputField('position',
                 defaultValue: 0, description: 'pagination')
           ]));
 
@@ -83,10 +77,8 @@ final _testUnionModelsGraphQLField = HotReloadableDefinition<
               r"testUnionModels documentation generated\n[position] is the pad",
         ))
           ..inputs.addAll([
-            graphQLInt.list().nonNull().coerceToInputObject().inputField(
-                'positions',
-                defaultValue: const [],
-                description: 'pagination')
+            graphQLInt.list().nonNull().inputField('positions',
+                defaultValue: const [], description: 'pagination')
           ]));
 
 // **************************************************************************
@@ -127,6 +119,27 @@ final _testModelGraphQLType =
 /// Auto-generated from [TestModel].
 GraphQLObjectType<TestModel> get testModelGraphQLType =>
     _testModelGraphQLType.value;
+final _testModelGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<TestModel>>((setValue) {
+  final __name = 'TestModelInput';
+
+  final __testModelGraphQLTypeInput = inputObjectType<TestModel>(__name);
+
+  setValue(__testModelGraphQLTypeInput);
+  __testModelGraphQLTypeInput.fields.addAll(
+    [
+      graphQLString.nonNull().inputField('name'),
+      graphQLString.inputField('description'),
+      graphQLDate.nonNull().list().inputField('dates')
+    ],
+  );
+
+  return __testModelGraphQLTypeInput;
+});
+
+/// Auto-generated from [TestModel].
+GraphQLInputObjectType<TestModel> get testModelGraphQLTypeInput =>
+    _testModelGraphQLTypeInput.value;
 
 final _testModelFreezedGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<TestModelFreezed>>((setValue) {

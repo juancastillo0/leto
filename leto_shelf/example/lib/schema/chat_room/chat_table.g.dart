@@ -8,56 +8,55 @@ part of 'chat_table.dart';
 
 GraphQLObjectField<ChatMessage?, Object?, Object?>
     get sendMessageGraphQLField => _sendMessageGraphQLField.value;
-final _sendMessageGraphQLField = HotReloadableDefinition<
-        GraphQLObjectField<ChatMessage?, Object?, Object?>>(
-    (setValue) => setValue(chatMessageGraphQLType.field<Object?>(
-          'sendMessage',
-          resolve: (obj, ctx) {
-            final args = ctx.args;
+final _sendMessageGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<ChatMessage?, Object?, Object?>>(
+        (setValue) => setValue(chatMessageGraphQLType.field<Object?>(
+              'sendMessage',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-            return sendMessage(
-                ctx,
-                (args["chatId"] as int),
-                (args["message"] as String),
-                (args["referencedMessageId"] as int?));
-          },
-        ))
-          ..inputs.addAll([
-            graphQLInt.nonNull().coerceToInputObject().inputField('chatId'),
-            graphQLString.nonNull().coerceToInputObject().inputField('message'),
-            graphQLInt.coerceToInputObject().inputField('referencedMessageId')
-          ]));
+                return sendMessage(
+                    ctx,
+                    (args["chatId"] as int),
+                    (args["message"] as String),
+                    (args["referencedMessageId"] as int?));
+              },
+            ))
+              ..inputs.addAll([
+                graphQLInt.nonNull().inputField('chatId'),
+                graphQLString.nonNull().inputField('message'),
+                graphQLInt.inputField('referencedMessageId')
+              ]));
 
 GraphQLObjectField<List<ChatMessage>, Object?, Object?>
     get getMessageGraphQLField => _getMessageGraphQLField.value;
 final _getMessageGraphQLField = HotReloadableDefinition<
-    GraphQLObjectField<List<ChatMessage>, Object?,
-        Object?>>((setValue) =>
-    setValue(chatMessageGraphQLType.nonNull().list().nonNull().field<Object?>(
-      'getMessage',
-      resolve: (obj, ctx) {
-        final args = ctx.args;
+        GraphQLObjectField<List<ChatMessage>, Object?, Object?>>(
+    (setValue) => setValue(
+            chatMessageGraphQLType.nonNull().list().nonNull().field<Object?>(
+          'getMessage',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-        return getMessage(ctx, (args["chatId"] as int?));
-      },
-    ))
-      ..inputs.addAll([graphQLInt.coerceToInputObject().inputField('chatId')]));
+            return getMessage(ctx, (args["chatId"] as int?));
+          },
+        ))
+          ..inputs.addAll([graphQLInt.inputField('chatId')]));
 
 GraphQLObjectField<List<ChatMessage>, Object?, Object?>
     get onMessageSentGraphQLField => _onMessageSentGraphQLField.value;
 final _onMessageSentGraphQLField = HotReloadableDefinition<
-    GraphQLObjectField<List<ChatMessage>, Object?,
-        Object?>>((setValue) =>
-    setValue(chatMessageGraphQLType.nonNull().list().nonNull().field<Object?>(
-      'onMessageSent',
-      subscribe: (obj, ctx) {
-        final args = ctx.args;
+        GraphQLObjectField<List<ChatMessage>, Object?, Object?>>(
+    (setValue) => setValue(
+            chatMessageGraphQLType.nonNull().list().nonNull().field<Object?>(
+          'onMessageSent',
+          subscribe: (obj, ctx) {
+            final args = ctx.args;
 
-        return onMessageSent(ctx, (args["chatId"] as int));
-      },
-    ))
-      ..inputs.addAll(
-          [graphQLInt.nonNull().coerceToInputObject().inputField('chatId')]));
+            return onMessageSent(ctx, (args["chatId"] as int));
+          },
+        ))
+          ..inputs.addAll([graphQLInt.nonNull().inputField('chatId')]));
 
 GraphQLObjectField<ChatRoom?, Object?, Object?>
     get createChatRoomGraphQLField => _createChatRoomGraphQLField.value;
@@ -71,9 +70,7 @@ final _createChatRoomGraphQLField =
                 return createChatRoom(ctx, (args["name"] as String));
               },
             ))
-              ..inputs.addAll([
-                graphQLString.nonNull().coerceToInputObject().inputField('name')
-              ]));
+              ..inputs.addAll([graphQLString.nonNull().inputField('name')]));
 
 GraphQLObjectField<List<ChatRoom>, Object?, Object?>
     get getChatRoomsGraphQLField => _getChatRoomsGraphQLField.value;
@@ -91,22 +88,17 @@ final _getChatRoomsGraphQLField = HotReloadableDefinition<
 
 GraphQLObjectField<DBEvent, Object?, Object?> get onMessageEventGraphQLField =>
     _onMessageEventGraphQLField.value;
-final _onMessageEventGraphQLField =
-    HotReloadableDefinition<GraphQLObjectField<DBEvent, Object?, Object?>>(
-        (setValue) => setValue(dBEventGraphQLType.nonNull().field<Object?>(
-              'onMessageEvent',
-              subscribe: (obj, ctx) {
-                final args = ctx.args;
+final _onMessageEventGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<DBEvent, Object?, Object?>>(
+    (setValue) => setValue(dBEventGraphQLType.nonNull().field<Object?>(
+          'onMessageEvent',
+          subscribe: (obj, ctx) {
+            final args = ctx.args;
 
-                return onMessageEvent(ctx, (args["type"] as EventType));
-              },
-            ))
-              ..inputs.addAll([
-                eventTypeGraphQLType
-                    .nonNull()
-                    .coerceToInputObject()
-                    .inputField('type')
-              ]));
+            return onMessageEvent(ctx, (args["type"] as EventType));
+          },
+        ))
+          ..inputs.addAll([eventTypeGraphQLType.nonNull().inputField('type')]));
 
 // **************************************************************************
 // _GraphQLGenerator

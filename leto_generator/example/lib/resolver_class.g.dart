@@ -27,30 +27,24 @@ final _queryInClassGraphQLField =
 
 GraphQLObjectField<String, Object?, Object?> get mutationInClassGraphQLField =>
     _mutationInClassGraphQLField.value;
-final _mutationInClassGraphQLField =
-    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
-        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
-              'mutationInClass',
-              resolve: (obj, ctx) {
-                final args = ctx.args;
+final _mutationInClassGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<String, Object?, Object?>>(
+    (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+          'mutationInClass',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
 
-                final _call = (Resolver r) =>
-                    r.mutationInClass((args["values"] as List<int?>));
-                // ignore: unnecessary_non_null_assertion
-                final FutureOr<Resolver> _obj = Resolver();
-                if (_obj is Future<Resolver>)
-                  return _obj.then(_call);
-                else
-                  return _call(_obj);
-              },
-            ))
-              ..inputs.addAll([
-                graphQLInt
-                    .list()
-                    .nonNull()
-                    .coerceToInputObject()
-                    .inputField('values')
-              ]));
+            final _call = (Resolver r) =>
+                r.mutationInClass((args["values"] as List<int?>));
+            // ignore: unnecessary_non_null_assertion
+            final FutureOr<Resolver> _obj = Resolver();
+            if (_obj is Future<Resolver>)
+              return _obj.then(_call);
+            else
+              return _call(_obj);
+          },
+        ))
+          ..inputs.addAll([graphQLInt.list().nonNull().inputField('values')]));
 
 GraphQLObjectField<String, Object?, Object?> get queryInClass2GraphQLField =>
     _queryInClass2GraphQLField.value;

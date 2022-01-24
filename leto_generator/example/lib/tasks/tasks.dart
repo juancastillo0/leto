@@ -80,7 +80,7 @@ type Task implements Named & WithId & WithCreated {
   assignedTo: [User!]! @cost(complexity: 10)
 }''',
   '''
-type User implements Named & WithId @cost(complexity: 5) {
+type User implements Named & WithId {
   id: ID!
   name: String!
 }''',
@@ -102,6 +102,7 @@ abstract class WithCreated {
   DateTime get createdTimestamp;
 }
 
+@GraphQLInput()
 @GraphQLClass()
 @JsonSerializable()
 class Task implements Named, WithCreated {
@@ -140,8 +141,9 @@ class Task implements Named, WithCreated {
 
 GraphQLAttachments userAttachments() => const [ElementComplexity(5)];
 
-@AttachFn(userAttachments)
+// @AttachFn(userAttachments)
 @GraphQLClass()
+@GraphQLInput()
 @JsonSerializable()
 class User implements Named {
   @override

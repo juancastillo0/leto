@@ -49,8 +49,8 @@ final _getEventsGraphQLField = HotReloadableDefinition<
           },
         ))
           ..inputs.addAll([
-            graphQLString.coerceToInputObject().inputField('cursor'),
-            graphQLInt.nonNull().coerceToInputObject().inputField('delta')
+            graphQLString.inputField('cursor'),
+            graphQLInt.nonNull().inputField('delta')
           ]));
 
 // **************************************************************************

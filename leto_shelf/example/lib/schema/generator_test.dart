@@ -10,6 +10,7 @@ final testUnionModelsTestKey = ScopeRef<List<EventUnion?>>('testUnionModels');
 
 /// Custom doc
 @GraphQLClass()
+@GraphQLInput()
 @JsonSerializable()
 @Valida()
 class TestModel {

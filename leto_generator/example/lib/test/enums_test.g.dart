@@ -8,31 +8,27 @@ part of 'enums_test.dart';
 
 GraphQLObjectField<ClassEnum, Object?, Object?>
     get enumsTestQueryGraphQLField => _enumsTestQueryGraphQLField.value;
-final _enumsTestQueryGraphQLField = HotReloadableDefinition<
-        GraphQLObjectField<ClassEnum, Object?, Object?>>(
-    (setValue) => setValue(classEnumGraphQLType.nonNull().field<Object?>(
-          'enumsTestQuery',
-          resolve: (obj, ctx) {
-            final args = ctx.args;
+final _enumsTestQueryGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<ClassEnum, Object?, Object?>>(
+        (setValue) => setValue(classEnumGraphQLType.nonNull().field<Object?>(
+              'enumsTestQuery',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-            return enumsTestQuery(
-                ctx,
-                (args["classEnum"] as ClassEnum),
-                (args["snake"] as SnakeCaseEnum),
-                (args["simple"] as SimpleEnum?));
-          },
-        ))
-          ..inputs.addAll([
-            classEnumGraphQLType
-                .nonNull()
-                .coerceToInputObject()
-                .inputField('classEnum', defaultValue: ClassEnum.variantOne),
-            snakeCaseEnumGraphQLType
-                .nonNull()
-                .coerceToInputObject()
-                .inputField('snake', defaultValue: SnakeCaseEnum.variantTwo),
-            simpleEnumGraphQLType.coerceToInputObject().inputField('simple')
-          ]));
+                return enumsTestQuery(
+                    ctx,
+                    (args["classEnum"] as ClassEnum),
+                    (args["snake"] as SnakeCaseEnum),
+                    (args["simple"] as SimpleEnum?));
+              },
+            ))
+              ..inputs.addAll([
+                classEnumGraphQLType.nonNull().inputField('classEnum',
+                    defaultValue: ClassEnum.variantOne),
+                snakeCaseEnumGraphQLType.nonNull().inputField('snake',
+                    defaultValue: SnakeCaseEnum.variantTwo),
+                simpleEnumGraphQLType.inputField('simple')
+              ]));
 
 // **************************************************************************
 // _GraphQLGenerator
