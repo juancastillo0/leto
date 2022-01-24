@@ -6,8 +6,14 @@ import 'package:leto_schema/src/utilities/look_ahead.dart';
 import '../rules_prelude.dart';
 
 class ElementComplexity implements ToDirectiveValue {
+  /// The complexity cost
   final int complexity;
 
+  /// A GraphQL attachment which specifies a [complexity] in a [GraphQLElement]
+  /// for [queryComplexityRuleBuilder]. Presented as a directive [directiveDefinition]
+  /// in the GraphQL schema.
+  ///
+  /// In code generation use [AttachFn].
   const ElementComplexity(this.complexity);
 
   @override

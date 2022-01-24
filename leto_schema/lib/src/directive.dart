@@ -113,8 +113,16 @@ Iterable<DirectiveNode> getDirectivesFromAttachments(
       );
 }
 
+/// The implementors of this class specify that the instances represent
+/// a GraphQL directive. Can be used in GraphQLElement's attachments so that
+/// the directives are present in the schema.
+///
+/// An example can be found on [ElementComplexity].
 abstract class ToDirectiveValue {
+  /// The directive value represented by this object
   DirectiveNode get directiveValue;
+
+  /// The directive definition of the [directiveValue]
   GraphQLDirective get directiveDefinition;
 }
 
