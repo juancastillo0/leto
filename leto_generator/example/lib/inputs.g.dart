@@ -19,7 +19,7 @@ final _testInputGenGraphQLField =
               },
             ))
               ..inputs.addAll([
-                inputGenGraphQLType<int>(graphQLInt.nonNull())
+                inputGenGraphQLTypeInput<int>(graphQLInt.nonNull())
                     .nonNull()
                     .inputField('input')
               ]));
@@ -42,14 +42,12 @@ final _queryMultipleParamsGraphQLField =
               },
             ))
               ..inputs.addAll([
-                inputJsonSerdeGraphQLType.inputField('serde'),
-                inputJsonSerdeGraphQLType.nonNull().inputField('serdeReq'),
-                graphQLInt
-                    .nonNull()
-                    .coerceToInputObject()
-                    .inputField('defTwo', defaultValue: 2),
-                inputMGraphQLType.inputField('mInput'),
-                inputGenGraphQLType<InputJsonSerde?>(inputJsonSerdeGraphQLType)
+                inputJsonSerdeGraphQLTypeInput.inputField('serde'),
+                inputJsonSerdeGraphQLTypeInput.nonNull().inputField('serdeReq'),
+                graphQLInt.nonNull().inputField('defTwo', defaultValue: 2),
+                inputMGraphQLTypeInput.inputField('mInput'),
+                inputGenGraphQLTypeInput<InputJsonSerde?>(
+                        inputJsonSerdeGraphQLTypeInput)
                     .nonNull()
                     .inputField('gen')
               ]));
@@ -72,19 +70,47 @@ final _mutationMultipleParamsOptionalPosGraphQLField =
               },
             ))
               ..inputs.addAll([
-                inputJsonSerdeGraphQLType.inputField('serde'),
-                graphQLInt
-                    .nonNull()
-                    .coerceToInputObject()
-                    .inputField('defTwo', defaultValue: 2),
-                inputGenGraphQLType<List<InputJsonSerde>?>(
-                        inputJsonSerdeGraphQLType.nonNull().list())
+                inputJsonSerdeGraphQLTypeInput.inputField('serde'),
+                graphQLInt.nonNull().inputField('defTwo', defaultValue: 2),
+                inputGenGraphQLTypeInput<List<InputJsonSerde>?>(
+                        inputJsonSerdeGraphQLTypeInput.nonNull().list())
                     .inputField('gen'),
-                inputGen2GraphQLType<String, List<List<int>?>>(
+                inputGen2GraphQLTypeInput<String, List<List<int>?>>(
                         graphQLString.nonNull(),
                         graphQLInt.nonNull().list().list().nonNull())
                     .inputField('gen2')
               ]));
+
+GraphQLObjectField<CombinedObject, Object?, Object?>
+    get combinedFromInputGraphQLField => _combinedFromInputGraphQLField.value;
+final _combinedFromInputGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<CombinedObject, Object?, Object?>>(
+    (setValue) => setValue(combinedObjectGraphQLType.nonNull().field<Object?>(
+          'combinedFromInput',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
+
+            return combinedFromInput((args["inputCombined"] as CombinedObject));
+          },
+        ))
+          ..inputs.addAll([
+            combinedObjectGraphQLTypeInput.nonNull().inputField('inputCombined')
+          ]));
+
+GraphQLObjectField<CombinedObject?, Object?, Object?>
+    get combinedFromOneOfGraphQLField => _combinedFromOneOfGraphQLField.value;
+final _combinedFromOneOfGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<CombinedObject?, Object?, Object?>>(
+    (setValue) => setValue(combinedObjectGraphQLType.field<Object?>(
+          'combinedFromOneOf',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
+
+            return combinedFromOneOf((args["input"] as OneOfInput));
+          },
+        ))
+          ..inputs.addAll(
+              [oneOfInputGraphQLTypeInput.nonNull().inputField('input')]));
 
 // **************************************************************************
 // _GraphQLGenerator
@@ -92,214 +118,281 @@ final _mutationMultipleParamsOptionalPosGraphQLField =
 
 final inputMSerializer = SerializerValue<InputM>(
   key: "InputM",
-  fromJson: (ctx, json) => InputM.fromJson(json), // _$InputMFromJson,
-  // toJson: (m) => _$InputMToJson(m as InputM),
+  fromJson: (ctx, json) => InputM.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _inputMGraphQLType =
+final _inputMGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<InputM>>((setValue) {
   final __name = 'InputM';
 
-  final __inputMGraphQLType = inputObjectType<InputM>(__name);
+  final __inputMGraphQLTypeInput = inputObjectType<InputM>(__name);
 
-  setValue(__inputMGraphQLType);
-  __inputMGraphQLType.fields.addAll(
+  setValue(__inputMGraphQLTypeInput);
+  __inputMGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('name'),
-      graphQLDate.coerceToInputObject().inputField('date'),
-      graphQLInt
-          .nonNull()
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('ints'),
-      graphQLFloat
-          .nonNull()
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('doubles'),
-      inputMNGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('nested'),
-      inputMNGraphQLType
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('nestedNullItem'),
-      inputMNGraphQLType
-          .list()
-          .coerceToInputObject()
-          .inputField('nestedNullItemNull'),
-      inputMNGraphQLType
-          .nonNull()
-          .list()
-          .coerceToInputObject()
-          .inputField('nestedNull')
+      graphQLString.nonNull().inputField('name'),
+      graphQLDate.inputField('date'),
+      graphQLInt.nonNull().list().nonNull().inputField('ints'),
+      graphQLFloat.nonNull().list().nonNull().inputField('doubles'),
+      inputMNGraphQLTypeInput.nonNull().list().nonNull().inputField('nested'),
+      inputMNGraphQLTypeInput.list().nonNull().inputField('nestedNullItem'),
+      inputMNGraphQLTypeInput.list().inputField('nestedNullItemNull'),
+      inputMNGraphQLTypeInput.nonNull().list().inputField('nestedNull')
     ],
   );
 
-  return __inputMGraphQLType;
+  return __inputMGraphQLTypeInput;
 });
 
 /// Auto-generated from [InputM].
-GraphQLInputObjectType<InputM> get inputMGraphQLType =>
-    _inputMGraphQLType.value;
+GraphQLInputObjectType<InputM> get inputMGraphQLTypeInput =>
+    _inputMGraphQLTypeInput.value;
 
 final inputMNSerializer = SerializerValue<InputMN>(
   key: "InputMN",
-  fromJson: (ctx, json) => InputMN.fromJson(json), // _$InputMNFromJson,
-  // toJson: (m) => _$InputMNToJson(m as InputMN),
+  fromJson: (ctx, json) => InputMN.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _inputMNGraphQLType =
+final _inputMNGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<InputMN>>((setValue) {
   final __name = 'InputMNRenamed';
 
-  final __inputMNGraphQLType = inputObjectType<InputMN>(__name);
+  final __inputMNGraphQLTypeInput = inputObjectType<InputMN>(__name);
 
-  setValue(__inputMNGraphQLType);
-  __inputMNGraphQLType.fields.addAll(
+  setValue(__inputMNGraphQLTypeInput);
+  __inputMNGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('name'),
-      inputMGraphQLType.coerceToInputObject().inputField('parent'),
-      Json.graphQLType.nonNull().coerceToInputObject().inputField('json'),
+      graphQLString.nonNull().inputField('name'),
+      inputMGraphQLTypeInput.inputField('parent'),
+      Json.graphQLType
+          .nonNull()
+          .inputField('json', defaultValue: const JsonList([JsonNumber(1)])),
       Json.graphQLType
           .nonNull()
           .list()
           .nonNull()
-          .coerceToInputObject()
           .inputField('jsonListArgDef', defaultValue: const [JsonMap({})]),
-      inputMGraphQLType
-          .nonNull()
-          .list()
-          .list()
-          .coerceToInputObject()
-          .inputField('parentNullDef',
-              defaultValue: InputMN.parentNullDefDefault())
+      inputMGraphQLTypeInput.nonNull().list().list().inputField('parentNullDef',
+          defaultValue: InputMN.parentNullDefDefault())
     ],
   );
 
-  return __inputMNGraphQLType;
+  return __inputMNGraphQLTypeInput;
 });
 
 /// Auto-generated from [InputMN].
-GraphQLInputObjectType<InputMN> get inputMNGraphQLType =>
-    _inputMNGraphQLType.value;
+GraphQLInputObjectType<InputMN> get inputMNGraphQLTypeInput =>
+    _inputMNGraphQLTypeInput.value;
 
 final inputJsonSerdeSerializer = SerializerValue<InputJsonSerde>(
   key: "InputJsonSerde",
-  fromJson: (ctx, json) =>
-      InputJsonSerde.fromJson(json), // _$InputJsonSerdeFromJson,
-  // toJson: (m) => _$InputJsonSerdeToJson(m as InputJsonSerde),
+  fromJson: (ctx, json) => InputJsonSerde.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
 );
-final _inputJsonSerdeGraphQLType =
+final _inputJsonSerdeGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<InputJsonSerde>>((setValue) {
   final __name = 'InputJsonSerde';
 
-  final __inputJsonSerdeGraphQLType = inputObjectType<InputJsonSerde>(__name);
+  final __inputJsonSerdeGraphQLTypeInput =
+      inputObjectType<InputJsonSerde>(__name);
 
-  setValue(__inputJsonSerdeGraphQLType);
-  __inputJsonSerdeGraphQLType.fields.addAll(
+  setValue(__inputJsonSerdeGraphQLTypeInput);
+  __inputJsonSerdeGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('name'),
-      inputMGraphQLType.coerceToInputObject().inputField('parent'),
-      inputGenGraphQLType<InputM>(inputMGraphQLType.nonNull())
-          .coerceToInputObject()
+      graphQLString.nonNull().inputField('name'),
+      inputMGraphQLTypeInput.inputField('parent'),
+      inputGenGraphQLTypeInput<InputM>(inputMGraphQLTypeInput.nonNull())
           .inputField('inputGenM'),
-      inputGenGraphQLType<InputM?>(inputMGraphQLType)
-          .coerceToInputObject()
+      inputGenGraphQLTypeInput<InputM?>(inputMGraphQLTypeInput)
           .inputField('inputGenMNull')
     ],
   );
 
-  return __inputJsonSerdeGraphQLType;
+  return __inputJsonSerdeGraphQLTypeInput;
 });
 
 /// Auto-generated from [InputJsonSerde].
-GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLType =>
-    _inputJsonSerdeGraphQLType.value;
+GraphQLInputObjectType<InputJsonSerde> get inputJsonSerdeGraphQLTypeInput =>
+    _inputJsonSerdeGraphQLTypeInput.value;
 
 final inputGenSerdeCtx = SerdeCtx();
-final _inputGenGraphQLType =
+final _inputGenGraphQLTypeInput =
     HotReloadableDefinition<Map<String, GraphQLInputObjectType<InputGen>>>(
         (_) => {});
 
 /// Auto-generated from [InputGen].
-GraphQLInputObjectType<InputGen<T>> inputGenGraphQLType<T>(
+GraphQLInputObjectType<InputGen<T>> inputGenGraphQLTypeInput<T>(
   GraphQLType<T, Object> tGraphQLType, {
   String? name,
 }) {
   final __name = name ?? 'InputGen${tGraphQLType.printableName}';
-  if (_inputGenGraphQLType.value[__name] != null)
-    return _inputGenGraphQLType.value[__name]!
+  if (_inputGenGraphQLTypeInput.value[__name] != null)
+    return _inputGenGraphQLTypeInput.value[__name]!
         as GraphQLInputObjectType<InputGen<T>>;
-  final __inputGenGraphQLType = inputObjectType<InputGen<T>>(__name);
+  final __inputGenGraphQLTypeInput = inputObjectType<InputGen<T>>(__name);
   inputGenSerdeCtx.add(
     SerializerValue<InputGen<T>>(
       fromJson: (ctx, json) => InputGen.fromJson(json, ctx.fromJson),
     ),
   );
-  _inputGenGraphQLType.value[__name] = __inputGenGraphQLType;
-  __inputGenGraphQLType.fields.addAll(
+  _inputGenGraphQLTypeInput.value[__name] = __inputGenGraphQLTypeInput;
+  __inputGenGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('name'),
-      tGraphQLType.coerceToInputObject().inputField('generic')
+      graphQLString.nonNull().inputField('name'),
+      tGraphQLType.inputField('generic')
     ],
   );
 
-  return __inputGenGraphQLType;
+  return __inputGenGraphQLTypeInput;
 }
 
 final inputGen2SerdeCtx = SerdeCtx();
-final _inputGen2GraphQLType =
+final _inputGen2GraphQLTypeInput =
     HotReloadableDefinition<Map<String, GraphQLInputObjectType<InputGen2>>>(
         (_) => {});
 
 /// Auto-generated from [InputGen2].
 GraphQLInputObjectType<InputGen2<T, O>>
-    inputGen2GraphQLType<T, O extends Object>(
+    inputGen2GraphQLTypeInput<T, O extends Object>(
   GraphQLType<T, Object> tGraphQLType,
   GraphQLType<O, Object> oGraphQLType, {
   String? name,
 }) {
   final __name = name ??
       'InputGen2${tGraphQLType.printableName}${oGraphQLType.printableName}';
-  if (_inputGen2GraphQLType.value[__name] != null)
-    return _inputGen2GraphQLType.value[__name]!
+  if (_inputGen2GraphQLTypeInput.value[__name] != null)
+    return _inputGen2GraphQLTypeInput.value[__name]!
         as GraphQLInputObjectType<InputGen2<T, O>>;
-  final __inputGen2GraphQLType = inputObjectType<InputGen2<T, O>>(__name);
+  final __inputGen2GraphQLTypeInput = inputObjectType<InputGen2<T, O>>(__name);
   inputGen2SerdeCtx.add(
     SerializerValue<InputGen2<T, O>>(
       fromJson: (ctx, json) =>
           InputGen2.fromJson(json, ctx.fromJson, ctx.fromJson),
     ),
   );
-  _inputGen2GraphQLType.value[__name] = __inputGen2GraphQLType;
-  __inputGen2GraphQLType.fields.addAll(
+  _inputGen2GraphQLTypeInput.value[__name] = __inputGen2GraphQLTypeInput;
+  __inputGen2GraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().coerceToInputObject().inputField('name'),
-      tGraphQLType.coerceToInputObject().inputField('generic'),
-      oGraphQLType.nullable().coerceToInputObject().inputField('valueNull'),
-      oGraphQLType
-          .nullable()
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('listValueNull'),
-      oGraphQLType.nonNull().coerceToInputObject().inputField('value'),
-      oGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .coerceToInputObject()
-          .inputField('listValue')
+      graphQLString.nonNull().inputField('name'),
+      tGraphQLType.inputField('generic'),
+      oGraphQLType.nullable().inputField('valueNull'),
+      oGraphQLType.nonNull().inputField('value'),
+      oGraphQLType.nonNull().list().nonNull().inputField('listValue'),
+      oGraphQLType.nullable().list().nonNull().inputField('listValueNull')
     ],
   );
 
-  return __inputGen2GraphQLType;
+  return __inputGen2GraphQLTypeInput;
 }
+
+final combinedObjectSerializer = SerializerValue<CombinedObject>(
+  key: "CombinedObject",
+  fromJson: (ctx, json) =>
+      CombinedObject.fromJson(json), // _$CombinedObjectFromJson,
+  // toJson: (m) => _$CombinedObjectToJson(m as CombinedObject),
+);
+final _combinedObjectGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<CombinedObject>>((setValue) {
+  final __name = 'CombinedObject';
+
+  final __combinedObjectGraphQLType =
+      objectType<CombinedObject>(__name, isInterface: false, interfaces: []);
+
+  setValue(__combinedObjectGraphQLType);
+  __combinedObjectGraphQLType.fields.addAll(
+    [
+      graphQLString.nonNull().field('onlyInOutputMethod', resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return obj.onlyInOutputMethod();
+      }),
+      graphQLInt
+          .nonNull()
+          .field('otherVal', resolve: (obj, ctx) => obj.otherVal),
+      graphQLString.nonNull().field('val', resolve: (obj, ctx) => obj.val),
+      graphQLInt.field('onlyInOutput', resolve: (obj, ctx) => obj.onlyInOutput)
+    ],
+  );
+
+  return __combinedObjectGraphQLType;
+});
+
+/// Auto-generated from [CombinedObject].
+GraphQLObjectType<CombinedObject> get combinedObjectGraphQLType =>
+    _combinedObjectGraphQLType.value;
+final _combinedObjectGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<CombinedObject>>((setValue) {
+  final __name = 'CombinedObjectInput';
+
+  final __combinedObjectGraphQLTypeInput =
+      inputObjectType<CombinedObject>(__name);
+
+  setValue(__combinedObjectGraphQLTypeInput);
+  __combinedObjectGraphQLTypeInput.fields.addAll(
+    [graphQLString.nonNull().inputField('val')],
+  );
+
+  return __combinedObjectGraphQLTypeInput;
+});
+
+/// Auto-generated from [CombinedObject].
+GraphQLInputObjectType<CombinedObject> get combinedObjectGraphQLTypeInput =>
+    _combinedObjectGraphQLTypeInput.value;
+
+final oneOfInputSerializer = SerializerValue<OneOfInput>(
+  key: "OneOfInput",
+  fromJson: (ctx, json) => OneOfInput.fromJson(json), // _$$allFromJson,
+  // toJson: (m) => _$$allToJson(m as _$all),
+);
+final _oneOfInputGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<OneOfInput>>((setValue) {
+  final __name = 'OneOfInput';
+
+  final __oneOfInputGraphQLTypeInput =
+      inputObjectType<OneOfInput>(__name, isOneOf: true);
+
+  setValue(__oneOfInputGraphQLTypeInput);
+  __oneOfInputGraphQLTypeInput.fields.addAll(
+    [
+      combinedObjectGraphQLTypeInput.inputField('combined'),
+      oneOfFreezedInputGraphQLTypeInput.inputField('oneOfFreezed'),
+      graphQLString.inputField('str')
+    ],
+  );
+
+  return __oneOfInputGraphQLTypeInput;
+});
+
+/// Auto-generated from [OneOfInput].
+GraphQLInputObjectType<OneOfInput> get oneOfInputGraphQLTypeInput =>
+    _oneOfInputGraphQLTypeInput.value;
+
+final oneOfFreezedInputSerializer = SerializerValue<OneOfFreezedInput>(
+  key: "OneOfFreezedInput",
+  fromJson: (ctx, json) =>
+      OneOfFreezedInput.fromJson(json), // _$$_OneOfFreezedInputFromJson,
+  // toJson: (m) => _$$_OneOfFreezedInputToJson(m as _$_OneOfFreezedInput),
+);
+final _oneOfFreezedInputGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<OneOfFreezedInput>>(
+        (setValue) {
+  final __name = 'OneOfFreezedInput';
+
+  final __oneOfFreezedInputGraphQLTypeInput =
+      inputObjectType<OneOfFreezedInput>(__name);
+
+  setValue(__oneOfFreezedInputGraphQLTypeInput);
+  __oneOfFreezedInputGraphQLTypeInput.fields.addAll(
+    [graphQLString.nonNull().inputField('str')],
+  );
+
+  return __oneOfFreezedInputGraphQLTypeInput;
+});
+
+/// Auto-generated from [OneOfFreezedInput].
+GraphQLInputObjectType<OneOfFreezedInput>
+    get oneOfFreezedInputGraphQLTypeInput =>
+        _oneOfFreezedInputGraphQLTypeInput.value;
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -428,3 +521,24 @@ Object? _$nullableGenericToJson<T>(
   Object? Function(T value) toJson,
 ) =>
     input == null ? null : toJson(input);
+
+CombinedObject _$CombinedObjectFromJson(Map<String, dynamic> json) =>
+    CombinedObject(
+      json['val'] as String,
+    );
+
+Map<String, dynamic> _$CombinedObjectToJson(CombinedObject instance) =>
+    <String, dynamic>{
+      'val': instance.val,
+    };
+
+_$_OneOfFreezedInput _$$_OneOfFreezedInputFromJson(Map<String, dynamic> json) =>
+    _$_OneOfFreezedInput(
+      json['str'] as String,
+    );
+
+Map<String, dynamic> _$$_OneOfFreezedInputToJson(
+        _$_OneOfFreezedInput instance) =>
+    <String, dynamic>{
+      'str': instance.str,
+    };

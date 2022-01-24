@@ -376,6 +376,21 @@ void main() {
                   'isDeprecated': false,
                   'deprecationReason': null,
                 },
+                {
+                  'name': 'oneOf',
+                  'args': [],
+                  'type': {
+                    'kind': 'NON_NULL',
+                    'name': null,
+                    'ofType': {
+                      'kind': 'SCALAR',
+                      'name': 'Boolean',
+                      'ofType': null
+                    }
+                  },
+                  'isDeprecated': false,
+                  'deprecationReason': null
+                }
               ],
               'inputFields': null,
               'interfaces': [],
@@ -992,6 +1007,13 @@ void main() {
                   },
                 },
               ],
+            },
+            // TODO: one of in intrsopection query and locations of directive
+            {
+              'name': 'oneOf',
+              'isRepeatable': false,
+              'locations': ['INPUT_OBJECT'],
+              'args': []
             },
           ],
         },

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert' show json;
 
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 part 'inputs.g.dart';
+part 'inputs.freezed.dart';
 
 const inputsSchemaStr = [
   '''
@@ -23,7 +24,7 @@ input InputM {
 input InputMNRenamed {
   name: String!
   parent: InputM
-  json: Json!
+  json: Json! = [1]
   jsonListArgDef: [Json!]! = [{}]
   parentNullDef: [[InputM!]] = [null, [{name: "defaultName", date: null, ints: [0, 0], doubles: [0.0, 0.1], nested: [], nestedNullItem: [], nestedNullItemNull: null, nestedNull: null}]]
 }''',
@@ -38,6 +39,11 @@ input InputJsonSerde {
 input InputGenIntReq {
   name: String!
   generic: Int!
+}''',
+  '''
+input InputGenInputJsonSerde {
+  name: String!
+  generic: InputJsonSerde
 }''',
   '''testInputGen(input: InputGenIntReq!): Int!''',
   '''
@@ -80,9 +86,7 @@ class InputMN {
   final String name;
   final InputM? parent;
   final Json json;
-  @GraphQLArg(defaultCode: 'const [JsonMap({})]')
   final List<Json> jsonListArgDef;
-  @GraphQLArg(defaultFunc: parentNullDefDefault)
   final List<List<InputM>?>? parentNullDef;
 
   static List<List<InputM>?> parentNullDefDefault() => [
@@ -102,8 +106,9 @@ class InputMN {
     required this.name,
     this.parent,
     this.json = const JsonList([JsonNumber(1)]),
-    required this.jsonListArgDef,
-    this.parentNullDef,
+    @GraphQLArg(defaultCode: 'const [JsonMap({})]')
+        required this.jsonListArgDef,
+    @GraphQLArg(defaultFunc: parentNullDefDefault) this.parentNullDef,
   });
 
   factory InputMN.fromJson(Map<String, Object?> json) {
@@ -221,6 +226,114 @@ class InputGen2<T, O extends Object> {
       );
 }
 
+const combinedObjectInputGraphQLStr = [
+// @example-start{generator-input-combined-in-graphql,extension:graphql,start:1,end:-2}
+  '''
+input CombinedObjectInput {
+  val: String!
+}
+''',
+// @example-end{generator-input-combined-in-graphql}
+// @example-start{generator-input-combined-out-graphql,extension:graphql,start:1,end:-2}
+  '''
+type CombinedObject {
+  onlyInOutputMethod: String!
+  otherVal: Int!
+  val: String!
+  onlyInOutput: Int
+}
+''',
+// @example-end{generator-input-combined-out-graphql}
+// @example-start{generator-input-one-of-graphql,extension:graphql,start:1,end:-2}
+  '''
+input OneOfInput @oneOf {
+  combined: CombinedObjectInput
+  oneOfFreezed: OneOfFreezedInput
+  str: String
+}
+''',
+// @example-end{generator-input-one-of-graphql}
+  '''
+  combinedFromInput(inputCombined: CombinedObjectInput!): CombinedObject!''',
+  '''
+  combinedFromOneOf(input: OneOfInput!): CombinedObject''',
+];
+
+@GraphQLInput()
+@GraphQLClass()
+@JsonSerializable()
+class CombinedObject {
+  CombinedObject(this.val) : otherVal = val.length;
+
+  CombinedObject.raw(this.val, this.otherVal);
+
+  final int otherVal;
+  final String val;
+
+  int? get onlyInOutput => val.length;
+
+  String onlyInOutputMethod() => '$val$otherVal';
+
+  factory CombinedObject.fromJson(Map<String, Object?> json) =>
+      _$CombinedObjectFromJson(json);
+  Map<String, Object?> toJson() => _$CombinedObjectToJson(this);
+}
+
+@GraphQLInput(oneOf: true, constructor: 'all')
+class OneOfInput {
+  final CombinedObject? combined;
+  final OneOfFreezedInput? oneOfFreezed;
+  final String? str;
+
+  const OneOfInput.all(
+    this.combined, {
+    this.oneOfFreezed,
+    this.str,
+  });
+
+  const OneOfInput.combined(CombinedObject this.combined)
+      : oneOfFreezed = null,
+        str = null;
+
+  const OneOfInput.oneOfFreezed(OneOfFreezedInput this.oneOfFreezed)
+      : combined = null,
+        str = null;
+
+  const OneOfInput.str(String this.str)
+      : oneOfFreezed = null,
+        combined = null;
+
+  factory OneOfInput.fromJson(Map<String, Object?> json) {
+    return OneOfInput.all(
+      json['combined'] == null
+          ? null
+          : CombinedObject.fromJson(json['combined'] as Map<String, Object?>),
+      oneOfFreezed: json['oneOfFreezed'] == null
+          ? null
+          : OneOfFreezedInput.fromJson(
+              json['oneOfFreezed'] as Map<String, Object?>),
+      str: json['str'] as String?,
+    );
+  }
+
+  Map<String, Object?> toJson() {
+    return {
+      'combined': combined?.toJson(),
+      'oneOfFreezed': oneOfFreezed?.toJson(),
+      'str': str,
+    }..removeWhere((key, value) => value == null);
+  }
+}
+
+// TODO: oneOf: true freezed
+@GraphQLInput()
+@freezed
+class OneOfFreezedInput with _$OneOfFreezedInput {
+  const factory OneOfFreezedInput(String str) = _OneOfFreezedInput;
+  factory OneOfFreezedInput.fromJson(Map<String, Object?> json) =>
+      _$OneOfFreezedInputFromJson(json);
+}
+
 @Query()
 int testInputGen(InputGen<int> input) {
   return input.generic;
@@ -256,4 +369,14 @@ FutureOr<String> mutationMultipleParamsOptionalPos([
     'gen': gen,
     'gen2': gen2,
   });
+}
+
+@Query()
+CombinedObject combinedFromInput(CombinedObject inputCombined) {
+  return inputCombined;
+}
+
+@Query()
+CombinedObject? combinedFromOneOf(OneOfInput input) {
+  return input.combined;
 }

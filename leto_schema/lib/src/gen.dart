@@ -71,6 +71,9 @@ GraphQLInputObjectType<T> inputObjectType<T>(
   Iterable<GraphQLFieldInput> fields = const [],
   T Function(Map<String, Object?>)? customDeserialize,
   bool isOneOf = false,
+  GraphQLTypeDefinitionExtra<InputObjectTypeDefinitionNode,
+          InputObjectTypeExtensionNode>
+      extra = const GraphQLTypeDefinitionExtra.attach([]),
 }) {
   return GraphQLInputObjectType(
     name,
@@ -78,6 +81,7 @@ GraphQLInputObjectType<T> inputObjectType<T>(
     fields: fields,
     customDeserialize: customDeserialize,
     isOneOf: isOneOf,
+    extra: extra,
   );
 }
 

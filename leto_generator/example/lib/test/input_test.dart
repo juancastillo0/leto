@@ -159,4 +159,129 @@ void main() {
       }
     });
   });
+
+  test('input one of and combined', () async {
+    for (final subs in combinedObjectInputGraphQLStr) {
+      expect(graphqlApiSchema.schemaStr, contains(subs.trim()));
+    }
+
+    GraphQLResult result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      r'''
+query m($inputCombined: CombinedObjectInput!) {
+  combinedFromInput(inputCombined:$inputCombined) {
+    val
+    otherVal
+    onlyInOutput
+    onlyInOutputMethod
+  }
+}
+    ''',
+      variableValues: {'inputCombined': CombinedObject('daw').toJson()},
+    );
+
+    expect(result.toJson(), {
+      'data': {
+        'combinedFromInput': {
+          'val': 'daw',
+          'otherVal': 3,
+          'onlyInOutput': 3,
+          'onlyInOutputMethod': 'daw3',
+        },
+      },
+    });
+
+    const _oneOfQuery = r'''
+query m($input: OneOfInput!) {
+  combinedFromOneOf(input:$input) {
+    val
+    otherVal
+    onlyInOutput
+    onlyInOutputMethod
+  }
+}
+    ''';
+
+    result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      _oneOfQuery,
+      variableValues: {
+        'input': OneOfInput.combined(CombinedObject('daw3d')).toJson()
+      },
+    );
+
+    expect(result.toJson(), {
+      'data': {
+        'combinedFromOneOf': {
+          'val': 'daw3d',
+          'otherVal': 5,
+          'onlyInOutput': 5,
+          'onlyInOutputMethod': 'daw3d5',
+        },
+      },
+    });
+
+    result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      _oneOfQuery,
+      variableValues: {'input': const OneOfInput.str('dw').toJson()},
+    );
+
+    expect(result.toJson(), {
+      'data': {
+        'combinedFromOneOf': null,
+      },
+    });
+
+    result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      _oneOfQuery,
+      variableValues: {'input': <String, Object?>{}},
+    );
+
+    expect(result.toJson(), {
+      'errors': [
+        {
+          'message': 'A @oneOf() input type can only have one field.',
+          'locations': [
+            {'line': 0, 'column': 9}
+          ]
+        }
+      ],
+    });
+
+    result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      _oneOfQuery,
+      variableValues: {
+        'input': <String, Object?>{
+          'str': 'ded',
+          'oneOfFreezed': const OneOfFreezedInput('ccc').toJson(),
+        },
+      },
+    );
+
+    expect(result.toJson(), {
+      'errors': [
+        {
+          'message': 'A @oneOf() input type can only have one field.',
+          'locations': [
+            {'line': 0, 'column': 9}
+          ]
+        }
+      ],
+    });
+    result = await GraphQL(graphqlApiSchema).parseAndExecute(
+      _oneOfQuery,
+      variableValues: {
+        'input': {'combined': null}
+      },
+    );
+
+    expect(result.toJson(), {
+      'errors': [
+        {
+          'message': 'A @oneOf() input type can only have one field.',
+          'locations': [
+            {'line': 0, 'column': 9}
+          ]
+        }
+      ],
+    });
+  });
 }
