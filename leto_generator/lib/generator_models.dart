@@ -363,9 +363,11 @@ class UnionVarianInfo {
   __$fieldName.fields.addAll(${literalList(
       () {
         // deduplicate field names
+        final _getters = <String>{};
         final _names = <String>{};
         return fields
-            .where((e) => _names.add(e.getter) && e.fieldAnnot.omit != true)
+            .where((e) => _getters.add(e.getter) && e.fieldAnnot.omit != true)
+            .where((e) => _names.add(e.name))
             .map((e) => e.expression(isInput: isInput));
       }(),
     ).accept(DartEmitter())},);

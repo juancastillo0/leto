@@ -11,7 +11,7 @@ GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?, Object?>
 final _resultUnionObjectGraphQLField = HotReloadableDefinition<
     GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?,
         Object?>>((setValue) =>
-    setValue(resultUGraphQLType<SuccessGet, UnionErrCode>(
+    setValue(ResultU.graphQLType<SuccessGet, UnionErrCode>(
             successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull(),
             name: 'UnionObjectResult')
         .nonNull()
@@ -31,7 +31,7 @@ GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?, Object?>
 final _resultUnionObjectErrGraphQLField = HotReloadableDefinition<
     GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?,
         Object?>>((setValue) =>
-    setValue(resultUGraphQLType<SuccessGet, UnionErrCode>(
+    setValue(ResultU.graphQLType<SuccessGet, UnionErrCode>(
             successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
         .nonNull()
         .field<Object?>(
@@ -51,7 +51,7 @@ GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?, Object?>
 final _resultUnionObjectMutErrGraphQLField = HotReloadableDefinition<
     GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?,
         Object?>>((setValue) =>
-    setValue(resultUGraphQLType<SuccessGet, UnionErrCode>(
+    setValue(ResultU.graphQLType<SuccessGet, UnionErrCode>(
             successGetGraphQLType.nonNull(), unionErrCodeGraphQLType.nonNull())
         .nonNull()
         .field<Object?>(
@@ -124,7 +124,7 @@ final _resultUnionInSuccessGraphQLField = HotReloadableDefinition<
     GraphQLObjectField<Result<ResultU<SuccessGet, UnionErrCode>, ErrCode>,
         Object?, Object?>>((setValue) =>
     setValue(resultGraphQLType<ResultU<SuccessGet, UnionErrCode>, ErrCode>(
-            resultUGraphQLType<SuccessGet, UnionErrCode>(
+            ResultU.graphQLType<SuccessGet, UnionErrCode>(
                     successGetGraphQLType.nonNull(),
                     unionErrCodeGraphQLType.nonNull())
                 .nonNull(),

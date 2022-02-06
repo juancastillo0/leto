@@ -195,6 +195,8 @@ abstract class ResultU<T extends Object, E extends Object>
       return ErrU(e);
     }
   }
+
+  static const graphQLType = resultUGraphQLType;
 }
 
 class OkU<T extends Object, E extends Object> extends Ok<T, E>

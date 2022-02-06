@@ -165,11 +165,60 @@ Expression inferType(
 
   // Check to see if it's a primitive type.
   for (final entry in primitive.entries) {
-    if (TypeChecker.fromRuntime(entry.key).isAssignableFromType(type)) {
+    if (type.element != null &&
+        TypeChecker.fromRuntime(entry.key).isAssignableFrom(type.element!)) {
       if (entry.key == String && name == 'id') {
         return _wrapNullability(refer('graphQLId'));
       }
       return _wrapNullability(refer(entry.value));
+    }
+  }
+
+  final typeName =
+      type.getDisplayString(withNullability: false).split('<').first;
+  final customType = customTypes.firstWhereOrNull((t) => t.name == typeName);
+  if (customType != null) {
+    return _wrapNullability(refer(customType.getter, customType.import));
+  }
+
+  Expression _wrapExpression(Expression exp) {
+    if (type is InterfaceType && type.typeArguments.isNotEmpty) {
+      // Generics
+      return _wrapNullability(
+        exp.call([
+          ...type.typeArguments.map((e) {
+            return inferType(
+              customTypes,
+              typeElement,
+              name,
+              e,
+              generics: generics,
+              isInput: isInput,
+            );
+          }),
+        ], {
+          if (genericTypeName != null) 'name': literalString(genericTypeName)
+        }, [
+          ...type.typeArguments.map(getReturnType).map(refer)
+        ]),
+      );
+    }
+
+    return _wrapNullability(exp);
+  }
+
+  final element = type.element;
+  if (element is ClassElement) {
+    final ExecutableElement? e =
+        element.getGetter('graphQLType') ?? element.getMethod('graphQLType');
+    if (e != null) {
+      if (!e.isStatic) {
+        throw Exception(
+          'The getter or method "$typeName.graphQLType" should be static.',
+        );
+      }
+      final prop = refer(typeName).property(e.name);
+      return _wrapExpression(prop);
     }
   }
 
@@ -194,33 +243,6 @@ Expression inferType(
       isInput: isInput,
     );
     return _wrapNullability(inner.property('list').call([]));
-  } else if (type is InterfaceType && type.typeArguments.isNotEmpty) {
-    // Generics
-    return _wrapNullability(
-      refer('${ReCase(type.element.name).camelCase}$graphqlTypeSuffix$_inputSuffix')
-          .call([
-        ...type.typeArguments.map((e) {
-          return inferType(
-            customTypes,
-            typeElement,
-            name,
-            e,
-            generics: generics,
-            isInput: isInput,
-          );
-        }),
-      ], {
-        if (genericTypeName != null) 'name': literalString(genericTypeName)
-      }, [
-        ...type.typeArguments.map(getReturnType).map(refer)
-      ]),
-    );
-  }
-
-  final typeName = type.getDisplayString(withNullability: false);
-  final customType = customTypes.firstWhereOrNull((t) => t.name == typeName);
-  if (customType != null) {
-    return _wrapNullability(refer(customType.getter, customType.import));
   }
 
   final externalName = // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
@@ -246,24 +268,6 @@ Expression inferType(
         );
       }
     }
-    final element = type.element;
-    if (element is ClassElement) {
-      final ExecutableElement? e =
-          element.getGetter('graphQLType') ?? element.getMethod('graphQLType');
-      if (e != null) {
-        if (!e.isStatic) {
-          throw Exception(
-            'The getter or method "$typeName.graphQLType" should be static.',
-          );
-        }
-        final prop = refer(typeName).property(e.name);
-        if (e is MethodElement) {
-          // TODO: generics
-          return _wrapNullability(prop.call([]));
-        }
-        return _wrapNullability(prop);
-      }
-    }
     final _namePrefix = typeElement.enclosingElement is ClassElement
         ? '${typeElement.enclosingElement!.name!}.'
         : '';
@@ -274,7 +278,7 @@ Expression inferType(
     );
   }
 
-  return _wrapNullability(
+  return _wrapExpression(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix$_inputSuffix'),
   );
 

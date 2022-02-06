@@ -121,10 +121,16 @@ final _connectionArgumentsGraphQLTypeInput =
   setValue(__connectionArgumentsGraphQLTypeInput);
   __connectionArgumentsGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.inputField('before'),
-      graphQLString.inputField('after'),
-      graphQLInt.inputField('first'),
-      graphQLInt.inputField('last')
+      graphQLString.inputField('before',
+          description:
+              'Returns the items in the list that come before the specified cursor.'),
+      graphQLString.inputField('after',
+          description:
+              'Returns the items in the list that come after the specified cursor.'),
+      graphQLInt.inputField('first',
+          description: 'Returns the first n items from the list.'),
+      graphQLInt.inputField('last',
+          description: 'Returns the last n items from the list.')
     ],
   );
 
