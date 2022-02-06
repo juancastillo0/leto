@@ -81,5 +81,5 @@ class Upload {
     return encoding.decoder.bind(data).join();
   }
 
-  static GraphQLUploadType graphQLType() => uploadGraphQLType;
+  static GraphQLUploadType graphQLType = uploadGraphQLType;
 }

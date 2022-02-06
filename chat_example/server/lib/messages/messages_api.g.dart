@@ -45,7 +45,7 @@ final _sendFileMessageGraphQLField =
             ))
               ..inputs.addAll([
                 graphQLInt.nonNull().inputField('chatId'),
-                Upload.graphQLType().nonNull().inputField('file'),
+                Upload.graphQLType.nonNull().inputField('file'),
                 graphQLInt.inputField('referencedMessageId'),
                 graphQLString.nonNull().inputField('message', defaultValue: '')
               ]));
