@@ -142,17 +142,28 @@ Future<String> documentationOfParameter(
   if (doc != null) {
     return doc;
   }
-  final builder = StringBuffer();
 
-  final astNode = await tryGetAstNodeForElement(parameter, buildStep);
+  try {
+    final builder = StringBuffer();
+    final astNode = await tryGetAstNodeForElement(parameter, buildStep);
 
-  for (Token? token = astNode.beginToken.precedingComments;
-      token != null;
-      token = token.next) {
-    builder.writeln(token);
+    for (Token? token = astNode.beginToken.precedingComments;
+        token != null;
+        token = token.next) {
+      builder.writeln(token);
+    }
+    final comm = builder.toString();
+    if (comm.trim().isNotEmpty) return cleanDocumentation(comm);
+  } catch (_) {}
+
+  final parent = parameter.enclosingElement;
+  if (parent is ConstructorElement) {
+    final field = parent.enclosingElement.getField(parameter.name);
+    if (field != null) {
+      return cleanDocumentation(field.documentationComment ?? '');
+    }
   }
-
-  return cleanDocumentation(builder.toString());
+  return '';
 }
 
 Future<AstNode> tryGetAstNodeForElement(
