@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   collection: ^1.15.0-nullsafety.4
-  gql: ^0.13.0
+  gql: ^0.13.1
   meta: ^1.0.0
 
 dev_dependencies:
@@ -21,8 +21,3 @@ dependency_overrides:
     path: ../leto_generator/example
   leto:
     path: ../leto
-  gql:
-    git:
-      url: https://github.com/juancastillo0/gql
-      path: gql
-      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4

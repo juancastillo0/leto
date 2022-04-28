@@ -270,26 +270,24 @@ packages:
   gql:
     dependency: "direct dev"
     description:
-      path: gql
-      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4
-      resolved-ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4
-      url: "https://github.com/juancastillo0/gql"
-    source: git
-    version: "0.13.0"
+      name: gql
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.13.1"
   gql_exec:
     dependency: "direct dev"
     description:
       name: gql_exec
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   gql_link:
     dependency: "direct dev"
     description:
       name: gql_link
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0"
+    version: "0.4.2"
   gql_websocket_link:
     dependency: "direct dev"
     description:

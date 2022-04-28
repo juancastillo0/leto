@@ -10,7 +10,7 @@ dependencies:
   async: ^2.0.0
   collection: ^1.15.0-nullsafety.4
   crypto: ^3.0.0
-  gql: ^0.13.0
+  gql: ^0.13.1
   leto_schema:
   meta: ^1.0.0
   source_span: ^1.0.0
@@ -28,8 +28,3 @@ dependency_overrides:
     path: ../leto_schema
   leto_generator_example:
     path: ../leto_generator/example
-  gql:
-    git:
-      url: https://github.com/juancastillo0/gql
-      path: gql
-      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4

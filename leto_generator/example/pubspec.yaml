@@ -30,8 +30,3 @@ dependency_overrides:
     path: ../../leto
   leto_schema:
     path: ../../leto_schema
-  gql:
-    git:
-      url: https://github.com/juancastillo0/gql
-      path: gql
-      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4

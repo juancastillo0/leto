@@ -10,7 +10,7 @@ dependencies:
   crypto: ^3.0.0
   freezed_annotation: ^0.14.3
 
-  gql: ^0.13.0
+  gql: ^0.13.1
   leto:
   leto_schema:
   http_parser: ^4.0.0
@@ -50,8 +50,3 @@ dependency_overrides:
     path: ../leto
   leto_schema:
     path: ../leto_schema
-  gql:
-    git:
-      url: https://github.com/juancastillo0/gql
-      path: gql
-      ref: ae9618799aae2f084a65d9a06addcaee8eec1ab4
