@@ -36,11 +36,11 @@ Handler graphQLWebSocket(
 }) {
   return (request) {
     final handler = webSocketHandler(
-      (WebSocketChannel channel) async {
+      (WebSocketChannel? channel, String? protocol) async {
         final client = stw.RemoteClient(
-          channel.cast<String>(),
+          channel!.cast<String>(),
           channel.sink.close,
-          channel.protocol ?? 'graphql-ws',
+          protocol ?? 'graphql-ws',
         );
         final _requestVariables = {
           ...makeRequestScopedMap(

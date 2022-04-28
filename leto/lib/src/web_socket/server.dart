@@ -60,6 +60,9 @@ abstract class Server {
     );
   }
 
+  /// Creates the server logic for receiving and responding messages
+  /// through the [client]. The [client.protocol] should be in
+  /// the [supportedProtocols] and that will determine the logic executed.
   Server(
     this.client, {
     this.keepAliveInterval,
