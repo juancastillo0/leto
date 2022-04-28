@@ -394,9 +394,7 @@ class InputMN {
   final String name;
   final InputM? parent;
   final Json json;
-  @GraphQLArg(defaultCode: 'const [JsonMap({})]')
   final List<Json> jsonListArgDef;
-  @GraphQLArg(defaultFunc: parentNullDefDefault)
   final List<List<InputM>?>? parentNullDef;
 
   static List<List<InputM>?> parentNullDefDefault() => [
@@ -416,8 +414,9 @@ class InputMN {
     required this.name,
     this.parent,
     this.json = const JsonList([JsonNumber(1)]),
-    required this.jsonListArgDef,
-    this.parentNullDef,
+    @GraphQLArg(defaultCode: 'const [JsonMap({})]')
+        required this.jsonListArgDef,
+    @GraphQLArg(defaultFunc: parentNullDefDefault) this.parentNullDef,
   });
 
   factory InputMN.fromJson(Map<String, Object?> json) {
