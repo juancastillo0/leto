@@ -1403,44 +1403,42 @@ When using `package:leto_shelf`, POST requests can be used for Queries or Mutati
 
 ## Subscriptions
 
-Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `subscribe` parameter that receives the root value and a `Ctx`, and returns a Stream of values of the field's type `Stream<T> Function(Ctx<P> ctx, P parent)`. The Stream of values will be returned in the `data` field of the `GraphQLResult` returned in execution.
-
-You can only 
+Each field (`GraphQLObjectField`) in an object type (`GraphQLObjectType`) contains a `subscribe` parameter that receives the root value and a `Ctx`, and returns a Stream of values of the field's type `Stream<T> Function(Ctx<P> ctx, P parent)`. The Stream of values will be returned in the `data` field of the `GraphQLResult` returned on execution.
 
 If using a WebSocket server, the client should support either `graphql-transport-ws` or `graphql-ws` sub-protocols.
 
 ```dart
 
 final apiSchema = GraphQLSchema(
-    queryType: objectType('Query'),
-    subscriptionType: objectType(
-        'Subcription',
-        fields: [
-            graphQLInt.nonNull().fields(
-                'secondsSinceSubcription',
-                subscribe: (Ctx ctx, Object rootValue) {
-                    return Stream.periodic(const Duration(seconds: 1), (secs) {
-                        return secs;
-                    });
-                }
-            ),
-        ]
-    ),
+  queryType: objectType('Query'),
+  subscriptionType: objectType(
+    'Subscription',
+    fields: [
+      graphQLInt.nonNull().fields(
+        'secondsSinceSubscription',
+        subscribe: (Ctx ctx, Object rootValue) {
+          return Stream.periodic(const Duration(seconds: 1), (secs) {
+            return secs;
+          });
+        }
+      ),
+    ]
+  ),
 );
 
 Future<void> main() async {
-    final GraphQLResult result = await GraphQL(apiSchema).parseAndExecute(
-        'subscription { secondsSinceSubcription }',
-    );
+  final GraphQLResult result = await GraphQL(apiSchema).parseAndExecute(
+    'subscription { secondsSinceSubscription }',
+  );
 
-    assert(result.isSubscription);
-    final Stream<GraphQLResult> stream = result.subscriptionStream!;
-    stream.listen((event) {
-        final data = event.data as Map<String, Object?>;
-        assert(data['secondsSinceSubcription'] is int);
+  assert(result.isSubscription);
+  final Stream<GraphQLResult> stream = result.subscriptionStream!;
+  stream.listen((event) {
+    final data = event.data as Map<String, Object?>;
+    assert(data['secondsSinceSubscription'] is int);
 
-        print(data['secondsSinceSubcription']);
-    });
+    print(data['secondsSinceSubscription']);
+  });
 }
 
 ```
@@ -1567,7 +1565,67 @@ The returned `GraphQLResult` is the output of the execution of a GraphQL request
 
 ## `ScopedMap`
 
-da
+[Source code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart)
+
+An `ScopedMap` allows you to pass and use dependencies or services within your resolvers or extensions. It consists of multiple maps, one for each scope, and a set of immutable references (or keys) with overridable defaults. 
+
+To retrieve a value from a reference, the map checks whether a value was already instantiated for the scope or in any of its parents. If it has not been instantiated, the default is returned and saved in the scope.
+
+This forms a tree of scopes, where one node scope has access to its parent values.
+
+To override the value of a reference for a given scope you instantiate a `ScopedMap` with the values to override, if it is a child, you can pass the parent as a parameter to the constructor.
+
+### `GlobalsHolder`
+
+A `GlobalsHolder` is simply an object that contains a `ScopedMap get globals;` getter. This map represents the scope associated with the object. As discussed in the [Request Contexts section](#request-contexts), all contexts are (implement) `GlobalsHolder`s and therefore have access to the values in the scope.
+
+### `ScopeRef` and `RefWithDefault`
+
+You can specify the behavior and the default values of references using `ScopeRef` and `RefWithDefault`. As explained in the source code docs, a "global" ref will instantiate a value accessible to all scopes in a scope tree. A "local" ref will instantiate the value (and make it accessible) only to children scopes in which the value is instantiated.
+
+### Example usage
+
+Example usage with the `GraphQL` executor and different ways to override the values is shown in the following code snippet:
+
+```dart
+final RefWithDefault<int> ref = RefWithDefault.global((ScopedMap scope) => 4);
+final schema = GraphQLSchema(
+  queryObject: objectType(
+    'Query', 
+    fields: [
+      graphQLint.field('fieldName', (ctx) => ref.get(ctx)),
+    ],
+  ),
+);
+
+final executorWithDefault = GraphQL(schema);
+
+var result = await executorWithDefault.parseAndExecute('{fieldName}');
+var data = result.data as Map<String, Object?>;
+assert(data['fieldName'] == 4);
+
+result = await executorWithDefault.parseAndExecute(
+  '{fieldName}', 
+  globalVariables: {
+    ref: 6,
+  },
+);
+data = result.data as Map<String, Object?>;
+assert(data['fieldName'] == 6);
+
+final executorWithOverride = GraphQL(
+  schema,
+  globalVariables: ScopedMap(
+    {
+      ref: 5,
+    },
+  ),
+);
+
+result = await executorWithOverride.parseAndExecute('{fieldName}');
+data = result.data as Map<String, Object?>;
+assert(data['fieldName'] == 5);
+```
 
 ## Error Handling
 
