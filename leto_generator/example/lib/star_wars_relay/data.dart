@@ -430,6 +430,7 @@ Connection<T> connectionFromEdges<T extends Node>(
 //   ...backwardConnectionArgs,
 // ];
 
+// @example-start{code-generation-valida}
 @JsonSerializable()
 @Valida()
 @GraphQLInput()
@@ -460,6 +461,7 @@ class ConnectionArguments {
 
   Map<String, Object?> toJson() => _$ConnectionArgumentsToJson(this);
 }
+// @example-end{code-generation-valida}
 
 /// Faction
 final rebels = Faction(

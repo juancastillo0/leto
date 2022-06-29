@@ -224,6 +224,7 @@ Future<String> resolverFunctionBodyFromElement(
 
   final validationsInParams = <ParameterElement>[];
   final validations = <String>[];
+  bool makeGlobalValidation = false;
   final params = <String>[];
   for (final e in element.parameters) {
     if (isReqCtx(e.type)) {
@@ -251,18 +252,45 @@ Future<String> resolverFunctionBodyFromElement(
       params.add(e.isPositional ? value : '${e.name}:$value');
       final hasValidation = _hasValidation(e.type.element);
       if (hasValidation) {
+        makeGlobalValidation = true;
         final resultName = '${e.name}ValidationResult';
 
         validations.add('''
 if ($value != null) {
   final $resultName = validate$typeName($value as $typeName);
   if ($resultName.hasErrors) {
-    throw $resultName;
+    validationErrorMap['${e.name}'] = $resultName;
   }
 }
 ''');
       }
     }
+  }
+  if (makeGlobalValidation) {
+    validations.insert(0, '''
+Map<String, Object?> _validaToJson(ValidaError e) => {
+      'property': e.property,
+      'errorCode': e.errorCode,
+      if (e.validationParam != null)
+        'validationParam': e.validationParam,
+      'message': e.message,
+      if (e.nestedValidation?.hasErrors == true)
+        'nestedErrors':
+            e.nestedValidation!.allErrors.map(_validaToJson).toList()
+    };
+final validationErrorMap = <String, Validation>{};
+''');
+    validations.add('''
+if (validationErrorMap.isNotEmpty) {
+  throw GraphQLError(
+    'Input validation error',
+    extensions: {
+      'validaErrors': validationErrorMap.map((k, v) => MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+    },
+    sourceError: validationErrorMap,
+  );
+}
+''');
   }
 
   final _call = '${element.name}(${params.join(',')})';

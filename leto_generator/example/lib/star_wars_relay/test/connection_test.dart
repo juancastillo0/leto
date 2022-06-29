@@ -228,4 +228,53 @@ void main() {
       },
     });
   });
+
+  test('valida connection args first and last fields validation', () async {
+    const source = '''
+      {
+        rebels {
+          name,
+          ships(first: -1, last: 0) {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+        }
+      }
+    ''';
+
+    expect(await execute(source), {
+      'data': {'rebels': null},
+      'errors': [
+        {
+          'message': 'Input validation error',
+          'path': ['rebels', 'ships'],
+          'locations': [
+            {'line': 3, 'column': 10}
+          ],
+          'extensions': {
+            'validaErrors': {
+              'args': [
+                {
+                  // TODO: should we pass the value?
+                  'property': 'first',
+                  'errorCode': 'ValidaNum.min',
+                  'validationParam': 1,
+                  'message': 'Should be at a minimum 1'
+                },
+                {
+                  'property': 'last',
+                  'errorCode': 'ValidaNum.min',
+                  'validationParam': 1,
+                  'message': 'Should be at a minimum 1'
+                }
+              ],
+            }
+          }
+        }
+      ],
+    });
+  });
 }

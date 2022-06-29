@@ -78,14 +78,37 @@ final _factionGraphQLType =
           .nonNull()
           .field('ships', resolve: (obj, ctx) {
         final args = ctx.args;
+        Map<String, Object?> _validaToJson(ValidaError e) => {
+              'property': e.property,
+              'errorCode': e.errorCode,
+              if (e.validationParam != null)
+                'validationParam': e.validationParam,
+              'message': e.message,
+              if (e.nestedValidation?.hasErrors == true)
+                'nestedErrors':
+                    e.nestedValidation!.allErrors.map(_validaToJson).toList()
+            };
+        final validationErrorMap = <String, Validation>{};
+
         final argsArg = connectionArgumentsSerializer.fromJson(
             ctx.executionCtx.schema.serdeCtx, args);
         if (argsArg != null) {
           final argsValidationResult =
               validateConnectionArguments(argsArg as ConnectionArguments);
           if (argsValidationResult.hasErrors) {
-            throw argsValidationResult;
+            validationErrorMap['args'] = argsValidationResult;
           }
+        }
+
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap.map((k, v) =>
+                  MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+            },
+            sourceError: validationErrorMap,
+          );
         }
 
         return obj.shipConnection(ctx, argsArg);

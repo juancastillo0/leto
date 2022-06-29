@@ -1552,7 +1552,44 @@ Using the `PersistedQueriesExtensions` you can set the `skipValidation` paramete
 
 ## Input Validation
 
-daw
+Input validation refers to the verification of the values or structure of the payload sent as input in a request. It could, of coursed, be performed manually before the execution of each request. However, we provide a couple of tools to help with the process, in particular using code generation and the [`valida` package](https://github.com/juancastillo0/valida).
+
+The following example shows an input object `ConnectionArguments` with the annotations `@Valida()` and its fields `first` and `last` with the annotation `@ValidaNum(min: 1)`. If the `ConnectionArguments` object is used as input in a resolver, the validation is performed over the input value on execution and an error will be thrown if either `first` or `last` are less than 1. For more information on the supported annotations and validations, view the [`valida` package](https://github.com/juancastillo0/valida).
+
+<!-- include{code-generation-valida} -->
+```dart
+@JsonSerializable()
+@Valida()
+@GraphQLInput()
+class ConnectionArguments {
+  /// Returns the items in the list that come before the specified cursor.
+  final String? before;
+
+  /// Returns the items in the list that come after the specified cursor.
+  final String? after;
+
+  /// Returns the first n items from the list.
+  @ValidaNum(min: 1)
+  final int? first;
+
+  /// Returns the last n items from the list.
+  @ValidaNum(min: 1)
+  final int? last;
+
+  const ConnectionArguments({
+    this.before,
+    this.after,
+    this.first,
+    this.last,
+  });
+
+  factory ConnectionArguments.fromJson(Map<String, Object?> json) =>
+      _$ConnectionArgumentsFromJson(json);
+
+  Map<String, Object?> toJson() => _$ConnectionArgumentsToJson(this);
+}
+```
+<!-- include-end{code-generation-valida} -->
 
 # Miscellaneous
 
