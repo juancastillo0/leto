@@ -377,7 +377,7 @@ void main() {
                   'deprecationReason': null,
                 },
                 {
-                  'name': 'oneOf',
+                  'name': 'isOneOf',
                   'args': [],
                   'type': {
                     'kind': 'NON_NULL',
