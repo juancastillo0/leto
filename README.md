@@ -678,7 +678,8 @@ enum SignUpError {
 import 'package:leto/leto.dart';
 
 final signUpErrorGraphQLType = enumTypeFromStrings(
-'SignUpError', [
+  'SignUpError', 
+  [
     'usernameTooShort',
     'usernameNotFound',
     'wrongPassword',
@@ -704,30 +705,32 @@ enum SignUpError {
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
 
+GraphQL objects allow you to specify a type with a set of fields or properties. Objects can only be outputs in a resolver. Each field can be of any output type.
+
+The Query, Mutation and Subscription types in the schema are specified using GraphQL objects.
+
 ```dart
 final type = objectType(
-    'ObjectTypeName',
-    fields: [],
+  'ObjectTypeName',
+  fields: [],
 );
 ```
 
 - With code generation
 
 ```dart
-
-
 @GraphQLClass()
 @JsonSerializable()
 class Model {
-    final String stringField;
-    final int intField;
-    final List<Model>? optionalModels;
+  final String stringField;
+  final int intField;
+  final List<Model>? optionalModels;
 
-    const Model({
-        required this.stringField,
-        required this.intField,
-        required this.optionalModels,
-    });
+  const Model({
+    required this.stringField,
+    required this.intField,
+    required this.optionalModels,
+  });
 }
 
 @Query
@@ -762,11 +765,11 @@ Scalars and Enums can be passed as input to resolvers. Wrapper types such as Lis
 
 ```dart
 final inputModel = GraphQLInputObjectType(
-    'ModelInput',
-    description: '',
-    inputs: [
+  'ModelInput',
+  description: '',
+  inputs: [
 
-    ],
+  ],
 );
 ```
 
@@ -798,50 +801,49 @@ static bool isInputType(GraphQLType type) {
 
 ```graphql
 input ComplexInput {
-    value: String!
+  value: String!
 }
 
 # The fields:
 (
-    """The amount"""
-    @deprecated
-    amount: Int = 2
-    names: [String!]
-    complex: ComplexInput!
+  """The amount"""
+  @deprecated
+  amount: Int = 2
+  names: [String!]
+  complex: ComplexInput!
 )
 ```
 
 ```dart
-
 @GraphQLInput()
 class ComplexInput {
-    const ComplexInput({required this.value});
-    /// The value
-    final String value;
+  const ComplexInput({required this.value});
+  /// The value
+  final String value;
 
-    factory ComplexInput.fromJson(Map<String, Object?> json) =>
-        ComplexInput(
-            value: json['value']! as String,
-        );
+  factory ComplexInput.fromJson(Map<String, Object?> json) =>
+    ComplexInput(
+      value: json['value']! as String,
+    );
 }
 
 final fields = [
-    GraphQLFieldInput(
-        'amount',
-        graphQLInt,
-        defaultValue: 2,
-        description: 'The amount',
-        // an empty String will use the default deprecation reason
-        deprecationReason: '',
-    ),
-    GraphQLFieldInput(
-        'names',
-        listOf(graphQLString.nonNull()),
-    ),
-    GraphQLFieldInput(
-        'complex',
-        compleInputGraphQLInputType.nonNull(),
-    ),
+  GraphQLFieldInput(
+    'amount',
+    graphQLInt,
+    defaultValue: 2,
+    description: 'The amount',
+    // an empty String will use the default deprecation reason
+    deprecationReason: '',
+  ),
+  GraphQLFieldInput(
+    'names',
+    listOf(graphQLString.nonNull()),
+  ),
+  GraphQLFieldInput(
+    'complex',
+    complexInputGraphQLInputType.nonNull(),
+  ),
 ];
 
 // can be used in:
@@ -850,32 +852,32 @@ final fields = [
 // - 'GraphQLDirective.inputs'
 
 final object = GraphQLObjectType(
-    'ObjectName',
-    fields: [
-        stringGraphQLType.field(
-            'someField',
-            inputs: fields,
-            resolve: (_, Ctx ctx) {
-                final Map<String, Object?> args = ctx.args;
-                assert(args.containKey('complex'));
-                assert(args['names'] is List<String>?);
-                assert(args['amount'] is int?);
-                return '';
-            }
-        )
-    ]
+  'ObjectName',
+  fields: [
+    stringGraphQLType.field(
+      'someField',
+      inputs: fields,
+      resolve: (_, Ctx ctx) {
+        final Map<String, Object?> args = ctx.args;
+        assert(args.containKey('complex'));
+        assert(args['names'] is List<String>?);
+        assert(args['amount'] is int?);
+        return '';
+      }
+    )
+  ]
 );
 
 final objectInput = GraphQLInputObjectType(
-    'InputObjectName',
-    fields: fields,
-    // ...
+  'InputObjectName',
+  fields: fields,
+  // ...
 );
 
 final directive = GraphQLDirective(
-    name: 'DirectiveName',
-    inputs: fields,
-    // ...
+  name: 'DirectiveName',
+  inputs: fields,
+  // ...
 );
 ```
 
@@ -942,28 +944,28 @@ You could provide this definitions:
 import 'package:leto_schema/leto_schema.dart';
 
 final model = objectType(
-    'Model',
-    fields: [
-        graphQLIdType.nonNull().field('id'),
-    ],
+  'Model',
+  fields: [
+      graphQLIdType.nonNull().field('id'),
+  ],
 );
 final modelAddedGraphQLType = objectType(
-    'ModelAdded',
-    fields: [model.nonNull().field('model')],
+  'ModelAdded',
+  fields: [model.nonNull().field('model')],
 );
 final modelRemovedGraphQLType = objectType(
-    'ModelRemoved',
-    fields: [graphQLIdType.nonNull().field('modelId')],
+  'ModelRemoved',
+  fields: [graphQLIdType.nonNull().field('modelId')],
 );
 
 final union = GraphQLUnionType(
-    // name
-    'ModelEvent',
-    // possibleTypes
-    [
-       modelAddedGraphQLType,
-       modelRemovedGraphQLType,
-    ],
+  // name
+  'ModelEvent',
+  // possibleTypes
+  [
+      modelAddedGraphQLType,
+      modelRemovedGraphQLType,
+  ],
 );
 ```
 
@@ -1169,25 +1171,25 @@ Types which use themselves in their definition have to reuse previously created 
 
 ```dart
 class User {
-    const User(this.friends);
-    final List<User> friends;
+  const User(this.friends);
+  final List<User> friends;
 }
 GraphQLObjectType<User>? _type;
 GraphQLObjectType<User> get userGraphQLType {
-    if (_type != null) return _type; // return a previous instance
-    final type = objectType<User>(
-        'User',
-        // leave fields empty (or don't pass them)
-        fields: [],
-    );
-    _type = type; // set the cached value
-    type.fields.addAll([ // add the fields
-        listOf(userGraphQLType.nonNull()).nonNull().field(
-            'friends',
-            resolve: (obj, _) => obj.friends,
-        ),
-    ]);
-    return type;
+  if (_type != null) return _type; // return a previous instance
+  final type = objectType<User>(
+    'User',
+    // leave fields empty (or don't pass them)
+    fields: [],
+  );
+  _type = type; // set the cached value
+  type.fields.addAll([ // add the fields
+    listOf(userGraphQLType.nonNull()).nonNull().field(
+      'friends',
+      resolve: (obj, _) => obj.friends,
+    ),
+  ]);
+  return type;
 }
 ```
 
@@ -1362,7 +1364,6 @@ type schema {
 In Dart:
 
 ```dart
-
 final query = objectType(
   'Query',
   fields: [
