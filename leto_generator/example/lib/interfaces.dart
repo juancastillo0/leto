@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:json_annotation/json_annotation.dart';
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_schema/leto_schema.dart';
 
@@ -98,6 +99,34 @@ class NestedInterfaceImpl3 extends NestedInterfaceImpl
 }
 // @example-end{generator-interfaces}
 
+mixin StringKeyed {
+  String get stringKey;
+}
+
+@GraphQLClass()
+@GraphQLInput()
+@JsonSerializable()
+class DateKey with StringKeyed implements Comparable<DateKey> {
+  final DateTime date;
+  final BigInt key;
+
+  const DateKey(this.date, this.key);
+
+  @override
+  String get stringKey => '${date.toIso8601String()}-$key';
+
+  @GraphQLField(omit: true)
+  @override
+  int compareTo(DateKey other) {
+    final dateComp = date.compareTo(other.date);
+    return dateComp == 0 ? key.compareTo(other.key) : dateComp;
+  }
+
+  factory DateKey.fromJson(Map<String, Object?> json) =>
+      _$DateKeyFromJson(json);
+  Map<String, Object?> toJson() => _$DateKeyToJson(this);
+}
+
 final interfaceState = RefWithDefault.global(
   (scope) => InterfaceState(
     m2: NestedInterfaceImpl2(
@@ -136,4 +165,9 @@ NestedInterfaceImpl2 getNestedInterfaceImpl2(Ctx ctx) {
 @Query()
 NestedInterface getNestedInterfaceImplByIndex(Ctx ctx, int index) {
   return index == 2 ? interfaceState.get(ctx).m2 : interfaceState.get(ctx).m3;
+}
+
+@Query()
+DateKey getDateKey(DateKey key) {
+  return key;
 }

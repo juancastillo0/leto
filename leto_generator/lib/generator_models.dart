@@ -366,8 +366,10 @@ class UnionVarianInfo {
         final _getters = <String>{};
         final _names = <String>{};
         return fields
-            .where((e) => _getters.add(e.getter) && e.fieldAnnot.omit != true)
-            .where((e) => _names.add(e.name))
+            .where((e) =>
+                _getters.add(e.getter) &&
+                (_names.add(e.name) || e.fieldAnnot.name != null) &&
+                e.fieldAnnot.omit != true)
             .map((e) => e.expression(isInput: isInput));
       }(),
     ).accept(DartEmitter())},);

@@ -50,6 +50,21 @@ final _getNestedInterfaceImplByIndexGraphQLField = HotReloadableDefinition<
         ))
           ..inputs.addAll([graphQLInt.nonNull().inputField('index')]));
 
+GraphQLObjectField<DateKey, Object?, Object?> get getDateKeyGraphQLField =>
+    _getDateKeyGraphQLField.value;
+final _getDateKeyGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<DateKey, Object?, Object?>>(
+        (setValue) => setValue(dateKeyGraphQLType.nonNull().field<Object?>(
+              'getDateKey',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
+
+                return getDateKey((args["key"] as DateKey));
+              },
+            ))
+              ..inputs.addAll(
+                  [dateKeyGraphQLTypeInput.nonNull().inputField('key')]));
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
@@ -167,3 +182,66 @@ final _nestedInterfaceImpl3GraphQLType =
 /// Auto-generated from [NestedInterfaceImpl3].
 GraphQLObjectType<NestedInterfaceImpl3> get nestedInterfaceImpl3GraphQLType =>
     _nestedInterfaceImpl3GraphQLType.value;
+
+final dateKeySerializer = SerializerValue<DateKey>(
+  key: "DateKey",
+  fromJson: (ctx, json) => DateKey.fromJson(json), // _$DateKeyFromJson,
+  // toJson: (m) => _$DateKeyToJson(m as DateKey),
+);
+final _dateKeyGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<DateKey>>((setValue) {
+  final __name = 'DateKey';
+
+  final __dateKeyGraphQLType =
+      objectType<DateKey>(__name, isInterface: false, interfaces: []);
+
+  setValue(__dateKeyGraphQLType);
+  __dateKeyGraphQLType.fields.addAll(
+    [
+      graphQLDate.nonNull().field('date', resolve: (obj, ctx) => obj.date),
+      graphQLBigInt.nonNull().field('key', resolve: (obj, ctx) => obj.key),
+      graphQLString
+          .nonNull()
+          .field('stringKey', resolve: (obj, ctx) => obj.stringKey)
+    ],
+  );
+
+  return __dateKeyGraphQLType;
+});
+
+/// Auto-generated from [DateKey].
+GraphQLObjectType<DateKey> get dateKeyGraphQLType => _dateKeyGraphQLType.value;
+final _dateKeyGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<DateKey>>((setValue) {
+  final __name = 'DateKeyInput';
+
+  final __dateKeyGraphQLTypeInput = inputObjectType<DateKey>(__name);
+
+  setValue(__dateKeyGraphQLTypeInput);
+  __dateKeyGraphQLTypeInput.fields.addAll(
+    [
+      graphQLDate.nonNull().inputField('date'),
+      graphQLBigInt.nonNull().inputField('key')
+    ],
+  );
+
+  return __dateKeyGraphQLTypeInput;
+});
+
+/// Auto-generated from [DateKey].
+GraphQLInputObjectType<DateKey> get dateKeyGraphQLTypeInput =>
+    _dateKeyGraphQLTypeInput.value;
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+DateKey _$DateKeyFromJson(Map<String, dynamic> json) => DateKey(
+      DateTime.parse(json['date'] as String),
+      BigInt.parse(json['key'] as String),
+    );
+
+Map<String, dynamic> _$DateKeyToJson(DateKey instance) => <String, dynamic>{
+      'date': instance.date.toIso8601String(),
+      'key': instance.key.toString(),
+    };
