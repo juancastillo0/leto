@@ -296,7 +296,7 @@ Future<void> testServer(Uri url) async {
   assert(createdAt.isBefore(DateTime.now()));
 
   // To test subscriptions you can open the playground web UI at /playground
-  // or programatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
+  // or programmatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
   // an example can be found in test/mutation_and_subscription_test.dart
 }
 // @example-end{quickstart-test-server}

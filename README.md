@@ -44,7 +44,7 @@ in the Dart programming language.
 
 Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql](https://github.com/async-graphql/async-graphql) and [type-graphql](https://github.com/MichalLytek/type-graphql). First version of the codebase was forked from [angel-graphql](https://github.com/angel-dart-archive/graphql). Many tests and utilities ([DataLoader](https://github.com/graphql/dataloader), [printSchema](https://github.com/graphql/graphql-js/blob/10c1c3d6cd8e165501fb1471b5babfabd1be1eb1/src/utilities/printSchema.ts)) were ported from graphql-js.
 
-## Table of Contents <!-- omit in toc -->
+## Table of Contents
 - [Quickstart](#quickstart)
     - [Install](#install)
     - [Create a `GraphQLSchema`](#create-a-graphqlschema)
@@ -107,8 +107,13 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
 - [Miscellaneous](#miscellaneous)
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
+    - [`GlobalsHolder`](#globalsholder)
+    - [`ScopeRef` and `RefWithDefault`](#scoperef-and-refwithdefault)
+    - [Example usage](#example-usage)
   - [Error Handling](#error-handling)
+    - [Exceptions and `GraphQLError`](#exceptions-and-graphqlerror)
     - [Result types](#result-types)
+    - [Error lists and interfaces](#error-lists-and-interfaces)
   - [Hot Reload and Cycles](#hot-reload-and-cycles)
 - [Solving the N+1 problem](#solving-the-n1-problem)
   - [LookAhead (Eager loading)](#lookahead-eager-loading)
@@ -522,7 +527,7 @@ Future<void> testServer(Uri url) async {
   assert(createdAt.isBefore(DateTime.now()));
 
   // To test subscriptions you can open the playground web UI at /playground
-  // or programatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
+  // or programmatically using https://github.com/gql-dart/gql/tree/master/links/gql_websocket_link,
   // an example can be found in test/mutation_and_subscription_test.dart
 }
 ```
@@ -1629,7 +1634,60 @@ assert(data['fieldName'] == 5);
 
 ## Error Handling
 
-daw
+One typically has multiple options to represent and let the client know that there was an error in the request.
+
+If using HTTP (or WebSockets) fatal errors such as a malformed query string are already handled and follow the spec in each case.
+
+### Exceptions and `GraphQLError`
+
+If an error does not require a different type to be expressed and a more implicit approach is preferable, perhaps for errors that happen in most endpoints (authentication, authorization, input validation), one can use exceptions and send the necessary information through custom extensions in the payload.
+
+```dart
+@Query()
+Future<int> userChats(Ctx ctx) async {
+  final user = await userFromCtx(ctx);
+  if (user == null) {
+    throw GraphQLError(
+      'This endpoint requires an authenticated user.', // message
+      extensions: {
+        'appError': {
+          'code': 'UNAUTHENTICATED',
+        },
+      },
+      // You can also pass a `sourceError` and `stackTrace` if the given error
+      // was generated from an exception
+      // sourceError, 
+      // stackTrace,
+    );
+  } 
+  // You could also throw a list of errors with GraphQLException
+  final errors = [
+    if (!user.emailVerified)
+      GraphQLError(
+        'This functionality requires that you verify your email.', // message
+        extensions: {
+          'appError': {
+            'code': 'UNVERIFIED_EMAIL',
+          },
+        },
+      ),
+    if (!user.canReadUserChats)
+      GraphQLError(
+        'You do not have access to this functionality.', // message
+        extensions: {
+          'appError': {
+            'code': 'UNAUTHORIZED',
+          },
+        },
+      ),
+    ];
+  if (errors.isNotEmpty) throw GraphQLException(errors);
+  // AUTHORIZED, now get the userChats
+}
+```
+
+Of course, this could be abstracted and structured in a better way. For example, the "UNAUTHENTICATED" error could be a constant or it could be thrown inside `userFromCtx(ctx)` call. The `appError` key could be anything you want, but is has to be unique to avoid overriding other extensions.
+
 
 ### Result types
 
@@ -1654,6 +1712,10 @@ SomethingT when the operation was successful or SomethingE when an error was enc
 """
 union ResultUSomethingTSomethingE = SomethingT | SomethingE
 ```
+
+### Error lists and interfaces
+
+The error in the result union or object could be a simple object specific to the resolver. However, it could also by an union, an object that implements an "ApplicationError" interface or a list of errors, where the errors could also be of union type or objects that implement interfaces, or both. For a more thorough discussion on the topic, this [guide to GraphQL errors](https://productionreadygraphql.com/2020-08-01-guide-to-graphql-errors) may help you.
 
 ## Hot Reload and Cycles
 
@@ -1854,7 +1916,7 @@ Client GQL Link implementation in:
 
 - UpdatedAt: Similar to HTTP If-Modified-Since and Last-Modified headers.
 
-// TODO: retrive hash, updatedAt and maxAge in resolvers.
+// TODO: retrieve hash, updatedAt and maxAge in resolvers.
 
 
 [Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/cache_extension.dart)
