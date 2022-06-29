@@ -1,3 +1,4 @@
+import 'package:gql_link/gql_link.dart' as gql_link;
 import 'package:leto/leto.dart';
 import 'package:leto_shelf_example/schema/books/books.controller.dart';
 import 'package:leto_shelf_example/schema/stream_state_callbacks.dart';
@@ -7,20 +8,49 @@ import 'common.dart';
 import 'web_socket_link.dart';
 
 Future<void> main() async {
-  final _streamCallbacks = StreamCallbacks();
-  final _globals = ScopedMap({
-    booksControllerRef: BooksController(bookAddedCallbacks: _streamCallbacks)
+  group('subscription', () {
+    late StreamCallbacks _streamCallbacks;
+    late TestGqlServer _server;
+
+    setUp(() async {
+      _streamCallbacks = StreamCallbacks();
+      _server = await testServer(ServerConfig(
+        globalVariables: ScopedMap({
+          booksControllerRef: BooksController(
+            bookAddedCallbacks: _streamCallbacks,
+          )
+        }),
+      ));
+    });
+
+    tearDown(() async {
+      await _server.server.close();
+    });
+
+    test('apollo sub-protocol', () async {
+      final link = WebSocketLink(
+        _server.subscriptionsUrl.toString(),
+      );
+      await _testLink(_streamCallbacks, link);
+    });
+
+    // TODO:
+    // test('transport ws sub-protocol', () async {
+    //   final link = GQLTransportWebSocketLink(ClientOptions(
+    //     socketMaker: WebSocketMaker.url(
+    //       () => _server.subscriptionsUrl.toString(),
+    //     ),
+    //   ));
+    //   await _testLink(_streamCallbacks, link);
+    // });
   });
-  final _server = await testServer(ServerConfig(
-    globalVariables: _globals,
-  ));
+}
 
-  test('subscription test', () async {
-    final link = WebSocketLink(
-      _server.subscriptionsUrl.toString(),
-    );
-
-    final subscriptionStream = link.requestRaw('''
+Future<void> _testLink(
+  StreamCallbacks _streamCallbacks,
+  gql_link.Link link,
+) async {
+  final subscriptionStream = link.requestRaw('''
 subscription bookAdded {
   bookAdded {
     book {
@@ -30,16 +60,16 @@ subscription bookAdded {
     }
   }
 }''');
-    final firstEventFut = subscriptionStream.first;
+  final firstEventFut = subscriptionStream.first;
 
-    expect(
-      await _streamCallbacks.isListeningStream.first
-          .timeout(const Duration(seconds: 4)),
-      true,
-    );
+  expect(
+    await _streamCallbacks.isListeningStream.first
+        .timeout(const Duration(seconds: 4)),
+    true,
+  );
 
-    const _bookName = 'dd1wda';
-    final mutationResponse = await link.requestRaw('''
+  const _bookName = 'dd1wda';
+  final mutationResponse = await link.requestRaw('''
 mutation add {
   createBook(name: "$_bookName") {
     name
@@ -47,23 +77,22 @@ mutation add {
     publicationDate
   }
 }''').single;
-    final firstEvent = await firstEventFut;
-    expect(
-      mutationResponse.data!['createBook'],
-      firstEvent.data!['bookAdded']['book'],
-    );
-    expect(mutationResponse.data!['createBook']['name'], _bookName);
-    await link.dispose();
+  final firstEvent = await firstEventFut;
+  expect(
+    mutationResponse.data!['createBook'],
+    firstEvent.data!['bookAdded']['book'],
+  );
+  expect(mutationResponse.data!['createBook']['name'], _bookName);
+  await link.dispose();
 
-    expect(
-      await _streamCallbacks.isListeningStream.first
-          .timeout(const Duration(seconds: 4)),
-      false,
-    );
-    expect(_streamCallbacks.cancelations, 1);
-    print(
-      'isListening ${_streamCallbacks.isListening} '
-      'cancelations ${_streamCallbacks.cancelations}',
-    );
-  });
+  expect(
+    await _streamCallbacks.isListeningStream.first
+        .timeout(const Duration(seconds: 4)),
+    false,
+  );
+  expect(_streamCallbacks.cancelations, 1);
+  print(
+    'isListening ${_streamCallbacks.isListening} '
+    'cancelations ${_streamCallbacks.cancelations}',
+  );
 }
