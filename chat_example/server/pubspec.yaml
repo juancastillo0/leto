@@ -7,20 +7,15 @@ environment:
 
 dependencies:
   args: ^2.0.0
-  freezed_annotation: ^0.14.3
+  freezed_annotation: ^0.15.0
   json_annotation: ^4.3.0
-  json_path:
+  json_path: ^0.3.0
   oxidized: ^5.0.1
   blurhash_dart: ^1.0.2
   metadata_fetch: ^0.4.1
   linkify: ^4.1.0
-  crypto:
+  crypto: ^3.0.2
   file: ^6.1.2
-
-  valida:
-
-  query_builder:
-    git: https://github.com/juancastillo0/query_builder
 
   sqlite3: ^1.3.1
   mysql1: ^0.19.2
@@ -29,42 +24,48 @@ dependencies:
   argon2: ^1.0.1
   jose: ^0.3.2
 
-  uuid:
-  collection:
+  uuid: ^3.0.6
+  collection: ^1.16.0
 
   shelf_cors_headers: ^0.1.2
   shelf_plus: ^0.0.2
   shelf_router: ^1.1.1
   shelf_static: ^1.1.0
-  leto_shelf:
 
+  valida:
+  query_builder:
+    git: https://github.com/juancastillo0/query_builder
+
+  leto_shelf:
   leto_shelf_example:
   leto:
   leto_schema:
 
 dev_dependencies:
-  build_runner: ^2.1.1
-  freezed: ^0.14.5
+  build_runner: ^2.1.11
+  freezed: ^0.15.0
   http: ^0.13.3
-  json_serializable: ^6.0.1
+  json_serializable: ^6.2.0
   lint: ^1.0.0
   test_process: ^2.0.0
-  test: ^1.14.4
+  test: ^1.0.0
+
+  gql_exec: ^0.4.0
+  gql_link: ^0.4.2
+  gql_websocket_link: ^0.3.3
+  # path: ../../../gql/links/gql_websocket_link/
+  # git:
+  #   url: https://github.com/juancastillo0/gql
+  #   path: links/gql_websocket_link
+  #   ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266
+  gql: ^0.13.1
+
   leto_generator:
   valida_generator:
   query_builder_generator:
     git:
       url: https://github.com/juancastillo0/query_builder
       path: query_builder_generator
-  
-  gql_exec:
-  gql_link:
-  gql_websocket_link:
-    git:
-      url: https://github.com/juancastillo0/gql
-      path: links/gql_websocket_link
-      ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266
-  gql:
 
 dependency_overrides:
   leto_generator:
