@@ -740,7 +740,7 @@ class GraphQL {
       baseCtx.variableValues,
     );
     final resultMap = <String, dynamic>{};
-    final futureResultMap = <String, FutureOr<dynamic>>{};
+    final futureResultMap = <String, FutureOr<dynamic> Function()>{};
 
     final objectCtx = ObjectExecutionCtx(
       executionCtx: baseCtx,
@@ -769,10 +769,10 @@ class GraphQL {
       final fieldSpan = field.span ?? field.alias?.span ?? field.name.span;
       final alias = field.alias?.value ?? fieldName;
       final fieldPath = [...objectCtx.path, alias];
-      FutureOr<dynamic> futureResponseValue;
+      FutureOr<dynamic> Function() futureResponseValue;
 
       if (fieldName == '__typename') {
-        futureResponseValue = objectType.name;
+        futureResponseValue = () => objectType.name;
       } else {
         final GraphQLObjectField? objectField;
         final _introspect =
@@ -806,26 +806,33 @@ class GraphQL {
             path: fieldPath,
           );
         }
-        futureResponseValue = withExtensions<FutureOr<Object?>>(
-          (n, e) => e.executeField(n, objectCtx, _objectField, alias),
-          () {
-            return executeField<Object?, Object?>(
-              fields,
-              objectCtx,
-              _objectField,
+        futureResponseValue = () => withExtensions<FutureOr<Object?>>(
+              (n, e) => e.executeField(n, objectCtx, _objectField, alias),
+              () {
+                return executeField<Object?, Object?>(
+                  fields,
+                  objectCtx,
+                  _objectField,
+                );
+              },
             );
-          },
-        );
       }
       if (serial) {
-        await futureResponseValue;
+        final dynamic v = await futureResponseValue();
+        futureResultMap[responseKey] = () => v;
+      } else {
+        futureResultMap[responseKey] = futureResponseValue;
       }
-
-      futureResultMap[responseKey] = futureResponseValue;
     }
-    for (final entry in futureResultMap.entries) {
-      resultMap[entry.key] = await entry.value;
-    }
+    final entries = await Future.wait(
+      futureResultMap.entries.map(
+        (e) async {
+          final dynamic value = await e.value();
+          return MapEntry<String, dynamic>(e.key, value);
+        },
+      ),
+    );
+    resultMap.addEntries(entries);
     return resultMap;
   }
 
