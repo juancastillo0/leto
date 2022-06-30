@@ -161,6 +161,7 @@ Expression inferType(
     bool: 'graphQLBoolean',
     DateTime: 'graphQLDate',
     Uri: 'graphQLUri',
+    BigInt: 'graphQLBigInt',
   };
 
   // Check to see if it's a primitive type.

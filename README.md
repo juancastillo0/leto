@@ -651,13 +651,14 @@ Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are alre
 
 Other scalar types are also provided:
 
-- Json: a raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
+- Json: A raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
-- Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and de-serialized with `DateTime.parse`.
-- Timestamp: same as Date, but serialized as an UNIX timestamp.
+- Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and deserialized with `DateTime.parse`.
+- Timestamp: Same as Date, but serialized as an UNIX timestamp.
 - Time: // TODO:
 - Duration: // TODO:
-- Upload: a file upload. The [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec)
+- BigInt: An arbitrarily large integer from [`dart:core`](https://api.dart.dev/stable/dart-core/BigInt-class.html) serialized as a String and deserialized with `BigInt.parse`.
+- Upload: A file upload. Following the [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec).
 
 To provide your own or support types from other packages you can use [Custom Scalars](#custom-scalars).
 

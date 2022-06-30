@@ -16,6 +16,22 @@ final GraphQLScalarType<String, Object> graphQLId = _GraphQLIDType._();
 /// A [DateTime], serialized as an ISO-8601 string.
 final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
 
+/// A [BigInt], serialized as an string.
+final GraphQLScalarType<BigInt, String> graphQLBigInt = GraphQLScalarTypeValue(
+  name: 'BigInt',
+  description: 'An arbitrarily large integer.',
+  serialize: (bigInt) => bigInt.toString(),
+  deserialize: (_, input) => BigInt.parse(input),
+  specifiedByURL: 'https://api.dart.dev/stable/dart-core/BigInt-class.html',
+  validate: (key, input) => BigInt.tryParse(input.toString()) != null
+      ? ValidationResult.ok(input.toString())
+      : ValidationResult.failure(
+          [
+            'Expected "$key" to be a number or numeric string. Got invalid value $input.'
+          ],
+        ),
+);
+
 /// A [DateTime], serialized as an UNIX timestamp.
 final GraphQLScalarType<DateTime, int> graphQLTimestamp =
     _GraphQLTimestampType._();
