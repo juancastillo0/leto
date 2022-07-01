@@ -492,37 +492,44 @@ Map<String, dynamic> _$ErrCToJson<T>(
 _$UserCreatedEvent _$$UserCreatedEventFromJson(Map<String, dynamic> json) =>
     _$UserCreatedEvent(
       user: User.fromJson(json['user'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserCreatedEventToJson(_$UserCreatedEvent instance) =>
     <String, dynamic>{
       'user': instance.user,
+      'runtimeType': instance.$type,
     };
 
 _$UserSignedUpEvent _$$UserSignedUpEventFromJson(Map<String, dynamic> json) =>
     _$UserSignedUpEvent(
       session: UserSession.fromJson(json['session'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserSignedUpEventToJson(_$UserSignedUpEvent instance) =>
     <String, dynamic>{
       'session': instance.session,
+      'runtimeType': instance.$type,
     };
 
 _$UserSignedInEvent _$$UserSignedInEventFromJson(Map<String, dynamic> json) =>
     _$UserSignedInEvent(
       session: UserSession.fromJson(json['session'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserSignedInEventToJson(_$UserSignedInEvent instance) =>
     <String, dynamic>{
       'session': instance.session,
+      'runtimeType': instance.$type,
     };
 
 _$UserSignedOutEvent _$$UserSignedOutEventFromJson(Map<String, dynamic> json) =>
     _$UserSignedOutEvent(
       userId: json['userId'] as int,
       sessionId: json['sessionId'] as String,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserSignedOutEventToJson(
@@ -530,4 +537,5 @@ Map<String, dynamic> _$$UserSignedOutEventToJson(
     <String, dynamic>{
       'userId': instance.userId,
       'sessionId': instance.sessionId,
+      'runtimeType': instance.$type,
     };

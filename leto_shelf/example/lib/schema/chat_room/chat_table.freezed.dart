@@ -30,7 +30,7 @@ class _$ChatRoomTearOff {
     );
   }
 
-  ChatRoom fromJson(Map<String, Object> json) {
+  ChatRoom fromJson(Map<String, Object?> json) {
     return ChatRoom.fromJson(json);
   }
 }
@@ -153,22 +153,19 @@ class _$_ChatRoom extends _ChatRoom {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _ChatRoom &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.createdAt, createdAt) ||
-                const DeepCollectionEquality()
-                    .equals(other.createdAt, createdAt)));
+        (other.runtimeType == runtimeType &&
+            other is _ChatRoom &&
+            const DeepCollectionEquality().equals(other.id, id) &&
+            const DeepCollectionEquality().equals(other.name, name) &&
+            const DeepCollectionEquality().equals(other.createdAt, createdAt));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(createdAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(id),
+      const DeepCollectionEquality().hash(name),
+      const DeepCollectionEquality().hash(createdAt));
 
   @JsonKey(ignore: true)
   @override
@@ -191,11 +188,11 @@ abstract class _ChatRoom extends ChatRoom {
   factory _ChatRoom.fromJson(Map<String, dynamic> json) = _$_ChatRoom.fromJson;
 
   @override
-  int get id => throw _privateConstructorUsedError;
+  int get id;
   @override
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt;
   @override
   @JsonKey(ignore: true)
   _$ChatRoomCopyWith<_ChatRoom> get copyWith =>
@@ -225,7 +222,7 @@ class _$ChatMessageTearOff {
     );
   }
 
-  ChatMessage fromJson(Map<String, Object> json) {
+  ChatMessage fromJson(Map<String, Object?> json) {
     return ChatMessage.fromJson(json);
   }
 }
@@ -392,30 +389,24 @@ class _$_ChatMessage extends _ChatMessage {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _ChatMessage &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.chatId, chatId) ||
-                const DeepCollectionEquality().equals(other.chatId, chatId)) &&
-            (identical(other.message, message) ||
-                const DeepCollectionEquality()
-                    .equals(other.message, message)) &&
-            (identical(other.referencedMessageId, referencedMessageId) ||
-                const DeepCollectionEquality()
-                    .equals(other.referencedMessageId, referencedMessageId)) &&
-            (identical(other.createdAt, createdAt) ||
-                const DeepCollectionEquality()
-                    .equals(other.createdAt, createdAt)));
+        (other.runtimeType == runtimeType &&
+            other is _ChatMessage &&
+            const DeepCollectionEquality().equals(other.id, id) &&
+            const DeepCollectionEquality().equals(other.chatId, chatId) &&
+            const DeepCollectionEquality().equals(other.message, message) &&
+            const DeepCollectionEquality()
+                .equals(other.referencedMessageId, referencedMessageId) &&
+            const DeepCollectionEquality().equals(other.createdAt, createdAt));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(chatId) ^
-      const DeepCollectionEquality().hash(message) ^
-      const DeepCollectionEquality().hash(referencedMessageId) ^
-      const DeepCollectionEquality().hash(createdAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(id),
+      const DeepCollectionEquality().hash(chatId),
+      const DeepCollectionEquality().hash(message),
+      const DeepCollectionEquality().hash(referencedMessageId),
+      const DeepCollectionEquality().hash(createdAt));
 
   @JsonKey(ignore: true)
   @override
@@ -441,15 +432,15 @@ abstract class _ChatMessage extends ChatMessage {
       _$_ChatMessage.fromJson;
 
   @override
-  int get id => throw _privateConstructorUsedError;
+  int get id;
   @override
-  int get chatId => throw _privateConstructorUsedError;
+  int get chatId;
   @override
-  String get message => throw _privateConstructorUsedError;
+  String get message;
   @override
-  int? get referencedMessageId => throw _privateConstructorUsedError;
+  int? get referencedMessageId;
   @override
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt;
   @override
   @JsonKey(ignore: true)
   _$ChatMessageCopyWith<_ChatMessage> get copyWith =>

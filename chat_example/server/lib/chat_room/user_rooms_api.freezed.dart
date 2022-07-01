@@ -14,7 +14,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 UserChatEvent _$UserChatEventFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType'] as String?) {
+  switch (json['runtimeType']) {
     case 'added':
       return UserChatAddedEvent.fromJson(json);
     case 'removed':
@@ -43,7 +43,7 @@ class _$UserChatEventTearOff {
     );
   }
 
-  UserChatEvent fromJson(Map<String, Object> json) {
+  UserChatEvent fromJson(Map<String, Object?> json) {
     return UserChatEvent.fromJson(json);
   }
 }
@@ -146,13 +146,18 @@ class _$UserChatAddedEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserChatAddedEvent extends UserChatAddedEvent {
-  const _$UserChatAddedEvent({required this.chatUser}) : super._();
+  const _$UserChatAddedEvent({required this.chatUser, String? $type})
+      : $type = $type ?? 'added',
+        super._();
 
   factory _$UserChatAddedEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserChatAddedEventFromJson(json);
 
   @override
   final ChatRoomUser chatUser;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -162,15 +167,14 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserChatAddedEvent &&
-            (identical(other.chatUser, chatUser) ||
-                const DeepCollectionEquality()
-                    .equals(other.chatUser, chatUser)));
+        (other.runtimeType == runtimeType &&
+            other is UserChatAddedEvent &&
+            const DeepCollectionEquality().equals(other.chatUser, chatUser));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(chatUser);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(chatUser));
 
   @JsonKey(ignore: true)
   @override
@@ -241,7 +245,7 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatAddedEventToJson(this)..['runtimeType'] = 'added';
+    return _$$UserChatAddedEventToJson(this);
   }
 }
 
@@ -253,7 +257,7 @@ abstract class UserChatAddedEvent extends UserChatEvent {
   factory UserChatAddedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatAddedEvent.fromJson;
 
-  ChatRoomUser get chatUser => throw _privateConstructorUsedError;
+  ChatRoomUser get chatUser;
   @JsonKey(ignore: true)
   $UserChatAddedEventCopyWith<UserChatAddedEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -299,8 +303,10 @@ class _$UserChatRemovedEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserChatRemovedEvent extends UserChatRemovedEvent {
-  const _$UserChatRemovedEvent({required this.chatId, required this.userId})
-      : super._();
+  const _$UserChatRemovedEvent(
+      {required this.chatId, required this.userId, String? $type})
+      : $type = $type ?? 'removed',
+        super._();
 
   factory _$UserChatRemovedEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserChatRemovedEventFromJson(json);
@@ -310,6 +316,9 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   @override
   final int userId;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
     return 'UserChatEvent.removed(chatId: $chatId, userId: $userId)';
@@ -318,18 +327,17 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserChatRemovedEvent &&
-            (identical(other.chatId, chatId) ||
-                const DeepCollectionEquality().equals(other.chatId, chatId)) &&
-            (identical(other.userId, userId) ||
-                const DeepCollectionEquality().equals(other.userId, userId)));
+        (other.runtimeType == runtimeType &&
+            other is UserChatRemovedEvent &&
+            const DeepCollectionEquality().equals(other.chatId, chatId) &&
+            const DeepCollectionEquality().equals(other.userId, userId));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(chatId) ^
-      const DeepCollectionEquality().hash(userId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(chatId),
+      const DeepCollectionEquality().hash(userId));
 
   @JsonKey(ignore: true)
   @override
@@ -401,7 +409,7 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatRemovedEventToJson(this)..['runtimeType'] = 'removed';
+    return _$$UserChatRemovedEventToJson(this);
   }
 }
 
@@ -413,8 +421,8 @@ abstract class UserChatRemovedEvent extends UserChatEvent {
   factory UserChatRemovedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatRemovedEvent.fromJson;
 
-  int get chatId => throw _privateConstructorUsedError;
-  int get userId => throw _privateConstructorUsedError;
+  int get chatId;
+  int get userId;
   @JsonKey(ignore: true)
   $UserChatRemovedEventCopyWith<UserChatRemovedEvent> get copyWith =>
       throw _privateConstructorUsedError;

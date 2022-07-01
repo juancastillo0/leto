@@ -65,7 +65,7 @@ class _$ISettingsTearOff {
     );
   }
 
-  ISettings fromJson(Map<String, Object> json) {
+  ISettings fromJson(Map<String, Object?> json) {
     return ISettings.fromJson(json);
   }
 }
@@ -435,66 +435,53 @@ class _$_ISettings implements _ISettings {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _ISettings &&
-            (identical(other.generalbetaUpdates, generalbetaUpdates) ||
-                const DeepCollectionEquality()
-                    .equals(other.generalbetaUpdates, generalbetaUpdates)) &&
-            (identical(other.editorcursorShape, editorcursorShape) ||
-                const DeepCollectionEquality()
-                    .equals(other.editorcursorShape, editorcursorShape)) &&
-            (identical(other.editortheme, editortheme) ||
-                const DeepCollectionEquality()
-                    .equals(other.editortheme, editortheme)) &&
-            (identical(other.editorreuseHeaders, editorreuseHeaders) ||
-                const DeepCollectionEquality()
-                    .equals(other.editorreuseHeaders, editorreuseHeaders)) &&
-            (identical(other.tracinghideTracingResponse, tracinghideTracingResponse) ||
-                const DeepCollectionEquality().equals(
-                    other.tracinghideTracingResponse,
-                    tracinghideTracingResponse)) &&
-            (identical(other.tracingtracingSupported, tracingtracingSupported) ||
-                const DeepCollectionEquality().equals(
-                    other.tracingtracingSupported, tracingtracingSupported)) &&
-            (identical(other.editorfontSize, editorfontSize) ||
-                const DeepCollectionEquality()
-                    .equals(other.editorfontSize, editorfontSize)) &&
-            (identical(other.editorfontFamily, editorfontFamily) ||
-                const DeepCollectionEquality()
-                    .equals(other.editorfontFamily, editorfontFamily)) &&
-            (identical(other.requestcredentials, requestcredentials) ||
-                const DeepCollectionEquality()
-                    .equals(other.requestcredentials, requestcredentials)) &&
-            (identical(other.requestglobalHeaders, requestglobalHeaders) ||
-                const DeepCollectionEquality().equals(
-                    other.requestglobalHeaders, requestglobalHeaders)) &&
-            (identical(other.schemapollingenable, schemapollingenable) ||
-                const DeepCollectionEquality()
-                    .equals(other.schemapollingenable, schemapollingenable)) &&
-            (identical(other.schemapollingendpointFilter, schemapollingendpointFilter) ||
-                const DeepCollectionEquality().equals(
-                    other.schemapollingendpointFilter,
-                    schemapollingendpointFilter)) &&
-            (identical(other.schemapollinginterval, schemapollinginterval) ||
-                const DeepCollectionEquality().equals(
-                    other.schemapollinginterval, schemapollinginterval)));
+        (other.runtimeType == runtimeType &&
+            other is _ISettings &&
+            const DeepCollectionEquality()
+                .equals(other.generalbetaUpdates, generalbetaUpdates) &&
+            const DeepCollectionEquality()
+                .equals(other.editorcursorShape, editorcursorShape) &&
+            const DeepCollectionEquality()
+                .equals(other.editortheme, editortheme) &&
+            const DeepCollectionEquality()
+                .equals(other.editorreuseHeaders, editorreuseHeaders) &&
+            const DeepCollectionEquality().equals(
+                other.tracinghideTracingResponse, tracinghideTracingResponse) &&
+            const DeepCollectionEquality().equals(
+                other.tracingtracingSupported, tracingtracingSupported) &&
+            const DeepCollectionEquality()
+                .equals(other.editorfontSize, editorfontSize) &&
+            const DeepCollectionEquality()
+                .equals(other.editorfontFamily, editorfontFamily) &&
+            const DeepCollectionEquality()
+                .equals(other.requestcredentials, requestcredentials) &&
+            const DeepCollectionEquality()
+                .equals(other.requestglobalHeaders, requestglobalHeaders) &&
+            const DeepCollectionEquality()
+                .equals(other.schemapollingenable, schemapollingenable) &&
+            const DeepCollectionEquality().equals(
+                other.schemapollingendpointFilter,
+                schemapollingendpointFilter) &&
+            const DeepCollectionEquality()
+                .equals(other.schemapollinginterval, schemapollinginterval));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(generalbetaUpdates) ^
-      const DeepCollectionEquality().hash(editorcursorShape) ^
-      const DeepCollectionEquality().hash(editortheme) ^
-      const DeepCollectionEquality().hash(editorreuseHeaders) ^
-      const DeepCollectionEquality().hash(tracinghideTracingResponse) ^
-      const DeepCollectionEquality().hash(tracingtracingSupported) ^
-      const DeepCollectionEquality().hash(editorfontSize) ^
-      const DeepCollectionEquality().hash(editorfontFamily) ^
-      const DeepCollectionEquality().hash(requestcredentials) ^
-      const DeepCollectionEquality().hash(requestglobalHeaders) ^
-      const DeepCollectionEquality().hash(schemapollingenable) ^
-      const DeepCollectionEquality().hash(schemapollingendpointFilter) ^
-      const DeepCollectionEquality().hash(schemapollinginterval);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(generalbetaUpdates),
+      const DeepCollectionEquality().hash(editorcursorShape),
+      const DeepCollectionEquality().hash(editortheme),
+      const DeepCollectionEquality().hash(editorreuseHeaders),
+      const DeepCollectionEquality().hash(tracinghideTracingResponse),
+      const DeepCollectionEquality().hash(tracingtracingSupported),
+      const DeepCollectionEquality().hash(editorfontSize),
+      const DeepCollectionEquality().hash(editorfontFamily),
+      const DeepCollectionEquality().hash(requestcredentials),
+      const DeepCollectionEquality().hash(requestglobalHeaders),
+      const DeepCollectionEquality().hash(schemapollingenable),
+      const DeepCollectionEquality().hash(schemapollingendpointFilter),
+      const DeepCollectionEquality().hash(schemapollinginterval));
 
   @JsonKey(ignore: true)
   @override
@@ -541,50 +528,49 @@ abstract class _ISettings implements ISettings {
 
   @override
   @JsonKey(name: 'general.betaUpdates')
-  bool get generalbetaUpdates => throw _privateConstructorUsedError;
+  bool get generalbetaUpdates;
   @override
 
   /// 'line' | 'block' | 'underline'
   @JsonKey(name: 'editor.cursorShape')
-  String get editorcursorShape => throw _privateConstructorUsedError;
+  String get editorcursorShape;
   @override
 
   /// 'dark' | 'light'
   @JsonKey(name: 'editor.theme')
-  String get editortheme => throw _privateConstructorUsedError;
+  String get editortheme;
   @override
   @JsonKey(name: 'editor.reuseHeaders')
-  bool get editorreuseHeaders => throw _privateConstructorUsedError;
+  bool get editorreuseHeaders;
   @override
   @JsonKey(name: 'tracing.hideTracingResponse')
-  bool get tracinghideTracingResponse => throw _privateConstructorUsedError;
+  bool get tracinghideTracingResponse;
   @override
   @JsonKey(name: 'tracing.tracingSupported')
-  bool get tracingtracingSupported => throw _privateConstructorUsedError;
+  bool get tracingtracingSupported;
   @override
   @JsonKey(name: 'editor.fontSize')
-  int get editorfontSize => throw _privateConstructorUsedError;
+  int get editorfontSize;
   @override
   @JsonKey(name: 'editor.fontFamily')
-  String get editorfontFamily => throw _privateConstructorUsedError;
+  String get editorfontFamily;
   @override
 
   /// 'omit' | 'include' | 'same-origin'
   @JsonKey(name: 'request.credentials')
-  String get requestcredentials => throw _privateConstructorUsedError;
+  String get requestcredentials;
   @override
   @JsonKey(name: 'request.globalHeaders')
-  Map<String, Object?> get requestglobalHeaders =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?> get requestglobalHeaders;
   @override
   @JsonKey(name: 'schema.polling.enable')
-  bool get schemapollingenable => throw _privateConstructorUsedError;
+  bool get schemapollingenable;
   @override
   @JsonKey(name: 'schema.polling.endpointFilter')
-  String get schemapollingendpointFilter => throw _privateConstructorUsedError;
+  String get schemapollingendpointFilter;
   @override
   @JsonKey(name: 'schema.polling.interval')
-  int get schemapollinginterval => throw _privateConstructorUsedError;
+  int get schemapollinginterval;
   @override
   @JsonKey(ignore: true)
   _$ISettingsCopyWith<_ISettings> get copyWith =>

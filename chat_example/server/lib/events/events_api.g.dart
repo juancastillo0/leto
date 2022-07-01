@@ -330,43 +330,51 @@ const _$EventTypeEnumMap = {
 _$ChatDBEventData _$$ChatDBEventDataFromJson(Map<String, dynamic> json) =>
     _$ChatDBEventData(
       ChatEvent.fromJson(json['value'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatDBEventDataToJson(_$ChatDBEventData instance) =>
     <String, dynamic>{
       'value': instance.value,
+      'runtimeType': instance.$type,
     };
 
 _$UserChatDBEventData _$$UserChatDBEventDataFromJson(
         Map<String, dynamic> json) =>
     _$UserChatDBEventData(
       UserChatEvent.fromJson(json['value'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserChatDBEventDataToJson(
         _$UserChatDBEventData instance) =>
     <String, dynamic>{
       'value': instance.value,
+      'runtimeType': instance.$type,
     };
 
 _$UserDBEventData _$$UserDBEventDataFromJson(Map<String, dynamic> json) =>
     _$UserDBEventData(
       UserEvent.fromJson(json['value'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserDBEventDataToJson(_$UserDBEventData instance) =>
     <String, dynamic>{
       'value': instance.value,
+      'runtimeType': instance.$type,
     };
 
 _$ChatMessageDBEventData _$$ChatMessageDBEventDataFromJson(
         Map<String, dynamic> json) =>
     _$ChatMessageDBEventData(
       ChatMessageEvent.fromJson(json['value'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatMessageDBEventDataToJson(
         _$ChatMessageDBEventData instance) =>
     <String, dynamic>{
       'value': instance.value,
+      'runtimeType': instance.$type,
     };

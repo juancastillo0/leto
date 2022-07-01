@@ -151,22 +151,20 @@ class _$_TestModelFreezed extends _TestModelFreezed {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _TestModelFreezed &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.description, description) ||
-                const DeepCollectionEquality()
-                    .equals(other.description, description)) &&
-            (identical(other.dates, dates) ||
-                const DeepCollectionEquality().equals(other.dates, dates)));
+        (other.runtimeType == runtimeType &&
+            other is _TestModelFreezed &&
+            const DeepCollectionEquality().equals(other.name, name) &&
+            const DeepCollectionEquality()
+                .equals(other.description, description) &&
+            const DeepCollectionEquality().equals(other.dates, dates));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(dates);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(name),
+      const DeepCollectionEquality().hash(description),
+      const DeepCollectionEquality().hash(dates));
 
   @JsonKey(ignore: true)
   @override
@@ -182,13 +180,13 @@ abstract class _TestModelFreezed extends TestModelFreezed {
   const _TestModelFreezed._() : super._();
 
   @override
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
 
   /// Custom doc d
-  String? get description => throw _privateConstructorUsedError;
+  String? get description;
   @override
-  List<DateTime>? get dates => throw _privateConstructorUsedError;
+  List<DateTime>? get dates;
   @override
   @JsonKey(ignore: true)
   _$TestModelFreezedCopyWith<_TestModelFreezed> get copyWith =>
@@ -196,7 +194,7 @@ abstract class _TestModelFreezed extends TestModelFreezed {
 }
 
 EventUnion _$EventUnionFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType'] as String?) {
+  switch (json['runtimeType']) {
     case 'add':
       return _EventUnionAdd.fromJson(json);
     case 'delete':
@@ -234,7 +232,7 @@ class _$EventUnionTearOff {
     );
   }
 
-  EventUnion fromJson(Map<String, Object> json) {
+  EventUnion fromJson(Map<String, Object?> json) {
     return EventUnion.fromJson(json);
   }
 }
@@ -382,8 +380,13 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_EventUnionAdd extends _EventUnionAdd {
   const _$_EventUnionAdd(
-      {required this.name, this.description, this.dates, required this.models})
-      : super._();
+      {required this.name,
+      this.description,
+      this.dates,
+      required this.models,
+      String? $type})
+      : $type = $type ?? 'add',
+        super._();
 
   factory _$_EventUnionAdd.fromJson(Map<String, dynamic> json) =>
       _$$_EventUnionAddFromJson(json);
@@ -397,6 +400,9 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   @override
   final List<TestModel?> models;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
     return 'EventUnion.add(name: $name, description: $description, dates: $dates, models: $models)';
@@ -405,25 +411,22 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _EventUnionAdd &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.description, description) ||
-                const DeepCollectionEquality()
-                    .equals(other.description, description)) &&
-            (identical(other.dates, dates) ||
-                const DeepCollectionEquality().equals(other.dates, dates)) &&
-            (identical(other.models, models) ||
-                const DeepCollectionEquality().equals(other.models, models)));
+        (other.runtimeType == runtimeType &&
+            other is _EventUnionAdd &&
+            const DeepCollectionEquality().equals(other.name, name) &&
+            const DeepCollectionEquality()
+                .equals(other.description, description) &&
+            const DeepCollectionEquality().equals(other.dates, dates) &&
+            const DeepCollectionEquality().equals(other.models, models));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(dates) ^
-      const DeepCollectionEquality().hash(models);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(name),
+      const DeepCollectionEquality().hash(description),
+      const DeepCollectionEquality().hash(dates),
+      const DeepCollectionEquality().hash(models));
 
   @JsonKey(ignore: true)
   @override
@@ -501,7 +504,7 @@ class _$_EventUnionAdd extends _EventUnionAdd {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_EventUnionAddToJson(this)..['runtimeType'] = 'add';
+    return _$$_EventUnionAddToJson(this);
   }
 }
 
@@ -516,11 +519,11 @@ abstract class _EventUnionAdd extends EventUnion {
   factory _EventUnionAdd.fromJson(Map<String, dynamic> json) =
       _$_EventUnionAdd.fromJson;
 
-  String get name => throw _privateConstructorUsedError; // Custom doc d
-  String? get description => throw _privateConstructorUsedError;
+  String get name; // Custom doc d
+  String? get description;
   @override
-  List<DateTime>? get dates => throw _privateConstructorUsedError;
-  List<TestModel?> get models => throw _privateConstructorUsedError;
+  List<DateTime>? get dates;
+  List<TestModel?> get models;
   @override
   @JsonKey(ignore: true)
   _$EventUnionAddCopyWith<_EventUnionAdd> get copyWith =>
@@ -574,8 +577,10 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$EventUnionDelete extends EventUnionDelete {
-  const _$EventUnionDelete({this.name, required this.cost, this.dates})
-      : super._();
+  const _$EventUnionDelete(
+      {this.name, required this.cost, this.dates, String? $type})
+      : $type = $type ?? 'delete',
+        super._();
 
   factory _$EventUnionDelete.fromJson(Map<String, dynamic> json) =>
       _$$EventUnionDeleteFromJson(json);
@@ -587,6 +592,9 @@ class _$EventUnionDelete extends EventUnionDelete {
   @override
   final List<DateTime>? dates;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
     return 'EventUnion.delete(name: $name, cost: $cost, dates: $dates)';
@@ -595,21 +603,19 @@ class _$EventUnionDelete extends EventUnionDelete {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is EventUnionDelete &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.cost, cost) ||
-                const DeepCollectionEquality().equals(other.cost, cost)) &&
-            (identical(other.dates, dates) ||
-                const DeepCollectionEquality().equals(other.dates, dates)));
+        (other.runtimeType == runtimeType &&
+            other is EventUnionDelete &&
+            const DeepCollectionEquality().equals(other.name, name) &&
+            const DeepCollectionEquality().equals(other.cost, cost) &&
+            const DeepCollectionEquality().equals(other.dates, dates));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(cost) ^
-      const DeepCollectionEquality().hash(dates);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(name),
+      const DeepCollectionEquality().hash(cost),
+      const DeepCollectionEquality().hash(dates));
 
   @JsonKey(ignore: true)
   @override
@@ -687,7 +693,7 @@ class _$EventUnionDelete extends EventUnionDelete {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$EventUnionDeleteToJson(this)..['runtimeType'] = 'delete';
+    return _$$EventUnionDeleteToJson(this);
   }
 }
 
@@ -701,10 +707,10 @@ abstract class EventUnionDelete extends EventUnion {
   factory EventUnionDelete.fromJson(Map<String, dynamic> json) =
       _$EventUnionDelete.fromJson;
 
-  String? get name => throw _privateConstructorUsedError;
-  int get cost => throw _privateConstructorUsedError;
+  String? get name;
+  int get cost;
   @override
-  List<DateTime>? get dates => throw _privateConstructorUsedError;
+  List<DateTime>? get dates;
   @override
   @JsonKey(ignore: true)
   $EventUnionDeleteCopyWith<EventUnionDelete> get copyWith =>

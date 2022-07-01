@@ -59,7 +59,7 @@ class _$AltairConfigTearOff {
     );
   }
 
-  AltairConfig fromJson(Map<String, Object> json) {
+  AltairConfig fromJson(Map<String, Object?> json) {
     return AltairConfig.fromJson(json);
   }
 }
@@ -561,71 +561,64 @@ class _$_AltairConfig implements _AltairConfig {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _AltairConfig &&
-            (identical(other.endpointURL, endpointURL) ||
-                const DeepCollectionEquality()
-                    .equals(other.endpointURL, endpointURL)) &&
-            (identical(other.subscriptionsEndpoint, subscriptionsEndpoint) ||
-                const DeepCollectionEquality().equals(
-                    other.subscriptionsEndpoint, subscriptionsEndpoint)) &&
-            (identical(other.initialQuery, initialQuery) ||
-                const DeepCollectionEquality()
-                    .equals(other.initialQuery, initialQuery)) &&
-            (identical(other.initialVariables, initialVariables) ||
-                const DeepCollectionEquality()
-                    .equals(other.initialVariables, initialVariables)) &&
-            (identical(other.initialPreRequestScript, initialPreRequestScript) ||
-                const DeepCollectionEquality().equals(
-                    other.initialPreRequestScript, initialPreRequestScript)) &&
-            (identical(other.initialPostRequestScript, initialPostRequestScript) ||
-                const DeepCollectionEquality().equals(
-                    other.initialPostRequestScript,
-                    initialPostRequestScript)) &&
-            (identical(other.initialHeaders, initialHeaders) ||
-                const DeepCollectionEquality()
-                    .equals(other.initialHeaders, initialHeaders)) &&
-            (identical(other.initialEnvironments, initialEnvironments) ||
-                const DeepCollectionEquality()
-                    .equals(other.initialEnvironments, initialEnvironments)) &&
-            (identical(other.instanceStorageNamespace, instanceStorageNamespace) ||
-                const DeepCollectionEquality().equals(
-                    other.instanceStorageNamespace,
-                    instanceStorageNamespace)) &&
-            (identical(other.initialSettings, initialSettings) ||
-                const DeepCollectionEquality()
-                    .equals(other.initialSettings, initialSettings)) &&
-            (identical(other.initialSubscriptionsProvider, initialSubscriptionsProvider) ||
-                const DeepCollectionEquality().equals(
-                    other.initialSubscriptionsProvider,
-                    initialSubscriptionsProvider)) &&
-            (identical(other.initialSubscriptionsPayload, initialSubscriptionsPayload) ||
-                const DeepCollectionEquality().equals(
-                    other.initialSubscriptionsPayload, initialSubscriptionsPayload)) &&
-            (identical(other.preserveState, preserveState) || const DeepCollectionEquality().equals(other.preserveState, preserveState)) &&
-            (identical(other.initialHttpMethod, initialHttpMethod) || const DeepCollectionEquality().equals(other.initialHttpMethod, initialHttpMethod)) &&
-            (identical(other.baseURL, baseURL) || const DeepCollectionEquality().equals(other.baseURL, baseURL)) &&
-            (identical(other.serveInitialOptionsInSeperateRequest, serveInitialOptionsInSeperateRequest) || const DeepCollectionEquality().equals(other.serveInitialOptionsInSeperateRequest, serveInitialOptionsInSeperateRequest)));
+        (other.runtimeType == runtimeType &&
+            other is _AltairConfig &&
+            const DeepCollectionEquality()
+                .equals(other.endpointURL, endpointURL) &&
+            const DeepCollectionEquality()
+                .equals(other.subscriptionsEndpoint, subscriptionsEndpoint) &&
+            const DeepCollectionEquality()
+                .equals(other.initialQuery, initialQuery) &&
+            const DeepCollectionEquality()
+                .equals(other.initialVariables, initialVariables) &&
+            const DeepCollectionEquality().equals(
+                other.initialPreRequestScript, initialPreRequestScript) &&
+            const DeepCollectionEquality().equals(
+                other.initialPostRequestScript, initialPostRequestScript) &&
+            const DeepCollectionEquality()
+                .equals(other.initialHeaders, initialHeaders) &&
+            const DeepCollectionEquality()
+                .equals(other.initialEnvironments, initialEnvironments) &&
+            const DeepCollectionEquality().equals(
+                other.instanceStorageNamespace, instanceStorageNamespace) &&
+            const DeepCollectionEquality()
+                .equals(other.initialSettings, initialSettings) &&
+            const DeepCollectionEquality().equals(
+                other.initialSubscriptionsProvider,
+                initialSubscriptionsProvider) &&
+            const DeepCollectionEquality().equals(
+                other.initialSubscriptionsPayload,
+                initialSubscriptionsPayload) &&
+            const DeepCollectionEquality()
+                .equals(other.preserveState, preserveState) &&
+            const DeepCollectionEquality()
+                .equals(other.initialHttpMethod, initialHttpMethod) &&
+            const DeepCollectionEquality().equals(other.baseURL, baseURL) &&
+            const DeepCollectionEquality().equals(
+                other.serveInitialOptionsInSeperateRequest,
+                serveInitialOptionsInSeperateRequest));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(endpointURL) ^
-      const DeepCollectionEquality().hash(subscriptionsEndpoint) ^
-      const DeepCollectionEquality().hash(initialQuery) ^
-      const DeepCollectionEquality().hash(initialVariables) ^
-      const DeepCollectionEquality().hash(initialPreRequestScript) ^
-      const DeepCollectionEquality().hash(initialPostRequestScript) ^
-      const DeepCollectionEquality().hash(initialHeaders) ^
-      const DeepCollectionEquality().hash(initialEnvironments) ^
-      const DeepCollectionEquality().hash(instanceStorageNamespace) ^
-      const DeepCollectionEquality().hash(initialSettings) ^
-      const DeepCollectionEquality().hash(initialSubscriptionsProvider) ^
-      const DeepCollectionEquality().hash(initialSubscriptionsPayload) ^
-      const DeepCollectionEquality().hash(preserveState) ^
-      const DeepCollectionEquality().hash(initialHttpMethod) ^
-      const DeepCollectionEquality().hash(baseURL) ^
-      const DeepCollectionEquality().hash(serveInitialOptionsInSeperateRequest);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(endpointURL),
+      const DeepCollectionEquality().hash(subscriptionsEndpoint),
+      const DeepCollectionEquality().hash(initialQuery),
+      const DeepCollectionEquality().hash(initialVariables),
+      const DeepCollectionEquality().hash(initialPreRequestScript),
+      const DeepCollectionEquality().hash(initialPostRequestScript),
+      const DeepCollectionEquality().hash(initialHeaders),
+      const DeepCollectionEquality().hash(initialEnvironments),
+      const DeepCollectionEquality().hash(instanceStorageNamespace),
+      const DeepCollectionEquality().hash(initialSettings),
+      const DeepCollectionEquality().hash(initialSubscriptionsProvider),
+      const DeepCollectionEquality().hash(initialSubscriptionsPayload),
+      const DeepCollectionEquality().hash(preserveState),
+      const DeepCollectionEquality().hash(initialHttpMethod),
+      const DeepCollectionEquality().hash(baseURL),
+      const DeepCollectionEquality()
+          .hash(serveInitialOptionsInSeperateRequest));
 
   @JsonKey(ignore: true)
   @override
@@ -663,27 +656,27 @@ abstract class _AltairConfig implements AltairConfig {
   @override
 
   /// URL to set as the server endpoint
-  String? get endpointURL => throw _privateConstructorUsedError;
+  String? get endpointURL;
   @override
 
   /// URL to set as the subscription endpoint
-  String? get subscriptionsEndpoint => throw _privateConstructorUsedError;
+  String? get subscriptionsEndpoint;
   @override
 
   /// Initial query to be added
-  String? get initialQuery => throw _privateConstructorUsedError;
+  String? get initialQuery;
   @override
 
   /// Initial variables to be added
-  String? get initialVariables => throw _privateConstructorUsedError;
+  String? get initialVariables;
   @override
 
   /// Initial pre-request script to be added
-  String? get initialPreRequestScript => throw _privateConstructorUsedError;
+  String? get initialPreRequestScript;
   @override
 
   /// Initial post-request script to be added
-  String? get initialPostRequestScript => throw _privateConstructorUsedError;
+  String? get initialPostRequestScript;
   @override
 
   /// Initial headers object to be added
@@ -691,8 +684,7 @@ abstract class _AltairConfig implements AltairConfig {
   /// {
   ///  'X-GraphQL-Token': 'asd7-237s-2bdk-nsdk4'
   /// }
-  Map<String, Object?>? get initialHeaders =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?>? get initialHeaders;
   @override
 
   /// Initial Environments to be added
@@ -709,8 +701,7 @@ abstract class _AltairConfig implements AltairConfig {
   ///     }
   ///   ]
   /// }
-  IInitialEnvironments? get initialEnvironments =>
-      throw _privateConstructorUsedError;
+  IInitialEnvironments? get initialEnvironments;
   @override
 
   /// Namespace for storing the data for the altair instance.
@@ -718,37 +709,35 @@ abstract class _AltairConfig implements AltairConfig {
   /// running on the same domain.
   /// @example
   /// instanceStorageNamespace: 'altair_dev_'
-  String? get instanceStorageNamespace => throw _privateConstructorUsedError;
+  String? get instanceStorageNamespace;
   @override
 
   /// Initial app settings to use
-  SettingsState? get initialSettings => throw _privateConstructorUsedError;
+  SettingsState? get initialSettings;
   @override
 
   /// Initial subscriptions provider
   /// One of: 'websocket' | 'graphql-ws' | 'app-sync' | 'action-cable'
   /// @default "websocket"
-  String? get initialSubscriptionsProvider =>
-      throw _privateConstructorUsedError;
+  String? get initialSubscriptionsProvider;
   @override
 
   /// Initial subscriptions connection params
-  Map<String, Object?>? get initialSubscriptionsPayload =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?>? get initialSubscriptionsPayload;
   @override
 
   /// Indicates if the state should be preserved for subsequent app loads
   ///
   /// @default true
-  bool? get preserveState => throw _privateConstructorUsedError;
+  bool? get preserveState;
   @override
 
   /// HTTP method to use for making requests 'POST', 'GET', 'PUT', 'DELETE'
-  String? get initialHttpMethod => throw _privateConstructorUsedError;
+  String? get initialHttpMethod;
   @override
 
   /// URL to be used as a base for relative URLs
-  String? get baseURL => throw _privateConstructorUsedError;
+  String? get baseURL;
   @override
 
   /// Whether to render the initial options in a seperate javascript
@@ -756,8 +745,7 @@ abstract class _AltairConfig implements AltairConfig {
   /// Use this to be able to enforce strict CSP rules.
   ///
   /// @default false
-  bool? get serveInitialOptionsInSeperateRequest =>
-      throw _privateConstructorUsedError;
+  bool? get serveInitialOptionsInSeperateRequest;
   @override
   @JsonKey(ignore: true)
   _$AltairConfigCopyWith<_AltairConfig> get copyWith =>
@@ -781,7 +769,7 @@ class _$IInitialEnvironmentsTearOff {
     );
   }
 
-  IInitialEnvironments fromJson(Map<String, Object> json) {
+  IInitialEnvironments fromJson(Map<String, Object?> json) {
     return IInitialEnvironments.fromJson(json);
   }
 }
@@ -916,19 +904,18 @@ class _$_IInitialEnvironments implements _IInitialEnvironments {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _IInitialEnvironments &&
-            (identical(other.base, base) ||
-                const DeepCollectionEquality().equals(other.base, base)) &&
-            (identical(other.subEnvironments, subEnvironments) ||
-                const DeepCollectionEquality()
-                    .equals(other.subEnvironments, subEnvironments)));
+        (other.runtimeType == runtimeType &&
+            other is _IInitialEnvironments &&
+            const DeepCollectionEquality().equals(other.base, base) &&
+            const DeepCollectionEquality()
+                .equals(other.subEnvironments, subEnvironments));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(base) ^
-      const DeepCollectionEquality().hash(subEnvironments);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(base),
+      const DeepCollectionEquality().hash(subEnvironments));
 
   @JsonKey(ignore: true)
   @override
@@ -952,10 +939,9 @@ abstract class _IInitialEnvironments implements IInitialEnvironments {
       _$_IInitialEnvironments.fromJson;
 
   @override
-  InitialEnvironmentState? get base => throw _privateConstructorUsedError;
+  InitialEnvironmentState? get base;
   @override
-  List<InitialEnvironmentState>? get subEnvironments =>
-      throw _privateConstructorUsedError;
+  List<InitialEnvironmentState>? get subEnvironments;
   @override
   @JsonKey(ignore: true)
   _$IInitialEnvironmentsCopyWith<_IInitialEnvironments> get copyWith =>
@@ -980,7 +966,7 @@ class _$InitialEnvironmentStateTearOff {
     );
   }
 
-  InitialEnvironmentState fromJson(Map<String, Object> json) {
+  InitialEnvironmentState fromJson(Map<String, Object?> json) {
     return InitialEnvironmentState.fromJson(json);
   }
 }
@@ -1108,22 +1094,19 @@ class _$_InitialEnvironmentState implements _InitialEnvironmentState {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _InitialEnvironmentState &&
-            (identical(other.id, id) ||
-                const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.title, title) ||
-                const DeepCollectionEquality().equals(other.title, title)) &&
-            (identical(other.variables, variables) ||
-                const DeepCollectionEquality()
-                    .equals(other.variables, variables)));
+        (other.runtimeType == runtimeType &&
+            other is _InitialEnvironmentState &&
+            const DeepCollectionEquality().equals(other.id, id) &&
+            const DeepCollectionEquality().equals(other.title, title) &&
+            const DeepCollectionEquality().equals(other.variables, variables));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(id) ^
-      const DeepCollectionEquality().hash(title) ^
-      const DeepCollectionEquality().hash(variables);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(id),
+      const DeepCollectionEquality().hash(title),
+      const DeepCollectionEquality().hash(variables));
 
   @JsonKey(ignore: true)
   @override
@@ -1147,11 +1130,11 @@ abstract class _InitialEnvironmentState implements InitialEnvironmentState {
       _$_InitialEnvironmentState.fromJson;
 
   @override
-  String? get id => throw _privateConstructorUsedError;
+  String? get id;
   @override
-  String? get title => throw _privateConstructorUsedError;
+  String? get title;
   @override
-  Map<String, Object?>? get variables => throw _privateConstructorUsedError;
+  Map<String, Object?>? get variables;
   @override
   @JsonKey(ignore: true)
   _$InitialEnvironmentStateCopyWith<_InitialEnvironmentState> get copyWith =>

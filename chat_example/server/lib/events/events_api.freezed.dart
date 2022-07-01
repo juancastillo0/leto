@@ -14,7 +14,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 DBEventData _$DBEventDataFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType'] as String?) {
+  switch (json['runtimeType']) {
     case 'chat':
       return ChatDBEventData.fromJson(json);
     case 'userChat':
@@ -58,7 +58,7 @@ class _$DBEventDataTearOff {
     );
   }
 
-  DBEventData fromJson(Map<String, Object> json) {
+  DBEventData fromJson(Map<String, Object?> json) {
     return DBEventData.fromJson(json);
   }
 }
@@ -181,13 +181,18 @@ class _$ChatDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatDBEventData extends ChatDBEventData {
-  const _$ChatDBEventData(this.value) : super._();
+  const _$ChatDBEventData(this.value, {String? $type})
+      : $type = $type ?? 'chat',
+        super._();
 
   factory _$ChatDBEventData.fromJson(Map<String, dynamic> json) =>
       _$$ChatDBEventDataFromJson(json);
 
   @override
   final ChatEvent value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -197,14 +202,14 @@ class _$ChatDBEventData extends ChatDBEventData {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatDBEventData &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is ChatDBEventData &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
@@ -287,7 +292,7 @@ class _$ChatDBEventData extends ChatDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatDBEventDataToJson(this)..['runtimeType'] = 'chat';
+    return _$$ChatDBEventDataToJson(this);
   }
 }
 
@@ -298,7 +303,7 @@ abstract class ChatDBEventData extends DBEventData {
   factory ChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatDBEventData.fromJson;
 
-  ChatEvent get value => throw _privateConstructorUsedError;
+  ChatEvent get value;
   @JsonKey(ignore: true)
   $ChatDBEventDataCopyWith<ChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -348,13 +353,18 @@ class _$UserChatDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserChatDBEventData extends UserChatDBEventData {
-  const _$UserChatDBEventData(this.value) : super._();
+  const _$UserChatDBEventData(this.value, {String? $type})
+      : $type = $type ?? 'userChat',
+        super._();
 
   factory _$UserChatDBEventData.fromJson(Map<String, dynamic> json) =>
       _$$UserChatDBEventDataFromJson(json);
 
   @override
   final UserChatEvent value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -364,14 +374,14 @@ class _$UserChatDBEventData extends UserChatDBEventData {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserChatDBEventData &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is UserChatDBEventData &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
@@ -454,7 +464,7 @@ class _$UserChatDBEventData extends UserChatDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatDBEventDataToJson(this)..['runtimeType'] = 'userChat';
+    return _$$UserChatDBEventDataToJson(this);
   }
 }
 
@@ -466,7 +476,7 @@ abstract class UserChatDBEventData extends DBEventData {
   factory UserChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserChatDBEventData.fromJson;
 
-  UserChatEvent get value => throw _privateConstructorUsedError;
+  UserChatEvent get value;
   @JsonKey(ignore: true)
   $UserChatDBEventDataCopyWith<UserChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -516,13 +526,18 @@ class _$UserDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserDBEventData extends UserDBEventData {
-  const _$UserDBEventData(this.value) : super._();
+  const _$UserDBEventData(this.value, {String? $type})
+      : $type = $type ?? 'user',
+        super._();
 
   factory _$UserDBEventData.fromJson(Map<String, dynamic> json) =>
       _$$UserDBEventDataFromJson(json);
 
   @override
   final UserEvent value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -532,14 +547,14 @@ class _$UserDBEventData extends UserDBEventData {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserDBEventData &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is UserDBEventData &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
@@ -622,7 +637,7 @@ class _$UserDBEventData extends UserDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserDBEventDataToJson(this)..['runtimeType'] = 'user';
+    return _$$UserDBEventDataToJson(this);
   }
 }
 
@@ -633,7 +648,7 @@ abstract class UserDBEventData extends DBEventData {
   factory UserDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserDBEventData.fromJson;
 
-  UserEvent get value => throw _privateConstructorUsedError;
+  UserEvent get value;
   @JsonKey(ignore: true)
   $UserDBEventDataCopyWith<UserDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -683,13 +698,18 @@ class _$ChatMessageDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageDBEventData extends ChatMessageDBEventData {
-  const _$ChatMessageDBEventData(this.value) : super._();
+  const _$ChatMessageDBEventData(this.value, {String? $type})
+      : $type = $type ?? 'message',
+        super._();
 
   factory _$ChatMessageDBEventData.fromJson(Map<String, dynamic> json) =>
       _$$ChatMessageDBEventDataFromJson(json);
 
   @override
   final ChatMessageEvent value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -699,14 +719,14 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageDBEventData &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is ChatMessageDBEventData &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
@@ -790,7 +810,7 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatMessageDBEventDataToJson(this)..['runtimeType'] = 'message';
+    return _$$ChatMessageDBEventDataToJson(this);
   }
 }
 
@@ -802,7 +822,7 @@ abstract class ChatMessageDBEventData extends DBEventData {
   factory ChatMessageDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatMessageDBEventData.fromJson;
 
-  ChatMessageEvent get value => throw _privateConstructorUsedError;
+  ChatMessageEvent get value;
   @JsonKey(ignore: true)
   $ChatMessageDBEventDataCopyWith<ChatMessageDBEventData> get copyWith =>
       throw _privateConstructorUsedError;

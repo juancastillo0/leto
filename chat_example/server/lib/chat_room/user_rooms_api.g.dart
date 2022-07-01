@@ -209,12 +209,14 @@ const _$ChatRoomUserRoleEnumMap = {
 _$UserChatAddedEvent _$$UserChatAddedEventFromJson(Map<String, dynamic> json) =>
     _$UserChatAddedEvent(
       chatUser: ChatRoomUser.fromJson(json['chatUser'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserChatAddedEventToJson(
         _$UserChatAddedEvent instance) =>
     <String, dynamic>{
       'chatUser': instance.chatUser,
+      'runtimeType': instance.$type,
     };
 
 _$UserChatRemovedEvent _$$UserChatRemovedEventFromJson(
@@ -222,6 +224,7 @@ _$UserChatRemovedEvent _$$UserChatRemovedEventFromJson(
     _$UserChatRemovedEvent(
       chatId: json['chatId'] as int,
       userId: json['userId'] as int,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UserChatRemovedEventToJson(
@@ -229,4 +232,5 @@ Map<String, dynamic> _$$UserChatRemovedEventToJson(
     <String, dynamic>{
       'chatId': instance.chatId,
       'userId': instance.userId,
+      'runtimeType': instance.$type,
     };

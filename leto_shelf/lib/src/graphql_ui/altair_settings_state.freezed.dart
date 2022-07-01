@@ -62,7 +62,7 @@ class _$SettingsStateTearOff {
     );
   }
 
-  SettingsState fromJson(Map<String, Object> json) {
+  SettingsState fromJson(Map<String, Object?> json) {
     return SettingsState.fromJson(json);
   }
 }
@@ -543,83 +543,63 @@ class _$SettingsState_ implements SettingsState_ {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is SettingsState_ &&
-            (identical(other.theme, theme) ||
-                const DeepCollectionEquality().equals(other.theme, theme)) &&
-            (identical(other.themedark, themedark) ||
-                const DeepCollectionEquality()
-                    .equals(other.themedark, themedark)) &&
-            (identical(other.language, language) ||
-                const DeepCollectionEquality()
-                    .equals(other.language, language)) &&
-            (identical(other.addQueryDepthLimit, addQueryDepthLimit) ||
-                const DeepCollectionEquality()
-                    .equals(other.addQueryDepthLimit, addQueryDepthLimit)) &&
-            (identical(other.tabSize, tabSize) ||
-                const DeepCollectionEquality()
-                    .equals(other.tabSize, tabSize)) &&
-            (identical(other.enableExperimental, enableExperimental) ||
-                const DeepCollectionEquality()
-                    .equals(other.enableExperimental, enableExperimental)) &&
-            (identical(other.themefontsize, themefontsize) ||
-                const DeepCollectionEquality()
-                    .equals(other.themefontsize, themefontsize)) &&
-            (identical(other.themeeditorFontFamily, themeeditorFontFamily) ||
-                const DeepCollectionEquality().equals(
-                    other.themeeditorFontFamily, themeeditorFontFamily)) &&
-            (identical(other.themeeditorFontSize, themeeditorFontSize) ||
-                const DeepCollectionEquality()
-                    .equals(other.themeeditorFontSize, themeeditorFontSize)) &&
-            (identical(other.disablePushNotification, disablePushNotification) ||
-                const DeepCollectionEquality().equals(
-                    other.disablePushNotification, disablePushNotification)) &&
-            (identical(other.pluginlist, pluginlist) ||
-                const DeepCollectionEquality()
-                    .equals(other.pluginlist, pluginlist)) &&
-            (identical(other.requestwithCredentials, requestwithCredentials) ||
-                const DeepCollectionEquality().equals(
-                    other.requestwithCredentials, requestwithCredentials)) &&
-            (identical(other.schemareloadOnStart, schemareloadOnStart) ||
-                const DeepCollectionEquality()
-                    .equals(other.schemareloadOnStart, schemareloadOnStart)) &&
-            (identical(other.alertdisableWarnings, alertdisableWarnings) ||
-                const DeepCollectionEquality().equals(
-                    other.alertdisableWarnings, alertdisableWarnings)) &&
-            (identical(other.historyDepth, historyDepth) ||
-                const DeepCollectionEquality()
-                    .equals(other.historyDepth, historyDepth)) &&
-            (identical(other.themeConfig, themeConfig) ||
-                const DeepCollectionEquality()
-                    .equals(other.themeConfig, themeConfig)) &&
-            (identical(other.themeConfigdark, themeConfigdark) ||
-                const DeepCollectionEquality()
-                    .equals(other.themeConfigdark, themeConfigdark)) &&
-            (identical(other.responsehideExtensions, responsehideExtensions) ||
-                const DeepCollectionEquality().equals(
-                    other.responsehideExtensions, responsehideExtensions)));
+        (other.runtimeType == runtimeType &&
+            other is SettingsState_ &&
+            const DeepCollectionEquality().equals(other.theme, theme) &&
+            const DeepCollectionEquality().equals(other.themedark, themedark) &&
+            const DeepCollectionEquality().equals(other.language, language) &&
+            const DeepCollectionEquality()
+                .equals(other.addQueryDepthLimit, addQueryDepthLimit) &&
+            const DeepCollectionEquality().equals(other.tabSize, tabSize) &&
+            const DeepCollectionEquality()
+                .equals(other.enableExperimental, enableExperimental) &&
+            const DeepCollectionEquality()
+                .equals(other.themefontsize, themefontsize) &&
+            const DeepCollectionEquality()
+                .equals(other.themeeditorFontFamily, themeeditorFontFamily) &&
+            const DeepCollectionEquality()
+                .equals(other.themeeditorFontSize, themeeditorFontSize) &&
+            const DeepCollectionEquality().equals(
+                other.disablePushNotification, disablePushNotification) &&
+            const DeepCollectionEquality()
+                .equals(other.pluginlist, pluginlist) &&
+            const DeepCollectionEquality()
+                .equals(other.requestwithCredentials, requestwithCredentials) &&
+            const DeepCollectionEquality()
+                .equals(other.schemareloadOnStart, schemareloadOnStart) &&
+            const DeepCollectionEquality()
+                .equals(other.alertdisableWarnings, alertdisableWarnings) &&
+            const DeepCollectionEquality()
+                .equals(other.historyDepth, historyDepth) &&
+            const DeepCollectionEquality()
+                .equals(other.themeConfig, themeConfig) &&
+            const DeepCollectionEquality()
+                .equals(other.themeConfigdark, themeConfigdark) &&
+            const DeepCollectionEquality()
+                .equals(other.responsehideExtensions, responsehideExtensions));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(theme) ^
-      const DeepCollectionEquality().hash(themedark) ^
-      const DeepCollectionEquality().hash(language) ^
-      const DeepCollectionEquality().hash(addQueryDepthLimit) ^
-      const DeepCollectionEquality().hash(tabSize) ^
-      const DeepCollectionEquality().hash(enableExperimental) ^
-      const DeepCollectionEquality().hash(themefontsize) ^
-      const DeepCollectionEquality().hash(themeeditorFontFamily) ^
-      const DeepCollectionEquality().hash(themeeditorFontSize) ^
-      const DeepCollectionEquality().hash(disablePushNotification) ^
-      const DeepCollectionEquality().hash(pluginlist) ^
-      const DeepCollectionEquality().hash(requestwithCredentials) ^
-      const DeepCollectionEquality().hash(schemareloadOnStart) ^
-      const DeepCollectionEquality().hash(alertdisableWarnings) ^
-      const DeepCollectionEquality().hash(historyDepth) ^
-      const DeepCollectionEquality().hash(themeConfig) ^
-      const DeepCollectionEquality().hash(themeConfigdark) ^
-      const DeepCollectionEquality().hash(responsehideExtensions);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(theme),
+      const DeepCollectionEquality().hash(themedark),
+      const DeepCollectionEquality().hash(language),
+      const DeepCollectionEquality().hash(addQueryDepthLimit),
+      const DeepCollectionEquality().hash(tabSize),
+      const DeepCollectionEquality().hash(enableExperimental),
+      const DeepCollectionEquality().hash(themefontsize),
+      const DeepCollectionEquality().hash(themeeditorFontFamily),
+      const DeepCollectionEquality().hash(themeeditorFontSize),
+      const DeepCollectionEquality().hash(disablePushNotification),
+      const DeepCollectionEquality().hash(pluginlist),
+      const DeepCollectionEquality().hash(requestwithCredentials),
+      const DeepCollectionEquality().hash(schemareloadOnStart),
+      const DeepCollectionEquality().hash(alertdisableWarnings),
+      const DeepCollectionEquality().hash(historyDepth),
+      const DeepCollectionEquality().hash(themeConfig),
+      const DeepCollectionEquality().hash(themeConfigdark),
+      const DeepCollectionEquality().hash(responsehideExtensions));
 
   @JsonKey(ignore: true)
   @override
@@ -669,92 +649,91 @@ abstract class SettingsState_ implements SettingsState {
   @override
 
   /// Theme
-  String get theme => throw _privateConstructorUsedError;
+  String get theme;
   @override
 
   /// Theme for dark mode
   @JsonKey(name: 'theme.dark')
-  String? get themedark => throw _privateConstructorUsedError;
+  String? get themedark;
   @override
 
   /// Set language
-  String get language => throw _privateConstructorUsedError;
+  String get language;
   @override
 
   /// 'Add query' functionality depth
-  int get addQueryDepthLimit => throw _privateConstructorUsedError;
+  int get addQueryDepthLimit;
   @override
 
   /// Editor tab size
-  int get tabSize => throw _privateConstructorUsedError;
+  int get tabSize;
   @override
 
   /// Enable experimental features.
   /// Note: Might be unstable
-  bool? get enableExperimental => throw _privateConstructorUsedError;
+  bool? get enableExperimental;
   @override
 
   /// Base Font Size
   /// (Default - 24)
   @JsonKey(name: 'theme.fontsize')
-  int? get themefontsize => throw _privateConstructorUsedError;
+  int? get themefontsize;
   @override
 
   /// Editor Font Family
   @JsonKey(name: 'theme.editorFontFamily')
-  String? get themeeditorFontFamily => throw _privateConstructorUsedError;
+  String? get themeeditorFontFamily;
   @override
 
   /// Editor Font Size
   @JsonKey(name: 'theme.editorFontSize')
-  int? get themeeditorFontSize => throw _privateConstructorUsedError;
+  int? get themeeditorFontSize;
   @override
 
   /// Disable push notifications
-  bool? get disablePushNotification => throw _privateConstructorUsedError;
+  bool? get disablePushNotification;
   @override
 
   /// Enabled plugins
   @JsonKey(name: 'plugin.list')
-  List<String>? get pluginlist => throw _privateConstructorUsedError;
+  List<String>? get pluginlist;
   @override
 
   /// Send requests with credentials (cookies)
   @JsonKey(name: 'request.withCredentials')
-  bool? get requestwithCredentials => throw _privateConstructorUsedError;
+  bool? get requestwithCredentials;
   @override
 
   /// Reload schema on app start
   @JsonKey(name: 'schema.reloadOnStart')
-  bool? get schemareloadOnStart => throw _privateConstructorUsedError;
+  bool? get schemareloadOnStart;
   @override
 
   /// Disable warning alerts
   @JsonKey(name: 'alert.disableWarnings')
-  bool? get alertdisableWarnings => throw _privateConstructorUsedError;
+  bool? get alertdisableWarnings;
   @override
 
   /// Number of items allowed in history pane
-  int? get historyDepth => throw _privateConstructorUsedError;
+  int? get historyDepth;
   @override
 
   /// Theme config object
   /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
-  Map<String, Object?>? get themeConfig => throw _privateConstructorUsedError;
+  Map<String, Object?>? get themeConfig;
   @override
 
   /// Theme config object for dark mode
   /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   @JsonKey(name: 'themeConfig.dark')
-  Map<String, Object?>? get themeConfigdark =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?>? get themeConfigdark;
   @override
 
   /// Hides extensions object
   @JsonKey(name: 'response.hideExtensions')
-  bool? get responsehideExtensions => throw _privateConstructorUsedError;
+  bool? get responsehideExtensions;
   @override
   @JsonKey(ignore: true)
   $SettingsState_CopyWith<SettingsState_> get copyWith =>

@@ -300,35 +300,43 @@ Map<String, dynamic> _$$_FreezedSingleInputToJson(
 
 _$_UnionA1 _$$_UnionA1FromJson(Map<String, dynamic> json) => _$_UnionA1(
       one: json['one'] as int? ?? 5,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$_UnionA1ToJson(_$_UnionA1 instance) =>
     <String, dynamic>{
       'one': instance.one,
+      'runtimeType': instance.$type,
     };
 
 _$_UnionA2 _$$_UnionA2FromJson(Map<String, dynamic> json) => _$_UnionA2(
       dec: decimalFromJson(json['dec']),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$_UnionA2ToJson(_$_UnionA2 instance) =>
     <String, dynamic>{
       'dec': decimalToJson(instance.dec),
+      'runtimeType': instance.$type,
     };
 
 _$UnionA3 _$$UnionA3FromJson(Map<String, dynamic> json) => _$UnionA3(
       one: (json['one'] as List<dynamic>?)?.map((e) => e as int).toList(),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$UnionA3ToJson(_$UnionA3 instance) => <String, dynamic>{
       'one': instance.one,
+      'runtimeType': instance.$type,
     };
 
 _$_UnionA4 _$$_UnionA4FromJson(Map<String, dynamic> json) => _$_UnionA4(
       one: (json['one'] as List<dynamic>).map((e) => e as int).toList(),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$_UnionA4ToJson(_$_UnionA4 instance) =>
     <String, dynamic>{
       'one': instance.one,
+      'runtimeType': instance.$type,
     };

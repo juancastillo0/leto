@@ -14,7 +14,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 UserEvent _$UserEventFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType'] as String?) {
+  switch (json['runtimeType']) {
     case 'created':
       return UserCreatedEvent.fromJson(json);
     case 'signedUp':
@@ -60,7 +60,7 @@ class _$UserEventTearOff {
     );
   }
 
-  UserEvent fromJson(Map<String, Object> json) {
+  UserEvent fromJson(Map<String, Object?> json) {
     return UserEvent.fromJson(json);
   }
 }
@@ -172,13 +172,18 @@ class _$UserCreatedEventCopyWithImpl<$Res> extends _$UserEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserCreatedEvent extends UserCreatedEvent {
-  const _$UserCreatedEvent({required this.user}) : super._();
+  const _$UserCreatedEvent({required this.user, String? $type})
+      : $type = $type ?? 'created',
+        super._();
 
   factory _$UserCreatedEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserCreatedEventFromJson(json);
 
   @override
   final User user;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -188,14 +193,14 @@ class _$UserCreatedEvent extends UserCreatedEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserCreatedEvent &&
-            (identical(other.user, user) ||
-                const DeepCollectionEquality().equals(other.user, user)));
+        (other.runtimeType == runtimeType &&
+            other is UserCreatedEvent &&
+            const DeepCollectionEquality().equals(other.user, user));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(user);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(user));
 
   @JsonKey(ignore: true)
   @override
@@ -278,7 +283,7 @@ class _$UserCreatedEvent extends UserCreatedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserCreatedEventToJson(this)..['runtimeType'] = 'created';
+    return _$$UserCreatedEventToJson(this);
   }
 }
 
@@ -289,7 +294,7 @@ abstract class UserCreatedEvent extends UserEvent {
   factory UserCreatedEvent.fromJson(Map<String, dynamic> json) =
       _$UserCreatedEvent.fromJson;
 
-  User get user => throw _privateConstructorUsedError;
+  User get user;
   @JsonKey(ignore: true)
   $UserCreatedEventCopyWith<UserCreatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -330,13 +335,18 @@ class _$UserSignedUpEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedUpEvent extends UserSignedUpEvent {
-  const _$UserSignedUpEvent({required this.session}) : super._();
+  const _$UserSignedUpEvent({required this.session, String? $type})
+      : $type = $type ?? 'signedUp',
+        super._();
 
   factory _$UserSignedUpEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserSignedUpEventFromJson(json);
 
   @override
   final UserSession session;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -346,14 +356,14 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserSignedUpEvent &&
-            (identical(other.session, session) ||
-                const DeepCollectionEquality().equals(other.session, session)));
+        (other.runtimeType == runtimeType &&
+            other is UserSignedUpEvent &&
+            const DeepCollectionEquality().equals(other.session, session));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(session);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(session));
 
   @JsonKey(ignore: true)
   @override
@@ -436,7 +446,7 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserSignedUpEventToJson(this)..['runtimeType'] = 'signedUp';
+    return _$$UserSignedUpEventToJson(this);
   }
 }
 
@@ -448,7 +458,7 @@ abstract class UserSignedUpEvent extends UserEvent {
   factory UserSignedUpEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedUpEvent.fromJson;
 
-  UserSession get session => throw _privateConstructorUsedError;
+  UserSession get session;
   @JsonKey(ignore: true)
   $UserSignedUpEventCopyWith<UserSignedUpEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -489,13 +499,18 @@ class _$UserSignedInEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedInEvent extends UserSignedInEvent {
-  const _$UserSignedInEvent({required this.session}) : super._();
+  const _$UserSignedInEvent({required this.session, String? $type})
+      : $type = $type ?? 'signedIn',
+        super._();
 
   factory _$UserSignedInEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserSignedInEventFromJson(json);
 
   @override
   final UserSession session;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -505,14 +520,14 @@ class _$UserSignedInEvent extends UserSignedInEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserSignedInEvent &&
-            (identical(other.session, session) ||
-                const DeepCollectionEquality().equals(other.session, session)));
+        (other.runtimeType == runtimeType &&
+            other is UserSignedInEvent &&
+            const DeepCollectionEquality().equals(other.session, session));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(session);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(session));
 
   @JsonKey(ignore: true)
   @override
@@ -595,7 +610,7 @@ class _$UserSignedInEvent extends UserSignedInEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserSignedInEventToJson(this)..['runtimeType'] = 'signedIn';
+    return _$$UserSignedInEventToJson(this);
   }
 }
 
@@ -607,7 +622,7 @@ abstract class UserSignedInEvent extends UserEvent {
   factory UserSignedInEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedInEvent.fromJson;
 
-  UserSession get session => throw _privateConstructorUsedError;
+  UserSession get session;
   @JsonKey(ignore: true)
   $UserSignedInEventCopyWith<UserSignedInEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -653,8 +668,10 @@ class _$UserSignedOutEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedOutEvent extends UserSignedOutEvent {
-  const _$UserSignedOutEvent({required this.userId, required this.sessionId})
-      : super._();
+  const _$UserSignedOutEvent(
+      {required this.userId, required this.sessionId, String? $type})
+      : $type = $type ?? 'signedOut',
+        super._();
 
   factory _$UserSignedOutEvent.fromJson(Map<String, dynamic> json) =>
       _$$UserSignedOutEventFromJson(json);
@@ -664,6 +681,9 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
   @override
   final String sessionId;
 
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
   @override
   String toString() {
     return 'UserEvent.signedOut(userId: $userId, sessionId: $sessionId)';
@@ -672,19 +692,17 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is UserSignedOutEvent &&
-            (identical(other.userId, userId) ||
-                const DeepCollectionEquality().equals(other.userId, userId)) &&
-            (identical(other.sessionId, sessionId) ||
-                const DeepCollectionEquality()
-                    .equals(other.sessionId, sessionId)));
+        (other.runtimeType == runtimeType &&
+            other is UserSignedOutEvent &&
+            const DeepCollectionEquality().equals(other.userId, userId) &&
+            const DeepCollectionEquality().equals(other.sessionId, sessionId));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(userId) ^
-      const DeepCollectionEquality().hash(sessionId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(userId),
+      const DeepCollectionEquality().hash(sessionId));
 
   @JsonKey(ignore: true)
   @override
@@ -767,7 +785,7 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserSignedOutEventToJson(this)..['runtimeType'] = 'signedOut';
+    return _$$UserSignedOutEventToJson(this);
   }
 }
 
@@ -779,8 +797,8 @@ abstract class UserSignedOutEvent extends UserEvent {
   factory UserSignedOutEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedOutEvent.fromJson;
 
-  int get userId => throw _privateConstructorUsedError;
-  String get sessionId => throw _privateConstructorUsedError;
+  int get userId;
+  String get sessionId;
   @JsonKey(ignore: true)
   $UserSignedOutEventCopyWith<UserSignedOutEvent> get copyWith =>
       throw _privateConstructorUsedError;

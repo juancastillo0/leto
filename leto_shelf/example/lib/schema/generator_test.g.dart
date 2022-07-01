@@ -14,12 +14,36 @@ final _addTestModelGraphQLField =
               'addTestModel',
               resolve: (obj, ctx) {
                 final args = ctx.args;
+                Map<String, Object?> _validaToJson(ValidaError e) => {
+                      'property': e.property,
+                      'errorCode': e.errorCode,
+                      if (e.validationParam != null)
+                        'validationParam': e.validationParam,
+                      'message': e.message,
+                      if (e.nestedValidation?.hasErrors == true)
+                        'nestedErrors': e.nestedValidation!.allErrors
+                            .map(_validaToJson)
+                            .toList()
+                    };
+                final validationErrorMap = <String, Validation>{};
+
                 if ((args["previous"] as TestModel?) != null) {
                   final previousValidationResult = validateTestModel(
                       (args["previous"] as TestModel?) as TestModel);
                   if (previousValidationResult.hasErrors) {
-                    throw previousValidationResult;
+                    validationErrorMap['previous'] = previousValidationResult;
                   }
+                }
+
+                if (validationErrorMap.isNotEmpty) {
+                  throw GraphQLError(
+                    'Input validation error',
+                    extensions: {
+                      'validaErrors': validationErrorMap.map((k, v) =>
+                          MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+                    },
+                    sourceError: validationErrorMap,
+                  );
                 }
 
                 return addTestModel(ctx, (args["realName"] as String),
@@ -129,7 +153,7 @@ final _testModelGraphQLTypeInput =
   __testModelGraphQLTypeInput.fields.addAll(
     [
       graphQLString.nonNull().inputField('name'),
-      graphQLString.inputField('description'),
+      graphQLString.inputField('description', description: 'Custom doc d'),
       graphQLDate.nonNull().list().inputField('dates')
     ],
   );
@@ -315,6 +339,7 @@ _$_EventUnionAdd _$$_EventUnionAddFromJson(Map<String, dynamic> json) =>
           .map((e) =>
               e == null ? null : TestModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$_EventUnionAddToJson(_$_EventUnionAdd instance) =>
@@ -323,6 +348,7 @@ Map<String, dynamic> _$$_EventUnionAddToJson(_$_EventUnionAdd instance) =>
       'description': instance.description,
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
       'models': instance.models,
+      'runtimeType': instance.$type,
     };
 
 _$EventUnionDelete _$$EventUnionDeleteFromJson(Map<String, dynamic> json) =>
@@ -332,6 +358,7 @@ _$EventUnionDelete _$$EventUnionDeleteFromJson(Map<String, dynamic> json) =>
       dates: (json['dates'] as List<dynamic>?)
           ?.map((e) => DateTime.parse(e as String))
           .toList(),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$EventUnionDeleteToJson(_$EventUnionDelete instance) =>
@@ -339,6 +366,7 @@ Map<String, dynamic> _$$EventUnionDeleteToJson(_$EventUnionDelete instance) =>
       'name': instance.name,
       'cost': instance.cost,
       'dates': instance.dates?.map((e) => e.toIso8601String()).toList(),
+      'runtimeType': instance.$type,
     };
 
 // **************************************************************************

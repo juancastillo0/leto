@@ -182,22 +182,26 @@ _$ChatCreatedEvent _$$ChatCreatedEventFromJson(Map<String, dynamic> json) =>
     _$ChatCreatedEvent(
       chat: ChatRoom.fromJson(json['chat'] as Map<String, dynamic>),
       ownerId: json['ownerId'] as int,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatCreatedEventToJson(_$ChatCreatedEvent instance) =>
     <String, dynamic>{
       'chat': instance.chat,
       'ownerId': instance.ownerId,
+      'runtimeType': instance.$type,
     };
 
 _$ChatDeletedEvent _$$ChatDeletedEventFromJson(Map<String, dynamic> json) =>
     _$ChatDeletedEvent(
       chatId: json['chatId'] as int,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatDeletedEventToJson(_$ChatDeletedEvent instance) =>
     <String, dynamic>{
       'chatId': instance.chatId,
+      'runtimeType': instance.$type,
     };
 
 _$_ChatRoom _$$_ChatRoomFromJson(Map<String, dynamic> json) => _$_ChatRoom(

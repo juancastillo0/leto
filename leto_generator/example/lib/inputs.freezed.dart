@@ -27,7 +27,7 @@ class _$OneOfFreezedInputTearOff {
     );
   }
 
-  OneOfFreezedInput fromJson(Map<String, Object> json) {
+  OneOfFreezedInput fromJson(Map<String, Object?> json) {
     return OneOfFreezedInput.fromJson(json);
   }
 }
@@ -128,14 +128,14 @@ class _$_OneOfFreezedInput implements _OneOfFreezedInput {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _OneOfFreezedInput &&
-            (identical(other.str, str) ||
-                const DeepCollectionEquality().equals(other.str, str)));
+        (other.runtimeType == runtimeType &&
+            other is _OneOfFreezedInput &&
+            const DeepCollectionEquality().equals(other.str, str));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(str);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(str));
 
   @JsonKey(ignore: true)
   @override
@@ -155,7 +155,7 @@ abstract class _OneOfFreezedInput implements OneOfFreezedInput {
       _$_OneOfFreezedInput.fromJson;
 
   @override
-  String get str => throw _privateConstructorUsedError;
+  String get str;
   @override
   @JsonKey(ignore: true)
   _$OneOfFreezedInputCopyWith<_OneOfFreezedInput> get copyWith =>

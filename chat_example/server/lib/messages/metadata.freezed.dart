@@ -32,7 +32,7 @@ class _$MessageMetadataTearOff {
     );
   }
 
-  MessageMetadata fromJson(Map<String, Object> json) {
+  MessageMetadata fromJson(Map<String, Object?> json) {
     return MessageMetadata.fromJson(json);
   }
 }
@@ -196,24 +196,22 @@ class _$_MessageMetadata implements _MessageMetadata {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _MessageMetadata &&
-            (identical(other.fileMetadata, fileMetadata) ||
-                const DeepCollectionEquality()
-                    .equals(other.fileMetadata, fileMetadata)) &&
-            (identical(other.linksMetadata, linksMetadata) ||
-                const DeepCollectionEquality()
-                    .equals(other.linksMetadata, linksMetadata)) &&
-            (identical(other.computedAt, computedAt) ||
-                const DeepCollectionEquality()
-                    .equals(other.computedAt, computedAt)));
+        (other.runtimeType == runtimeType &&
+            other is _MessageMetadata &&
+            const DeepCollectionEquality()
+                .equals(other.fileMetadata, fileMetadata) &&
+            const DeepCollectionEquality()
+                .equals(other.linksMetadata, linksMetadata) &&
+            const DeepCollectionEquality()
+                .equals(other.computedAt, computedAt));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(fileMetadata) ^
-      const DeepCollectionEquality().hash(linksMetadata) ^
-      const DeepCollectionEquality().hash(computedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(fileMetadata),
+      const DeepCollectionEquality().hash(linksMetadata),
+      const DeepCollectionEquality().hash(computedAt));
 
   @JsonKey(ignore: true)
   @override
@@ -236,11 +234,11 @@ abstract class _MessageMetadata implements MessageMetadata {
       _$_MessageMetadata.fromJson;
 
   @override
-  FileMetadata? get fileMetadata => throw _privateConstructorUsedError;
+  FileMetadata? get fileMetadata;
   @override
-  LinksMetadata? get linksMetadata => throw _privateConstructorUsedError;
+  LinksMetadata? get linksMetadata;
   @override
-  DateTime get computedAt => throw _privateConstructorUsedError;
+  DateTime get computedAt;
   @override
   @JsonKey(ignore: true)
   _$MessageMetadataCopyWith<_MessageMetadata> get copyWith =>
@@ -266,7 +264,7 @@ class _$LinksMetadataTearOff {
     );
   }
 
-  LinksMetadata fromJson(Map<String, Object> json) {
+  LinksMetadata fromJson(Map<String, Object?> json) {
     return LinksMetadata.fromJson(json);
   }
 }
@@ -398,22 +396,19 @@ class _$_LinksMetadata extends _LinksMetadata {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _LinksMetadata &&
-            (identical(other.links, links) ||
-                const DeepCollectionEquality().equals(other.links, links)) &&
-            (identical(other.emails, emails) ||
-                const DeepCollectionEquality().equals(other.emails, emails)) &&
-            (identical(other.userTags, userTags) ||
-                const DeepCollectionEquality()
-                    .equals(other.userTags, userTags)));
+        (other.runtimeType == runtimeType &&
+            other is _LinksMetadata &&
+            const DeepCollectionEquality().equals(other.links, links) &&
+            const DeepCollectionEquality().equals(other.emails, emails) &&
+            const DeepCollectionEquality().equals(other.userTags, userTags));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(links) ^
-      const DeepCollectionEquality().hash(emails) ^
-      const DeepCollectionEquality().hash(userTags);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(links),
+      const DeepCollectionEquality().hash(emails),
+      const DeepCollectionEquality().hash(userTags));
 
   @JsonKey(ignore: true)
   @override
@@ -437,11 +432,11 @@ abstract class _LinksMetadata extends LinksMetadata {
       _$_LinksMetadata.fromJson;
 
   @override
-  List<LinkMetadata> get links => throw _privateConstructorUsedError;
+  List<LinkMetadata> get links;
   @override
-  List<String> get emails => throw _privateConstructorUsedError;
+  List<String> get emails;
   @override // TODO: bring user ids?
-  List<String> get userTags => throw _privateConstructorUsedError;
+  List<String> get userTags;
   @override
   @JsonKey(ignore: true)
   _$LinksMetadataCopyWith<_LinksMetadata> get copyWith =>
@@ -466,7 +461,7 @@ class _$LinkMetadataTearOff {
     );
   }
 
-  LinkMetadata fromJson(Map<String, Object> json) {
+  LinkMetadata fromJson(Map<String, Object?> json) {
     return LinkMetadata.fromJson(json);
   }
 }
@@ -604,25 +599,22 @@ class _$_LinkMetadata implements _LinkMetadata {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _LinkMetadata &&
-            (identical(other.title, title) ||
-                const DeepCollectionEquality().equals(other.title, title)) &&
-            (identical(other.description, description) ||
-                const DeepCollectionEquality()
-                    .equals(other.description, description)) &&
-            (identical(other.image, image) ||
-                const DeepCollectionEquality().equals(other.image, image)) &&
-            (identical(other.url, url) ||
-                const DeepCollectionEquality().equals(other.url, url)));
+        (other.runtimeType == runtimeType &&
+            other is _LinkMetadata &&
+            const DeepCollectionEquality().equals(other.title, title) &&
+            const DeepCollectionEquality()
+                .equals(other.description, description) &&
+            const DeepCollectionEquality().equals(other.image, image) &&
+            const DeepCollectionEquality().equals(other.url, url));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(title) ^
-      const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(image) ^
-      const DeepCollectionEquality().hash(url);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(title),
+      const DeepCollectionEquality().hash(description),
+      const DeepCollectionEquality().hash(image),
+      const DeepCollectionEquality().hash(url));
 
   @JsonKey(ignore: true)
   @override
@@ -646,13 +638,13 @@ abstract class _LinkMetadata implements LinkMetadata {
       _$_LinkMetadata.fromJson;
 
   @override
-  String? get title => throw _privateConstructorUsedError;
+  String? get title;
   @override
-  String? get description => throw _privateConstructorUsedError;
+  String? get description;
   @override
-  String? get image => throw _privateConstructorUsedError;
+  String? get image;
   @override
-  String? get url => throw _privateConstructorUsedError;
+  String? get url;
   @override
   @JsonKey(ignore: true)
   _$LinkMetadataCopyWith<_LinkMetadata> get copyWith =>
@@ -682,7 +674,7 @@ class _$FileMetadataTearOff {
     );
   }
 
-  FileMetadata fromJson(Map<String, Object> json) {
+  FileMetadata fromJson(Map<String, Object?> json) {
     return FileMetadata.fromJson(json);
   }
 }
@@ -848,32 +840,25 @@ class _$_FileMetadata implements _FileMetadata {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _FileMetadata &&
-            (identical(other.sizeInBytes, sizeInBytes) ||
-                const DeepCollectionEquality()
-                    .equals(other.sizeInBytes, sizeInBytes)) &&
-            (identical(other.mimeType, mimeType) ||
-                const DeepCollectionEquality()
-                    .equals(other.mimeType, mimeType)) &&
-            (identical(other.fileName, fileName) ||
-                const DeepCollectionEquality()
-                    .equals(other.fileName, fileName)) &&
-            (identical(other.sha1Hash, sha1Hash) ||
-                const DeepCollectionEquality()
-                    .equals(other.sha1Hash, sha1Hash)) &&
-            (identical(other.fileHashBlur, fileHashBlur) ||
-                const DeepCollectionEquality()
-                    .equals(other.fileHashBlur, fileHashBlur)));
+        (other.runtimeType == runtimeType &&
+            other is _FileMetadata &&
+            const DeepCollectionEquality()
+                .equals(other.sizeInBytes, sizeInBytes) &&
+            const DeepCollectionEquality().equals(other.mimeType, mimeType) &&
+            const DeepCollectionEquality().equals(other.fileName, fileName) &&
+            const DeepCollectionEquality().equals(other.sha1Hash, sha1Hash) &&
+            const DeepCollectionEquality()
+                .equals(other.fileHashBlur, fileHashBlur));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(sizeInBytes) ^
-      const DeepCollectionEquality().hash(mimeType) ^
-      const DeepCollectionEquality().hash(fileName) ^
-      const DeepCollectionEquality().hash(sha1Hash) ^
-      const DeepCollectionEquality().hash(fileHashBlur);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(sizeInBytes),
+      const DeepCollectionEquality().hash(mimeType),
+      const DeepCollectionEquality().hash(fileName),
+      const DeepCollectionEquality().hash(sha1Hash),
+      const DeepCollectionEquality().hash(fileHashBlur));
 
   @JsonKey(ignore: true)
   @override
@@ -898,15 +883,15 @@ abstract class _FileMetadata implements FileMetadata {
       _$_FileMetadata.fromJson;
 
   @override
-  int get sizeInBytes => throw _privateConstructorUsedError;
+  int get sizeInBytes;
   @override
-  String get mimeType => throw _privateConstructorUsedError;
+  String get mimeType;
   @override
-  String get fileName => throw _privateConstructorUsedError;
+  String get fileName;
   @override
-  String get sha1Hash => throw _privateConstructorUsedError;
+  String get sha1Hash;
   @override
-  String? get fileHashBlur => throw _privateConstructorUsedError;
+  String? get fileHashBlur;
   @override
   @JsonKey(ignore: true)
   _$FileMetadataCopyWith<_FileMetadata> get copyWith =>

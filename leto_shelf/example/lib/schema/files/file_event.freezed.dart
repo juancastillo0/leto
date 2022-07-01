@@ -14,7 +14,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 FileEvent _$FileEventFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType'] as String?) {
+  switch (json['runtimeType']) {
     case 'added':
       return FileEventAdded.fromJson(json);
     case 'renamed':
@@ -64,7 +64,7 @@ class _$FileEventTearOff {
     );
   }
 
-  FileEvent fromJson(Map<String, Object> json) {
+  FileEvent fromJson(Map<String, Object?> json) {
     return FileEvent.fromJson(json);
   }
 }
@@ -184,16 +184,21 @@ class _$FileEventAddedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventAdded extends FileEventAdded {
-  const _$FileEventAdded(this.fileUpload, {this.replace = true}) : super._();
+  const _$FileEventAdded(this.fileUpload, {this.replace = true, String? $type})
+      : $type = $type ?? 'added',
+        super._();
 
   factory _$FileEventAdded.fromJson(Map<String, dynamic> json) =>
       _$$FileEventAddedFromJson(json);
 
   @override
   final UploadedFileMeta fileUpload;
-  @JsonKey(defaultValue: true)
+  @JsonKey()
   @override
   final bool replace;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -203,19 +208,18 @@ class _$FileEventAdded extends FileEventAdded {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is FileEventAdded &&
-            (identical(other.fileUpload, fileUpload) ||
-                const DeepCollectionEquality()
-                    .equals(other.fileUpload, fileUpload)) &&
-            (identical(other.replace, replace) ||
-                const DeepCollectionEquality().equals(other.replace, replace)));
+        (other.runtimeType == runtimeType &&
+            other is FileEventAdded &&
+            const DeepCollectionEquality()
+                .equals(other.fileUpload, fileUpload) &&
+            const DeepCollectionEquality().equals(other.replace, replace));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(fileUpload) ^
-      const DeepCollectionEquality().hash(replace);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(fileUpload),
+      const DeepCollectionEquality().hash(replace));
 
   @JsonKey(ignore: true)
   @override
@@ -301,7 +305,7 @@ class _$FileEventAdded extends FileEventAdded {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventAddedToJson(this)..['runtimeType'] = 'added';
+    return _$$FileEventAddedToJson(this);
   }
 }
 
@@ -313,8 +317,8 @@ abstract class FileEventAdded extends FileEvent {
   factory FileEventAdded.fromJson(Map<String, dynamic> json) =
       _$FileEventAdded.fromJson;
 
-  UploadedFileMeta get fileUpload => throw _privateConstructorUsedError;
-  bool get replace => throw _privateConstructorUsedError;
+  UploadedFileMeta get fileUpload;
+  bool get replace;
   @JsonKey(ignore: true)
   $FileEventAddedCopyWith<FileEventAdded> get copyWith =>
       throw _privateConstructorUsedError;
@@ -365,8 +369,12 @@ class _$FileEventRenamedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FileEventRenamed extends FileEventRenamed {
   const _$FileEventRenamed(
-      {required this.filename, required this.newFilename, this.replace = true})
-      : super._();
+      {required this.filename,
+      required this.newFilename,
+      this.replace = true,
+      String? $type})
+      : $type = $type ?? 'renamed',
+        super._();
 
   factory _$FileEventRenamed.fromJson(Map<String, dynamic> json) =>
       _$$FileEventRenamedFromJson(json);
@@ -375,9 +383,12 @@ class _$FileEventRenamed extends FileEventRenamed {
   final String filename;
   @override
   final String newFilename;
-  @JsonKey(defaultValue: true)
+  @JsonKey()
   @override
   final bool replace;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -387,23 +398,20 @@ class _$FileEventRenamed extends FileEventRenamed {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is FileEventRenamed &&
-            (identical(other.filename, filename) ||
-                const DeepCollectionEquality()
-                    .equals(other.filename, filename)) &&
-            (identical(other.newFilename, newFilename) ||
-                const DeepCollectionEquality()
-                    .equals(other.newFilename, newFilename)) &&
-            (identical(other.replace, replace) ||
-                const DeepCollectionEquality().equals(other.replace, replace)));
+        (other.runtimeType == runtimeType &&
+            other is FileEventRenamed &&
+            const DeepCollectionEquality().equals(other.filename, filename) &&
+            const DeepCollectionEquality()
+                .equals(other.newFilename, newFilename) &&
+            const DeepCollectionEquality().equals(other.replace, replace));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(filename) ^
-      const DeepCollectionEquality().hash(newFilename) ^
-      const DeepCollectionEquality().hash(replace);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(filename),
+      const DeepCollectionEquality().hash(newFilename),
+      const DeepCollectionEquality().hash(replace));
 
   @JsonKey(ignore: true)
   @override
@@ -489,7 +497,7 @@ class _$FileEventRenamed extends FileEventRenamed {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventRenamedToJson(this)..['runtimeType'] = 'renamed';
+    return _$$FileEventRenamedToJson(this);
   }
 }
 
@@ -503,9 +511,9 @@ abstract class FileEventRenamed extends FileEvent {
   factory FileEventRenamed.fromJson(Map<String, dynamic> json) =
       _$FileEventRenamed.fromJson;
 
-  String get filename => throw _privateConstructorUsedError;
-  String get newFilename => throw _privateConstructorUsedError;
-  bool get replace => throw _privateConstructorUsedError;
+  String get filename;
+  String get newFilename;
+  bool get replace;
   @JsonKey(ignore: true)
   $FileEventRenamedCopyWith<FileEventRenamed> get copyWith =>
       throw _privateConstructorUsedError;
@@ -545,13 +553,18 @@ class _$FileEventDeletedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventDeleted extends FileEventDeleted {
-  const _$FileEventDeleted(this.filename) : super._();
+  const _$FileEventDeleted(this.filename, {String? $type})
+      : $type = $type ?? 'deleted',
+        super._();
 
   factory _$FileEventDeleted.fromJson(Map<String, dynamic> json) =>
       _$$FileEventDeletedFromJson(json);
 
   @override
   final String filename;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -561,15 +574,14 @@ class _$FileEventDeleted extends FileEventDeleted {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is FileEventDeleted &&
-            (identical(other.filename, filename) ||
-                const DeepCollectionEquality()
-                    .equals(other.filename, filename)));
+        (other.runtimeType == runtimeType &&
+            other is FileEventDeleted &&
+            const DeepCollectionEquality().equals(other.filename, filename));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(filename);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(filename));
 
   @JsonKey(ignore: true)
   @override
@@ -655,7 +667,7 @@ class _$FileEventDeleted extends FileEventDeleted {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventDeletedToJson(this)..['runtimeType'] = 'deleted';
+    return _$$FileEventDeletedToJson(this);
   }
 }
 
@@ -666,7 +678,7 @@ abstract class FileEventDeleted extends FileEvent {
   factory FileEventDeleted.fromJson(Map<String, dynamic> json) =
       _$FileEventDeleted.fromJson;
 
-  String get filename => throw _privateConstructorUsedError;
+  String get filename;
   @JsonKey(ignore: true)
   $FileEventDeletedCopyWith<FileEventDeleted> get copyWith =>
       throw _privateConstructorUsedError;
@@ -706,13 +718,18 @@ class _$FileEventManyCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventMany extends FileEventMany {
-  const _$FileEventMany(this.events) : super._();
+  const _$FileEventMany(this.events, {String? $type})
+      : $type = $type ?? 'many',
+        super._();
 
   factory _$FileEventMany.fromJson(Map<String, dynamic> json) =>
       _$$FileEventManyFromJson(json);
 
   @override
   final List<FileEvent> events;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
 
   @override
   String toString() {
@@ -722,14 +739,14 @@ class _$FileEventMany extends FileEventMany {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is FileEventMany &&
-            (identical(other.events, events) ||
-                const DeepCollectionEquality().equals(other.events, events)));
+        (other.runtimeType == runtimeType &&
+            other is FileEventMany &&
+            const DeepCollectionEquality().equals(other.events, events));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(events);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(events));
 
   @JsonKey(ignore: true)
   @override
@@ -815,7 +832,7 @@ class _$FileEventMany extends FileEventMany {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventManyToJson(this)..['runtimeType'] = 'many';
+    return _$$FileEventManyToJson(this);
   }
 }
 
@@ -826,7 +843,7 @@ abstract class FileEventMany extends FileEvent {
   factory FileEventMany.fromJson(Map<String, dynamic> json) =
       _$FileEventMany.fromJson;
 
-  List<FileEvent> get events => throw _privateConstructorUsedError;
+  List<FileEvent> get events;
   @JsonKey(ignore: true)
   $FileEventManyCopyWith<FileEventMany> get copyWith =>
       throw _privateConstructorUsedError;

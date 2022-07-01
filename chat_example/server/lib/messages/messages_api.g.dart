@@ -323,12 +323,14 @@ _$ChatMessageSentEvent _$$ChatMessageSentEventFromJson(
         Map<String, dynamic> json) =>
     _$ChatMessageSentEvent(
       message: ChatMessage.fromJson(json['message'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatMessageSentEventToJson(
         _$ChatMessageSentEvent instance) =>
     <String, dynamic>{
       'message': instance.message,
+      'runtimeType': instance.$type,
     };
 
 _$ChatMessageDeletedEvent _$$ChatMessageDeletedEventFromJson(
@@ -336,6 +338,7 @@ _$ChatMessageDeletedEvent _$$ChatMessageDeletedEventFromJson(
     _$ChatMessageDeletedEvent(
       chatId: json['chatId'] as int,
       messageId: json['messageId'] as int,
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatMessageDeletedEventToJson(
@@ -343,16 +346,19 @@ Map<String, dynamic> _$$ChatMessageDeletedEventToJson(
     <String, dynamic>{
       'chatId': instance.chatId,
       'messageId': instance.messageId,
+      'runtimeType': instance.$type,
     };
 
 _$ChatMessageUpdatedEvent _$$ChatMessageUpdatedEventFromJson(
         Map<String, dynamic> json) =>
     _$ChatMessageUpdatedEvent(
       message: ChatMessage.fromJson(json['message'] as Map<String, dynamic>),
+      $type: json['runtimeType'] as String?,
     );
 
 Map<String, dynamic> _$$ChatMessageUpdatedEventToJson(
         _$ChatMessageUpdatedEvent instance) =>
     <String, dynamic>{
       'message': instance.message,
+      'runtimeType': instance.$type,
     };
