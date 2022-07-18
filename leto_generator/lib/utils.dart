@@ -5,6 +5,8 @@ import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
+// ignore: implementation_imports
+import 'package:analyzer/src/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -12,6 +14,7 @@ import 'package:leto_generator/config.dart';
 import 'package:leto_generator/resolver_generator.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:valida/valida.dart';
 
 export 'utils_graphql.dart';
 
@@ -118,7 +121,22 @@ String? getDefaultValue(Element elem) {
 String? getAttachments(Element element) {
   // final annotDefault = const TypeChecker.fromRuntime(Attach)
   //     .annotationsOf(element).expand((e) => e.toListValue()?.map((e) => e.));
-  // ignore: prefer_interpolation_to_compose_strings
+  String fieldAnnotations = '';
+  if (element is ParameterElement &&
+      element.enclosingElement is ConstructorElement) {
+    final constructor = element.enclosingElement! as ConstructorElement;
+    final field = constructor.enclosingElement.getField(element.name);
+    if (field != null && field.type.element == element.type.element) {
+      fieldAnnotations = getAttachments(field) ?? '';
+      if (fieldAnnotations.isNotEmpty) {
+        fieldAnnotations = fieldAnnotations.substring(
+          1,
+          fieldAnnotations.length - 1,
+        );
+      }
+    }
+  }
+// ignore: prefer_interpolation_to_compose_strings
   final str = '[' +
       const TypeChecker.fromRuntime(AttachFn)
           .annotationsOf(element)
@@ -127,10 +145,26 @@ String? getAttachments(Element element) {
             return fun == null ? null : executeCodeForExecutable(fun);
           })
           .whereType<String>()
-          .map((e) => '...$e')
-          .join(',') +
+          .map((e) => '...$e,')
+          .join() +
+      (() {
+        // TODO: ValidaNested.overrideValidation
+        final e = element.metadata.firstWhereOrNull(
+          (element) => const TypeChecker.fromRuntime(ValidaField)
+              .isAssignableFromType(element.computeConstantValue()!.type!),
+        );
+        if (e == null) return '';
+        final _validaAnnot = getSourceCodeAnnotation(e);
+        return 'ValidaAttachment($_validaAnnot),';
+      }()) +
+      fieldAnnotations +
       ']';
   return str.length > 2 ? str : null;
+}
+
+String getSourceCodeAnnotation(ElementAnnotation e) {
+  final s = e as ElementAnnotationImpl;
+  return s.annotationAst.toString().substring(1);
 }
 
 // taken from https://github.com/rrousselGit/freezed/blob/be88e13288b9a5aaddc0e7d0e9ee570d20a8cccf/packages/freezed/lib/src/utils.dart

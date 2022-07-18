@@ -4,6 +4,7 @@ import 'dart:convert' show json;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:valida/valida.dart';
 
 part 'inputs.g.dart';
 part 'inputs.freezed.dart';
@@ -52,18 +53,36 @@ queryMultipleParams(serde: InputJsonSerde, serdeReq: InputJsonSerde!, defTwo: In
   mutationMultipleParamsOptionalPos(serde: InputJsonSerde, defTwo: Int! = 2, gen: InputGenInputJsonSerdeReqList, gen2: InputGen2StringReqIntReqListListReq): String!''',
 ];
 
+@Valida()
 @GraphQLInput()
 @JsonSerializable()
 class InputM {
+  @ValidaString(minLength: 1, isAlpha: true)
   final String name;
+  @ValidaDate(min: 'now', max: '2023-01-01')
   final DateTime? date;
   final List<int> ints;
+  @ValidaList(each: ValidaNum(min: -2))
   final List<double> doubles;
 
+  @ValidaList(minLength: 1)
   final List<InputMN> nested;
   final List<InputMN?> nestedNullItem;
   final List<InputMN?>? nestedNullItemNull;
   final List<InputMN>? nestedNull;
+
+  @ValidaFunction()
+  static List<ValidaError> _hasIntsOrDoubles(InputM value) {
+    return [
+      if (value.ints.isEmpty && value.doubles.isEmpty)
+        ValidaError(
+          errorCode: 'hasIntsOrDoubles',
+          message: 'Should have at least one int or double.',
+          value: value.ints,
+          property: 'ints',
+        ),
+    ];
+  }
 
   const InputM({
     required this.name,

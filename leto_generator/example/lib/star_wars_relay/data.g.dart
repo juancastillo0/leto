@@ -78,17 +78,7 @@ final _factionGraphQLType =
           .nonNull()
           .field('ships', resolve: (obj, ctx) {
         final args = ctx.args;
-        Map<String, Object?> _validaToJson(ValidaError e) => {
-              'property': e.property,
-              'errorCode': e.errorCode,
-              if (e.validationParam != null)
-                'validationParam': e.validationParam,
-              'message': e.message,
-              if (e.nestedValidation?.hasErrors == true)
-                'nestedErrors':
-                    e.nestedValidation!.allErrors.map(_validaToJson).toList()
-            };
-        final validationErrorMap = <String, Validation>{};
+        final validationErrorMap = <String, List<ValidaError>>{};
 
         final argsArg = connectionArgumentsSerializer.fromJson(
             ctx.executionCtx.schema.serdeCtx, args);
@@ -96,7 +86,8 @@ final _factionGraphQLType =
           final argsValidationResult =
               validateConnectionArguments(argsArg as ConnectionArguments);
           if (argsValidationResult.hasErrors) {
-            validationErrorMap['args'] = argsValidationResult;
+            validationErrorMap.addAll(argsValidationResult.errorsMap
+                .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v)));
           }
         }
 
@@ -104,8 +95,7 @@ final _factionGraphQLType =
           throw GraphQLError(
             'Input validation error',
             extensions: {
-              'validaErrors': validationErrorMap.map((k, v) =>
-                  MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+              'validaErrors': validationErrorMap,
             },
             sourceError: validationErrorMap,
           );
@@ -151,9 +141,15 @@ final _connectionArgumentsGraphQLTypeInput =
           description:
               'Returns the items in the list that come after the specified cursor.'),
       graphQLInt.inputField('first',
-          description: 'Returns the first n items from the list.'),
+          description: 'Returns the first n items from the list.',
+          attachments: [
+            ValidaAttachment(ValidaNum(min: 1)),
+          ]),
       graphQLInt.inputField('last',
-          description: 'Returns the last n items from the list.')
+          description: 'Returns the last n items from the list.',
+          attachments: [
+            ValidaAttachment(ValidaNum(min: 1)),
+          ])
     ],
   );
 
@@ -229,48 +225,54 @@ class ConnectionArgumentsValidation
     extends Validation<ConnectionArguments, ConnectionArgumentsField> {
   ConnectionArgumentsValidation(this.errorsMap, this.value, this.fields)
       : super(errorsMap);
-
+  @override
   final Map<ConnectionArgumentsField, List<ValidaError>> errorsMap;
-
+  @override
   final ConnectionArguments value;
-
+  @override
   final ConnectionArgumentsValidationFields fields;
+
+  /// Validates [value] and returns a [ConnectionArgumentsValidation] with the errors found as a result
+  static ConnectionArgumentsValidation fromValue(ConnectionArguments value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <ConnectionArgumentsField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return ConnectionArgumentsValidation(
+        errors, value, ConnectionArgumentsValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      ConnectionArgumentsField.first: ValidaNum(min: 1),
+      ConnectionArgumentsField.last: ValidaNum(min: 1),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(ConnectionArguments value) => [];
+
+  static Object? _getField(ConnectionArguments value, String field) {
+    switch (field) {
+      case 'first':
+        return value.first;
+      case 'last':
+        return value.last;
+      default:
+        throw Exception();
+    }
+  }
 }
 
+@Deprecated('Use ConnectionArgumentsValidation.fromValue')
 ConnectionArgumentsValidation validateConnectionArguments(
     ConnectionArguments value) {
-  final errors = <ConnectionArgumentsField, List<ValidaError>>{};
-
-  if (value.first == null)
-    errors[ConnectionArgumentsField.first] = [];
-  else
-    errors[ConnectionArgumentsField.first] = [
-      if (value.first! < 1)
-        ValidaError(
-          message: r'Should be at a minimum 1',
-          errorCode: 'ValidaNum.min',
-          property: 'first',
-          validationParam: 1,
-          value: value.first!,
-        )
-    ];
-  if (value.last == null)
-    errors[ConnectionArgumentsField.last] = [];
-  else
-    errors[ConnectionArgumentsField.last] = [
-      if (value.last! < 1)
-        ValidaError(
-          message: r'Should be at a minimum 1',
-          errorCode: 'ValidaNum.min',
-          property: 'last',
-          validationParam: 1,
-          value: value.last!,
-        )
-    ];
-
-  return ConnectionArgumentsValidation(
-    errors,
-    value,
-    ConnectionArgumentsValidationFields(errors),
-  );
+  return ConnectionArgumentsValidation.fromValue(value);
 }

@@ -499,4 +499,13 @@ class FieldInfo {
       },
     );
   }
+
+  @override
+  String toString() {
+    return 'FieldInfo(name: $name, getter: $getter, isMethod: $isMethod,'
+        ' nonNullable: $nonNullable, gqlType: $gqlType, inputs: $inputs,'
+        ' description: $description, fieldAnnot: $fieldAnnot,'
+        ' deprecationReason: $deprecationReason,'
+        ' defaultValueCode: $defaultValueCode, attachments: $attachments)';
+  }
 }

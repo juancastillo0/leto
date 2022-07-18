@@ -61,14 +61,34 @@ final _signUpGraphQLField = HotReloadableDefinition<
       'signUp',
       resolve: (obj, ctx) {
         final args = ctx.args;
+        final validationErrorMap = <String, List<ValidaError>>{};
+
+        final _validation = SignUpArgs((args["ctx"] as Ctx<dynamic>),
+                (args["name"] as String), (args["password"] as String))
+            .validate();
+        validationErrorMap.addAll(_validation.errorsMap
+            .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v)));
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap,
+            },
+            sourceError: validationErrorMap,
+          );
+        }
 
         return signUp(
             ctx, (args["name"] as String), (args["password"] as String));
       },
     ))
       ..inputs.addAll([
-        graphQLString.nonNull().inputField('name'),
-        graphQLString.nonNull().inputField('password')
+        graphQLString.nonNull().inputField('name', attachments: [
+          ValidaAttachment(ValidaString(minLength: 2)),
+        ]),
+        graphQLString.nonNull().inputField('password', attachments: [
+          ValidaAttachment(ValidaString(minLength: 6)),
+        ])
       ]));
 
 GraphQLObjectField<Result<TokenWithUser, ErrC<SignInError>>, Object?, Object?>
@@ -539,3 +559,131 @@ Map<String, dynamic> _$$UserSignedOutEventToJson(
       'sessionId': instance.sessionId,
       'runtimeType': instance.$type,
     };
+
+// **************************************************************************
+// ValidatorGenerator
+// **************************************************************************
+
+/// The arguments for [signUp].
+class SignUpArgs with ToJson {
+  final Ctx<dynamic> ctx;
+  final String name;
+  final String password;
+
+  /// The arguments for [signUp].
+  const SignUpArgs(
+    this.ctx,
+    this.name,
+    this.password,
+  );
+
+  /// Validates this arguments for [signUp].
+  SignUpArgsValidation validate() => validateSignUpArgs(this);
+
+  /// Validates this arguments for [signUp] and
+  /// returns the successfully [Validated] value or
+  /// throws a [SignUpArgsValidation] when there is an error.
+  Validated<SignUpArgs> validatedOrThrow() {
+    final validation = validate();
+    final validated = validation.validated;
+    if (validated == null) {
+      throw validation;
+    }
+    return validated;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {
+        'ctx': ctx,
+        'name': name,
+        'password': password,
+      };
+
+  @override
+  String toString() => 'SignUpArgs${toJson()}';
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SignUpArgs &&
+            ctx == other.ctx &&
+            name == other.name &&
+            password == other.password);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        ctx,
+        name,
+        password,
+      );
+}
+
+enum SignUpArgsField {
+  name,
+  password,
+}
+
+class SignUpArgsValidationFields {
+  const SignUpArgsValidationFields(this.errorsMap);
+  final Map<SignUpArgsField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get name => errorsMap[SignUpArgsField.name]!;
+  List<ValidaError> get password => errorsMap[SignUpArgsField.password]!;
+}
+
+class SignUpArgsValidation extends Validation<SignUpArgs, SignUpArgsField> {
+  SignUpArgsValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<SignUpArgsField, List<ValidaError>> errorsMap;
+  @override
+  final SignUpArgs value;
+  @override
+  final SignUpArgsValidationFields fields;
+
+  /// Validates [value] and returns a [SignUpArgsValidation] with the errors found as a result
+  static SignUpArgsValidation fromValue(SignUpArgs value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <SignUpArgsField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return SignUpArgsValidation(
+        errors, value, SignUpArgsValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      SignUpArgsField.name: ValidaString(minLength: 2),
+      SignUpArgsField.password: ValidaString(minLength: 6),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(SignUpArgs value) => [];
+
+  static Object? _getField(SignUpArgs value, String field) {
+    switch (field) {
+      case 'name':
+        return value.name;
+      case 'password':
+        return value.password;
+      default:
+        throw Exception();
+    }
+  }
+}
+
+@Deprecated('Use SignUpArgsValidation.fromValue')
+SignUpArgsValidation validateSignUpArgs(SignUpArgs value) {
+  return SignUpArgsValidation.fromValue(value);
+}

@@ -4,6 +4,7 @@ import 'package:leto/types/json.dart';
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:valida/valida.dart';
 
 part 'arguments.g.dart';
 
@@ -85,4 +86,62 @@ String testManyDefaults({
     'timestamps': timestamps.map((e) => e?.millisecondsSinceEpoch).toList(),
     'json': json,
   });
+}
+
+@Query()
+@Valida()
+String testValidaInArgs({
+  @ValidaString(isIn: ['S', 'A'])
+      required String strSOrA,
+  int? otherInt,
+  @ValidaNum(
+    comp: ValidaComparison(
+      more: CompVal.list([CompVal(3), CompVal.ref('otherInt')]),
+    ),
+  )
+      int greaterThan3AndOtherInt = 3,
+  @ValidaDate(min: '2021-01-01')
+      DateTime? after2020,
+  @ValidaList(minLength: 1)
+      List<String>? nonEmptyList,
+  ValidaArgModel? model,
+}) {
+  return '';
+}
+
+@Query()
+String testValidaInArgsSingleModel({
+  ValidaArgModel? singleModel,
+}) {
+  return '';
+}
+
+@Valida()
+@GraphQLInput()
+class ValidaArgModel {
+  // TODO: valida in field or in constructor argument?
+  @ValidaList(each: ValidaString(minLength: 1))
+  final List<String> strs;
+  final ValidaArgModel? inner;
+
+  ValidaArgModel({
+    required this.strs,
+    this.inner,
+  });
+
+  Map<String, Object?> toJson() {
+    return {
+      'strs': strs,
+      'inner': inner?.toJson(),
+    };
+  }
+
+  factory ValidaArgModel.fromJson(Map<String, Object?> map) {
+    return ValidaArgModel(
+      strs: List<String>.from(map['strs']! as List),
+      inner: map['inner'] != null
+          ? ValidaArgModel.fromJson((map['inner']! as Map).cast())
+          : null,
+    );
+  }
 }
