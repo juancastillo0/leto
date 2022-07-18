@@ -17,6 +17,8 @@ import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
 
 export 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
+// TODO: find a better way, maybe another leto_valida package?
+export 'package:leto_schema/src/validate/valida_input_attachment.dart';
 export 'package:leto_schema/utilities.dart'
     show PossibleSelections, PossibleSelectionsObject;
 

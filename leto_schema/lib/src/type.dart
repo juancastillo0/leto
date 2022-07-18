@@ -584,6 +584,7 @@ class GraphQLNonNullType<Value, Serialized>
     Value? defaultValue,
     String? deprecationReason,
     InputValueDefinitionNode? astNode,
+    GraphQLAttachments attachments = const [],
   }) {
     return GraphQLFieldInput(
       name,
@@ -593,6 +594,7 @@ class GraphQLNonNullType<Value, Serialized>
       defaultValue: defaultValue,
       defaultsToNull: false,
       astNode: astNode,
+      attachments: attachments,
     );
   }
 }

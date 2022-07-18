@@ -3,9 +3,10 @@ import 'package:gql/ast.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/src/validate/type_info.dart';
 import 'package:leto_schema/src/validate/typed_visitor.dart';
-import 'package:leto_schema/src/validate/validate_schema.dart';
 import 'package:leto_schema/validate_rules.dart';
 import 'validation_context.dart';
+
+export 'valida_input_attachment.dart';
 
 /// Return a visitor that executes document validations for a [ValidationCtx]
 typedef ValidationRule = Visitor Function(ValidationCtx);
