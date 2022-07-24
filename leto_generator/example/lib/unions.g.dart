@@ -232,7 +232,9 @@ final _unionNoFreezedGraphQLType =
     const [],
     description:
         "Description from annotation.\n\nUnion generated from raw Dart classes",
-    extra: GraphQLTypeDefinitionExtra.attach([...unionNoFreezedAttachments()]),
+    extra: GraphQLTypeDefinitionExtra.attach([
+      ...unionNoFreezedAttachments(),
+    ]),
   );
   setValue(type);
   type.possibleTypes.addAll([

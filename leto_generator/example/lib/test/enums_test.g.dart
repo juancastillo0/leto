@@ -42,16 +42,22 @@ final GraphQLEnumType<ClassEnum> classEnumGraphQLType = GraphQLEnumType(
       GraphQLEnumValue('VARIANT_TWO', ClassEnum.variantTwo,
           description: 'The second variant docs'),
       GraphQLEnumValue('errorRenamed', ClassEnum.variantErrorThree,
-          attachments: [...ClassEnum.variantErrorAttachments()])
+          attachments: [
+            ...ClassEnum.variantErrorAttachments(),
+          ])
     ],
-    extra: GraphQLTypeDefinitionExtra.attach([...classEnumAttachments()]));
+    extra: GraphQLTypeDefinitionExtra.attach([
+      ...classEnumAttachments(),
+    ]));
 
 /// Auto-generated from [SimpleEnum].
 final GraphQLEnumType<SimpleEnum> simpleEnumGraphQLType = GraphQLEnumType(
     'SimpleEnumRenamed',
     [
       GraphQLEnumValue('simpleVariantOne', SimpleEnum.simpleVariantOne,
-          attachments: [...simpleVariantAttachments()]),
+          attachments: [
+            ...simpleVariantAttachments(),
+          ]),
       GraphQLEnumValue('SIMPLE_VARIANT_TWO', SimpleEnum.SIMPLE_VARIANT_TWO)
     ],
     description: 'comments for docs');

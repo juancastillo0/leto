@@ -139,7 +139,9 @@ final _taskGraphQLType =
           resolve: (obj, ctx) => obj.createdTimestamp),
       userGraphQLType.nonNull().list().nonNull().field('assignedTo',
           resolve: (obj, ctx) => obj.assignedTo,
-          attachments: [...Task.assignedToAttachments()])
+          attachments: [
+            ...Task.assignedToAttachments(),
+          ])
     ],
   );
 
@@ -164,7 +166,13 @@ final _taskGraphQLTypeInput =
       graphQLInt.nonNull().inputField('weight'),
       Json.graphQLType.inputField('extra'),
       graphQLDate.nonNull().inputField('createdTimestamp'),
-      userGraphQLTypeInput.nonNull().list().nonNull().inputField('assignedTo')
+      userGraphQLTypeInput
+          .nonNull()
+          .list()
+          .nonNull()
+          .inputField('assignedTo', attachments: [
+        ...Task.assignedToAttachments(),
+      ])
     ],
   );
 
