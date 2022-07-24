@@ -110,8 +110,8 @@ GraphQLObjectField<$returnType, Object?, Object?> get
                 (setValue) => setValue($returnGqlType.field<Object?>(
                   '${resolverName ?? element.name}',
                   $funcDef,
-                  ${description == null ? '' : 'description: r"$description",'}
-                  ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
+                  ${description == null ? '' : "description: '$description',"}
+                  ${deprecationReason == null ? '' : "deprecationReason: '$deprecationReason',"}
                   ${attachments == null ? '' : 'attachments: $attachments'}
                   ))${inputs.isEmpty ? '' : '..inputs.addAll([${inputs.join(',')}])'}
                 )
@@ -332,8 +332,7 @@ if (validationErrorMap.isNotEmpty) {
   if (handlingFuture) {
     final _resolverClassName = element.enclosingElement.name;
     _getter = 'final _call = ($_resolverClassName r) => r.$_call;\n'
-        ' // ignore: unnecessary_non_null_assertion\n'
-        ' final FutureOr<$_resolverClassName> _obj = $_getter;'
+        ' final FutureOr<$_resolverClassName> _obj = // ignore: unnecessary_non_null_assertion\n$_getter;'
         ' if (_obj is Future<$_resolverClassName>) return _obj.then(_call);'
         ' else return _call(_obj);';
   }

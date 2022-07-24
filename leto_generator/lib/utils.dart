@@ -46,17 +46,29 @@ bool generateSerializer(ClassElement clazz) {
   return hasFromJson(clazz);
 }
 
-String cleanDocumentation(String doc) {
-  return doc.replaceAll(_docCommentRegExp, '').trim().replaceAll('\n', '\\n');
+String _escapeDescription(String doc) {
+  return doc
+      .replaceAll('\n', '\\n')
+      .replaceAll(r'$', r'\$')
+      // .replaceAll('"', '\\"')
+      .replaceAll("'", "\\'");
+}
+
+String _cleanDocComment(String doc) {
+  final rawValue = doc.replaceAll(_docCommentRegExp, '').trim();
+  return _escapeDescription(rawValue);
 }
 
 String? getDescription(
   Element element,
   String? docComment,
 ) {
-  final docString = getDocumentation(element)?.description ?? docComment;
+  final description = getDocumentation(element)?.description;
+  if (description != null) {
+    return _escapeDescription(description);
+  }
 
-  return docString == null ? null : cleanDocumentation(docString);
+  return docComment == null ? null : _cleanDocComment(docComment);
 }
 
 GraphQLDocumentation? getDocumentation(Element element) {
@@ -187,14 +199,14 @@ Future<String> documentationOfParameter(
       builder.writeln(token);
     }
     final comm = builder.toString();
-    if (comm.trim().isNotEmpty) return cleanDocumentation(comm);
+    if (comm.trim().isNotEmpty) return _cleanDocComment(comm);
   } catch (_) {}
 
   final parent = parameter.enclosingElement;
   if (parent is ConstructorElement) {
     final field = parent.enclosingElement.getField(parameter.name);
-    if (field != null) {
-      return cleanDocumentation(field.documentationComment ?? '');
+    if (field != null && field.documentationComment != null) {
+      return _cleanDocComment(field.documentationComment!);
     }
   }
   return '';

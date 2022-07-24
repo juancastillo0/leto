@@ -22,7 +22,7 @@ final _resultUnionObjectGraphQLField = HotReloadableDefinition<
 
         return resultUnionObject();
       },
-      description: r"resultUnionObject description",
+      description: 'resultUnionObject description',
     )));
 
 GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?, Object?>
@@ -41,8 +41,8 @@ final _resultUnionObjectErrGraphQLField = HotReloadableDefinition<
 
         return resultUnionObjectErr();
       },
-      description: r"resultUnionObjectErr description",
-      deprecationReason: r"use resultUnionObject",
+      description: 'resultUnionObjectErr description',
+      deprecationReason: 'use resultUnionObject',
     )));
 
 GraphQLObjectField<ResultU<SuccessGet, UnionErrCode>, Object?, Object?>
@@ -78,7 +78,7 @@ final _resultObjectGraphQLField = HotReloadableDefinition<
 
             return resultObject();
           },
-          description: r"resultObject description",
+          description: 'resultObject description',
         )));
 
 GraphQLObjectField<Result<String, List<UnionErrCode?>>, Object?, Object?>
@@ -96,8 +96,8 @@ final _resultObjectErrGraphQLField = HotReloadableDefinition<
 
         return resultObjectErr();
       },
-      description: r"resultObjectErr description",
-      deprecationReason: r"use resultObject",
+      description: 'resultObjectErr description',
+      deprecationReason: 'use resultObject',
     )));
 
 GraphQLObjectField<Result<SuccessGet, ErrCode>, Object?, Object?>
@@ -167,13 +167,19 @@ final _unionErrCodeGraphQLType =
   final __name = 'UnionErrCode';
 
   final __unionErrCodeGraphQLType = objectType<UnionErrCode>(__name,
-      isInterface: false, interfaces: [errCodeGraphQLType]);
+      isInterface: false,
+      interfaces: [errCodeGraphQLType],
+      description: '\$ \' dw "" \'\'ddw');
 
   setValue(__unionErrCodeGraphQLType);
   __unionErrCodeGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)
+      graphQLInt.nonNull().field('id',
+          resolve: (obj, ctx) => obj.id,
+          description: 'The "id" of the \'error\'.'),
+      graphQLString.nonNull().field('value',
+          resolve: (obj, ctx) => obj.value,
+          description: 'Comment with \$\$ and \$')
     ],
   );
 

@@ -191,7 +191,7 @@ final _$fieldName = HotReloadableDefinition<GraphQLUnionType<$className>>((setVa
   final type = GraphQLUnionType<$className>(
     '${annot?.name ?? className}',
     const [],
-    ${description == null ? '' : 'description: "$description",'}
+    ${description == null ? '' : "description: '$description',"}
     ${attachments == null ? '' : 'extra: GraphQLTypeDefinitionExtra.attach($attachments),'}
   );
   setValue(type);

@@ -51,6 +51,7 @@ GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
   String? deprecationReason,
   String? description,
   FieldDefinitionNode? astNode,
+  GraphQLAttachments attachments = const [],
 }) {
   return GraphQLObjectField(
     name,
@@ -61,6 +62,7 @@ GraphQLObjectField<T, Serialized, P> field<T, Serialized, P>(
     description: description,
     deprecationReason: deprecationReason,
     astNode: astNode,
+    attachments: attachments,
   );
 }
 
@@ -94,6 +96,7 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
   String? deprecationReason,
   bool defaultsToNull = false,
   InputValueDefinitionNode? astNode,
+  GraphQLAttachments attachments = const [],
 }) {
   return GraphQLFieldInput(
     name,
@@ -103,6 +106,7 @@ GraphQLFieldInput<T, Serialized> inputField<T, Serialized>(
     defaultValue: defaultValue,
     defaultsToNull: defaultsToNull,
     astNode: astNode,
+    attachments: attachments,
   );
 }
 
@@ -146,6 +150,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
     String? deprecationReason,
     bool defaultsToNull = false,
     InputValueDefinitionNode? astNode,
+    GraphQLAttachments attachments = const [],
   }) {
     return GraphQLFieldInput(
       name,
@@ -155,6 +160,7 @@ extension GraphQLFieldTypeExt<V, S> on GraphQLType<V, S> {
       defaultValue: defaultValue,
       defaultsToNull: defaultsToNull,
       astNode: astNode,
+      attachments: attachments,
     );
   }
 }
