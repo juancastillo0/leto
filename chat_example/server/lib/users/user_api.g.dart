@@ -63,11 +63,12 @@ final _signUpGraphQLField = HotReloadableDefinition<
         final args = ctx.args;
         final validationErrorMap = <String, List<ValidaError>>{};
 
-        final _validation = SignUpArgs((args["ctx"] as Ctx<dynamic>),
-                (args["name"] as String), (args["password"] as String))
+        final _validation = SignUpArgs(
+                ctx, (args["name"] as String), (args["password"] as String))
             .validate();
         validationErrorMap.addAll(_validation.errorsMap
-            .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v)));
+            .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+          ..removeWhere((k, v) => v.isEmpty));
         if (validationErrorMap.isNotEmpty) {
           throw GraphQLError(
             'Input validation error',
@@ -578,7 +579,7 @@ class SignUpArgs with ToJson {
   );
 
   /// Validates this arguments for [signUp].
-  SignUpArgsValidation validate() => validateSignUpArgs(this);
+  SignUpArgsValidation validate() => SignUpArgsValidation.fromValue(this);
 
   /// Validates this arguments for [signUp] and
   /// returns the successfully [Validated] value or
@@ -630,8 +631,9 @@ class SignUpArgsValidationFields {
   const SignUpArgsValidationFields(this.errorsMap);
   final Map<SignUpArgsField, List<ValidaError>> errorsMap;
 
-  List<ValidaError> get name => errorsMap[SignUpArgsField.name]!;
-  List<ValidaError> get password => errorsMap[SignUpArgsField.password]!;
+  List<ValidaError> get name => errorsMap[SignUpArgsField.name] ?? const [];
+  List<ValidaError> get password =>
+      errorsMap[SignUpArgsField.password] ?? const [];
 }
 
 class SignUpArgsValidation extends Validation<SignUpArgs, SignUpArgsField> {
@@ -673,17 +675,14 @@ class SignUpArgsValidation extends Validation<SignUpArgs, SignUpArgsField> {
 
   static Object? _getField(SignUpArgs value, String field) {
     switch (field) {
+      case 'ctx':
+        return value.ctx;
       case 'name':
         return value.name;
       case 'password':
         return value.password;
       default:
-        throw Exception();
+        throw Exception('Could not find field "$field" for value $value.');
     }
   }
-}
-
-@Deprecated('Use SignUpArgsValidation.fromValue')
-SignUpArgsValidation validateSignUpArgs(SignUpArgs value) {
-  return SignUpArgsValidation.fromValue(value);
 }

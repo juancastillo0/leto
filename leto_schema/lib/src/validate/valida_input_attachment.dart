@@ -21,12 +21,29 @@ class ValidaAttachment implements ToDirectiveValue {
         ArgumentNode(
           name: const NameNode(value: 'jsonSpec'),
           value: StringValueNode(
-            value: jsonEncode(annotation.toJson()),
+            value: _jsonSpec(),
             isBlock: false,
           ),
         ),
       ],
     );
+  }
+
+  static Object? _mapJsonValue(Object? value) {
+    if (value == null || value is num || value is String || value is bool) {
+      return value;
+    } else if (value is List<Object?>) {
+      return value.map(_mapJsonValue).toList();
+    } else if (value is Map<String, Object?>) {
+      return value.map((key, value) => MapEntry(key, _mapJsonValue(value)))
+        ..removeWhere((key, value) => value == null);
+    }
+    return _mapJsonValue((value as dynamic).toJson());
+  }
+
+  String _jsonSpec() {
+    final map = annotation.toJson() as Map<String, Object?>;
+    return jsonEncode(_mapJsonValue(map));
   }
 
   @override

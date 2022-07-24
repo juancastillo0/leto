@@ -50,7 +50,7 @@ void main() {
     final user = await ts.createdUserAndRoom(
       chatName: chatName,
       userName: 'aa',
-      userPassword: 'aaaaa',
+      userPassword: 'aaaaaa',
     );
     late final int otherUserId;
 
@@ -177,7 +177,7 @@ void main() {
     final userB = await ts.createdUserAndRoom(
       chatName: 'b_chat',
       userName: 'bb',
-      userPassword: 'bbbbb',
+      userPassword: 'bbbbbb',
       anonymous: true,
     );
     otherUserId = userB.userId;

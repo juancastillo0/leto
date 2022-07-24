@@ -11,10 +11,11 @@ class Validators {
     ValidaArgModel: validatorValidaArgModel,
   };
 
-  static const validatorInputM = Validator(validateInputM);
+  static const validatorInputM = Validator(InputMValidation.fromValue);
   static const validatorConnectionArguments =
-      Validator(validateConnectionArguments);
-  static const validatorValidaArgModel = Validator(validateValidaArgModel);
+      Validator(ConnectionArgumentsValidation.fromValue);
+  static const validatorValidaArgModel =
+      Validator(ValidaArgModelValidation.fromValue);
 
   static Validator<T, Validation<T, Object>>? validator<T>() {
     final validator = typeMap[T];

@@ -83,11 +83,12 @@ final _factionGraphQLType =
         final argsArg = connectionArgumentsSerializer.fromJson(
             ctx.executionCtx.schema.serdeCtx, args);
         if (argsArg != null) {
-          final argsValidationResult =
-              validateConnectionArguments(argsArg as ConnectionArguments);
+          final argsValidationResult = ConnectionArgumentsValidation.fromValue(
+              argsArg as ConnectionArguments);
           if (argsValidationResult.hasErrors) {
             validationErrorMap.addAll(argsValidationResult.errorsMap
-                .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v)));
+                .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+              ..removeWhere((k, v) => v.isEmpty));
           }
         }
 
@@ -217,8 +218,10 @@ class ConnectionArgumentsValidationFields {
   const ConnectionArgumentsValidationFields(this.errorsMap);
   final Map<ConnectionArgumentsField, List<ValidaError>> errorsMap;
 
-  List<ValidaError> get first => errorsMap[ConnectionArgumentsField.first]!;
-  List<ValidaError> get last => errorsMap[ConnectionArgumentsField.last]!;
+  List<ValidaError> get first =>
+      errorsMap[ConnectionArgumentsField.first] ?? const [];
+  List<ValidaError> get last =>
+      errorsMap[ConnectionArgumentsField.last] ?? const [];
 }
 
 class ConnectionArgumentsValidation
@@ -261,18 +264,20 @@ class ConnectionArgumentsValidation
 
   static Object? _getField(ConnectionArguments value, String field) {
     switch (field) {
+      case 'before':
+        return value.before;
+      case 'after':
+        return value.after;
       case 'first':
         return value.first;
       case 'last':
         return value.last;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
       default:
-        throw Exception();
+        throw Exception('Could not find field "$field" for value $value.');
     }
   }
-}
-
-@Deprecated('Use ConnectionArgumentsValidation.fromValue')
-ConnectionArgumentsValidation validateConnectionArguments(
-    ConnectionArguments value) {
-  return ConnectionArgumentsValidation.fromValue(value);
 }

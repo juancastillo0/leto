@@ -219,6 +219,10 @@ class TestServer {
     );
     expect(response.statusCode, 200);
     final body = jsonDecode(response.body) as Map;
+    final errors = body['errors'] as Object?;
+    if (errors is List) {
+      throw errors;
+    }
     // ignore: avoid_dynamic_calls
     return _validateTokenWithUser(
       body['data'][_field] as Map<String, dynamic>,

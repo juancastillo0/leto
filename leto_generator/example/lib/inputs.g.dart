@@ -36,8 +36,8 @@ final _queryMultipleParamsGraphQLField =
                 final validationErrorMap = <String, List<ValidaError>>{};
 
                 if ((args["mInput"] as InputM?) != null) {
-                  final mInputValidationResult =
-                      validateInputM((args["mInput"] as InputM?) as InputM);
+                  final mInputValidationResult = InputMValidation.fromValue(
+                      (args["mInput"] as InputM?) as InputM);
                   if (mInputValidationResult.hasErrors) {
                     validationErrorMap['mInput'] = [
                       mInputValidationResult.toError(property: 'mInput')!
@@ -597,10 +597,11 @@ class InputMValidationFields {
   const InputMValidationFields(this.errorsMap);
   final Map<InputMField, List<ValidaError>> errorsMap;
 
-  List<ValidaError> get name => errorsMap[InputMField.name]!;
-  List<ValidaError> get date => errorsMap[InputMField.date]!;
-  List<ValidaError> get doubles => errorsMap[InputMField.doubles]!;
-  List<ValidaError> get nested => errorsMap[InputMField.nested]!;
+  List<ValidaError> get name => errorsMap[InputMField.name] ?? const [];
+  List<ValidaError> get date => errorsMap[InputMField.date] ?? const [];
+  List<ValidaError> get doubles => errorsMap[InputMField.doubles] ?? const [];
+  List<ValidaError> get nested => errorsMap[InputMField.nested] ?? const [];
+  List<ValidaError> get $global => errorsMap[InputMField.$global] ?? const [];
 }
 
 class InputMValidation extends Validation<InputM, InputMField> {
@@ -651,17 +652,24 @@ class InputMValidation extends Validation<InputM, InputMField> {
         return value.name;
       case 'date':
         return value.date;
+      case 'ints':
+        return value.ints;
       case 'doubles':
         return value.doubles;
       case 'nested':
         return value.nested;
+      case 'nestedNullItem':
+        return value.nestedNullItem;
+      case 'nestedNullItemNull':
+        return value.nestedNullItemNull;
+      case 'nestedNull':
+        return value.nestedNull;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
       default:
-        throw Exception();
+        throw Exception('Could not find field "$field" for value $value.');
     }
   }
-}
-
-@Deprecated('Use InputMValidation.fromValue')
-InputMValidation validateInputM(InputM value) {
-  return InputMValidation.fromValue(value);
 }

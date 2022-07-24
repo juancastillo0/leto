@@ -235,7 +235,8 @@ Future<String> resolverFunctionBodyFromElement(
 
   String validationErrorMapAddAll(String validation) {
     return 'validationErrorMap.addAll($validation.errorsMap.map((k, v) =>'
-        ' MapEntry(k is Enum ? k.name : k.toString(), v)));';
+        ' MapEntry(k is Enum ? k.name : k.toString(), v))..removeWhere'
+        ' ((k, v) => v.isEmpty) );';
   }
 
   final hasFunctionValidation = _hasValidation(element);
@@ -252,7 +253,8 @@ Future<String> resolverFunctionBodyFromElement(
     validations.add(
       'final _validation = $className(${params.map((e) {
         final type = e.type.getDisplayString(withNullability: true);
-        final getter = '(args["${e.name}"] as $type)';
+        final getter =
+            isReqCtx(e.type) ? 'ctx' : '(args["${e.name}"] as $type)';
         return '${e.isNamed ? '${e.name}:' : ''}$getter';
       }).join(',')}).validate();'
       '${validationErrorMapAddAll('_validation')}',
@@ -294,7 +296,7 @@ Future<String> resolverFunctionBodyFromElement(
             : "validationErrorMap['${argName}'] = [$resultName.toError(property: '${argName}')!];";
         validations.add('''
 if ($value != null) {
-  final $resultName = validate$typeName($value as $typeName);
+  final $resultName = ${typeName}Validation.fromValue($value as $typeName);
   if ($resultName.hasErrors) {
     $_addToMap
   }

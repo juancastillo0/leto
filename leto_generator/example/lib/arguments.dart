@@ -88,6 +88,14 @@ String testManyDefaults({
   });
 }
 
+const testValidaInArgsGraphQLStr = 'testValidaInArgs('
+    'strSOrA: String! @valida(jsonSpec: "{"variantType":"string","isIn":["S","A"]}"),'
+    ' otherInt: Int,'
+    ' greaterThan3AndOtherInt: Int! = 4 @valida(jsonSpec: "{"variantType":"num","comp":{"more":{"variantType":"list","values":[{"variantType":"single","value":3},{"variantType":"ref","ref":"otherInt","isRequired":false}]},"useCompareTo":true}}"),'
+    ' after2020: Date @valida(jsonSpec: "{"variantType":"date","min":"2021-01-01"}"),'
+    ' nonEmptyList: [String!] @valida(jsonSpec: "{"variantType":"list","minLength":1}"),'
+    ' model: ValidaArgModel): String!';
+
 @Query()
 @Valida()
 String testValidaInArgs({
@@ -96,10 +104,13 @@ String testValidaInArgs({
   int? otherInt,
   @ValidaNum(
     comp: ValidaComparison(
-      more: CompVal.list([CompVal(3), CompVal.ref('otherInt')]),
+      more: CompVal.list([
+        CompVal(3),
+        CompVal.ref('otherInt', isRequired: false),
+      ]),
     ),
   )
-      int greaterThan3AndOtherInt = 3,
+      int greaterThan3AndOtherInt = 4,
   @ValidaDate(min: '2021-01-01')
       DateTime? after2020,
   @ValidaList(minLength: 1)
@@ -116,10 +127,15 @@ String testValidaInArgsSingleModel({
   return '';
 }
 
+const validaArgModelGraphQLStr = '''
+input ValidaArgModel {
+  strs: [String!]! @valida(jsonSpec: "{"variantType":"list","each":{"variantType":"string","minLength":1}}")
+  inner: ValidaArgModel
+}''';
+
 @Valida()
 @GraphQLInput()
 class ValidaArgModel {
-  // TODO: valida in field or in constructor argument?
   @ValidaList(each: ValidaString(minLength: 1))
   final List<String> strs;
   final ValidaArgModel? inner;
