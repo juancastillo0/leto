@@ -841,17 +841,21 @@ packages:
   valida:
     dependency: "direct main"
     description:
-      name: valida
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
+      path: valida
+      ref: HEAD
+      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
+      url: "https://github.com/juancastillo0/valida"
+    source: git
+    version: "0.1.0"
   valida_generator:
     dependency: "direct dev"
     description:
-      name: valida_generator
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.1"
+      path: valida_generator
+      ref: HEAD
+      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
+      url: "https://github.com/juancastillo0/valida"
+    source: git
+    version: "0.1.0"
   validators:
     dependency: transitive
     description:
