@@ -292,7 +292,7 @@ Library generateEnum(
           refer('${clazz.name}.${variant.name}'),
         ], {
           if (description != null && description.isNotEmpty)
-            'description': literalString(description),
+            'description': refer("'$description'"),
           if (deprecationReason != null)
             'deprecationReason': literalString(deprecationReason),
           if (attachments != null) 'attachments': refer(attachments),
@@ -333,7 +333,7 @@ Library generateEnum(
         ..assignment = refer('GraphQLEnumType').call(
           args,
           {
-            if (description != null) 'description': literalString(description),
+            if (description != null) 'description': refer("'$description'"),
             if (attachments != null)
               'extra': refer('GraphQLTypeDefinitionExtra.attach').call([
                 refer(attachments),

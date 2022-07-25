@@ -170,7 +170,7 @@ Future<List<String>> inputsFromElement(
                 if (defaultValueCode != null)
                   'defaultValue': refer(defaultValueCode),
                 if (description.isNotEmpty)
-                  'description': literalString(description),
+                  'description': refer("'$description'"),
                 if (deprecationReason != null)
                   'deprecationReason': literalString(deprecationReason),
                 if (attachments != null) 'attachments': refer(attachments)
