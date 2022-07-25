@@ -22,7 +22,10 @@ dependencies:
   glob: ^2.1.0
   path: ^1.8.2
 
-  valida: ^0.0.2
+  valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida
   leto_schema:
 
 dev_dependencies:

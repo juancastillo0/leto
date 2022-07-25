@@ -19,6 +19,9 @@ dependencies:
   shelf_static: ^1.1.0
 
   valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida
   query_builder:
     git: https://github.com/juancastillo0/query_builder
 
@@ -36,6 +39,9 @@ dev_dependencies:
 
   leto_generator:
   valida_generator:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida_generator
   query_builder_generator:
     git:
       url: https://github.com/juancastillo0/query_builder

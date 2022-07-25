@@ -12,6 +12,9 @@ dependencies:
   oxidized: ^5.1.0
   test: ^1.0.0
   valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida
 
   leto:
   leto_schema:
@@ -23,6 +26,9 @@ dev_dependencies:
   json_serializable: ^6.2.0
 
   valida_generator:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida_generator
   leto_generator:
 
 dependency_overrides:
