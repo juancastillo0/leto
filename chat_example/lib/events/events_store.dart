@@ -1,11 +1,12 @@
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/event.data.gql.dart';
-import 'package:chat_example/api/event.req.gql.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/messages/messages_store.dart';
 import 'package:ferry/ferry.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../api/__generated__/event.data.gql.dart';
+import '../api/__generated__/event.req.gql.dart';
 
 final apiEventStoreProvider = Provider((ref) {
   ref.watch(userIdProvider);
@@ -59,7 +60,7 @@ class ApiEventStore {
         cursor = events.pageInfo.endCursor;
         canFetchMore = events.pageInfo.hasPreviousPage;
 
-        _updateList((u) => u.addAll(events.values));
+        _updateList((u) => u.addAll(events.Gvalues));
       }
     });
     _isLoading.state = true;

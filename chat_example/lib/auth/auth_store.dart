@@ -4,15 +4,15 @@ import 'dart:io';
 
 import 'package:chat_example/api/client.dart';
 import 'package:chat_example/api/persistence.dart';
-import 'package:chat_example/api/user.data.gql.dart';
-import 'package:chat_example/api/user.req.gql.dart';
-import 'package:chat_example/api/user.var.gql.dart';
-import 'package:chat_example/api_schema.schema.gql.dart';
 import 'package:ferry/ferry.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-// import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http;
+
+import '../__generated__/api_schema.schema.gql.dart';
+import '../api/__generated__/user.data.gql.dart';
+import '../api/__generated__/user.req.gql.dart';
+import '../api/__generated__/user.var.gql.dart';
 
 // part 'auth_state.freezed.dart';
 

@@ -125,6 +125,7 @@ class CacheTypedLink extends Link {
             context: event.context,
             data: json,
             errors: event.errors,
+            response: event.response,
           );
         }
       }
