@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'generator_test.dart';
@@ -11,24 +12,7 @@ part of 'generator_test.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
-
-/// @nodoc
-class _$TestModelFreezedTearOff {
-  const _$TestModelFreezedTearOff();
-
-  _TestModelFreezed call(
-      {required String name, String? description, List<DateTime>? dates}) {
-    return _TestModelFreezed(
-      name: name,
-      description: description,
-      dates: dates,
-    );
-  }
-}
-
-/// @nodoc
-const $TestModelFreezed = _$TestModelFreezedTearOff();
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
 mixin _$TestModelFreezed {
@@ -84,25 +68,25 @@ class _$TestModelFreezedCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$TestModelFreezedCopyWith<$Res>
+abstract class _$$_TestModelFreezedCopyWith<$Res>
     implements $TestModelFreezedCopyWith<$Res> {
-  factory _$TestModelFreezedCopyWith(
-          _TestModelFreezed value, $Res Function(_TestModelFreezed) then) =
-      __$TestModelFreezedCopyWithImpl<$Res>;
+  factory _$$_TestModelFreezedCopyWith(
+          _$_TestModelFreezed value, $Res Function(_$_TestModelFreezed) then) =
+      __$$_TestModelFreezedCopyWithImpl<$Res>;
   @override
   $Res call({String name, String? description, List<DateTime>? dates});
 }
 
 /// @nodoc
-class __$TestModelFreezedCopyWithImpl<$Res>
+class __$$_TestModelFreezedCopyWithImpl<$Res>
     extends _$TestModelFreezedCopyWithImpl<$Res>
-    implements _$TestModelFreezedCopyWith<$Res> {
-  __$TestModelFreezedCopyWithImpl(
-      _TestModelFreezed _value, $Res Function(_TestModelFreezed) _then)
-      : super(_value, (v) => _then(v as _TestModelFreezed));
+    implements _$$_TestModelFreezedCopyWith<$Res> {
+  __$$_TestModelFreezedCopyWithImpl(
+      _$_TestModelFreezed _value, $Res Function(_$_TestModelFreezed) _then)
+      : super(_value, (v) => _then(v as _$_TestModelFreezed));
 
   @override
-  _TestModelFreezed get _value => super._value as _TestModelFreezed;
+  _$_TestModelFreezed get _value => super._value as _$_TestModelFreezed;
 
   @override
   $Res call({
@@ -110,7 +94,7 @@ class __$TestModelFreezedCopyWithImpl<$Res>
     Object? description = freezed,
     Object? dates = freezed,
   }) {
-    return _then(_TestModelFreezed(
+    return _then(_$_TestModelFreezed(
       name: name == freezed
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -120,7 +104,7 @@ class __$TestModelFreezedCopyWithImpl<$Res>
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
       dates: dates == freezed
-          ? _value.dates
+          ? _value._dates
           : dates // ignore: cast_nullable_to_non_nullable
               as List<DateTime>?,
     ));
@@ -131,17 +115,25 @@ class __$TestModelFreezedCopyWithImpl<$Res>
 
 @JsonSerializable()
 class _$_TestModelFreezed extends _TestModelFreezed {
-  const _$_TestModelFreezed({required this.name, this.description, this.dates})
-      : super._();
+  const _$_TestModelFreezed(
+      {required this.name, this.description, final List<DateTime>? dates})
+      : _dates = dates,
+        super._();
 
   @override
   final String name;
-  @override
 
   /// Custom doc d
-  final String? description;
   @override
-  final List<DateTime>? dates;
+  final String? description;
+  final List<DateTime>? _dates;
+  @override
+  List<DateTime>? get dates {
+    final value = _dates;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
@@ -152,11 +144,11 @@ class _$_TestModelFreezed extends _TestModelFreezed {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _TestModelFreezed &&
+            other is _$_TestModelFreezed &&
             const DeepCollectionEquality().equals(other.name, name) &&
             const DeepCollectionEquality()
                 .equals(other.description, description) &&
-            const DeepCollectionEquality().equals(other.dates, dates));
+            const DeepCollectionEquality().equals(other._dates, _dates));
   }
 
   @override
@@ -164,32 +156,32 @@ class _$_TestModelFreezed extends _TestModelFreezed {
       runtimeType,
       const DeepCollectionEquality().hash(name),
       const DeepCollectionEquality().hash(description),
-      const DeepCollectionEquality().hash(dates));
+      const DeepCollectionEquality().hash(_dates));
 
   @JsonKey(ignore: true)
   @override
-  _$TestModelFreezedCopyWith<_TestModelFreezed> get copyWith =>
-      __$TestModelFreezedCopyWithImpl<_TestModelFreezed>(this, _$identity);
+  _$$_TestModelFreezedCopyWith<_$_TestModelFreezed> get copyWith =>
+      __$$_TestModelFreezedCopyWithImpl<_$_TestModelFreezed>(this, _$identity);
 }
 
 abstract class _TestModelFreezed extends TestModelFreezed {
   const factory _TestModelFreezed(
-      {required String name,
-      String? description,
-      List<DateTime>? dates}) = _$_TestModelFreezed;
+      {required final String name,
+      final String? description,
+      final List<DateTime>? dates}) = _$_TestModelFreezed;
   const _TestModelFreezed._() : super._();
 
   @override
-  String get name;
+  String get name => throw _privateConstructorUsedError;
   @override
 
   /// Custom doc d
-  String? get description;
+  String? get description => throw _privateConstructorUsedError;
   @override
-  List<DateTime>? get dates;
+  List<DateTime>? get dates => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$TestModelFreezedCopyWith<_TestModelFreezed> get copyWith =>
+  _$$_TestModelFreezedCopyWith<_$_TestModelFreezed> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -207,43 +199,8 @@ EventUnion _$EventUnionFromJson(Map<String, dynamic> json) {
 }
 
 /// @nodoc
-class _$EventUnionTearOff {
-  const _$EventUnionTearOff();
-
-  _EventUnionAdd add(
-      {required String name,
-      String? description,
-      List<DateTime>? dates,
-      required List<TestModel?> models}) {
-    return _EventUnionAdd(
-      name: name,
-      description: description,
-      dates: dates,
-      models: models,
-    );
-  }
-
-  EventUnionDelete delete(
-      {String? name, required int cost, List<DateTime>? dates}) {
-    return EventUnionDelete(
-      name: name,
-      cost: cost,
-      dates: dates,
-    );
-  }
-
-  EventUnion fromJson(Map<String, Object?> json) {
-    return EventUnion.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $EventUnion = _$EventUnionTearOff();
-
-/// @nodoc
 mixin _$EventUnion {
   List<DateTime>? get dates => throw _privateConstructorUsedError;
-
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String name, String? description,
@@ -325,11 +282,11 @@ class _$EventUnionCopyWithImpl<$Res> implements $EventUnionCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$EventUnionAddCopyWith<$Res>
+abstract class _$$_EventUnionAddCopyWith<$Res>
     implements $EventUnionCopyWith<$Res> {
-  factory _$EventUnionAddCopyWith(
-          _EventUnionAdd value, $Res Function(_EventUnionAdd) then) =
-      __$EventUnionAddCopyWithImpl<$Res>;
+  factory _$$_EventUnionAddCopyWith(
+          _$_EventUnionAdd value, $Res Function(_$_EventUnionAdd) then) =
+      __$$_EventUnionAddCopyWithImpl<$Res>;
   @override
   $Res call(
       {String name,
@@ -339,14 +296,15 @@ abstract class _$EventUnionAddCopyWith<$Res>
 }
 
 /// @nodoc
-class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
-    implements _$EventUnionAddCopyWith<$Res> {
-  __$EventUnionAddCopyWithImpl(
-      _EventUnionAdd _value, $Res Function(_EventUnionAdd) _then)
-      : super(_value, (v) => _then(v as _EventUnionAdd));
+class __$$_EventUnionAddCopyWithImpl<$Res>
+    extends _$EventUnionCopyWithImpl<$Res>
+    implements _$$_EventUnionAddCopyWith<$Res> {
+  __$$_EventUnionAddCopyWithImpl(
+      _$_EventUnionAdd _value, $Res Function(_$_EventUnionAdd) _then)
+      : super(_value, (v) => _then(v as _$_EventUnionAdd));
 
   @override
-  _EventUnionAdd get _value => super._value as _EventUnionAdd;
+  _$_EventUnionAdd get _value => super._value as _$_EventUnionAdd;
 
   @override
   $Res call({
@@ -355,7 +313,7 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
     Object? dates = freezed,
     Object? models = freezed,
   }) {
-    return _then(_EventUnionAdd(
+    return _then(_$_EventUnionAdd(
       name: name == freezed
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -365,11 +323,11 @@ class __$EventUnionAddCopyWithImpl<$Res> extends _$EventUnionCopyWithImpl<$Res>
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
       dates: dates == freezed
-          ? _value.dates
+          ? _value._dates
           : dates // ignore: cast_nullable_to_non_nullable
               as List<DateTime>?,
       models: models == freezed
-          ? _value.models
+          ? _value._models
           : models // ignore: cast_nullable_to_non_nullable
               as List<TestModel?>,
     ));
@@ -382,10 +340,12 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   const _$_EventUnionAdd(
       {required this.name,
       this.description,
-      this.dates,
-      required this.models,
-      String? $type})
-      : $type = $type ?? 'add',
+      final List<DateTime>? dates,
+      required final List<TestModel?> models,
+      final String? $type})
+      : _dates = dates,
+        _models = models,
+        $type = $type ?? 'add',
         super._();
 
   factory _$_EventUnionAdd.fromJson(Map<String, dynamic> json) =>
@@ -393,12 +353,24 @@ class _$_EventUnionAdd extends _EventUnionAdd {
 
   @override
   final String name;
-  @override // Custom doc d
+// Custom doc d
+  @override
   final String? description;
+  final List<DateTime>? _dates;
   @override
-  final List<DateTime>? dates;
+  List<DateTime>? get dates {
+    final value = _dates;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<TestModel?> _models;
   @override
-  final List<TestModel?> models;
+  List<TestModel?> get models {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_models);
+  }
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -412,26 +384,27 @@ class _$_EventUnionAdd extends _EventUnionAdd {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _EventUnionAdd &&
+            other is _$_EventUnionAdd &&
             const DeepCollectionEquality().equals(other.name, name) &&
             const DeepCollectionEquality()
                 .equals(other.description, description) &&
-            const DeepCollectionEquality().equals(other.dates, dates) &&
-            const DeepCollectionEquality().equals(other.models, models));
+            const DeepCollectionEquality().equals(other._dates, _dates) &&
+            const DeepCollectionEquality().equals(other._models, _models));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(name),
       const DeepCollectionEquality().hash(description),
-      const DeepCollectionEquality().hash(dates),
-      const DeepCollectionEquality().hash(models));
+      const DeepCollectionEquality().hash(_dates),
+      const DeepCollectionEquality().hash(_models));
 
   @JsonKey(ignore: true)
   @override
-  _$EventUnionAddCopyWith<_EventUnionAdd> get copyWith =>
-      __$EventUnionAddCopyWithImpl<_EventUnionAdd>(this, _$identity);
+  _$$_EventUnionAddCopyWith<_$_EventUnionAdd> get copyWith =>
+      __$$_EventUnionAddCopyWithImpl<_$_EventUnionAdd>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -510,46 +483,46 @@ class _$_EventUnionAdd extends _EventUnionAdd {
 
 abstract class _EventUnionAdd extends EventUnion {
   const factory _EventUnionAdd(
-      {required String name,
-      String? description,
-      List<DateTime>? dates,
-      required List<TestModel?> models}) = _$_EventUnionAdd;
+      {required final String name,
+      final String? description,
+      final List<DateTime>? dates,
+      required final List<TestModel?> models}) = _$_EventUnionAdd;
   const _EventUnionAdd._() : super._();
 
   factory _EventUnionAdd.fromJson(Map<String, dynamic> json) =
       _$_EventUnionAdd.fromJson;
 
-  String get name; // Custom doc d
-  String? get description;
+  String get name => throw _privateConstructorUsedError; // Custom doc d
+  String? get description => throw _privateConstructorUsedError;
   @override
-  List<DateTime>? get dates;
-  List<TestModel?> get models;
+  List<DateTime>? get dates => throw _privateConstructorUsedError;
+  List<TestModel?> get models => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$EventUnionAddCopyWith<_EventUnionAdd> get copyWith =>
+  _$$_EventUnionAddCopyWith<_$_EventUnionAdd> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $EventUnionDeleteCopyWith<$Res>
+abstract class _$$EventUnionDeleteCopyWith<$Res>
     implements $EventUnionCopyWith<$Res> {
-  factory $EventUnionDeleteCopyWith(
-          EventUnionDelete value, $Res Function(EventUnionDelete) then) =
-      _$EventUnionDeleteCopyWithImpl<$Res>;
+  factory _$$EventUnionDeleteCopyWith(
+          _$EventUnionDelete value, $Res Function(_$EventUnionDelete) then) =
+      __$$EventUnionDeleteCopyWithImpl<$Res>;
   @override
   $Res call({String? name, int cost, List<DateTime>? dates});
 }
 
 /// @nodoc
-class _$EventUnionDeleteCopyWithImpl<$Res>
+class __$$EventUnionDeleteCopyWithImpl<$Res>
     extends _$EventUnionCopyWithImpl<$Res>
-    implements $EventUnionDeleteCopyWith<$Res> {
-  _$EventUnionDeleteCopyWithImpl(
-      EventUnionDelete _value, $Res Function(EventUnionDelete) _then)
-      : super(_value, (v) => _then(v as EventUnionDelete));
+    implements _$$EventUnionDeleteCopyWith<$Res> {
+  __$$EventUnionDeleteCopyWithImpl(
+      _$EventUnionDelete _value, $Res Function(_$EventUnionDelete) _then)
+      : super(_value, (v) => _then(v as _$EventUnionDelete));
 
   @override
-  EventUnionDelete get _value => super._value as EventUnionDelete;
+  _$EventUnionDelete get _value => super._value as _$EventUnionDelete;
 
   @override
   $Res call({
@@ -557,7 +530,7 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
     Object? cost = freezed,
     Object? dates = freezed,
   }) {
-    return _then(EventUnionDelete(
+    return _then(_$EventUnionDelete(
       name: name == freezed
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -567,7 +540,7 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
           : cost // ignore: cast_nullable_to_non_nullable
               as int,
       dates: dates == freezed
-          ? _value.dates
+          ? _value._dates
           : dates // ignore: cast_nullable_to_non_nullable
               as List<DateTime>?,
     ));
@@ -578,8 +551,12 @@ class _$EventUnionDeleteCopyWithImpl<$Res>
 @JsonSerializable()
 class _$EventUnionDelete extends EventUnionDelete {
   const _$EventUnionDelete(
-      {this.name, required this.cost, this.dates, String? $type})
-      : $type = $type ?? 'delete',
+      {this.name,
+      required this.cost,
+      final List<DateTime>? dates,
+      final String? $type})
+      : _dates = dates,
+        $type = $type ?? 'delete',
         super._();
 
   factory _$EventUnionDelete.fromJson(Map<String, dynamic> json) =>
@@ -589,8 +566,14 @@ class _$EventUnionDelete extends EventUnionDelete {
   final String? name;
   @override
   final int cost;
+  final List<DateTime>? _dates;
   @override
-  final List<DateTime>? dates;
+  List<DateTime>? get dates {
+    final value = _dates;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -604,23 +587,24 @@ class _$EventUnionDelete extends EventUnionDelete {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is EventUnionDelete &&
+            other is _$EventUnionDelete &&
             const DeepCollectionEquality().equals(other.name, name) &&
             const DeepCollectionEquality().equals(other.cost, cost) &&
-            const DeepCollectionEquality().equals(other.dates, dates));
+            const DeepCollectionEquality().equals(other._dates, _dates));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(name),
       const DeepCollectionEquality().hash(cost),
-      const DeepCollectionEquality().hash(dates));
+      const DeepCollectionEquality().hash(_dates));
 
   @JsonKey(ignore: true)
   @override
-  $EventUnionDeleteCopyWith<EventUnionDelete> get copyWith =>
-      _$EventUnionDeleteCopyWithImpl<EventUnionDelete>(this, _$identity);
+  _$$EventUnionDeleteCopyWith<_$EventUnionDelete> get copyWith =>
+      __$$EventUnionDeleteCopyWithImpl<_$EventUnionDelete>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -699,20 +683,20 @@ class _$EventUnionDelete extends EventUnionDelete {
 
 abstract class EventUnionDelete extends EventUnion {
   const factory EventUnionDelete(
-      {String? name,
-      required int cost,
-      List<DateTime>? dates}) = _$EventUnionDelete;
+      {final String? name,
+      required final int cost,
+      final List<DateTime>? dates}) = _$EventUnionDelete;
   const EventUnionDelete._() : super._();
 
   factory EventUnionDelete.fromJson(Map<String, dynamic> json) =
       _$EventUnionDelete.fromJson;
 
-  String? get name;
-  int get cost;
+  String? get name => throw _privateConstructorUsedError;
+  int get cost => throw _privateConstructorUsedError;
   @override
-  List<DateTime>? get dates;
+  List<DateTime>? get dates => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  $EventUnionDeleteCopyWith<EventUnionDelete> get copyWith =>
+  _$$EventUnionDeleteCopyWith<_$EventUnionDelete> get copyWith =>
       throw _privateConstructorUsedError;
 }

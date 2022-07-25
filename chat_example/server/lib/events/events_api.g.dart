@@ -308,7 +308,7 @@ Map<String, dynamic> _$DBEventToJson(DBEvent instance) => <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
       'sessionId': instance.sessionId,
-      'type': _$EventTypeEnumMap[instance.type],
+      'type': _$EventTypeEnumMap[instance.type]!,
       'data': instance.data,
       'createdAt': instance.createdAt.toIso8601String(),
     };

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:query_builder/query_builder.dart';
 import 'package:server/data_utils/mapped_iterator.dart';

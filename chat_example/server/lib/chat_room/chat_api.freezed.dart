@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'chat_api.dart';
@@ -11,7 +12,7 @@ part of 'chat_api.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 ChatEvent _$ChatEventFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
@@ -25,31 +26,6 @@ ChatEvent _$ChatEventFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$ChatEventTearOff {
-  const _$ChatEventTearOff();
-
-  ChatCreatedEvent created({required ChatRoom chat, required int ownerId}) {
-    return ChatCreatedEvent(
-      chat: chat,
-      ownerId: ownerId,
-    );
-  }
-
-  ChatDeletedEvent deleted({required int chatId}) {
-    return ChatDeletedEvent(
-      chatId: chatId,
-    );
-  }
-
-  ChatEvent fromJson(Map<String, Object?> json) {
-    return ChatEvent.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatEvent = _$ChatEventTearOff();
 
 /// @nodoc
 mixin _$ChatEvent {
@@ -110,31 +86,32 @@ class _$ChatEventCopyWithImpl<$Res> implements $ChatEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $ChatCreatedEventCopyWith<$Res> {
-  factory $ChatCreatedEventCopyWith(
-          ChatCreatedEvent value, $Res Function(ChatCreatedEvent) then) =
-      _$ChatCreatedEventCopyWithImpl<$Res>;
+abstract class _$$ChatCreatedEventCopyWith<$Res> {
+  factory _$$ChatCreatedEventCopyWith(
+          _$ChatCreatedEvent value, $Res Function(_$ChatCreatedEvent) then) =
+      __$$ChatCreatedEventCopyWithImpl<$Res>;
   $Res call({ChatRoom chat, int ownerId});
 
   $ChatRoomCopyWith<$Res> get chat;
 }
 
 /// @nodoc
-class _$ChatCreatedEventCopyWithImpl<$Res> extends _$ChatEventCopyWithImpl<$Res>
-    implements $ChatCreatedEventCopyWith<$Res> {
-  _$ChatCreatedEventCopyWithImpl(
-      ChatCreatedEvent _value, $Res Function(ChatCreatedEvent) _then)
-      : super(_value, (v) => _then(v as ChatCreatedEvent));
+class __$$ChatCreatedEventCopyWithImpl<$Res>
+    extends _$ChatEventCopyWithImpl<$Res>
+    implements _$$ChatCreatedEventCopyWith<$Res> {
+  __$$ChatCreatedEventCopyWithImpl(
+      _$ChatCreatedEvent _value, $Res Function(_$ChatCreatedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatCreatedEvent));
 
   @override
-  ChatCreatedEvent get _value => super._value as ChatCreatedEvent;
+  _$ChatCreatedEvent get _value => super._value as _$ChatCreatedEvent;
 
   @override
   $Res call({
     Object? chat = freezed,
     Object? ownerId = freezed,
   }) {
-    return _then(ChatCreatedEvent(
+    return _then(_$ChatCreatedEvent(
       chat: chat == freezed
           ? _value.chat
           : chat // ignore: cast_nullable_to_non_nullable
@@ -158,7 +135,7 @@ class _$ChatCreatedEventCopyWithImpl<$Res> extends _$ChatEventCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ChatCreatedEvent extends ChatCreatedEvent {
   const _$ChatCreatedEvent(
-      {required this.chat, required this.ownerId, String? $type})
+      {required this.chat, required this.ownerId, final String? $type})
       : $type = $type ?? 'created',
         super._();
 
@@ -182,11 +159,12 @@ class _$ChatCreatedEvent extends ChatCreatedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatCreatedEvent &&
+            other is _$ChatCreatedEvent &&
             const DeepCollectionEquality().equals(other.chat, chat) &&
             const DeepCollectionEquality().equals(other.ownerId, ownerId));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -195,8 +173,8 @@ class _$ChatCreatedEvent extends ChatCreatedEvent {
 
   @JsonKey(ignore: true)
   @override
-  $ChatCreatedEventCopyWith<ChatCreatedEvent> get copyWith =>
-      _$ChatCreatedEventCopyWithImpl<ChatCreatedEvent>(this, _$identity);
+  _$$ChatCreatedEventCopyWith<_$ChatCreatedEvent> get copyWith =>
+      __$$ChatCreatedEventCopyWithImpl<_$ChatCreatedEvent>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -268,42 +246,44 @@ class _$ChatCreatedEvent extends ChatCreatedEvent {
 
 abstract class ChatCreatedEvent extends ChatEvent {
   const factory ChatCreatedEvent(
-      {required ChatRoom chat, required int ownerId}) = _$ChatCreatedEvent;
+      {required final ChatRoom chat,
+      required final int ownerId}) = _$ChatCreatedEvent;
   const ChatCreatedEvent._() : super._();
 
   factory ChatCreatedEvent.fromJson(Map<String, dynamic> json) =
       _$ChatCreatedEvent.fromJson;
 
-  ChatRoom get chat;
-  int get ownerId;
+  ChatRoom get chat => throw _privateConstructorUsedError;
+  int get ownerId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatCreatedEventCopyWith<ChatCreatedEvent> get copyWith =>
+  _$$ChatCreatedEventCopyWith<_$ChatCreatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatDeletedEventCopyWith<$Res> {
-  factory $ChatDeletedEventCopyWith(
-          ChatDeletedEvent value, $Res Function(ChatDeletedEvent) then) =
-      _$ChatDeletedEventCopyWithImpl<$Res>;
+abstract class _$$ChatDeletedEventCopyWith<$Res> {
+  factory _$$ChatDeletedEventCopyWith(
+          _$ChatDeletedEvent value, $Res Function(_$ChatDeletedEvent) then) =
+      __$$ChatDeletedEventCopyWithImpl<$Res>;
   $Res call({int chatId});
 }
 
 /// @nodoc
-class _$ChatDeletedEventCopyWithImpl<$Res> extends _$ChatEventCopyWithImpl<$Res>
-    implements $ChatDeletedEventCopyWith<$Res> {
-  _$ChatDeletedEventCopyWithImpl(
-      ChatDeletedEvent _value, $Res Function(ChatDeletedEvent) _then)
-      : super(_value, (v) => _then(v as ChatDeletedEvent));
+class __$$ChatDeletedEventCopyWithImpl<$Res>
+    extends _$ChatEventCopyWithImpl<$Res>
+    implements _$$ChatDeletedEventCopyWith<$Res> {
+  __$$ChatDeletedEventCopyWithImpl(
+      _$ChatDeletedEvent _value, $Res Function(_$ChatDeletedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatDeletedEvent));
 
   @override
-  ChatDeletedEvent get _value => super._value as ChatDeletedEvent;
+  _$ChatDeletedEvent get _value => super._value as _$ChatDeletedEvent;
 
   @override
   $Res call({
     Object? chatId = freezed,
   }) {
-    return _then(ChatDeletedEvent(
+    return _then(_$ChatDeletedEvent(
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
@@ -315,7 +295,7 @@ class _$ChatDeletedEventCopyWithImpl<$Res> extends _$ChatEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatDeletedEvent extends ChatDeletedEvent {
-  const _$ChatDeletedEvent({required this.chatId, String? $type})
+  const _$ChatDeletedEvent({required this.chatId, final String? $type})
       : $type = $type ?? 'deleted',
         super._();
 
@@ -337,18 +317,19 @@ class _$ChatDeletedEvent extends ChatDeletedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatDeletedEvent &&
+            other is _$ChatDeletedEvent &&
             const DeepCollectionEquality().equals(other.chatId, chatId));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(chatId));
 
   @JsonKey(ignore: true)
   @override
-  $ChatDeletedEventCopyWith<ChatDeletedEvent> get copyWith =>
-      _$ChatDeletedEventCopyWithImpl<ChatDeletedEvent>(this, _$identity);
+  _$$ChatDeletedEventCopyWith<_$ChatDeletedEvent> get copyWith =>
+      __$$ChatDeletedEventCopyWithImpl<_$ChatDeletedEvent>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -419,48 +400,22 @@ class _$ChatDeletedEvent extends ChatDeletedEvent {
 }
 
 abstract class ChatDeletedEvent extends ChatEvent {
-  const factory ChatDeletedEvent({required int chatId}) = _$ChatDeletedEvent;
+  const factory ChatDeletedEvent({required final int chatId}) =
+      _$ChatDeletedEvent;
   const ChatDeletedEvent._() : super._();
 
   factory ChatDeletedEvent.fromJson(Map<String, dynamic> json) =
       _$ChatDeletedEvent.fromJson;
 
-  int get chatId;
+  int get chatId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatDeletedEventCopyWith<ChatDeletedEvent> get copyWith =>
+  _$$ChatDeletedEventCopyWith<_$ChatDeletedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) {
   return _ChatRoom.fromJson(json);
 }
-
-/// @nodoc
-class _$ChatRoomTearOff {
-  const _$ChatRoomTearOff();
-
-  _ChatRoom call(
-      {required int id,
-      required String name,
-      required DateTime createdAt,
-      @GraphQLField(omit: true) List<ChatMessage>? messagesCache,
-      @GraphQLField(omit: true) List<ChatRoomUser>? usersCache}) {
-    return _ChatRoom(
-      id: id,
-      name: name,
-      createdAt: createdAt,
-      messagesCache: messagesCache,
-      usersCache: usersCache,
-    );
-  }
-
-  ChatRoom fromJson(Map<String, Object?> json) {
-    return ChatRoom.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatRoom = _$ChatRoomTearOff();
 
 /// @nodoc
 mixin _$ChatRoom {
@@ -532,9 +487,10 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
-  factory _$ChatRoomCopyWith(_ChatRoom value, $Res Function(_ChatRoom) then) =
-      __$ChatRoomCopyWithImpl<$Res>;
+abstract class _$$_ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
+  factory _$$_ChatRoomCopyWith(
+          _$_ChatRoom value, $Res Function(_$_ChatRoom) then) =
+      __$$_ChatRoomCopyWithImpl<$Res>;
   @override
   $Res call(
       {int id,
@@ -545,13 +501,14 @@ abstract class _$ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
-    implements _$ChatRoomCopyWith<$Res> {
-  __$ChatRoomCopyWithImpl(_ChatRoom _value, $Res Function(_ChatRoom) _then)
-      : super(_value, (v) => _then(v as _ChatRoom));
+class __$$_ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
+    implements _$$_ChatRoomCopyWith<$Res> {
+  __$$_ChatRoomCopyWithImpl(
+      _$_ChatRoom _value, $Res Function(_$_ChatRoom) _then)
+      : super(_value, (v) => _then(v as _$_ChatRoom));
 
   @override
-  _ChatRoom get _value => super._value as _ChatRoom;
+  _$_ChatRoom get _value => super._value as _$_ChatRoom;
 
   @override
   $Res call({
@@ -561,7 +518,7 @@ class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
     Object? messagesCache = freezed,
     Object? usersCache = freezed,
   }) {
-    return _then(_ChatRoom(
+    return _then(_$_ChatRoom(
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -575,11 +532,11 @@ class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
       messagesCache: messagesCache == freezed
-          ? _value.messagesCache
+          ? _value._messagesCache
           : messagesCache // ignore: cast_nullable_to_non_nullable
               as List<ChatMessage>?,
       usersCache: usersCache == freezed
-          ? _value.usersCache
+          ? _value._usersCache
           : usersCache // ignore: cast_nullable_to_non_nullable
               as List<ChatRoomUser>?,
     ));
@@ -593,9 +550,11 @@ class _$_ChatRoom extends _ChatRoom {
       {required this.id,
       required this.name,
       required this.createdAt,
-      @GraphQLField(omit: true) this.messagesCache,
-      @GraphQLField(omit: true) this.usersCache})
-      : super._();
+      @GraphQLField(omit: true) final List<ChatMessage>? messagesCache,
+      @GraphQLField(omit: true) final List<ChatRoomUser>? usersCache})
+      : _messagesCache = messagesCache,
+        _usersCache = usersCache,
+        super._();
 
   factory _$_ChatRoom.fromJson(Map<String, dynamic> json) =>
       _$$_ChatRoomFromJson(json);
@@ -606,12 +565,25 @@ class _$_ChatRoom extends _ChatRoom {
   final String name;
   @override
   final DateTime createdAt;
+  final List<ChatMessage>? _messagesCache;
   @override
   @GraphQLField(omit: true)
-  final List<ChatMessage>? messagesCache;
+  List<ChatMessage>? get messagesCache {
+    final value = _messagesCache;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<ChatRoomUser>? _usersCache;
   @override
   @GraphQLField(omit: true)
-  final List<ChatRoomUser>? usersCache;
+  List<ChatRoomUser>? get usersCache {
+    final value = _usersCache;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
@@ -622,29 +594,30 @@ class _$_ChatRoom extends _ChatRoom {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _ChatRoom &&
+            other is _$_ChatRoom &&
             const DeepCollectionEquality().equals(other.id, id) &&
             const DeepCollectionEquality().equals(other.name, name) &&
             const DeepCollectionEquality().equals(other.createdAt, createdAt) &&
             const DeepCollectionEquality()
-                .equals(other.messagesCache, messagesCache) &&
+                .equals(other._messagesCache, _messagesCache) &&
             const DeepCollectionEquality()
-                .equals(other.usersCache, usersCache));
+                .equals(other._usersCache, _usersCache));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(id),
       const DeepCollectionEquality().hash(name),
       const DeepCollectionEquality().hash(createdAt),
-      const DeepCollectionEquality().hash(messagesCache),
-      const DeepCollectionEquality().hash(usersCache));
+      const DeepCollectionEquality().hash(_messagesCache),
+      const DeepCollectionEquality().hash(_usersCache));
 
   @JsonKey(ignore: true)
   @override
-  _$ChatRoomCopyWith<_ChatRoom> get copyWith =>
-      __$ChatRoomCopyWithImpl<_ChatRoom>(this, _$identity);
+  _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
+      __$$_ChatRoomCopyWithImpl<_$_ChatRoom>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -654,29 +627,30 @@ class _$_ChatRoom extends _ChatRoom {
 
 abstract class _ChatRoom extends ChatRoom {
   const factory _ChatRoom(
-      {required int id,
-      required String name,
-      required DateTime createdAt,
-      @GraphQLField(omit: true) List<ChatMessage>? messagesCache,
-      @GraphQLField(omit: true) List<ChatRoomUser>? usersCache}) = _$_ChatRoom;
+          {required final int id,
+          required final String name,
+          required final DateTime createdAt,
+          @GraphQLField(omit: true) final List<ChatMessage>? messagesCache,
+          @GraphQLField(omit: true) final List<ChatRoomUser>? usersCache}) =
+      _$_ChatRoom;
   const _ChatRoom._() : super._();
 
   factory _ChatRoom.fromJson(Map<String, dynamic> json) = _$_ChatRoom.fromJson;
 
   @override
-  int get id;
+  int get id => throw _privateConstructorUsedError;
   @override
-  String get name;
+  String get name => throw _privateConstructorUsedError;
   @override
-  DateTime get createdAt;
-  @override
-  @GraphQLField(omit: true)
-  List<ChatMessage>? get messagesCache;
+  DateTime get createdAt => throw _privateConstructorUsedError;
   @override
   @GraphQLField(omit: true)
-  List<ChatRoomUser>? get usersCache;
+  List<ChatMessage>? get messagesCache => throw _privateConstructorUsedError;
+  @override
+  @GraphQLField(omit: true)
+  List<ChatRoomUser>? get usersCache => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$ChatRoomCopyWith<_ChatRoom> get copyWith =>
+  _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
       throw _privateConstructorUsedError;
 }

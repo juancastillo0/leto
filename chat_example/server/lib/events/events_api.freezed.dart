@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'events_api.dart';
@@ -11,7 +12,7 @@ part of 'events_api.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 DBEventData _$DBEventDataFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
@@ -29,42 +30,6 @@ DBEventData _$DBEventDataFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$DBEventDataTearOff {
-  const _$DBEventDataTearOff();
-
-  ChatDBEventData chat(ChatEvent value) {
-    return ChatDBEventData(
-      value,
-    );
-  }
-
-  UserChatDBEventData userChat(UserChatEvent value) {
-    return UserChatDBEventData(
-      value,
-    );
-  }
-
-  UserDBEventData user(UserEvent value) {
-    return UserDBEventData(
-      value,
-    );
-  }
-
-  ChatMessageDBEventData message(ChatMessageEvent value) {
-    return ChatMessageDBEventData(
-      value,
-    );
-  }
-
-  DBEventData fromJson(Map<String, Object?> json) {
-    return DBEventData.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $DBEventData = _$DBEventDataTearOff();
 
 /// @nodoc
 mixin _$DBEventData {
@@ -138,31 +103,31 @@ class _$DBEventDataCopyWithImpl<$Res> implements $DBEventDataCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $ChatDBEventDataCopyWith<$Res> {
-  factory $ChatDBEventDataCopyWith(
-          ChatDBEventData value, $Res Function(ChatDBEventData) then) =
-      _$ChatDBEventDataCopyWithImpl<$Res>;
+abstract class _$$ChatDBEventDataCopyWith<$Res> {
+  factory _$$ChatDBEventDataCopyWith(
+          _$ChatDBEventData value, $Res Function(_$ChatDBEventData) then) =
+      __$$ChatDBEventDataCopyWithImpl<$Res>;
   $Res call({ChatEvent value});
 
   $ChatEventCopyWith<$Res> get value;
 }
 
 /// @nodoc
-class _$ChatDBEventDataCopyWithImpl<$Res>
+class __$$ChatDBEventDataCopyWithImpl<$Res>
     extends _$DBEventDataCopyWithImpl<$Res>
-    implements $ChatDBEventDataCopyWith<$Res> {
-  _$ChatDBEventDataCopyWithImpl(
-      ChatDBEventData _value, $Res Function(ChatDBEventData) _then)
-      : super(_value, (v) => _then(v as ChatDBEventData));
+    implements _$$ChatDBEventDataCopyWith<$Res> {
+  __$$ChatDBEventDataCopyWithImpl(
+      _$ChatDBEventData _value, $Res Function(_$ChatDBEventData) _then)
+      : super(_value, (v) => _then(v as _$ChatDBEventData));
 
   @override
-  ChatDBEventData get _value => super._value as ChatDBEventData;
+  _$ChatDBEventData get _value => super._value as _$ChatDBEventData;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(ChatDBEventData(
+    return _then(_$ChatDBEventData(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -181,7 +146,7 @@ class _$ChatDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatDBEventData extends ChatDBEventData {
-  const _$ChatDBEventData(this.value, {String? $type})
+  const _$ChatDBEventData(this.value, {final String? $type})
       : $type = $type ?? 'chat',
         super._();
 
@@ -203,18 +168,19 @@ class _$ChatDBEventData extends ChatDBEventData {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatDBEventData &&
+            other is _$ChatDBEventData &&
             const DeepCollectionEquality().equals(other.value, value));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $ChatDBEventDataCopyWith<ChatDBEventData> get copyWith =>
-      _$ChatDBEventDataCopyWithImpl<ChatDBEventData>(this, _$identity);
+  _$$ChatDBEventDataCopyWith<_$ChatDBEventData> get copyWith =>
+      __$$ChatDBEventDataCopyWithImpl<_$ChatDBEventData>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -297,44 +263,44 @@ class _$ChatDBEventData extends ChatDBEventData {
 }
 
 abstract class ChatDBEventData extends DBEventData {
-  const factory ChatDBEventData(ChatEvent value) = _$ChatDBEventData;
+  const factory ChatDBEventData(final ChatEvent value) = _$ChatDBEventData;
   const ChatDBEventData._() : super._();
 
   factory ChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatDBEventData.fromJson;
 
-  ChatEvent get value;
+  ChatEvent get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatDBEventDataCopyWith<ChatDBEventData> get copyWith =>
+  _$$ChatDBEventDataCopyWith<_$ChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserChatDBEventDataCopyWith<$Res> {
-  factory $UserChatDBEventDataCopyWith(
-          UserChatDBEventData value, $Res Function(UserChatDBEventData) then) =
-      _$UserChatDBEventDataCopyWithImpl<$Res>;
+abstract class _$$UserChatDBEventDataCopyWith<$Res> {
+  factory _$$UserChatDBEventDataCopyWith(_$UserChatDBEventData value,
+          $Res Function(_$UserChatDBEventData) then) =
+      __$$UserChatDBEventDataCopyWithImpl<$Res>;
   $Res call({UserChatEvent value});
 
   $UserChatEventCopyWith<$Res> get value;
 }
 
 /// @nodoc
-class _$UserChatDBEventDataCopyWithImpl<$Res>
+class __$$UserChatDBEventDataCopyWithImpl<$Res>
     extends _$DBEventDataCopyWithImpl<$Res>
-    implements $UserChatDBEventDataCopyWith<$Res> {
-  _$UserChatDBEventDataCopyWithImpl(
-      UserChatDBEventData _value, $Res Function(UserChatDBEventData) _then)
-      : super(_value, (v) => _then(v as UserChatDBEventData));
+    implements _$$UserChatDBEventDataCopyWith<$Res> {
+  __$$UserChatDBEventDataCopyWithImpl(
+      _$UserChatDBEventData _value, $Res Function(_$UserChatDBEventData) _then)
+      : super(_value, (v) => _then(v as _$UserChatDBEventData));
 
   @override
-  UserChatDBEventData get _value => super._value as UserChatDBEventData;
+  _$UserChatDBEventData get _value => super._value as _$UserChatDBEventData;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(UserChatDBEventData(
+    return _then(_$UserChatDBEventData(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -353,7 +319,7 @@ class _$UserChatDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserChatDBEventData extends UserChatDBEventData {
-  const _$UserChatDBEventData(this.value, {String? $type})
+  const _$UserChatDBEventData(this.value, {final String? $type})
       : $type = $type ?? 'userChat',
         super._();
 
@@ -375,18 +341,20 @@ class _$UserChatDBEventData extends UserChatDBEventData {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserChatDBEventData &&
+            other is _$UserChatDBEventData &&
             const DeepCollectionEquality().equals(other.value, value));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $UserChatDBEventDataCopyWith<UserChatDBEventData> get copyWith =>
-      _$UserChatDBEventDataCopyWithImpl<UserChatDBEventData>(this, _$identity);
+  _$$UserChatDBEventDataCopyWith<_$UserChatDBEventData> get copyWith =>
+      __$$UserChatDBEventDataCopyWithImpl<_$UserChatDBEventData>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -469,45 +437,45 @@ class _$UserChatDBEventData extends UserChatDBEventData {
 }
 
 abstract class UserChatDBEventData extends DBEventData {
-  const factory UserChatDBEventData(UserChatEvent value) =
+  const factory UserChatDBEventData(final UserChatEvent value) =
       _$UserChatDBEventData;
   const UserChatDBEventData._() : super._();
 
   factory UserChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserChatDBEventData.fromJson;
 
-  UserChatEvent get value;
+  UserChatEvent get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserChatDBEventDataCopyWith<UserChatDBEventData> get copyWith =>
+  _$$UserChatDBEventDataCopyWith<_$UserChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserDBEventDataCopyWith<$Res> {
-  factory $UserDBEventDataCopyWith(
-          UserDBEventData value, $Res Function(UserDBEventData) then) =
-      _$UserDBEventDataCopyWithImpl<$Res>;
+abstract class _$$UserDBEventDataCopyWith<$Res> {
+  factory _$$UserDBEventDataCopyWith(
+          _$UserDBEventData value, $Res Function(_$UserDBEventData) then) =
+      __$$UserDBEventDataCopyWithImpl<$Res>;
   $Res call({UserEvent value});
 
   $UserEventCopyWith<$Res> get value;
 }
 
 /// @nodoc
-class _$UserDBEventDataCopyWithImpl<$Res>
+class __$$UserDBEventDataCopyWithImpl<$Res>
     extends _$DBEventDataCopyWithImpl<$Res>
-    implements $UserDBEventDataCopyWith<$Res> {
-  _$UserDBEventDataCopyWithImpl(
-      UserDBEventData _value, $Res Function(UserDBEventData) _then)
-      : super(_value, (v) => _then(v as UserDBEventData));
+    implements _$$UserDBEventDataCopyWith<$Res> {
+  __$$UserDBEventDataCopyWithImpl(
+      _$UserDBEventData _value, $Res Function(_$UserDBEventData) _then)
+      : super(_value, (v) => _then(v as _$UserDBEventData));
 
   @override
-  UserDBEventData get _value => super._value as UserDBEventData;
+  _$UserDBEventData get _value => super._value as _$UserDBEventData;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(UserDBEventData(
+    return _then(_$UserDBEventData(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -526,7 +494,7 @@ class _$UserDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserDBEventData extends UserDBEventData {
-  const _$UserDBEventData(this.value, {String? $type})
+  const _$UserDBEventData(this.value, {final String? $type})
       : $type = $type ?? 'user',
         super._();
 
@@ -548,18 +516,19 @@ class _$UserDBEventData extends UserDBEventData {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserDBEventData &&
+            other is _$UserDBEventData &&
             const DeepCollectionEquality().equals(other.value, value));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $UserDBEventDataCopyWith<UserDBEventData> get copyWith =>
-      _$UserDBEventDataCopyWithImpl<UserDBEventData>(this, _$identity);
+  _$$UserDBEventDataCopyWith<_$UserDBEventData> get copyWith =>
+      __$$UserDBEventDataCopyWithImpl<_$UserDBEventData>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -642,44 +611,45 @@ class _$UserDBEventData extends UserDBEventData {
 }
 
 abstract class UserDBEventData extends DBEventData {
-  const factory UserDBEventData(UserEvent value) = _$UserDBEventData;
+  const factory UserDBEventData(final UserEvent value) = _$UserDBEventData;
   const UserDBEventData._() : super._();
 
   factory UserDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserDBEventData.fromJson;
 
-  UserEvent get value;
+  UserEvent get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserDBEventDataCopyWith<UserDBEventData> get copyWith =>
+  _$$UserDBEventDataCopyWith<_$UserDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageDBEventDataCopyWith<$Res> {
-  factory $ChatMessageDBEventDataCopyWith(ChatMessageDBEventData value,
-          $Res Function(ChatMessageDBEventData) then) =
-      _$ChatMessageDBEventDataCopyWithImpl<$Res>;
+abstract class _$$ChatMessageDBEventDataCopyWith<$Res> {
+  factory _$$ChatMessageDBEventDataCopyWith(_$ChatMessageDBEventData value,
+          $Res Function(_$ChatMessageDBEventData) then) =
+      __$$ChatMessageDBEventDataCopyWithImpl<$Res>;
   $Res call({ChatMessageEvent value});
 
   $ChatMessageEventCopyWith<$Res> get value;
 }
 
 /// @nodoc
-class _$ChatMessageDBEventDataCopyWithImpl<$Res>
+class __$$ChatMessageDBEventDataCopyWithImpl<$Res>
     extends _$DBEventDataCopyWithImpl<$Res>
-    implements $ChatMessageDBEventDataCopyWith<$Res> {
-  _$ChatMessageDBEventDataCopyWithImpl(ChatMessageDBEventData _value,
-      $Res Function(ChatMessageDBEventData) _then)
-      : super(_value, (v) => _then(v as ChatMessageDBEventData));
+    implements _$$ChatMessageDBEventDataCopyWith<$Res> {
+  __$$ChatMessageDBEventDataCopyWithImpl(_$ChatMessageDBEventData _value,
+      $Res Function(_$ChatMessageDBEventData) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageDBEventData));
 
   @override
-  ChatMessageDBEventData get _value => super._value as ChatMessageDBEventData;
+  _$ChatMessageDBEventData get _value =>
+      super._value as _$ChatMessageDBEventData;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(ChatMessageDBEventData(
+    return _then(_$ChatMessageDBEventData(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -698,7 +668,7 @@ class _$ChatMessageDBEventDataCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageDBEventData extends ChatMessageDBEventData {
-  const _$ChatMessageDBEventData(this.value, {String? $type})
+  const _$ChatMessageDBEventData(this.value, {final String? $type})
       : $type = $type ?? 'message',
         super._();
 
@@ -720,18 +690,19 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatMessageDBEventData &&
+            other is _$ChatMessageDBEventData &&
             const DeepCollectionEquality().equals(other.value, value));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageDBEventDataCopyWith<ChatMessageDBEventData> get copyWith =>
-      _$ChatMessageDBEventDataCopyWithImpl<ChatMessageDBEventData>(
+  _$$ChatMessageDBEventDataCopyWith<_$ChatMessageDBEventData> get copyWith =>
+      __$$ChatMessageDBEventDataCopyWithImpl<_$ChatMessageDBEventData>(
           this, _$identity);
 
   @override
@@ -815,15 +786,15 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
 }
 
 abstract class ChatMessageDBEventData extends DBEventData {
-  const factory ChatMessageDBEventData(ChatMessageEvent value) =
+  const factory ChatMessageDBEventData(final ChatMessageEvent value) =
       _$ChatMessageDBEventData;
   const ChatMessageDBEventData._() : super._();
 
   factory ChatMessageDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatMessageDBEventData.fromJson;
 
-  ChatMessageEvent get value;
+  ChatMessageEvent get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageDBEventDataCopyWith<ChatMessageDBEventData> get copyWith =>
+  _$$ChatMessageDBEventDataCopyWith<_$ChatMessageDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
 }

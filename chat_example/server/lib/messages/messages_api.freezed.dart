@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'messages_api.dart';
@@ -11,46 +12,11 @@ part of 'messages_api.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
   return _ChatMessage.fromJson(json);
 }
-
-/// @nodoc
-class _$ChatMessageTearOff {
-  const _$ChatMessageTearOff();
-
-  _ChatMessage call(
-      {required int id,
-      required int chatId,
-      required int userId,
-      required String message,
-      required MessageType type,
-      String? fileUrl,
-      @GraphQLField(omit: true) String? metadataJson,
-      int? referencedMessageId,
-      required DateTime createdAt}) {
-    return _ChatMessage(
-      id: id,
-      chatId: chatId,
-      userId: userId,
-      message: message,
-      type: type,
-      fileUrl: fileUrl,
-      metadataJson: metadataJson,
-      referencedMessageId: referencedMessageId,
-      createdAt: createdAt,
-    );
-  }
-
-  ChatMessage fromJson(Map<String, Object?> json) {
-    return ChatMessage.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatMessage = _$ChatMessageTearOff();
 
 /// @nodoc
 mixin _$ChatMessage {
@@ -150,11 +116,11 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$ChatMessageCopyWith<$Res>
+abstract class _$$_ChatMessageCopyWith<$Res>
     implements $ChatMessageCopyWith<$Res> {
-  factory _$ChatMessageCopyWith(
-          _ChatMessage value, $Res Function(_ChatMessage) then) =
-      __$ChatMessageCopyWithImpl<$Res>;
+  factory _$$_ChatMessageCopyWith(
+          _$_ChatMessage value, $Res Function(_$_ChatMessage) then) =
+      __$$_ChatMessageCopyWithImpl<$Res>;
   @override
   $Res call(
       {int id,
@@ -169,14 +135,14 @@ abstract class _$ChatMessageCopyWith<$Res>
 }
 
 /// @nodoc
-class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
-    implements _$ChatMessageCopyWith<$Res> {
-  __$ChatMessageCopyWithImpl(
-      _ChatMessage _value, $Res Function(_ChatMessage) _then)
-      : super(_value, (v) => _then(v as _ChatMessage));
+class __$$_ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
+    implements _$$_ChatMessageCopyWith<$Res> {
+  __$$_ChatMessageCopyWithImpl(
+      _$_ChatMessage _value, $Res Function(_$_ChatMessage) _then)
+      : super(_value, (v) => _then(v as _$_ChatMessage));
 
   @override
-  _ChatMessage get _value => super._value as _ChatMessage;
+  _$_ChatMessage get _value => super._value as _$_ChatMessage;
 
   @override
   $Res call({
@@ -190,7 +156,7 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
-    return _then(_ChatMessage(
+    return _then(_$_ChatMessage(
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -278,7 +244,7 @@ class _$_ChatMessage extends _ChatMessage {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _ChatMessage &&
+            other is _$_ChatMessage &&
             const DeepCollectionEquality().equals(other.id, id) &&
             const DeepCollectionEquality().equals(other.chatId, chatId) &&
             const DeepCollectionEquality().equals(other.userId, userId) &&
@@ -292,6 +258,7 @@ class _$_ChatMessage extends _ChatMessage {
             const DeepCollectionEquality().equals(other.createdAt, createdAt));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -307,8 +274,8 @@ class _$_ChatMessage extends _ChatMessage {
 
   @JsonKey(ignore: true)
   @override
-  _$ChatMessageCopyWith<_ChatMessage> get copyWith =>
-      __$ChatMessageCopyWithImpl<_ChatMessage>(this, _$identity);
+  _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>
+      __$$_ChatMessageCopyWithImpl<_$_ChatMessage>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -318,42 +285,42 @@ class _$_ChatMessage extends _ChatMessage {
 
 abstract class _ChatMessage extends ChatMessage {
   const factory _ChatMessage(
-      {required int id,
-      required int chatId,
-      required int userId,
-      required String message,
-      required MessageType type,
-      String? fileUrl,
-      @GraphQLField(omit: true) String? metadataJson,
-      int? referencedMessageId,
-      required DateTime createdAt}) = _$_ChatMessage;
+      {required final int id,
+      required final int chatId,
+      required final int userId,
+      required final String message,
+      required final MessageType type,
+      final String? fileUrl,
+      @GraphQLField(omit: true) final String? metadataJson,
+      final int? referencedMessageId,
+      required final DateTime createdAt}) = _$_ChatMessage;
   const _ChatMessage._() : super._();
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$_ChatMessage.fromJson;
 
   @override
-  int get id;
+  int get id => throw _privateConstructorUsedError;
   @override
-  int get chatId;
+  int get chatId => throw _privateConstructorUsedError;
   @override
-  int get userId;
+  int get userId => throw _privateConstructorUsedError;
   @override
-  String get message;
+  String get message => throw _privateConstructorUsedError;
   @override
-  MessageType get type;
+  MessageType get type => throw _privateConstructorUsedError;
   @override
-  String? get fileUrl;
+  String? get fileUrl => throw _privateConstructorUsedError;
   @override
   @GraphQLField(omit: true)
-  String? get metadataJson;
+  String? get metadataJson => throw _privateConstructorUsedError;
   @override
-  int? get referencedMessageId;
+  int? get referencedMessageId => throw _privateConstructorUsedError;
   @override
-  DateTime get createdAt;
+  DateTime get createdAt => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$ChatMessageCopyWith<_ChatMessage> get copyWith =>
+  _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -371,38 +338,6 @@ ChatMessageEvent _$ChatMessageEventFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$ChatMessageEventTearOff {
-  const _$ChatMessageEventTearOff();
-
-  ChatMessageSentEvent sent({required ChatMessage message}) {
-    return ChatMessageSentEvent(
-      message: message,
-    );
-  }
-
-  ChatMessageDeletedEvent deleted(
-      {required int chatId, required int messageId}) {
-    return ChatMessageDeletedEvent(
-      chatId: chatId,
-      messageId: messageId,
-    );
-  }
-
-  ChatMessageUpdatedEvent updated({required ChatMessage message}) {
-    return ChatMessageUpdatedEvent(
-      message: message,
-    );
-  }
-
-  ChatMessageEvent fromJson(Map<String, Object?> json) {
-    return ChatMessageEvent.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatMessageEvent = _$ChatMessageEventTearOff();
 
 /// @nodoc
 mixin _$ChatMessageEvent {
@@ -471,31 +406,31 @@ class _$ChatMessageEventCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class $ChatMessageSentEventCopyWith<$Res> {
-  factory $ChatMessageSentEventCopyWith(ChatMessageSentEvent value,
-          $Res Function(ChatMessageSentEvent) then) =
-      _$ChatMessageSentEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageSentEventCopyWith<$Res> {
+  factory _$$ChatMessageSentEventCopyWith(_$ChatMessageSentEvent value,
+          $Res Function(_$ChatMessageSentEvent) then) =
+      __$$ChatMessageSentEventCopyWithImpl<$Res>;
   $Res call({ChatMessage message});
 
   $ChatMessageCopyWith<$Res> get message;
 }
 
 /// @nodoc
-class _$ChatMessageSentEventCopyWithImpl<$Res>
+class __$$ChatMessageSentEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageSentEventCopyWith<$Res> {
-  _$ChatMessageSentEventCopyWithImpl(
-      ChatMessageSentEvent _value, $Res Function(ChatMessageSentEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageSentEvent));
+    implements _$$ChatMessageSentEventCopyWith<$Res> {
+  __$$ChatMessageSentEventCopyWithImpl(_$ChatMessageSentEvent _value,
+      $Res Function(_$ChatMessageSentEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageSentEvent));
 
   @override
-  ChatMessageSentEvent get _value => super._value as ChatMessageSentEvent;
+  _$ChatMessageSentEvent get _value => super._value as _$ChatMessageSentEvent;
 
   @override
   $Res call({
     Object? message = freezed,
   }) {
-    return _then(ChatMessageSentEvent(
+    return _then(_$ChatMessageSentEvent(
       message: message == freezed
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -514,7 +449,7 @@ class _$ChatMessageSentEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageSentEvent extends ChatMessageSentEvent {
-  const _$ChatMessageSentEvent({required this.message, String? $type})
+  const _$ChatMessageSentEvent({required this.message, final String? $type})
       : $type = $type ?? 'sent',
         super._();
 
@@ -536,18 +471,19 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatMessageSentEvent &&
+            other is _$ChatMessageSentEvent &&
             const DeepCollectionEquality().equals(other.message, message));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(message));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageSentEventCopyWith<ChatMessageSentEvent> get copyWith =>
-      _$ChatMessageSentEventCopyWithImpl<ChatMessageSentEvent>(
+  _$$ChatMessageSentEventCopyWith<_$ChatMessageSentEvent> get copyWith =>
+      __$$ChatMessageSentEventCopyWithImpl<_$ChatMessageSentEvent>(
           this, _$identity);
 
   @override
@@ -625,44 +561,45 @@ class _$ChatMessageSentEvent extends ChatMessageSentEvent {
 }
 
 abstract class ChatMessageSentEvent extends ChatMessageEvent {
-  const factory ChatMessageSentEvent({required ChatMessage message}) =
+  const factory ChatMessageSentEvent({required final ChatMessage message}) =
       _$ChatMessageSentEvent;
   const ChatMessageSentEvent._() : super._();
 
   factory ChatMessageSentEvent.fromJson(Map<String, dynamic> json) =
       _$ChatMessageSentEvent.fromJson;
 
-  ChatMessage get message;
+  ChatMessage get message => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageSentEventCopyWith<ChatMessageSentEvent> get copyWith =>
+  _$$ChatMessageSentEventCopyWith<_$ChatMessageSentEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageDeletedEventCopyWith<$Res> {
-  factory $ChatMessageDeletedEventCopyWith(ChatMessageDeletedEvent value,
-          $Res Function(ChatMessageDeletedEvent) then) =
-      _$ChatMessageDeletedEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageDeletedEventCopyWith<$Res> {
+  factory _$$ChatMessageDeletedEventCopyWith(_$ChatMessageDeletedEvent value,
+          $Res Function(_$ChatMessageDeletedEvent) then) =
+      __$$ChatMessageDeletedEventCopyWithImpl<$Res>;
   $Res call({int chatId, int messageId});
 }
 
 /// @nodoc
-class _$ChatMessageDeletedEventCopyWithImpl<$Res>
+class __$$ChatMessageDeletedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageDeletedEventCopyWith<$Res> {
-  _$ChatMessageDeletedEventCopyWithImpl(ChatMessageDeletedEvent _value,
-      $Res Function(ChatMessageDeletedEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageDeletedEvent));
+    implements _$$ChatMessageDeletedEventCopyWith<$Res> {
+  __$$ChatMessageDeletedEventCopyWithImpl(_$ChatMessageDeletedEvent _value,
+      $Res Function(_$ChatMessageDeletedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageDeletedEvent));
 
   @override
-  ChatMessageDeletedEvent get _value => super._value as ChatMessageDeletedEvent;
+  _$ChatMessageDeletedEvent get _value =>
+      super._value as _$ChatMessageDeletedEvent;
 
   @override
   $Res call({
     Object? chatId = freezed,
     Object? messageId = freezed,
   }) {
-    return _then(ChatMessageDeletedEvent(
+    return _then(_$ChatMessageDeletedEvent(
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
@@ -679,7 +616,7 @@ class _$ChatMessageDeletedEventCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ChatMessageDeletedEvent extends ChatMessageDeletedEvent {
   const _$ChatMessageDeletedEvent(
-      {required this.chatId, required this.messageId, String? $type})
+      {required this.chatId, required this.messageId, final String? $type})
       : $type = $type ?? 'deleted',
         super._();
 
@@ -703,11 +640,12 @@ class _$ChatMessageDeletedEvent extends ChatMessageDeletedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatMessageDeletedEvent &&
+            other is _$ChatMessageDeletedEvent &&
             const DeepCollectionEquality().equals(other.chatId, chatId) &&
             const DeepCollectionEquality().equals(other.messageId, messageId));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -716,8 +654,8 @@ class _$ChatMessageDeletedEvent extends ChatMessageDeletedEvent {
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
-      _$ChatMessageDeletedEventCopyWithImpl<ChatMessageDeletedEvent>(
+  _$$ChatMessageDeletedEventCopyWith<_$ChatMessageDeletedEvent> get copyWith =>
+      __$$ChatMessageDeletedEventCopyWithImpl<_$ChatMessageDeletedEvent>(
           this, _$identity);
 
   @override
@@ -796,46 +734,47 @@ class _$ChatMessageDeletedEvent extends ChatMessageDeletedEvent {
 
 abstract class ChatMessageDeletedEvent extends ChatMessageEvent {
   const factory ChatMessageDeletedEvent(
-      {required int chatId,
-      required int messageId}) = _$ChatMessageDeletedEvent;
+      {required final int chatId,
+      required final int messageId}) = _$ChatMessageDeletedEvent;
   const ChatMessageDeletedEvent._() : super._();
 
   factory ChatMessageDeletedEvent.fromJson(Map<String, dynamic> json) =
       _$ChatMessageDeletedEvent.fromJson;
 
-  int get chatId;
-  int get messageId;
+  int get chatId => throw _privateConstructorUsedError;
+  int get messageId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
+  _$$ChatMessageDeletedEventCopyWith<_$ChatMessageDeletedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageUpdatedEventCopyWith<$Res> {
-  factory $ChatMessageUpdatedEventCopyWith(ChatMessageUpdatedEvent value,
-          $Res Function(ChatMessageUpdatedEvent) then) =
-      _$ChatMessageUpdatedEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageUpdatedEventCopyWith<$Res> {
+  factory _$$ChatMessageUpdatedEventCopyWith(_$ChatMessageUpdatedEvent value,
+          $Res Function(_$ChatMessageUpdatedEvent) then) =
+      __$$ChatMessageUpdatedEventCopyWithImpl<$Res>;
   $Res call({ChatMessage message});
 
   $ChatMessageCopyWith<$Res> get message;
 }
 
 /// @nodoc
-class _$ChatMessageUpdatedEventCopyWithImpl<$Res>
+class __$$ChatMessageUpdatedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageUpdatedEventCopyWith<$Res> {
-  _$ChatMessageUpdatedEventCopyWithImpl(ChatMessageUpdatedEvent _value,
-      $Res Function(ChatMessageUpdatedEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageUpdatedEvent));
+    implements _$$ChatMessageUpdatedEventCopyWith<$Res> {
+  __$$ChatMessageUpdatedEventCopyWithImpl(_$ChatMessageUpdatedEvent _value,
+      $Res Function(_$ChatMessageUpdatedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageUpdatedEvent));
 
   @override
-  ChatMessageUpdatedEvent get _value => super._value as ChatMessageUpdatedEvent;
+  _$ChatMessageUpdatedEvent get _value =>
+      super._value as _$ChatMessageUpdatedEvent;
 
   @override
   $Res call({
     Object? message = freezed,
   }) {
-    return _then(ChatMessageUpdatedEvent(
+    return _then(_$ChatMessageUpdatedEvent(
       message: message == freezed
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -854,7 +793,7 @@ class _$ChatMessageUpdatedEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$ChatMessageUpdatedEvent extends ChatMessageUpdatedEvent {
-  const _$ChatMessageUpdatedEvent({required this.message, String? $type})
+  const _$ChatMessageUpdatedEvent({required this.message, final String? $type})
       : $type = $type ?? 'updated',
         super._();
 
@@ -876,18 +815,19 @@ class _$ChatMessageUpdatedEvent extends ChatMessageUpdatedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is ChatMessageUpdatedEvent &&
+            other is _$ChatMessageUpdatedEvent &&
             const DeepCollectionEquality().equals(other.message, message));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(message));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
-      _$ChatMessageUpdatedEventCopyWithImpl<ChatMessageUpdatedEvent>(
+  _$$ChatMessageUpdatedEventCopyWith<_$ChatMessageUpdatedEvent> get copyWith =>
+      __$$ChatMessageUpdatedEventCopyWithImpl<_$ChatMessageUpdatedEvent>(
           this, _$identity);
 
   @override
@@ -965,15 +905,15 @@ class _$ChatMessageUpdatedEvent extends ChatMessageUpdatedEvent {
 }
 
 abstract class ChatMessageUpdatedEvent extends ChatMessageEvent {
-  const factory ChatMessageUpdatedEvent({required ChatMessage message}) =
+  const factory ChatMessageUpdatedEvent({required final ChatMessage message}) =
       _$ChatMessageUpdatedEvent;
   const ChatMessageUpdatedEvent._() : super._();
 
   factory ChatMessageUpdatedEvent.fromJson(Map<String, dynamic> json) =
       _$ChatMessageUpdatedEvent.fromJson;
 
-  ChatMessage get message;
+  ChatMessage get message => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
+  _$$ChatMessageUpdatedEventCopyWith<_$ChatMessageUpdatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }

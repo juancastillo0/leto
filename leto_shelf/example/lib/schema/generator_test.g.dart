@@ -14,24 +14,16 @@ final _addTestModelGraphQLField =
               'addTestModel',
               resolve: (obj, ctx) {
                 final args = ctx.args;
-                Map<String, Object?> _validaToJson(ValidaError e) => {
-                      'property': e.property,
-                      'errorCode': e.errorCode,
-                      if (e.validationParam != null)
-                        'validationParam': e.validationParam,
-                      'message': e.message,
-                      if (e.nestedValidation?.hasErrors == true)
-                        'nestedErrors': e.nestedValidation!.allErrors
-                            .map(_validaToJson)
-                            .toList()
-                    };
-                final validationErrorMap = <String, Validation>{};
+                final validationErrorMap = <String, List<ValidaError>>{};
 
                 if ((args["previous"] as TestModel?) != null) {
-                  final previousValidationResult = validateTestModel(
-                      (args["previous"] as TestModel?) as TestModel);
+                  final previousValidationResult =
+                      TestModelValidation.fromValue(
+                          (args["previous"] as TestModel?) as TestModel);
                   if (previousValidationResult.hasErrors) {
-                    validationErrorMap['previous'] = previousValidationResult;
+                    validationErrorMap['previous'] = [
+                      previousValidationResult.toError(property: 'previous')!
+                    ];
                   }
                 }
 
@@ -39,8 +31,7 @@ final _addTestModelGraphQLField =
                   throw GraphQLError(
                     'Input validation error',
                     extensions: {
-                      'validaErrors': validationErrorMap.map((k, v) =>
-                          MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+                      'validaErrors': validationErrorMap,
                     },
                     sourceError: validationErrorMap,
                   );
@@ -51,12 +42,14 @@ final _addTestModelGraphQLField =
                     name: (args["name"] as String),
                     value: (args["value"] as List<int>));
               },
-              description: r"the function uses [value] to do stuff",
+              description: 'the function uses [value] to do stuff',
             ))
               ..inputs.addAll([
                 graphQLString.nonNull().inputField('realName'),
                 testModelGraphQLTypeInput.inputField('previous'),
-                graphQLString.nonNull().inputField('name'),
+                graphQLString
+                    .nonNull()
+                    .inputField('name', deprecationReason: 'use realName'),
                 graphQLInt.nonNull().list().nonNull().inputField('value')
               ]));
 
@@ -74,7 +67,7 @@ final _testModelsGraphQLField = HotReloadableDefinition<
                 position: (args["position"] as int));
           },
           description:
-              r"Automatic documentation generated\n[position] is the pad",
+              'Automatic documentation generated\n[position] is the pad',
         ))
           ..inputs.addAll([
             graphQLDate
@@ -98,7 +91,7 @@ final _testUnionModelsGraphQLField = HotReloadableDefinition<
                 positions: (args["positions"] as List<int?>));
           },
           description:
-              r"testUnionModels documentation generated\n[position] is the pad",
+              'testUnionModels documentation generated\n[position] is the pad',
         ))
           ..inputs.addAll([
             graphQLInt.list().nonNull().inputField('positions',
@@ -124,7 +117,11 @@ final _testModelGraphQLType =
   setValue(__testModelGraphQLType);
   __testModelGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
+      graphQLString
+          .nonNull()
+          .field('name', resolve: (obj, ctx) => obj.name, attachments: [
+        ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
+      ]),
       graphQLString.field('description',
           resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
       graphQLDate
@@ -152,7 +149,9 @@ final _testModelGraphQLTypeInput =
   setValue(__testModelGraphQLTypeInput);
   __testModelGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().inputField('name'),
+      graphQLString.nonNull().inputField('name', attachments: [
+        ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
+      ]),
       graphQLString.inputField('description', description: 'Custom doc d'),
       graphQLDate.nonNull().list().inputField('dates')
     ],
@@ -381,45 +380,61 @@ class TestModelValidationFields {
   const TestModelValidationFields(this.errorsMap);
   final Map<TestModelField, List<ValidaError>> errorsMap;
 
-  List<ValidaError> get name => errorsMap[TestModelField.name]!;
+  List<ValidaError> get name => errorsMap[TestModelField.name] ?? const [];
 }
 
 class TestModelValidation extends Validation<TestModel, TestModelField> {
   TestModelValidation(this.errorsMap, this.value, this.fields)
       : super(errorsMap);
-
+  @override
   final Map<TestModelField, List<ValidaError>> errorsMap;
-
+  @override
   final TestModel value;
-
+  @override
   final TestModelValidationFields fields;
-}
 
-TestModelValidation validateTestModel(TestModel value) {
-  final errors = <TestModelField, List<ValidaError>>{};
+  /// Validates [value] and returns a [TestModelValidation] with the errors found as a result
+  static TestModelValidation fromValue(TestModel value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
 
-  errors[TestModelField.name] = [
-    if (value.name.length < 1)
-      ValidaError(
-        message: r'Should be at a minimum 1 in length',
-        errorCode: 'ValidaString.minLength',
-        property: 'name',
-        validationParam: 1,
-        value: value.name,
-      ),
-    if (value.name.length > 64)
-      ValidaError(
-        message: r'Should be at a maximum 64 in length',
-        errorCode: 'ValidaString.maxLength',
-        property: 'name',
-        validationParam: 64,
-        value: value.name,
+    final errors = <TestModelField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
       )
-  ];
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return TestModelValidation(
+        errors, value, TestModelValidationFields(errors));
+  }
 
-  return TestModelValidation(
-    errors,
-    value,
-    TestModelValidationFields(errors),
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      TestModelField.name: ValidaString(minLength: 1, maxLength: 64),
+    },
+    getField: _getField,
   );
+
+  static List<ValidaError> _globalValidate(TestModel value) => [];
+
+  static Object? _getField(TestModel value, String field) {
+    switch (field) {
+      case 'name':
+        return value.name;
+      case 'description':
+        return value.description;
+      case 'dates':
+        return value.dates;
+      case 'hasDates':
+        return value.hasDates;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
 }

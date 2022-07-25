@@ -197,7 +197,7 @@ Map<String, dynamic> _$ChatRoomUserToJson(ChatRoomUser instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'chatId': instance.chatId,
-      'role': _$ChatRoomUserRoleEnumMap[instance.role],
+      'role': _$ChatRoomUserRoleEnumMap[instance.role]!,
       'createdAt': instance.createdAt.toIso8601String(),
     };
 

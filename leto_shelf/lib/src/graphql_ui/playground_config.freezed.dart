@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'playground_config.dart';
@@ -11,67 +12,11 @@ part of 'playground_config.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 ISettings _$ISettingsFromJson(Map<String, dynamic> json) {
   return _ISettings.fromJson(json);
 }
-
-/// @nodoc
-class _$ISettingsTearOff {
-  const _$ISettingsTearOff();
-
-  _ISettings call(
-      {@JsonKey(name: 'general.betaUpdates')
-          required bool generalbetaUpdates,
-      @JsonKey(name: 'editor.cursorShape')
-          required String editorcursorShape,
-      @JsonKey(name: 'editor.theme')
-          required String editortheme,
-      @JsonKey(name: 'editor.reuseHeaders')
-          required bool editorreuseHeaders,
-      @JsonKey(name: 'tracing.hideTracingResponse')
-          required bool tracinghideTracingResponse,
-      @JsonKey(name: 'tracing.tracingSupported')
-          required bool tracingtracingSupported,
-      @JsonKey(name: 'editor.fontSize')
-          required int editorfontSize,
-      @JsonKey(name: 'editor.fontFamily')
-          required String editorfontFamily,
-      @JsonKey(name: 'request.credentials')
-          required String requestcredentials,
-      @JsonKey(name: 'request.globalHeaders')
-          required Map<String, Object?> requestglobalHeaders,
-      @JsonKey(name: 'schema.polling.enable')
-          required bool schemapollingenable,
-      @JsonKey(name: 'schema.polling.endpointFilter')
-          required String schemapollingendpointFilter,
-      @JsonKey(name: 'schema.polling.interval')
-          required int schemapollinginterval}) {
-    return _ISettings(
-      generalbetaUpdates: generalbetaUpdates,
-      editorcursorShape: editorcursorShape,
-      editortheme: editortheme,
-      editorreuseHeaders: editorreuseHeaders,
-      tracinghideTracingResponse: tracinghideTracingResponse,
-      tracingtracingSupported: tracingtracingSupported,
-      editorfontSize: editorfontSize,
-      editorfontFamily: editorfontFamily,
-      requestcredentials: requestcredentials,
-      requestglobalHeaders: requestglobalHeaders,
-      schemapollingenable: schemapollingenable,
-      schemapollingendpointFilter: schemapollingendpointFilter,
-      schemapollinginterval: schemapollinginterval,
-    );
-  }
-
-  ISettings fromJson(Map<String, Object?> json) {
-    return ISettings.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ISettings = _$ISettingsTearOff();
 
 /// @nodoc
 mixin _$ISettings {
@@ -230,10 +175,10 @@ class _$ISettingsCopyWithImpl<$Res> implements $ISettingsCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$ISettingsCopyWith<$Res> implements $ISettingsCopyWith<$Res> {
-  factory _$ISettingsCopyWith(
-          _ISettings value, $Res Function(_ISettings) then) =
-      __$ISettingsCopyWithImpl<$Res>;
+abstract class _$$_ISettingsCopyWith<$Res> implements $ISettingsCopyWith<$Res> {
+  factory _$$_ISettingsCopyWith(
+          _$_ISettings value, $Res Function(_$_ISettings) then) =
+      __$$_ISettingsCopyWithImpl<$Res>;
   @override
   $Res call(
       {@JsonKey(name: 'general.betaUpdates')
@@ -265,13 +210,14 @@ abstract class _$ISettingsCopyWith<$Res> implements $ISettingsCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$ISettingsCopyWithImpl<$Res> extends _$ISettingsCopyWithImpl<$Res>
-    implements _$ISettingsCopyWith<$Res> {
-  __$ISettingsCopyWithImpl(_ISettings _value, $Res Function(_ISettings) _then)
-      : super(_value, (v) => _then(v as _ISettings));
+class __$$_ISettingsCopyWithImpl<$Res> extends _$ISettingsCopyWithImpl<$Res>
+    implements _$$_ISettingsCopyWith<$Res> {
+  __$$_ISettingsCopyWithImpl(
+      _$_ISettings _value, $Res Function(_$_ISettings) _then)
+      : super(_value, (v) => _then(v as _$_ISettings));
 
   @override
-  _ISettings get _value => super._value as _ISettings;
+  _$_ISettings get _value => super._value as _$_ISettings;
 
   @override
   $Res call({
@@ -289,7 +235,7 @@ class __$ISettingsCopyWithImpl<$Res> extends _$ISettingsCopyWithImpl<$Res>
     Object? schemapollingendpointFilter = freezed,
     Object? schemapollinginterval = freezed,
   }) {
-    return _then(_ISettings(
+    return _then(_$_ISettings(
       generalbetaUpdates: generalbetaUpdates == freezed
           ? _value.generalbetaUpdates
           : generalbetaUpdates // ignore: cast_nullable_to_non_nullable
@@ -327,7 +273,7 @@ class __$ISettingsCopyWithImpl<$Res> extends _$ISettingsCopyWithImpl<$Res>
           : requestcredentials // ignore: cast_nullable_to_non_nullable
               as String,
       requestglobalHeaders: requestglobalHeaders == freezed
-          ? _value.requestglobalHeaders
+          ? _value._requestglobalHeaders
           : requestglobalHeaders // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>,
       schemapollingenable: schemapollingenable == freezed
@@ -370,13 +316,14 @@ class _$_ISettings implements _ISettings {
       @JsonKey(name: 'request.credentials')
           required this.requestcredentials,
       @JsonKey(name: 'request.globalHeaders')
-          required this.requestglobalHeaders,
+          required final Map<String, Object?> requestglobalHeaders,
       @JsonKey(name: 'schema.polling.enable')
           required this.schemapollingenable,
       @JsonKey(name: 'schema.polling.endpointFilter')
           required this.schemapollingendpointFilter,
       @JsonKey(name: 'schema.polling.interval')
-          required this.schemapollinginterval});
+          required this.schemapollinginterval})
+      : _requestglobalHeaders = requestglobalHeaders;
 
   factory _$_ISettings.fromJson(Map<String, dynamic> json) =>
       _$$_ISettingsFromJson(json);
@@ -384,14 +331,14 @@ class _$_ISettings implements _ISettings {
   @override
   @JsonKey(name: 'general.betaUpdates')
   final bool generalbetaUpdates;
-  @override
 
   /// 'line' | 'block' | 'underline'
+  @override
   @JsonKey(name: 'editor.cursorShape')
   final String editorcursorShape;
-  @override
 
   /// 'dark' | 'light'
+  @override
   @JsonKey(name: 'editor.theme')
   final String editortheme;
   @override
@@ -409,14 +356,19 @@ class _$_ISettings implements _ISettings {
   @override
   @JsonKey(name: 'editor.fontFamily')
   final String editorfontFamily;
-  @override
 
   /// 'omit' | 'include' | 'same-origin'
+  @override
   @JsonKey(name: 'request.credentials')
   final String requestcredentials;
+  final Map<String, Object?> _requestglobalHeaders;
   @override
   @JsonKey(name: 'request.globalHeaders')
-  final Map<String, Object?> requestglobalHeaders;
+  Map<String, Object?> get requestglobalHeaders {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_requestglobalHeaders);
+  }
+
   @override
   @JsonKey(name: 'schema.polling.enable')
   final bool schemapollingenable;
@@ -436,7 +388,7 @@ class _$_ISettings implements _ISettings {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _ISettings &&
+            other is _$_ISettings &&
             const DeepCollectionEquality()
                 .equals(other.generalbetaUpdates, generalbetaUpdates) &&
             const DeepCollectionEquality()
@@ -456,7 +408,7 @@ class _$_ISettings implements _ISettings {
             const DeepCollectionEquality()
                 .equals(other.requestcredentials, requestcredentials) &&
             const DeepCollectionEquality()
-                .equals(other.requestglobalHeaders, requestglobalHeaders) &&
+                .equals(other._requestglobalHeaders, _requestglobalHeaders) &&
             const DeepCollectionEquality()
                 .equals(other.schemapollingenable, schemapollingenable) &&
             const DeepCollectionEquality().equals(
@@ -466,6 +418,7 @@ class _$_ISettings implements _ISettings {
                 .equals(other.schemapollinginterval, schemapollinginterval));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -478,15 +431,15 @@ class _$_ISettings implements _ISettings {
       const DeepCollectionEquality().hash(editorfontSize),
       const DeepCollectionEquality().hash(editorfontFamily),
       const DeepCollectionEquality().hash(requestcredentials),
-      const DeepCollectionEquality().hash(requestglobalHeaders),
+      const DeepCollectionEquality().hash(_requestglobalHeaders),
       const DeepCollectionEquality().hash(schemapollingenable),
       const DeepCollectionEquality().hash(schemapollingendpointFilter),
       const DeepCollectionEquality().hash(schemapollinginterval));
 
   @JsonKey(ignore: true)
   @override
-  _$ISettingsCopyWith<_ISettings> get copyWith =>
-      __$ISettingsCopyWithImpl<_ISettings>(this, _$identity);
+  _$$_ISettingsCopyWith<_$_ISettings> get copyWith =>
+      __$$_ISettingsCopyWithImpl<_$_ISettings>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -497,82 +450,83 @@ class _$_ISettings implements _ISettings {
 abstract class _ISettings implements ISettings {
   const factory _ISettings(
       {@JsonKey(name: 'general.betaUpdates')
-          required bool generalbetaUpdates,
+          required final bool generalbetaUpdates,
       @JsonKey(name: 'editor.cursorShape')
-          required String editorcursorShape,
+          required final String editorcursorShape,
       @JsonKey(name: 'editor.theme')
-          required String editortheme,
+          required final String editortheme,
       @JsonKey(name: 'editor.reuseHeaders')
-          required bool editorreuseHeaders,
+          required final bool editorreuseHeaders,
       @JsonKey(name: 'tracing.hideTracingResponse')
-          required bool tracinghideTracingResponse,
+          required final bool tracinghideTracingResponse,
       @JsonKey(name: 'tracing.tracingSupported')
-          required bool tracingtracingSupported,
+          required final bool tracingtracingSupported,
       @JsonKey(name: 'editor.fontSize')
-          required int editorfontSize,
+          required final int editorfontSize,
       @JsonKey(name: 'editor.fontFamily')
-          required String editorfontFamily,
+          required final String editorfontFamily,
       @JsonKey(name: 'request.credentials')
-          required String requestcredentials,
+          required final String requestcredentials,
       @JsonKey(name: 'request.globalHeaders')
-          required Map<String, Object?> requestglobalHeaders,
+          required final Map<String, Object?> requestglobalHeaders,
       @JsonKey(name: 'schema.polling.enable')
-          required bool schemapollingenable,
+          required final bool schemapollingenable,
       @JsonKey(name: 'schema.polling.endpointFilter')
-          required String schemapollingendpointFilter,
+          required final String schemapollingendpointFilter,
       @JsonKey(name: 'schema.polling.interval')
-          required int schemapollinginterval}) = _$_ISettings;
+          required final int schemapollinginterval}) = _$_ISettings;
 
   factory _ISettings.fromJson(Map<String, dynamic> json) =
       _$_ISettings.fromJson;
 
   @override
   @JsonKey(name: 'general.betaUpdates')
-  bool get generalbetaUpdates;
+  bool get generalbetaUpdates => throw _privateConstructorUsedError;
   @override
 
   /// 'line' | 'block' | 'underline'
   @JsonKey(name: 'editor.cursorShape')
-  String get editorcursorShape;
+  String get editorcursorShape => throw _privateConstructorUsedError;
   @override
 
   /// 'dark' | 'light'
   @JsonKey(name: 'editor.theme')
-  String get editortheme;
+  String get editortheme => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'editor.reuseHeaders')
-  bool get editorreuseHeaders;
+  bool get editorreuseHeaders => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'tracing.hideTracingResponse')
-  bool get tracinghideTracingResponse;
+  bool get tracinghideTracingResponse => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'tracing.tracingSupported')
-  bool get tracingtracingSupported;
+  bool get tracingtracingSupported => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'editor.fontSize')
-  int get editorfontSize;
+  int get editorfontSize => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'editor.fontFamily')
-  String get editorfontFamily;
+  String get editorfontFamily => throw _privateConstructorUsedError;
   @override
 
   /// 'omit' | 'include' | 'same-origin'
   @JsonKey(name: 'request.credentials')
-  String get requestcredentials;
+  String get requestcredentials => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'request.globalHeaders')
-  Map<String, Object?> get requestglobalHeaders;
+  Map<String, Object?> get requestglobalHeaders =>
+      throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'schema.polling.enable')
-  bool get schemapollingenable;
+  bool get schemapollingenable => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'schema.polling.endpointFilter')
-  String get schemapollingendpointFilter;
+  String get schemapollingendpointFilter => throw _privateConstructorUsedError;
   @override
   @JsonKey(name: 'schema.polling.interval')
-  int get schemapollinginterval;
+  int get schemapollinginterval => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$ISettingsCopyWith<_ISettings> get copyWith =>
+  _$$_ISettingsCopyWith<_$_ISettings> get copyWith =>
       throw _privateConstructorUsedError;
 }

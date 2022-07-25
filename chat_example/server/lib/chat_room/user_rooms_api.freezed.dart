@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'user_rooms_api.dart';
@@ -11,7 +12,7 @@ part of 'user_rooms_api.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 UserChatEvent _$UserChatEventFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
@@ -25,31 +26,6 @@ UserChatEvent _$UserChatEventFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$UserChatEventTearOff {
-  const _$UserChatEventTearOff();
-
-  UserChatAddedEvent added({required ChatRoomUser chatUser}) {
-    return UserChatAddedEvent(
-      chatUser: chatUser,
-    );
-  }
-
-  UserChatRemovedEvent removed({required int chatId, required int userId}) {
-    return UserChatRemovedEvent(
-      chatId: chatId,
-      userId: userId,
-    );
-  }
-
-  UserChatEvent fromJson(Map<String, Object?> json) {
-    return UserChatEvent.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $UserChatEvent = _$UserChatEventTearOff();
 
 /// @nodoc
 mixin _$UserChatEvent {
@@ -112,29 +88,29 @@ class _$UserChatEventCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class $UserChatAddedEventCopyWith<$Res> {
-  factory $UserChatAddedEventCopyWith(
-          UserChatAddedEvent value, $Res Function(UserChatAddedEvent) then) =
-      _$UserChatAddedEventCopyWithImpl<$Res>;
+abstract class _$$UserChatAddedEventCopyWith<$Res> {
+  factory _$$UserChatAddedEventCopyWith(_$UserChatAddedEvent value,
+          $Res Function(_$UserChatAddedEvent) then) =
+      __$$UserChatAddedEventCopyWithImpl<$Res>;
   $Res call({ChatRoomUser chatUser});
 }
 
 /// @nodoc
-class _$UserChatAddedEventCopyWithImpl<$Res>
+class __$$UserChatAddedEventCopyWithImpl<$Res>
     extends _$UserChatEventCopyWithImpl<$Res>
-    implements $UserChatAddedEventCopyWith<$Res> {
-  _$UserChatAddedEventCopyWithImpl(
-      UserChatAddedEvent _value, $Res Function(UserChatAddedEvent) _then)
-      : super(_value, (v) => _then(v as UserChatAddedEvent));
+    implements _$$UserChatAddedEventCopyWith<$Res> {
+  __$$UserChatAddedEventCopyWithImpl(
+      _$UserChatAddedEvent _value, $Res Function(_$UserChatAddedEvent) _then)
+      : super(_value, (v) => _then(v as _$UserChatAddedEvent));
 
   @override
-  UserChatAddedEvent get _value => super._value as UserChatAddedEvent;
+  _$UserChatAddedEvent get _value => super._value as _$UserChatAddedEvent;
 
   @override
   $Res call({
     Object? chatUser = freezed,
   }) {
-    return _then(UserChatAddedEvent(
+    return _then(_$UserChatAddedEvent(
       chatUser: chatUser == freezed
           ? _value.chatUser
           : chatUser // ignore: cast_nullable_to_non_nullable
@@ -146,7 +122,7 @@ class _$UserChatAddedEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserChatAddedEvent extends UserChatAddedEvent {
-  const _$UserChatAddedEvent({required this.chatUser, String? $type})
+  const _$UserChatAddedEvent({required this.chatUser, final String? $type})
       : $type = $type ?? 'added',
         super._();
 
@@ -168,18 +144,20 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserChatAddedEvent &&
+            other is _$UserChatAddedEvent &&
             const DeepCollectionEquality().equals(other.chatUser, chatUser));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(chatUser));
 
   @JsonKey(ignore: true)
   @override
-  $UserChatAddedEventCopyWith<UserChatAddedEvent> get copyWith =>
-      _$UserChatAddedEventCopyWithImpl<UserChatAddedEvent>(this, _$identity);
+  _$$UserChatAddedEventCopyWith<_$UserChatAddedEvent> get copyWith =>
+      __$$UserChatAddedEventCopyWithImpl<_$UserChatAddedEvent>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -250,44 +228,44 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
 }
 
 abstract class UserChatAddedEvent extends UserChatEvent {
-  const factory UserChatAddedEvent({required ChatRoomUser chatUser}) =
+  const factory UserChatAddedEvent({required final ChatRoomUser chatUser}) =
       _$UserChatAddedEvent;
   const UserChatAddedEvent._() : super._();
 
   factory UserChatAddedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatAddedEvent.fromJson;
 
-  ChatRoomUser get chatUser;
+  ChatRoomUser get chatUser => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserChatAddedEventCopyWith<UserChatAddedEvent> get copyWith =>
+  _$$UserChatAddedEventCopyWith<_$UserChatAddedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserChatRemovedEventCopyWith<$Res> {
-  factory $UserChatRemovedEventCopyWith(UserChatRemovedEvent value,
-          $Res Function(UserChatRemovedEvent) then) =
-      _$UserChatRemovedEventCopyWithImpl<$Res>;
+abstract class _$$UserChatRemovedEventCopyWith<$Res> {
+  factory _$$UserChatRemovedEventCopyWith(_$UserChatRemovedEvent value,
+          $Res Function(_$UserChatRemovedEvent) then) =
+      __$$UserChatRemovedEventCopyWithImpl<$Res>;
   $Res call({int chatId, int userId});
 }
 
 /// @nodoc
-class _$UserChatRemovedEventCopyWithImpl<$Res>
+class __$$UserChatRemovedEventCopyWithImpl<$Res>
     extends _$UserChatEventCopyWithImpl<$Res>
-    implements $UserChatRemovedEventCopyWith<$Res> {
-  _$UserChatRemovedEventCopyWithImpl(
-      UserChatRemovedEvent _value, $Res Function(UserChatRemovedEvent) _then)
-      : super(_value, (v) => _then(v as UserChatRemovedEvent));
+    implements _$$UserChatRemovedEventCopyWith<$Res> {
+  __$$UserChatRemovedEventCopyWithImpl(_$UserChatRemovedEvent _value,
+      $Res Function(_$UserChatRemovedEvent) _then)
+      : super(_value, (v) => _then(v as _$UserChatRemovedEvent));
 
   @override
-  UserChatRemovedEvent get _value => super._value as UserChatRemovedEvent;
+  _$UserChatRemovedEvent get _value => super._value as _$UserChatRemovedEvent;
 
   @override
   $Res call({
     Object? chatId = freezed,
     Object? userId = freezed,
   }) {
-    return _then(UserChatRemovedEvent(
+    return _then(_$UserChatRemovedEvent(
       chatId: chatId == freezed
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
@@ -304,7 +282,7 @@ class _$UserChatRemovedEventCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   const _$UserChatRemovedEvent(
-      {required this.chatId, required this.userId, String? $type})
+      {required this.chatId, required this.userId, final String? $type})
       : $type = $type ?? 'removed',
         super._();
 
@@ -328,11 +306,12 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserChatRemovedEvent &&
+            other is _$UserChatRemovedEvent &&
             const DeepCollectionEquality().equals(other.chatId, chatId) &&
             const DeepCollectionEquality().equals(other.userId, userId));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -341,8 +320,8 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
 
   @JsonKey(ignore: true)
   @override
-  $UserChatRemovedEventCopyWith<UserChatRemovedEvent> get copyWith =>
-      _$UserChatRemovedEventCopyWithImpl<UserChatRemovedEvent>(
+  _$$UserChatRemovedEventCopyWith<_$UserChatRemovedEvent> get copyWith =>
+      __$$UserChatRemovedEventCopyWithImpl<_$UserChatRemovedEvent>(
           this, _$identity);
 
   @override
@@ -415,15 +394,16 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
 
 abstract class UserChatRemovedEvent extends UserChatEvent {
   const factory UserChatRemovedEvent(
-      {required int chatId, required int userId}) = _$UserChatRemovedEvent;
+      {required final int chatId,
+      required final int userId}) = _$UserChatRemovedEvent;
   const UserChatRemovedEvent._() : super._();
 
   factory UserChatRemovedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatRemovedEvent.fromJson;
 
-  int get chatId;
-  int get userId;
+  int get chatId => throw _privateConstructorUsedError;
+  int get userId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserChatRemovedEventCopyWith<UserChatRemovedEvent> get copyWith =>
+  _$$UserChatRemovedEventCopyWith<_$UserChatRemovedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
