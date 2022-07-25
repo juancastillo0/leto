@@ -216,7 +216,8 @@ abstract class Server {
                   OperationMessage(OperationMessage.gqlComplete, id: msg.id));
             }
             currentOperationIds.remove(msg.id);
-          } else if (msg.type == OperationMessage.gqlComplete) {
+          } else if (msg.type == OperationMessage.gqlComplete ||
+              msg.type == OperationMessage.gqlStop) {
             if (msg.id == null) {
               throw FormatException('${msg.type} id is required.');
             }
@@ -226,6 +227,7 @@ abstract class Server {
             }
           } else if (msg.type == OperationMessage.gqlConnectionTerminate) {
             await _sub.cancel();
+            await _onDone();
           }
         } else if (msg.type == OperationMessage.subscribe) {
           return client.closeWithReason(
