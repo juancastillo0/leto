@@ -334,7 +334,7 @@ if (validationErrorMap.isNotEmpty) {
   if (handlingFuture) {
     final _resolverClassName = element.enclosingElement.name;
     _getter = 'final _call = ($_resolverClassName r) => r.$_call;\n'
-        ' final FutureOr<$_resolverClassName> _obj = // ignore: unnecessary_non_null_assertion\n$_getter;'
+        ' final FutureOr<$_resolverClassName> _obj = \n// ignore: unnecessary_non_null_assertion\n$_getter;'
         ' if (_obj is Future<$_resolverClassName>) return _obj.then(_call);'
         ' else return _call(_obj);';
   }
