@@ -1,4 +1,3 @@
-
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_store.dart';
 import 'package:chat_example/utils/confirmation_dialog.dart';
