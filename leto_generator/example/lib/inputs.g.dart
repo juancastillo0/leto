@@ -170,7 +170,7 @@ final _inputMGraphQLTypeInput =
           .list()
           .nonNull()
           .inputField('nested', attachments: [
-        ValidaAttachment(ValidaList(minLength: 1)),
+        ValidaAttachment(ValidaList(maxLength: 2)),
       ]),
       inputMNGraphQLTypeInput.list().nonNull().inputField('nestedNullItem'),
       inputMNGraphQLTypeInput.list().inputField('nestedNullItemNull'),
@@ -636,7 +636,7 @@ class InputMValidation extends Validation<InputM, InputMField> {
       InputMField.name: ValidaString(minLength: 1, isAlpha: true),
       InputMField.date: ValidaDate(min: 'now', max: '2023-01-01'),
       InputMField.doubles: ValidaList(each: ValidaNum(min: -2)),
-      InputMField.nested: ValidaList(minLength: 1),
+      InputMField.nested: ValidaList(maxLength: 2),
     },
     getField: _getField,
     globalValidate: _globalValidate,

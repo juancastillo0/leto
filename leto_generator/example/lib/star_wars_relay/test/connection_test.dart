@@ -256,21 +256,8 @@ void main() {
           ],
           'extensions': {
             'validaErrors': {
-              'args': [
-                {
-                  // TODO: should we pass the value?
-                  'property': 'first',
-                  'errorCode': 'ValidaNum.min',
-                  'validationParam': 1,
-                  'message': 'Should be at a minimum 1'
-                },
-                {
-                  'property': 'last',
-                  'errorCode': 'ValidaNum.min',
-                  'validationParam': 1,
-                  'message': 'Should be at a minimum 1'
-                }
-              ],
+              'first': hasLength(1),
+              'last': hasLength(1),
             }
           }
         }

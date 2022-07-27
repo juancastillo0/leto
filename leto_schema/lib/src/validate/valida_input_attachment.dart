@@ -22,7 +22,7 @@ class ValidaAttachment implements ToDirectiveValue {
           name: const NameNode(value: 'jsonSpec'),
           value: StringValueNode(
             value: _jsonSpec(),
-            isBlock: false,
+            isBlock: true,
           ),
         ),
       ],

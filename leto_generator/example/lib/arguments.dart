@@ -88,13 +88,16 @@ String testManyDefaults({
   });
 }
 
-const testValidaInArgsGraphQLStr = 'testValidaInArgs('
-    'strSOrA: String! @valida(jsonSpec: "{"variantType":"string","isIn":["S","A"]}"),'
-    ' otherInt: Int,'
-    ' greaterThan3AndOtherInt: Int! = 4 @valida(jsonSpec: "{"variantType":"num","comp":{"more":{"variantType":"list","values":[{"variantType":"single","value":3},{"variantType":"ref","ref":"otherInt","isRequired":false}]},"useCompareTo":true}}"),'
-    ' after2020: Date @valida(jsonSpec: "{"variantType":"date","min":"2021-01-01"}"),'
-    ' nonEmptyList: [String!] @valida(jsonSpec: "{"variantType":"list","minLength":1}"),'
-    ' model: ValidaArgModel): String!';
+const testValidaInArgsGraphQLStr =
+    'testValidaInArgs(strSOrA: String! @valida(jsonSpec: """\n'
+    '{"variantType":"string","isIn":["S","A"]}\n'
+    '"""), otherInt: Int, greaterThan3AndOtherInt: Int! = 4 @valida(jsonSpec: """\n'
+    '{"variantType":"num","comp":{"more":{"variantType":"list","values":[{"variantType":"single","value":3},{"variantType":"ref","ref":"otherInt","isRequired":false}]},"useCompareTo":true}}\n'
+    '"""), after2020: Date @valida(jsonSpec: """\n'
+    '{"variantType":"date","min":"2021-01-01"}\n'
+    '"""), nonEmptyList: [String!] @valida(jsonSpec: """\n'
+    '{"variantType":"list","minLength":1}\n'
+    '"""), model: ValidaArgModel): String!';
 
 @Query()
 @Valida()
@@ -129,7 +132,9 @@ String testValidaInArgsSingleModel({
 
 const validaArgModelGraphQLStr = '''
 input ValidaArgModel {
-  strs: [String!]! @valida(jsonSpec: "{"variantType":"list","each":{"variantType":"string","minLength":1}}")
+  strs: [String!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"string","minLength":1}}
+""")
   inner: ValidaArgModel
 }''';
 

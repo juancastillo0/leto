@@ -9,14 +9,23 @@ import 'package:valida/valida.dart';
 part 'inputs.g.dart';
 part 'inputs.freezed.dart';
 
+// TODO: test InputM valida
 const inputsSchemaStr = [
   '''
 input InputM {
-  name: String!
-  date: Date
+  name: String! @valida(jsonSpec: """
+{"variantType":"string","minLength":1,"isAlpha":true}
+""")
+  date: Date @valida(jsonSpec: """
+{"variantType":"date","min":"now","max":"2023-01-01"}
+""")
   ints: [Int!]!
-  doubles: [Float!]!
-  nested: [InputMNRenamed!]!
+  doubles: [Float!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"num","min":-2}}
+""")
+  nested: [InputMNRenamed!]! @valida(jsonSpec: """
+{"variantType":"list","maxLength":2}
+""")
   nestedNullItem: [InputMNRenamed]!
   nestedNullItemNull: [InputMNRenamed]
   nestedNull: [InputMNRenamed!]
@@ -65,7 +74,7 @@ class InputM {
   @ValidaList(each: ValidaNum(min: -2))
   final List<double> doubles;
 
-  @ValidaList(minLength: 1)
+  @ValidaList(maxLength: 2)
   final List<InputMN> nested;
   final List<InputMN?> nestedNullItem;
   final List<InputMN?>? nestedNullItemNull;
