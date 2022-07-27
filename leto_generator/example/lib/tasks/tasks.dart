@@ -77,7 +77,7 @@ type Task implements Named & WithId & WithCreated {
   weight: Int!
   extra: Json
   createdTimestamp: Timestamp!
-  assignedTo: [User!]! @cost(complexity: 10)
+  assignedTo: [User!]!
 }''',
   '''
 type User implements Named & WithId {
@@ -117,11 +117,12 @@ class Task implements Named, WithCreated {
   @override
   @GraphQLField(type: 'graphQLTimestamp.nonNull()')
   final DateTime createdTimestamp;
-  @AttachFn(assignedToAttachments)
+  // @AttachFn(assignedToAttachments)
   final List<User> assignedTo;
 
-  static GraphQLAttachments assignedToAttachments() =>
-      const [ElementComplexity(10)];
+  // TODO: test and support element complexity in schema. GraphQLInput field cant have complexity
+  // static GraphQLAttachments assignedToAttachments() =>
+  //     const [ElementComplexity(10)];
 
   Task({
     required this.id,
