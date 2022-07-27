@@ -39,7 +39,7 @@ final _addTestModelGraphQLField =
 
                 return addTestModel(ctx, (args["realName"] as String),
                     previous: (args["previous"] as TestModel?),
-                    name: (args["name"] as String),
+                    name: (args["name"] as String?),
                     value: (args["value"] as List<int>));
               },
               description: 'the function uses [value] to do stuff',
@@ -47,9 +47,8 @@ final _addTestModelGraphQLField =
               ..inputs.addAll([
                 graphQLString.nonNull().inputField('realName'),
                 testModelGraphQLTypeInput.inputField('previous'),
-                graphQLString
-                    .nonNull()
-                    .inputField('name', deprecationReason: 'use realName'),
+                graphQLString.inputField('name',
+                    deprecationReason: 'use realName'),
                 graphQLInt.nonNull().list().nonNull().inputField('value')
               ]));
 
