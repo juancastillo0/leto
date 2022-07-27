@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'unions.dart';
@@ -11,37 +12,17 @@ part of 'unions.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 FreezedSingleInput _$FreezedSingleInputFromJson(Map<String, dynamic> json) {
   return _FreezedSingleInput.fromJson(json);
 }
 
 /// @nodoc
-class _$FreezedSingleInputTearOff {
-  const _$FreezedSingleInputTearOff();
-
-  _FreezedSingleInput cc(String? positional, {int five = 5}) {
-    return _FreezedSingleInput(
-      positional,
-      five: five,
-    );
-  }
-
-  FreezedSingleInput fromJson(Map<String, Object?> json) {
-    return FreezedSingleInput.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $FreezedSingleInput = _$FreezedSingleInputTearOff();
-
-/// @nodoc
 mixin _$FreezedSingleInput {
   String? get positional =>
       throw _privateConstructorUsedError; // five with default
   int get five => throw _privateConstructorUsedError;
-
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String? positional, int five) cc,
@@ -116,32 +97,32 @@ class _$FreezedSingleInputCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$FreezedSingleInputCopyWith<$Res>
+abstract class _$$_FreezedSingleInputCopyWith<$Res>
     implements $FreezedSingleInputCopyWith<$Res> {
-  factory _$FreezedSingleInputCopyWith(
-          _FreezedSingleInput value, $Res Function(_FreezedSingleInput) then) =
-      __$FreezedSingleInputCopyWithImpl<$Res>;
+  factory _$$_FreezedSingleInputCopyWith(_$_FreezedSingleInput value,
+          $Res Function(_$_FreezedSingleInput) then) =
+      __$$_FreezedSingleInputCopyWithImpl<$Res>;
   @override
   $Res call({String? positional, int five});
 }
 
 /// @nodoc
-class __$FreezedSingleInputCopyWithImpl<$Res>
+class __$$_FreezedSingleInputCopyWithImpl<$Res>
     extends _$FreezedSingleInputCopyWithImpl<$Res>
-    implements _$FreezedSingleInputCopyWith<$Res> {
-  __$FreezedSingleInputCopyWithImpl(
-      _FreezedSingleInput _value, $Res Function(_FreezedSingleInput) _then)
-      : super(_value, (v) => _then(v as _FreezedSingleInput));
+    implements _$$_FreezedSingleInputCopyWith<$Res> {
+  __$$_FreezedSingleInputCopyWithImpl(
+      _$_FreezedSingleInput _value, $Res Function(_$_FreezedSingleInput) _then)
+      : super(_value, (v) => _then(v as _$_FreezedSingleInput));
 
   @override
-  _FreezedSingleInput get _value => super._value as _FreezedSingleInput;
+  _$_FreezedSingleInput get _value => super._value as _$_FreezedSingleInput;
 
   @override
   $Res call({
     Object? positional = freezed,
     Object? five = freezed,
   }) {
-    return _then(_FreezedSingleInput(
+    return _then(_$_FreezedSingleInput(
       positional == freezed
           ? _value.positional
           : positional // ignore: cast_nullable_to_non_nullable
@@ -164,8 +145,9 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
 
   @override
   final String? positional;
+// five with default
+  @override
   @JsonKey()
-  @override // five with default
   final int five;
 
   @override
@@ -177,12 +159,13 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _FreezedSingleInput &&
+            other is _$_FreezedSingleInput &&
             const DeepCollectionEquality()
                 .equals(other.positional, positional) &&
             const DeepCollectionEquality().equals(other.five, five));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -191,8 +174,9 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
 
   @JsonKey(ignore: true)
   @override
-  _$FreezedSingleInputCopyWith<_FreezedSingleInput> get copyWith =>
-      __$FreezedSingleInputCopyWithImpl<_FreezedSingleInput>(this, _$identity);
+  _$$_FreezedSingleInputCopyWith<_$_FreezedSingleInput> get copyWith =>
+      __$$_FreezedSingleInputCopyWithImpl<_$_FreezedSingleInput>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -257,19 +241,19 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
 }
 
 abstract class _FreezedSingleInput implements FreezedSingleInput {
-  const factory _FreezedSingleInput(String? positional, {int five}) =
-      _$_FreezedSingleInput;
+  const factory _FreezedSingleInput(final String? positional,
+      {final int five}) = _$_FreezedSingleInput;
 
   factory _FreezedSingleInput.fromJson(Map<String, dynamic> json) =
       _$_FreezedSingleInput.fromJson;
 
   @override
-  String? get positional;
+  String? get positional => throw _privateConstructorUsedError;
   @override // five with default
-  int get five;
+  int get five => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$FreezedSingleInputCopyWith<_FreezedSingleInput> get copyWith =>
+  _$$_FreezedSingleInputCopyWith<_$_FreezedSingleInput> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -289,47 +273,6 @@ UnionA _$UnionAFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$UnionATearOff {
-  const _$UnionATearOff();
-
-  _UnionA1 a1({int one = 5}) {
-    return _UnionA1(
-      one: one,
-    );
-  }
-
-  _UnionA2 a2(
-      {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
-      @Deprecated('custom deprecated msg')
-          Decimal? dec}) {
-    return _UnionA2(
-      dec: dec,
-    );
-  }
-
-  UnionA3 a3(
-      {@GraphQLDocumentation(description: 'description for one')
-          List<int>? one}) {
-    return UnionA3(
-      one: one,
-    );
-  }
-
-  _UnionA4 a4({@GraphQLField(name: 'oneRenamed') required List<int> one}) {
-    return _UnionA4(
-      one: one,
-    );
-  }
-
-  UnionA fromJson(Map<String, Object?> json) {
-    return UnionA.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $UnionA = _$UnionATearOff();
 
 /// @nodoc
 mixin _$UnionA {
@@ -424,26 +367,27 @@ class _$UnionACopyWithImpl<$Res> implements $UnionACopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$UnionA1CopyWith<$Res> {
-  factory _$UnionA1CopyWith(_UnionA1 value, $Res Function(_UnionA1) then) =
-      __$UnionA1CopyWithImpl<$Res>;
+abstract class _$$_UnionA1CopyWith<$Res> {
+  factory _$$_UnionA1CopyWith(
+          _$_UnionA1 value, $Res Function(_$_UnionA1) then) =
+      __$$_UnionA1CopyWithImpl<$Res>;
   $Res call({int one});
 }
 
 /// @nodoc
-class __$UnionA1CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
-    implements _$UnionA1CopyWith<$Res> {
-  __$UnionA1CopyWithImpl(_UnionA1 _value, $Res Function(_UnionA1) _then)
-      : super(_value, (v) => _then(v as _UnionA1));
+class __$$_UnionA1CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+    implements _$$_UnionA1CopyWith<$Res> {
+  __$$_UnionA1CopyWithImpl(_$_UnionA1 _value, $Res Function(_$_UnionA1) _then)
+      : super(_value, (v) => _then(v as _$_UnionA1));
 
   @override
-  _UnionA1 get _value => super._value as _UnionA1;
+  _$_UnionA1 get _value => super._value as _$_UnionA1;
 
   @override
   $Res call({
     Object? one = freezed,
   }) {
-    return _then(_UnionA1(
+    return _then(_$_UnionA1(
       one: one == freezed
           ? _value.one
           : one // ignore: cast_nullable_to_non_nullable
@@ -455,13 +399,14 @@ class __$UnionA1CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_UnionA1 implements _UnionA1 {
-  const _$_UnionA1({this.one = 5, String? $type}) : $type = $type ?? 'a1';
+  const _$_UnionA1({this.one = 5, final String? $type}) : $type = $type ?? 'a1';
 
   factory _$_UnionA1.fromJson(Map<String, dynamic> json) =>
       _$$_UnionA1FromJson(json);
 
+// five with default
+  @override
   @JsonKey()
-  @override // five with default
   final int one;
 
   @JsonKey(name: 'runtimeType')
@@ -476,18 +421,19 @@ class _$_UnionA1 implements _UnionA1 {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _UnionA1 &&
+            other is _$_UnionA1 &&
             const DeepCollectionEquality().equals(other.one, one));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
 
   @JsonKey(ignore: true)
   @override
-  _$UnionA1CopyWith<_UnionA1> get copyWith =>
-      __$UnionA1CopyWithImpl<_UnionA1>(this, _$identity);
+  _$$_UnionA1CopyWith<_$_UnionA1> get copyWith =>
+      __$$_UnionA1CopyWithImpl<_$_UnionA1>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -592,21 +538,22 @@ class _$_UnionA1 implements _UnionA1 {
 }
 
 abstract class _UnionA1 implements UnionA {
-  const factory _UnionA1({int one}) = _$_UnionA1;
+  const factory _UnionA1({final int one}) = _$_UnionA1;
 
   factory _UnionA1.fromJson(Map<String, dynamic> json) = _$_UnionA1.fromJson;
 
 // five with default
-  int get one;
+  int get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$UnionA1CopyWith<_UnionA1> get copyWith =>
+  _$$_UnionA1CopyWith<_$_UnionA1> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$UnionA2CopyWith<$Res> {
-  factory _$UnionA2CopyWith(_UnionA2 value, $Res Function(_UnionA2) then) =
-      __$UnionA2CopyWithImpl<$Res>;
+abstract class _$$_UnionA2CopyWith<$Res> {
+  factory _$$_UnionA2CopyWith(
+          _$_UnionA2 value, $Res Function(_$_UnionA2) then) =
+      __$$_UnionA2CopyWithImpl<$Res>;
   $Res call(
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
@@ -614,19 +561,19 @@ abstract class _$UnionA2CopyWith<$Res> {
 }
 
 /// @nodoc
-class __$UnionA2CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
-    implements _$UnionA2CopyWith<$Res> {
-  __$UnionA2CopyWithImpl(_UnionA2 _value, $Res Function(_UnionA2) _then)
-      : super(_value, (v) => _then(v as _UnionA2));
+class __$$_UnionA2CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+    implements _$$_UnionA2CopyWith<$Res> {
+  __$$_UnionA2CopyWithImpl(_$_UnionA2 _value, $Res Function(_$_UnionA2) _then)
+      : super(_value, (v) => _then(v as _$_UnionA2));
 
   @override
-  _UnionA2 get _value => super._value as _UnionA2;
+  _$_UnionA2 get _value => super._value as _$_UnionA2;
 
   @override
   $Res call({
     Object? dec = freezed,
   }) {
-    return _then(_UnionA2(
+    return _then(_$_UnionA2(
       dec: dec == freezed
           ? _value.dec
           : dec // ignore: cast_nullable_to_non_nullable
@@ -642,7 +589,7 @@ class _$_UnionA2 implements _UnionA2 {
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
           this.dec,
-      String? $type})
+      final String? $type})
       : $type = $type ?? 'a2';
 
   factory _$_UnionA2.fromJson(Map<String, dynamic> json) =>
@@ -665,18 +612,19 @@ class _$_UnionA2 implements _UnionA2 {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _UnionA2 &&
+            other is _$_UnionA2 &&
             const DeepCollectionEquality().equals(other.dec, dec));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(dec));
 
   @JsonKey(ignore: true)
   @override
-  _$UnionA2CopyWith<_UnionA2> get copyWith =>
-      __$UnionA2CopyWithImpl<_UnionA2>(this, _$identity);
+  _$$_UnionA2CopyWith<_$_UnionA2> get copyWith =>
+      __$$_UnionA2CopyWithImpl<_$_UnionA2>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -784,43 +732,43 @@ abstract class _UnionA2 implements UnionA {
   const factory _UnionA2(
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
-          Decimal? dec}) = _$_UnionA2;
+          final Decimal? dec}) = _$_UnionA2;
 
   factory _UnionA2.fromJson(Map<String, dynamic> json) = _$_UnionA2.fromJson;
 
   @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
   @Deprecated('custom deprecated msg')
-  Decimal? get dec;
+  Decimal? get dec => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$UnionA2CopyWith<_UnionA2> get copyWith =>
+  _$$_UnionA2CopyWith<_$_UnionA2> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UnionA3CopyWith<$Res> {
-  factory $UnionA3CopyWith(UnionA3 value, $Res Function(UnionA3) then) =
-      _$UnionA3CopyWithImpl<$Res>;
+abstract class _$$UnionA3CopyWith<$Res> {
+  factory _$$UnionA3CopyWith(_$UnionA3 value, $Res Function(_$UnionA3) then) =
+      __$$UnionA3CopyWithImpl<$Res>;
   $Res call(
       {@GraphQLDocumentation(description: 'description for one')
           List<int>? one});
 }
 
 /// @nodoc
-class _$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
-    implements $UnionA3CopyWith<$Res> {
-  _$UnionA3CopyWithImpl(UnionA3 _value, $Res Function(UnionA3) _then)
-      : super(_value, (v) => _then(v as UnionA3));
+class __$$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+    implements _$$UnionA3CopyWith<$Res> {
+  __$$UnionA3CopyWithImpl(_$UnionA3 _value, $Res Function(_$UnionA3) _then)
+      : super(_value, (v) => _then(v as _$UnionA3));
 
   @override
-  UnionA3 get _value => super._value as UnionA3;
+  _$UnionA3 get _value => super._value as _$UnionA3;
 
   @override
   $Res call({
     Object? one = freezed,
   }) {
-    return _then(UnionA3(
+    return _then(_$UnionA3(
       one: one == freezed
-          ? _value.one
+          ? _value._one
           : one // ignore: cast_nullable_to_non_nullable
               as List<int>?,
     ));
@@ -831,16 +779,24 @@ class _$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 @JsonSerializable()
 class _$UnionA3 implements UnionA3 {
   const _$UnionA3(
-      {@GraphQLDocumentation(description: 'description for one') this.one,
-      String? $type})
-      : $type = $type ?? 'a3';
+      {@GraphQLDocumentation(description: 'description for one')
+          final List<int>? one,
+      final String? $type})
+      : _one = one,
+        $type = $type ?? 'a3';
 
   factory _$UnionA3.fromJson(Map<String, dynamic> json) =>
       _$$UnionA3FromJson(json);
 
+  final List<int>? _one;
   @override
   @GraphQLDocumentation(description: 'description for one')
-  final List<int>? one;
+  List<int>? get one {
+    final value = _one;
+    if (value == null) return null;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -854,18 +810,19 @@ class _$UnionA3 implements UnionA3 {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UnionA3 &&
-            const DeepCollectionEquality().equals(other.one, one));
+            other is _$UnionA3 &&
+            const DeepCollectionEquality().equals(other._one, _one));
   }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
 
   @JsonKey(ignore: true)
   @override
-  $UnionA3CopyWith<UnionA3> get copyWith =>
-      _$UnionA3CopyWithImpl<UnionA3>(this, _$identity);
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_one));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$UnionA3CopyWith<_$UnionA3> get copyWith =>
+      __$$UnionA3CopyWithImpl<_$UnionA3>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -972,39 +929,41 @@ class _$UnionA3 implements UnionA3 {
 abstract class UnionA3 implements UnionA {
   const factory UnionA3(
       {@GraphQLDocumentation(description: 'description for one')
-          List<int>? one}) = _$UnionA3;
+          final List<int>? one}) = _$UnionA3;
 
   factory UnionA3.fromJson(Map<String, dynamic> json) = _$UnionA3.fromJson;
 
   @GraphQLDocumentation(description: 'description for one')
-  List<int>? get one;
+  List<int>? get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UnionA3CopyWith<UnionA3> get copyWith => throw _privateConstructorUsedError;
+  _$$UnionA3CopyWith<_$UnionA3> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$UnionA4CopyWith<$Res> {
-  factory _$UnionA4CopyWith(_UnionA4 value, $Res Function(_UnionA4) then) =
-      __$UnionA4CopyWithImpl<$Res>;
+abstract class _$$_UnionA4CopyWith<$Res> {
+  factory _$$_UnionA4CopyWith(
+          _$_UnionA4 value, $Res Function(_$_UnionA4) then) =
+      __$$_UnionA4CopyWithImpl<$Res>;
   $Res call({@GraphQLField(name: 'oneRenamed') List<int> one});
 }
 
 /// @nodoc
-class __$UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
-    implements _$UnionA4CopyWith<$Res> {
-  __$UnionA4CopyWithImpl(_UnionA4 _value, $Res Function(_UnionA4) _then)
-      : super(_value, (v) => _then(v as _UnionA4));
+class __$$_UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+    implements _$$_UnionA4CopyWith<$Res> {
+  __$$_UnionA4CopyWithImpl(_$_UnionA4 _value, $Res Function(_$_UnionA4) _then)
+      : super(_value, (v) => _then(v as _$_UnionA4));
 
   @override
-  _UnionA4 get _value => super._value as _UnionA4;
+  _$_UnionA4 get _value => super._value as _$_UnionA4;
 
   @override
   $Res call({
     Object? one = freezed,
   }) {
-    return _then(_UnionA4(
+    return _then(_$_UnionA4(
       one: one == freezed
-          ? _value.one
+          ? _value._one
           : one // ignore: cast_nullable_to_non_nullable
               as List<int>,
     ));
@@ -1015,15 +974,21 @@ class __$UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 @JsonSerializable()
 class _$_UnionA4 implements _UnionA4 {
   const _$_UnionA4(
-      {@GraphQLField(name: 'oneRenamed') required this.one, String? $type})
-      : $type = $type ?? 'a4';
+      {@GraphQLField(name: 'oneRenamed') required final List<int> one,
+      final String? $type})
+      : _one = one,
+        $type = $type ?? 'a4';
 
   factory _$_UnionA4.fromJson(Map<String, dynamic> json) =>
       _$$_UnionA4FromJson(json);
 
+  final List<int> _one;
   @override
   @GraphQLField(name: 'oneRenamed')
-  final List<int> one;
+  List<int> get one {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_one);
+  }
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -1037,18 +1002,19 @@ class _$_UnionA4 implements _UnionA4 {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _UnionA4 &&
-            const DeepCollectionEquality().equals(other.one, one));
+            other is _$_UnionA4 &&
+            const DeepCollectionEquality().equals(other._one, _one));
   }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
 
   @JsonKey(ignore: true)
   @override
-  _$UnionA4CopyWith<_UnionA4> get copyWith =>
-      __$UnionA4CopyWithImpl<_UnionA4>(this, _$identity);
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_one));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$_UnionA4CopyWith<_$_UnionA4> get copyWith =>
+      __$$_UnionA4CopyWithImpl<_$_UnionA4>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -1154,13 +1120,14 @@ class _$_UnionA4 implements _UnionA4 {
 
 abstract class _UnionA4 implements UnionA {
   const factory _UnionA4(
-      {@GraphQLField(name: 'oneRenamed') required List<int> one}) = _$_UnionA4;
+          {@GraphQLField(name: 'oneRenamed') required final List<int> one}) =
+      _$_UnionA4;
 
   factory _UnionA4.fromJson(Map<String, dynamic> json) = _$_UnionA4.fromJson;
 
   @GraphQLField(name: 'oneRenamed')
-  List<int> get one;
+  List<int> get one => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  _$UnionA4CopyWith<_UnionA4> get copyWith =>
+  _$$_UnionA4CopyWith<_$_UnionA4> get copyWith =>
       throw _privateConstructorUsedError;
 }

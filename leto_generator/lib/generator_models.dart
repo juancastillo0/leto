@@ -431,7 +431,7 @@ ${ReCase(typeName).camelCase}SerdeCtx.add(
         if (!isInput) 'interfaces': literalList(interfaces),
         if (isInput && inputConfig!.oneOf == true) 'isOneOf': literalBool(true),
         if (description != null && description!.isNotEmpty)
-          'description': literalString(description!),
+          'description': refer("'${description!}'"),
         if (attachments != null)
           'extra': refer('GraphQLTypeDefinitionExtra.attach').call([
             refer(attachments!),
@@ -492,11 +492,20 @@ class FieldInfo {
         if (isInput && defaultValueCode != null)
           'defaultValue': refer(defaultValueCode!),
         if (description != null && description!.isNotEmpty)
-          'description': literalString(description!),
+          'description': refer("'${description!}'"),
         if (deprecationReason != null)
           'deprecationReason': literalString(deprecationReason!),
         if (attachments != null) 'attachments': refer(attachments!)
       },
     );
+  }
+
+  @override
+  String toString() {
+    return 'FieldInfo(name: $name, getter: $getter, isMethod: $isMethod,'
+        ' nonNullable: $nonNullable, gqlType: $gqlType, inputs: $inputs,'
+        ' description: $description, fieldAnnot: $fieldAnnot,'
+        ' deprecationReason: $deprecationReason,'
+        ' defaultValueCode: $defaultValueCode, attachments: $attachments)';
   }
 }

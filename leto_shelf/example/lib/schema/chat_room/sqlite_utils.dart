@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:query_builder/query_builder.dart';
+import 'package:collection/collection.dart';
 import 'package:leto_shelf_example/schema/chat_room/mapped_iterator.dart';
+import 'package:query_builder/query_builder.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class SqliteConnection extends TableConnection {

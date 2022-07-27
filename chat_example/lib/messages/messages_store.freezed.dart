@@ -1,5 +1,7 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'messages_store.dart';
 
@@ -10,39 +12,7 @@ part of 'messages_store.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
-
-/// @nodoc
-class _$ChatMessageEventTearOff {
-  const _$ChatMessageEventTearOff();
-
-  ChatMessageSentEvent sent(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
-          value) {
-    return ChatMessageSentEvent(
-      value,
-    );
-  }
-
-  ChatMessageDeletedEvent deleted(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
-          value) {
-    return ChatMessageDeletedEvent(
-      value,
-    );
-  }
-
-  ChatMessageUpdatedEvent updated(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
-          value) {
-    return ChatMessageUpdatedEvent(
-      value,
-    );
-  }
-}
-
-/// @nodoc
-const $ChatMessageEvent = _$ChatMessageEventTearOff();
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 /// @nodoc
 mixin _$ChatMessageEvent {
@@ -59,6 +29,22 @@ mixin _$ChatMessageEvent {
     required TResult Function(
             GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
                 value)
+        updated,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
+                value)?
+        sent,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
+                value)?
+        deleted,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
+                value)?
         updated,
   }) =>
       throw _privateConstructorUsedError;
@@ -84,6 +70,13 @@ mixin _$ChatMessageEvent {
     required TResult Function(ChatMessageSentEvent value) sent,
     required TResult Function(ChatMessageDeletedEvent value) deleted,
     required TResult Function(ChatMessageUpdatedEvent value) updated,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(ChatMessageSentEvent value)? sent,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -114,31 +107,31 @@ class _$ChatMessageEventCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class $ChatMessageSentEventCopyWith<$Res> {
-  factory $ChatMessageSentEventCopyWith(ChatMessageSentEvent value,
-          $Res Function(ChatMessageSentEvent) then) =
-      _$ChatMessageSentEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageSentEventCopyWith<$Res> {
+  factory _$$ChatMessageSentEventCopyWith(_$ChatMessageSentEvent value,
+          $Res Function(_$ChatMessageSentEvent) then) =
+      __$$ChatMessageSentEventCopyWithImpl<$Res>;
   $Res call(
       {GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
           value});
 }
 
 /// @nodoc
-class _$ChatMessageSentEventCopyWithImpl<$Res>
+class __$$ChatMessageSentEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageSentEventCopyWith<$Res> {
-  _$ChatMessageSentEventCopyWithImpl(
-      ChatMessageSentEvent _value, $Res Function(ChatMessageSentEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageSentEvent));
+    implements _$$ChatMessageSentEventCopyWith<$Res> {
+  __$$ChatMessageSentEventCopyWithImpl(_$ChatMessageSentEvent _value,
+      $Res Function(_$ChatMessageSentEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageSentEvent));
 
   @override
-  ChatMessageSentEvent get _value => super._value as ChatMessageSentEvent;
+  _$ChatMessageSentEvent get _value => super._value as _$ChatMessageSentEvent;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(ChatMessageSentEvent(
+    return _then(_$ChatMessageSentEvent(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -174,19 +167,19 @@ class _$ChatMessageSentEvent
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageSentEvent &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is _$ChatMessageSentEvent &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageSentEventCopyWith<ChatMessageSentEvent> get copyWith =>
-      _$ChatMessageSentEventCopyWithImpl<ChatMessageSentEvent>(
+  _$$ChatMessageSentEventCopyWith<_$ChatMessageSentEvent> get copyWith =>
+      __$$ChatMessageSentEventCopyWithImpl<_$ChatMessageSentEvent>(
           this, _$identity);
 
   @override
@@ -206,6 +199,25 @@ class _$ChatMessageSentEvent
         updated,
   }) {
     return sent(value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
+                value)?
+        sent,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
+                value)?
+        deleted,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
+                value)?
+        updated,
+  }) {
+    return sent?.call(value);
   }
 
   @override
@@ -243,6 +255,16 @@ class _$ChatMessageSentEvent
 
   @override
   @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(ChatMessageSentEvent value)? sent,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
+  }) {
+    return sent?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
     TResult Function(ChatMessageDeletedEvent value)? deleted,
@@ -258,42 +280,43 @@ class _$ChatMessageSentEvent
 
 abstract class ChatMessageSentEvent implements ChatMessageEvent {
   const factory ChatMessageSentEvent(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
+      final GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
           value) = _$ChatMessageSentEvent;
 
   GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
       get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageSentEventCopyWith<ChatMessageSentEvent> get copyWith =>
+  _$$ChatMessageSentEventCopyWith<_$ChatMessageSentEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageDeletedEventCopyWith<$Res> {
-  factory $ChatMessageDeletedEventCopyWith(ChatMessageDeletedEvent value,
-          $Res Function(ChatMessageDeletedEvent) then) =
-      _$ChatMessageDeletedEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageDeletedEventCopyWith<$Res> {
+  factory _$$ChatMessageDeletedEventCopyWith(_$ChatMessageDeletedEvent value,
+          $Res Function(_$ChatMessageDeletedEvent) then) =
+      __$$ChatMessageDeletedEventCopyWithImpl<$Res>;
   $Res call(
       {GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
           value});
 }
 
 /// @nodoc
-class _$ChatMessageDeletedEventCopyWithImpl<$Res>
+class __$$ChatMessageDeletedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageDeletedEventCopyWith<$Res> {
-  _$ChatMessageDeletedEventCopyWithImpl(ChatMessageDeletedEvent _value,
-      $Res Function(ChatMessageDeletedEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageDeletedEvent));
+    implements _$$ChatMessageDeletedEventCopyWith<$Res> {
+  __$$ChatMessageDeletedEventCopyWithImpl(_$ChatMessageDeletedEvent _value,
+      $Res Function(_$ChatMessageDeletedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageDeletedEvent));
 
   @override
-  ChatMessageDeletedEvent get _value => super._value as ChatMessageDeletedEvent;
+  _$ChatMessageDeletedEvent get _value =>
+      super._value as _$ChatMessageDeletedEvent;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(ChatMessageDeletedEvent(
+    return _then(_$ChatMessageDeletedEvent(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -329,19 +352,19 @@ class _$ChatMessageDeletedEvent
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageDeletedEvent &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is _$ChatMessageDeletedEvent &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
-      _$ChatMessageDeletedEventCopyWithImpl<ChatMessageDeletedEvent>(
+  _$$ChatMessageDeletedEventCopyWith<_$ChatMessageDeletedEvent> get copyWith =>
+      __$$ChatMessageDeletedEventCopyWithImpl<_$ChatMessageDeletedEvent>(
           this, _$identity);
 
   @override
@@ -361,6 +384,25 @@ class _$ChatMessageDeletedEvent
         updated,
   }) {
     return deleted(value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
+                value)?
+        sent,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
+                value)?
+        deleted,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
+                value)?
+        updated,
+  }) {
+    return deleted?.call(value);
   }
 
   @override
@@ -398,6 +440,16 @@ class _$ChatMessageDeletedEvent
 
   @override
   @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(ChatMessageSentEvent value)? sent,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
+  }) {
+    return deleted?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
     TResult Function(ChatMessageDeletedEvent value)? deleted,
@@ -413,42 +465,43 @@ class _$ChatMessageDeletedEvent
 
 abstract class ChatMessageDeletedEvent implements ChatMessageEvent {
   const factory ChatMessageDeletedEvent(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
+      final GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
           value) = _$ChatMessageDeletedEvent;
 
   GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
       get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageDeletedEventCopyWith<ChatMessageDeletedEvent> get copyWith =>
+  _$$ChatMessageDeletedEventCopyWith<_$ChatMessageDeletedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $ChatMessageUpdatedEventCopyWith<$Res> {
-  factory $ChatMessageUpdatedEventCopyWith(ChatMessageUpdatedEvent value,
-          $Res Function(ChatMessageUpdatedEvent) then) =
-      _$ChatMessageUpdatedEventCopyWithImpl<$Res>;
+abstract class _$$ChatMessageUpdatedEventCopyWith<$Res> {
+  factory _$$ChatMessageUpdatedEventCopyWith(_$ChatMessageUpdatedEvent value,
+          $Res Function(_$ChatMessageUpdatedEvent) then) =
+      __$$ChatMessageUpdatedEventCopyWithImpl<$Res>;
   $Res call(
       {GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
           value});
 }
 
 /// @nodoc
-class _$ChatMessageUpdatedEventCopyWithImpl<$Res>
+class __$$ChatMessageUpdatedEventCopyWithImpl<$Res>
     extends _$ChatMessageEventCopyWithImpl<$Res>
-    implements $ChatMessageUpdatedEventCopyWith<$Res> {
-  _$ChatMessageUpdatedEventCopyWithImpl(ChatMessageUpdatedEvent _value,
-      $Res Function(ChatMessageUpdatedEvent) _then)
-      : super(_value, (v) => _then(v as ChatMessageUpdatedEvent));
+    implements _$$ChatMessageUpdatedEventCopyWith<$Res> {
+  __$$ChatMessageUpdatedEventCopyWithImpl(_$ChatMessageUpdatedEvent _value,
+      $Res Function(_$ChatMessageUpdatedEvent) _then)
+      : super(_value, (v) => _then(v as _$ChatMessageUpdatedEvent));
 
   @override
-  ChatMessageUpdatedEvent get _value => super._value as ChatMessageUpdatedEvent;
+  _$ChatMessageUpdatedEvent get _value =>
+      super._value as _$ChatMessageUpdatedEvent;
 
   @override
   $Res call({
     Object? value = freezed,
   }) {
-    return _then(ChatMessageUpdatedEvent(
+    return _then(_$ChatMessageUpdatedEvent(
       value == freezed
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -484,19 +537,19 @@ class _$ChatMessageUpdatedEvent
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is ChatMessageUpdatedEvent &&
-            (identical(other.value, value) ||
-                const DeepCollectionEquality().equals(other.value, value)));
+        (other.runtimeType == runtimeType &&
+            other is _$ChatMessageUpdatedEvent &&
+            const DeepCollectionEquality().equals(other.value, value));
   }
 
   @override
   int get hashCode =>
-      runtimeType.hashCode ^ const DeepCollectionEquality().hash(value);
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
 
   @JsonKey(ignore: true)
   @override
-  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
-      _$ChatMessageUpdatedEventCopyWithImpl<ChatMessageUpdatedEvent>(
+  _$$ChatMessageUpdatedEventCopyWith<_$ChatMessageUpdatedEvent> get copyWith =>
+      __$$ChatMessageUpdatedEventCopyWithImpl<_$ChatMessageUpdatedEvent>(
           this, _$identity);
 
   @override
@@ -516,6 +569,25 @@ class _$ChatMessageUpdatedEvent
         updated,
   }) {
     return updated(value);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageSentEvent
+                value)?
+        sent,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageDeletedEvent
+                value)?
+        deleted,
+    TResult Function(
+            GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
+                value)?
+        updated,
+  }) {
+    return updated?.call(value);
   }
 
   @override
@@ -553,6 +625,16 @@ class _$ChatMessageUpdatedEvent
 
   @override
   @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult Function(ChatMessageSentEvent value)? sent,
+    TResult Function(ChatMessageDeletedEvent value)? deleted,
+    TResult Function(ChatMessageUpdatedEvent value)? updated,
+  }) {
+    return updated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ChatMessageSentEvent value)? sent,
     TResult Function(ChatMessageDeletedEvent value)? deleted,
@@ -568,12 +650,12 @@ class _$ChatMessageUpdatedEvent
 
 abstract class ChatMessageUpdatedEvent implements ChatMessageEvent {
   const factory ChatMessageUpdatedEvent(
-      GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
+      final GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
           value) = _$ChatMessageUpdatedEvent;
 
   GonEventData_onEvent_data__asChatMessageDBEventData_value__asChatMessageUpdatedEvent
       get value => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $ChatMessageUpdatedEventCopyWith<ChatMessageUpdatedEvent> get copyWith =>
+  _$$ChatMessageUpdatedEventCopyWith<_$ChatMessageUpdatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }

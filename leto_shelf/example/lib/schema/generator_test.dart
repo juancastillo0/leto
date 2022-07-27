@@ -79,7 +79,7 @@ TestModel? addTestModel(
   Ctx context,
   String realName, {
   TestModel? previous,
-  @Deprecated('use realName') required String name,
+  @Deprecated('use realName') String? name,
   required List<int> value,
 }) {
   return TestModel(

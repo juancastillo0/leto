@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chat_example/api/ferry_client.dart';
-import 'package:chat_example/api/user.data.gql.dart';
 import 'package:ferry/ferry.dart';
 import 'package:ferry_hive_store/ferry_hive_store.dart';
 import 'package:gql_websocket_link/gql_websocket_link.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '__generated__/user.data.gql.dart';
 
 Future<PersistenceStore> initPersistence() async {
   Hive.init('hive_data');

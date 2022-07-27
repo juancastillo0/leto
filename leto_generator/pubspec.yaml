@@ -4,10 +4,10 @@ description: Generates GraphQL schemas from Dart classes, for use with package:l
 homepage: https://github.com/juancastillo0/leto
 
 environment:
-  sdk: ">=2.14.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
-  analyzer: ^2.8.0
+  analyzer: ^4.0.0
   build: ^2.3.0
   build_config: ^1.0.0
   code_builder: ^4.1.0
@@ -15,14 +15,17 @@ dependencies:
 
   collection: ^1.16.0
   recase: ^4.0.0
-  json_annotation: ^4.5.0
-  freezed_annotation: ^1.0.0
+  json_annotation: ^4.6.0
+  freezed_annotation: ^2.0.0
 
   dart_style: ^2.2.1
   glob: ^2.1.0
   path: ^1.8.2
 
-  valida: ^0.0.2
+  valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida
   leto_schema:
 
 dev_dependencies:
@@ -31,3 +34,7 @@ dev_dependencies:
 dependency_overrides:
   leto_schema:
     path: ../leto_schema
+  valida:
+    git:
+      url: https://github.com/juancastillo0/valida
+      path: valida

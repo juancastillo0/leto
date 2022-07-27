@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'metadata.dart';
@@ -11,34 +12,11 @@ part of 'metadata.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 MessageMetadata _$MessageMetadataFromJson(Map<String, dynamic> json) {
   return _MessageMetadata.fromJson(json);
 }
-
-/// @nodoc
-class _$MessageMetadataTearOff {
-  const _$MessageMetadataTearOff();
-
-  _MessageMetadata call(
-      {FileMetadata? fileMetadata,
-      LinksMetadata? linksMetadata,
-      required DateTime computedAt}) {
-    return _MessageMetadata(
-      fileMetadata: fileMetadata,
-      linksMetadata: linksMetadata,
-      computedAt: computedAt,
-    );
-  }
-
-  MessageMetadata fromJson(Map<String, Object?> json) {
-    return MessageMetadata.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $MessageMetadata = _$MessageMetadataTearOff();
 
 /// @nodoc
 mixin _$MessageMetadata {
@@ -121,11 +99,11 @@ class _$MessageMetadataCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$MessageMetadataCopyWith<$Res>
+abstract class _$$_MessageMetadataCopyWith<$Res>
     implements $MessageMetadataCopyWith<$Res> {
-  factory _$MessageMetadataCopyWith(
-          _MessageMetadata value, $Res Function(_MessageMetadata) then) =
-      __$MessageMetadataCopyWithImpl<$Res>;
+  factory _$$_MessageMetadataCopyWith(
+          _$_MessageMetadata value, $Res Function(_$_MessageMetadata) then) =
+      __$$_MessageMetadataCopyWithImpl<$Res>;
   @override
   $Res call(
       {FileMetadata? fileMetadata,
@@ -139,15 +117,15 @@ abstract class _$MessageMetadataCopyWith<$Res>
 }
 
 /// @nodoc
-class __$MessageMetadataCopyWithImpl<$Res>
+class __$$_MessageMetadataCopyWithImpl<$Res>
     extends _$MessageMetadataCopyWithImpl<$Res>
-    implements _$MessageMetadataCopyWith<$Res> {
-  __$MessageMetadataCopyWithImpl(
-      _MessageMetadata _value, $Res Function(_MessageMetadata) _then)
-      : super(_value, (v) => _then(v as _MessageMetadata));
+    implements _$$_MessageMetadataCopyWith<$Res> {
+  __$$_MessageMetadataCopyWithImpl(
+      _$_MessageMetadata _value, $Res Function(_$_MessageMetadata) _then)
+      : super(_value, (v) => _then(v as _$_MessageMetadata));
 
   @override
-  _MessageMetadata get _value => super._value as _MessageMetadata;
+  _$_MessageMetadata get _value => super._value as _$_MessageMetadata;
 
   @override
   $Res call({
@@ -155,7 +133,7 @@ class __$MessageMetadataCopyWithImpl<$Res>
     Object? linksMetadata = freezed,
     Object? computedAt = freezed,
   }) {
-    return _then(_MessageMetadata(
+    return _then(_$_MessageMetadata(
       fileMetadata: fileMetadata == freezed
           ? _value.fileMetadata
           : fileMetadata // ignore: cast_nullable_to_non_nullable
@@ -197,7 +175,7 @@ class _$_MessageMetadata implements _MessageMetadata {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _MessageMetadata &&
+            other is _$_MessageMetadata &&
             const DeepCollectionEquality()
                 .equals(other.fileMetadata, fileMetadata) &&
             const DeepCollectionEquality()
@@ -206,6 +184,7 @@ class _$_MessageMetadata implements _MessageMetadata {
                 .equals(other.computedAt, computedAt));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -215,8 +194,8 @@ class _$_MessageMetadata implements _MessageMetadata {
 
   @JsonKey(ignore: true)
   @override
-  _$MessageMetadataCopyWith<_MessageMetadata> get copyWith =>
-      __$MessageMetadataCopyWithImpl<_MessageMetadata>(this, _$identity);
+  _$$_MessageMetadataCopyWith<_$_MessageMetadata> get copyWith =>
+      __$$_MessageMetadataCopyWithImpl<_$_MessageMetadata>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -226,51 +205,28 @@ class _$_MessageMetadata implements _MessageMetadata {
 
 abstract class _MessageMetadata implements MessageMetadata {
   const factory _MessageMetadata(
-      {FileMetadata? fileMetadata,
-      LinksMetadata? linksMetadata,
-      required DateTime computedAt}) = _$_MessageMetadata;
+      {final FileMetadata? fileMetadata,
+      final LinksMetadata? linksMetadata,
+      required final DateTime computedAt}) = _$_MessageMetadata;
 
   factory _MessageMetadata.fromJson(Map<String, dynamic> json) =
       _$_MessageMetadata.fromJson;
 
   @override
-  FileMetadata? get fileMetadata;
+  FileMetadata? get fileMetadata => throw _privateConstructorUsedError;
   @override
-  LinksMetadata? get linksMetadata;
+  LinksMetadata? get linksMetadata => throw _privateConstructorUsedError;
   @override
-  DateTime get computedAt;
+  DateTime get computedAt => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$MessageMetadataCopyWith<_MessageMetadata> get copyWith =>
+  _$$_MessageMetadataCopyWith<_$_MessageMetadata> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 LinksMetadata _$LinksMetadataFromJson(Map<String, dynamic> json) {
   return _LinksMetadata.fromJson(json);
 }
-
-/// @nodoc
-class _$LinksMetadataTearOff {
-  const _$LinksMetadataTearOff();
-
-  _LinksMetadata call(
-      {required List<LinkMetadata> links,
-      required List<String> emails,
-      required List<String> userTags}) {
-    return _LinksMetadata(
-      links: links,
-      emails: emails,
-      userTags: userTags,
-    );
-  }
-
-  LinksMetadata fromJson(Map<String, Object?> json) {
-    return LinksMetadata.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $LinksMetadata = _$LinksMetadataTearOff();
 
 /// @nodoc
 mixin _$LinksMetadata {
@@ -327,26 +283,26 @@ class _$LinksMetadataCopyWithImpl<$Res>
 }
 
 /// @nodoc
-abstract class _$LinksMetadataCopyWith<$Res>
+abstract class _$$_LinksMetadataCopyWith<$Res>
     implements $LinksMetadataCopyWith<$Res> {
-  factory _$LinksMetadataCopyWith(
-          _LinksMetadata value, $Res Function(_LinksMetadata) then) =
-      __$LinksMetadataCopyWithImpl<$Res>;
+  factory _$$_LinksMetadataCopyWith(
+          _$_LinksMetadata value, $Res Function(_$_LinksMetadata) then) =
+      __$$_LinksMetadataCopyWithImpl<$Res>;
   @override
   $Res call(
       {List<LinkMetadata> links, List<String> emails, List<String> userTags});
 }
 
 /// @nodoc
-class __$LinksMetadataCopyWithImpl<$Res>
+class __$$_LinksMetadataCopyWithImpl<$Res>
     extends _$LinksMetadataCopyWithImpl<$Res>
-    implements _$LinksMetadataCopyWith<$Res> {
-  __$LinksMetadataCopyWithImpl(
-      _LinksMetadata _value, $Res Function(_LinksMetadata) _then)
-      : super(_value, (v) => _then(v as _LinksMetadata));
+    implements _$$_LinksMetadataCopyWith<$Res> {
+  __$$_LinksMetadataCopyWithImpl(
+      _$_LinksMetadata _value, $Res Function(_$_LinksMetadata) _then)
+      : super(_value, (v) => _then(v as _$_LinksMetadata));
 
   @override
-  _LinksMetadata get _value => super._value as _LinksMetadata;
+  _$_LinksMetadata get _value => super._value as _$_LinksMetadata;
 
   @override
   $Res call({
@@ -354,17 +310,17 @@ class __$LinksMetadataCopyWithImpl<$Res>
     Object? emails = freezed,
     Object? userTags = freezed,
   }) {
-    return _then(_LinksMetadata(
+    return _then(_$_LinksMetadata(
       links: links == freezed
-          ? _value.links
+          ? _value._links
           : links // ignore: cast_nullable_to_non_nullable
               as List<LinkMetadata>,
       emails: emails == freezed
-          ? _value.emails
+          ? _value._emails
           : emails // ignore: cast_nullable_to_non_nullable
               as List<String>,
       userTags: userTags == freezed
-          ? _value.userTags
+          ? _value._userTags
           : userTags // ignore: cast_nullable_to_non_nullable
               as List<String>,
     ));
@@ -375,18 +331,39 @@ class __$LinksMetadataCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_LinksMetadata extends _LinksMetadata {
   const _$_LinksMetadata(
-      {required this.links, required this.emails, required this.userTags})
-      : super._();
+      {required final List<LinkMetadata> links,
+      required final List<String> emails,
+      required final List<String> userTags})
+      : _links = links,
+        _emails = emails,
+        _userTags = userTags,
+        super._();
 
   factory _$_LinksMetadata.fromJson(Map<String, dynamic> json) =>
       _$$_LinksMetadataFromJson(json);
 
+  final List<LinkMetadata> _links;
   @override
-  final List<LinkMetadata> links;
+  List<LinkMetadata> get links {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_links);
+  }
+
+  final List<String> _emails;
   @override
-  final List<String> emails;
-  @override // TODO: bring user ids?
-  final List<String> userTags;
+  List<String> get emails {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_emails);
+  }
+
+// TODO: bring user ids?
+  final List<String> _userTags;
+// TODO: bring user ids?
+  @override
+  List<String> get userTags {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_userTags);
+  }
 
   @override
   String toString() {
@@ -397,23 +374,24 @@ class _$_LinksMetadata extends _LinksMetadata {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _LinksMetadata &&
-            const DeepCollectionEquality().equals(other.links, links) &&
-            const DeepCollectionEquality().equals(other.emails, emails) &&
-            const DeepCollectionEquality().equals(other.userTags, userTags));
+            other is _$_LinksMetadata &&
+            const DeepCollectionEquality().equals(other._links, _links) &&
+            const DeepCollectionEquality().equals(other._emails, _emails) &&
+            const DeepCollectionEquality().equals(other._userTags, _userTags));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(links),
-      const DeepCollectionEquality().hash(emails),
-      const DeepCollectionEquality().hash(userTags));
 
   @JsonKey(ignore: true)
   @override
-  _$LinksMetadataCopyWith<_LinksMetadata> get copyWith =>
-      __$LinksMetadataCopyWithImpl<_LinksMetadata>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_links),
+      const DeepCollectionEquality().hash(_emails),
+      const DeepCollectionEquality().hash(_userTags));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$_LinksMetadataCopyWith<_$_LinksMetadata> get copyWith =>
+      __$$_LinksMetadataCopyWithImpl<_$_LinksMetadata>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -423,51 +401,29 @@ class _$_LinksMetadata extends _LinksMetadata {
 
 abstract class _LinksMetadata extends LinksMetadata {
   const factory _LinksMetadata(
-      {required List<LinkMetadata> links,
-      required List<String> emails,
-      required List<String> userTags}) = _$_LinksMetadata;
+      {required final List<LinkMetadata> links,
+      required final List<String> emails,
+      required final List<String> userTags}) = _$_LinksMetadata;
   const _LinksMetadata._() : super._();
 
   factory _LinksMetadata.fromJson(Map<String, dynamic> json) =
       _$_LinksMetadata.fromJson;
 
   @override
-  List<LinkMetadata> get links;
+  List<LinkMetadata> get links => throw _privateConstructorUsedError;
   @override
-  List<String> get emails;
+  List<String> get emails => throw _privateConstructorUsedError;
   @override // TODO: bring user ids?
-  List<String> get userTags;
+  List<String> get userTags => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$LinksMetadataCopyWith<_LinksMetadata> get copyWith =>
+  _$$_LinksMetadataCopyWith<_$_LinksMetadata> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 LinkMetadata _$LinkMetadataFromJson(Map<String, dynamic> json) {
   return _LinkMetadata.fromJson(json);
 }
-
-/// @nodoc
-class _$LinkMetadataTearOff {
-  const _$LinkMetadataTearOff();
-
-  _LinkMetadata call(
-      {String? title, String? description, String? image, String? url}) {
-    return _LinkMetadata(
-      title: title,
-      description: description,
-      image: image,
-      url: url,
-    );
-  }
-
-  LinkMetadata fromJson(Map<String, Object?> json) {
-    return LinkMetadata.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $LinkMetadata = _$LinkMetadataTearOff();
 
 /// @nodoc
 mixin _$LinkMetadata {
@@ -527,24 +483,25 @@ class _$LinkMetadataCopyWithImpl<$Res> implements $LinkMetadataCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$LinkMetadataCopyWith<$Res>
+abstract class _$$_LinkMetadataCopyWith<$Res>
     implements $LinkMetadataCopyWith<$Res> {
-  factory _$LinkMetadataCopyWith(
-          _LinkMetadata value, $Res Function(_LinkMetadata) then) =
-      __$LinkMetadataCopyWithImpl<$Res>;
+  factory _$$_LinkMetadataCopyWith(
+          _$_LinkMetadata value, $Res Function(_$_LinkMetadata) then) =
+      __$$_LinkMetadataCopyWithImpl<$Res>;
   @override
   $Res call({String? title, String? description, String? image, String? url});
 }
 
 /// @nodoc
-class __$LinkMetadataCopyWithImpl<$Res> extends _$LinkMetadataCopyWithImpl<$Res>
-    implements _$LinkMetadataCopyWith<$Res> {
-  __$LinkMetadataCopyWithImpl(
-      _LinkMetadata _value, $Res Function(_LinkMetadata) _then)
-      : super(_value, (v) => _then(v as _LinkMetadata));
+class __$$_LinkMetadataCopyWithImpl<$Res>
+    extends _$LinkMetadataCopyWithImpl<$Res>
+    implements _$$_LinkMetadataCopyWith<$Res> {
+  __$$_LinkMetadataCopyWithImpl(
+      _$_LinkMetadata _value, $Res Function(_$_LinkMetadata) _then)
+      : super(_value, (v) => _then(v as _$_LinkMetadata));
 
   @override
-  _LinkMetadata get _value => super._value as _LinkMetadata;
+  _$_LinkMetadata get _value => super._value as _$_LinkMetadata;
 
   @override
   $Res call({
@@ -553,7 +510,7 @@ class __$LinkMetadataCopyWithImpl<$Res> extends _$LinkMetadataCopyWithImpl<$Res>
     Object? image = freezed,
     Object? url = freezed,
   }) {
-    return _then(_LinkMetadata(
+    return _then(_$_LinkMetadata(
       title: title == freezed
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -600,7 +557,7 @@ class _$_LinkMetadata implements _LinkMetadata {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _LinkMetadata &&
+            other is _$_LinkMetadata &&
             const DeepCollectionEquality().equals(other.title, title) &&
             const DeepCollectionEquality()
                 .equals(other.description, description) &&
@@ -608,6 +565,7 @@ class _$_LinkMetadata implements _LinkMetadata {
             const DeepCollectionEquality().equals(other.url, url));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -618,8 +576,8 @@ class _$_LinkMetadata implements _LinkMetadata {
 
   @JsonKey(ignore: true)
   @override
-  _$LinkMetadataCopyWith<_LinkMetadata> get copyWith =>
-      __$LinkMetadataCopyWithImpl<_LinkMetadata>(this, _$identity);
+  _$$_LinkMetadataCopyWith<_$_LinkMetadata> get copyWith =>
+      __$$_LinkMetadataCopyWithImpl<_$_LinkMetadata>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -629,58 +587,31 @@ class _$_LinkMetadata implements _LinkMetadata {
 
 abstract class _LinkMetadata implements LinkMetadata {
   const factory _LinkMetadata(
-      {String? title,
-      String? description,
-      String? image,
-      String? url}) = _$_LinkMetadata;
+      {final String? title,
+      final String? description,
+      final String? image,
+      final String? url}) = _$_LinkMetadata;
 
   factory _LinkMetadata.fromJson(Map<String, dynamic> json) =
       _$_LinkMetadata.fromJson;
 
   @override
-  String? get title;
+  String? get title => throw _privateConstructorUsedError;
   @override
-  String? get description;
+  String? get description => throw _privateConstructorUsedError;
   @override
-  String? get image;
+  String? get image => throw _privateConstructorUsedError;
   @override
-  String? get url;
+  String? get url => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$LinkMetadataCopyWith<_LinkMetadata> get copyWith =>
+  _$$_LinkMetadataCopyWith<_$_LinkMetadata> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 FileMetadata _$FileMetadataFromJson(Map<String, dynamic> json) {
   return _FileMetadata.fromJson(json);
 }
-
-/// @nodoc
-class _$FileMetadataTearOff {
-  const _$FileMetadataTearOff();
-
-  _FileMetadata call(
-      {required int sizeInBytes,
-      required String mimeType,
-      required String fileName,
-      required String sha1Hash,
-      required String? fileHashBlur}) {
-    return _FileMetadata(
-      sizeInBytes: sizeInBytes,
-      mimeType: mimeType,
-      fileName: fileName,
-      sha1Hash: sha1Hash,
-      fileHashBlur: fileHashBlur,
-    );
-  }
-
-  FileMetadata fromJson(Map<String, Object?> json) {
-    return FileMetadata.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $FileMetadata = _$FileMetadataTearOff();
 
 /// @nodoc
 mixin _$FileMetadata {
@@ -751,11 +682,11 @@ class _$FileMetadataCopyWithImpl<$Res> implements $FileMetadataCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$FileMetadataCopyWith<$Res>
+abstract class _$$_FileMetadataCopyWith<$Res>
     implements $FileMetadataCopyWith<$Res> {
-  factory _$FileMetadataCopyWith(
-          _FileMetadata value, $Res Function(_FileMetadata) then) =
-      __$FileMetadataCopyWithImpl<$Res>;
+  factory _$$_FileMetadataCopyWith(
+          _$_FileMetadata value, $Res Function(_$_FileMetadata) then) =
+      __$$_FileMetadataCopyWithImpl<$Res>;
   @override
   $Res call(
       {int sizeInBytes,
@@ -766,14 +697,15 @@ abstract class _$FileMetadataCopyWith<$Res>
 }
 
 /// @nodoc
-class __$FileMetadataCopyWithImpl<$Res> extends _$FileMetadataCopyWithImpl<$Res>
-    implements _$FileMetadataCopyWith<$Res> {
-  __$FileMetadataCopyWithImpl(
-      _FileMetadata _value, $Res Function(_FileMetadata) _then)
-      : super(_value, (v) => _then(v as _FileMetadata));
+class __$$_FileMetadataCopyWithImpl<$Res>
+    extends _$FileMetadataCopyWithImpl<$Res>
+    implements _$$_FileMetadataCopyWith<$Res> {
+  __$$_FileMetadataCopyWithImpl(
+      _$_FileMetadata _value, $Res Function(_$_FileMetadata) _then)
+      : super(_value, (v) => _then(v as _$_FileMetadata));
 
   @override
-  _FileMetadata get _value => super._value as _FileMetadata;
+  _$_FileMetadata get _value => super._value as _$_FileMetadata;
 
   @override
   $Res call({
@@ -783,7 +715,7 @@ class __$FileMetadataCopyWithImpl<$Res> extends _$FileMetadataCopyWithImpl<$Res>
     Object? sha1Hash = freezed,
     Object? fileHashBlur = freezed,
   }) {
-    return _then(_FileMetadata(
+    return _then(_$_FileMetadata(
       sizeInBytes: sizeInBytes == freezed
           ? _value.sizeInBytes
           : sizeInBytes // ignore: cast_nullable_to_non_nullable
@@ -841,7 +773,7 @@ class _$_FileMetadata implements _FileMetadata {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _FileMetadata &&
+            other is _$_FileMetadata &&
             const DeepCollectionEquality()
                 .equals(other.sizeInBytes, sizeInBytes) &&
             const DeepCollectionEquality().equals(other.mimeType, mimeType) &&
@@ -851,6 +783,7 @@ class _$_FileMetadata implements _FileMetadata {
                 .equals(other.fileHashBlur, fileHashBlur));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -862,8 +795,8 @@ class _$_FileMetadata implements _FileMetadata {
 
   @JsonKey(ignore: true)
   @override
-  _$FileMetadataCopyWith<_FileMetadata> get copyWith =>
-      __$FileMetadataCopyWithImpl<_FileMetadata>(this, _$identity);
+  _$$_FileMetadataCopyWith<_$_FileMetadata> get copyWith =>
+      __$$_FileMetadataCopyWithImpl<_$_FileMetadata>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -873,27 +806,27 @@ class _$_FileMetadata implements _FileMetadata {
 
 abstract class _FileMetadata implements FileMetadata {
   const factory _FileMetadata(
-      {required int sizeInBytes,
-      required String mimeType,
-      required String fileName,
-      required String sha1Hash,
-      required String? fileHashBlur}) = _$_FileMetadata;
+      {required final int sizeInBytes,
+      required final String mimeType,
+      required final String fileName,
+      required final String sha1Hash,
+      required final String? fileHashBlur}) = _$_FileMetadata;
 
   factory _FileMetadata.fromJson(Map<String, dynamic> json) =
       _$_FileMetadata.fromJson;
 
   @override
-  int get sizeInBytes;
+  int get sizeInBytes => throw _privateConstructorUsedError;
   @override
-  String get mimeType;
+  String get mimeType => throw _privateConstructorUsedError;
   @override
-  String get fileName;
+  String get fileName => throw _privateConstructorUsedError;
   @override
-  String get sha1Hash;
+  String get sha1Hash => throw _privateConstructorUsedError;
   @override
-  String? get fileHashBlur;
+  String? get fileHashBlur => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$FileMetadataCopyWith<_FileMetadata> get copyWith =>
+  _$$_FileMetadataCopyWith<_$_FileMetadata> get copyWith =>
       throw _privateConstructorUsedError;
 }

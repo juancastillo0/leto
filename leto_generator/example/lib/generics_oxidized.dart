@@ -35,13 +35,12 @@ type SuccessGet {
   value: String!
 }''',
   '''
+"""\$ ' dw "" ''ddw"""
 type UnionErrCode implements ErrCode {
+  """The "id" of the 'error'."""
   id: Int!
-  value: String!
-}''',
-  '''
-type UnionErrCode implements ErrCode {
-  id: Int!
+
+  """Comment with \$\$ and \$"""
   value: String!
 }''',
   '''
@@ -118,10 +117,14 @@ class SuccessGet {
   SuccessGet(this.value);
 }
 
+@GraphQLDocumentation(description: '\$ \' dw "" \'\'ddw')
 @GraphQLClass()
 class UnionErrCode implements ErrCode {
+  /// The "id" of the 'error'.
   @override
   final int id;
+
+  /// Comment with $$ and $
   @override
   final String value;
 

@@ -71,9 +71,142 @@ final _testManyDefaultsGraphQLField = HotReloadableDefinition<
                 }))
           ]));
 
+GraphQLObjectField<String, Object?, Object?> get testValidaInArgsGraphQLField =>
+    _testValidaInArgsGraphQLField.value;
+final _testValidaInArgsGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<String, Object?,
+        Object?>>((setValue) => setValue(graphQLString.nonNull().field<Object?>(
+      'testValidaInArgs',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
+        final validationErrorMap = <String, List<ValidaError>>{};
+
+        final _validation = TestValidaInArgsArgs(
+                strSOrA: (args["strSOrA"] as String),
+                otherInt: (args["otherInt"] as int?),
+                greaterThan3AndOtherInt:
+                    (args["greaterThan3AndOtherInt"] as int),
+                after2020: (args["after2020"] as DateTime?),
+                nonEmptyList: (args["nonEmptyList"] as List<String>?),
+                model: (args["model"] as ValidaArgModel?))
+            .validate();
+        validationErrorMap.addAll(_validation.errorsMap
+            .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+          ..removeWhere((k, v) => v.isEmpty));
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap,
+            },
+            sourceError: validationErrorMap,
+          );
+        }
+
+        return testValidaInArgs(
+            strSOrA: (args["strSOrA"] as String),
+            otherInt: (args["otherInt"] as int?),
+            greaterThan3AndOtherInt: (args["greaterThan3AndOtherInt"] as int),
+            after2020: (args["after2020"] as DateTime?),
+            nonEmptyList: (args["nonEmptyList"] as List<String>?),
+            model: (args["model"] as ValidaArgModel?));
+      },
+    ))
+      ..inputs.addAll([
+        graphQLString.nonNull().inputField('strSOrA', attachments: [
+          ValidaAttachment(ValidaString(isIn: ['S', 'A'])),
+        ]),
+        graphQLInt.inputField('otherInt'),
+        graphQLInt.nonNull().inputField('greaterThan3AndOtherInt',
+            defaultValue: 4,
+            attachments: [
+              ValidaAttachment(ValidaNum(
+                  comp: ValidaComparison(
+                      more: CompVal.list([
+                CompVal(3),
+                CompVal.ref('otherInt', isRequired: false)
+              ])))),
+            ]),
+        graphQLDate.inputField('after2020', attachments: [
+          ValidaAttachment(ValidaDate(min: '2021-01-01')),
+        ]),
+        graphQLString.nonNull().list().inputField('nonEmptyList', attachments: [
+          ValidaAttachment(ValidaList(minLength: 1)),
+        ]),
+        validaArgModelGraphQLTypeInput.inputField('model')
+      ]));
+
+GraphQLObjectField<String, Object?, Object?>
+    get testValidaInArgsSingleModelGraphQLField =>
+        _testValidaInArgsSingleModelGraphQLField.value;
+final _testValidaInArgsSingleModelGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<String, Object?, Object?>>((setValue) => setValue(
+        graphQLString.nonNull().field<Object?>(
+      'testValidaInArgsSingleModel',
+      resolve: (obj, ctx) {
+        final args = ctx.args;
+        final validationErrorMap = <String, List<ValidaError>>{};
+
+        if ((args["singleModel"] as ValidaArgModel?) != null) {
+          final singleModelValidationResult =
+              ValidaArgModelValidation.fromValue(
+                  (args["singleModel"] as ValidaArgModel?) as ValidaArgModel);
+          if (singleModelValidationResult.hasErrors) {
+            validationErrorMap['singleModel'] = [
+              singleModelValidationResult.toError(property: 'singleModel')!
+            ];
+          }
+        }
+
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap,
+            },
+            sourceError: validationErrorMap,
+          );
+        }
+
+        return testValidaInArgsSingleModel(
+            singleModel: (args["singleModel"] as ValidaArgModel?));
+      },
+    ))
+      ..inputs
+          .addAll([validaArgModelGraphQLTypeInput.inputField('singleModel')]));
+
 // **************************************************************************
 // _GraphQLGenerator
 // **************************************************************************
+
+final validaArgModelSerializer = SerializerValue<ValidaArgModel>(
+  key: "ValidaArgModel",
+  fromJson: (ctx, json) => ValidaArgModel.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
+);
+final _validaArgModelGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<ValidaArgModel>>((setValue) {
+  final __name = 'ValidaArgModel';
+
+  final __validaArgModelGraphQLTypeInput =
+      inputObjectType<ValidaArgModel>(__name);
+
+  setValue(__validaArgModelGraphQLTypeInput);
+  __validaArgModelGraphQLTypeInput.fields.addAll(
+    [
+      graphQLString.nonNull().list().nonNull().inputField('strs', attachments: [
+        ValidaAttachment(ValidaList(each: ValidaString(minLength: 1))),
+      ]),
+      validaArgModelGraphQLTypeInput.inputField('inner')
+    ],
+  );
+
+  return __validaArgModelGraphQLTypeInput;
+});
+
+/// Auto-generated from [ValidaArgModel].
+GraphQLInputObjectType<ValidaArgModel> get validaArgModelGraphQLTypeInput =>
+    _validaArgModelGraphQLTypeInput.value;
 
 /// Auto-generated from [EnumValue].
 final GraphQLEnumType<EnumValue> enumValueGraphQLType =
@@ -82,3 +215,254 @@ final GraphQLEnumType<EnumValue> enumValueGraphQLType =
   GraphQLEnumValue('v2', EnumValue.v2),
   GraphQLEnumValue('v3', EnumValue.v3)
 ]);
+
+// **************************************************************************
+// ValidatorGenerator
+// **************************************************************************
+
+enum ValidaArgModelField {
+  strs,
+  inner,
+}
+
+class ValidaArgModelValidationFields {
+  const ValidaArgModelValidationFields(this.errorsMap);
+  final Map<ValidaArgModelField, List<ValidaError>> errorsMap;
+
+  ValidaArgModelValidation? get inner {
+    final l = errorsMap[ValidaArgModelField.inner];
+    return (l != null && l.isNotEmpty)
+        ? l.first.nestedValidation as ValidaArgModelValidation?
+        : null;
+  }
+
+  List<ValidaError> get strs => errorsMap[ValidaArgModelField.strs] ?? const [];
+}
+
+class ValidaArgModelValidation
+    extends Validation<ValidaArgModel, ValidaArgModelField> {
+  ValidaArgModelValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<ValidaArgModelField, List<ValidaError>> errorsMap;
+  @override
+  final ValidaArgModel value;
+  @override
+  final ValidaArgModelValidationFields fields;
+
+  /// Validates [value] and returns a [ValidaArgModelValidation] with the errors found as a result
+  static ValidaArgModelValidation fromValue(ValidaArgModel value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <ValidaArgModelField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return ValidaArgModelValidation(
+        errors, value, ValidaArgModelValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      ValidaArgModelField.inner: ValidaNested<ValidaArgModel>(
+        omit: null,
+        customValidate: null,
+        overrideValidation: ValidaArgModelValidation.fromValue,
+      ),
+      ValidaArgModelField.strs: ValidaList(each: ValidaString(minLength: 1)),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(ValidaArgModel value) => [];
+
+  static Object? _getField(ValidaArgModel value, String field) {
+    switch (field) {
+      case 'strs':
+        return value.strs;
+      case 'inner':
+        return value.inner;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}
+
+/// The arguments for [testValidaInArgs].
+class TestValidaInArgsArgs with ToJson {
+  final String strSOrA;
+  final int? otherInt;
+  final int greaterThan3AndOtherInt;
+  final DateTime? after2020;
+  final List<String>? nonEmptyList;
+  final ValidaArgModel? model;
+
+  /// The arguments for [testValidaInArgs].
+  const TestValidaInArgsArgs({
+    required this.strSOrA,
+    this.otherInt,
+    this.greaterThan3AndOtherInt = 4,
+    this.after2020,
+    this.nonEmptyList,
+    this.model,
+  });
+
+  /// Validates this arguments for [testValidaInArgs].
+  TestValidaInArgsArgsValidation validate() =>
+      TestValidaInArgsArgsValidation.fromValue(this);
+
+  /// Validates this arguments for [testValidaInArgs] and
+  /// returns the successfully [Validated] value or
+  /// throws a [TestValidaInArgsArgsValidation] when there is an error.
+  Validated<TestValidaInArgsArgs> validatedOrThrow() {
+    final validation = validate();
+    final validated = validation.validated;
+    if (validated == null) {
+      throw validation;
+    }
+    return validated;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {
+        'strSOrA': strSOrA,
+        'otherInt': otherInt,
+        'greaterThan3AndOtherInt': greaterThan3AndOtherInt,
+        'after2020': after2020,
+        'nonEmptyList': nonEmptyList,
+        'model': model,
+      };
+
+  @override
+  String toString() => 'TestValidaInArgsArgs${toJson()}';
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is TestValidaInArgsArgs &&
+            strSOrA == other.strSOrA &&
+            otherInt == other.otherInt &&
+            greaterThan3AndOtherInt == other.greaterThan3AndOtherInt &&
+            after2020 == other.after2020 &&
+            nonEmptyList == other.nonEmptyList &&
+            model == other.model);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        strSOrA,
+        otherInt,
+        greaterThan3AndOtherInt,
+        after2020,
+        nonEmptyList,
+        model,
+      );
+}
+
+enum TestValidaInArgsArgsField {
+  strSOrA,
+  greaterThan3AndOtherInt,
+  after2020,
+  nonEmptyList,
+  model,
+}
+
+class TestValidaInArgsArgsValidationFields {
+  const TestValidaInArgsArgsValidationFields(this.errorsMap);
+  final Map<TestValidaInArgsArgsField, List<ValidaError>> errorsMap;
+
+  ValidaArgModelValidation? get model {
+    final l = errorsMap[TestValidaInArgsArgsField.model];
+    return (l != null && l.isNotEmpty)
+        ? l.first.nestedValidation as ValidaArgModelValidation?
+        : null;
+  }
+
+  List<ValidaError> get strSOrA =>
+      errorsMap[TestValidaInArgsArgsField.strSOrA] ?? const [];
+  List<ValidaError> get greaterThan3AndOtherInt =>
+      errorsMap[TestValidaInArgsArgsField.greaterThan3AndOtherInt] ?? const [];
+  List<ValidaError> get after2020 =>
+      errorsMap[TestValidaInArgsArgsField.after2020] ?? const [];
+  List<ValidaError> get nonEmptyList =>
+      errorsMap[TestValidaInArgsArgsField.nonEmptyList] ?? const [];
+}
+
+class TestValidaInArgsArgsValidation
+    extends Validation<TestValidaInArgsArgs, TestValidaInArgsArgsField> {
+  TestValidaInArgsArgsValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<TestValidaInArgsArgsField, List<ValidaError>> errorsMap;
+  @override
+  final TestValidaInArgsArgs value;
+  @override
+  final TestValidaInArgsArgsValidationFields fields;
+
+  /// Validates [value] and returns a [TestValidaInArgsArgsValidation] with the errors found as a result
+  static TestValidaInArgsArgsValidation fromValue(TestValidaInArgsArgs value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <TestValidaInArgsArgsField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return TestValidaInArgsArgsValidation(
+        errors, value, TestValidaInArgsArgsValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      TestValidaInArgsArgsField.model: ValidaNested<ValidaArgModel>(
+        omit: null,
+        customValidate: null,
+        overrideValidation: ValidaArgModelValidation.fromValue,
+      ),
+      TestValidaInArgsArgsField.strSOrA: ValidaString(isIn: ['S', 'A']),
+      TestValidaInArgsArgsField.greaterThan3AndOtherInt: ValidaNum(
+          comp: ValidaComparison(
+              more: CompVal.list(
+                  [CompVal(3), CompVal.ref('otherInt', isRequired: false)]))),
+      TestValidaInArgsArgsField.after2020: ValidaDate(min: '2021-01-01'),
+      TestValidaInArgsArgsField.nonEmptyList: ValidaList(minLength: 1),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(TestValidaInArgsArgs value) => [];
+
+  static Object? _getField(TestValidaInArgsArgs value, String field) {
+    switch (field) {
+      case 'strSOrA':
+        return value.strSOrA;
+      case 'otherInt':
+        return value.otherInt;
+      case 'greaterThan3AndOtherInt':
+        return value.greaterThan3AndOtherInt;
+      case 'after2020':
+        return value.after2020;
+      case 'nonEmptyList':
+        return value.nonEmptyList;
+      case 'model':
+        return value.model;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}

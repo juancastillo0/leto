@@ -41,6 +41,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           shipSerializer,
           factionSerializer,
           connectionArgumentsSerializer,
+          validaArgModelSerializer,
         ])
         ..children.addAll([
           inputGenSerdeCtx,
@@ -77,6 +78,8 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           resultObjectGraphQLField,
           resultObjectErrGraphQLField,
           testManyDefaultsGraphQLField,
+          testValidaInArgsGraphQLField,
+          testValidaInArgsSingleModelGraphQLField,
         ],
       ),
       mutationType: objectType(

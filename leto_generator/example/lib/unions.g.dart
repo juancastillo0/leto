@@ -35,7 +35,7 @@ final _getUnionAGraphQLField =
 
                 return getUnionA(ctx);
               },
-              description: r"gets Union A",
+              description: 'gets Union A',
             )));
 
 GraphQLObjectField<List<UnionNoFreezed>, Object?, Object?>
@@ -231,8 +231,10 @@ final _unionNoFreezedGraphQLType =
     'UnionNoFreezedRenamed',
     const [],
     description:
-        "Description from annotation.\n\nUnion generated from raw Dart classes",
-    extra: GraphQLTypeDefinitionExtra.attach([...unionNoFreezedAttachments()]),
+        'Description from annotation.\n\nUnion generated from raw Dart classes',
+    extra: GraphQLTypeDefinitionExtra.attach([
+      ...unionNoFreezedAttachments(),
+    ]),
   );
   setValue(type);
   type.possibleTypes.addAll([

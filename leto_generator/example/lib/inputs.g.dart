@@ -33,6 +33,27 @@ final _queryMultipleParamsGraphQLField =
               'queryMultipleParams',
               resolve: (obj, ctx) {
                 final args = ctx.args;
+                final validationErrorMap = <String, List<ValidaError>>{};
+
+                if ((args["mInput"] as InputM?) != null) {
+                  final mInputValidationResult = InputMValidation.fromValue(
+                      (args["mInput"] as InputM?) as InputM);
+                  if (mInputValidationResult.hasErrors) {
+                    validationErrorMap['mInput'] = [
+                      mInputValidationResult.toError(property: 'mInput')!
+                    ];
+                  }
+                }
+
+                if (validationErrorMap.isNotEmpty) {
+                  throw GraphQLError(
+                    'Input validation error',
+                    extensions: {
+                      'validaErrors': validationErrorMap,
+                    },
+                    sourceError: validationErrorMap,
+                  );
+                }
 
                 return queryMultipleParams((args["serde"] as InputJsonSerde?),
                     serdeReq: (args["serdeReq"] as InputJsonSerde),
@@ -130,11 +151,27 @@ final _inputMGraphQLTypeInput =
   setValue(__inputMGraphQLTypeInput);
   __inputMGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().inputField('name'),
-      graphQLDate.inputField('date'),
+      graphQLString.nonNull().inputField('name', attachments: [
+        ValidaAttachment(ValidaString(minLength: 1, isAlpha: true)),
+      ]),
+      graphQLDate.inputField('date', attachments: [
+        ValidaAttachment(ValidaDate(min: 'now', max: '2023-01-01')),
+      ]),
       graphQLInt.nonNull().list().nonNull().inputField('ints'),
-      graphQLFloat.nonNull().list().nonNull().inputField('doubles'),
-      inputMNGraphQLTypeInput.nonNull().list().nonNull().inputField('nested'),
+      graphQLFloat
+          .nonNull()
+          .list()
+          .nonNull()
+          .inputField('doubles', attachments: [
+        ValidaAttachment(ValidaList(each: ValidaNum(min: -2))),
+      ]),
+      inputMNGraphQLTypeInput
+          .nonNull()
+          .list()
+          .nonNull()
+          .inputField('nested', attachments: [
+        ValidaAttachment(ValidaList(maxLength: 2)),
+      ]),
       inputMNGraphQLTypeInput.list().nonNull().inputField('nestedNullItem'),
       inputMNGraphQLTypeInput.list().inputField('nestedNullItemNull'),
       inputMNGraphQLTypeInput.nonNull().list().inputField('nestedNull')
@@ -542,3 +579,97 @@ Map<String, dynamic> _$$_OneOfFreezedInputToJson(
     <String, dynamic>{
       'str': instance.str,
     };
+
+// **************************************************************************
+// ValidatorGenerator
+// **************************************************************************
+
+enum InputMField {
+  name,
+  date,
+  doubles,
+  nested,
+
+  $global
+}
+
+class InputMValidationFields {
+  const InputMValidationFields(this.errorsMap);
+  final Map<InputMField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get name => errorsMap[InputMField.name] ?? const [];
+  List<ValidaError> get date => errorsMap[InputMField.date] ?? const [];
+  List<ValidaError> get doubles => errorsMap[InputMField.doubles] ?? const [];
+  List<ValidaError> get nested => errorsMap[InputMField.nested] ?? const [];
+  List<ValidaError> get $global => errorsMap[InputMField.$global] ?? const [];
+}
+
+class InputMValidation extends Validation<InputM, InputMField> {
+  InputMValidation(this.errorsMap, this.value, this.fields) : super(errorsMap);
+  @override
+  final Map<InputMField, List<ValidaError>> errorsMap;
+  @override
+  final InputM value;
+  @override
+  final InputMValidationFields fields;
+
+  /// Validates [value] and returns a [InputMValidation] with the errors found as a result
+  static InputMValidation fromValue(InputM value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <InputMField, List<ValidaError>>{
+      if (spec.globalValidate != null)
+        InputMField.$global: spec.globalValidate!(value),
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return InputMValidation(errors, value, InputMValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      InputMField.name: ValidaString(minLength: 1, isAlpha: true),
+      InputMField.date: ValidaDate(min: 'now', max: '2023-01-01'),
+      InputMField.doubles: ValidaList(each: ValidaNum(min: -2)),
+      InputMField.nested: ValidaList(maxLength: 2),
+    },
+    getField: _getField,
+    globalValidate: _globalValidate,
+  );
+
+  static List<ValidaError> _globalValidate(InputM value) => [
+        ...InputM._hasIntsOrDoubles(value),
+      ];
+
+  static Object? _getField(InputM value, String field) {
+    switch (field) {
+      case 'name':
+        return value.name;
+      case 'date':
+        return value.date;
+      case 'ints':
+        return value.ints;
+      case 'doubles':
+        return value.doubles;
+      case 'nested':
+        return value.nested;
+      case 'nestedNullItem':
+        return value.nestedNullItem;
+      case 'nestedNullItemNull':
+        return value.nestedNullItemNull;
+      case 'nestedNull':
+        return value.nestedNull;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}

@@ -1,6 +1,3 @@
-import 'package:chat_example/api/room.data.gql.dart';
-import 'package:chat_example/api/user.data.gql.dart';
-import 'package:chat_example/api_schema.schema.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/chat_rooms/chat_rooms_store.dart';
 import 'package:chat_example/utils/confirmation_dialog.dart';
@@ -8,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../__generated__/api_schema.schema.gql.dart';
+import '../api/__generated__/room.data.gql.dart';
+import '../api/__generated__/user.data.gql.dart';
 
 class ChatRoomUsers extends HookConsumerWidget {
   const ChatRoomUsers({

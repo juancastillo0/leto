@@ -1,9 +1,10 @@
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/user.data.gql.dart';
-import 'package:chat_example/api/user.req.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:ferry/ferry.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../api/__generated__/user.data.gql.dart';
+import '../api/__generated__/user.req.gql.dart';
 
 final sessionStoreProvider = Provider((ref) {
   ref.watch(userIdProvider);

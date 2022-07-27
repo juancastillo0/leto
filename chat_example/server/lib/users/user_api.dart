@@ -9,7 +9,7 @@ import 'package:server/events/events_api.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_table.dart';
 import 'package:server/utilities.dart';
-import 'package:valida/validate/validate_annotations.dart';
+import 'package:valida/valida.dart';
 
 part 'user_api.freezed.dart';
 part 'user_api.g.dart';
@@ -211,6 +211,7 @@ enum SignUpError {
   unknown,
 }
 
+@Valida()
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
   Ctx ctx,

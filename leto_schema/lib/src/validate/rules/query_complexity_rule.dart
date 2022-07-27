@@ -38,6 +38,8 @@ class ElementComplexity implements ToDirectiveValue {
   }
 }
 
+/// The directive definition to specify the query complexity cost
+/// associated with a Field or Type
 final costGraphQLDirective = GraphQLDirective(
   name: 'cost',
   locations: [

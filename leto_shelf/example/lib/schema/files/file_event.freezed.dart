@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'file_event.dart';
@@ -11,7 +12,7 @@ part of 'file_event.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 FileEvent _$FileEventFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
@@ -29,48 +30,6 @@ FileEvent _$FileEventFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$FileEventTearOff {
-  const _$FileEventTearOff();
-
-  FileEventAdded added(UploadedFileMeta fileUpload, {bool replace = true}) {
-    return FileEventAdded(
-      fileUpload,
-      replace: replace,
-    );
-  }
-
-  FileEventRenamed renamed(
-      {required String filename,
-      required String newFilename,
-      bool replace = true}) {
-    return FileEventRenamed(
-      filename: filename,
-      newFilename: newFilename,
-      replace: replace,
-    );
-  }
-
-  FileEventDeleted deleted(String filename) {
-    return FileEventDeleted(
-      filename,
-    );
-  }
-
-  FileEventMany many(List<FileEvent> events) {
-    return FileEventMany(
-      events,
-    );
-  }
-
-  FileEvent fromJson(Map<String, Object?> json) {
-    return FileEvent.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $FileEvent = _$FileEventTearOff();
 
 /// @nodoc
 mixin _$FileEvent {
@@ -146,29 +105,29 @@ class _$FileEventCopyWithImpl<$Res> implements $FileEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $FileEventAddedCopyWith<$Res> {
-  factory $FileEventAddedCopyWith(
-          FileEventAdded value, $Res Function(FileEventAdded) then) =
-      _$FileEventAddedCopyWithImpl<$Res>;
+abstract class _$$FileEventAddedCopyWith<$Res> {
+  factory _$$FileEventAddedCopyWith(
+          _$FileEventAdded value, $Res Function(_$FileEventAdded) then) =
+      __$$FileEventAddedCopyWithImpl<$Res>;
   $Res call({UploadedFileMeta fileUpload, bool replace});
 }
 
 /// @nodoc
-class _$FileEventAddedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
-    implements $FileEventAddedCopyWith<$Res> {
-  _$FileEventAddedCopyWithImpl(
-      FileEventAdded _value, $Res Function(FileEventAdded) _then)
-      : super(_value, (v) => _then(v as FileEventAdded));
+class __$$FileEventAddedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
+    implements _$$FileEventAddedCopyWith<$Res> {
+  __$$FileEventAddedCopyWithImpl(
+      _$FileEventAdded _value, $Res Function(_$FileEventAdded) _then)
+      : super(_value, (v) => _then(v as _$FileEventAdded));
 
   @override
-  FileEventAdded get _value => super._value as FileEventAdded;
+  _$FileEventAdded get _value => super._value as _$FileEventAdded;
 
   @override
   $Res call({
     Object? fileUpload = freezed,
     Object? replace = freezed,
   }) {
-    return _then(FileEventAdded(
+    return _then(_$FileEventAdded(
       fileUpload == freezed
           ? _value.fileUpload
           : fileUpload // ignore: cast_nullable_to_non_nullable
@@ -184,7 +143,8 @@ class _$FileEventAddedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventAdded extends FileEventAdded {
-  const _$FileEventAdded(this.fileUpload, {this.replace = true, String? $type})
+  const _$FileEventAdded(this.fileUpload,
+      {this.replace = true, final String? $type})
       : $type = $type ?? 'added',
         super._();
 
@@ -193,8 +153,8 @@ class _$FileEventAdded extends FileEventAdded {
 
   @override
   final UploadedFileMeta fileUpload;
-  @JsonKey()
   @override
+  @JsonKey()
   final bool replace;
 
   @JsonKey(name: 'runtimeType')
@@ -209,12 +169,13 @@ class _$FileEventAdded extends FileEventAdded {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FileEventAdded &&
+            other is _$FileEventAdded &&
             const DeepCollectionEquality()
                 .equals(other.fileUpload, fileUpload) &&
             const DeepCollectionEquality().equals(other.replace, replace));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -223,8 +184,8 @@ class _$FileEventAdded extends FileEventAdded {
 
   @JsonKey(ignore: true)
   @override
-  $FileEventAddedCopyWith<FileEventAdded> get copyWith =>
-      _$FileEventAddedCopyWithImpl<FileEventAdded>(this, _$identity);
+  _$$FileEventAddedCopyWith<_$FileEventAdded> get copyWith =>
+      __$$FileEventAddedCopyWithImpl<_$FileEventAdded>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -310,37 +271,38 @@ class _$FileEventAdded extends FileEventAdded {
 }
 
 abstract class FileEventAdded extends FileEvent {
-  const factory FileEventAdded(UploadedFileMeta fileUpload, {bool replace}) =
-      _$FileEventAdded;
+  const factory FileEventAdded(final UploadedFileMeta fileUpload,
+      {final bool replace}) = _$FileEventAdded;
   const FileEventAdded._() : super._();
 
   factory FileEventAdded.fromJson(Map<String, dynamic> json) =
       _$FileEventAdded.fromJson;
 
-  UploadedFileMeta get fileUpload;
-  bool get replace;
+  UploadedFileMeta get fileUpload => throw _privateConstructorUsedError;
+  bool get replace => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $FileEventAddedCopyWith<FileEventAdded> get copyWith =>
+  _$$FileEventAddedCopyWith<_$FileEventAdded> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $FileEventRenamedCopyWith<$Res> {
-  factory $FileEventRenamedCopyWith(
-          FileEventRenamed value, $Res Function(FileEventRenamed) then) =
-      _$FileEventRenamedCopyWithImpl<$Res>;
+abstract class _$$FileEventRenamedCopyWith<$Res> {
+  factory _$$FileEventRenamedCopyWith(
+          _$FileEventRenamed value, $Res Function(_$FileEventRenamed) then) =
+      __$$FileEventRenamedCopyWithImpl<$Res>;
   $Res call({String filename, String newFilename, bool replace});
 }
 
 /// @nodoc
-class _$FileEventRenamedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
-    implements $FileEventRenamedCopyWith<$Res> {
-  _$FileEventRenamedCopyWithImpl(
-      FileEventRenamed _value, $Res Function(FileEventRenamed) _then)
-      : super(_value, (v) => _then(v as FileEventRenamed));
+class __$$FileEventRenamedCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res>
+    implements _$$FileEventRenamedCopyWith<$Res> {
+  __$$FileEventRenamedCopyWithImpl(
+      _$FileEventRenamed _value, $Res Function(_$FileEventRenamed) _then)
+      : super(_value, (v) => _then(v as _$FileEventRenamed));
 
   @override
-  FileEventRenamed get _value => super._value as FileEventRenamed;
+  _$FileEventRenamed get _value => super._value as _$FileEventRenamed;
 
   @override
   $Res call({
@@ -348,7 +310,7 @@ class _$FileEventRenamedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
     Object? newFilename = freezed,
     Object? replace = freezed,
   }) {
-    return _then(FileEventRenamed(
+    return _then(_$FileEventRenamed(
       filename: filename == freezed
           ? _value.filename
           : filename // ignore: cast_nullable_to_non_nullable
@@ -372,7 +334,7 @@ class _$FileEventRenamed extends FileEventRenamed {
       {required this.filename,
       required this.newFilename,
       this.replace = true,
-      String? $type})
+      final String? $type})
       : $type = $type ?? 'renamed',
         super._();
 
@@ -383,8 +345,8 @@ class _$FileEventRenamed extends FileEventRenamed {
   final String filename;
   @override
   final String newFilename;
-  @JsonKey()
   @override
+  @JsonKey()
   final bool replace;
 
   @JsonKey(name: 'runtimeType')
@@ -399,13 +361,14 @@ class _$FileEventRenamed extends FileEventRenamed {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FileEventRenamed &&
+            other is _$FileEventRenamed &&
             const DeepCollectionEquality().equals(other.filename, filename) &&
             const DeepCollectionEquality()
                 .equals(other.newFilename, newFilename) &&
             const DeepCollectionEquality().equals(other.replace, replace));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -415,8 +378,8 @@ class _$FileEventRenamed extends FileEventRenamed {
 
   @JsonKey(ignore: true)
   @override
-  $FileEventRenamedCopyWith<FileEventRenamed> get copyWith =>
-      _$FileEventRenamedCopyWithImpl<FileEventRenamed>(this, _$identity);
+  _$$FileEventRenamedCopyWith<_$FileEventRenamed> get copyWith =>
+      __$$FileEventRenamedCopyWithImpl<_$FileEventRenamed>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -503,45 +466,46 @@ class _$FileEventRenamed extends FileEventRenamed {
 
 abstract class FileEventRenamed extends FileEvent {
   const factory FileEventRenamed(
-      {required String filename,
-      required String newFilename,
-      bool replace}) = _$FileEventRenamed;
+      {required final String filename,
+      required final String newFilename,
+      final bool replace}) = _$FileEventRenamed;
   const FileEventRenamed._() : super._();
 
   factory FileEventRenamed.fromJson(Map<String, dynamic> json) =
       _$FileEventRenamed.fromJson;
 
-  String get filename;
-  String get newFilename;
-  bool get replace;
+  String get filename => throw _privateConstructorUsedError;
+  String get newFilename => throw _privateConstructorUsedError;
+  bool get replace => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $FileEventRenamedCopyWith<FileEventRenamed> get copyWith =>
+  _$$FileEventRenamedCopyWith<_$FileEventRenamed> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $FileEventDeletedCopyWith<$Res> {
-  factory $FileEventDeletedCopyWith(
-          FileEventDeleted value, $Res Function(FileEventDeleted) then) =
-      _$FileEventDeletedCopyWithImpl<$Res>;
+abstract class _$$FileEventDeletedCopyWith<$Res> {
+  factory _$$FileEventDeletedCopyWith(
+          _$FileEventDeleted value, $Res Function(_$FileEventDeleted) then) =
+      __$$FileEventDeletedCopyWithImpl<$Res>;
   $Res call({String filename});
 }
 
 /// @nodoc
-class _$FileEventDeletedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
-    implements $FileEventDeletedCopyWith<$Res> {
-  _$FileEventDeletedCopyWithImpl(
-      FileEventDeleted _value, $Res Function(FileEventDeleted) _then)
-      : super(_value, (v) => _then(v as FileEventDeleted));
+class __$$FileEventDeletedCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res>
+    implements _$$FileEventDeletedCopyWith<$Res> {
+  __$$FileEventDeletedCopyWithImpl(
+      _$FileEventDeleted _value, $Res Function(_$FileEventDeleted) _then)
+      : super(_value, (v) => _then(v as _$FileEventDeleted));
 
   @override
-  FileEventDeleted get _value => super._value as FileEventDeleted;
+  _$FileEventDeleted get _value => super._value as _$FileEventDeleted;
 
   @override
   $Res call({
     Object? filename = freezed,
   }) {
-    return _then(FileEventDeleted(
+    return _then(_$FileEventDeleted(
       filename == freezed
           ? _value.filename
           : filename // ignore: cast_nullable_to_non_nullable
@@ -553,7 +517,7 @@ class _$FileEventDeletedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventDeleted extends FileEventDeleted {
-  const _$FileEventDeleted(this.filename, {String? $type})
+  const _$FileEventDeleted(this.filename, {final String? $type})
       : $type = $type ?? 'deleted',
         super._();
 
@@ -575,18 +539,19 @@ class _$FileEventDeleted extends FileEventDeleted {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FileEventDeleted &&
+            other is _$FileEventDeleted &&
             const DeepCollectionEquality().equals(other.filename, filename));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(filename));
 
   @JsonKey(ignore: true)
   @override
-  $FileEventDeletedCopyWith<FileEventDeleted> get copyWith =>
-      _$FileEventDeletedCopyWithImpl<FileEventDeleted>(this, _$identity);
+  _$$FileEventDeletedCopyWith<_$FileEventDeleted> get copyWith =>
+      __$$FileEventDeletedCopyWithImpl<_$FileEventDeleted>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -672,43 +637,43 @@ class _$FileEventDeleted extends FileEventDeleted {
 }
 
 abstract class FileEventDeleted extends FileEvent {
-  const factory FileEventDeleted(String filename) = _$FileEventDeleted;
+  const factory FileEventDeleted(final String filename) = _$FileEventDeleted;
   const FileEventDeleted._() : super._();
 
   factory FileEventDeleted.fromJson(Map<String, dynamic> json) =
       _$FileEventDeleted.fromJson;
 
-  String get filename;
+  String get filename => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $FileEventDeletedCopyWith<FileEventDeleted> get copyWith =>
+  _$$FileEventDeletedCopyWith<_$FileEventDeleted> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $FileEventManyCopyWith<$Res> {
-  factory $FileEventManyCopyWith(
-          FileEventMany value, $Res Function(FileEventMany) then) =
-      _$FileEventManyCopyWithImpl<$Res>;
+abstract class _$$FileEventManyCopyWith<$Res> {
+  factory _$$FileEventManyCopyWith(
+          _$FileEventMany value, $Res Function(_$FileEventMany) then) =
+      __$$FileEventManyCopyWithImpl<$Res>;
   $Res call({List<FileEvent> events});
 }
 
 /// @nodoc
-class _$FileEventManyCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
-    implements $FileEventManyCopyWith<$Res> {
-  _$FileEventManyCopyWithImpl(
-      FileEventMany _value, $Res Function(FileEventMany) _then)
-      : super(_value, (v) => _then(v as FileEventMany));
+class __$$FileEventManyCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
+    implements _$$FileEventManyCopyWith<$Res> {
+  __$$FileEventManyCopyWithImpl(
+      _$FileEventMany _value, $Res Function(_$FileEventMany) _then)
+      : super(_value, (v) => _then(v as _$FileEventMany));
 
   @override
-  FileEventMany get _value => super._value as FileEventMany;
+  _$FileEventMany get _value => super._value as _$FileEventMany;
 
   @override
   $Res call({
     Object? events = freezed,
   }) {
-    return _then(FileEventMany(
+    return _then(_$FileEventMany(
       events == freezed
-          ? _value.events
+          ? _value._events
           : events // ignore: cast_nullable_to_non_nullable
               as List<FileEvent>,
     ));
@@ -718,15 +683,20 @@ class _$FileEventManyCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$FileEventMany extends FileEventMany {
-  const _$FileEventMany(this.events, {String? $type})
-      : $type = $type ?? 'many',
+  const _$FileEventMany(final List<FileEvent> events, {final String? $type})
+      : _events = events,
+        $type = $type ?? 'many',
         super._();
 
   factory _$FileEventMany.fromJson(Map<String, dynamic> json) =>
       _$$FileEventManyFromJson(json);
 
+  final List<FileEvent> _events;
   @override
-  final List<FileEvent> events;
+  List<FileEvent> get events {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_events);
+  }
 
   @JsonKey(name: 'runtimeType')
   final String $type;
@@ -740,18 +710,19 @@ class _$FileEventMany extends FileEventMany {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FileEventMany &&
-            const DeepCollectionEquality().equals(other.events, events));
+            other is _$FileEventMany &&
+            const DeepCollectionEquality().equals(other._events, _events));
   }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(events));
 
   @JsonKey(ignore: true)
   @override
-  $FileEventManyCopyWith<FileEventMany> get copyWith =>
-      _$FileEventManyCopyWithImpl<FileEventMany>(this, _$identity);
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_events));
+
+  @JsonKey(ignore: true)
+  @override
+  _$$FileEventManyCopyWith<_$FileEventMany> get copyWith =>
+      __$$FileEventManyCopyWithImpl<_$FileEventMany>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -837,14 +808,14 @@ class _$FileEventMany extends FileEventMany {
 }
 
 abstract class FileEventMany extends FileEvent {
-  const factory FileEventMany(List<FileEvent> events) = _$FileEventMany;
+  const factory FileEventMany(final List<FileEvent> events) = _$FileEventMany;
   const FileEventMany._() : super._();
 
   factory FileEventMany.fromJson(Map<String, dynamic> json) =
       _$FileEventMany.fromJson;
 
-  List<FileEvent> get events;
+  List<FileEvent> get events => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $FileEventManyCopyWith<FileEventMany> get copyWith =>
+  _$$FileEventManyCopyWith<_$FileEventMany> get copyWith =>
       throw _privateConstructorUsedError;
 }

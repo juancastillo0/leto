@@ -4,6 +4,7 @@ import 'package:leto/types/json.dart';
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:valida/valida.dart';
 
 part 'arguments.g.dart';
 
@@ -85,4 +86,83 @@ String testManyDefaults({
     'timestamps': timestamps.map((e) => e?.millisecondsSinceEpoch).toList(),
     'json': json,
   });
+}
+
+const testValidaInArgsGraphQLStr =
+    'testValidaInArgs(strSOrA: String! @valida(jsonSpec: """\n'
+    '{"variantType":"string","isIn":["S","A"]}\n'
+    '"""), otherInt: Int, greaterThan3AndOtherInt: Int! = 4 @valida(jsonSpec: """\n'
+    '{"variantType":"num","comp":{"more":{"variantType":"list","values":[{"variantType":"single","value":3},{"variantType":"ref","ref":"otherInt","isRequired":false}]},"useCompareTo":true}}\n'
+    '"""), after2020: Date @valida(jsonSpec: """\n'
+    '{"variantType":"date","min":"2021-01-01"}\n'
+    '"""), nonEmptyList: [String!] @valida(jsonSpec: """\n'
+    '{"variantType":"list","minLength":1}\n'
+    '"""), model: ValidaArgModel): String!';
+
+@Query()
+@Valida()
+String testValidaInArgs({
+  @ValidaString(isIn: ['S', 'A'])
+      required String strSOrA,
+  int? otherInt,
+  @ValidaNum(
+    comp: ValidaComparison(
+      more: CompVal.list([
+        CompVal(3),
+        CompVal.ref('otherInt', isRequired: false),
+      ]),
+    ),
+  )
+      int greaterThan3AndOtherInt = 4,
+  @ValidaDate(min: '2021-01-01')
+      DateTime? after2020,
+  @ValidaList(minLength: 1)
+      List<String>? nonEmptyList,
+  ValidaArgModel? model,
+}) {
+  return '';
+}
+
+@Query()
+String testValidaInArgsSingleModel({
+  ValidaArgModel? singleModel,
+}) {
+  return '';
+}
+
+const validaArgModelGraphQLStr = '''
+input ValidaArgModel {
+  strs: [String!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"string","minLength":1}}
+""")
+  inner: ValidaArgModel
+}''';
+
+@Valida()
+@GraphQLInput()
+class ValidaArgModel {
+  @ValidaList(each: ValidaString(minLength: 1))
+  final List<String> strs;
+  final ValidaArgModel? inner;
+
+  ValidaArgModel({
+    required this.strs,
+    this.inner,
+  });
+
+  Map<String, Object?> toJson() {
+    return {
+      'strs': strs,
+      'inner': inner?.toJson(),
+    };
+  }
+
+  factory ValidaArgModel.fromJson(Map<String, Object?> map) {
+    return ValidaArgModel(
+      strs: List<String>.from(map['strs']! as List),
+      inner: map['inner'] != null
+          ? ValidaArgModel.fromJson((map['inner']! as Map).cast())
+          : null,
+    );
+  }
 }

@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/messages.data.gql.dart';
-import 'package:chat_example/api/messages.req.gql.dart';
-import 'package:chat_example/api_schema.schema.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/messages/messages_store.dart';
 import 'package:chat_example/utils/custom_error_widget.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:file_selector/file_selector.dart';
+
+import '../__generated__/api_schema.schema.gql.dart';
+import '../api/__generated__/messages.data.gql.dart';
+import '../api/__generated__/messages.req.gql.dart';
 
 class MessageList extends HookConsumerWidget {
   const MessageList({Key? key}) : super(key: key);

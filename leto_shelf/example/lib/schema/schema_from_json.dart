@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:async/async.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
 import 'package:json_path/json_path.dart';
 import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';

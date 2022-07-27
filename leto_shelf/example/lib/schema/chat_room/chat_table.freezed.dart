@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'chat_table.dart';
@@ -11,32 +12,11 @@ part of 'chat_table.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 ChatRoom _$ChatRoomFromJson(Map<String, dynamic> json) {
   return _ChatRoom.fromJson(json);
 }
-
-/// @nodoc
-class _$ChatRoomTearOff {
-  const _$ChatRoomTearOff();
-
-  _ChatRoom call(
-      {required int id, required String name, required DateTime createdAt}) {
-    return _ChatRoom(
-      id: id,
-      name: name,
-      createdAt: createdAt,
-    );
-  }
-
-  ChatRoom fromJson(Map<String, Object?> json) {
-    return ChatRoom.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatRoom = _$ChatRoomTearOff();
 
 /// @nodoc
 mixin _$ChatRoom {
@@ -89,21 +69,23 @@ class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
-  factory _$ChatRoomCopyWith(_ChatRoom value, $Res Function(_ChatRoom) then) =
-      __$ChatRoomCopyWithImpl<$Res>;
+abstract class _$$_ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
+  factory _$$_ChatRoomCopyWith(
+          _$_ChatRoom value, $Res Function(_$_ChatRoom) then) =
+      __$$_ChatRoomCopyWithImpl<$Res>;
   @override
   $Res call({int id, String name, DateTime createdAt});
 }
 
 /// @nodoc
-class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
-    implements _$ChatRoomCopyWith<$Res> {
-  __$ChatRoomCopyWithImpl(_ChatRoom _value, $Res Function(_ChatRoom) _then)
-      : super(_value, (v) => _then(v as _ChatRoom));
+class __$$_ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
+    implements _$$_ChatRoomCopyWith<$Res> {
+  __$$_ChatRoomCopyWithImpl(
+      _$_ChatRoom _value, $Res Function(_$_ChatRoom) _then)
+      : super(_value, (v) => _then(v as _$_ChatRoom));
 
   @override
-  _ChatRoom get _value => super._value as _ChatRoom;
+  _$_ChatRoom get _value => super._value as _$_ChatRoom;
 
   @override
   $Res call({
@@ -111,7 +93,7 @@ class __$ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
     Object? name = freezed,
     Object? createdAt = freezed,
   }) {
-    return _then(_ChatRoom(
+    return _then(_$_ChatRoom(
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -154,12 +136,13 @@ class _$_ChatRoom extends _ChatRoom {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _ChatRoom &&
+            other is _$_ChatRoom &&
             const DeepCollectionEquality().equals(other.id, id) &&
             const DeepCollectionEquality().equals(other.name, name) &&
             const DeepCollectionEquality().equals(other.createdAt, createdAt));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -169,8 +152,8 @@ class _$_ChatRoom extends _ChatRoom {
 
   @JsonKey(ignore: true)
   @override
-  _$ChatRoomCopyWith<_ChatRoom> get copyWith =>
-      __$ChatRoomCopyWithImpl<_ChatRoom>(this, _$identity);
+  _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
+      __$$_ChatRoomCopyWithImpl<_$_ChatRoom>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -180,55 +163,28 @@ class _$_ChatRoom extends _ChatRoom {
 
 abstract class _ChatRoom extends ChatRoom {
   const factory _ChatRoom(
-      {required int id,
-      required String name,
-      required DateTime createdAt}) = _$_ChatRoom;
+      {required final int id,
+      required final String name,
+      required final DateTime createdAt}) = _$_ChatRoom;
   const _ChatRoom._() : super._();
 
   factory _ChatRoom.fromJson(Map<String, dynamic> json) = _$_ChatRoom.fromJson;
 
   @override
-  int get id;
+  int get id => throw _privateConstructorUsedError;
   @override
-  String get name;
+  String get name => throw _privateConstructorUsedError;
   @override
-  DateTime get createdAt;
+  DateTime get createdAt => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$ChatRoomCopyWith<_ChatRoom> get copyWith =>
+  _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 ChatMessage _$ChatMessageFromJson(Map<String, dynamic> json) {
   return _ChatMessage.fromJson(json);
 }
-
-/// @nodoc
-class _$ChatMessageTearOff {
-  const _$ChatMessageTearOff();
-
-  _ChatMessage call(
-      {required int id,
-      required int chatId,
-      required String message,
-      int? referencedMessageId,
-      required DateTime createdAt}) {
-    return _ChatMessage(
-      id: id,
-      chatId: chatId,
-      message: message,
-      referencedMessageId: referencedMessageId,
-      createdAt: createdAt,
-    );
-  }
-
-  ChatMessage fromJson(Map<String, Object?> json) {
-    return ChatMessage.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $ChatMessage = _$ChatMessageTearOff();
 
 /// @nodoc
 mixin _$ChatMessage {
@@ -299,11 +255,11 @@ class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class _$ChatMessageCopyWith<$Res>
+abstract class _$$_ChatMessageCopyWith<$Res>
     implements $ChatMessageCopyWith<$Res> {
-  factory _$ChatMessageCopyWith(
-          _ChatMessage value, $Res Function(_ChatMessage) then) =
-      __$ChatMessageCopyWithImpl<$Res>;
+  factory _$$_ChatMessageCopyWith(
+          _$_ChatMessage value, $Res Function(_$_ChatMessage) then) =
+      __$$_ChatMessageCopyWithImpl<$Res>;
   @override
   $Res call(
       {int id,
@@ -314,14 +270,14 @@ abstract class _$ChatMessageCopyWith<$Res>
 }
 
 /// @nodoc
-class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
-    implements _$ChatMessageCopyWith<$Res> {
-  __$ChatMessageCopyWithImpl(
-      _ChatMessage _value, $Res Function(_ChatMessage) _then)
-      : super(_value, (v) => _then(v as _ChatMessage));
+class __$$_ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
+    implements _$$_ChatMessageCopyWith<$Res> {
+  __$$_ChatMessageCopyWithImpl(
+      _$_ChatMessage _value, $Res Function(_$_ChatMessage) _then)
+      : super(_value, (v) => _then(v as _$_ChatMessage));
 
   @override
-  _ChatMessage get _value => super._value as _ChatMessage;
+  _$_ChatMessage get _value => super._value as _$_ChatMessage;
 
   @override
   $Res call({
@@ -331,7 +287,7 @@ class __$ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
     Object? referencedMessageId = freezed,
     Object? createdAt = freezed,
   }) {
-    return _then(_ChatMessage(
+    return _then(_$_ChatMessage(
       id: id == freezed
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -390,7 +346,7 @@ class _$_ChatMessage extends _ChatMessage {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _ChatMessage &&
+            other is _$_ChatMessage &&
             const DeepCollectionEquality().equals(other.id, id) &&
             const DeepCollectionEquality().equals(other.chatId, chatId) &&
             const DeepCollectionEquality().equals(other.message, message) &&
@@ -399,6 +355,7 @@ class _$_ChatMessage extends _ChatMessage {
             const DeepCollectionEquality().equals(other.createdAt, createdAt));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -410,8 +367,8 @@ class _$_ChatMessage extends _ChatMessage {
 
   @JsonKey(ignore: true)
   @override
-  _$ChatMessageCopyWith<_ChatMessage> get copyWith =>
-      __$ChatMessageCopyWithImpl<_ChatMessage>(this, _$identity);
+  _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>
+      __$$_ChatMessageCopyWithImpl<_$_ChatMessage>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -421,28 +378,28 @@ class _$_ChatMessage extends _ChatMessage {
 
 abstract class _ChatMessage extends ChatMessage {
   const factory _ChatMessage(
-      {required int id,
-      required int chatId,
-      required String message,
-      int? referencedMessageId,
-      required DateTime createdAt}) = _$_ChatMessage;
+      {required final int id,
+      required final int chatId,
+      required final String message,
+      final int? referencedMessageId,
+      required final DateTime createdAt}) = _$_ChatMessage;
   const _ChatMessage._() : super._();
 
   factory _ChatMessage.fromJson(Map<String, dynamic> json) =
       _$_ChatMessage.fromJson;
 
   @override
-  int get id;
+  int get id => throw _privateConstructorUsedError;
   @override
-  int get chatId;
+  int get chatId => throw _privateConstructorUsedError;
   @override
-  String get message;
+  String get message => throw _privateConstructorUsedError;
   @override
-  int? get referencedMessageId;
+  int? get referencedMessageId => throw _privateConstructorUsedError;
   @override
-  DateTime get createdAt;
+  DateTime get createdAt => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
-  _$ChatMessageCopyWith<_ChatMessage> get copyWith =>
+  _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>
       throw _privateConstructorUsedError;
 }

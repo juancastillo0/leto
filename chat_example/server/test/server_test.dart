@@ -18,11 +18,44 @@ void main() {
 
     test('Create user and room', () async {
       const chatName = 'a_chat';
-      final user = await ts.createdUserAndRoom(
-        chatName: chatName,
-        userName: 'aa',
-        userPassword: 'aaaaa',
-      );
+      TestUser user;
+      List? errors;
+      try {
+        user = await ts.createdUserAndRoom(
+          chatName: chatName,
+          userName: 'aa',
+          userPassword: 'aaaaa',
+        );
+      } on List catch (e) {
+        errors = e;
+        user = await ts.createdUserAndRoom(
+          chatName: chatName,
+          userName: 'aa',
+          userPassword: 'aaaaaA',
+        );
+      }
+      expect(errors, [
+        {
+          'message': 'Input validation error',
+          'path': ['signUp'],
+          'locations': [
+            {'line': 0, 'column': 38}
+          ],
+          'extensions': {
+            'validaErrors': {
+              'password': [
+                {
+                  'property': 'password',
+                  'errorCode': 'ValidaLength.minLength',
+                  'message': 'Should have a minimum length of 6',
+                  'validationParam': 6
+                }
+              ]
+            }
+          }
+        }
+      ]);
+
       final accessToken = user.accessToken;
       var response = await ts.send(
         const GraphQLRequest(

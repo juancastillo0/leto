@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "31.0.0"
+    version: "38.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.8.0"
+    version: "3.4.1"
   args:
     dependency: transitive
     description:
@@ -106,13 +106,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
-  cli_util:
-    dependency: transitive
-    description:
-      name: cli_util
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.5"
   clock:
     dependency: transitive
     description:
@@ -196,14 +189,14 @@ packages:
       name: freezed
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.3"
   freezed_annotation:
     dependency: "direct main"
     description:
       name: freezed_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "2.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -315,7 +308,7 @@ packages:
       name: json_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.5.0"
+    version: "4.6.0"
   json_path:
     dependency: transitive
     description:
@@ -329,7 +322,7 @@ packages:
       name: json_serializable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.2.0"
+    version: "6.3.1"
   leto:
     dependency: "direct main"
     description:
@@ -706,10 +699,12 @@ packages:
   valida:
     dependency: transitive
     description:
-      name: valida
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
+      path: valida
+      ref: HEAD
+      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
+      url: "https://github.com/juancastillo0/valida"
+    source: git
+    version: "0.1.0"
   validators:
     dependency: transitive
     description:

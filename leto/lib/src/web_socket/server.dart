@@ -35,7 +35,6 @@ abstract class Server {
   final Completer _done = Completer<void>();
   late final StreamSubscription<OperationMessage> _sub;
 
-  final Set<StreamSubscription<Object?>> _allSubs = {};
   final Map<String, StreamSubscription<Object?>?> currentOperationIds = {};
 
   bool _init = false;
@@ -50,7 +49,7 @@ abstract class Server {
     }
     _connectionInitTimer?.cancel();
     _timer?.cancel();
-    await Future.wait(_allSubs.map((e) => e.cancel()));
+    await Future.wait(currentOperationIds.values.map((e) async => e?.cancel()));
   }
 
   Future<void> _connectionInitTimeout() {
@@ -216,7 +215,8 @@ abstract class Server {
                   OperationMessage(OperationMessage.gqlComplete, id: msg.id));
             }
             currentOperationIds.remove(msg.id);
-          } else if (msg.type == OperationMessage.gqlComplete) {
+          } else if (msg.type == OperationMessage.gqlComplete ||
+              msg.type == OperationMessage.gqlStop) {
             if (msg.id == null) {
               throw FormatException('${msg.type} id is required.');
             }
@@ -226,6 +226,7 @@ abstract class Server {
             }
           } else if (msg.type == OperationMessage.gqlConnectionTerminate) {
             await _sub.cancel();
+            await _onDone();
           }
         } else if (msg.type == OperationMessage.subscribe) {
           return client.closeWithReason(
@@ -247,6 +248,7 @@ abstract class Server {
 
     final subscriptionStream = result.subscriptionStream;
     if (subscriptionStream != null) {
+      // ignore: cancel_subscriptions
       final sub = subscriptionStream.listen((GraphQLResult event) {
         if (_done.isCompleted) {
           return;
@@ -257,9 +259,8 @@ abstract class Server {
           payload: event.toJson(),
         ));
       });
-      _allSubs.add(sub);
+      currentOperationIds[id] = sub;
       await sub.asFuture<Object?>();
-      _allSubs.remove(sub);
     } else {
       client.sink.add(OperationMessage(
         msgType,

@@ -11,6 +11,15 @@ void main() {
       graphqlApiSchema.schemaStr,
       contains(testManyDefaultsGraphQLStr),
     );
+    expect(
+      graphqlApiSchema.schemaStr,
+      contains(testValidaInArgsGraphQLStr),
+    );
+    expect(
+      graphqlApiSchema.schemaStr,
+      contains(validaArgModelGraphQLStr),
+    );
+
     final result = await GraphQL(graphqlApiSchema).parseAndExecute(
       '{testManyDefaults}',
     );
@@ -72,6 +81,63 @@ void main() {
             'testManyDefaults',
           ],
         ),
+      );
+    }
+  });
+
+  test('arguments validation pass', () async {
+    const inputs = <String, String>{
+      'otherInt': '2',
+      'greaterThan3AndOtherInt': '4',
+      'after2020': '"2021-01-02"',
+      'nonEmptyList': '[""]',
+      'model': '{strs: ["de", "c"]}',
+    };
+    for (final e in inputs.entries) {
+      final result = await GraphQL(graphqlApiSchema).parseAndExecute(
+        '{ testValidaInArgs(strSOrA: "S" ${e.key}:${e.value}) }',
+      );
+      expect(result.errors, isEmpty);
+    }
+  });
+
+  test('arguments validation errors', () async {
+    const wrongInputs = <String, String>{
+      'greaterThan3AndOtherInt': '2',
+      'after2020': '"2020-01-02"',
+      'nonEmptyList': '[]',
+      'model': '{strs: ["de", ""]}',
+    };
+    for (final e in wrongInputs.entries) {
+      final result = await GraphQL(graphqlApiSchema).parseAndExecute(
+        '{ testValidaInArgs(strSOrA: "Swrong" ${e.key}:${e.value}) }',
+      );
+      expect(result.errors, hasLength(1));
+      expect(result.errors.first.extensions, hasLength(1));
+
+      final errorEntry = result.errors.first.extensions!.entries.first;
+      expect(errorEntry.key, 'validaErrors');
+      expect(errorEntry.value, hasLength(2));
+      final errors = errorEntry.value! as Map<String, Object?>;
+
+      expect(
+        errors['strSOrA'].toString(),
+        stringContainsInOrder([
+          'Should is be in [S, A]. strSOrA = Swrong',
+        ]),
+      );
+
+      final _value = e.key == 'after2020'
+          // remove " from date
+          ? e.value.substring(1, e.value.length - 1)
+          : e.key == 'model'
+              ? 'Instance of \'ValidaArgModel\'.'
+              : e.value;
+      expect(
+        errors[e.key].toString(),
+        stringContainsInOrder([
+          '${e.key} = $_value',
+        ]),
       );
     }
   });

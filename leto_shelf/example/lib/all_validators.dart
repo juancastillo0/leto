@@ -7,7 +7,7 @@ class Validators {
     TestModel: validatorTestModel,
   };
 
-  static const validatorTestModel = Validator(validateTestModel);
+  static const validatorTestModel = Validator(TestModelValidation.fromValue);
 
   static Validator<T, Validation<T, Object>>? validator<T>() {
     final validator = typeMap[T];

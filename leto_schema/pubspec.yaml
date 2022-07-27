@@ -4,7 +4,7 @@ description: An implementation of GraphQL's type system in Dart. Basis of leto.
 homepage: https://github.com/juancastillo0/leto
 
 environment:
-  sdk: ">=2.14.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   collection: ^1.16.0

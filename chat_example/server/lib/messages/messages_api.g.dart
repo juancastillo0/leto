@@ -307,7 +307,7 @@ Map<String, dynamic> _$$_ChatMessageToJson(_$_ChatMessage instance) =>
       'chatId': instance.chatId,
       'userId': instance.userId,
       'message': instance.message,
-      'type': _$MessageTypeEnumMap[instance.type],
+      'type': _$MessageTypeEnumMap[instance.type]!,
       'fileUrl': instance.fileUrl,
       'metadataJson': instance.metadataJson,
       'referencedMessageId': instance.referencedMessageId,

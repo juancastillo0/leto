@@ -1,5 +1,6 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'user_api.dart';
@@ -11,7 +12,7 @@ part of 'user_api.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 UserEvent _$UserEventFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
@@ -29,44 +30,6 @@ UserEvent _$UserEventFromJson(Map<String, dynamic> json) {
           'Invalid union type "${json['runtimeType']}"!');
   }
 }
-
-/// @nodoc
-class _$UserEventTearOff {
-  const _$UserEventTearOff();
-
-  UserCreatedEvent created({required User user}) {
-    return UserCreatedEvent(
-      user: user,
-    );
-  }
-
-  UserSignedUpEvent signedUp({required UserSession session}) {
-    return UserSignedUpEvent(
-      session: session,
-    );
-  }
-
-  UserSignedInEvent signedIn({required UserSession session}) {
-    return UserSignedInEvent(
-      session: session,
-    );
-  }
-
-  UserSignedOutEvent signedOut(
-      {required int userId, required String sessionId}) {
-    return UserSignedOutEvent(
-      userId: userId,
-      sessionId: sessionId,
-    );
-  }
-
-  UserEvent fromJson(Map<String, Object?> json) {
-    return UserEvent.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $UserEvent = _$UserEventTearOff();
 
 /// @nodoc
 mixin _$UserEvent {
@@ -139,28 +102,29 @@ class _$UserEventCopyWithImpl<$Res> implements $UserEventCopyWith<$Res> {
 }
 
 /// @nodoc
-abstract class $UserCreatedEventCopyWith<$Res> {
-  factory $UserCreatedEventCopyWith(
-          UserCreatedEvent value, $Res Function(UserCreatedEvent) then) =
-      _$UserCreatedEventCopyWithImpl<$Res>;
+abstract class _$$UserCreatedEventCopyWith<$Res> {
+  factory _$$UserCreatedEventCopyWith(
+          _$UserCreatedEvent value, $Res Function(_$UserCreatedEvent) then) =
+      __$$UserCreatedEventCopyWithImpl<$Res>;
   $Res call({User user});
 }
 
 /// @nodoc
-class _$UserCreatedEventCopyWithImpl<$Res> extends _$UserEventCopyWithImpl<$Res>
-    implements $UserCreatedEventCopyWith<$Res> {
-  _$UserCreatedEventCopyWithImpl(
-      UserCreatedEvent _value, $Res Function(UserCreatedEvent) _then)
-      : super(_value, (v) => _then(v as UserCreatedEvent));
+class __$$UserCreatedEventCopyWithImpl<$Res>
+    extends _$UserEventCopyWithImpl<$Res>
+    implements _$$UserCreatedEventCopyWith<$Res> {
+  __$$UserCreatedEventCopyWithImpl(
+      _$UserCreatedEvent _value, $Res Function(_$UserCreatedEvent) _then)
+      : super(_value, (v) => _then(v as _$UserCreatedEvent));
 
   @override
-  UserCreatedEvent get _value => super._value as UserCreatedEvent;
+  _$UserCreatedEvent get _value => super._value as _$UserCreatedEvent;
 
   @override
   $Res call({
     Object? user = freezed,
   }) {
-    return _then(UserCreatedEvent(
+    return _then(_$UserCreatedEvent(
       user: user == freezed
           ? _value.user
           : user // ignore: cast_nullable_to_non_nullable
@@ -172,7 +136,7 @@ class _$UserCreatedEventCopyWithImpl<$Res> extends _$UserEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserCreatedEvent extends UserCreatedEvent {
-  const _$UserCreatedEvent({required this.user, String? $type})
+  const _$UserCreatedEvent({required this.user, final String? $type})
       : $type = $type ?? 'created',
         super._();
 
@@ -194,18 +158,19 @@ class _$UserCreatedEvent extends UserCreatedEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserCreatedEvent &&
+            other is _$UserCreatedEvent &&
             const DeepCollectionEquality().equals(other.user, user));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(user));
 
   @JsonKey(ignore: true)
   @override
-  $UserCreatedEventCopyWith<UserCreatedEvent> get copyWith =>
-      _$UserCreatedEventCopyWithImpl<UserCreatedEvent>(this, _$identity);
+  _$$UserCreatedEventCopyWith<_$UserCreatedEvent> get copyWith =>
+      __$$UserCreatedEventCopyWithImpl<_$UserCreatedEvent>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -288,42 +253,43 @@ class _$UserCreatedEvent extends UserCreatedEvent {
 }
 
 abstract class UserCreatedEvent extends UserEvent {
-  const factory UserCreatedEvent({required User user}) = _$UserCreatedEvent;
+  const factory UserCreatedEvent({required final User user}) =
+      _$UserCreatedEvent;
   const UserCreatedEvent._() : super._();
 
   factory UserCreatedEvent.fromJson(Map<String, dynamic> json) =
       _$UserCreatedEvent.fromJson;
 
-  User get user;
+  User get user => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserCreatedEventCopyWith<UserCreatedEvent> get copyWith =>
+  _$$UserCreatedEventCopyWith<_$UserCreatedEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserSignedUpEventCopyWith<$Res> {
-  factory $UserSignedUpEventCopyWith(
-          UserSignedUpEvent value, $Res Function(UserSignedUpEvent) then) =
-      _$UserSignedUpEventCopyWithImpl<$Res>;
+abstract class _$$UserSignedUpEventCopyWith<$Res> {
+  factory _$$UserSignedUpEventCopyWith(
+          _$UserSignedUpEvent value, $Res Function(_$UserSignedUpEvent) then) =
+      __$$UserSignedUpEventCopyWithImpl<$Res>;
   $Res call({UserSession session});
 }
 
 /// @nodoc
-class _$UserSignedUpEventCopyWithImpl<$Res>
+class __$$UserSignedUpEventCopyWithImpl<$Res>
     extends _$UserEventCopyWithImpl<$Res>
-    implements $UserSignedUpEventCopyWith<$Res> {
-  _$UserSignedUpEventCopyWithImpl(
-      UserSignedUpEvent _value, $Res Function(UserSignedUpEvent) _then)
-      : super(_value, (v) => _then(v as UserSignedUpEvent));
+    implements _$$UserSignedUpEventCopyWith<$Res> {
+  __$$UserSignedUpEventCopyWithImpl(
+      _$UserSignedUpEvent _value, $Res Function(_$UserSignedUpEvent) _then)
+      : super(_value, (v) => _then(v as _$UserSignedUpEvent));
 
   @override
-  UserSignedUpEvent get _value => super._value as UserSignedUpEvent;
+  _$UserSignedUpEvent get _value => super._value as _$UserSignedUpEvent;
 
   @override
   $Res call({
     Object? session = freezed,
   }) {
-    return _then(UserSignedUpEvent(
+    return _then(_$UserSignedUpEvent(
       session: session == freezed
           ? _value.session
           : session // ignore: cast_nullable_to_non_nullable
@@ -335,7 +301,7 @@ class _$UserSignedUpEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedUpEvent extends UserSignedUpEvent {
-  const _$UserSignedUpEvent({required this.session, String? $type})
+  const _$UserSignedUpEvent({required this.session, final String? $type})
       : $type = $type ?? 'signedUp',
         super._();
 
@@ -357,18 +323,19 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserSignedUpEvent &&
+            other is _$UserSignedUpEvent &&
             const DeepCollectionEquality().equals(other.session, session));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(session));
 
   @JsonKey(ignore: true)
   @override
-  $UserSignedUpEventCopyWith<UserSignedUpEvent> get copyWith =>
-      _$UserSignedUpEventCopyWithImpl<UserSignedUpEvent>(this, _$identity);
+  _$$UserSignedUpEventCopyWith<_$UserSignedUpEvent> get copyWith =>
+      __$$UserSignedUpEventCopyWithImpl<_$UserSignedUpEvent>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -451,43 +418,43 @@ class _$UserSignedUpEvent extends UserSignedUpEvent {
 }
 
 abstract class UserSignedUpEvent extends UserEvent {
-  const factory UserSignedUpEvent({required UserSession session}) =
+  const factory UserSignedUpEvent({required final UserSession session}) =
       _$UserSignedUpEvent;
   const UserSignedUpEvent._() : super._();
 
   factory UserSignedUpEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedUpEvent.fromJson;
 
-  UserSession get session;
+  UserSession get session => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserSignedUpEventCopyWith<UserSignedUpEvent> get copyWith =>
+  _$$UserSignedUpEventCopyWith<_$UserSignedUpEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserSignedInEventCopyWith<$Res> {
-  factory $UserSignedInEventCopyWith(
-          UserSignedInEvent value, $Res Function(UserSignedInEvent) then) =
-      _$UserSignedInEventCopyWithImpl<$Res>;
+abstract class _$$UserSignedInEventCopyWith<$Res> {
+  factory _$$UserSignedInEventCopyWith(
+          _$UserSignedInEvent value, $Res Function(_$UserSignedInEvent) then) =
+      __$$UserSignedInEventCopyWithImpl<$Res>;
   $Res call({UserSession session});
 }
 
 /// @nodoc
-class _$UserSignedInEventCopyWithImpl<$Res>
+class __$$UserSignedInEventCopyWithImpl<$Res>
     extends _$UserEventCopyWithImpl<$Res>
-    implements $UserSignedInEventCopyWith<$Res> {
-  _$UserSignedInEventCopyWithImpl(
-      UserSignedInEvent _value, $Res Function(UserSignedInEvent) _then)
-      : super(_value, (v) => _then(v as UserSignedInEvent));
+    implements _$$UserSignedInEventCopyWith<$Res> {
+  __$$UserSignedInEventCopyWithImpl(
+      _$UserSignedInEvent _value, $Res Function(_$UserSignedInEvent) _then)
+      : super(_value, (v) => _then(v as _$UserSignedInEvent));
 
   @override
-  UserSignedInEvent get _value => super._value as UserSignedInEvent;
+  _$UserSignedInEvent get _value => super._value as _$UserSignedInEvent;
 
   @override
   $Res call({
     Object? session = freezed,
   }) {
-    return _then(UserSignedInEvent(
+    return _then(_$UserSignedInEvent(
       session: session == freezed
           ? _value.session
           : session // ignore: cast_nullable_to_non_nullable
@@ -499,7 +466,7 @@ class _$UserSignedInEventCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$UserSignedInEvent extends UserSignedInEvent {
-  const _$UserSignedInEvent({required this.session, String? $type})
+  const _$UserSignedInEvent({required this.session, final String? $type})
       : $type = $type ?? 'signedIn',
         super._();
 
@@ -521,18 +488,19 @@ class _$UserSignedInEvent extends UserSignedInEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserSignedInEvent &&
+            other is _$UserSignedInEvent &&
             const DeepCollectionEquality().equals(other.session, session));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(session));
 
   @JsonKey(ignore: true)
   @override
-  $UserSignedInEventCopyWith<UserSignedInEvent> get copyWith =>
-      _$UserSignedInEventCopyWithImpl<UserSignedInEvent>(this, _$identity);
+  _$$UserSignedInEventCopyWith<_$UserSignedInEvent> get copyWith =>
+      __$$UserSignedInEventCopyWithImpl<_$UserSignedInEvent>(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -615,44 +583,44 @@ class _$UserSignedInEvent extends UserSignedInEvent {
 }
 
 abstract class UserSignedInEvent extends UserEvent {
-  const factory UserSignedInEvent({required UserSession session}) =
+  const factory UserSignedInEvent({required final UserSession session}) =
       _$UserSignedInEvent;
   const UserSignedInEvent._() : super._();
 
   factory UserSignedInEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedInEvent.fromJson;
 
-  UserSession get session;
+  UserSession get session => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserSignedInEventCopyWith<UserSignedInEvent> get copyWith =>
+  _$$UserSignedInEventCopyWith<_$UserSignedInEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserSignedOutEventCopyWith<$Res> {
-  factory $UserSignedOutEventCopyWith(
-          UserSignedOutEvent value, $Res Function(UserSignedOutEvent) then) =
-      _$UserSignedOutEventCopyWithImpl<$Res>;
+abstract class _$$UserSignedOutEventCopyWith<$Res> {
+  factory _$$UserSignedOutEventCopyWith(_$UserSignedOutEvent value,
+          $Res Function(_$UserSignedOutEvent) then) =
+      __$$UserSignedOutEventCopyWithImpl<$Res>;
   $Res call({int userId, String sessionId});
 }
 
 /// @nodoc
-class _$UserSignedOutEventCopyWithImpl<$Res>
+class __$$UserSignedOutEventCopyWithImpl<$Res>
     extends _$UserEventCopyWithImpl<$Res>
-    implements $UserSignedOutEventCopyWith<$Res> {
-  _$UserSignedOutEventCopyWithImpl(
-      UserSignedOutEvent _value, $Res Function(UserSignedOutEvent) _then)
-      : super(_value, (v) => _then(v as UserSignedOutEvent));
+    implements _$$UserSignedOutEventCopyWith<$Res> {
+  __$$UserSignedOutEventCopyWithImpl(
+      _$UserSignedOutEvent _value, $Res Function(_$UserSignedOutEvent) _then)
+      : super(_value, (v) => _then(v as _$UserSignedOutEvent));
 
   @override
-  UserSignedOutEvent get _value => super._value as UserSignedOutEvent;
+  _$UserSignedOutEvent get _value => super._value as _$UserSignedOutEvent;
 
   @override
   $Res call({
     Object? userId = freezed,
     Object? sessionId = freezed,
   }) {
-    return _then(UserSignedOutEvent(
+    return _then(_$UserSignedOutEvent(
       userId: userId == freezed
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
@@ -669,7 +637,7 @@ class _$UserSignedOutEventCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserSignedOutEvent extends UserSignedOutEvent {
   const _$UserSignedOutEvent(
-      {required this.userId, required this.sessionId, String? $type})
+      {required this.userId, required this.sessionId, final String? $type})
       : $type = $type ?? 'signedOut',
         super._();
 
@@ -693,11 +661,12 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is UserSignedOutEvent &&
+            other is _$UserSignedOutEvent &&
             const DeepCollectionEquality().equals(other.userId, userId) &&
             const DeepCollectionEquality().equals(other.sessionId, sessionId));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -706,8 +675,9 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
 
   @JsonKey(ignore: true)
   @override
-  $UserSignedOutEventCopyWith<UserSignedOutEvent> get copyWith =>
-      _$UserSignedOutEventCopyWithImpl<UserSignedOutEvent>(this, _$identity);
+  _$$UserSignedOutEventCopyWith<_$UserSignedOutEvent> get copyWith =>
+      __$$UserSignedOutEventCopyWithImpl<_$UserSignedOutEvent>(
+          this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -791,15 +761,16 @@ class _$UserSignedOutEvent extends UserSignedOutEvent {
 
 abstract class UserSignedOutEvent extends UserEvent {
   const factory UserSignedOutEvent(
-      {required int userId, required String sessionId}) = _$UserSignedOutEvent;
+      {required final int userId,
+      required final String sessionId}) = _$UserSignedOutEvent;
   const UserSignedOutEvent._() : super._();
 
   factory UserSignedOutEvent.fromJson(Map<String, dynamic> json) =
       _$UserSignedOutEvent.fromJson;
 
-  int get userId;
-  String get sessionId;
+  int get userId => throw _privateConstructorUsedError;
+  String get sessionId => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $UserSignedOutEventCopyWith<UserSignedOutEvent> get copyWith =>
+  _$$UserSignedOutEventCopyWith<_$UserSignedOutEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }

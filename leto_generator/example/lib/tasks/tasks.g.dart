@@ -137,9 +137,11 @@ final _taskGraphQLType =
       Json.graphQLType.field('extra', resolve: (obj, ctx) => obj.extra),
       graphQLTimestamp.nonNull().field('createdTimestamp',
           resolve: (obj, ctx) => obj.createdTimestamp),
-      userGraphQLType.nonNull().list().nonNull().field('assignedTo',
-          resolve: (obj, ctx) => obj.assignedTo,
-          attachments: [...Task.assignedToAttachments()])
+      userGraphQLType
+          .nonNull()
+          .list()
+          .nonNull()
+          .field('assignedTo', resolve: (obj, ctx) => obj.assignedTo)
     ],
   );
 

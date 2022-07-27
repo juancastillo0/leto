@@ -3,14 +3,6 @@
 import 'dart:async';
 
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/event.data.gql.dart';
-import 'package:chat_example/api/event.req.gql.dart';
-import 'package:chat_example/api/event.var.gql.dart';
-import 'package:chat_example/api/messages.data.gql.dart';
-import 'package:chat_example/api/messages.req.gql.dart';
-import 'package:chat_example/api/messages.var.gql.dart';
-import 'package:chat_example/api/room.data.gql.dart';
-import 'package:chat_example/api/room.req.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:ferry/ferry.dart';
 import 'package:file_selector/file_selector.dart';
@@ -18,6 +10,15 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
+
+import '../api/__generated__/event.data.gql.dart';
+import '../api/__generated__/event.req.gql.dart';
+import '../api/__generated__/event.var.gql.dart';
+import '../api/__generated__/messages.data.gql.dart';
+import '../api/__generated__/messages.req.gql.dart';
+import '../api/__generated__/messages.var.gql.dart';
+import '../api/__generated__/room.data.gql.dart';
+import '../api/__generated__/room.req.gql.dart';
 
 part 'messages_store.freezed.dart';
 

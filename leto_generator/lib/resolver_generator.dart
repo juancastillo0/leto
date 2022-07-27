@@ -110,8 +110,8 @@ GraphQLObjectField<$returnType, Object?, Object?> get
                 (setValue) => setValue($returnGqlType.field<Object?>(
                   '${resolverName ?? element.name}',
                   $funcDef,
-                  ${description == null ? '' : 'description: r"$description",'}
-                  ${deprecationReason == null ? '' : 'deprecationReason: r"$deprecationReason",'}
+                  ${description == null ? '' : "description: '$description',"}
+                  ${deprecationReason == null ? '' : "deprecationReason: '$deprecationReason',"}
                   ${attachments == null ? '' : 'attachments: $attachments'}
                   ))${inputs.isEmpty ? '' : '..inputs.addAll([${inputs.join(',')}])'}
                 )
@@ -159,8 +159,9 @@ Future<List<String>> inputsFromElement(
             argInfo.defaultFunc?.call() as String?;
         // final isInput = e.type.element != null && isInputType(e.type.element!);
         final description = await documentationOfParameter(e, ctx.buildStep);
-        final deprecationReason = getDeprecationReason(element);
-        final attachments = getAttachments(element);
+        // TODO: test
+        final deprecationReason = getDeprecationReason(e);
+        final attachments = getAttachments(e);
         return refer(type)
             .property('inputField')
             .call(
@@ -169,7 +170,7 @@ Future<List<String>> inputsFromElement(
                 if (defaultValueCode != null)
                   'defaultValue': refer(defaultValueCode),
                 if (description.isNotEmpty)
-                  'description': literalString(description),
+                  'description': refer("'$description'"),
                 if (deprecationReason != null)
                   'deprecationReason': literalString(deprecationReason),
                 if (attachments != null) 'attachments': refer(attachments)
@@ -213,6 +214,13 @@ String executeCodeForExecutable(ExecutableElement elem) {
   return '$prefix${elem.name}()';
 }
 
+int _orderForParameter(ParameterElement a) {
+  if (a.isRequiredPositional) return 0;
+  if (a.isOptionalPositional) return 1;
+  if (a.isRequiredNamed) return 2;
+  return 3;
+}
+
 Future<String> resolverFunctionBodyFromElement(
   GeneratorCtx ctx,
   ExecutableElement element,
@@ -224,18 +232,47 @@ Future<String> resolverFunctionBodyFromElement(
 
   final validationsInParams = <ParameterElement>[];
   final validations = <String>[];
-  bool makeGlobalValidation = false;
+
+  String validationErrorMapAddAll(String validation) {
+    return 'validationErrorMap.addAll($validation.errorsMap.map((k, v) =>'
+        ' MapEntry(k is Enum ? k.name : k.toString(), v))..removeWhere'
+        ' ((k, v) => v.isEmpty) );';
+  }
+
+  final hasFunctionValidation = _hasValidation(element);
+  if (hasFunctionValidation) {
+    final firstIndex = element.name.replaceFirstMapped(
+      RegExp('[a-zA-Z0-9]'),
+      (match) => match.input.substring(match.start, match.end).toUpperCase(),
+    );
+    final className = '${firstIndex}Args';
+
+    final params = [...element.parameters]
+      ..sort((a, b) => _orderForParameter(a) - _orderForParameter(b));
+
+    validations.add(
+      'final _validation = $className(${params.map((e) {
+        final type = e.type.getDisplayString(withNullability: true);
+        final getter =
+            isReqCtx(e.type) ? 'ctx' : '(args["${e.name}"] as $type)';
+        return '${e.isNamed ? '${e.name}:' : ''}$getter';
+      }).join(',')}).validate();'
+      '${validationErrorMapAddAll('_validation')}',
+    );
+  }
+  bool makeGlobalValidation = hasFunctionValidation;
   final params = <String>[];
   for (final e in element.parameters) {
+    final argName = e.name;
     if (isReqCtx(e.type)) {
       const value = 'ctx';
-      params.add(e.isPositional ? value : '${e.name}:$value');
+      params.add(e.isPositional ? value : '${argName}:$value');
     } else {
       final type = e.type.getDisplayString(withNullability: true);
       final typeName = e.type.getDisplayString(withNullability: false);
       final argInfo = argInfoFromElement(e);
       final value =
-          argInfo.inline ? '${e.name}Arg' : '(args["${e.name}"] as $type)';
+          argInfo.inline ? '${argName}Arg' : '(args["${argName}"] as $type)';
       if (argInfo.inline) {
         // TODO: support generics
         validations.add(
@@ -249,17 +286,19 @@ Future<String> resolverFunctionBodyFromElement(
         validationsInParams.add(e);
       }
 
-      params.add(e.isPositional ? value : '${e.name}:$value');
-      final hasValidation = _hasValidation(e.type.element);
-      if (hasValidation) {
-        makeGlobalValidation = true;
-        final resultName = '${e.name}ValidationResult';
+      params.add(e.isPositional ? value : '${argName}:$value');
 
+      if (!hasFunctionValidation && _hasValidation(e.type.element)) {
+        makeGlobalValidation = true;
+        final resultName = '${argName}ValidationResult';
+        final _addToMap = argInfo.inline
+            ? validationErrorMapAddAll(resultName)
+            : "validationErrorMap['${argName}'] = [$resultName.toError(property: '${argName}')!];";
         validations.add('''
 if ($value != null) {
-  final $resultName = validate$typeName($value as $typeName);
+  final $resultName = ${typeName}Validation.fromValue($value as $typeName);
   if ($resultName.hasErrors) {
-    validationErrorMap['${e.name}'] = $resultName;
+    $_addToMap
   }
 }
 ''');
@@ -268,24 +307,14 @@ if ($value != null) {
   }
   if (makeGlobalValidation) {
     validations.insert(0, '''
-Map<String, Object?> _validaToJson(ValidaError e) => {
-      'property': e.property,
-      'errorCode': e.errorCode,
-      if (e.validationParam != null)
-        'validationParam': e.validationParam,
-      'message': e.message,
-      if (e.nestedValidation?.hasErrors == true)
-        'nestedErrors':
-            e.nestedValidation!.allErrors.map(_validaToJson).toList()
-    };
-final validationErrorMap = <String, Validation>{};
+final validationErrorMap = <String, List<ValidaError>>{};
 ''');
     validations.add('''
 if (validationErrorMap.isNotEmpty) {
   throw GraphQLError(
     'Input validation error',
     extensions: {
-      'validaErrors': validationErrorMap.map((k, v) => MapEntry(k, v.allErrors.map(_validaToJson).toList())),
+      'validaErrors': validationErrorMap,
     },
     sourceError: validationErrorMap,
   );
@@ -305,8 +334,7 @@ if (validationErrorMap.isNotEmpty) {
   if (handlingFuture) {
     final _resolverClassName = element.enclosingElement.name;
     _getter = 'final _call = ($_resolverClassName r) => r.$_call;\n'
-        ' // ignore: unnecessary_non_null_assertion\n'
-        ' final FutureOr<$_resolverClassName> _obj = $_getter;'
+        ' final FutureOr<$_resolverClassName> _obj = \n// ignore: unnecessary_non_null_assertion\n$_getter;'
         ' if (_obj is Future<$_resolverClassName>) return _obj.then(_call);'
         ' else return _call(_obj);';
   }

@@ -1,17 +1,17 @@
 import 'dart:async';
 
+import 'package:built_collection/built_collection.dart';
 import 'package:chat_example/api/api_utils.dart';
 import 'package:chat_example/api/client.dart';
-import 'package:chat_example/api/room.data.gql.dart';
-import 'package:chat_example/api/room.req.gql.dart';
-import 'package:chat_example/api/room.var.gql.dart';
-import 'package:chat_example/api/user.data.gql.dart';
 import 'package:chat_example/auth/auth_store.dart';
 import 'package:chat_example/messages/messages_store.dart';
-import 'package:ferry/ferry.dart';
-import 'package:built_collection/built_collection.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../api/__generated__/room.data.gql.dart';
+import '../api/__generated__/room.req.gql.dart';
+import '../api/__generated__/room.var.gql.dart';
+import '../api/__generated__/user.data.gql.dart';
 
 final createChatRoomHandler = UpdateCacheObj<GcreateRoomData, GcreateRoomVars>(
   'createChatRoomHandler',
