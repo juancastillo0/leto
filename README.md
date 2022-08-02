@@ -1036,8 +1036,7 @@ GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
   description: '''
 Description from annotation.
 
-Union generated from raw Dart classes
-''',
+Union generated from raw Dart classes''',
 )
 @GraphQLUnion(name: 'UnionNoFreezedRenamed')
 class UnionNoFreezed {
