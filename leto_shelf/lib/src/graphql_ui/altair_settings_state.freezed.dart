@@ -76,12 +76,10 @@ mixin _$SettingsState {
   int? get historyDepth => throw _privateConstructorUsedError;
 
   /// Theme config object
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   Map<String, Object?>? get themeConfig => throw _privateConstructorUsedError;
 
   /// Theme config object for dark mode
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   @JsonKey(name: 'themeConfig.dark')
   Map<String, Object?>? get themeConfigdark =>
@@ -486,12 +484,10 @@ class _$SettingsState_ implements SettingsState_ {
   final int? historyDepth;
 
   /// Theme config object
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   final Map<String, Object?>? _themeConfig;
 
   /// Theme config object
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   @override
   Map<String, Object?>? get themeConfig {
@@ -502,12 +498,10 @@ class _$SettingsState_ implements SettingsState_ {
   }
 
   /// Theme config object for dark mode
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   final Map<String, Object?>? _themeConfigdark;
 
   /// Theme config object for dark mode
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   @override
   @JsonKey(name: 'themeConfig.dark')
@@ -708,13 +702,11 @@ abstract class SettingsState_ implements SettingsState {
   @override
 
   /// Theme config object
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   Map<String, Object?>? get themeConfig => throw _privateConstructorUsedError;
   @override
 
   /// Theme config object for dark mode
-  /// TODO: ICustomTheme
   /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
   @JsonKey(name: 'themeConfig.dark')
   Map<String, Object?>? get themeConfigdark =>

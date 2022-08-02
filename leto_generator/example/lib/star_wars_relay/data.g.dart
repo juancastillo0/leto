@@ -226,8 +226,9 @@ class ConnectionArgumentsValidationFields {
 
 class ConnectionArgumentsValidation
     extends Validation<ConnectionArguments, ConnectionArgumentsField> {
-  ConnectionArgumentsValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  ConnectionArgumentsValidation(this.errorsMap, this.value)
+      : fields = ConnectionArgumentsValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<ConnectionArgumentsField, List<ValidaError>> errorsMap;
   @override
@@ -236,28 +237,17 @@ class ConnectionArgumentsValidation
   final ConnectionArgumentsValidationFields fields;
 
   /// Validates [value] and returns a [ConnectionArgumentsValidation] with the errors found as a result
-  static ConnectionArgumentsValidation fromValue(ConnectionArguments value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <ConnectionArgumentsField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return ConnectionArgumentsValidation(
-        errors, value, ConnectionArgumentsValidationFields(errors));
-  }
+  factory ConnectionArgumentsValidation.fromValue(ConnectionArguments value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: ConnectionArgumentsValidation.new,
+    getField: _getField,
     fieldsMap: {
       ConnectionArgumentsField.first: ValidaNum(min: 1),
       ConnectionArgumentsField.last: ValidaNum(min: 1),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(ConnectionArguments value) => [];

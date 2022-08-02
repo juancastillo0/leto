@@ -241,8 +241,9 @@ class ValidaArgModelValidationFields {
 
 class ValidaArgModelValidation
     extends Validation<ValidaArgModel, ValidaArgModelField> {
-  ValidaArgModelValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  ValidaArgModelValidation(this.errorsMap, this.value)
+      : fields = ValidaArgModelValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<ValidaArgModelField, List<ValidaError>> errorsMap;
   @override
@@ -251,23 +252,13 @@ class ValidaArgModelValidation
   final ValidaArgModelValidationFields fields;
 
   /// Validates [value] and returns a [ValidaArgModelValidation] with the errors found as a result
-  static ValidaArgModelValidation fromValue(ValidaArgModel value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <ValidaArgModelField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return ValidaArgModelValidation(
-        errors, value, ValidaArgModelValidationFields(errors));
-  }
+  factory ValidaArgModelValidation.fromValue(ValidaArgModel value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: ValidaArgModelValidation.new,
+    getField: _getField,
     fieldsMap: {
       ValidaArgModelField.inner: ValidaNested<ValidaArgModel>(
         omit: null,
@@ -276,7 +267,6 @@ class ValidaArgModelValidation
       ),
       ValidaArgModelField.strs: ValidaList(each: ValidaString(minLength: 1)),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(ValidaArgModel value) => [];
@@ -401,8 +391,9 @@ class TestValidaInArgsArgsValidationFields {
 
 class TestValidaInArgsArgsValidation
     extends Validation<TestValidaInArgsArgs, TestValidaInArgsArgsField> {
-  TestValidaInArgsArgsValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  TestValidaInArgsArgsValidation(this.errorsMap, this.value)
+      : fields = TestValidaInArgsArgsValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<TestValidaInArgsArgsField, List<ValidaError>> errorsMap;
   @override
@@ -411,23 +402,14 @@ class TestValidaInArgsArgsValidation
   final TestValidaInArgsArgsValidationFields fields;
 
   /// Validates [value] and returns a [TestValidaInArgsArgsValidation] with the errors found as a result
-  static TestValidaInArgsArgsValidation fromValue(TestValidaInArgsArgs value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <TestValidaInArgsArgsField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return TestValidaInArgsArgsValidation(
-        errors, value, TestValidaInArgsArgsValidationFields(errors));
-  }
+  factory TestValidaInArgsArgsValidation.fromValue(
+          TestValidaInArgsArgs value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: TestValidaInArgsArgsValidation.new,
+    getField: _getField,
     fieldsMap: {
       TestValidaInArgsArgsField.model: ValidaNested<ValidaArgModel>(
         omit: null,
@@ -442,7 +424,6 @@ class TestValidaInArgsArgsValidation
       TestValidaInArgsArgsField.after2020: ValidaDate(min: '2021-01-01'),
       TestValidaInArgsArgsField.nonEmptyList: ValidaList(minLength: 1),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(TestValidaInArgsArgs value) => [];

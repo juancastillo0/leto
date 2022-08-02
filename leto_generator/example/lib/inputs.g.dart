@@ -605,7 +605,9 @@ class InputMValidationFields {
 }
 
 class InputMValidation extends Validation<InputM, InputMField> {
-  InputMValidation(this.errorsMap, this.value, this.fields) : super(errorsMap);
+  InputMValidation(this.errorsMap, this.value)
+      : fields = InputMValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<InputMField, List<ValidaError>> errorsMap;
   @override
@@ -614,32 +616,21 @@ class InputMValidation extends Validation<InputM, InputMField> {
   final InputMValidationFields fields;
 
   /// Validates [value] and returns a [InputMValidation] with the errors found as a result
-  static InputMValidation fromValue(InputM value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <InputMField, List<ValidaError>>{
-      if (spec.globalValidate != null)
-        InputMField.$global: spec.globalValidate!(value),
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return InputMValidation(errors, value, InputMValidationFields(errors));
-  }
+  factory InputMValidation.fromValue(InputM value) => spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: GlobalValidateFunc(
+      function: _globalValidate,
+      field: InputMField.$global,
+    ),
+    validationFactory: InputMValidation.new,
+    getField: _getField,
     fieldsMap: {
       InputMField.name: ValidaString(minLength: 1, isAlpha: true),
       InputMField.date: ValidaDate(min: 'now', max: '2023-01-01'),
       InputMField.doubles: ValidaList(each: ValidaNum(min: -2)),
       InputMField.nested: ValidaList(maxLength: 2),
     },
-    getField: _getField,
-    globalValidate: _globalValidate,
   );
 
   static List<ValidaError> _globalValidate(InputM value) => [

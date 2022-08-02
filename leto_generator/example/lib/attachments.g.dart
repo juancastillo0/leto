@@ -98,8 +98,9 @@ class KeyedAttachmentValidationFields {
 
 class KeyedAttachmentValidation
     extends Validation<KeyedAttachment, KeyedAttachmentField> {
-  KeyedAttachmentValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  KeyedAttachmentValidation(this.errorsMap, this.value)
+      : fields = KeyedAttachmentValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<KeyedAttachmentField, List<ValidaError>> errorsMap;
   @override
@@ -108,27 +109,16 @@ class KeyedAttachmentValidation
   final KeyedAttachmentValidationFields fields;
 
   /// Validates [value] and returns a [KeyedAttachmentValidation] with the errors found as a result
-  static KeyedAttachmentValidation fromValue(KeyedAttachment value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <KeyedAttachmentField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return KeyedAttachmentValidation(
-        errors, value, KeyedAttachmentValidationFields(errors));
-  }
+  factory KeyedAttachmentValidation.fromValue(KeyedAttachment value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: KeyedAttachmentValidation.new,
+    getField: _getField,
     fieldsMap: {
       KeyedAttachmentField.createdAt: ValidaDate(max: 'now'),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(KeyedAttachment value) => [];
