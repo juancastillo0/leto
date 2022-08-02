@@ -11,6 +11,7 @@ import 'package:leto_generator_example/unions.dart';
 import 'package:leto_generator_example/main.dart';
 import 'package:leto_generator_example/generics_oxidized.dart';
 import 'package:leto_generator_example/arguments.dart';
+import 'package:leto_generator_example/attachments.dart';
 import 'package:leto_generator_example/generics.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 
@@ -80,6 +81,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           testManyDefaultsGraphQLField,
           testValidaInArgsGraphQLField,
           testValidaInArgsSingleModelGraphQLField,
+          getKeyedAttachmentGraphQLField,
         ],
       ),
       mutationType: objectType(

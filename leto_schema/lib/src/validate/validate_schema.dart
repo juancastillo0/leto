@@ -206,6 +206,18 @@ void validateTypes(SchemaValidationContext context) {
   }
 }
 
+/// Executes [AttachmentWithValidation.validateElement] for attachments
+/// that implement it and are associated with the [context]'s
+/// [GraphQLSchema.typeElements].
+void validateAttachments(SchemaValidationContext context) {
+  for (final element in context.schema.typeElements()) {
+    for (final attach
+        in element.attachments.whereType<AttachmentWithValidation>()) {
+      attach.validateElement(context, element);
+    }
+  }
+}
+
 void validateFields(
   SchemaValidationContext context,
   GraphQLObjectType type, // | GraphQLInterfaceType

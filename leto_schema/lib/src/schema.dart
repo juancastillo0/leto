@@ -196,8 +196,7 @@ class GraphQLSchema {
   }
 
   void _collectDirectives() {
-    final elements = _typeElements();
-    final otherDirectives = elements
+    final otherDirectives = typeElements()
         .expand((e) => e.attachments.whereType<ToDirectiveValue>())
         .map((e) => e.directiveDefinition)
         .toSet();
@@ -213,7 +212,8 @@ class GraphQLSchema {
     }
   }
 
-  Iterable<GraphQLElement> _typeElements() {
+  /// Returns an iterable over all the type [GraphQLElement] in the schema.
+  Iterable<GraphQLElement> typeElements() {
     return typeMap.values.expand(
       (type) => type.whenNamed(
         enum_: (type) => [type, ...type.values],
@@ -252,6 +252,7 @@ List<GraphQLError> validateSchema(
   validateRootTypes(context);
   validateDirectives(context);
   validateTypes(context);
+  validateAttachments(context);
 
   // Persist the results of validation before returning to ensure validation
   // does not run multiple times for this schema.
