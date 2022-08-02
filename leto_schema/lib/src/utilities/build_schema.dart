@@ -383,6 +383,7 @@ GraphQLSchema buildSchema(
     directives: directives,
     otherTypes: typesMap.values.toList(),
     astNode: schemaNode,
+    description: schemaNode?.description?.value,
     // TODO: 3I extensionAstNodes
   );
 }

@@ -122,13 +122,5 @@ void main() {
         {'species': 'Charizard', 'catch_date': charizardDate.toIso8601String()}
       ]
     });
-
-    // TODO: should we throw error for unknown fields?
-    // expect(
-    //     () => pokemonRegionType.serialize({
-    //           'trainer': trainer,
-    //           'DIGIMON_species': [pikachu, charizard]
-    //         }),
-    //     throwsUnsupportedError);
   });
 }

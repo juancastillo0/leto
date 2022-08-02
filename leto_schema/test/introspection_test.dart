@@ -1603,7 +1603,6 @@ void main() {
   });
 
   test('exposes descriptions', () async {
-    // TODO: support schema description """Schema description"""
     final schema = buildSchema('''
       """Enum description"""
       enum SomeEnum {
@@ -1617,6 +1616,7 @@ void main() {
         someField(arg: SomeEnum): String
       }
 
+       """Schema description"""
       schema {
         query: SomeObject
       }
@@ -1645,9 +1645,7 @@ void main() {
     expect(await graphqlSync(schema, source), {
       'data': {
         'Schema': {
-          // TODO: support schema description """Schema description"""
-          // 'description': 'Schema description',
-          'description': null,
+          'description': 'Schema description',
         },
         'SomeEnum': {
           'description': 'Enum description',
