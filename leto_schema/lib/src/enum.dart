@@ -69,7 +69,7 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
           "Can't have any of 'true', 'false' or 'null'"
           ' as names of variants in enums.',
         ),
-        // TODO: tests in validateSchema
+        // TODO: 1T tests in validateSchema
         assert(
             !checkAsserts ||
                 values.map((e) => e.value).toSet().length == values.length,

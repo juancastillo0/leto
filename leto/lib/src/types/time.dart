@@ -159,7 +159,7 @@ class Time implements Comparable<Time> {
   }
 
   static Time? tryParse(String formattedString) {
-    // TODO: Optimize to avoid throwing.
+    // TODO: 3T Optimize to avoid throwing.
     try {
       return parse(formattedString);
     } on FormatException {
@@ -458,7 +458,6 @@ class Time implements Comparable<Time> {
 //   //   );
 
 //   static Time? tryParse(String formattedString) {
-//     // TODO: Optimize to avoid throwing.
 //     try {
 //       return parse(formattedString);
 //     } on FormatException {

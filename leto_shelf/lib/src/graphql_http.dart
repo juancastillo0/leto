@@ -53,7 +53,7 @@ Handler graphQLHttp(
           validOperationTypes = [OperationType.query];
           final queryParams = request.url.queryParameters;
           if (queryParams['query'] is String) {
-            // TODO: allow requests without query but with extensions?
+            // TODO: 3A allow requests without query but with extensions?
             //  such us persisted queries
             graphQLRequest = GraphQLRequest.fromQueryParameters(queryParams);
           } else {

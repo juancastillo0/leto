@@ -10,7 +10,7 @@ void main() {
   /// Helper function to test a query and the expected response.
   Future<List<GraphQLError>> validationErrors(String query) async {
     final result = await server.parseAndExecute(query);
-    // TODO: validateDocument
+    // TODO: 1T validateDocument
     return result.errors;
   }
 

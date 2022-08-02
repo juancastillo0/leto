@@ -28,7 +28,7 @@ Visitor loneSchemaDefinitionRule(
           'Cannot define a new schema within a schema extension.',
           locations: GraphQLErrorLocation.firstFromNodes([
             node,
-            // TODO:
+            // TODO: 2I
             node.operationTypes.firstOrNull?.type.name,
           ]),
           extensions: _loneSchemaDefinitionSpec.extensions(),
@@ -43,7 +43,7 @@ Visitor loneSchemaDefinitionRule(
           'Must provide only one schema definition.',
           locations: GraphQLErrorLocation.firstFromNodes([
             node,
-            // TODO:
+            // TODO: 2I
             node.operationTypes.firstOrNull?.type.name
           ]),
           extensions: _loneSchemaDefinitionSpec.extensions(),

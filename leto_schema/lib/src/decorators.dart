@@ -137,6 +137,8 @@ class GraphQLEnumVariant {
 /// Signifies that a class should statically generate a [GraphQLUnionType].
 @Target({TargetKind.classType})
 class GraphQLUnion implements GraphQLObjectDec {
+  // TODO: 2G don't generate the union object wrappers if all of them have
+  //  only one property of the same name and the property is an object
   final bool? unnestIfEqual;
 
   /// The name of the generated [GraphQLUnionType]
@@ -186,6 +188,8 @@ class GraphQLClass implements GraphQLObjectDec {
 
   /// The name of the generated [GraphQLType]
   final String? name;
+
+  // TODO: 2G final bool generateInterface
 }
 
 /// An annotation for configuring a [GraphQLFieldInput] within a resolver
@@ -309,6 +313,8 @@ abstract class GraphQLResolver implements BaseGraphQLResolver {
   /// this will be the name of that [GraphQLType]. This will be passed in the
   /// `name` parameter to the generic function which created the type
   String? get genericTypeName;
+
+  // TODO: 1G nullable maybe use and test @GraphQLDocumentation
 }
 
 /// Adds [GraphQLAttachments] to a generated [GraphQLElement]

@@ -221,7 +221,7 @@ class ModelController {
 ```
 <!-- include-end{quickstart-controller-state-definition} -->
 
-With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: more docs in the code
+With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: 1A more docs in the code
 
 <!-- include{quickstart-make-schema} -->
 ```dart
@@ -311,6 +311,19 @@ type Subscription {
 }
 ```
 <!-- include-end{quickstart-schema-string} -->
+
+// TODO: 1A rename GraphQLClass and graphQLString -> stringGraphQLType
+// TODO: 1A use scope overrides and do not allow modifications
+// TODO: 1A id attachment/directive
+// TODO: 1T
+type CompilerLog {
+  toString: String!
+
+TODO: 1T class ProcessExecResult implements ProcessResult {
+[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
+Cannot infer the GraphQLType for field ProcessResult.stdout (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
+[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
+Cannot infer the GraphQLType for field ProcessResult.stderr (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
 
 You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 
@@ -455,7 +468,8 @@ Once you set up all the handlers, you can start the server adding middlewares if
     const Pipeline()
         // Configure middlewares
         .addMiddleware(customLog(log: (msg) {
-          // TODO:
+          // TODO: 2A detect an introspection query.
+          //  Add more structured logs and headers
           if (!msg.contains('IntrospectionQuery')) {
             print(msg);
           }
@@ -662,8 +676,8 @@ Other scalar types are also provided:
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
 - Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and deserialized with `DateTime.parse`.
 - Timestamp: Same as Date, but serialized as an UNIX timestamp.
-- Time: // TODO:
-- Duration: // TODO:
+- Time: // TODO: 1A
+- Duration: // TODO: 1A
 - BigInt: An arbitrarily large integer from [`dart:core`](https://api.dart.dev/stable/dart-core/BigInt-class.html) serialized as a String and deserialized with `BigInt.parse`.
 - Upload: A file upload. Following the [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec).
 
@@ -774,7 +788,7 @@ a super type, now the Object will implement the Interface passed as parameter.
 
 Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
-// TODO: customDeserialize with SerdeCtx deserializers
+// TODO: 1A customDeserialize with SerdeCtx deserializers
 
 ```dart
 final inputModel = GraphQLInputObjectType(
@@ -1289,7 +1303,7 @@ GraphQLObjectType<ErrC<T?>> errCGraphQlType<T extends Object>(
 
 ```
 
-- With code generation (derialization with Generic Input types is not yet supported ISSUE // TODO:)
+- With code generation (derialization with Generic Input types is not yet supported ISSUE // TODO: 1A)
 
 ```dart
 import 'package:leto/leto.dart';
@@ -1953,7 +1967,7 @@ More information: https://github.com/apollographql/apollo-tracing
 Utility for caching responses in your GraphQL server and client.
 
 Client GQL Link implementation in:
-// TODO:
+// TODO: 2E
 
 - Hash: Similar to HTTP If-None-Match and Etag headers. Computes a hash of the payload (sha1 by default) and returns it to the Client when requested. If the Client makes a request with a hash (computed locally or saved from a previous server response), the extension compares the hash and only returns the full body when the hash do not match. If the hash match, the client already has the last version of the payload.
 
@@ -1961,7 +1975,7 @@ Client GQL Link implementation in:
 
 - UpdatedAt: Similar to HTTP If-Modified-Since and Last-Modified headers.
 
-// TODO: retrieve hash, updatedAt and maxAge in resolvers.
+// TODO: 2E retrieve hash, updatedAt and maxAge in resolvers.
 
 
 [Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/cache_extension.dart)

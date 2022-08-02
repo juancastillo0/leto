@@ -30,7 +30,7 @@ class GraphiqlConfig {
   /// to the stored headers if shouldPersistHeaders is enabled.
   final String? headers;
 
-  /// TODO:FragmentDefinitionNode[] provide fragments external to the operation
+  /// TODO: 2A FragmentDefinitionNode[] provide fragments external to the operation
   /// for completion, validation, and for selective use when executing operations.
   final String? externalFragments;
 

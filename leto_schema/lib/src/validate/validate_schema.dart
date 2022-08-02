@@ -50,7 +50,7 @@ void validateRootTypes(SchemaValidationContext context) {
       [schema.astNode],
     );
   }
-  // TODO: interfaces
+  // TODO: 1T interfaces
 
   // else if (!isObjectType(queryType)) {
   //   context.reportError(
@@ -110,7 +110,7 @@ void validateDirectives(SchemaValidationContext context) {
     // Ensure they are named correctly.
     validateName(context, directive);
 
-    // TODO: Ensure proper locations.
+    // TODO: 3I Ensure proper locations. Check graph-js
 
     // Ensure the arguments are valid.
     for (final arg in directive.inputs) {
@@ -289,7 +289,7 @@ void validateInputField(
       ' Support instances of the type ${arg.type.generic.type} in the'
       ' `fromJson` factory or provide a `toJson` method that "roundTrips"'
       ' the serialization. Default value: ${arg.defaultValue}. Error: $e $s',
-      [getDeprecatedDirectiveNode(arg.astNode?.directives), arg.astNode?.type],
+      [arg.astNode?.defaultValue ?? arg.astNode?.type],
     );
   }
 }

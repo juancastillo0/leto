@@ -163,7 +163,7 @@ Object? valueFromAst(
       }
       return null;
     }
-    // TODO: validate shallow (not nested properties, since they where already validated)
+    // TODO: 3I validate shallow (not nested properties, since they where already validated)
     final result = type.validate(key, value);
     if (result.successful) {
       return result.value;

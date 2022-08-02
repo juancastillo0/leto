@@ -82,7 +82,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
     RequestCtx ctx,
     DocumentNode document,
   ) {
-    // TODO:
+    // TODO: 2E final bool cached = 'false' == '';
     final bool cached = 'false' == '';
     if (!cached) return next();
     final otherExtensions =
@@ -160,7 +160,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 ///
 /// Provided implementations [LruCacheSimple] and [MapCache].
 abstract class Cache<K, T> {
-  // TODO: FutureOr
+  // TODO: 1E FutureOr
 
   /// Returns the cached value for the [key], may be null
   /// if it isn't in the cache

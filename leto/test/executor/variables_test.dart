@@ -65,7 +65,7 @@ final TestNestedInputObject = GraphQLInputObjectType<Map<String, Object?>>(
   ],
 );
 
-// TODO: should we allow non null values? is GraphQLType generics?
+// TODO: 3I should we allow non null values? is GraphQLType generics?
 // maybe support Option, Result
 // final TestEnum = GraphQLEnumType<Map<String, Object?>>(
 //   'TestEnum',
@@ -144,7 +144,6 @@ final TestType = GraphQLObjectType(
     fieldWithInputArg(
       'fieldWithNestedInputObject',
       TestNestedInputObject,
-      // TODO: was 'Hello World',
       defaultValue: <String, Object?>{},
     ),
     fieldWithInputArg('list', listOf(graphQLString)),
@@ -615,7 +614,7 @@ Future<void> main() async {
 
       expect(result, {
         'data': {
-          // TODO: was 'null' should we stringify?
+          // TODO: 1T was 'null' should we stringify?
           'fieldWithNonNullableEnumInput': null,
         },
       });
@@ -858,8 +857,7 @@ Future<void> main() async {
         ],
       });
 
-      // TODO:
-      // expect(result).to.have.nested.property('errors[0].originalError');
+      // TODO: 1T expect(result).to.have.nested.property('errors[0].originalError');
     });
 
     test('reports error for non-provided variables for non-nullable inputs',

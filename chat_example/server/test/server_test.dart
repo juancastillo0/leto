@@ -213,7 +213,7 @@ void main() {
 
       expect(data, {'message': null, 'value': 'nameTaken'});
 
-      // wrong password
+      // TODO: T1 sign up speed up test. Specially password hashing
       final signUpTokens = await ts.signUp(
         userName: userName,
         userPassword: userPassword,
@@ -223,7 +223,7 @@ void main() {
 
       await ts.singOut(signUpTokens.accessToken, signUpTokens.user.id);
 
-      // wrong password
+      // sign in
       final signInTokens = await ts.signUp(
         userName: userName,
         userPassword: userPassword,

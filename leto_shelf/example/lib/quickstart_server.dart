@@ -235,7 +235,8 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
     const Pipeline()
         // Configure middlewares
         .addMiddleware(customLog(log: (msg) {
-          // TODO:
+          // TODO: 2A detect an introspection query.
+          //  Add more structured logs and headers
           if (!msg.contains('IntrospectionQuery')) {
             print(msg);
           }

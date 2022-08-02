@@ -257,7 +257,7 @@ Future<TestSubs> createSubscription(StreamController<Email> pubsub) async {
             'email': newEmail,
             'inbox': inbox,
           };
-          // TODO: was
+          // TODO: 3I was
           // return {
           //   'importantEmail': {
           //     'email': newEmail,
@@ -926,7 +926,7 @@ void main() {
 
       expect(await payload, {
         'done': true,
-        // TODO: was undefined
+        // TODO: 3T was undefined
         'value': null,
       });
     });
@@ -1011,7 +1011,7 @@ void main() {
             graphQLString.field(
               'newMessage',
               subscribe: (_, __) => generateMessages()
-              // TODO: support throwing in stream?
+              // TODO: 1I support throwing in stream?
               // .map((message) {
               // if (message == 'Goodbye') {
               //   throw GraphQLError('Never leave.');

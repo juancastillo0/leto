@@ -23,7 +23,7 @@ List<Map<String, Object?>> validateSchema(Object schema) {
   return errors
       .map((e) => {
             'message': e.message,
-            // TODO: some ast nodes don't have spans from package:gql parsing
+            // TODO: 3I some ast nodes don't have spans from package:gql parsing
             // if (e.locations.isNotEmpty)
             //   'locations': e.locations
             //       .map((e) => {'line': e.line + 2, 'column': e.column + 1})
@@ -396,7 +396,7 @@ void main() {
       }
     ''');
 
-      // TODO: allow extending invalid schemas
+      // TODO: 2A allow extending invalid schemas
       // schema = extendSchema(
       //   schema,
       //   parseString('''
@@ -727,7 +727,7 @@ void main() {
         | Int
     ''');
 
-      // TODO: allow extending invalid schemas
+      // TODO: 2A allow extending invalid schemas
       // schema = extendSchema(schema, parseString('extend union BadUnion = Int'));
 
       expectJSON(validateSchema(schema), [
@@ -1195,7 +1195,7 @@ void main() {
       ]);
     });
 
-    // TODO: interfaces
+    // TODO: 1A interfaces
     test('rejects an Object implementing the same interface twice', () {
       final schema = buildSchema('''
       type Query {

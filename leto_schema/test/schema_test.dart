@@ -285,7 +285,7 @@ type Subscription {
     final typeNames = schema.typeMap.keys;
     expect(
       typeNames,
-      // TODO: was ordered
+      // TODO: 3T was ordered
       unorderedEquals(<String>[
         'Z',
         'ZSub',
@@ -321,8 +321,7 @@ type Subscription {
 
   group('Validity', () {
     group('when not assumed valid', () {
-      // TODO:
-      // test('configures the schema to still needing validation', ()  {
+      // TODO: 2A test('configures the schema to still needing validation', ()  {
       //   expect(
       //     GraphQLSchema(
       //       assumeValid: false,
@@ -417,8 +416,7 @@ type Subscription {
       });
 
       group('when assumed valid', () {
-        // TODO:
-        // test('configures the schema to have no errors', ()  {
+        // TODO: 2A test('configures the schema to have no errors', ()  {
         //   expect(
         //     GraphQLSchema(
         //       assumeValid: true,

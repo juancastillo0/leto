@@ -28,7 +28,7 @@ Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes a
   - [customTypes in build.yaml](#customtypes-in-buildyaml)
   - [@GraphQLDocumentation(type: Function, typeName: String)](#graphqldocumentationtype-function-typename-string)
 - [Resolvers](#resolvers)
-  - [TODO: BeforeResolver](#todo-beforeresolver)
+  - [TODO: 2G BeforeResolver](#todo-2g-beforeresolver)
   - [Function Resolvers](#function-resolvers)
   - [Class Resolvers](#class-resolvers)
 - [Global Configuration (build.yaml)](#global-configuration-buildyaml)
@@ -486,7 +486,7 @@ class InputGen<T> {
 
 ### Resolver Inputs
 
-// TODO: `@FromCtx()` Type.fromCtx;
+// TODO: 1G `@FromCtx()` Type.fromCtx;
 
 Authentication (admin|role);
 
@@ -669,7 +669,7 @@ class ClassEnum {
 
 ### Generics
 
-// TODO:
+// TODO: 1G Generics docs
 
 # Dart Type to GraphQLType coercion
 
@@ -717,7 +717,7 @@ If you want to customize a single field or argument with a GraphQLType different
 
 A Class annotated with `@GraphQLClass()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
 
-## TODO: BeforeResolver
+## TODO: 2G BeforeResolver
 
 
 ## Function Resolvers
@@ -734,7 +734,7 @@ This will be the name of the GraphQL field.
 
 When the return type is a generic type, you can override the GraphQL type name with a custom String. Most generic types provide a default name composed from the type parameters (using `GraphQLType.printableName`, for example), so this parameter is usually not required.
 
-- TODO: nullable return type
+- TODO: 1G nullable return type
 
 ## Class Resolvers
 

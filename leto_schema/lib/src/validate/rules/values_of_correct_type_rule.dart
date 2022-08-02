@@ -133,7 +133,7 @@ VisitBehavior? isValidValueNode(
   // which may throw or return an invalid value to indicate failure.
   try {
     // final parseResult = type.parseLiteral(node, undefined /* variables */);
-    // TODO: we could pass type type to valueFromAst for improved error messages and spans
+    // TODO: 3I we could pass type type to valueFromAst for improved error messages and spans
     final value = valueFromAst(null, node, null /* variables */);
     final validation = type.validate('key', value);
     if (!validation.successful ||
@@ -159,8 +159,7 @@ VisitBehavior? isValidValueNode(
       context.reportError(
         GraphQLError(
           'Expected value of type "${typeStr}", found ${printNode(node)}$argStr'
-          // TODO:
-          // ' ${validation.errors.join('. ')}'
+          // TODO: 3I ' ${validation.errors.join('. ')}'
           ,
           locations: GraphQLErrorLocation.firstFromNodes([node]),
           extensions: _valuesOfCorrectTypeSpec.extensions(),

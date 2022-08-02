@@ -151,7 +151,7 @@ Future<List<String>> inputsFromElement(
       ).accept(_dartEmitter).toString();
 
       if (argInfo.inline) {
-        // TODO; Check e.type is InputType?
+        // TODO: 2G Check e.type is InputType?
         return '...$type.fields';
       } else {
         final defaultValueCode = e.defaultValueCode ??
@@ -159,7 +159,7 @@ Future<List<String>> inputsFromElement(
             argInfo.defaultFunc?.call() as String?;
         // final isInput = e.type.element != null && isInputType(e.type.element!);
         final description = await documentationOfParameter(e, ctx.buildStep);
-        // TODO: test
+        // TODO: 1T test
         final deprecationReason = getDeprecationReason(e);
         final attachments = getAttachments(e);
         return refer(type)
@@ -274,7 +274,7 @@ Future<String> resolverFunctionBodyFromElement(
       final value =
           argInfo.inline ? '${argName}Arg' : '(args["${argName}"] as $type)';
       if (argInfo.inline) {
-        // TODO: support generics
+        // TODO: 2G support generics
         validations.add(
           'final $value = '
           '${ReCase(typeName).camelCase}$serializerSuffix'
@@ -282,7 +282,7 @@ Future<String> resolverFunctionBodyFromElement(
         );
       }
       if (_isValidation(e.type.element)) {
-        // TODO: pass validation resot in param (don't throw on validation errorπ)
+        // TODO: 2G pass validation resot in param (don't throw on validation errorπ)
         validationsInParams.add(e);
       }
 

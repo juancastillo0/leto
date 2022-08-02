@@ -1008,7 +1008,7 @@ void main() {
                 },
               ],
             },
-            // TODO: one of in intrsopection query and locations of directive
+            // TODO: 1T one of in intrsopection query and locations of directive
             {
               'name': 'oneOf',
               'isRepeatable': false,
@@ -1671,8 +1671,7 @@ void main() {
     });
   });
 
-  // TODO:
-  // test('executes an introspection query without calling global resolvers',
+  // TODO: 3T test('executes an introspection query without calling global resolvers',
   //     () async {
   //   final schema = buildSchema('''
   //     type Query {

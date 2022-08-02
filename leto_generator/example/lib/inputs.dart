@@ -9,7 +9,7 @@ import 'package:valida/valida.dart';
 part 'inputs.g.dart';
 part 'inputs.freezed.dart';
 
-// TODO: test InputM valida
+// TODO: 2T test InputM valida
 const inputsSchemaStr = [
   '''
 input InputM {
@@ -220,7 +220,7 @@ class InputGen<T> {
 }
 // @example-end{generator-input-object-generic}
 
-// TODO: add schema string tests
+// TODO: 2T add schema string tests
 @GraphQLInput()
 @JsonSerializable(genericArgumentFactories: true)
 class InputGen2<T, O extends Object> {
@@ -353,7 +353,7 @@ class OneOfInput {
   }
 }
 
-// TODO: oneOf: true freezed
+// TODO: 2G oneOf: true freezed
 @GraphQLInput()
 @freezed
 class OneOfFreezedInput with _$OneOfFreezedInput {

@@ -5,8 +5,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'altair_settings_state.freezed.dart';
 part 'altair_settings_state.g.dart';
 
+/// An altair configuration for the settings in the UI explorer
 @freezed
 class SettingsState with _$SettingsState {
+  /// An altair configuration for the settings in the UI explorer
   @JsonSerializable(includeIfNull: false)
   const factory SettingsState({
     /// Theme
@@ -57,12 +59,10 @@ class SettingsState with _$SettingsState {
     int? historyDepth,
 
     /// Theme config object
-    /// TODO: ICustomTheme
     /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
     Map<String, Object?>? themeConfig,
 
     /// Theme config object for dark mode
-    /// TODO: ICustomTheme
     /// https://github.com/altair-graphql/altair/blob/4bcf08ca63b7e2fdf447c4d40260fb91f698d83b/packages/altair-core/src/theme/theme.ts
     @JsonKey(name: 'themeConfig.dark') Map<String, Object?>? themeConfigdark,
 

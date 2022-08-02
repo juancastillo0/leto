@@ -326,21 +326,6 @@ void main() {
       await GraphQL(schema).parseAndExecute(document, rootValue: rootValue);
 
       expect(path, ['l1', 0, 'l2']);
-
-      // TODO:
-      // expect(path, {
-      //   'key': 'l2',
-      //   'typename': 'SomeObject',
-      //   'prev': {
-      //     'key': 0,
-      //     'typename': null,
-      //     'prev': {
-      //       'key': 'l1',
-      //       'typename': 'SomeQuery',
-      //       'prev': null,
-      //     },
-      //   },
-      // });
     });
 
     test('threads root value context correctly', () async {
@@ -456,7 +441,7 @@ void main() {
           return throw GraphQLError('Error getting syncReturnError');
         },
         'syncReturnErrorList': () {
-          // TODO: didn't throw
+          // TODO: 1I didn't throw
           return [
             'sync0',
             () => throw GraphQLError('Error getting syncReturnErrorList1'),

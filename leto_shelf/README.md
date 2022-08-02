@@ -86,7 +86,7 @@ Handles Query, Mutation and Subscription requests using the "graphql-ws" or "gra
 The `validateIncomingConnection` parameter allows you to support authentication for your Web Socket connection, it also passes a `GraphQLWebSocketServer` as an argument which could be used for closing the connection. Some ping and keep alive `Duration` configuration parameters are provided to remove stale connection or identify problems when reaching the client.
 
 
-// TODO: throwing in the `subscribe` field function
+// TODO: 2A throwing in the `subscribe` field function
 
 ## Web UI Explorers
 

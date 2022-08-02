@@ -17,7 +17,7 @@ import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
 
 export 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
-// TODO: find a better way, maybe another leto_valida package?
+// TODO: 2A find a better way, maybe another leto_valida package?
 export 'package:leto_schema/src/validate/valida_input_attachment.dart';
 export 'package:leto_schema/utilities.dart'
     show PossibleSelections, PossibleSelectionsObject;
@@ -208,7 +208,7 @@ class GraphQLSchema {
       if (prev == null) {
         directiveMap[dir.name] = dir;
       } else if (prev != dir) {
-        // TODO:
+        // TODO: 1I
       }
     }
   }
@@ -260,7 +260,7 @@ List<GraphQLError> validateSchema(
   return errors;
 }
 
-// TODO: test errors toString()
+// TODO: 1T test errors toString()
 
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}
