@@ -8,6 +8,7 @@ class Config {
   final bool nullableFields;
   final bool omitFields;
   final bool omitPrivateFields;
+  final List<String> omitFieldsNamed;
   final String? instantiateCode;
   final List<CustomTypes> customTypes;
   final EnumNameCase? enumValuesCase;
@@ -21,6 +22,7 @@ class Config {
     bool? nullableFields,
     bool? omitFields,
     bool? omitPrivateFields,
+    List<String>? omitFieldsNamed,
     this.instantiateCode,
     required this.customTypes,
     this.enumValuesCase,
@@ -30,7 +32,9 @@ class Config {
         graphQLFieldSuffix = graphQLFieldSuffix ?? 'GraphQLField',
         nullableFields = nullableFields ?? false,
         omitFields = omitFields ?? false,
-        omitPrivateFields = omitPrivateFields ?? true;
+        omitPrivateFields = omitPrivateFields ?? true,
+        omitFieldsNamed = omitFieldsNamed ??
+            const ['toJson', 'toString', 'compareTo', 'toMap'];
 
   Map<String, Object?> toJson() {
     return {
@@ -42,6 +46,7 @@ class Config {
       'omitFields': omitFields,
       'customTypes': customTypes,
       'omitPrivateFields': omitPrivateFields,
+      'omitFieldsNamed': omitFieldsNamed,
       'instantiateCode': instantiateCode,
       'enumValuesCase': enumValuesCase?.toString().split('.').last,
     };
@@ -74,6 +79,7 @@ class Config {
       nullableFields: map['nullableFields'] as bool?,
       omitFields: map['omitFields'] as bool?,
       omitPrivateFields: map['omitPrivateFields'] as bool?,
+      omitFieldsNamed: (map['omitFieldsNamed'] as List?)?.cast<String>(),
       instantiateCode: map['instantiateCode'] as String?,
       enumValuesCase: parseEnumCase(map['enumValuesCase'] as String?),
       customTypes: map['customTypes'] == null

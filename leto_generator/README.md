@@ -33,7 +33,7 @@ Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes a
   - [Class Resolvers](#class-resolvers)
 - [Global Configuration (build.yaml)](#global-configuration-buildyaml)
   - [Fields](#fields)
-    - [Name for ID GraphQLType (default: "id")](#name-for-id-graphqltype-default-id)
+    - [TODO: 1G Name for ID GraphQLType (default: "id")](#todo-1g-name-for-id-graphqltype-default-id)
     - [nullableFields (default: false)](#nullablefields-default-false)
     - [omitFields (default: false)](#omitfields-default-false)
     - [omitPrivateFields (default: true)](#omitprivatefields-default-true)
@@ -776,9 +776,21 @@ Nested objects in resolvers.
 
 # Global Configuration (build.yaml)
 
+
+| Config            | Description                                                                                        | Type                | Default                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------- |
+| nullableFields    | Whether to make all fields nullable by default                                                     | bool                | false                                        |
+| omitFields        | Whether to omit all fields from the Schema. You will need to annotate each one with `GraphQLField` | bool                | false                                        |
+| omitPrivateFields | Whether to omit private fields from the Schema                                                     | bool                | true                                         |
+| omitFieldsNamed   | A list of field names to omit by default                                                           | List<String>        | ['toJson', 'toString', 'compareTo', 'toMap'] |
+| instantiateCode   | The dependency injection code used for all Class Resolvers                                         | String?             | null                                         |
+| customTypes       | Types for which a custom GraphQLType is provided                                                   | List\<CustomTypes\> | []                                           |
+| enumValuesCase    | The Enum values case type (CamelCase, snake_case, ...)                                             | EnumNameCase?       | null                                         |
+
+
 ## Fields
 
-### Name for ID GraphQLType (default: "id")
+### TODO: 1G Name for ID GraphQLType (default: "id")
 
 
 ### nullableFields (default: false)
