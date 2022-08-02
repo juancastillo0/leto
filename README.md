@@ -127,7 +127,14 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Map Error Extension](#map-error-extension)
   - [Custom Extensions](#custom-extensions)
 - [Directives](#directives)
+  - [`KeyDirective`](#keydirective)
+  - [`ValidaDirective`](#validadirective)
 - [Attachments](#attachments)
+  - [AttachmentWithValidation](#attachmentwithvalidation)
+  - [ToDirectiveValue](#todirectivevalue)
+    - [`KeyAttachment`](#keyattachment)
+    - [`ValidaAttachment`](#validaattachment)
+  - [AttachFn //TODO: 1A](#attachfn-todo-1a)
 - [Utilities](#utilities)
     - [`buildSchema`](#buildschema)
     - [`printSchema`](#printschema)
@@ -1999,13 +2006,111 @@ Provide custom directives supported by your server through the
 
 You can retrieve custom directives values in your GraphQL Schema definition when using the `buildSchema` utility, which will parse all directives and leave them accessible through the `astNode` Dart fields in the different GraphQL elements. Setting custom directives values through the GraphQL Schema Dart classes is a work in progress. Right now, you can add `DirectiveNode`s to the element's [attachments](#attachments) if you want to print it with `printSchema`, however the api will probably change. See https://github.com/graphql/graphql-js/issues/1343
 
+## `KeyDirective`
+
+Specifies that a given Object can be identified by the fields
+passed as argument to the directive
+
+It is repeatable, there can be multiple keys per Object.
+
+The following example shows an Object that can be identified by two keys,
+the "id" field and the combination "type" and "nested.value" fields.
+```graphql
+type Model @key(fields: "id") @key(fields: "type nested { value } ") {
+  id: String!
+  type: String!
+  nested {
+    value: int!
+  }
+}
+```
+
+## `ValidaDirective`
+
+Using `package:valida`, the valida directive represents the validation configuration. At the moment the `ValidaField` annotation over arguments and input fields is used to populated the valida directive. For example, the following annotated `GraphQLInput` that verifies that all lengths inside the `strs` field have at least 1 byte length:
+
+<!-- include{generator-valida-arg-model} -->
+```dart
+@Valida()
+@GraphQLInput()
+class ValidaArgModel {
+  @ValidaList(each: ValidaString(minLength: 1))
+  final List<String> strs;
+  final ValidaArgModel? inner;
+
+  ValidaArgModel({
+    required this.strs,
+    this.inner,
+  });
+
+  Map<String, Object?> toJson() {
+    return {
+      'strs': strs,
+      'inner': inner?.toJson(),
+    };
+  }
+
+  factory ValidaArgModel.fromJson(Map<String, Object?> map) {
+    return ValidaArgModel(
+      strs: List<String>.from(map['strs']! as List),
+      inner: map['inner'] != null
+          ? ValidaArgModel.fromJson((map['inner']! as Map).cast())
+          : null,
+    );
+  }
+}
+```
+<!-- include-end{generator-valida-arg-model} -->
+
+Will generate the following GraphQL definition with valida directive.
+
+<!-- include{generator-valida-arg-model-graphql} -->
+```graphql
+input ValidaArgModel {
+  strs: [String!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"string","minLength":1}}
+""")
+  inner: ValidaArgModel
+}
+```
+<!-- include-end{generator-valida-arg-model-graphql} -->
+
+
+In this case the JSON '{"variantType":"list","each":{"variantType":"string","minLength":1}}' is the result of executing the annotation's (`ValidaList(each: ValidaString(minLength: 1))`) toJson method.
+
 # Attachments
 
 This api is experimental.
 
 All GraphQL elements in the schema can have addition custom attachments. This can be used by other libraries or extensions to change the behavior of execution. For example, for supporting custom input validations or configuring the max age for some fields in an extension that caches responses.
 
+## AttachmentWithValidation
 
+An attachment can register validation logic by implementing `AttachmentWithValidation`. The required validation method `validateElement` will be executed when the GraphQLSchema is validated, as an argument it will receive the Schema validation context and the `GraphQLElement` associated with the attachment.
+
+## ToDirectiveValue
+
+Implementing this interface allows the GraphQLSchema's SDL String to contain the attachment's information ad directives over the specific element associated with the attachment. Attachments that implement `ToDirectiveValue` require the following getters:
+
+```dart
+  /// The directive value represented by this object
+  DirectiveNode get directiveValue;
+
+  /// The directive definition of the [directiveValue]
+  GraphQLDirective get directiveDefinition;
+```
+
+We provide two attachments, both of which implement `AttachmentWithValidation` and `ToDirectiveValue`.
+
+### `KeyAttachment`
+
+Implements the [key directive](#keydirective) over a given object. The `fields` String is required.
+
+### `ValidaAttachment`
+
+Implements the [valida directive](#validdirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
+
+## AttachFn //TODO: 1A
 
 # Utilities
 

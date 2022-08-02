@@ -130,14 +130,18 @@ String testValidaInArgsSingleModel({
   return '';
 }
 
+// @example-start{generator-valida-arg-model-graphql,extension:graphql,start:1,end:-1}
 const validaArgModelGraphQLStr = '''
 input ValidaArgModel {
   strs: [String!]! @valida(jsonSpec: """
 {"variantType":"list","each":{"variantType":"string","minLength":1}}
 """)
   inner: ValidaArgModel
-}''';
+}
+''';
+// @example-end{generator-valida-arg-model-graphql}
 
+// @example-start{generator-valida-arg-model}
 @Valida()
 @GraphQLInput()
 class ValidaArgModel {
@@ -166,3 +170,4 @@ class ValidaArgModel {
     );
   }
 }
+// @example-end{generator-valida-arg-model}
