@@ -1,8 +1,14 @@
-import 'dart:convert';
+import 'dart:convert' show jsonEncode;
 
 import 'package:leto_schema/src/validate/rules_prelude.dart';
+import 'package:leto_schema/src/validate/validate_schema.dart';
 
-class ValidaAttachment implements ToDirectiveValue {
+/// A GraphQL attachment which specifies a valida [annotation]
+/// in a [GraphQLElement] for validating input and outputs.
+/// Presented as a directive [directiveDefinition] in the GraphQL schema.
+///
+/// In code generation use [AttachFn] or the valida annotations.
+class ValidaAttachment implements ToDirectiveValue, AttachmentWithValidation {
   /// The valida spec as json
   final dynamic annotation;
 
@@ -52,6 +58,23 @@ class ValidaAttachment implements ToDirectiveValue {
   @override
   String toString() {
     return 'ValidaAttachment(${jsonEncode(annotation.toJson())})';
+  }
+
+  @override
+  void validateElement(
+    SchemaValidationContext context,
+    GraphQLElement element,
+  ) {
+    try {
+      // TODO: 2A more validations and make it a package or experimental
+      _jsonSpec();
+    } catch (_) {
+      context.reportError(
+        'ValidaAttachment.annotation ($annotation)'
+        ' should be json serializable',
+        [],
+      );
+    }
   }
 }
 

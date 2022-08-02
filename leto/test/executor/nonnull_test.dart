@@ -291,7 +291,7 @@ void main() {
       final result = await executeQuery(query, throwingData);
       expect(result, {
         'data': data,
-        // TODO: should this be ordered?
+        // TODO: 2T should this be ordered?
         'errors': unorderedEquals(<Map<String, Object?>>[
           {
             'message': syncError.message,
@@ -748,7 +748,7 @@ void main() {
                 ['"cannotBeNull"', 'String!', 'withNonNullArg']),
             // 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
             'locations': [
-              // TODO: point to value at column 42?
+              // TODO: 3T point to value at column 42?
               {'line': 1, 'column': 27}
             ],
             'path': ['withNonNullArg'],

@@ -263,7 +263,7 @@ GraphQLSchema buildSchema(
                   ];
 
         for (final i in interfaces) {
-          // TODO: could be null?
+          // TODO: 3I could be null?
           final type = typesMap[i.name.value];
           if (type is! GraphQLObjectType || !type.isInterface) {
             errors.add(
@@ -383,7 +383,8 @@ GraphQLSchema buildSchema(
     directives: directives,
     otherTypes: typesMap.values.toList(),
     astNode: schemaNode,
-    // TODO: description and extensionAstNodes
+    description: schemaNode?.description?.value,
+    // TODO: 3I extensionAstNodes
   );
 }
 
@@ -392,7 +393,7 @@ Object? computeValue(
   ValueNode node,
   Map<String, dynamic>? values,
 ) =>
-    // TODO: we can improve errors by passing targetType
+    // TODO: 3I we can improve errors by passing targetType
     // but we need to be careful of potential performance
     // problems
     valueFromAst(null, node, values);
@@ -423,7 +424,7 @@ Object? getDirectiveValue(
   if (value is VariableNode) {
     final variableName = value.name.value;
     if (variableValues == null || !variableValues.containsKey(variableName)) {
-      // TODO: this probably should not be here?
+      // TODO: 2I this probably should not be here?
       throw GraphQLException.fromMessage(
         'Unknown variable: "$variableName"',
         location: (value.span ??

@@ -17,7 +17,7 @@ import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
 
 export 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
-// TODO: find a better way, maybe another leto_valida package?
+// TODO: 2A find a better way, maybe another leto_valida package?
 export 'package:leto_schema/src/validate/valida_input_attachment.dart';
 export 'package:leto_schema/utilities.dart'
     show PossibleSelections, PossibleSelectionsObject;
@@ -196,8 +196,7 @@ class GraphQLSchema {
   }
 
   void _collectDirectives() {
-    final elements = _typeElements();
-    final otherDirectives = elements
+    final otherDirectives = typeElements()
         .expand((e) => e.attachments.whereType<ToDirectiveValue>())
         .map((e) => e.directiveDefinition)
         .toSet();
@@ -208,12 +207,13 @@ class GraphQLSchema {
       if (prev == null) {
         directiveMap[dir.name] = dir;
       } else if (prev != dir) {
-        // TODO:
+        // TODO: 1I
       }
     }
   }
 
-  Iterable<GraphQLElement> _typeElements() {
+  /// Returns an iterable over all the type [GraphQLElement] in the schema.
+  Iterable<GraphQLElement> typeElements() {
     return typeMap.values.expand(
       (type) => type.whenNamed(
         enum_: (type) => [type, ...type.values],
@@ -252,6 +252,7 @@ List<GraphQLError> validateSchema(
   validateRootTypes(context);
   validateDirectives(context);
   validateTypes(context);
+  validateAttachments(context);
 
   // Persist the results of validation before returning to ensure validation
   // does not run multiple times for this schema.
@@ -260,7 +261,7 @@ List<GraphQLError> validateSchema(
   return errors;
 }
 
-// TODO: test errors toString()
+// TODO: 1T test errors toString()
 
 /// Base exception thrown on schema construction
 class SchemaValidationException implements Exception {}

@@ -118,7 +118,7 @@ DirectiveLocation? getDirectiveLocationForASTPath(
     case Kind.InputValueDefinition:
       {
         var parentNode = ancestors[ancestors.length - 3];
-        // TODO: this should not be necessary check usage of ancestor
+        // TODO: 3I this should not be necessary check usage of ancestor
         if (parentNode is DocumentNode) {
           parentNode = ancestors[ancestors.length - 2];
         }

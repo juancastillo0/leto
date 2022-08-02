@@ -127,7 +127,14 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Map Error Extension](#map-error-extension)
   - [Custom Extensions](#custom-extensions)
 - [Directives](#directives)
+  - [`KeyDirective`](#keydirective)
+  - [`ValidaDirective`](#validadirective)
 - [Attachments](#attachments)
+  - [AttachmentWithValidation](#attachmentwithvalidation)
+  - [ToDirectiveValue](#todirectivevalue)
+    - [`KeyAttachment`](#keyattachment)
+    - [`ValidaAttachment`](#validaattachment)
+  - [AttachFn //TODO: 1A](#attachfn-todo-1a)
 - [Utilities](#utilities)
     - [`buildSchema`](#buildschema)
     - [`printSchema`](#printschema)
@@ -214,7 +221,7 @@ class ModelController {
 ```
 <!-- include-end{quickstart-controller-state-definition} -->
 
-With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: more docs in the code
+With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: 1A more docs in the code
 
 <!-- include{quickstart-make-schema} -->
 ```dart
@@ -304,6 +311,19 @@ type Subscription {
 }
 ```
 <!-- include-end{quickstart-schema-string} -->
+
+// TODO: 1A rename GraphQLClass and graphQLString -> stringGraphQLType
+// TODO: 1A use scope overrides and do not allow modifications
+// TODO: 1A id attachment/directive
+// TODO: 1T
+type CompilerLog {
+  toString: String!
+
+TODO: 1T class ProcessExecResult implements ProcessResult {
+[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
+Cannot infer the GraphQLType for field ProcessResult.stdout (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
+[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
+Cannot infer the GraphQLType for field ProcessResult.stderr (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
 
 You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 
@@ -448,7 +468,8 @@ Once you set up all the handlers, you can start the server adding middlewares if
     const Pipeline()
         // Configure middlewares
         .addMiddleware(customLog(log: (msg) {
-          // TODO:
+          // TODO: 2A detect an introspection query.
+          //  Add more structured logs and headers
           if (!msg.contains('IntrospectionQuery')) {
             print(msg);
           }
@@ -655,8 +676,8 @@ Other scalar types are also provided:
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
 - Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and deserialized with `DateTime.parse`.
 - Timestamp: Same as Date, but serialized as an UNIX timestamp.
-- Time: // TODO:
-- Duration: // TODO:
+- Time: // TODO: 1A
+- Duration: // TODO: 1A
 - BigInt: An arbitrarily large integer from [`dart:core`](https://api.dart.dev/stable/dart-core/BigInt-class.html) serialized as a String and deserialized with `BigInt.parse`.
 - Upload: A file upload. Following the [multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec).
 
@@ -767,7 +788,7 @@ a super type, now the Object will implement the Interface passed as parameter.
 
 Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
-// TODO: customDeserialize with SerdeCtx deserializers
+// TODO: 1A customDeserialize with SerdeCtx deserializers
 
 ```dart
 final inputModel = GraphQLInputObjectType(
@@ -1015,8 +1036,7 @@ GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
   description: '''
 Description from annotation.
 
-Union generated from raw Dart classes
-''',
+Union generated from raw Dart classes''',
 )
 @GraphQLUnion(name: 'UnionNoFreezedRenamed')
 class UnionNoFreezed {
@@ -1282,7 +1302,7 @@ GraphQLObjectType<ErrC<T?>> errCGraphQlType<T extends Object>(
 
 ```
 
-- With code generation (derialization with Generic Input types is not yet supported ISSUE // TODO:)
+- With code generation (derialization with Generic Input types is not yet supported ISSUE // TODO: 1A)
 
 ```dart
 import 'package:leto/leto.dart';
@@ -1946,7 +1966,7 @@ More information: https://github.com/apollographql/apollo-tracing
 Utility for caching responses in your GraphQL server and client.
 
 Client GQL Link implementation in:
-// TODO:
+// TODO: 2E
 
 - Hash: Similar to HTTP If-None-Match and Etag headers. Computes a hash of the payload (sha1 by default) and returns it to the Client when requested. If the Client makes a request with a hash (computed locally or saved from a previous server response), the extension compares the hash and only returns the full body when the hash do not match. If the hash match, the client already has the last version of the payload.
 
@@ -1954,7 +1974,7 @@ Client GQL Link implementation in:
 
 - UpdatedAt: Similar to HTTP If-Modified-Since and Last-Modified headers.
 
-// TODO: retrieve hash, updatedAt and maxAge in resolvers.
+// TODO: 2E retrieve hash, updatedAt and maxAge in resolvers.
 
 
 [Source code](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/cache_extension.dart)
@@ -1999,13 +2019,111 @@ Provide custom directives supported by your server through the
 
 You can retrieve custom directives values in your GraphQL Schema definition when using the `buildSchema` utility, which will parse all directives and leave them accessible through the `astNode` Dart fields in the different GraphQL elements. Setting custom directives values through the GraphQL Schema Dart classes is a work in progress. Right now, you can add `DirectiveNode`s to the element's [attachments](#attachments) if you want to print it with `printSchema`, however the api will probably change. See https://github.com/graphql/graphql-js/issues/1343
 
+## `KeyDirective`
+
+Specifies that a given Object can be identified by the fields
+passed as argument to the directive
+
+It is repeatable, there can be multiple keys per Object.
+
+The following example shows an Object that can be identified by two keys,
+the "id" field and the combination "type" and "nested.value" fields.
+```graphql
+type Model @key(fields: "id") @key(fields: "type nested { value } ") {
+  id: String!
+  type: String!
+  nested {
+    value: int!
+  }
+}
+```
+
+## `ValidaDirective`
+
+Using `package:valida`, the valida directive represents the validation configuration. At the moment the `ValidaField` annotation over arguments and input fields is used to populated the valida directive. For example, the following annotated `GraphQLInput` that verifies that all lengths inside the `strs` field have at least 1 byte length:
+
+<!-- include{generator-valida-arg-model} -->
+```dart
+@Valida()
+@GraphQLInput()
+class ValidaArgModel {
+  @ValidaList(each: ValidaString(minLength: 1))
+  final List<String> strs;
+  final ValidaArgModel? inner;
+
+  ValidaArgModel({
+    required this.strs,
+    this.inner,
+  });
+
+  Map<String, Object?> toJson() {
+    return {
+      'strs': strs,
+      'inner': inner?.toJson(),
+    };
+  }
+
+  factory ValidaArgModel.fromJson(Map<String, Object?> map) {
+    return ValidaArgModel(
+      strs: List<String>.from(map['strs']! as List),
+      inner: map['inner'] != null
+          ? ValidaArgModel.fromJson((map['inner']! as Map).cast())
+          : null,
+    );
+  }
+}
+```
+<!-- include-end{generator-valida-arg-model} -->
+
+Will generate the following GraphQL definition with valida directive.
+
+<!-- include{generator-valida-arg-model-graphql} -->
+```graphql
+input ValidaArgModel {
+  strs: [String!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"string","minLength":1}}
+""")
+  inner: ValidaArgModel
+}
+```
+<!-- include-end{generator-valida-arg-model-graphql} -->
+
+
+In this case the JSON '{"variantType":"list","each":{"variantType":"string","minLength":1}}' is the result of executing the annotation's (`ValidaList(each: ValidaString(minLength: 1))`) toJson method.
+
 # Attachments
 
 This api is experimental.
 
 All GraphQL elements in the schema can have addition custom attachments. This can be used by other libraries or extensions to change the behavior of execution. For example, for supporting custom input validations or configuring the max age for some fields in an extension that caches responses.
 
+## AttachmentWithValidation
 
+An attachment can register validation logic by implementing `AttachmentWithValidation`. The required validation method `validateElement` will be executed when the GraphQLSchema is validated, as an argument it will receive the Schema validation context and the `GraphQLElement` associated with the attachment.
+
+## ToDirectiveValue
+
+Implementing this interface allows the GraphQLSchema's SDL String to contain the attachment's information ad directives over the specific element associated with the attachment. Attachments that implement `ToDirectiveValue` require the following getters:
+
+```dart
+  /// The directive value represented by this object
+  DirectiveNode get directiveValue;
+
+  /// The directive definition of the [directiveValue]
+  GraphQLDirective get directiveDefinition;
+```
+
+We provide two attachments, both of which implement `AttachmentWithValidation` and `ToDirectiveValue`.
+
+### `KeyAttachment`
+
+Implements the [key directive](#keydirective) over a given object. The `fields` String is required.
+
+### `ValidaAttachment`
+
+Implements the [valida directive](#validdirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
+
+## AttachFn //TODO: 1A
 
 # Utilities
 

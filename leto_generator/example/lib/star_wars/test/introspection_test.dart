@@ -44,7 +44,7 @@ void main() {
                 {'name': 'Human'},
                 {'name': 'Character'},
                 {'name': 'String'},
-                // TODO: id wasn't there in graphql-js, but we generated for id fields
+                // TODO: 1C id wasn't there in graphql-js, but we generated for id fields
                 {'name': 'ID'},
                 {'name': 'Episode'},
                 {'name': 'Droid'},

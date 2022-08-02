@@ -84,7 +84,7 @@ final episodeEnum = GraphQLEnumType(
 ///   secretBackstory: String
 /// }
 /// ```
-// TODO: GraphQLInterfaceType
+// TODO: 1I GraphQLInterfaceType
 GraphQLObjectType<Character>? _characterInterface;
 GraphQLObjectType<Character> characterInterface() {
   if (_characterInterface != null) return _characterInterface!;

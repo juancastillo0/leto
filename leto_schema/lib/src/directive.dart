@@ -126,6 +126,16 @@ abstract class ToDirectiveValue {
   GraphQLDirective get directiveDefinition;
 }
 
+/// An attachment with validation
+abstract class AttachmentWithValidation {
+  /// Validates the provided [element] following
+  /// the configuration of this attachment
+  void validateElement(
+    SchemaValidationContext context,
+    GraphQLElement element,
+  );
+}
+
 /// Constant string used for default reason for a deprecation.
 const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 

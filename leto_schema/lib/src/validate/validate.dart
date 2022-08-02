@@ -17,7 +17,7 @@ typedef SDLValidationRule = Visitor Function(SDLValidationCtx);
 
 /// Default validation rules from the GraphQL specification
 const specifiedRules = <ValidationRule>[
-  // TODO: some are returning error when visiting, not by using reportError
+  // TODO: 3I some are returning error when visiting, not by using reportError
   executableDefinitionsRule,
   uniqueOperationNamesRule,
   loneAnonymousOperationRule,
@@ -63,7 +63,7 @@ const specifiedSDLRules = <SDLValidationRule>[
   uniqueArgumentNamesRule,
   uniqueInputFieldNamesRule,
   providedRequiredArgumentsOnDirectivesRule,
-  // TODO: valuesOfCorrectTypeRule https://github.com/graphql/graphql-js/issues/3222
+  // TODO: 3I valuesOfCorrectTypeRule https://github.com/graphql/graphql-js/issues/3222
   implementInterfaceOnceRule,
 ];
 
@@ -121,7 +121,7 @@ List<GraphQLError> validateDocument(
     visitors: rules.map((e) => e(ctx)).toList(),
     onAccept: (result) {
       if (result is List<GraphQLError>) {
-        // TODO: these are returning error when visiting, not by using reportError
+        // TODO: 3I these are returning error when visiting, not by using reportError
         result.forEach(ctx.reportError);
       }
     },

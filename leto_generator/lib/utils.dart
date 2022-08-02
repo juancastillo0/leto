@@ -19,10 +19,6 @@ import 'package:valida/valida.dart';
 
 export 'utils_graphql.dart';
 
-// [WARNING] leto_generator:graphql_types on lib/chat_room/chat_table.dart:
-// Cannot infer the GraphQL type for field listFromJson.json (type=Object?).
-// Generics
-
 final _docCommentRegExp = RegExp('(^/// )|(^// )', multiLine: true);
 const graphQLDocTypeChecker = TypeChecker.fromRuntime(GraphQLDocumentation);
 const jsonSerializableTypeChecker = TypeChecker.fromRuntime(JsonSerializable);
@@ -161,7 +157,7 @@ String? getAttachments(Element element) {
           .map((e) => '...$e,')
           .join() +
       (() {
-        // TODO: ValidaNested.overrideValidation
+        // TODO: 1G ValidaNested.overrideValidation
         final e = element.metadata.firstWhereOrNull(
           (element) => const TypeChecker.fromRuntime(ValidaField)
               .isAssignableFromType(element.computeConstantValue()!.type!),

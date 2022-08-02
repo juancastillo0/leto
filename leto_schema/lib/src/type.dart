@@ -210,7 +210,7 @@ GraphQLListType<Value?, Serialized> listOf<Value, Serialized>(
 /// A wrapper around a [GraphQLType].
 ///
 /// Examples: [GraphQLListType] and [GraphQLNonNullType]
-/// /// TODO: GraphQLWrappingType
+/// /// TODO: 3A GraphQLWrappingType
 abstract class GraphQLWrapperType {
   /// The wrapped type
   GraphQLType<Object?, Object?> get ofType;

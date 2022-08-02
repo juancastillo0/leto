@@ -56,7 +56,6 @@ class SchemaPrinter {
 
   static String defPrintTypeReference(GraphQLType type) => type.toString();
 
-  // TODO:
   @experimental
   String printDirectives(GraphQLElement element) {
     final _excludedDirectiveNames = [
@@ -189,7 +188,7 @@ class SchemaPrinter {
         printFields(type);
   }
 
-// TODO: GraphQLInterfaceType
+// TODO: 2A GraphQLInterfaceType
   String printInterface(GraphQLObjectType type) {
     return printDescription(type.description) +
         'interface ${printTypeName(type)}' +

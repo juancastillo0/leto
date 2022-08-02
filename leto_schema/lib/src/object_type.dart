@@ -47,7 +47,7 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
   /// which are associated with this object type
   final IsTypeOfWrapper<P>? isTypeOf;
 
-  /// TODO: interface
+  /// TODO: 2A interface
   @override
   final GraphQLTypeDefinitionExtra<TypeDefinitionNode, TypeExtensionNode> extra;
 
@@ -459,7 +459,7 @@ Map<String, Object?> _gqlFromJson(
     final field = fields.firstWhereOrNull((f) => f.name == e.key);
     if (field == null) {
       return null;
-      // TODO: serealized value can have multiple values in the map
+      // TODO: 3I serealized value can have multiple values in the map
       // some of which are not in fields
       // throw UnsupportedError(
       //  'Cannot serialize field "$key", which was not defined in the schema.',

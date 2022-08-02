@@ -117,7 +117,7 @@ void setUpGraphQLSchemaDefinition(
         orElse: (_) => '<a href="#$type">$type</a>',
       );
 
-  // TODO: there are probably better options
+  // TODO: 3I there are probably better options
   final schemaWithTypeTags = printSchema(
     schema,
     printer: SchemaPrinter(

@@ -500,8 +500,7 @@ void main() {
     });
   });
 
-  // TODO:
-  // test('resolveType on Interface yields useful error', () async {
+  // TODO: 1T test('resolveType on Interface yields useful error', () async {
   //   final schema = buildSchema('''
   //     type Query {
   //       pet: Pet

@@ -1008,7 +1008,7 @@ void main() {
                 },
               ],
             },
-            // TODO: one of in intrsopection query and locations of directive
+            // TODO: 1T one of in intrsopection query and locations of directive
             {
               'name': 'oneOf',
               'isRepeatable': false,
@@ -1603,7 +1603,6 @@ void main() {
   });
 
   test('exposes descriptions', () async {
-    // TODO: support schema description """Schema description"""
     final schema = buildSchema('''
       """Enum description"""
       enum SomeEnum {
@@ -1617,6 +1616,7 @@ void main() {
         someField(arg: SomeEnum): String
       }
 
+       """Schema description"""
       schema {
         query: SomeObject
       }
@@ -1645,9 +1645,7 @@ void main() {
     expect(await graphqlSync(schema, source), {
       'data': {
         'Schema': {
-          // TODO: support schema description """Schema description"""
-          // 'description': 'Schema description',
-          'description': null,
+          'description': 'Schema description',
         },
         'SomeEnum': {
           'description': 'Enum description',
@@ -1671,8 +1669,7 @@ void main() {
     });
   });
 
-  // TODO:
-  // test('executes an introspection query without calling global resolvers',
+  // TODO: 3T test('executes an introspection query without calling global resolvers',
   //     () async {
   //   final schema = buildSchema('''
   //     type Query {

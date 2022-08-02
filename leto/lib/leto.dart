@@ -429,7 +429,7 @@ class GraphQL {
             coercedValues[variableName] = null;
           }
         } else {
-          // TODO: should we just deserialize with a result?
+          // TODO: 3I should we just deserialize with a result?
           final validation = type.validate(variableName, value);
 
           if (!validation.successful) {
@@ -846,7 +846,7 @@ class GraphQL {
   ) async {
     T? _returnError(GraphQLException err) {
       if (objectField.type.isNullable) {
-        // TODO: add only one error?
+        // TODO: 3S add only one error?
         ctx.executionCtx.errors.add(err.errors.first);
         return null;
       } else {
@@ -976,7 +976,7 @@ class GraphQL {
           variableValues,
         );
         final Object? coercedValue;
-        // TODO: try a validation first, if not successful check argumentDefinition.type.isNullable
+        // TODO: 1I try a validation first, if not successful check argumentDefinition.type.isNullable
         if (value == null) {
           if (argumentDefinition.type.isNullable) {
             coercedValue = null;
@@ -1049,7 +1049,6 @@ class GraphQL {
           return await field.resolve!(objectValue, fieldCtx) as T?;
         } else if (objectValue is Map && objectValue.containsKey(fieldName)) {
           final Object? value = objectValue[fieldName];
-          // TODO: support functions with more params?
           return await _extractResult(value) as T?;
         } else {
           final serialized = fieldCtx.objectCtx.serializedObject();
@@ -1074,7 +1073,7 @@ class GraphQL {
   }
 
   FutureOr<Object?> _extractResult(Object? result) {
-    // TODO: support functions with more params?
+    // TODO: 2I support functions with more params?
     if (result is Function()) {
       return _extractResult(result());
     } else if (result is Future) {
@@ -1214,7 +1213,7 @@ class GraphQL {
           final listCtx = ObjectExecutionCtx<Object?>(
             executionCtx: ctx.executionCtx,
             pathItem: pathItem,
-            // TODO: objectType, objectValue, groupedFieldSet do not apply to lists
+            // TODO: 2I objectType, objectValue, groupedFieldSet do not apply to lists
             objectType: ctx.objectType,
             objectValue: ctx.objectValue,
             groupedFieldSet: ctx.groupedFieldSet,
@@ -1350,7 +1349,7 @@ class GraphQL {
     // No match or multiple found, try each one and validate the output
     for (final t in possibleTypes) {
       try {
-        // TODO: should we serialize?
+        // TODO: 2I should we serialize?
         // this should/t serialize nested fields
         final serialized = t.serializeSafe(result);
         final validation = t.validate(
@@ -1377,7 +1376,7 @@ class GraphQL {
       ),
     );
 
-    // TODO: check if there is only one type matching
+    // TODO: 2I check if there is only one type matching
     // throw GraphQLException(errors);
     throw GraphQLException(errors);
   }

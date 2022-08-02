@@ -34,7 +34,7 @@ Future<void> main() async {
       await _testLink(_streamCallbacks, link);
     });
 
-    // TODO:
+    // TODO: 1T use package:graphql and send PR to package:gql_web_socket_link
     // test('transport ws sub-protocol', () async {
     //   final link = GQLTransportWebSocketLink(ClientOptions(
     //     socketMaker: WebSocketMaker.url(

@@ -72,7 +72,7 @@ GraphQLClass? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
 }
 
 bool isInterface(ClassElement clazz) {
-  // TODO: && !serializableTypeChecker.hasAnnotationOf(clazz);
+  // TODO: 1G && !serializableTypeChecker.hasAnnotationOf(clazz);
   return clazz.isAbstract;
 }
 
@@ -133,7 +133,7 @@ Expression inferType(
     return refer(docs!.typeName!.toString());
   }
   // Next, check if this is the "id" field of a `Model`.
-  // TODO:
+  // TODO: 1G make the id configurable, maybe with @key(fields: "") directive
   // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
   //     name == 'id') {
   //   return refer('graphQLId');
@@ -246,7 +246,7 @@ Expression inferType(
     return _wrapNullability(inner.property('list').call([]));
   }
 
-  final externalName = // TODO: serializableTypeChecker.hasAnnotationOf(c.element) &&
+  final externalName =
       typeName.startsWith('_') ? typeName.substring(1) : typeName;
 
   // Firstly, check if it's a GraphQL class.

@@ -34,7 +34,7 @@ class ExecutableDefinitionsRule extends SimpleVisitor<List<GraphQLError>> {
           : '"${nameNode.value}"';
       return GraphQLError(
         'The $_str definition is not executable.',
-        // TODO: get the span from schema nodes
+        // TODO: 3I get the span from schema nodes
         locations: GraphQLErrorLocation.firstFromNodes([
           e,
           nameNode,
@@ -70,7 +70,7 @@ Visitor uniqueOperationNamesRule(
 class UniqueOperationNamesRule extends SimpleVisitor<List<GraphQLError>> {
   final operations = <String, OperationDefinitionNode>{};
 
-  // TODO: FragmentDefinition: () => false,
+  // TODO: 1I FragmentDefinition: () => false,
 
   @override
   List<GraphQLError>? visitOperationDefinitionNode(
@@ -174,7 +174,7 @@ Visitor knownTypeNamesRule(SDLValidationCtx ctx) {
     final name = node.name.value;
     if (!typeNames.contains(name)) {
       final ancestors = visitor.ancestors();
-      // TODO: check ancestors usage
+      // TODO: 1I check ancestors usage
       final definitionNode =
           ancestors.length > 1 ? ancestors[1] : ancestors[ancestors.length - 1];
       final isSDL = definitionNode is TypeSystemDefinitionNode ||

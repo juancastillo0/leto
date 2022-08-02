@@ -296,7 +296,7 @@ GraphQLType<Object?, Object?> graphQLTypeFromSerde(String key, SerdeType type) {
     num: () => graphQLFloat,
     str: () => graphQLString,
     option: (option) => graphQLTypeFromSerde(key, option.generic),
-    // TODO:
+    // TODO: 3E
     duration: () => throw UnimplementedError(),
     list: (list) => listOf(graphQLTypeFromSerde('${key}Item', list.generic)),
     set: (set) => listOf(graphQLTypeFromSerde('${key}Item', set.generic)),

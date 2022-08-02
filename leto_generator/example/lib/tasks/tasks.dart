@@ -120,7 +120,7 @@ class Task implements Named, WithCreated {
   // @AttachFn(assignedToAttachments)
   final List<User> assignedTo;
 
-  // TODO: test and support element complexity in schema. GraphQLInput field cant have complexity
+  // TODO: 3G test and support element complexity in schema. GraphQLInput field cant have complexity
   // static GraphQLAttachments assignedToAttachments() =>
   //     const [ElementComplexity(10)];
 
@@ -140,7 +140,8 @@ class Task implements Named, WithCreated {
     ..['createdTimestamp'] = createdTimestamp.millisecondsSinceEpoch;
 }
 
-GraphQLAttachments userAttachments() => const [ElementComplexity(5)];
+// TODO: 1G @GraphQLClass() and @GraphQLInput() separate attachments
+// GraphQLAttachments userAttachments() => const [ElementComplexity(5)];
 
 // @AttachFn(userAttachments)
 @GraphQLClass()

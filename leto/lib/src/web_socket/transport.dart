@@ -41,7 +41,7 @@ class OperationMessage {
       throw ArgumentError.value(id, 'id', 'must be a string or number');
     }
 
-    // TODO: This is technically a violation of the spec.
+    // TODO: 1I This is technically a violation of the spec.
     // https://github.com/apollographql/subscriptions-transport-ws/issues/551
     if (map.containsKey('query') ||
         map.containsKey('operationName') ||

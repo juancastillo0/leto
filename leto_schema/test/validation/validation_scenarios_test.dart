@@ -73,12 +73,12 @@ Future<void> main() async {
 
                 return {
                   ...json,
-                  // TODO: implement suggestions
+                  // TODO: 3A implement suggestions
                   if (!isScalarLeafsRule &&
                       e.message.contains('. Did you mean ') &&
                       e.message.endsWith('?'))
                     'message': '${e.message.split('. Did you mean ').first}.',
-                  // TODO: graphql-js has a type.parseLiteral that returns a custom error
+                  // TODO: 3A graphql-js has a type.parseLiteral that returns a custom error
                   //  for each type
                   if (isValuesOfCorrectTypeRule) 'message': isA<String>(),
                   if (e.locations.isNotEmpty)
@@ -100,7 +100,7 @@ Future<void> main() async {
   }
 }
 
-// TODO: maybe some of them should be sorted?
+// TODO: 3T maybe some of them should be sorted?
 List<GraphQLError> _sortErrors(
   Iterable<GraphQLError> errors,
 ) {

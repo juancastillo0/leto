@@ -27,7 +27,6 @@ abstract class Node {
 
 /// Takes a type name and an ID specific to that type name, and returns a
 /// "global ID" that is unique among all types.
-// TODO: id: string | number
 String toGlobalId(String type, String id) {
   return base64.encode(utf8.encode('$type:${graphQLId.serialize(id)}'));
 }

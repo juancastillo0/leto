@@ -176,6 +176,10 @@ Result<ResultU<SuccessGet, UnionErrCode>, ErrCode> resultUnionInSuccess() {
   return Ok(ErrU(UnionErrCode(10, 'msj 10')));
 }
 
+// TODO: 2G type typedef
+
+typedef ResultC<T extends Object, E extends Object> = Result<T, E>;
+
 abstract class ResultU<T extends Object, E extends Object>
     implements
         // ignore: avoid_implementing_value_types

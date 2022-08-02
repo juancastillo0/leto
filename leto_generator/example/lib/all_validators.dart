@@ -2,6 +2,7 @@ import 'package:valida/valida.dart';
 import 'package:leto_generator_example/inputs.dart';
 import 'package:leto_generator_example/star_wars_relay/data.dart';
 import 'package:leto_generator_example/arguments.dart';
+import 'package:leto_generator_example/attachments.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class Validators {
@@ -9,6 +10,7 @@ class Validators {
     InputM: validatorInputM,
     ConnectionArguments: validatorConnectionArguments,
     ValidaArgModel: validatorValidaArgModel,
+    KeyedAttachment: validatorKeyedAttachment,
   };
 
   static const validatorInputM = Validator(InputMValidation.fromValue);
@@ -16,6 +18,8 @@ class Validators {
       Validator(ConnectionArgumentsValidation.fromValue);
   static const validatorValidaArgModel =
       Validator(ValidaArgModelValidation.fromValue);
+  static const validatorKeyedAttachment =
+      Validator(KeyedAttachmentValidation.fromValue);
 
   static Validator<T, Validation<T, Object>>? validator<T>() {
     final validator = typeMap[T];

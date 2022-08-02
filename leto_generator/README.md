@@ -28,12 +28,12 @@ Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes a
   - [customTypes in build.yaml](#customtypes-in-buildyaml)
   - [@GraphQLDocumentation(type: Function, typeName: String)](#graphqldocumentationtype-function-typename-string)
 - [Resolvers](#resolvers)
-  - [TODO: BeforeResolver](#todo-beforeresolver)
+  - [TODO: 2G BeforeResolver](#todo-2g-beforeresolver)
   - [Function Resolvers](#function-resolvers)
   - [Class Resolvers](#class-resolvers)
 - [Global Configuration (build.yaml)](#global-configuration-buildyaml)
   - [Fields](#fields)
-    - [Name for ID GraphQLType (default: "id")](#name-for-id-graphqltype-default-id)
+    - [TODO: 1G Name for ID GraphQLType (default: "id")](#todo-1g-name-for-id-graphqltype-default-id)
     - [nullableFields (default: false)](#nullablefields-default-false)
     - [omitFields (default: false)](#omitfields-default-false)
     - [omitPrivateFields (default: true)](#omitprivatefields-default-true)
@@ -323,8 +323,7 @@ GraphQLAttachments unionNoFreezedAttachments() => const [ElementComplexity(50)];
   description: '''
 Description from annotation.
 
-Union generated from raw Dart classes
-''',
+Union generated from raw Dart classes''',
 )
 @GraphQLUnion(name: 'UnionNoFreezedRenamed')
 class UnionNoFreezed {
@@ -486,7 +485,7 @@ class InputGen<T> {
 
 ### Resolver Inputs
 
-// TODO: `@FromCtx()` Type.fromCtx;
+// TODO: 1G `@FromCtx()` Type.fromCtx;
 
 Authentication (admin|role);
 
@@ -669,7 +668,7 @@ class ClassEnum {
 
 ### Generics
 
-// TODO:
+// TODO: 1G Generics docs
 
 # Dart Type to GraphQLType coercion
 
@@ -717,7 +716,7 @@ If you want to customize a single field or argument with a GraphQLType different
 
 A Class annotated with `@GraphQLClass()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
 
-## TODO: BeforeResolver
+## TODO: 2G BeforeResolver
 
 
 ## Function Resolvers
@@ -734,7 +733,7 @@ This will be the name of the GraphQL field.
 
 When the return type is a generic type, you can override the GraphQL type name with a custom String. Most generic types provide a default name composed from the type parameters (using `GraphQLType.printableName`, for example), so this parameter is usually not required.
 
-- TODO: nullable return type
+- TODO: 1G nullable return type
 
 ## Class Resolvers
 
@@ -777,9 +776,21 @@ Nested objects in resolvers.
 
 # Global Configuration (build.yaml)
 
+
+| Config            | Description                                                                                        | Type                | Default                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------- |
+| nullableFields    | Whether to make all fields nullable by default                                                     | bool                | false                                        |
+| omitFields        | Whether to omit all fields from the Schema. You will need to annotate each one with `GraphQLField` | bool                | false                                        |
+| omitPrivateFields | Whether to omit private fields from the Schema                                                     | bool                | true                                         |
+| omitFieldsNamed   | A list of field names to omit by default                                                           | List<String>        | ['toJson', 'toString', 'compareTo', 'toMap'] |
+| instantiateCode   | The dependency injection code used for all Class Resolvers                                         | String?             | null                                         |
+| customTypes       | Types for which a custom GraphQLType is provided                                                   | List\<CustomTypes\> | []                                           |
+| enumValuesCase    | The Enum values case type (CamelCase, snake_case, ...)                                             | EnumNameCase?       | null                                         |
+
+
 ## Fields
 
-### Name for ID GraphQLType (default: "id")
+### TODO: 1G Name for ID GraphQLType (default: "id")
 
 
 ### nullableFields (default: false)

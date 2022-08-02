@@ -26,12 +26,26 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
 
   final config = getClassConfig(ctx, clazz);
 
+  bool _whereName(Element e) {
+    final omit = const TypeChecker.fromRuntime(GraphQLField)
+        .firstAnnotationOf(e)
+        ?.getField('omit')
+        ?.toBoolValue();
+    final name = e.name;
+    if (name == null) return false;
+    return omit == false ||
+        (!ctx.config.omitFieldsNamed.contains(name) &&
+            !name.startsWith('__') &&
+            (!name.startsWith('_') || !ctx.config.omitPrivateFields));
+  }
+
   return [
     if (!isInput)
       ...clazz.methods
-          .where((method) => method.name != 'toJson' && !method.isStatic)
+          .where((method) => _whereName(method) && !method.isStatic)
           .map((m) => fieldFromElement(config, m, m.returnType, ctx, generics)),
     ...clazz.fields
+        .where(_whereName)
         .map((m) => fieldFromElement(config, m, m.type, ctx, generics)),
     if (clazz.supertype != null)
       ...fieldsFromClass(clazz.supertype!.element, ctx, isInput: isInput),
