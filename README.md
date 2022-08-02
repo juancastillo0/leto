@@ -1900,7 +1900,7 @@ class NestedModelRepo {
   }
 }
 
-final modelNestedRepo = RefWithDefault.global(
+final modelNestedRepo = RefWithDefault.scoped(
     (scope) => NestedModelRepo()
 );
 
