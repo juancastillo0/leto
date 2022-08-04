@@ -150,7 +150,7 @@ Object? valueFromAst(
     },
     enum_: (enum_) => EnumValue(enum_.name.value),
     null_: (null_) => null,
-    variable: (variable) => variables?[variable.name],
+    variable: (variable) => variables?[variable.name.value],
   );
 
   if (type != null) {
