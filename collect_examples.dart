@@ -37,7 +37,8 @@ Future<void> main(List<String> args) async {
     final startRegExp = RegExp('^// @example-start{([^}]+)}');
     final endRegExp = RegExp('^// @example-end{([^}]+)}');
     if (entity is File && entity.path.endsWith('.md')) {
-      if (entity.parent.uri.pathSegments.last != 'generated_docs') {
+      if (entity.parent.uri.pathSegments.last != 'generated_docs' &&
+          !entity.uri.pathSegments.contains('docusaurus')) {
         mdFiles.add(entity);
       }
     } else if (entity is File && entity.path.endsWith('.dart')) {
