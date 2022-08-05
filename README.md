@@ -55,6 +55,8 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
   - [Fullstack Dart Chat](#fullstack-dart-chat)
     - [Chat functionalities](#chat-functionalities)
   - [Server example](#server-example)
+  - [Room Signals](#room-signals)
+  - [CI & CD Dart Server](#ci--cd-dart-server)
 - [Packages](#packages)
 - [Web integrations](#web-integrations)
   - [Server integrations](#server-integrations)
@@ -144,7 +146,7 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [`schemaFromJson`](#schemafromjson)
 - [Contributing](#contributing)
 
-# Quickstart
+# Quickstart <!-- tags:tutorial -->
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
@@ -560,12 +562,12 @@ We also set up a "http://localhost:8080/graphql-schema" endpoint which returns t
 
 # Examples
 
-Beside the tests from each package, you can find some usage example in the following directories:
+Beside the tests from each package, you can find some usage example in the following directories and external repositories:
 
 
 ## Code Generator example
 
-An example with multiple ways of creating a GraphQLSchema with different types and resolvers from code generation can be found in https://github.com/juancastillo0/leto/tree/main/leto_generator/example.
+An example with multiple ways of creating a GraphQLSchema with different GraphQL types and resolvers from code generation can be found in https://github.com/juancastillo0/leto/tree/main/leto_generator/example.
 
 
 ## Fullstack Dart Chat
@@ -595,6 +597,29 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 ## Server example
 
 A Leto/Shelf server example with multiple models, code generation, some utilities and tests can be found in https://github.com/juancastillo0/leto/tree/main/leto_shelf/example
+
+## Room Signals
+
+A service with room and messages, an user can subscribe to a room to listen to messages and send private or group-wide messages. The service uses web sockets and in the source code repository there are three projects:
+
+1. The Leto Shelf GraphQL server. Everything is saved in memory
+2. A Dart client using [Artemis](https://github.com/comigor/artemis)
+3. A Web Dart client using [`package:rad`](https://github.com/erlage/rad)
+
+You can view the code in the [Github repo](https://github.com/juancastillo0/room_signals). The client UI and some links to the different GraphQL Schema UI explorer is deployed in [this page](https://juancastillo0.github.io/room_signals/).
+
+## CI & CD Dart Server
+
+Work in Progress
+
+A service for compiling, executing and tracking the build process and deployment. With a git repository, one can set up a CLI pipeline for continues integration and delivery. All the commands are tracked in realtime. This is a simple personal project for deploying in a VM. The service uses web sockets and in the source code repository there are three projects:
+
+1. The Leto Shelf GraphQL server. Everything is saved in memory
+2. A Dart client using [`package:graphql`](https://pub.dev/packages/graphql) and [`package:graphql_codegen`](https://pub.dev/packages/graphql_codegen)
+3. A Web Dart client using [`package:jaspr`](https://github.com/schultek/jaspr)
+
+You can view the code in the [Github repo](https://github.com/juancastillo0/cidart). The client UI and some links to the different GraphQL Schema UI explorer is deployed in [this page](https://juancastillo0.github.io/cidart/).
+
 
 # Packages
 
@@ -658,7 +683,7 @@ For a complete GraphQL client you probably want to use:
 
 The following sections introduce most of the concepts and small examples for building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
 
-# GraphQL Schema Types
+# GraphQL Schema Types <!-- docusaurus{root:true} -->
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
 
@@ -672,7 +697,7 @@ Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are alre
 
 Other scalar types are also provided:
 
-- Json: A raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
+- Json: A raw JSON value with no type schema. Could be a Map<String, Json\>, List<Json\>, num, String, bool or null.
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
 - Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and deserialized with `DateTime.parse`.
 - Timestamp: Same as Date, but serialized as an UNIX timestamp.
@@ -1943,7 +1968,7 @@ You can use both, LookAhead and DataLoader at the same time. The keys provided t
 
 # Extensions
 
-Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response_cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
+Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response-cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
 
 ## Persisted Queries
 
@@ -2121,7 +2146,7 @@ Implements the [key directive](#keydirective) over a given object. The `fields` 
 
 ### `ValidaAttachment`
 
-Implements the [valida directive](#validdirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
+Implements the [valida directive](#validadirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
 
 ## AttachFn //TODO: 1A
 

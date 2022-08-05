@@ -4,6 +4,28 @@
 
 Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes and functions. This is a code-first generator which will generate different GraphQL elements based on annotations in Dart code.
 
+## Usage
+
+Usage is very simple. You just need `@GraphQLClass()` annotation
+on any class you want to generate an object type for.
+
+Individual fields can have a `@GraphQLDocumentation()` annotation, to provide information
+like descriptions, deprecation reasons, etc.
+
+```yaml
+dependencies:
+  leto_schema:
+dependencies:
+  leto_generator:
+  build_runner:
+```
+
+Run the code generator:
+
+```
+dart pub run build_runner watch --delete-conflicting-outputs
+```
+
 # Table of contents <!-- omit in toc -->
 
 - [Examples](#examples)
@@ -42,27 +64,6 @@ Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes a
     - [customTypes](#customtypes)
       - [Example](#example)
     - [graphQLApiSchemaFile](#graphqlapischemafile)
-
-## Usage
-Usage is very simple. You just need `@GraphQLClass()` annotation
-on any class you want to generate an object type for.
-
-Individual fields can have a `@GraphQLDocumentation()` annotation, to provide information
-like descriptions, deprecation reasons, etc.
-
-```yaml
-dependencies:
-  leto_schema:
-dependencies:
-  leto_generator:
-  build_runner:
-```
-
-Run the code generator:
-
-```
-dart pub run build_runner watch --delete-conflicting-outputs
-```
 
 # Examples
 
@@ -777,15 +778,15 @@ Nested objects in resolvers.
 # Global Configuration (build.yaml)
 
 
-| Config            | Description                                                                                        | Type                | Default                                      |
-| ----------------- | -------------------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------- |
-| nullableFields    | Whether to make all fields nullable by default                                                     | bool                | false                                        |
-| omitFields        | Whether to omit all fields from the Schema. You will need to annotate each one with `GraphQLField` | bool                | false                                        |
-| omitPrivateFields | Whether to omit private fields from the Schema                                                     | bool                | true                                         |
-| omitFieldsNamed   | A list of field names to omit by default                                                           | List<String>        | ['toJson', 'toString', 'compareTo', 'toMap'] |
-| instantiateCode   | The dependency injection code used for all Class Resolvers                                         | String?             | null                                         |
-| customTypes       | Types for which a custom GraphQLType is provided                                                   | List\<CustomTypes\> | []                                           |
-| enumValuesCase    | The Enum values case type (CamelCase, snake_case, ...)                                             | EnumNameCase?       | null                                         |
+| Config            | Description                                                                                        | Type               | Default                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------- |
+| nullableFields    | Whether to make all fields nullable by default                                                     | bool               | false                                        |
+| omitFields        | Whether to omit all fields from the Schema. You will need to annotate each one with `GraphQLField` | bool               | false                                        |
+| omitPrivateFields | Whether to omit private fields from the Schema                                                     | bool               | true                                         |
+| omitFieldsNamed   | A list of field names to omit by default                                                           | List<String\>      | ['toJson', 'toString', 'compareTo', 'toMap'] |
+| instantiateCode   | The dependency injection code used for all Class Resolvers                                         | String?            | null                                         |
+| customTypes       | Types for which a custom GraphQLType is provided                                                   | List<CustomTypes\> | []                                           |
+| enumValuesCase    | The Enum values case type (CamelCase, snake_case, ...)                                             | EnumNameCase?      | null                                         |
 
 
 ## Fields
