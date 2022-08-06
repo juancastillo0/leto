@@ -688,15 +688,15 @@ The following sections introduce most of the concepts and small examples for bui
 
 # GraphQL Schema Types <!-- docusaurus{"global":true} -->
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
+The GraphQL language provides multiple types for representing your exposed API and the required data structures for the input values. In the following sections we explain their usage within Leto and, in general, for GraphQL. Each section contains a link to the official GraphQL specification for more information.
 
-The GraphQL schema type systems provides 
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
 
 ## Scalars
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Scalars)
+The fundamental building-block in the type system. Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
 
-Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Scalars)
 
 Other scalar types are also provided:
 
@@ -713,9 +713,9 @@ To provide your own or support types from other packages you can use [Custom Sca
 
 ## Enums
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
-
 Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
 
 They require a unique name and a set of entries mapping their string representation to the Dart value obtained after parsing.
 
@@ -758,9 +758,9 @@ enum SignUpError {
 ```
 ## Objects
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
-
 GraphQL objects allow you to specify a type with a set of fields or properties. Objects can only be outputs in a resolver. Each field can be of any output type.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
 
 The Query, Mutation and Subscription types in the schema are specified using GraphQL objects.
 
@@ -812,9 +812,9 @@ a super type, now the Object will implement the Interface passed as parameter.
 
 ## Inputs and Input Objects
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
+Input types specify the structure of the values that inputs to resolvers should have. Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
-Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
 
 // TODO: 1A customDeserialize with SerdeCtx deserializers
 
@@ -968,11 +968,11 @@ For code generation, each class annotated as `GraphQLInput` should have a factor
 
 ## Unions
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
-
 Similar to enums, Unions are restricted to a set of predefined variants, however the possible types are always the more complex `GraphQLObjectType`.
 
 Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types is a non empty collection of unique `GraphQLObjectType`.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
 
 To have the following GraphQL type definitions:
 
@@ -1099,17 +1099,18 @@ Wrapping types allow to modify the behavior of the inner (wrapped) type. The inn
 
 ## Non-Nullable
 
+`GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
+
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Non-Null)
 
-`GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
 
 In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` method present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
 
 ## Lists
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
-
 `GraphQLListType` allows you to represent a collection of values.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
 
 This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type. You can use the `<type>.list()` method present in each `GraphQLType` or the `listOf(<type>)` global utility function to create a `GraphQLListType`. For example, `graphQLString.list()` will be a `[String]` in GraphQL.
 
