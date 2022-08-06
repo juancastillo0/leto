@@ -50,3 +50,7 @@
 .aa-SubmitButton > svg.aa-SubmitIcon {
   margin-top: 3px !important;
 }
+
+nav.menu {
+  padding-bottom: 40px;
+}

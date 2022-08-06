@@ -14,8 +14,8 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Documentation, code generation, the Dart language, multiple utilities implemented 
+        and the great GraphQL Language provide a seamless developer experience.
       </>
     ),
   },
@@ -24,18 +24,51 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Leto lets you focus on your server logic. Annotate your Dart code and
+        generate a clear GraphQL Schema API. Validate your inputs with the valida
+        package and support  Web Sockets subscriptions.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Powered by Dart',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Develop and release to production using the awesome Dart language.
+        Hot reload, sound static typing, great community. Share the knowledge from
+        your Flutter or Dart Web clients.
+      </>
+    ),
+  },
+  {
+    title: 'Build Reliable Servers',
+    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    description: (
+      <>
+        Great test coverage, and error handling, strong static analysis coupled
+        with GraphQL's Type System. Using Dart's sound static typing, linter and compiler.
+      </>
+    ),
+  },
+  {
+    title: 'Extensible',
+    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    description: (
+      <>
+        Multiple modules for execution (leto), schema creation (leto_schema) and code generation (leto_generator).
+        With support for extensions, directives, attachments and more.
+      </>
+    ),
+  },
+  {
+    title: 'Community-Based',
+    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    description: (
+      <>
+        Fully open source integrated with json_serializable, freezed, gql, valida,
+        shelf and examples with database integration, Dart clients, authentication
+        libraries.
       </>
     ),
   },
