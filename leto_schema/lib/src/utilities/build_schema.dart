@@ -274,7 +274,7 @@ GraphQLSchema buildSchema(
             );
             continue;
           }
-          object.inheritFrom(type);
+          object.inheritFrom(type, inheritInterfaces: false);
         }
       },
       input: (input) {

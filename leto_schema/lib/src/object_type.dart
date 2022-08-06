@@ -100,11 +100,16 @@ class GraphQLObjectType<P> extends GraphQLCompositeType<P>
   ///
   /// This also has the side effect of notifying
   /// the parent that this type is its descendant.
-  void inheritFrom(GraphQLObjectType other) {
+  /// If [inheritInterfaces] is true, it will inherit from [other]'s interfaces.
+  /// If false it will only inherit from [other] and you will need to inherit
+  /// from the other interfaces explicitly.
+  void inheritFrom(GraphQLObjectType other, {bool inheritInterfaces = true}) {
     if (!_interfaces.contains(other)) {
       _interfaces.add(other);
       other._possibleTypes.add(this);
-      other._interfaces.forEach(inheritFrom);
+      if (inheritInterfaces) {
+        other._interfaces.forEach(inheritFrom);
+      }
     }
   }
 

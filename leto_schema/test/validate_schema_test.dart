@@ -1195,7 +1195,6 @@ void main() {
       ]);
     });
 
-    // TODO: 1A interfaces
     test('rejects an Object implementing the same interface twice', () {
       final schema = buildSchema('''
       type Query {
@@ -1220,9 +1219,8 @@ void main() {
           ],
         },
       ]);
-    }, skip: '// TODO: interfaces');
+    });
 
-    // TODO: interfaces
     test(
         'rejects an Object implementing the same interface twice due to extension',
         () {
@@ -1253,7 +1251,7 @@ void main() {
           ],
         },
       ]);
-    }, skip: '// TODO: interfaces');
+    });
   });
 
   group('Type System: Interface extensions should be valid', () {
@@ -2199,7 +2197,6 @@ void main() {
       ]);
     });
 
-    // TODO: interfaces
     test('rejects an Object missing a transitive interface', () {
       final schema = buildSchema('''
       type Query {
@@ -2228,7 +2225,7 @@ void main() {
           ],
         },
       ]);
-    }, skip: '// TODO: interfaces');
+    });
   });
 
   group('Interfaces must adhere to Interface they implement', () {
@@ -2673,7 +2670,6 @@ void main() {
       ]);
     });
 
-    // TODO: interfaces
     test('rejects an Object missing a transitive interface', () {
       final schema = buildSchema('''
       type Query {
@@ -2702,7 +2698,7 @@ void main() {
           ],
         },
       ]);
-    }, skip: '// TODO: interfaces');
+    });
 
     test('rejects a self reference interface', () {
       final schema = buildSchema('''
@@ -2726,7 +2722,6 @@ void main() {
       ]);
     });
 
-    // TODO: interfaces
     test('rejects a circular Interface implementation', () {
       final schema = buildSchema('''
       type Query {
@@ -2760,7 +2755,7 @@ void main() {
           ],
         },
       ]);
-    }, skip: '// TODO: interfaces');
+    });
   });
 
   group('assertValidSchema', () {
