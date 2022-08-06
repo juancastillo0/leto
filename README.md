@@ -34,6 +34,10 @@
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome" />
 </a>
 
+<a href="https://juancastillo0.github.io/leto/">
+  <img src="https://img.shields.io/badge/docs-docusaurus-blue" alt="Docusaurus Documentation" />
+</a>
+
 </div>
 
 # Leto - GraphQL Server <!-- omit in toc -->
@@ -44,17 +48,22 @@ in the Dart programming language.
 
 Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql](https://github.com/async-graphql/async-graphql) and [type-graphql](https://github.com/MichalLytek/type-graphql). First version of the codebase was forked from [angel-graphql](https://github.com/angel-dart-archive/graphql). Many tests and utilities ([DataLoader](https://github.com/graphql/dataloader), [printSchema](https://github.com/graphql/graphql-js/blob/10c1c3d6cd8e165501fb1471b5babfabd1be1eb1/src/utilities/printSchema.ts)) were ported from graphql-js.
 
+If your prefer to read the documentation in a web page, you can [try the documentation page](https://juancastillo0.github.io/leto/) built with Docusaurus.
+
 ## Table of Contents
 - [Quickstart](#quickstart)
-    - [Install](#install)
-    - [Create a `GraphQLSchema`](#create-a-graphqlschema)
-    - [Start the server](#start-the-server)
-    - [Test the server](#test-the-server)
+  - [Install](#install)
+  - [Create a `GraphQLSchema`](#create-a-graphqlschema)
+    - [Using Code Generation](#using-code-generation)
+  - [Start the server](#start-the-server)
+  - [Test the server](#test-the-server)
 - [Examples](#examples)
   - [Code Generator example](#code-generator-example)
   - [Fullstack Dart Chat](#fullstack-dart-chat)
     - [Chat functionalities](#chat-functionalities)
   - [Server example](#server-example)
+  - [Room Signals](#room-signals)
+  - [CI & CD Dart Server](#ci--cd-dart-server)
 - [Packages](#packages)
 - [Web integrations](#web-integrations)
   - [Server integrations](#server-integrations)
@@ -144,13 +153,13 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [`schemaFromJson`](#schemafromjson)
 - [Contributing](#contributing)
 
-# Quickstart
+# Quickstart <!-- docusaurus{"tags":["tutorial"]} -->
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
 The source code for this quickstart can be found in https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/quickstart_server.dart.
 
-### Install
+## Install
 
 Add dependencies to your pubspec.yaml
 
@@ -172,7 +181,7 @@ dev_dependencies:
   build_runner: ^2.0.0
 ```
 
-### Create a `GraphQLSchema`
+## Create a `GraphQLSchema`
 
 
 Specify the logic for your server, this could be anything such as accessing a database, reading a file or sending and http request. We will use a controller class with a stream that emits events on mutation to support subscriptions.
@@ -314,7 +323,6 @@ type Subscription {
 
 // TODO: 1A rename GraphQLClass and graphQLString -> stringGraphQLType
 // TODO: 1A use scope overrides and do not allow modifications
-// TODO: 1A id attachment/directive
 // TODO: 1T
 type CompilerLog {
   toString: String!
@@ -324,6 +332,8 @@ TODO: 1T class ProcessExecResult implements ProcessResult {
 Cannot infer the GraphQLType for field ProcessResult.stdout (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
 [WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
 Cannot infer the GraphQLType for field ProcessResult.stderr (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
+
+### Using Code Generation
 
 You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 
@@ -363,7 +373,7 @@ Stream<Model> onStateChange(Ctx ctx) {
 
 This generates the same `modelGraphQLType` in `<file>.g.dart` and `graphqlApiSchema` in 'lib/graphql_api.schema.dart' (TODO: configurable). The documentation comments will be used as description in the generated schema. More information on code generation can be found in the following sections, in the `package:leto_generator`'s [README](https://github.com/juancastillo0/leto/tree/main/leto_generator) or in the code generation [example](https://github.com/juancastillo0/leto/tree/main/leto_generator/example).
 
-### Start the server
+## Start the server
 
 With the `GraphQLSchema` and the resolver logic implemented, we can set up the shelf handlers for each route. In this case we will use the `graphQLHttp` handlers for the "/graphql" endpoint and `graphQLWebSocket` for "/graphql-subscription" which supports subscriptions. You could provide custom extensions, document validations or a `ScopedMap` to override the state in the `GraphQL` executor constructor.
 
@@ -505,7 +515,7 @@ Future<void> main() async {
 ```
 <!-- include-end{quickstart-main-fn} -->
 
-### Test the server
+## Test the server
 
 You can test the server programmatically by sending HTTP requests to the server. You could also test the GraphQL executor directly using the `GraphQL.parseAndExecute` function without running the shelf server.
 
@@ -560,12 +570,12 @@ We also set up a "http://localhost:8080/graphql-schema" endpoint which returns t
 
 # Examples
 
-Beside the tests from each package, you can find some usage example in the following directories:
+Beside the tests from each package, you can find some usage example in the following directories and external repositories:
 
 
 ## Code Generator example
 
-An example with multiple ways of creating a GraphQLSchema with different types and resolvers from code generation can be found in https://github.com/juancastillo0/leto/tree/main/leto_generator/example.
+An example with multiple ways of creating a GraphQLSchema with different GraphQL types and resolvers from code generation can be found in https://github.com/juancastillo0/leto/tree/main/leto_generator/example.
 
 
 ## Fullstack Dart Chat
@@ -595,6 +605,29 @@ A fullstack Dart example with Flutter client and Leto/Shelf server can be found 
 ## Server example
 
 A Leto/Shelf server example with multiple models, code generation, some utilities and tests can be found in https://github.com/juancastillo0/leto/tree/main/leto_shelf/example
+
+## Room Signals
+
+A service with room and messages, an user can subscribe to a room to listen to messages and send private or group-wide messages. The service uses web sockets and in the source code repository there are three projects:
+
+1. The Leto Shelf GraphQL server. Everything is saved in memory
+2. A Dart client using [Artemis](https://github.com/comigor/artemis)
+3. A Web Dart client using [`package:rad`](https://github.com/erlage/rad)
+
+You can view the code in the [Github repo](https://github.com/juancastillo0/room_signals). The client UI and some links to the different GraphQL Schema UI explorer is deployed in [this page](https://juancastillo0.github.io/room_signals/).
+
+## CI & CD Dart Server
+
+Work in Progress
+
+A service for compiling, executing and tracking the build process and deployment. With a git repository, one can set up a CLI pipeline for continues integration and delivery. All the commands are tracked in realtime. This is a simple personal project for deploying in a VM. The service uses web sockets and in the source code repository there are three projects:
+
+1. The Leto Shelf GraphQL server. Everything is saved in memory
+2. A Dart client using [`package:graphql`](https://pub.dev/packages/graphql) and [`package:graphql_codegen`](https://pub.dev/packages/graphql_codegen)
+3. A Web Dart client using [`package:jaspr`](https://github.com/schultek/jaspr)
+
+You can view the code in the [Github repo](https://github.com/juancastillo0/cidart). The client UI and some links to the different GraphQL Schema UI explorer is deployed in [this page](https://juancastillo0.github.io/cidart/).
+
 
 # Packages
 
@@ -650,29 +683,32 @@ For a complete GraphQL client you probably want to use:
 
 - Ferry (https://github.com/gql-dart/ferry)
 - Artemis (https://github.com/comigor/artemis)
+- `package:graphql` (https://pub.dev/packages/graphql) with `package:graphql_codegen` (https://pub.dev/packages/graphql_codegen)
 - or raw gql Links (https://github.com/gql-dart/gql/tree/master/links)
   
   gql Links are used by Ferry and Artemis, both of which provide additional functionalities over raw gql Links like serialization and deserialization, code generation, type safety, normalized caching and more.
 
 # Documentation
 
-The following sections introduce most of the concepts and small examples for building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
+The following sections introduce most of the concepts and small examples of building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
 
-# GraphQL Schema Types
+If your prefer to read the documentation in a web page, you can [try the documentation page](https://juancastillo0.github.io/leto/) built with Docusaurus.
+
+# GraphQL Schema Types <!-- docusaurus{"global":true} -->
+
+The GraphQL language provides multiple types for representing your exposed API and the required data structures for the input values. In the following sections we explain their usage within Leto and, in general, for GraphQL. Each section contains a link to the official GraphQL specification for more information.
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
 
-The GraphQL schema type systems provides 
-
 ## Scalars
+
+The fundamental building-block in the type system. Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Scalars)
 
-Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
-
 Other scalar types are also provided:
 
-- Json: A raw JSON value with no type schema. Could be a Map<String, Json>, List<Json>, num, String, bool or null.
+- Json: A raw JSON value with no type schema. Could be a Map<String, Json\>, List<Json\>, num, String, bool or null.
 - Uri: Dart's Uri class, serialized using `Uri.toString` and deserialized with `Uri.parse`
 - Date: Uses the `DateTime` Dart class. Serialized as an [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) String and deserialized with `DateTime.parse`.
 - Timestamp: Same as Date, but serialized as an UNIX timestamp.
@@ -685,9 +721,9 @@ To provide your own or support types from other packages you can use [Custom Sca
 
 ## Enums
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
-
 Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
 
 They require a unique name and a set of entries mapping their string representation to the Dart value obtained after parsing.
 
@@ -730,9 +766,9 @@ enum SignUpError {
 ```
 ## Objects
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
-
 GraphQL objects allow you to specify a type with a set of fields or properties. Objects can only be outputs in a resolver. Each field can be of any output type.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
 
 The Query, Mutation and Subscription types in the schema are specified using GraphQL objects.
 
@@ -784,9 +820,9 @@ a super type, now the Object will implement the Interface passed as parameter.
 
 ## Inputs and Input Objects
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
+Input types specify the structure of the values that inputs to resolvers should have. Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
-Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
 
 // TODO: 1A customDeserialize with SerdeCtx deserializers
 
@@ -940,11 +976,11 @@ For code generation, each class annotated as `GraphQLInput` should have a factor
 
 ## Unions
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
-
 Similar to enums, Unions are restricted to a set of predefined variants, however the possible types are always the more complex `GraphQLObjectType`.
 
 Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types is a non empty collection of unique `GraphQLObjectType`.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
 
 To have the following GraphQL type definitions:
 
@@ -1071,17 +1107,18 @@ Wrapping types allow to modify the behavior of the inner (wrapped) type. The inn
 
 ## Non-Nullable
 
+`GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
+
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Non-Null)
 
-`GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
 
 In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` method present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
 
 ## Lists
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
-
 `GraphQLListType` allows you to represent a collection of values.
+
+[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
 
 This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type. You can use the `<type>.list()` method present in each `GraphQLType` or the `listOf(<type>)` global utility function to create a `GraphQLListType`. For example, `graphQLString.list()` will be a `[String]` in GraphQL.
 
@@ -1943,7 +1980,7 @@ You can use both, LookAhead and DataLoader at the same time. The keys provided t
 
 # Extensions
 
-Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response_cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
+Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response-cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
 
 ## Persisted Queries
 
@@ -2121,7 +2158,7 @@ Implements the [key directive](#keydirective) over a given object. The `fields` 
 
 ### `ValidaAttachment`
 
-Implements the [valida directive](#validdirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
+Implements the [valida directive](#validadirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
 
 ## AttachFn //TODO: 1A
 
