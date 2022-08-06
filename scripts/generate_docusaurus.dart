@@ -12,6 +12,8 @@ void main() async {
   const globalDir = ''; // 'global/';
   final List<Category> categories = [];
 
+  await Directory('./docusaurus/docs').create();
+
   for (final dirname in directories) {
     final rootReadme = File('${dirname == 'main' ? '.' : dirname}/README.md');
     final outDirectory = Directory('./docusaurus/docs/$dirname');
