@@ -116,7 +116,11 @@ void main() async {
           final sections = category.sections;
           final sTitle =
               sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
-          path = '/docs/$globalDir${category.directoryName}/${sTitle}';
+          if (sTitle == category.directoryName) {
+            path = '/docs/$globalDir${category.directoryName}';
+          } else {
+            path = '/docs/$globalDir${category.directoryName}/${sTitle}';
+          }
         }
         return '[${match.group(1)}]($path#$ref)';
       });

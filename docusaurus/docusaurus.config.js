@@ -8,8 +8,8 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Leto GraphQL Dart Server",
   tagline: "Documentation for Leto GraphQL Dart server libraries",
-  url: "https://github.com",
-  baseUrl: "/",
+  url: "https://juancastillo0.github.io",
+  baseUrl: "/leto/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/leto-icon-transparent.png",
@@ -18,6 +18,7 @@ const config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: "juancastillo0", // Usually your GitHub org/user name.
   projectName: "leto", // Usually your repo name.
+  deploymentBranch: "gh-pages",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
