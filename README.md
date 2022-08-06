@@ -34,6 +34,10 @@
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome" />
 </a>
 
+<a href="https://juancastillo0.github.io/leto/">
+  <img src="https://img.shields.io/badge/docs-docusaurus-blue" alt="Docusaurus Documentation" />
+</a>
+
 </div>
 
 # Leto - GraphQL Server <!-- omit in toc -->
@@ -43,6 +47,8 @@ A complete implementation of the official
 in the Dart programming language.
 
 Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql](https://github.com/async-graphql/async-graphql) and [type-graphql](https://github.com/MichalLytek/type-graphql). First version of the codebase was forked from [angel-graphql](https://github.com/angel-dart-archive/graphql). Many tests and utilities ([DataLoader](https://github.com/graphql/dataloader), [printSchema](https://github.com/graphql/graphql-js/blob/10c1c3d6cd8e165501fb1471b5babfabd1be1eb1/src/utilities/printSchema.ts)) were ported from graphql-js.
+
+If your prefer to read the documentation in a web page, you can [try the documentation page](https://juancastillo0.github.io/leto/) built with Docusaurus.
 
 ## Table of Contents
 - [Quickstart](#quickstart)
@@ -684,7 +690,9 @@ For a complete GraphQL client you probably want to use:
 
 # Documentation
 
-The following sections introduce most of the concepts and small examples for building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
+The following sections introduce most of the concepts and small examples of building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
+
+If your prefer to read the documentation in a web page, you can [try the documentation page](https://juancastillo0.github.io/leto/) built with Docusaurus.
 
 # GraphQL Schema Types <!-- docusaurus{"global":true} -->
 
