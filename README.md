@@ -46,10 +46,11 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
 
 ## Table of Contents
 - [Quickstart](#quickstart)
-    - [Install](#install)
-    - [Create a `GraphQLSchema`](#create-a-graphqlschema)
-    - [Start the server](#start-the-server)
-    - [Test the server](#test-the-server)
+  - [Install](#install)
+  - [Create a `GraphQLSchema`](#create-a-graphqlschema)
+    - [Using Code Generation](#using-code-generation)
+  - [Start the server](#start-the-server)
+  - [Test the server](#test-the-server)
 - [Examples](#examples)
   - [Code Generator example](#code-generator-example)
   - [Fullstack Dart Chat](#fullstack-dart-chat)
@@ -146,13 +147,13 @@ Inspired by [graphql-js](https://github.com/graphql/graphql-js), [async-graphql]
     - [`schemaFromJson`](#schemafromjson)
 - [Contributing](#contributing)
 
-# Quickstart <!-- tags:tutorial -->
+# Quickstart <!-- docusaurus{"tags":["tutorial"]} -->
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
 The source code for this quickstart can be found in https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/quickstart_server.dart.
 
-### Install
+## Install
 
 Add dependencies to your pubspec.yaml
 
@@ -174,7 +175,7 @@ dev_dependencies:
   build_runner: ^2.0.0
 ```
 
-### Create a `GraphQLSchema`
+## Create a `GraphQLSchema`
 
 
 Specify the logic for your server, this could be anything such as accessing a database, reading a file or sending and http request. We will use a controller class with a stream that emits events on mutation to support subscriptions.
@@ -316,7 +317,6 @@ type Subscription {
 
 // TODO: 1A rename GraphQLClass and graphQLString -> stringGraphQLType
 // TODO: 1A use scope overrides and do not allow modifications
-// TODO: 1A id attachment/directive
 // TODO: 1T
 type CompilerLog {
   toString: String!
@@ -326,6 +326,8 @@ TODO: 1T class ProcessExecResult implements ProcessResult {
 Cannot infer the GraphQLType for field ProcessResult.stdout (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
 [WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
 Cannot infer the GraphQLType for field ProcessResult.stderr (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
+
+### Using Code Generation
 
 You can use code generation to create a function similar to `makeGraphQLSchema` with the following resolver definitions with annotations.
 
@@ -365,7 +367,7 @@ Stream<Model> onStateChange(Ctx ctx) {
 
 This generates the same `modelGraphQLType` in `<file>.g.dart` and `graphqlApiSchema` in 'lib/graphql_api.schema.dart' (TODO: configurable). The documentation comments will be used as description in the generated schema. More information on code generation can be found in the following sections, in the `package:leto_generator`'s [README](https://github.com/juancastillo0/leto/tree/main/leto_generator) or in the code generation [example](https://github.com/juancastillo0/leto/tree/main/leto_generator/example).
 
-### Start the server
+## Start the server
 
 With the `GraphQLSchema` and the resolver logic implemented, we can set up the shelf handlers for each route. In this case we will use the `graphQLHttp` handlers for the "/graphql" endpoint and `graphQLWebSocket` for "/graphql-subscription" which supports subscriptions. You could provide custom extensions, document validations or a `ScopedMap` to override the state in the `GraphQL` executor constructor.
 
@@ -507,7 +509,7 @@ Future<void> main() async {
 ```
 <!-- include-end{quickstart-main-fn} -->
 
-### Test the server
+## Test the server
 
 You can test the server programmatically by sending HTTP requests to the server. You could also test the GraphQL executor directly using the `GraphQL.parseAndExecute` function without running the shelf server.
 
@@ -675,6 +677,7 @@ For a complete GraphQL client you probably want to use:
 
 - Ferry (https://github.com/gql-dart/ferry)
 - Artemis (https://github.com/comigor/artemis)
+- `package:graphql` (https://pub.dev/packages/graphql) with `package:graphql_codegen` (https://pub.dev/packages/graphql_codegen)
 - or raw gql Links (https://github.com/gql-dart/gql/tree/master/links)
   
   gql Links are used by Ferry and Artemis, both of which provide additional functionalities over raw gql Links like serialization and deserialization, code generation, type safety, normalized caching and more.
@@ -683,7 +686,7 @@ For a complete GraphQL client you probably want to use:
 
 The following sections introduce most of the concepts and small examples for building GraphQL executable schemas and servers with Leto. Please, if there is something that may be missing from the documentation or you have any question you can make an issue, that would help us a lot.
 
-# GraphQL Schema Types <!-- docusaurus{root:true} -->
+# GraphQL Schema Types <!-- docusaurus{"global":true} -->
 
 [GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
 
