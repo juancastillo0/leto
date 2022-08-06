@@ -87,13 +87,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: yarn
+          cache: 'npm'
+          cache-dependency-path: docusaurus/package-lock.json
       - run: dart run collect_examples.dart
       - run: dart run scripts/generate_docusaurus.dart
       - name: Install dependencies
-        run: cd docusaurus && yarn install --frozen-lockfile
+        run: cd docusaurus && npm ci
       - name: Build website
-        run: cd docusaurus && yarn build
+        run: cd docusaurus && npm run build
 
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
