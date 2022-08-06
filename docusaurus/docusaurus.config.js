@@ -43,10 +43,10 @@ const config = {
                 : docPath.split("/")[0] + "/"
             }README.md`,
         },
-        blog: {
-          showReadingTime: true,
-          editUrl: () => "https://github.com/juancastillo0/leto",
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   editUrl: () => "https://github.com/juancastillo0/leto",
+        // },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -80,7 +80,7 @@ const config = {
             label: "Showcase",
             position: "left",
           },
-          { to: "/blog", label: "Blog", position: "left" },
+          // { to: "/blog", label: "Blog", position: "left" },
           {
             href: "https://pub.dev/packages/leto",
             label: "Dart API",
