@@ -6,7 +6,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Leto GraphQL Dart Libraries",
+  title: "Leto GraphQL Dart Server",
   tagline: "Documentation for Leto GraphQL Dart server libraries",
   url: "https://github.com",
   baseUrl: "/",
@@ -38,7 +38,9 @@ const config = {
           showLastUpdateAuthor: true,
           editUrl: ({ docPath }) =>
             `https://github.com/juancastillo0/leto/edit/main/${
-              docPath.startsWith("main/") ? "" : docPath.split("/")[0] + "/"
+              ["main", "graphql-schema-types"].includes(docPath.split("/")[0])
+                ? ""
+                : docPath.split("/")[0] + "/"
             }README.md`,
         },
         blog: {
@@ -64,12 +66,21 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "intro",
+            docId: "/category/main",
             position: "left",
+            label: "Docs",
+          },
+          {
+            href: "/docs/main/quickstart",
             label: "Tutorial",
+            position: "left",
+          },
+          {
+            href: "/docs/main/examples",
+            label: "Showcase",
+            position: "left",
           },
           { to: "/blog", label: "Blog", position: "left" },
-          { to: "/docs/main/examples", label: "Showcase", position: "left" },
           {
             href: "https://pub.dev/packages/leto",
             label: "Dart API",
@@ -89,8 +100,20 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "Tutorial",
-                to: "/docs/intro",
+                label: "Dart Pub API",
+                href: "https://pub.dev/packages/leto",
+              },
+              {
+                label: "Code Generation",
+                to: "/docs/category/leto_generator",
+              },
+              {
+                label: "Shelf Web Server Integration",
+                to: "/docs/category/leto_shelf",
+              },
+              {
+                label: "GraphQL Schema Types",
+                to: "/docs/category/graphql-schema-types",
               },
             ],
           },
@@ -98,12 +121,20 @@ const config = {
             title: "Community",
             items: [
               {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/leto",
+                label: "Leto Issues",
+                href: "https://github.com/juancastillo0/leto/issues",
               },
               {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
+                label: "Server Side Dart Gitter",
+                href: "https://gitter.im/dart-lang/server",
+              },
+              {
+                label: "Dart Community",
+                href: "https://dart.dev/community",
+              },
+              {
+                label: "Stack Overflow",
+                href: "https://stackoverflow.com/questions/tagged/leto",
               },
               {
                 label: "Twitter",
@@ -115,12 +146,24 @@ const config = {
             title: "More",
             items: [
               {
-                label: "Blog",
-                to: "/blog",
-              },
-              {
                 label: "GitHub",
                 href: "https://github.com/juancastillo0/leto",
+              },
+              {
+                label: "Input Validation",
+                href: "https://github.com/juancastillo0/valida",
+              },
+              {
+                label: "GraphQL Base Libraries",
+                href: "https://github.com/gql-dart/gql",
+              },
+              {
+                label: "Database",
+                href: "https://github.com/simolus3/drift/tree/develop/extras/drift_postgres",
+              },
+              {
+                label: "GraphQL Clients",
+                to: "/docs/main/web-integrations#clients",
               },
             ],
           },

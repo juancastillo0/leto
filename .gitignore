@@ -60,3 +60,10 @@ fabric.properties
 .DS_Store
 chat_example/server/chat_room.sqlite
 coverage/
+
+docusaurus/docs/main/
+docusaurus/docs/leto/
+docusaurus/docs/leto_schema/
+docusaurus/docs/leto_generator/
+docusaurus/docs/leto_shelf/
+docusaurus/docs/graphql-schema-types/
