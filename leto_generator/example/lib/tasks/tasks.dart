@@ -86,24 +86,24 @@ type User implements Named & WithId {
 }''',
 ];
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class WithId {
   String get id;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class Named implements WithId {
   String get name;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class WithCreated {
   @GraphQLField(type: 'graphQLTimestamp.nonNull()')
   DateTime get createdTimestamp;
 }
 
 @GraphQLInput()
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class Task implements Named, WithCreated {
   @override
@@ -140,11 +140,11 @@ class Task implements Named, WithCreated {
     ..['createdTimestamp'] = createdTimestamp.millisecondsSinceEpoch;
 }
 
-// TODO: 1G @GraphQLClass() and @GraphQLInput() separate attachments
+// TODO: 1G @GraphQLObject() and @GraphQLInput() separate attachments
 // GraphQLAttachments userAttachments() => const [ElementComplexity(5)];
 
 // @AttachFn(userAttachments)
-@GraphQLClass()
+@GraphQLObject()
 @GraphQLInput()
 @JsonSerializable()
 class User implements Named {

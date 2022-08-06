@@ -19,7 +19,7 @@ part 'data.g.dart';
 /// JSON objects in a more complex demo.
 
 /// An object with an ID
-@GraphQLClass()
+@GraphQLObject()
 abstract class Node {
   /// The id of the object.
   String get id;
@@ -271,7 +271,7 @@ final shipConnection = connectionDefinitions(
 );
 
 /// A ship in the Star Wars saga
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class Ship implements Node {
   @override
@@ -308,7 +308,7 @@ final allShips = [
 ];
 
 /// A faction in the Star Wars saga
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class Faction implements Node {
   @override

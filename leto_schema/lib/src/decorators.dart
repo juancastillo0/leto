@@ -4,7 +4,7 @@ part of leto_schema.src.schema;
 
 /// Base object decorator.
 ///
-/// Use [GraphQLInput] or [GraphQLClass]
+/// Use [GraphQLInput] or [GraphQLObject]
 class GraphQLObjectDec {}
 
 /// Signifies that a class should statically generate a [GraphQLInputObjectType]
@@ -151,9 +151,14 @@ class GraphQLUnion implements GraphQLObjectDec {
   });
 }
 
+/// A typedef for [GraphQLObject]. You should use [GraphQLObject] instead.
+/// It was renamed, however it has the same functionality.
+@Deprecated('Use GraphQLObject instead of GraphQLClass.')
+typedef GraphQLClass = GraphQLObject;
+
 /// Signifies that a class should statically generate a [GraphQLType].
 @Target({TargetKind.classType})
-class GraphQLClass implements GraphQLObjectDec {
+class GraphQLObject implements GraphQLObjectDec {
   /// Signifies that a class should statically generate a [GraphQLType].
   ///
   /// Generates a [GraphQLObjectType] for classes
@@ -166,7 +171,7 @@ class GraphQLClass implements GraphQLObjectDec {
   /// `omit: false` in [GraphQLField]'s constructor.
   /// [interfaces] are the getters of [GraphQLObjectType]
   /// implemented by this object.
-  const GraphQLClass({
+  const GraphQLObject({
     this.interfaces = const [],
     this.omitFields,
     this.nullableFields,

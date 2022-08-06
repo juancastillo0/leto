@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:leto_generator_example/decimal.dart';
 import 'package:leto_generator_example/graphql_api.schema.dart';
 import 'package:leto_generator_example/inputs.dart';
@@ -41,7 +40,7 @@ class TodoItemInputNested {
       );
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class TodoItem {
   /// A description of the todo item
   String? text;
@@ -98,6 +97,7 @@ type TodoItem {
   print(d.toJson());
 }
 
+// TODO: 1A delete this
 const ss = '''
 type Query {
   testInputGen(v: InputGenIntReq!): Int!

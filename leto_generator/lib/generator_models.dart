@@ -87,7 +87,7 @@ Future<List<UnionVarianInfo>> freezedVariants(
   );
 }
 
-GraphQLField getFieldAnnot(GraphQLClass? clazz, Element e) {
+GraphQLField getFieldAnnot(GraphQLObject? clazz, Element e) {
   const graphQLFieldTypeChecker = TypeChecker.fromRuntime(GraphQLField);
   DartObject? _annot;
   if (!graphQLFieldTypeChecker.hasAnnotationOf(e, throwOnUnresolved: false)) {
@@ -146,7 +146,7 @@ Future<UnionVarianInfo> classInfoFromConstructor(
   required bool isUnion,
   required Iterable<Future<FieldInfo>> unionClassFields,
   GraphQLInput? inputConfig,
-  GraphQLClass? classConfig,
+  GraphQLObject? classConfig,
 }) async {
   final className = ReCase(clazz.name).pascalCase;
   final redirectedName = con.redirectedConstructor?.returnType
@@ -187,7 +187,7 @@ Future<UnionVarianInfo> classInfoFromConstructor(
 }
 
 Future<FieldInfo> fieldFromElement(
-  GraphQLClass? clazz,
+  GraphQLObject? clazz,
   Element method,
   DartType type,
   GeneratorCtx ctx,
@@ -225,7 +225,7 @@ Future<FieldInfo> fieldFromElement(
 
 Future<FieldInfo> fieldFromParam(
   GeneratorCtx ctx,
-  GraphQLClass? clazz,
+  GraphQLObject? clazz,
   ParameterElement param, {
   required bool isInput,
   required Map<String, TypeParameterElement> generics,
@@ -281,7 +281,7 @@ class UnionVarianInfo {
   final String? description;
   final String? deprecationReason;
   final List<FieldInfo> fields;
-  final GraphQLClass? classConfig;
+  final GraphQLObject? classConfig;
   final bool isInterface;
   final bool hasFromJson;
   final List<Expression> interfaces;

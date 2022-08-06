@@ -14,7 +14,7 @@ import 'package:server/users/auth.dart';
 part 'chat_api.freezed.dart';
 part 'chat_api.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatEvent with _$ChatEvent implements DBEventDataKeyed {
   const ChatEvent._();
@@ -64,7 +64,7 @@ class DeepEqualMap<K, V> {
   int get hashCode => const DeepCollectionEquality().hash(map);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatRoom with _$ChatRoom {
   const factory ChatRoom({

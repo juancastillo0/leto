@@ -68,7 +68,7 @@ type UnionA4 {
 ];
 
 // @example-start{generator-unions-freezed}
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class UnionA with _$UnionA {
   const factory UnionA.a1({
@@ -140,14 +140,14 @@ class UnionNoFreezed {
   const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedA implements UnionNoFreezed {
   final String value;
 
   const UnionNoFreezedA.named(this.value);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedB implements UnionNoFreezed {
   final int value;
 

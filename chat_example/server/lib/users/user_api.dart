@@ -14,7 +14,7 @@ import 'package:valida/valida.dart';
 part 'user_api.freezed.dart';
 part 'user_api.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class UserEvent with _$UserEvent implements DBEventDataKeyed {
   const UserEvent._();
@@ -66,7 +66,7 @@ class UserEvent with _$UserEvent implements DBEventDataKeyed {
       );
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class UserSession {
   final String id;
@@ -127,7 +127,7 @@ class UserSession {
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class User {
   final int id;
@@ -160,7 +160,7 @@ Future<List<User>> searchUser(Ctx ctx, String name) {
   return userTableRef.get(ctx).searchByName(name);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class TokenWithUser {
   final String accessToken;
@@ -284,7 +284,7 @@ GraphQLType<Result<T, T2>, Map<String, Object?>>
   );
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable(genericArgumentFactories: true)
 class ErrC<T> {
   final String? message;

@@ -50,17 +50,17 @@ getNestedInterfaceImplByIndex(index: Int!): NestedInterface
 ];
 
 // @example-start{generator-interfaces}
-@GraphQLClass()
+@GraphQLObject()
 abstract class NestedInterface {
   Decimal get dec;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class NamedInterface {
   String? get name;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl implements NestedInterface {
   @override
   final Decimal dec;
@@ -70,7 +70,7 @@ class NestedInterfaceImpl implements NestedInterface {
   NestedInterfaceImpl(this.name, this.dec);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl2 implements NestedInterfaceImpl {
   @override
   final Decimal dec;
@@ -86,7 +86,7 @@ class NestedInterfaceImpl2 implements NestedInterfaceImpl {
   });
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl3 extends NestedInterfaceImpl
     implements NamedInterface {
   final String name3;
@@ -103,7 +103,7 @@ mixin StringKeyed {
   String get stringKey;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @GraphQLInput()
 @JsonSerializable()
 class DateKey with StringKeyed implements Comparable<DateKey> {

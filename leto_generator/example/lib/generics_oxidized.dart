@@ -110,7 +110,7 @@ type ResultResultUSuccessGetUnionErrCodeErrCode {
   resultUnionInSuccess: ResultResultUSuccessGetUnionErrCodeErrCode''',
 ];
 
-@GraphQLClass()
+@GraphQLObject()
 class SuccessGet {
   final String value;
 
@@ -118,7 +118,7 @@ class SuccessGet {
 }
 
 @GraphQLDocumentation(description: '\$ \' dw "" \'\'ddw')
-@GraphQLClass()
+@GraphQLObject()
 class UnionErrCode implements ErrCode {
   /// The "id" of the 'error'.
   @override

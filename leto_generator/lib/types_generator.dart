@@ -40,7 +40,7 @@ class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
         return '/*$e $s*/';
       }
     } else {
-      throw UnsupportedError('@GraphQLClass() is only supported on classes.');
+      throw UnsupportedError('@GraphQLObject() is only supported on classes.');
     }
   }
 

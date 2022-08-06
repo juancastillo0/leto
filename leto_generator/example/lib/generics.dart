@@ -46,7 +46,7 @@ abstract class ResultV<V, E> {
   bool get isOk;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class OkV<V, E> extends ResultV<V, E> {
   const OkV(this.value);
 
@@ -56,7 +56,7 @@ class OkV<V, E> extends ResultV<V, E> {
   final V value;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrV<V, E> extends ResultV<V, E> {
   const ErrV(this.value);
 
@@ -72,7 +72,7 @@ enum ErrCodeType {
   code2,
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrCodeInterface<T extends Object> {
   final String? message;
   final T code;
@@ -80,7 +80,7 @@ class ErrCodeInterface<T extends Object> {
   const ErrCodeInterface(this.code, [this.message]);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrCodeInterfaceN<T extends Object?> {
   final String? message;
   final T code;
@@ -95,7 +95,7 @@ interface ErrCode {
 }
 ''';
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrCodeInterfaceNE<T> {
   final String? message;
   final T code;
@@ -110,13 +110,13 @@ interface ErrCode {
 }
 ''';
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class ErrCode {
   String get value;
   int get id;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrCodeInterfaceNEE<T extends ErrCode> {
   final String? message;
   final T code;

@@ -12,7 +12,7 @@ import 'package:metadata_fetch/metadata_fetch.dart';
 part 'metadata.freezed.dart';
 part 'metadata.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class MessageMetadata with _$MessageMetadata {
   const factory MessageMetadata({
@@ -39,7 +39,7 @@ class MessageMetadata with _$MessageMetadata {
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class LinksMetadata with _$LinksMetadata {
   const factory LinksMetadata({
@@ -101,7 +101,7 @@ class LinksMetadata with _$LinksMetadata {
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class LinkMetadata with _$LinkMetadata {
   const factory LinkMetadata({
@@ -115,7 +115,7 @@ class LinkMetadata with _$LinkMetadata {
       _$LinkMetadataFromJson(json);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class FileMetadata with _$FileMetadata {
   const factory FileMetadata({

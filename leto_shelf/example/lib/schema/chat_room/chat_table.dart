@@ -238,7 +238,7 @@ extension SerdeEventType on EventType {
 }
 
 @JsonSerializable()
-@GraphQLClass()
+@GraphQLObject()
 class DBEvent {
   final int id;
   final EventType type;
@@ -376,7 +376,7 @@ CREATE TABLE $tableName (
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatRoom with _$ChatRoom {
   const factory ChatRoom({
@@ -395,7 +395,7 @@ class ChatRoom with _$ChatRoom {
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatMessage with _$ChatMessage {
   const factory ChatMessage({

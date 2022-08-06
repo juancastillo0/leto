@@ -11,7 +11,7 @@ import 'package:server/users/user_table.dart';
 part 'user_rooms_api.g.dart';
 part 'user_rooms_api.freezed.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class UserChatEvent with _$UserChatEvent implements DBEventDataKeyed {
   const UserChatEvent._();
@@ -56,7 +56,7 @@ enum ChatRoomUserRole {
   peer,
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class ChatRoomUser {
   final int userId;

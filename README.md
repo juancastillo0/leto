@@ -189,7 +189,7 @@ Specify the logic for your server, this could be anything such as accessing a da
 <!-- include{quickstart-controller-state-definition} -->
 ```dart
 // this annotations is only necessary for code generation
-@GraphQLClass()
+@GraphQLObject()
 class Model {
   final String state;
   final DateTime createdAt;
@@ -321,7 +321,6 @@ type Subscription {
 ```
 <!-- include-end{quickstart-schema-string} -->
 
-// TODO: 1A rename GraphQLClass and graphQLString -> stringGraphQLType
 // TODO: 1A use scope overrides and do not allow modifications
 // TODO: 1T
 type CompilerLog {
@@ -341,7 +340,7 @@ You can use code generation to create a function similar to `makeGraphQLSchema` 
 ```dart
 /// Code Generation
 /// Using leto_generator, [makeGraphQLSchema] could be generated
-/// with the following annotated functions and the [GraphQLClass]
+/// with the following annotated functions and the [GraphQLObject]
 /// annotation over [Model]
 
 /// Get the current state
@@ -755,7 +754,7 @@ final signUpErrorGraphQLType = enumTypeFromStrings(
 // Or with code generation
 
 /// The error reason on a failed sign up attempt
-@GraphQLClass()
+@GraphQLEnum()
 enum SignUpError {
     usernameTooShort,
     usernameNotFound,
@@ -782,7 +781,7 @@ final type = objectType(
 - With code generation
 
 ```dart
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class Model {
   final String stringField;
@@ -1044,14 +1043,14 @@ With code generation, Unions with [freezed](https://github.com/rrousselGit/freez
 import 'package:leto_schema/leto_schema.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 class Model {
   final String id;
 
   const Model(this.id);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ModelEvent with _$ModelEvent {
   const factory ModelEvent.added(Model model) = ModelAdded;
@@ -1080,14 +1079,14 @@ class UnionNoFreezed {
   const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedA implements UnionNoFreezed {
   final String value;
 
   const UnionNoFreezedA.named(this.value);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedB implements UnionNoFreezed {
   final int value;
 
@@ -1178,17 +1177,17 @@ final model = objectType<Model>(
 
 ```
 
-With code generation, you just annotate the different classes with `@GraphQLClass()` (or the expected annotation) and the fields and models containing Dart Lists or non-nullable types will be generated using `GraphQLListType` or `GraphQLNonNullType` as required.
+With code generation, you just annotate the different classes with `@GraphQLObject()` (or the expected annotation) and the fields and models containing Dart Lists or non-nullable types will be generated using `GraphQLListType` or `GraphQLNonNullType` as required.
 
 ```dart
 import 'package:leto_schema/leto_schema.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class InterfaceModel {
   String get name;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class Model {
   List<InterfaceModel>? list(List<String?> listInput) {
     throw Unimplemented();
@@ -1345,7 +1344,7 @@ GraphQLObjectType<ErrC<T?>> errCGraphQlType<T extends Object>(
 import 'package:leto/leto.dart';
 part 'errc.g.dart';
 
-@GraphQLClass()
+@GraphQLObject()
 class ErrC<T> {
   final String? message;
   final T value;
@@ -1840,7 +1839,7 @@ When fetching nested fields, a specific resolvers could be executed multiple tim
 You can mitigate the N+1 problem by fetching all the necessary information from the parent's resolver so that when the nested fields are executed they just return the previously fetch items. This would prevent all SQL queries for nested fields since the parent resolver has all the information about the selected nested fields and can use this to execute a request that fetches the necessary columns or joins.
 
 ```dart
-@GraphQLClass()
+@GraphQLObject()
 class Model {
     final String id;
     final String name;
@@ -1849,7 +1848,7 @@ class Model {
     const Model(this.id, this.name, this.nested);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedModel {
     final String id;
     final String name;
@@ -1918,7 +1917,7 @@ An easier to implement but probably less performant way of solving the N+1 probl
 
 ```dart
 
-@GraphQLClass()
+@GraphQLObject()
 class Model {
     final String id;
     final String name;

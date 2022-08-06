@@ -22,7 +22,7 @@ enum MessageType {
   TEXT,
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatMessage with _$ChatMessage {
   const factory ChatMessage({
@@ -60,7 +60,7 @@ class ChatMessage with _$ChatMessage {
   }
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class ChatMessageEvent with _$ChatMessageEvent implements DBEventDataKeyed {
   const ChatMessageEvent._();

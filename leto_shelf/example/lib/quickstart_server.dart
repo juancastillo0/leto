@@ -21,7 +21,7 @@ Future<void> main() async {
 
 // @example-start{quickstart-controller-state-definition}
 // this annotations is only necessary for code generation
-@GraphQLClass()
+@GraphQLObject()
 class Model {
   final String state;
   final DateTime createdAt;
@@ -305,7 +305,7 @@ Future<void> testServer(Uri url) async {
 // @example-start{quickstart-make-schema-code-gen}
 /// Code Generation
 /// Using leto_generator, [makeGraphQLSchema] could be generated
-/// with the following annotated functions and the [GraphQLClass]
+/// with the following annotated functions and the [GraphQLObject]
 /// annotation over [Model]
 
 /// Get the current state

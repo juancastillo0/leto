@@ -40,7 +40,7 @@ abstract class DBEventDataKeyed {
   MapEntry<EventType, String> get eventKey;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class DBEventData with _$DBEventData implements DBEventDataKeyed {
   const DBEventData._();
@@ -63,7 +63,7 @@ class DBEventData with _$DBEventData implements DBEventDataKeyed {
       );
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class DBEvent {
   final int id;
@@ -128,7 +128,7 @@ Future<Stream<DBEvent>> onMessageEvent(Ctx ctx) async {
 }
 
 // TODO: T extends Object
-@GraphQLClass()
+@GraphQLObject()
 class Paginated<T> {
   final List<T> values;
   final PageInfo pageInfo;

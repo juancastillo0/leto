@@ -288,7 +288,7 @@ input OneOfInput @oneOf {
 ];
 
 @GraphQLInput()
-@GraphQLClass()
+@GraphQLObject()
 @JsonSerializable()
 class CombinedObject {
   CombinedObject(this.val) : otherVal = val.length;

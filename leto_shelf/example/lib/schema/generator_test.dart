@@ -9,7 +9,7 @@ part 'generator_test.g.dart';
 final testUnionModelsTestKey = ScopeRef<List<EventUnion?>>('testUnionModels');
 
 /// Custom doc
-@GraphQLClass()
+@GraphQLObject()
 @GraphQLInput()
 @JsonSerializable()
 @Valida()
@@ -34,7 +34,7 @@ class TestModel {
 }
 
 /// Custom doc
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class TestModelFreezed with _$TestModelFreezed {
   @JsonSerializable()
@@ -50,7 +50,7 @@ class TestModelFreezed with _$TestModelFreezed {
   bool get hasDates => dates?.isNotEmpty ?? false;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class EventUnion with _$EventUnion {
   const factory EventUnion.add({

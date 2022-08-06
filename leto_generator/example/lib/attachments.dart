@@ -22,7 +22,7 @@ type NestedAttachment @key(fields: "id") {
 
 @Valida()
 @AttachFn(KeyedAttachment.attachments)
-@GraphQLClass()
+@GraphQLObject()
 class KeyedAttachment {
   final String id;
   final String name;
@@ -46,7 +46,7 @@ class KeyedAttachment {
 }
 
 @AttachFn(NestedAttachment.attachments)
-@GraphQLClass()
+@GraphQLObject()
 class NestedAttachment {
   final int id;
 

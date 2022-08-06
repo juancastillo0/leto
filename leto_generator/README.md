@@ -6,7 +6,7 @@ Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes a
 
 ## Usage
 
-Usage is very simple. You just need `@GraphQLClass()` annotation
+Usage is very simple. You just need `@GraphQLObject()` annotation
 on any class you want to generate an object type for.
 
 Individual fields can have a `@GraphQLDocumentation()` annotation, to provide information
@@ -31,7 +31,7 @@ dart pub run build_runner watch --delete-conflicting-outputs
 - [Examples](#examples)
 - [Annotations (Decorators)](#annotations-decorators)
   - [Outputs](#outputs)
-    - [GraphQLClass](#graphqlclass)
+    - [GraphQLObject](#graphqlobject)
     - [GraphQLField](#graphqlfield)
       - [Interfaces](#interfaces)
     - [GraphQLUnion](#graphqlunion)
@@ -77,7 +77,7 @@ All annotations with documentation and the supported configuration parameters ca
 
 Annotations for GraphQL Output Types
 
-### GraphQLClass
+### GraphQLObject
 
 Generate `GraphQLObjectType`s and Interfaces with this annotation. The constructor provides a couple of parameters to configure the generated fields. 
 
@@ -97,7 +97,7 @@ final customInterface = objectType<Object>(
   isInterface: true,
 );
 
-@GraphQLClass(omitFields: true, interfaces: ['customInterface'])
+@GraphQLObject(omitFields: true, interfaces: ['customInterface'])
 class ClassConfig2 {
   @GraphQLField()
   final String value;
@@ -133,7 +133,7 @@ The following class uses the `nullableFields` parameter to override the default 
 
 <!-- include{generator-object-class-renamed} -->
 ```dart
-@GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
+@GraphQLObject(nullableFields: true, name: 'RenamedClassConfig')
 class ClassConfig {
   @GraphQLDocumentation(deprecationReason: 'value deprecated')
   @GraphQLField()
@@ -168,23 +168,23 @@ type RenamedClassConfig {
 
 #### Interfaces
 
-You may use abstract classes to specify that a given class annotated with `@GraphQLClass()` should generate a GraphQLInterface. Implemented classes that generate GraphQLInterfaces will appear as an interface of a the generated Object or Interface.
+You may use abstract classes to specify that a given class annotated with `@GraphQLObject()` should generate a GraphQLInterface. Implemented classes that generate GraphQLInterfaces will appear as an interface of a the generated Object or Interface.
 
 The following annotated Dart classes show the behavior.
 
 <!-- include{generator-interfaces} -->
 ```dart
-@GraphQLClass()
+@GraphQLObject()
 abstract class NestedInterface {
   Decimal get dec;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 abstract class NamedInterface {
   String? get name;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl implements NestedInterface {
   @override
   final Decimal dec;
@@ -194,7 +194,7 @@ class NestedInterfaceImpl implements NestedInterface {
   NestedInterfaceImpl(this.name, this.dec);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl2 implements NestedInterfaceImpl {
   @override
   final Decimal dec;
@@ -210,7 +210,7 @@ class NestedInterfaceImpl2 implements NestedInterfaceImpl {
   });
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class NestedInterfaceImpl3 extends NestedInterfaceImpl
     implements NamedInterface {
   final String name3;
@@ -261,7 +261,7 @@ type NestedInterfaceImpl3 implements NamedInterface & NestedInterface {
 
 <!-- include{generator-unions-freezed} -->
 ```dart
-@GraphQLClass()
+@GraphQLObject()
 @freezed
 class UnionA with _$UnionA {
   const factory UnionA.a1({
@@ -332,14 +332,14 @@ class UnionNoFreezed {
   const factory UnionNoFreezed.b(int value) = UnionNoFreezedB;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedA implements UnionNoFreezed {
   final String value;
 
   const UnionNoFreezedA.named(this.value);
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class UnionNoFreezedB implements UnionNoFreezed {
   final int value;
 
@@ -715,7 +715,7 @@ If you want to customize a single field or argument with a GraphQLType different
 
 # Resolvers
 
-A Class annotated with `@GraphQLClass()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
+A Class annotated with `@GraphQLObject()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
 
 ## TODO: 2G BeforeResolver
 
@@ -796,18 +796,18 @@ Nested objects in resolvers.
 
 ### nullableFields (default: false)
 
-Available in: `build.yaml`, `GraphQLClass`, `GraphQLField`.
+Available in: `build.yaml`, `GraphQLObject`, `GraphQLField`.
 
-When `true`, this will make all fields nullable by default. If you want to make a field non-nullable, you will need to configure it in the class' `GraphQLClass` annotation, which applies to all the class' fields, or in the field's `GraphQLField` annotation.
+When `true`, this will make all fields nullable by default. If you want to make a field non-nullable, you will need to configure it in the class' `GraphQLObject` annotation, which applies to all the class' fields, or in the field's `GraphQLField` annotation.
 
 ### omitFields (default: false)
 
-Available in: `build.yaml`, `GraphQLClass`, `GraphQLField`.
+Available in: `build.yaml`, `GraphQLObject`, `GraphQLField`.
 
-When `true`, this will omit all fields from being generated by default. If you want to generate a specific field, you will need to configure it in the class' `GraphQLClass` annotation, which applies to all the class' fields, or in the field's `GraphQLField` annotation.
+When `true`, this will omit all fields from being generated by default. If you want to generate a specific field, you will need to configure it in the class' `GraphQLObject` annotation, which applies to all the class' fields, or in the field's `GraphQLField` annotation.
 ### omitPrivateFields (default: true)
 
-Available in: `build.yaml`, `GraphQLClass`.
+Available in: `build.yaml`, `GraphQLObject`.
 
 When `true`, this will omit all fields that start with a underscore "_".
 

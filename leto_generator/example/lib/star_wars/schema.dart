@@ -143,7 +143,7 @@ GraphQLObjectType<Character> characterInterface() {
 ///   secretBackstory: String
 /// }
 /// ```
-@GraphQLClass(interfaces: ['characterInterface()'])
+@GraphQLObject(interfaces: ['characterInterface()'])
 @freezed
 class Human with _$Human implements Character {
   const factory Human({
@@ -185,7 +185,7 @@ class Human with _$Human implements Character {
 ///   primaryFunction: String
 /// }
 /// ```
-@GraphQLClass(interfaces: ['characterInterface()'])
+@GraphQLObject(interfaces: ['characterInterface()'])
 @freezed
 class Droid with _$Droid implements Character {
   /// A mechanical creature in the Star Wars universe.

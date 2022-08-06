@@ -18,7 +18,7 @@ final _getStateGraphQLField =
                 return getState(ctx);
               },
               description:
-                  'Code Generation\nUsing leto_generator, [makeGraphQLSchema] could be generated\nwith the following annotated functions and the [GraphQLClass]\nannotation over [Model]\nGet the current state',
+                  'Code Generation\nUsing leto_generator, [makeGraphQLSchema] could be generated\nwith the following annotated functions and the [GraphQLObject]\nannotation over [Model]\nGet the current state',
             )));
 
 GraphQLObjectField<bool, Object?, Object?> get setStateGraphQLField =>

@@ -10,18 +10,18 @@ import 'package:leto_schema/leto_schema.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
-const graphQLClassTypeChecker = TypeChecker.fromRuntime(GraphQLClass);
+const graphQLObjectTypeChecker = TypeChecker.fromRuntime(GraphQLObject);
 
 String get serializerSuffix => 'Serializer';
 String get graphqlTypeSuffix => 'GraphQLType';
 String get unionKeySuffix => 'Discriminant';
 String get graphQLFieldSuffix => 'GraphQLField';
 
-bool isGraphQLClass(InterfaceType clazz) {
+bool isGraphQLObject(InterfaceType clazz) {
   InterfaceType? search = clazz;
 
   while (search != null) {
-    if (graphQLClassTypeChecker.hasAnnotationOf(search.element)) return true;
+    if (graphQLObjectTypeChecker.hasAnnotationOf(search.element)) return true;
     search = search.superclass;
   }
 
@@ -44,19 +44,19 @@ List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
 
   // Add interfaces
   return clazz.interfaces
-      .where(isGraphQLClass)
+      .where(isGraphQLObject)
       .map((c) => refer(getInterfaceName(c.element)))
       .followedBy(interfaces.map(refer))
-      .followedBy(superType != null && isGraphQLClass(superType)
+      .followedBy(superType != null && isGraphQLObject(superType)
           ? [refer(getInterfaceName(superType.element))]
           : [])
       .toList();
 }
 
-GraphQLClass? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
-  final annot = graphQLClassTypeChecker.firstAnnotationOfExact(clazz);
+GraphQLObject? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
+  final annot = graphQLObjectTypeChecker.firstAnnotationOfExact(clazz);
   if (annot != null) {
-    return GraphQLClass(
+    return GraphQLObject(
       interfaces: annot
           .getField('interfaces')!
           .toListValue()!

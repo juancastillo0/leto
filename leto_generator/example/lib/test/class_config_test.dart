@@ -31,7 +31,7 @@ type ClassConfig2 implements ClassConfig2Interface {
 ];
 
 // @example-start{generator-object-class-renamed}
-@GraphQLClass(nullableFields: true, name: 'RenamedClassConfig')
+@GraphQLObject(nullableFields: true, name: 'RenamedClassConfig')
 class ClassConfig {
   @GraphQLDocumentation(deprecationReason: 'value deprecated')
   @GraphQLField()
@@ -59,7 +59,7 @@ final customInterface = objectType<Object>(
   isInterface: true,
 );
 
-@GraphQLClass(omitFields: true, interfaces: ['customInterface'])
+@GraphQLObject(omitFields: true, interfaces: ['customInterface'])
 class ClassConfig2 {
   @GraphQLField()
   final String value;
