@@ -43,6 +43,8 @@ void main() async {
               section.isGlobal ||
               Section(allLines: lines, start: i, end: i + 1).isGlobal;
         } else {
+          sections.add(section);
+
           final globalSection = i != lines.length
               ? Section(allLines: lines, start: i, end: i + 1)
               : null;
@@ -58,8 +60,6 @@ void main() async {
                   .replaceAll(RegExp(r'<!--.*-->'), '')
                   .trim(),
             ));
-          } else {
-            sections.add(section);
           }
         }
       }
@@ -112,19 +112,24 @@ void main() async {
 
         final String path;
         if (pos.key == null) {
-          path = sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
+          final sectionPath =
+              sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
+          path = '$sectionPath.md${ref != sectionPath ? '#$ref' : ''}';
         } else {
           final category = categories[pos.key!];
           final sections = category.sections;
           final sTitle =
               sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
           if (sTitle == category.directoryName) {
-            path = '/docs/$globalDir${category.directoryName}';
+            // It's a global category
+            path = '../category/$globalDir${category.directoryName}';
           } else {
-            path = '/docs/$globalDir${category.directoryName}/${sTitle}';
+            // Relative path to the md file (https://docusaurus.io/docs/markdown-features/links)
+            path = '../$globalDir${category.directoryName}/${sTitle}.md'
+                '${ref != sTitle ? '#$ref' : ''}';
           }
         }
-        return '[${match.group(1)}]($path#$ref)';
+        return '[${match.group(1)}]($path)';
       });
       lines[linkLine] = newLine;
     }

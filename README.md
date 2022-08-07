@@ -619,7 +619,7 @@ You can view the code in the [Github repo](https://github.com/juancastillo0/room
 
 Work in Progress
 
-A service for compiling, executing and tracking the build process and deployment. With a git repository, one can set up a CLI pipeline for continues integration and delivery. All the commands are tracked in realtime. This is a simple personal project for deploying in a VM. The service uses web sockets and in the source code repository there are three projects:
+A service for compiling, executing and tracking the build process and deployment. With a git repository, one can set up a CLI pipeline for continuous integration and delivery. All the commands are tracked in realtime. This is a simple personal project for deploying in a VM. The service uses web sockets and the source code repository has three projects:
 
 1. The Leto Shelf GraphQL server. Everything is saved in memory
 2. A Dart client using [`package:graphql`](https://pub.dev/packages/graphql) and [`package:graphql_codegen`](https://pub.dev/packages/graphql_codegen)
