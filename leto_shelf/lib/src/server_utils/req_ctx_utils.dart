@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 
-final _requestCtxRef = ScopedRef<_LetoShelfRequest?>.scoped(
+final _requestCtxRef = ScopedRef<_LetoShelfRequest?>.local(
   (_) => null,
   name: '__request',
 );

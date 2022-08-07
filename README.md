@@ -116,8 +116,8 @@ If your prefer to read the documentation in a web page, you can [try the documen
 - [Miscellaneous](#miscellaneous)
   - [`GraphQLResult`](#graphqlresult)
   - [`ScopedMap`](#scopedmap)
-    - [`GlobalsHolder`](#globalsholder)
-    - [`ScopeRef` and `RefWithDefault`](#scoperef-and-refwithdefault)
+    - [`ScopedHolder`](#scopedholder)
+    - [`ScopedRef`](#scopedref)
     - [Example usage](#example-usage)
   - [Error Handling](#error-handling)
     - [Exceptions and `GraphQLError`](#exceptions-and-graphqlerror)
@@ -199,7 +199,7 @@ class Model {
 
 /// Set up your state.
 /// This could be anything such as a database connection
-final stateRef = RefWithDefault<ModelController>.global(
+final stateRef = ScopedRef<ModelController>.global(
   (scope) => ModelController(
     Model('InitialState', DateTime.now()),
   ),
@@ -230,7 +230,7 @@ class ModelController {
 ```
 <!-- include-end{quickstart-controller-state-definition} -->
 
-With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `RefWithDefault.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: 1A more docs in the code
+With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `ScopedRef.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: 1A more docs in the code
 
 <!-- include{quickstart-make-schema} -->
 ```dart
@@ -379,7 +379,7 @@ With the `GraphQLSchema` and the resolver logic implemented, we can set up the s
 ```dart
 Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // you can override state with ScopedMap.setGlobal/setScoped
-  final ScopedMap scopedMap = globals ?? ScopedMap.empty();
+  final ScopedMap scopedMap = globals ?? ScopedMap();
   if (globals == null) {
     // if it wasn't overridden it should be the default
     assert(stateRef.get(scopedMap).value?.state == 'InitialState');
@@ -418,7 +418,7 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
       pingInterval: const Duration(seconds: 10),
       validateIncomingConnection: (
         Map<String, Object?>? initialPayload,
-        GraphQLWebSocketServer wsServer,
+        GraphQLWebSocketShelfServer wsServer,
       ) {
         if (initialPayload != null) {
           // you can authenticated an user with the initialPayload:
@@ -1516,7 +1516,7 @@ For a complete subscriptions example with events from a database please see the 
 
 ## Request Contexts
 
-All `Ctx`s implement `GlobalsHolder`, so that then can be used to retrieve values from the scoped map, more in [`ScopedMap`](#scopedmap).
+All `Ctx`s implement `ScopedHolder`, so that then can be used to retrieve values from the scoped map, more in [`ScopedMap`](#scopedmap).
 ### Ctx
 
 [Source Code](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/req_ctx.dart)
@@ -1673,20 +1673,20 @@ This forms a tree of scopes, where one node scope has access to its parent value
 
 To override the value of a reference for a given scope you instantiate a `ScopedMap` with the values to override, if it is a child, you can pass the parent as a parameter to the constructor.
 
-### `GlobalsHolder`
+### `ScopedHolder`
 
-A `GlobalsHolder` is simply an object that contains a `ScopedMap get globals;` getter. This map represents the scope associated with the object. As discussed in the [Request Contexts section](#request-contexts), all contexts are (implement) `GlobalsHolder`s and therefore have access to the values in the scope.
+A `ScopedHolder` is simply an object that contains a `ScopedMap get globals;` getter. This map represents the scope associated with the object. As discussed in the [Request Contexts section](#request-contexts), all contexts are (implement) `ScopedHolder`s and therefore have access to the values in the scope.
 
-### `ScopeRef` and `RefWithDefault`
+### `ScopedRef`
 
-You can specify the behavior and the default values of references using `ScopeRef` and `RefWithDefault`. As explained in the source code docs, a "global" ref will instantiate a value accessible to all scopes in a scope tree. A "local" ref will instantiate the value (and make it accessible) only to children scopes in which the value is instantiated.
+You can specify the behavior and the default values of references using `ScopedRef`. As explained in the source code docs, a "global" ref will instantiate a value accessible to all scopes in a scope tree. A "local" ref will instantiate the value (and make it accessible) only to children scopes in which the value is instantiated.
 
 ### Example usage
 
 Example usage with the `GraphQL` executor and different ways to override the values is shown in the following code snippet:
 
 ```dart
-final RefWithDefault<int> ref = RefWithDefault.global((ScopedMap scope) => 4);
+final ScopedRef<int> ref = ScopedRef.global((ScopedMap scope) => 4);
 final schema = GraphQLSchema(
   queryObject: objectType(
     'Query', 
@@ -1855,8 +1855,8 @@ class NestedModel {
     const NestedModel(this.id, this.name);
 }
 
-final modelRepo = RefWithDefault.global(
-    (GlobalsHolder scope) => ModelRepo();
+final modelRepo = ScopedRef.global(
+    (ScopedHolder scope) => ModelRepo();
 );
 
 class ModelRepo {
@@ -1955,7 +1955,7 @@ class NestedModelRepo {
   }
 }
 
-final modelNestedRepo = RefWithDefault.scoped(
+final modelNestedRepo = ScopedRef.local(
     (scope) => NestedModelRepo()
 );
 

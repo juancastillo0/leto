@@ -94,7 +94,7 @@ class UnionA with _$UnionA {
 }
 // @example-end{generator-unions-freezed}
 
-final unionARef = ScopedRef<MutableValue<UnionA?>>.scoped(
+final unionARef = ScopedRef<MutableValue<UnionA?>>.local(
   (scope) => MutableValue(null),
 );
 

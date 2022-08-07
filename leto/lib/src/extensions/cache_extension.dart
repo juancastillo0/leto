@@ -205,7 +205,7 @@ class CacheEntry {
 }
 
 class CacheExtension extends GraphQLExtension {
-  static final ref = ScopedRef<MutableValue<CacheState?>>.scoped(
+  static final ref = ScopedRef<MutableValue<CacheState?>>.local(
     (_) => MutableValue(null),
     name: 'CacheExtension',
   );

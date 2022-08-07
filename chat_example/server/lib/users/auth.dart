@@ -13,11 +13,11 @@ import 'package:server/users/user_api.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
-final _webSocketConnCtxRef = ScopedRef<WebSocketConnCtx?>.scoped(
+final _webSocketConnCtxRef = ScopedRef<WebSocketConnCtx?>.local(
   (scope) => null,
   name: 'webSocketConnCtxRef',
 );
-final _webSocketSessionsRef = ScopedRef.scoped(
+final _webSocketSessionsRef = ScopedRef.local(
   (h) => <String, Set<GraphQLWebSocketShelfServer>>{},
   name: 'webSocketSessionsRef',
 );

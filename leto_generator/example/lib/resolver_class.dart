@@ -53,7 +53,7 @@ class Resolver3 {
     return this.hashCode.toString();
   }
 
-  static final ref = ScopedRef.scoped((_) => Resolver3());
+  static final ref = ScopedRef.local((_) => Resolver3());
 }
 
 @ClassResolver()

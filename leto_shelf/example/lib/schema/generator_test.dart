@@ -6,7 +6,7 @@ part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
 @visibleForTesting
-final testUnionModelsTestKey = ScopedRef<List<EventUnion?>?>.scoped(
+final testUnionModelsTestKey = ScopedRef<List<EventUnion?>?>.local(
   (_) => null,
   name: 'testUnionModels',
 );

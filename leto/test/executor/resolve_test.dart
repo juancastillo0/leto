@@ -16,7 +16,7 @@ class Adder {
   }
 }
 
-final addend2Ref = ScopedRef<int?>.scoped((_) => null);
+final addend2Ref = ScopedRef<int?>.local((_) => null);
 
 /// Execute: resolve function
 void main() {

@@ -156,7 +156,7 @@ class GraphQL {
         customValidationRules: config.customValidationRules,
       );
 
-  static final _resolveCtxRef = ScopedRef<MutableValue<ExecutionCtx?>>.scoped(
+  static final _resolveCtxRef = ScopedRef<MutableValue<ExecutionCtx?>>.local(
     (_) => MutableValue(null),
     name: 'ResolveCtx',
   );
@@ -167,7 +167,7 @@ class GraphQL {
       _resolveCtxRef.get(scope).value;
 
   static final _graphQLExecutorRef =
-      ScopedRef<GraphQL?>.scoped((_) => null, name: 'GraphQLExecutor');
+      ScopedRef<GraphQL?>.local((_) => null, name: 'GraphQLExecutor');
 
   /// Gets the [GraphQL] executor from a [scope].
   /// Always non-null for scopes derived from [parseAndExecute]

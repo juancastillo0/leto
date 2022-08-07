@@ -438,7 +438,7 @@ Future<ClassResolver?> getClassResolver(
 
 // final param = constructor.parameters.firstOrNull;
 // if (param != null &&
-//     !const TypeChecker.fromRuntime(GlobalsHolder)
+//     !const TypeChecker.fromRuntime(ScopedHolder)
 //         .isAssignableFromType(param.type)) {
 //   throw Exception(param.type.getDisplayString(withNullability: false));
 // }

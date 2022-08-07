@@ -186,7 +186,7 @@ void main() {
   }, skip: 'inner subscription multiple fields validation');
 
   test('GraphQLConfig', () async {
-    final ref = ScopedRef<String?>.scoped((scope) => null);
+    final ref = ScopedRef<String?>.local((scope) => null);
     GraphQL? _executor;
 
     final schema = GraphQLSchema(

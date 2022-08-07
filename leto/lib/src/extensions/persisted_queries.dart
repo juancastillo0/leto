@@ -57,7 +57,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   String get mapKey => 'persistedQuery';
 
-  final _extensionResponseHashRef = ScopedRef<MutableValue<String?>>.scoped(
+  final _extensionResponseHashRef = ScopedRef<MutableValue<String?>>.local(
     (_) => MutableValue(null),
     name: 'extensionResponseHash',
   );

@@ -240,23 +240,23 @@ class MutableValue<T> {
 
 /// A reference to a scoped value of type [T]
 ///
-/// It can be [isScoped] (if true) or global.
-/// If it's scoped, one instance will be created for
+/// It can be [isLocal] (if true) or global.
+/// If it's local, one instance will be created for
 /// every scope and it's descendants.
-/// If it's global ([isScoped] == false) one instance will
-/// be created for every scoped and all its parents. When the reference
+/// If it's global ([isLocal] == false) one instance will
+/// be created for every scope and all its parents. When the reference
 /// is created, it will be set to the scoped map and to every parent's
 /// scoped map.
 ///
 /// ```dart
 ///
-/// final valueRef = RefWithDefault<String>(
+/// final valueRef = ScopedRef<String>.global(
 ///   (ScopedMap scope) => 'Value'
 /// );
 ///
-/// /// [ctx] can be anything that implements [GlobalsHolder]
+/// /// [ctx] can be anything that implements [ScopedHolder]
 /// /// For example, any of [ReqCtx], [ResolveCtx] or [ResolveObjectCtx]
-/// void makeAction(GlobalsHolder ctx) {
+/// void makeAction(ScopedHolder ctx) {
 ///   final String value = valueRef.get(ctx);
 /// }
 /// ```
@@ -271,24 +271,24 @@ class ScopedRef<T> {
   /// The function used to dispose the value created for this reference
   final FutureOr<void> Function(T value)? dispose;
 
-  /// Whether the value is scoped or global
-  final bool isScoped;
+  /// Whether the value is local or global
+  final bool isLocal;
 
-  /// Whether the value is scoped or global
-  bool get isGlobal => !isScoped;
+  /// Whether the value is local or global
+  bool get isGlobal => !isLocal;
 
   /// A reference to a scoped value of type [T]
   ///
-  /// It can be [isScoped] (if true) or global.
-  /// If it's scoped, one instance will be created for
+  /// It can be [isLocal] (if true) or global.
+  /// If it's local, one instance will be created for
   /// every scope and it's descendants.
-  /// If it's global ([isScoped] == false) one instance will
-  /// be created for every scoped and all its parents. When the reference
+  /// If it's global ([isLocal] == false) one instance will
+  /// be created for every scope and all its parents. When the reference
   /// is created, it will be set to the scoped map and to every parent's
   /// scoped map.
-  ScopedRef(this.create, {required this.isScoped, this.name, this.dispose});
-  ScopedRef.scoped(this.create, {this.name, this.dispose}) : isScoped = true;
-  ScopedRef.global(this.create, {this.name, this.dispose}) : isScoped = false;
+  ScopedRef(this.create, {required this.isLocal, this.name, this.dispose});
+  ScopedRef.local(this.create, {this.name, this.dispose}) : isLocal = true;
+  ScopedRef.global(this.create, {this.name, this.dispose}) : isLocal = false;
 
   /// Retrieves the value in the [holder]. If there isn't any,
   /// uses [create] to create a new value and sets it into
