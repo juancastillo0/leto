@@ -16,7 +16,7 @@ import 'package:server/messages/messages_table.dart';
 import 'package:server/users/auth.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-final chatRoomDatabase = RefWithDefault<TableConnection>.global(
+final chatRoomDatabase = ScopedRef<TableConnection>.global(
   (scope) => SqliteConnection(
     const bool.fromEnvironment('SQLITE_MEMORY')
         ? sqlite3.openInMemory()
@@ -25,7 +25,7 @@ final chatRoomDatabase = RefWithDefault<TableConnection>.global(
   name: 'ChatRoomDatabase',
 );
 
-final chatControllerRef = RefWithDefault.global(
+final chatControllerRef = ScopedRef.global(
   (scope) => ChatController.create(chatRoomDatabase.get(scope)),
   name: 'ChatController',
 );

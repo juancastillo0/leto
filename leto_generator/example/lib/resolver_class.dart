@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 part 'resolver_class.g.dart';
@@ -54,7 +53,7 @@ class Resolver3 {
     return this.hashCode.toString();
   }
 
-  static final ref = RefWithDefault.scoped((_) => Resolver3());
+  static final ref = ScopedRef.scoped((_) => Resolver3());
 }
 
 @ClassResolver()
@@ -64,7 +63,7 @@ class Resolver4 {
     return this.hashCode.toString();
   }
 
-  static final ref = RefWithDefault.global((_) => Resolver4());
+  static final ref = ScopedRef.global((_) => Resolver4());
 }
 
 final _mapToType = <Type, Object>{
@@ -84,13 +83,13 @@ class Resolver5 {
   }
 }
 
-late final _mapToRef = <Type, BaseRef>{
+late final _mapToRef = <Type, ScopedRef>{
   Resolver6: refResolver6,
 };
 
 // ignore: constant_identifier_names
 const DIByRef = ClassResolver(
-  instantiateCode: '_mapToRef[{{name}}]!.get(ctx) as FutureOr<{{name}}>',
+  instantiateCode: '_mapToRef[{{name}}]!.get(ctx).value as FutureOr<{{name}}>',
 );
 
 @DIByRef
@@ -102,6 +101,6 @@ class Resolver6 {
   }
 }
 
-final refResolver6 = RefWithDefault.global(
-  (_) async => Resolver6(),
+final refResolver6 = ScopedRef.global(
+  (_) => MutableValue(Future.value(Resolver6())),
 );

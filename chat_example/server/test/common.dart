@@ -38,10 +38,13 @@ String tokenWithUserSelection({required bool signUp}) => '''
 
 Future<TestServer> setUpTestServer() async {
   final fs = MemoryFileSystem();
-  final scope = ScopedMap.empty();
   final dbConn = SqliteConnection(sqlite3.openInMemory());
-  chatRoomDatabase.set(scope, dbConn);
-  fileSystemRef.set(scope, fs);
+  final scope = ScopedMap(
+    overrides: [
+      chatRoomDatabase.override((_) => dbConn),
+      fileSystemRef.override((_) => fs),
+    ],
+  );
 
   final client = http.Client();
   final server = await startServer(

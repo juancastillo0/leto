@@ -8,7 +8,7 @@ import 'package:crypto/crypto.dart' show sha256;
 import 'package:leto/leto.dart'
     show DocumentNode, GraphQL, GraphQLExtension, GraphQLResult;
 import 'package:leto_schema/leto_schema.dart'
-    show GraphQLException, RequestCtx, ScopeRef;
+    show GraphQLException, MutableValue, RequestCtx, ScopedRef;
 
 /// Save network bandwidth by storing GraphQL documents on the server and
 /// not requiring the client to send the full document String on each request.
@@ -57,7 +57,10 @@ class GraphQLPersistedQueries extends GraphQLExtension {
   @override
   String get mapKey => 'persistedQuery';
 
-  final _extensionResponseHashRef = ScopeRef<String>('extensionResponseHash');
+  final _extensionResponseHashRef = ScopedRef<MutableValue<String?>>.scoped(
+    (_) => MutableValue(null),
+    name: 'extensionResponseHash',
+  );
 
   @override
   FutureOr<GraphQLResult> executeRequest(
@@ -68,7 +71,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
       return next();
     }
     final response = await next();
-    final hash = _extensionResponseHashRef.get(ctx);
+    final hash = _extensionResponseHashRef.get(ctx).value;
     if (hash != null) {
       return response.copyWithExtension(mapKey, {'sha256Hash': hash});
     }
@@ -77,6 +80,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
 
   /// Executes validations given a schema,
   /// and the operation to perform
+  @override
   GraphQLException? validate(
     GraphQLException? Function() next,
     RequestCtx ctx,
@@ -148,7 +152,7 @@ class GraphQLPersistedQueries extends GraphQLExtension {
         cache.set(digestHex, document);
       }
       if (returnHashInResponse && persistedQuery is Map<String, Object?>) {
-        _extensionResponseHashRef.setScoped(ctx, digestHex);
+        _extensionResponseHashRef.get(ctx).value = digestHex;
       }
     }
 
@@ -200,7 +204,7 @@ class MapCache<K, V> implements Cache<K, V> {
 
 /// Least Recently Used (LRU) cache implementation.
 ///
-/// Implemented with the usual linked list with map.
+/// Implemented with the usual [linkedList] and [map].
 class LruCacheSimple<K, T> implements Cache<K, T> {
   /// The maximum number of elements in the cache.
   final int maxSize;

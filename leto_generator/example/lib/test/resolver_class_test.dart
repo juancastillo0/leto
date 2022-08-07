@@ -68,7 +68,8 @@ void main() {
     });
 
     // TODO: 1A return the previous value or dont allow overrides
-    refResolver6.set(exec.baseGlobalVariables, Future.value(Resolver6()));
+    refResolver6.get(exec.baseGlobalVariables).value =
+        Future.value(Resolver6());
 
     final result3 = await exec.parseAndExecute(query);
     _check(result3);

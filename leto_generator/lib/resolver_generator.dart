@@ -393,10 +393,10 @@ Future<ClassResolver?> getClassResolver(
       throw Exception(
         'Getter "ref" of $ClassResolver ${parent.name} should be static.',
       );
-    } else if (!const TypeChecker.fromRuntime(BaseRef)
+    } else if (!const TypeChecker.fromRuntime(ScopedRef)
         .isAssignableFromType(ref.returnType)) {
       throw Exception(
-        'Getter "ref" of $ClassResolver ${parent.name} should return a $BaseRef.',
+        'Getter "ref" of $ClassResolver ${parent.name} should return a $ScopedRef.',
       );
     }
     instantiateCode = '${parent.name}.${ref.name}.get(ctx)!';

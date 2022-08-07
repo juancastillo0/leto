@@ -12,7 +12,7 @@ void main() {
         expect(graphqlApiSchema.schemaStr, contains(subs));
       }
 
-      final scope = ScopedMap.empty();
+      final scope = ScopedMap();
 
       final unionValues = <UnionA>[
         UnionA.a1(one: 2),
@@ -26,7 +26,7 @@ void main() {
         globalVariables: scope,
       );
       for (final item in unionValues) {
-        unionARef.setScoped(scope, item);
+        unionARef.get(scope).value = item;
         final result = await executor.parseAndExecute(
           '''
           {getUnionA {

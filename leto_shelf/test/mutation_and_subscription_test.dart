@@ -14,13 +14,19 @@ Future<void> main() async {
 
     setUp(() async {
       _streamCallbacks = StreamCallbacks();
-      _server = await testServer(ServerConfig(
-        globalVariables: ScopedMap({
-          booksControllerRef: BooksController(
-            bookAddedCallbacks: _streamCallbacks,
-          )
-        }),
-      ));
+      _server = await testServer(
+        ServerConfig(
+          globalVariables: ScopedMap(
+            overrides: [
+              booksControllerRef.override(
+                (_) => BooksController(
+                  bookAddedCallbacks: _streamCallbacks,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
     });
 
     tearDown(() async {

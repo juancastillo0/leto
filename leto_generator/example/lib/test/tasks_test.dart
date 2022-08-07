@@ -11,7 +11,7 @@ void main() {
     for (final str in tasksSchemaStr) {
       expect(graphqlApiSchema.schemaStr, contains(str));
     }
-    final scope = ScopedMap.empty();
+    final scope = ScopedMap();
     final tasks = tasksRef.get(scope);
 
     final result = await GraphQL(

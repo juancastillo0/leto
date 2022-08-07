@@ -6,7 +6,10 @@ part 'generator_test.freezed.dart';
 part 'generator_test.g.dart';
 
 @visibleForTesting
-final testUnionModelsTestKey = ScopeRef<List<EventUnion?>>('testUnionModels');
+final testUnionModelsTestKey = ScopedRef<List<EventUnion?>?>.scoped(
+  (_) => null,
+  name: 'testUnionModels',
+);
 
 /// Custom doc
 @GraphQLObject()

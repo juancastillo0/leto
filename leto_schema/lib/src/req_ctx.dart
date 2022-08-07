@@ -1,6 +1,10 @@
 part of leto_schema.src.schema;
 
-class Ctx<P> implements GlobalsHolder {
+/// The context for a resolver in a given request. Contains the [args] passed as
+/// input, the parent [object], the selected fields in [lookahead],
+/// the scoped values in [scope] and other parent context such as [objectCtx]
+/// and the [executionCtx] for the request.
+class Ctx<P> implements ScopedHolder {
   /// The arguments passed as input
   final Map<String, Object?> args;
 
@@ -8,7 +12,7 @@ class Ctx<P> implements GlobalsHolder {
   P get object => objectCtx.objectValue as P;
 
   @override
-  ScopedMap get globals => objectCtx.globals;
+  ScopedMap get scope => objectCtx.scope;
 
   /// The parent object context
   final ObjectExecutionCtx<Object?> objectCtx;
@@ -29,6 +33,10 @@ class Ctx<P> implements GlobalsHolder {
   /// The execution context for this request
   ExecutionCtx get executionCtx => objectCtx.executionCtx;
 
+  /// The context for a resolver in a given request. Contains the [args]
+  /// passed as input, the parent [object], the selected fields in [lookahead],
+  /// the scoped values in [scope] and other parent context such as [objectCtx]
+  /// and the [executionCtx] for the request.
   const Ctx({
     required this.args,
     required this.objectCtx,
@@ -52,7 +60,10 @@ class Ctx<P> implements GlobalsHolder {
   }
 }
 
-class RequestCtx implements GlobalsHolder {
+/// The context associated with a request it may not be validated
+///
+/// More information [ExecutionCtx], [ObjectExecutionCtx] and [Ctx]
+class RequestCtx implements ScopedHolder {
   /// The schema used to execute the operation
   final GraphQLSchema schema;
 
@@ -73,20 +84,26 @@ class RequestCtx implements GlobalsHolder {
   final Map<String, Object?>? extensions;
 
   @override
-  final ScopedMap globals;
+  final ScopedMap scope;
 
+  /// The context associated with a request it may not be validated
+  ///
+  /// More information [ExecutionCtx], [ObjectExecutionCtx] and [Ctx]
   RequestCtx({
     required this.schema,
     required this.query,
     required this.operationName,
     required this.rootValue,
     required this.rawVariableValues,
-    required this.globals,
+    required this.scope,
     required this.extensions,
   });
 }
 
-class ExecutionCtx implements GlobalsHolder {
+/// The context associated with a request that finished being validated
+///
+/// More information in [RequestCtx], [ObjectExecutionCtx] and [Ctx]
+class ExecutionCtx implements ScopedHolder {
   /// The errors populated throughout the processing of a GraphQL request
   final errors = <GraphQLError>[];
 
@@ -107,23 +124,30 @@ class ExecutionCtx implements GlobalsHolder {
   final Map<String, dynamic> variableValues;
 
   @override
-  final ScopedMap globals;
+  final ScopedMap scope;
 
+  /// The context associated with a request that finished being validated
+  ///
+  /// More information in [RequestCtx], [ObjectExecutionCtx] and [Ctx]
   ExecutionCtx({
     required this.requestCtx,
     required this.document,
     required this.operation,
     required this.variableValues,
-    required this.globals,
+    required this.scope,
   });
 }
 
-class ObjectExecutionCtx<P> implements GlobalsHolder {
+/// The context associated with an object execution
+/// in a request that finished being validated
+///
+/// More information in [RequestCtx], [ExecutionCtx] and [Ctx]
+class ObjectExecutionCtx<P> implements ScopedHolder {
   /// The context for this request
   final ExecutionCtx executionCtx;
 
   @override
-  ScopedMap get globals => executionCtx.globals;
+  ScopedMap get scope => executionCtx.scope;
 
   /// The type associated with this resolve context
   final GraphQLObjectType<P> objectType;
@@ -146,6 +170,10 @@ class ObjectExecutionCtx<P> implements GlobalsHolder {
         if (pathItem != null) pathItem!,
       ];
 
+  /// The context associated with an object execution
+  /// in a request that finished being validated
+  ///
+  /// More information in [RequestCtx], [ExecutionCtx] and [Ctx]
   ObjectExecutionCtx({
     required this.pathItem,
     required this.executionCtx,
@@ -181,31 +209,41 @@ class ObjectExecutionCtx<P> implements GlobalsHolder {
   }
 }
 
-///  A reference to a value of type [T] in a [ScopedMap]
-abstract class BaseRef<T> {
-  /// Returns the saved value from a scope
-  T get(GlobalsHolder scope);
-}
+/// A wrapper around a [value] that can be mutated
+///
+/// Could be useful for having a mutable variable within a [ScopedMap].
+/// ```dart
+/// static ScopedRef<MutableValue<T>> mutable<T>(
+///   T Function(ScopedMap scope) create, {
+///   required bool isScoped,
+///   String? name,
+///   FutureOr<void> Function(T value)? dispose,
+/// }) {
+///   return ScopedRef(
+///     (scope) => MutableValue(create(scope)),
+///     isScoped: isScoped,
+///     dispose: dispose == null ? null : (v) => dispose(v.value),
+///     name: name,
+///   );
+/// }
+/// ```
+class MutableValue<T> {
+  /// The current value
+  T value;
 
-/// A reference to a value of type [T] in a [ScopedMap]
-class ScopeRef<T> implements BaseRef<T?> {
-  /// A name primarily used for debugging
-  final String? name;
+  /// A wrapper around a [value] that can be mutated
+  MutableValue(this.value);
 
-  ScopeRef([this.name]);
-
-  T? get(GlobalsHolder scope) => scope.globals.get(this) as T?;
-
-  void setScoped(GlobalsHolder scope, T value) =>
-      scope.globals.setScoped(this, value);
+  @override
+  String toString() => 'MutableValue($value)';
 }
 
 /// A reference to a scoped value of type [T]
 ///
-/// It can be [scoped] (if true) or global.
+/// It can be [isScoped] (if true) or global.
 /// If it's scoped, one instance will be created for
 /// every scope and it's descendants.
-/// If it's global ([scoped] == false) one instance will
+/// If it's global ([isScoped] == false) one instance will
 /// be created for every scoped and all its parents. When the reference
 /// is created, it will be set to the scoped map and to every parent's
 /// scoped map.
@@ -222,121 +260,155 @@ class ScopeRef<T> implements BaseRef<T?> {
 ///   final String value = valueRef.get(ctx);
 /// }
 /// ```
-class RefWithDefault<T> implements BaseRef<T> {
+/// // TODO: 1A do not allow to access scoped from globals
+class ScopedRef<T> {
+  /// An optional name of the reference, useful for debugging
   final String? name;
+
+  /// The function used to create the value for this reference
   final T Function(ScopedMap scope) create;
-  final bool scoped;
 
-  RefWithDefault(this.create, {required this.scoped, this.name});
-  RefWithDefault.scoped(this.create, {this.name}) : scoped = true;
-  RefWithDefault.global(this.create, {this.name}) : scoped = false;
+  /// The function used to dispose the value created for this reference
+  final FutureOr<void> Function(T value)? dispose;
 
-  /// Sets (overrides if present) the value in the [holder]'s
-  /// [ScopedMap] in the appropriate scope.
-  T set(GlobalsHolder holder, T value) {
-    if (scoped) {
-      holder.globals.setScoped(this, value);
-      return value;
-    } else {
-      holder.globals.setGlobal(this, value);
-      return value;
-    }
-  }
+  /// Whether the value is scoped or global
+  final bool isScoped;
+
+  /// Whether the value is scoped or global
+  bool get isGlobal => !isScoped;
+
+  /// A reference to a scoped value of type [T]
+  ///
+  /// It can be [isScoped] (if true) or global.
+  /// If it's scoped, one instance will be created for
+  /// every scope and it's descendants.
+  /// If it's global ([isScoped] == false) one instance will
+  /// be created for every scoped and all its parents. When the reference
+  /// is created, it will be set to the scoped map and to every parent's
+  /// scoped map.
+  ScopedRef(this.create, {required this.isScoped, this.name, this.dispose});
+  ScopedRef.scoped(this.create, {this.name, this.dispose}) : isScoped = true;
+  ScopedRef.global(this.create, {this.name, this.dispose}) : isScoped = false;
 
   /// Retrieves the value in the [holder]. If there isn't any,
   /// uses [create] to create a new value and sets it into
   /// the appropriate scope.
-  T get(GlobalsHolder holder) {
-    if (scoped) {
-      return holder.globals.putScopedIfAbsent(
-        this,
-        () => create(holder.globals),
-      ) as T;
-    } else {
-      return holder.globals.putGlobalIfAbsent(
-        this,
-        () => create(holder.globals),
-      ) as T;
-    }
+  T get(ScopedHolder holder) {
+    return holder.scope.get(this);
   }
+
+  /// Creates a [ScopedOverride] for this reference using the [create]
+  /// function for the value that will override
+  ScopedOverride<T> override(T Function(ScopedMap scope) create) =>
+      ScopedOverride(create: create, ref: this);
 }
 
 /// A Object which holds a scope
 ///
-/// Many ctx implement [GlobalsHolder], for example
+/// Many ctx implement [ScopedHolder], for example
 /// [Ctx], [ExecutionCtx], [ObjectExecutionCtx]
 ///
-/// Usually used with a [RefWithDefault] for typed values
-/// with default or a simple [ScopeRef]
-abstract class GlobalsHolder {
+/// Usually used with a [ScopedRef] for typed values
+/// with default.
+abstract class ScopedHolder {
   /// The tree of values for this scope
-  ScopedMap get globals;
+  ScopedMap get scope;
 }
 
 /// A map with values in different scopes
 ///
 /// Each [ScopedMap] has some scoped [values], this values
 /// will be available to it's children, but not to it's [parent].
-class ScopedMap implements GlobalsHolder {
+class ScopedMap implements ScopedHolder {
+  /// The parent of this scope.
+  /// The chain of parents and children form a tree.
   final ScopedMap? parent;
-  final Map<Object, Object?> values = {};
+  final Map<ScopedRef, Object?> _values = {};
+  final Map<ScopedRef, ScopedOverride> _overrides = {};
 
-  ScopedMap(Map<Object, Object?> values, [this.parent]) {
-    this.values.addAll(values);
+  /// A map with values in different scopes
+  ///
+  /// Each [ScopedMap] has some scoped [overrides], this values
+  /// will be available to it's children, but not to it's [parent].
+  ScopedMap({this.parent, List<ScopedOverride>? overrides}) {
+    if (overrides != null) {
+      for (final override in overrides.reversed) {
+        if (!_overrides.containsKey(override.ref)) {
+          _overrides[override.ref] = override;
+        }
+      }
+    }
   }
 
-  ScopedMap child([Map<Object, Object?>? values]) =>
-      ScopedMap(values ?? {}, this);
+  /// Returns a child of this scope
+  ScopedMap child({List<ScopedOverride>? overrides}) =>
+      ScopedMap(overrides: overrides, parent: this);
 
-  factory ScopedMap.empty([ScopedMap? parent]) => ScopedMap({}, parent);
-
-  bool containsScoped(Object key) => values.containsKey(key);
-
-  bool containsGlobal(Object key) {
-    final _hasScoped = containsScoped(key);
-    return _hasScoped || (parent?.containsGlobal(key) ?? false);
+  /// Returns an iterable with all the parents of this scope
+  Iterable<ScopedMap> parents() sync* {
+    ScopedMap? parent = this.parent;
+    while (parent != null) {
+      yield parent;
+      parent = parent.parent;
+    }
   }
 
   /// Retrieves a value from itself or from its parent
-  Object? get(Object key) {
-    if (containsScoped(key)) {
-      return values[key];
+  T get<T>(ScopedRef<T> ref) {
+    if (_values.containsKey(ref)) {
+      return _values[ref] as T;
     }
-    return parent?.get(key);
-  }
 
-  /// Same as [get], retrieves a value from itself or from its parent
-  Object? operator [](Object key) => get(key);
-
-  /// Set a value which will be available to itself and to its children
-  void setScoped(Object key, Object? value) {
-    values[key] = value;
-  }
-
-  /// Set a value which will be available to every [ScopedMap] in the tree
-  void setGlobal(Object key, Object? value) {
-    values[key] = value;
-    parent?.setGlobal(key, value);
-  }
-
-  /// Puts a value for the [key] in the scope if there isn't any.
-  /// Returns the value if present or sets the value returned by [ifAbsent]
-  /// for [key] and returns that new value.
-  Object? putScopedIfAbsent(Object key, Object? Function() ifAbsent) =>
-      values.putIfAbsent(key, ifAbsent);
-
-  /// Puts a value for the [key] in the tree if there isn't any.
-  /// Returns the value if present in the tree or sets the value
-  /// returned by [ifAbsent] for [key] and returns that new value.
-  Object? putGlobalIfAbsent(Object key, Object? Function() ifAbsent) {
-    if (containsGlobal(key)) {
-      return get(key);
+    final T value;
+    if (_overrides.containsKey(ref)) {
+      value = _overrides[ref]!.create(this) as T;
+    } else {
+      for (final p in parents()) {
+        if (p._values.containsKey(ref) || p._overrides.containsKey(ref)) {
+          return p.get(ref);
+        }
+      }
+      value = ref.create(this);
     }
-    final value = ifAbsent();
-    setGlobal(key, value);
+    _values[ref] = value;
+    if (ref.isGlobal) {
+      for (final p in parents()) {
+        p._values[ref] = value;
+      }
+    }
     return value;
   }
 
+  /// Disposes of all the values in this scope.
+  /// If this is the root scope, then all the values will be disposed.
+  /// If this is a child scope, then it will only dispose of the values
+  /// scoped (not the global ones) and created by this scope with [get].
+  /// // TODO: 1A test and set up in executor
+  Future<void> dispose() {
+    return Future.wait(
+      _values.entries.map((e) async {
+        if ((parent == null || !e.key.isGlobal) && e.key.dispose != null) {
+          await e.key.dispose!(e.value);
+        }
+      }),
+    );
+  }
+
   @override
-  ScopedMap get globals => this;
+  ScopedMap get scope => this;
+}
+
+/// An override of [ref] with the value returned from [create].
+class ScopedOverride<T> {
+  /// The reference to override
+  final ScopedRef<T> ref;
+
+  /// The function that creates the value that will override the [ref].
+  final T Function(ScopedMap scope) create;
+
+  /// An override of [ref] with the value returned from [create].
+  ScopedOverride({
+    required this.ref,
+    required this.create,
+  });
 }

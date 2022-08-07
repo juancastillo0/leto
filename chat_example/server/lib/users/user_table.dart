@@ -9,21 +9,21 @@ import 'package:server/events/events_api.dart';
 import 'package:server/users/auth.dart';
 import 'package:server/users/user_api.dart';
 
-final userTableRef = RefWithDefault.global(
+final userTableRef = ScopedRef.global(
   (scope) => UserTable(
     chatRoomDatabase.get(scope),
   ),
   name: 'UserTable',
 );
 
-final userSessionRef = RefWithDefault.global(
+final userSessionRef = ScopedRef.global(
   (scope) => UserSessionTable(
     chatRoomDatabase.get(scope),
   ),
   name: 'UserSessionTable',
 );
 
-final userDataLoaderRef = RefWithDefault.global(
+final userDataLoaderRef = ScopedRef.global(
   (scope) {
     final table = userTableRef.get(scope);
     return DataLoader<int, User?, int>(

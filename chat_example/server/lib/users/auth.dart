@@ -13,9 +13,12 @@ import 'package:server/users/user_api.dart';
 
 // ignore: constant_identifier_names
 const AUTH_COOKIE_KEY = 'shelf-graphql-chat-auth';
-final _webSocketConnCtxRef = ScopeRef<WebSocketConnCtx>('webSocketConnCtxRef');
-final _webSocketSessionsRef = RefWithDefault.scoped(
-  (h) => <String, Set<GraphQLWebSocketServer>>{},
+final _webSocketConnCtxRef = ScopedRef<WebSocketConnCtx?>.scoped(
+  (scope) => null,
+  name: 'webSocketConnCtxRef',
+);
+final _webSocketSessionsRef = ScopedRef.scoped(
+  (h) => <String, Set<GraphQLWebSocketShelfServer>>{},
   name: 'webSocketSessionsRef',
 );
 
@@ -48,7 +51,7 @@ void setAuthCookie(Ctx ctx, String token, int maxAgeSecs) {
   );
 }
 
-void closeWebSocketSessionConnections(GlobalsHolder ctx, String sessionId) {
+void closeWebSocketSessionConnections(ScopedHolder ctx, String sessionId) {
   final connections = _webSocketSessionsRef.get(ctx)[sessionId];
   if (connections != null) {
     for (final conn in connections) {
@@ -61,8 +64,8 @@ void closeWebSocketSessionConnections(GlobalsHolder ctx, String sessionId) {
 
 Future<void> setWebSocketAuth(
   Map<String, Object?>? map,
-  GlobalsHolder holder,
-  GraphQLWebSocketServer server,
+  ScopedHolder holder,
+  GraphQLWebSocketShelfServer server,
 ) async {
   late final WebSocketConnCtx connCtx;
   if (map == null) {
@@ -100,7 +103,7 @@ Future<void> setWebSocketAuth(
       appVersion: map[UserSession.appversionKey] as String?,
     );
   }
-  server.globalVariables[_webSocketConnCtxRef] = connCtx;
+  server.scopeOverrides.add(_webSocketConnCtxRef.override((scope) => connCtx));
 }
 
 class UserClaims {

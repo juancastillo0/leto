@@ -58,7 +58,7 @@ List<Map<String, Object?>> booksToJson(List<Book> books) {
   return books.map((e) => e.toJson()).toList();
 }
 
-final booksControllerRef = RefWithDefault.global(
+final booksControllerRef = ScopedRef.global(
   (_) => BooksController(),
   name: 'BooksController',
 );

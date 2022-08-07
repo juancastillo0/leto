@@ -12,7 +12,7 @@ Future<Map<String, Object?>> executeQuery(
   final result = await GraphQL(schema, validate: false).parseAndExecute(
     query,
     rootValue: rootValue,
-    globalVariables: {'async': false},
+    // globalVariables: {'async': false},
   );
   // const asyncResult = await execute({
   //   schema,

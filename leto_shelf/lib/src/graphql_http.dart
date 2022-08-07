@@ -5,20 +5,29 @@ import 'package:leto/leto.dart';
 import 'package:leto_shelf/leto_shelf.dart';
 import 'package:leto_shelf/src/multipart_shelf.dart' show extractMultiPartData;
 
+/// The main GraphQL over HTTP shelf handler.
+/// GET for Queries with arguments in query parameters.
+/// POST for Mutations with content types:
+/// - application/graphql
+/// - application/json
+/// - application/graphql+json
+/// - multipart/form-data
+/// Supports file uploads with [Upload] and [GraphQLUploadType].
 Handler graphQLHttp(
   GraphQL graphQL, {
-  ScopeOverrides? scopeOverrides,
+  List<ScopedOverride>? scopeOverrides,
   Response Function(Request)? onEmptyGet,
   Response Function(Request, Object, StackTrace)? onError,
 }) {
   return (request) async {
-    final requestVariables = {
-      ...makeRequestScopedMap(
-        request,
-        isFromWebSocket: false,
-      ),
+    final requestOverrides = makeRequestScopedMap(
+      request,
+      isFromWebSocket: false,
+    );
+    final requestVariables = [
+      ...requestOverrides.overrides,
       if (scopeOverrides != null) ...scopeOverrides
-    };
+    ];
 
     try {
       final GraphQLRequest graphQLRequest;
@@ -73,7 +82,7 @@ Handler graphQLHttp(
           gqlQuery.query,
           operationName: gqlQuery.operationName,
           variableValues: gqlQuery.variables,
-          globalVariables: requestVariables,
+          scopeOverrides: requestVariables,
           extensions: gqlQuery.extensions,
           sourceUrl: 'input',
           validOperationTypes: validOperationTypes,
@@ -87,7 +96,7 @@ Handler graphQLHttp(
         responseBody = resultList.first.toJson();
       }
 
-      Response response = extractResponseFromMap(requestVariables);
+      Response response = extractResponseFromMap(requestOverrides);
       if (response.statusCode != 200 || !response.isEmpty) {
         return response;
       }

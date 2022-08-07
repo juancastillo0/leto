@@ -10,13 +10,13 @@ import 'package:server/chat_room/chat_table.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_static/shelf_static.dart';
 
-final isTestingRef = RefWithDefault.global((scope) => false);
-final fileSystemRef = RefWithDefault<FileSystem>.global(
+final isTestingRef = ScopedRef.global((scope) => false);
+final fileSystemRef = ScopedRef<FileSystem>.global(
   (scope) =>
       isTestingRef.get(scope) ? MemoryFileSystem() : const LocalFileSystem(),
 );
 
-Handler staticFilesHandler(GlobalsHolder globals) {
+Handler staticFilesHandler(ScopedHolder globals) {
   final handler = createStaticHandler(
     pathRelativeToScript(['/']),
     listDirectories: true,

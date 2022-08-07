@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:leto_shelf/src/server_utils/graphql_request.dart';
 import 'package:leto_shelf/src/server_utils/uploaded_file.dart';
 import 'package:oxidized/oxidized.dart';
@@ -12,7 +11,9 @@ class MultiPartData {
   const MultiPartData(this.body, this.files);
 }
 
-Result<GraphQLRequest, String> graphqlRequestFromMultiPartFormData(
+/// Extracts the [GraphQLRequest] from [data] following the spec
+/// https://github.com/jaydenseric/graphql-multipart-request-spec
+Result<GraphQLRequest, String> graphQLRequestFromMultiPartFormData(
   MultiPartData data,
 ) {
   final operationsStr = data.body['operations'];
@@ -75,15 +76,16 @@ Result<Map<String, Object?>, String> _assignFilesToVariables({
   required List<Upload> files,
 }) {
   for (final entry in map.entries) {
-    final file = files.firstWhereOrNull(
+    final fileIndex = files.indexWhere(
       (f) => f.name == entry.key,
     );
-    if (file == null) {
+    if (fileIndex == -1) {
       return Err(
         '"map" contained key "${entry.key}", but no uploaded file '
         'has that name.',
       );
     }
+    final file = files[fileIndex];
     if (entry.value is! List) {
       return Err(
         'The value for "${entry.key}" in the "map"'

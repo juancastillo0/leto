@@ -31,7 +31,7 @@ class Model {
 
 /// Set up your state.
 /// This could be anything such as a database connection
-final stateRef = RefWithDefault<ModelController>.global(
+final stateRef = ScopedRef<ModelController>.global(
   (scope) => ModelController(
     Model('InitialState', DateTime.now()),
   ),
@@ -148,7 +148,7 @@ GraphQLSchema makeGraphQLSchema() {
 // @example-start{quickstart-setup-graphql-server}
 Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
   // you can override state with ScopedMap.setGlobal/setScoped
-  final ScopedMap scopedMap = globals ?? ScopedMap.empty();
+  final ScopedMap scopedMap = globals ?? ScopedMap();
   if (globals == null) {
     // if it wasn't overridden it should be the default
     assert(stateRef.get(scopedMap).value?.state == 'InitialState');
@@ -187,7 +187,7 @@ Future<HttpServer> runServer({int? serverPort, ScopedMap? globals}) async {
       pingInterval: const Duration(seconds: 10),
       validateIncomingConnection: (
         Map<String, Object?>? initialPayload,
-        GraphQLWebSocketServer wsServer,
+        GraphQLWebSocketShelfServer wsServer,
       ) {
         if (initialPayload != null) {
           // you can authenticated an user with the initialPayload:

@@ -22,7 +22,7 @@ void main() {
     ),
   );
 
-  final scope = ScopedMap.empty();
+  final scope = ScopedMap();
   final data = tasksRef.get(scope).tasks;
   final traces = <TracingBuilder>[];
 

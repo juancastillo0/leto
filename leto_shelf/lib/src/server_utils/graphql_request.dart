@@ -66,7 +66,7 @@ class GraphQLRequest {
   static Result<GraphQLRequest, String> fromMultiPartFormData(
     MultiPartData data,
   ) =>
-      graphqlRequestFromMultiPartFormData(data);
+      graphQLRequestFromMultiPartFormData(data);
 
   Iterable<GraphQLRequest> asIterable() sync* {
     GraphQLRequest? req = this;

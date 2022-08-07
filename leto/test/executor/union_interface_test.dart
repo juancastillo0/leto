@@ -573,7 +573,7 @@ void main() {
   });
 
   test('gets execution info in resolver', () async {
-    Object? encounteredContext;
+    ScopedMap? encounteredContext;
     Object? encounteredSchema;
     Object? encounteredRootValue;
 
@@ -584,7 +584,7 @@ void main() {
       ],
       isInterface: true,
       resolveType: (_source, type, ctx) {
-        encounteredContext = ctx.globals.parent!.values;
+        encounteredContext = ctx.scope.parent;
         encounteredSchema = ctx.executionCtx.schema;
         encounteredRootValue = ctx.executionCtx.requestCtx.rootValue;
         return 'Person';
@@ -602,7 +602,7 @@ void main() {
     final schema2 = GraphQLSchema(queryType: PersonType2);
     const document = '{ name, friends { name } }';
     final rootValue = Person('John', [], [liz]);
-    final contextValue = ScopedMap({'authToken': '123abc'});
+    final contextValue = ScopedMap();
 
     final result = await GraphQL(
       schema2,
@@ -623,6 +623,6 @@ void main() {
 
     expect(encounteredSchema, schema2);
     expect(encounteredRootValue, rootValue);
-    expect(encounteredContext, contextValue.values);
+    expect(encounteredContext, contextValue);
   });
 }

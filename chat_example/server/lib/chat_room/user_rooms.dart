@@ -9,7 +9,7 @@ import 'package:server/events/database_event.dart';
 import 'package:server/events/events_api.dart';
 import 'package:server/users/auth.dart';
 
-final userChatsRef = RefWithDefault.global(
+final userChatsRef = ScopedRef.global(
   (scope) => UserChatsTable(
     chatRoomDatabase.get(scope),
   ),

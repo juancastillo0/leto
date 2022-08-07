@@ -321,7 +321,6 @@ type Subscription {
 ```
 <!-- include-end{quickstart-schema-string} -->
 
-// TODO: 1A use scope overrides and do not allow modifications
 // TODO: 1T
 type CompilerLog {
   toString: String!
@@ -607,7 +606,7 @@ A Leto/Shelf server example with multiple models, code generation, some utilitie
 
 ## Room Signals
 
-A service with room and messages, an user can subscribe to a room to listen to messages and send private or group-wide messages. The service uses web sockets and in the source code repository there are three projects:
+A service with room and messages, an user can subscribe to a room to listen to messages and send private or group-wide messages. Useful for simple messages or setting up peer-to-peer protocols like WebRTC. The service uses web sockets and in the source code repository there are three projects:
 
 1. The Leto Shelf GraphQL server. Everything is saved in memory
 2. A Dart client using [Artemis](https://github.com/comigor/artemis)

@@ -23,24 +23,27 @@ class ErrorReason {
 ///
 /// https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md
 /// https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md
-abstract class Server {
+abstract class GraphQLWebSocketServer {
+  /// The supported web socket sub-protocols of this server
   static const supportedProtocols = ['graphql-transport-ws', 'graphql-ws'];
 
+  /// Whether the client's protocol is graphql-transport-ws
   bool get isTransportWsProtocol => client.protocol == 'graphql-transport-ws';
 
   final RemoteClient client;
   final Duration? keepAliveInterval;
   final Duration? connectionInitWaitTimeout;
+
   late final Timer? _connectionInitTimer;
   final Completer _done = Completer<void>();
-  late final StreamSubscription<OperationMessage> _sub;
-
-  final Map<String, StreamSubscription<Object?>?> currentOperationIds = {};
+  late final StreamSubscription<OperationMessage> _clientMessageSubscription;
+  final Map<String, StreamSubscription<Object?>?> _currentOperationIds = {};
 
   bool _init = false;
   bool _receivedInit = false;
   Timer? _timer;
 
+  /// This future completes when the server has stopped executing
   Future<void> get done => _done.future;
 
   Future<void> _onDone() async {
@@ -49,7 +52,9 @@ abstract class Server {
     }
     _connectionInitTimer?.cancel();
     _timer?.cancel();
-    await Future.wait(currentOperationIds.values.map((e) async => e?.cancel()));
+    await Future.wait(_currentOperationIds.values.map(
+      (e) async => e?.cancel(),
+    ));
   }
 
   Future<void> _connectionInitTimeout() {
@@ -62,7 +67,7 @@ abstract class Server {
   /// Creates the server logic for receiving and responding messages
   /// through the [client]. The [client.protocol] should be in
   /// the [supportedProtocols] and that will determine the logic executed.
-  Server(
+  GraphQLWebSocketServer(
     this.client, {
     this.keepAliveInterval,
     this.connectionInitWaitTimeout,
@@ -82,7 +87,7 @@ abstract class Server {
         ? null
         : Timer(connectionInitWaitTimeout!, _connectionInitTimeout);
 
-    _sub = client.stream.listen(
+    _clientMessageSubscription = client.stream.listen(
       (msg) async {
         if (msg.type == OperationMessage.gqlConnectionInit) {
           _connectionInitTimer?.cancel();
@@ -153,13 +158,13 @@ abstract class Server {
               throw FormatException('${msg.type} id is required.');
             }
             if (isTransportWsProtocol &&
-                currentOperationIds.containsKey(msg.id)) {
+                _currentOperationIds.containsKey(msg.id)) {
               return client.closeWithReason(
                 ErrorReason.duplicateSubscriptionId,
                 'Subscriber for ${msg.id} already exists',
               );
             }
-            currentOperationIds[msg.id!] = null;
+            _currentOperationIds[msg.id!] = null;
             if (msg.payload == null) {
               throw FormatException('${msg.type} payload is required.');
             } else if (msg.payload is! Map) {
@@ -202,7 +207,7 @@ abstract class Server {
                 payload: result.errors,
               ));
               if (isTransportWsProtocol) {
-                currentOperationIds.remove(msg.id);
+                _currentOperationIds.remove(msg.id);
                 return;
               }
             } else {
@@ -210,22 +215,22 @@ abstract class Server {
             }
             // Don't send complete if the client completed the subscription
             if (!isTransportWsProtocol ||
-                currentOperationIds.containsKey(msg.id)) {
+                _currentOperationIds.containsKey(msg.id)) {
               client.sink.add(
                   OperationMessage(OperationMessage.gqlComplete, id: msg.id));
             }
-            currentOperationIds.remove(msg.id);
+            _currentOperationIds.remove(msg.id);
           } else if (msg.type == OperationMessage.gqlComplete ||
               msg.type == OperationMessage.gqlStop) {
             if (msg.id == null) {
               throw FormatException('${msg.type} id is required.');
             }
-            final subs = currentOperationIds.remove(msg.id);
+            final subs = _currentOperationIds.remove(msg.id);
             if (subs != null) {
               await subs.cancel();
             }
           } else if (msg.type == OperationMessage.gqlConnectionTerminate) {
-            await _sub.cancel();
+            await _clientMessageSubscription.cancel();
             await _onDone();
           }
         } else if (msg.type == OperationMessage.subscribe) {
@@ -259,7 +264,7 @@ abstract class Server {
           payload: event.toJson(),
         ));
       });
-      currentOperationIds[id] = sub;
+      _currentOperationIds[id] = sub;
       await sub.asFuture<Object?>();
     } else {
       client.sink.add(OperationMessage(

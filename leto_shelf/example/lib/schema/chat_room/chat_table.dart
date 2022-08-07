@@ -11,9 +11,12 @@ import 'package:sqlite3/sqlite3.dart';
 part 'chat_table.g.dart';
 part 'chat_table.freezed.dart';
 
-final chatRoomDatabase = ScopeRef<Database>('ChatRoomDatabase');
+final chatRoomDatabase = ScopedRef<Database?>.global(
+  (_) => null,
+  name: 'ChatRoomDatabase',
+);
 
-final chatControllerRef = RefWithDefault.global(
+final chatControllerRef = ScopedRef.global(
   (holder) => ChatController.create(
     db: chatRoomDatabase.get(holder),
   ),

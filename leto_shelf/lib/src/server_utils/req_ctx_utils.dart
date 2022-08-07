@@ -2,23 +2,35 @@ import 'dart:developer';
 
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_shelf/leto_shelf.dart';
-import 'package:shelf/shelf.dart';
 
-final _requestCtxRef = ScopeRef<_LetoShelfRequest>('__request');
+final _requestCtxRef = ScopedRef<_LetoShelfRequest?>.scoped(
+  (_) => null,
+  name: '__request',
+);
 
-typedef ScopeOverrides = Map<Object, Object?>;
+/// Overrides for setting [_requestCtxRef]
+/// in a GraphQL request
+class RequestOverrides {
+  RequestOverrides._(this._request);
+  final _LetoShelfRequest _request;
+
+  /// Scoped overrides to be used in [GraphQL.parseAndExecute].
+  List<ScopedOverride> get overrides => [
+        _requestCtxRef.override((_) => _request),
+      ];
+}
 
 /// Creates a scope with leto_shelf request state
-ScopeOverrides makeRequestScopedMap(
+RequestOverrides makeRequestScopedMap(
   Request request, {
   required bool isFromWebSocket,
 }) {
-  return {
-    _requestCtxRef: _LetoShelfRequest(
+  return RequestOverrides._(
+    _LetoShelfRequest(
       isFromWebSocket: isFromWebSocket,
       request: request,
-    )
-  };
+    ),
+  );
 }
 
 class _LetoShelfRequest {
@@ -80,7 +92,7 @@ extension ReqCtxShelf on Ctx {
   }
 }
 
-_LetoShelfRequest _state(GlobalsHolder ctx) {
+_LetoShelfRequest _state(ScopedHolder ctx) {
   final state = _requestCtxRef.get(ctx);
   if (state == null) {
     throw StateError(
@@ -93,28 +105,28 @@ _LetoShelfRequest _state(GlobalsHolder ctx) {
 }
 
 /// Returns the request associated with this [ctx]
-Request extractRequest(GlobalsHolder ctx) {
+Request extractRequest(ScopedHolder ctx) {
   return _state(ctx).request;
 }
 
 /// Returns the request associated with this [ctx]
-bool extractIsFromWebSocket(GlobalsHolder ctx) {
+bool extractIsFromWebSocket(ScopedHolder ctx) {
   return _state(ctx).isFromWebSocket;
 }
 
 /// Returns the response associated with this [ctx]
 ///
 /// An empty response with 200 status code if it wasn't overridden
-Response extractResponse(GlobalsHolder ctx) {
+Response extractResponse(ScopedHolder ctx) {
   return _state(ctx).response ?? Response.ok(null);
 }
 
 /// Returns the response associated with this [ctx]
 ///
 /// An empty response with 200 status code if it wasn't overridden
-Response extractResponseFromMap(ScopeOverrides ctx) {
-  return (ctx[_requestCtxRef]! as _LetoShelfRequest).response ??
-      Response.ok(null);
+Response extractResponseFromMap(RequestOverrides overrides) {
+  final value = overrides._request;
+  return value.response ?? Response.ok(null);
 }
 
 const _updateResponse = updateResponse;

@@ -30,7 +30,7 @@ class GraphQLTracingExtension extends GraphQLExtension {
   /// If false, you probably want to pass an [onExecute] callback.
   final bool returnInResponse;
 
-  final ref = RefWithDefault.scoped(
+  final ref = ScopedRef.scoped(
     (_) => TracingBuilder(version: 1),
     name: 'GraphQLTracingExtension',
   );

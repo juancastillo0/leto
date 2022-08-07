@@ -5,6 +5,7 @@ import 'package:async/async.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'transport.dart';
 
+/// A callback to close the client's channel with a [code] and [reason]
 typedef CloseWithReason = Future<void> Function([int? code, String? reason]);
 
 class RemoteClient extends StreamChannelMixin<OperationMessage> {

@@ -140,7 +140,7 @@ final _queryInClass6GraphQLField =
                 final _call = (Resolver6 r) => r.queryInClass6();
                 final FutureOr<Resolver6> _obj =
 // ignore: unnecessary_non_null_assertion
-                    _mapToRef[Resolver6]!.get(ctx) as FutureOr<Resolver6>;
+                    _mapToRef[Resolver6]!.get(ctx).value as FutureOr<Resolver6>;
                 if (_obj is Future<Resolver6>)
                   return _obj.then(_call);
                 else

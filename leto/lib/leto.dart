@@ -26,9 +26,9 @@ export 'package:leto_schema/leto_schema.dart'
         GraphQLException,
         GraphQLError,
         ScopedMap,
-        ScopeRef,
-        RefWithDefault,
-        GlobalsHolder;
+        ScopedRef,
+        ScopedHolder,
+        ScopedOverride;
 
 export 'src/extensions/extension.dart';
 export 'src/graphql_result.dart';
@@ -133,7 +133,7 @@ class GraphQL {
     this.extensions = const [],
     this.customValidationRules = const [],
     ScopedMap? globalVariables,
-  })  : baseGlobalVariables = globalVariables ?? ScopedMap.empty(),
+  })  : baseGlobalVariables = globalVariables ?? ScopedMap(),
         introspect = introspect ?? true,
         validate = validate ?? true {
     if (this.validate) {
@@ -156,19 +156,22 @@ class GraphQL {
         customValidationRules: config.customValidationRules,
       );
 
-  static final _resolveCtxRef = ScopeRef<ExecutionCtx>('ResolveCtx');
+  static final _resolveCtxRef = ScopedRef<MutableValue<ExecutionCtx?>>.scoped(
+    (_) => MutableValue(null),
+    name: 'ResolveCtx',
+  );
 
   /// Gets the [ExecutionCtx] of a request from a [scope].
   /// null when the execution stage hasn't started.
-  static ExecutionCtx? getResolveCtx(GlobalsHolder scope) =>
-      _resolveCtxRef.get(scope);
+  static ExecutionCtx? getResolveCtx(ScopedHolder scope) =>
+      _resolveCtxRef.get(scope).value;
 
-  static final _graphQLExecutorRef = ScopeRef<GraphQL>('GraphQLExecutor');
+  static final _graphQLExecutorRef =
+      ScopedRef<GraphQL?>.scoped((_) => null, name: 'GraphQLExecutor');
 
   /// Gets the [GraphQL] executor from a [scope].
   /// Always non-null for scopes derived from [parseAndExecute]
-  static GraphQL? fromCtx(GlobalsHolder scope) =>
-      _graphQLExecutorRef.get(scope);
+  static GraphQL? fromCtx(ScopedHolder scope) => _graphQLExecutorRef.get(scope);
 
   /// Parses the GraphQL document in [query] and executes [operationName]
   /// or the only operation in the document if not given.
@@ -186,17 +189,20 @@ class GraphQL {
     Map<String, Object?>? variableValues,
     Map<String, Object?>? extensions,
     Object? rootValue,
-    Map<Object, Object?>? globalVariables,
+    List<ScopedOverride>? scopeOverrides,
     List<OperationType> validOperationTypes = OperationType.values,
   }) async {
-    final _globalVariables = globalVariables == null
-        ? ScopedMap.empty(baseGlobalVariables)
-        : ScopedMap(globalVariables, baseGlobalVariables);
-    _graphQLExecutorRef.setScoped(_globalVariables, this);
+    final _globalVariables = ScopedMap(
+      parent: baseGlobalVariables,
+      overrides: [
+        if (scopeOverrides != null) ...scopeOverrides,
+        _graphQLExecutorRef.override((_) => this)
+      ],
+    );
 
     final preExecuteCtx = RequestCtx(
       extensions: extensions,
-      globals: _globalVariables,
+      scope: _globalVariables,
       operationName: operationName,
       query: query,
       rootValue: rootValue ?? _globalVariables,
@@ -332,11 +338,11 @@ class GraphQL {
     final ctx = ExecutionCtx(
       document: document,
       operation: operation,
-      globals: globalVariables,
+      scope: globalVariables,
       variableValues: coercedVariableValues,
       requestCtx: baseCtx,
     );
-    _resolveCtxRef.setScoped(ctx.globals, ctx);
+    _resolveCtxRef.get(ctx.scope).value = ctx;
 
     try {
       final Object? data;
@@ -585,17 +591,17 @@ class GraphQL {
           requestCtx: streamCtx.requestCtx,
           document: streamCtx.document,
           operation: streamCtx.operation,
-          globals: streamCtx.globals.child(),
+          scope: streamCtx.scope.child(),
           variableValues: streamCtx.variableValues,
         );
-        _resolveCtxRef.setScoped(ctx.globals, ctx);
+        _resolveCtxRef.get(ctx.scope).value = ctx;
 
         // final _prev = prev;
         return withExtensions<Future<GraphQLResult>>(
           (next, p1) async => p1.executeSubscriptionEvent(
             next,
             ctx,
-            streamCtx.globals,
+            streamCtx.scope,
           ),
           () async {
             /// ExecuteSubscriptionEvent
@@ -1427,6 +1433,7 @@ class ThrownError {
   /// and the inner type for [ThrownErrorLocation.completeListItem]
   final GraphQLType type;
 
+  /// An error throw during the processing of a GraphQL request
   const ThrownError({
     required this.error,
     required this.stackTrace,

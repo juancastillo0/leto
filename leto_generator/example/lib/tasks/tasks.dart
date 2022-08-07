@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:leto/types/json.dart';
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/validate_rules.dart';
 
 part 'tasks.g.dart';
 
-final tasksRef = RefWithDefault.global(
+final tasksRef = ScopedRef.global(
   (_) => TaskController([
     Task(
       id: '1',

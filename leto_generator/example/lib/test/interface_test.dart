@@ -6,14 +6,14 @@ import 'package:test/test.dart';
 
 void main() {
   test('interface generator', () async {
-    final scope = ScopedMap.empty();
+    final scope = ScopedMap();
 
     for (final subs in unionsSchemaString) {
       expect(graphqlApiSchema.schemaStr, contains(subs.trim()));
     }
 
     final states = [
-      interfaceState.get(scope),
+      interfaceStateMutable.get(scope).value,
       InterfaceState(
         m2: NestedInterfaceImpl2(dec: Decimal.one, name2: 'dd', name: 'ca'),
         m3: NestedInterfaceImpl3(
@@ -27,7 +27,7 @@ void main() {
     ];
 
     for (final s in states) {
-      interfaceState.set(scope, s);
+      interfaceStateMutable.get(scope).value = s;
       final m3 = s.m3;
       final m2 = s.m2;
 

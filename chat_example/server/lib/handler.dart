@@ -50,7 +50,7 @@ Future<void> setUpGraphQL(
   ScopedMap? scope,
   GraphQLConfig? config,
 }) async {
-  final globalVariables = scope ?? ScopedMap.empty();
+  final globalVariables = scope ?? ScopedMap();
 
   app.get(
     '/files/<filepath|.*>',

@@ -127,8 +127,8 @@ class DateKey with StringKeyed implements Comparable<DateKey> {
   Map<String, Object?> toJson() => _$DateKeyToJson(this);
 }
 
-final interfaceState = RefWithDefault.global(
-  (scope) => InterfaceState(
+final interfaceStateMutable = ScopedRef.global(
+  (scope) => MutableValue(InterfaceState(
     m2: NestedInterfaceImpl2(
       dec: Decimal.parse('22.3'),
       name2: 'name22',
@@ -139,7 +139,7 @@ final interfaceState = RefWithDefault.global(
       name3: 'name33',
       name: null,
     ),
-  ),
+  )),
 );
 
 class InterfaceState {
@@ -150,21 +150,26 @@ class InterfaceState {
     required this.m3,
     required this.m2,
   });
+
+  static InterfaceState fromCtx(Ctx ctx) =>
+      interfaceStateMutable.get(ctx).value;
 }
 
 @Query()
 Future<NestedInterfaceImpl3?> getNestedInterfaceImpl3(Ctx ctx) async {
-  return interfaceState.get(ctx).m3;
+  return InterfaceState.fromCtx(ctx).m3;
 }
 
 @Query()
 NestedInterfaceImpl2 getNestedInterfaceImpl2(Ctx ctx) {
-  return interfaceState.get(ctx).m2;
+  return InterfaceState.fromCtx(ctx).m2;
 }
 
 @Query()
 NestedInterface getNestedInterfaceImplByIndex(Ctx ctx, int index) {
-  return index == 2 ? interfaceState.get(ctx).m2 : interfaceState.get(ctx).m3;
+  return index == 2
+      ? InterfaceState.fromCtx(ctx).m2
+      : InterfaceState.fromCtx(ctx).m3;
 }
 
 @Query()

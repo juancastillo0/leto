@@ -186,7 +186,7 @@ void main() {
   }, skip: 'inner subscription multiple fields validation');
 
   test('GraphQLConfig', () async {
-    final ref = ScopeRef<String>();
+    final ref = ScopedRef<String?>.scoped((scope) => null);
     GraphQL? _executor;
 
     final schema = GraphQLSchema(
@@ -202,7 +202,9 @@ void main() {
       ]),
     );
     final config = GraphQLConfig(
-      globalVariables: ScopedMap({ref: 'result text'}),
+      globalVariables: ScopedMap(overrides: [
+        ref.override((scope) => 'result text'),
+      ]),
     );
     final executor = GraphQL.fromConfig(schema, config);
     final result = await executor.parseAndExecute(

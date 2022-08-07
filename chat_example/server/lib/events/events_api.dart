@@ -184,7 +184,7 @@ Future<Paginated<DBEvent>> getEvents(
 
 class _UserChatsCollector {
   Set<int>? chatIds;
-  final GlobalsHolder ctx;
+  final ScopedHolder ctx;
   final int userId;
 
   _UserChatsCollector(

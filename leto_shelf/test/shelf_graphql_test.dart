@@ -29,9 +29,11 @@ Future<void> main() async {
   ];
 
   final _server = await testServer(ServerConfig(
-    globalVariables: ScopedMap({
-      testUnionModelsTestKey: _testUnionModels,
-    }),
+    globalVariables: ScopedMap(
+      overrides: [
+        testUnionModelsTestKey.override((_) => _testUnionModels),
+      ],
+    ),
     extensionList: [
       GraphQLPersistedQueries(
         returnHashInResponse: false,

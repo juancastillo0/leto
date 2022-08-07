@@ -16,9 +16,11 @@ Future<void> main() async {
   final books = BooksController(bookAddedCallbacks: _streamCallbacks);
 
   final server = await testServer(ServerConfig(
-    globalVariables: ScopedMap({
-      booksControllerRef: books,
-    }),
+    globalVariables: ScopedMap(
+      overrides: [
+        booksControllerRef.override((_) => books),
+      ],
+    ),
     extensionList: [
       GraphQLTracingExtension(
         returnInResponse: true,

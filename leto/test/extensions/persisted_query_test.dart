@@ -20,7 +20,7 @@ void main() {
   late GraphQL executor;
 
   setUp(() {
-    scope = ScopedMap.empty();
+    scope = ScopedMap();
     queriesCache = LruCacheSimple(10);
     executor = GraphQL(
       tasksSchema,

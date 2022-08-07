@@ -94,12 +94,14 @@ class UnionA with _$UnionA {
 }
 // @example-end{generator-unions-freezed}
 
-final unionARef = ScopeRef<UnionA>();
+final unionARef = ScopedRef<MutableValue<UnionA?>>.scoped(
+  (scope) => MutableValue(null),
+);
 
 @Query()
 @GraphQLDocumentation(description: 'gets Union A')
 FutureOr<UnionA?> getUnionA(Ctx ctx) {
-  return unionARef.get(ctx);
+  return unionARef.get(ctx).value;
 }
 
 final unionNoFreezedSchemaStr = [

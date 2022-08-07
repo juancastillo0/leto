@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 import 'tasks_schema.dart';
 
 void main() {
-  final scope = ScopedMap.empty();
+  final scope = ScopedMap();
   final cache = LruCacheSimple<String, CacheEntry>(10);
   final executor = GraphQL(
     tasksSchema,

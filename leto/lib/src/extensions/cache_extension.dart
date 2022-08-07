@@ -205,7 +205,10 @@ class CacheEntry {
 }
 
 class CacheExtension extends GraphQLExtension {
-  static final ref = ScopeRef<CacheState>('CacheExtension');
+  static final ref = ScopedRef<MutableValue<CacheState?>>.scoped(
+    (_) => MutableValue(null),
+    name: 'CacheExtension',
+  );
 
   final Cache<String, CacheEntry>? cache;
 
@@ -214,10 +217,8 @@ class CacheExtension extends GraphQLExtension {
   @override
   String get mapKey => 'cacheResponse';
 
-  static CacheState? getRootInfo(GlobalsHolder holder) {
-    if (holder.globals.containsScoped(CacheExtension.ref)) {
-      return CacheExtension.ref.get(holder);
-    }
+  static CacheState? getRootInfo(ScopedHolder holder) {
+    return CacheExtension.ref.get(holder).value;
   }
 
   @override
@@ -243,7 +244,7 @@ class CacheExtension extends GraphQLExtension {
         queryHash: _queryHash,
         rootId: extensionData['rootId'] as String?,
       );
-      ref.setScoped(ctx, state);
+      ref.get(ctx).value = state;
       final value = getCachedValue(ctx, []);
       if (value != null) {
         return GraphQLResult(value);
@@ -295,7 +296,7 @@ class CacheExtension extends GraphQLExtension {
     return next();
   }
 
-  Object? getCachedValue(GlobalsHolder scope, List<Object> path) {
+  Object? getCachedValue(ScopedHolder scope, List<Object> path) {
     final state = getRootInfo(scope);
     final info = state?.incoming.getNested(path);
     final maxAgeSeconds = info?.maxAgeSeconds;

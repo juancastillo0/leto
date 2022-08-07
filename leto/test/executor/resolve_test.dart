@@ -12,9 +12,11 @@ class Adder {
   const Adder(this._num);
 
   int test(Map<String, Object?> args, ScopedMap context) {
-    return _num + (args['addend1'] as int) + (context['addend2'] as int);
+    return _num + (args['addend1']! as int) + context.get(addend2Ref)!;
   }
 }
+
+final addend2Ref = ScopedRef<int?>.scoped((_) => null);
 
 /// Execute: resolve function
 void main() {
@@ -90,10 +92,12 @@ void main() {
       graphQLInt.field<Adder>(
         '',
         inputs: [GraphQLFieldInput('addend1', graphQLInt)],
-        resolve: (obj, ctx) => obj.test(ctx.args, ctx.globals),
+        resolve: (obj, ctx) => obj.test(ctx.args, ctx.scope),
       ),
     );
-    final contextValue = ScopedMap({'addend2': 9});
+    final contextValue = ScopedMap(
+      overrides: [addend2Ref.override((scope) => 9)],
+    );
     const document = '{ test(addend1: 80) }';
 
     final result = await execute(
