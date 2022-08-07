@@ -19,7 +19,8 @@ Builder graphQLBuilder(BuilderOptions options) {
   );
 }
 
-class _GraphQLGenerator extends GeneratorForAnnotation<GraphQLObjectDec> {
+class _GraphQLGenerator
+    extends GeneratorForAnnotation<BaseGraphQLTypeDecorator> {
   final Config config;
 
   _GraphQLGenerator(this.config);

@@ -2,14 +2,14 @@
 
 part of leto_schema.src.schema;
 
-/// Base object decorator.
+/// Base type decorator.
 ///
-/// Use [GraphQLInput] or [GraphQLObject]
-class GraphQLObjectDec {}
+/// Use [GraphQLObject], [GraphQLInput], [GraphQLUnion] or [GraphQLEnum]
+class BaseGraphQLTypeDecorator {}
 
 /// Signifies that a class should statically generate a [GraphQLInputObjectType]
 @Target({TargetKind.classType})
-class GraphQLInput implements GraphQLObjectDec {
+class GraphQLInput implements BaseGraphQLTypeDecorator {
   /// Signifies that a class should statically
   /// generate a [GraphQLInputObjectType]
   ///
@@ -36,7 +36,7 @@ class GraphQLInput implements GraphQLObjectDec {
 
 /// Signifies that a class should statically generate a [GraphQLEnumType].
 @Target({TargetKind.classType, TargetKind.enumType})
-class GraphQLEnum implements GraphQLObjectDec {
+class GraphQLEnum implements BaseGraphQLTypeDecorator {
   /// Signifies that a class should statically generate a [GraphQLEnumType].
   ///
   /// ```dart
@@ -73,12 +73,12 @@ class GraphQLEnum implements GraphQLObjectDec {
   ///   final int code;
   ///   final String value;
   ///
-  ///   const ClassEnum(this.code, this.value);
+  ///   const ClassEnum._(this.code, this.value);
   ///
   ///   @GraphQLEnumVariant()
-  ///   static const variantOne = ClassEnum(100, 'value100');
+  ///   static const variantOne = ClassEnum._(100, 'value100');
   ///   @GraphQLEnumVariant()
-  ///   static const variantOne = ClassEnum(200, 'value200');
+  ///   static const variantOne = ClassEnum._(200, 'value200');
   ///
   ///   // other stuff, probably a `ClassEnum.values` list,
   ///   // override the `==` operator and `hashCode` getter or
@@ -136,7 +136,7 @@ class GraphQLEnumVariant {
 
 /// Signifies that a class should statically generate a [GraphQLUnionType].
 @Target({TargetKind.classType})
-class GraphQLUnion implements GraphQLObjectDec {
+class GraphQLUnion implements BaseGraphQLTypeDecorator {
   // TODO: 2G don't generate the union object wrappers if all of them have
   //  only one property of the same name and the property is an object
   final bool? unnestIfEqual;
@@ -158,7 +158,7 @@ typedef GraphQLClass = GraphQLObject;
 
 /// Signifies that a class should statically generate a [GraphQLType].
 @Target({TargetKind.classType})
-class GraphQLObject implements GraphQLObjectDec {
+class GraphQLObject implements BaseGraphQLTypeDecorator {
   /// Signifies that a class should statically generate a [GraphQLType].
   ///
   /// Generates a [GraphQLObjectType] for classes
@@ -303,14 +303,15 @@ class GraphQLField {
 }
 
 /// Base annotation for GraphQL resolvers.
+///
 /// use [GraphQLResolver] or [ClassResolver]
-abstract class BaseGraphQLResolver {}
+abstract class BaseGraphQLResolverDecorator {}
 
 /// Signifies that a function should statically generate a [GraphQLObjectField].
 ///
 /// Use [Mutation], [Query] and [Subscription]
 @Target({TargetKind.function, TargetKind.method})
-abstract class GraphQLResolver implements BaseGraphQLResolver {
+abstract class GraphQLResolver implements BaseGraphQLResolverDecorator {
   /// The name of the field to generate
   String? get name;
 
@@ -336,7 +337,8 @@ class AttachFn {
 /// Signifies that a class should be used to generated and resolve
 /// a set of [GraphQLObjectField]s.
 @Target({TargetKind.classType})
-class ClassResolver implements BaseGraphQLResolver {
+class ClassResolver implements BaseGraphQLResolverDecorator {
+  // TODO: 1G support prefixing or nesting
   final String? fieldName;
 
   /// A custom Dart code getter for the annotated Class instance

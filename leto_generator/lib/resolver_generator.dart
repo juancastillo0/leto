@@ -29,7 +29,8 @@ bool isReqCtx(DartType type) {
       const TypeChecker.fromRuntime(Ctx).isAssignableFrom(type.element!);
 }
 
-class _GraphQLGenerator extends GeneratorForAnnotation<BaseGraphQLResolver> {
+class _GraphQLGenerator
+    extends GeneratorForAnnotation<BaseGraphQLResolverDecorator> {
   final Config config;
 
   _GraphQLGenerator(this.config);

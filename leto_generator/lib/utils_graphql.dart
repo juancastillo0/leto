@@ -251,7 +251,7 @@ Expression inferType(
 
   // Firstly, check if it's a GraphQL class.
   if (type is! InterfaceType ||
-      !const TypeChecker.fromRuntime(GraphQLObjectDec)
+      !const TypeChecker.fromRuntime(BaseGraphQLTypeDecorator)
           .hasAnnotationOf(type.element)) {
     if (type is TypeParameterType && generics != null) {
       final generic = generics[typeName];

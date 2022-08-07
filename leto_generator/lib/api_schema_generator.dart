@@ -73,7 +73,7 @@ class ValidatorsLibGenerator implements Builder {
       }
       allClasses.addAll(
         reader.classes.where(
-          (element) => const TypeChecker.fromRuntime(GraphQLObjectDec)
+          (element) => const TypeChecker.fromRuntime(BaseGraphQLTypeDecorator)
               .hasAnnotationOf(element),
         ),
       );
