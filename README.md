@@ -143,7 +143,8 @@ If your prefer to read the documentation in a web page, you can [try the documen
   - [ToDirectiveValue](#todirectivevalue)
     - [`KeyAttachment`](#keyattachment)
     - [`ValidaAttachment`](#validaattachment)
-  - [AttachFn //TODO: 1A](#attachfn-todo-1a)
+  - [Usage](#usage)
+    - [AttachFn for code generation](#attachfn-for-code-generation)
 - [Utilities](#utilities)
     - [`buildSchema`](#buildschema)
     - [`printSchema`](#printschema)
@@ -2055,7 +2056,7 @@ The skip and include directives are supported during document execution followin
 Provide custom directives supported by your server through the 
 `GraphQLSchema.directives` field.
 
-You can retrieve custom directives values in your GraphQL Schema definition when using the `buildSchema` utility, which will parse all directives and leave them accessible through the `astNode` Dart fields in the different GraphQL elements. Setting custom directives values through the GraphQL Schema Dart classes is a work in progress. Right now, you can add `DirectiveNode`s to the element's [attachments](#attachments) if you want to print it with `printSchema`, however the api will probably change. See https://github.com/graphql/graphql-js/issues/1343
+You can retrieve custom directives values in your GraphQL Schema definition when using the `buildSchema` utility, which will parse all directives and leave them accessible through the `astNode` Dart fields in the different GraphQL elements. Setting custom directives values through the GraphQL Schema Dart classes is a work in progress. Right now, you can add `DirectiveNode`s to the element's [attachments](#attachments) if you want to print it with `printSchema`, however the API will probably change. See https://github.com/graphql/graphql-js/issues/1343
 
 ## `KeyDirective`
 
@@ -2066,6 +2067,7 @@ It is repeatable, there can be multiple keys per Object.
 
 The following example shows an Object that can be identified by two keys,
 the "id" field and the combination "type" and "nested.value" fields.
+
 ```graphql
 type Model @key(fields: "id") @key(fields: "type nested { value } ") {
   id: String!
@@ -2131,7 +2133,7 @@ In this case the JSON '{"variantType":"list","each":{"variantType":"string","min
 
 # Attachments
 
-This api is experimental.
+This API is experimental.
 
 All GraphQL elements in the schema can have addition custom attachments. This can be used by other libraries or extensions to change the behavior of execution. For example, for supporting custom input validations or configuring the max age for some fields in an extension that caches responses.
 
@@ -2141,7 +2143,7 @@ An attachment can register validation logic by implementing `AttachmentWithValid
 
 ## ToDirectiveValue
 
-Implementing this interface allows the GraphQLSchema's SDL String to contain the attachment's information ad directives over the specific element associated with the attachment. Attachments that implement `ToDirectiveValue` require the following getters:
+Implementing this interface allows the GraphQLSchema's SDL String to contain the attachment's information by adding directives over the specific element associated with the attachment. Attachments that implement `ToDirectiveValue` require the following getters:
 
 ```dart
   /// The directive value represented by this object
@@ -2150,6 +2152,8 @@ Implementing this interface allows the GraphQLSchema's SDL String to contain the
   /// The directive definition of the [directiveValue]
   GraphQLDirective get directiveDefinition;
 ```
+
+---
 
 We provide two attachments, both of which implement `AttachmentWithValidation` and `ToDirectiveValue`.
 
@@ -2161,7 +2165,77 @@ Implements the [key directive](#keydirective) over a given object. The `fields` 
 
 Implements the [valida directive](#validadirective) over a given input field or argument. The `annotation` argument should be the `ValidaField` specified for the element. You probably should use it manually, when using code generation the validation will be performed for any `@Valida()` annotated class or resolver and the attachment will be placed at the appropriate location.
 
-## AttachFn //TODO: 1A
+## Usage
+
+To use associate a GraphQLElement (type, field or directive) with attachments, you may pass them as arguments to each of the GraphQLElements constructor.
+
+### AttachFn for code generation
+
+To add attachments to types or fields when using code generation you can use the `AttachFn` decorator. An example of this is the following, using the [`KeyAttachment`](#keyattachment) for [`KeyDirective`](#keydirective) and the [`ValidaAttachment`](#validaattachment) for [`ValidaDirective`](#validadirective) (which is set up in the generated code).
+
+<!-- include{generator-attachments} -->
+```dart
+@Valida()
+@AttachFn(KeyedAttachment.attachments)
+@GraphQLObject()
+class KeyedAttachment {
+  final String id;
+  final String name;
+  @ValidaDate(max: 'now')
+  final DateTime createdAt;
+  final NestedAttachment nested;
+
+  KeyedAttachment({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+    required this.nested,
+  });
+
+  static List<AttachmentWithValidation> attachments() {
+    return const [
+      KeyAttachment('id'),
+      KeyAttachment('name nested {id}'),
+    ];
+  }
+}
+
+@AttachFn(NestedAttachment.attachments)
+@GraphQLObject()
+class NestedAttachment {
+  final int id;
+
+  NestedAttachment({
+    required this.id,
+  });
+
+  static List<AttachmentWithValidation> attachments() {
+    return const [
+      KeyAttachment('id'),
+    ];
+  }
+}
+```
+<!-- include-end{generator-attachments} -->
+
+Will generate the following GraphQL schema:
+
+<!-- include{generator-attachments-graphql} -->
+```graphql
+type KeyedAttachment @key(fields: "id") @key(fields: "name nested {id}") {
+  id: ID!
+  name: String!
+  createdAt: Date! @valida(jsonSpec: """
+{"variantType":"date","max":"now"}
+""")
+  nested: NestedAttachment!
+}''',
+  '''
+type NestedAttachment @key(fields: "id") {
+  id: Int!
+```
+<!-- include-end{generator-attachments-graphql} -->
+
 
 # Utilities
 

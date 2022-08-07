@@ -5,6 +5,7 @@ import 'package:valida/valida.dart';
 part 'attachments.g.dart';
 
 const keyedAttachmentGraphQLStrings = [
+// @example-start{generator-attachments-graphql,extension:graphql,start:1,end:-2}
   '''
 type KeyedAttachment @key(fields: "id") @key(fields: "name nested {id}") {
   id: ID!
@@ -17,9 +18,12 @@ type KeyedAttachment @key(fields: "id") @key(fields: "name nested {id}") {
   '''
 type NestedAttachment @key(fields: "id") {
   id: Int!
-}'''
+}
+'''
+// @example-end{generator-attachments-graphql}
 ];
 
+// @example-start{generator-attachments}
 @Valida()
 @AttachFn(KeyedAttachment.attachments)
 @GraphQLObject()
@@ -60,6 +64,7 @@ class NestedAttachment {
     ];
   }
 }
+// @example-end{generator-attachments}
 
 @Query()
 KeyedAttachment getKeyedAttachment() {
