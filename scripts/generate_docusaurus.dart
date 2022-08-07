@@ -68,11 +68,16 @@ void main() async {
 
     bool inCodeSection = false;
     final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
+    final githubRepoLingRegExp = RegExp(r'\[(.*)\]\(\./([^\)]+)\)');
     while (i < lines.length) {
       final line = lines[i];
 
       if (innerLinkRegExp.hasMatch(line)) {
         allInnerLinks.add(i);
+      } else if (githubRepoLingRegExp.hasMatch(line)) {
+        lines[i] = line.replaceAllMapped(githubRepoLingRegExp, (match) {
+          return '[${match.group(1)}](https://github.com/juancastillo0/leto/tree/main/${match.group(2)})';
+        });
       }
 
       if ((line.startsWith('# ') || isGlobal && line.startsWith('## ')) &&

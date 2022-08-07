@@ -631,13 +631,13 @@ You can view the code in the [Github repo](https://github.com/juancastillo0/cida
 
 This repository is a monorepo with the following packages
 
-| Pub                                                                  | Source                                                    | Description                                                                                |
-| -------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [![version][package:leto:version]][package:leto]                     | [`package:leto`][package:leto:source]                     | GraphQL server (executor) implementation, GraphQL extensions and DataLoader                |
-| [![version][package:leto_schema:version]][package:leto_schema]       | [`package:leto_schema`][package:leto_schema:source]       | Define GraphQL executable schemas, validate GraphQL documents and multiple utilities       |
-| [![version][package:leto_generator:version]][package:leto_generator] | [`package:leto_generator`][package:leto_generator:source] | Generate GraphQL schemas, types and fields from Dart code annotations                      |
-| [![version][package:leto_shelf:version]][package:leto_shelf]         | [`package:leto_shelf`][package:leto_shelf:source]         | GraphQL web server bindings and utilities for  [shelf](https://github.com/dart-lang/shelf) |
-| [![version][package:leto_links:version]][package:leto_links]         | [`package:leto_links`][package:leto_links:source]         | Client gql links, support for GraphQL extensions defined in package:leto                   |
+| Pub                                                                                                    | Source                                       | Description                                                                                |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [![version](https://img.shields.io/pub/v/leto.svg)](https://pub.dev/packages/leto)                     | [`package:leto`](./leto)                     | GraphQL server (executor) implementation, GraphQL extensions and DataLoader                |
+| [![version](https://img.shields.io/pub/v/leto_schema.svg)](https://pub.dev/packages/leto_schema)       | [`package:leto_schema`](./leto_schema)       | Define GraphQL executable schemas, validate GraphQL documents and multiple utilities       |
+| [![version](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dev/packages/leto_generator) | [`package:leto_generator`](./leto_generator) | Generate GraphQL schemas, types and fields from Dart code annotations                      |
+| [![version](https://img.shields.io/pub/v/leto_shelf.svg)](https://pub.dev/packages/leto_shelf)         | [`package:leto_shelf`](./leto_shelf)         | GraphQL web server bindings and utilities for  [shelf](https://github.com/dart-lang/shelf) |
+| [![version](https://img.shields.io/pub/v/leto_links.svg)](https://pub.dev/packages/leto_links)         | [`package:leto_links`](./leto_links)         | Client gql links, support for GraphQL extensions defined in package:leto                   |
 
 # Web integrations
 
@@ -2212,19 +2212,3 @@ If using fvm, you may need to run:
 ```
 fvm flutter pub global run melos bootstrap
 ```
-
-[package:leto:source]: ./leto
-[package:leto]: https://pub.dartlang.org/packages/leto
-[package:leto:version]: https://img.shields.io/pub/v/leto.svg
-[package:leto_schema:source]: ./leto_schema
-[package:leto_schema]: https://pub.dartlang.org/packages/leto_schema
-[package:leto_schema:version]: https://img.shields.io/pub/v/leto_schema.svg
-[package:leto_generator:source]: ./leto_generator
-[package:leto_generator]: https://pub.dartlang.org/packages/leto_generator
-[package:leto_generator:version]: https://img.shields.io/pub/v/leto_generator.svg
-[package:leto_shelf:source]: ./leto_shelf
-[package:leto_shelf]: https://pub.dartlang.org/packages/leto_shelf
-[package:leto_shelf:version]: https://img.shields.io/pub/v/leto_shelf.svg
-[package:leto_links:source]: ./leto_links
-[package:leto_links]: https://pub.dartlang.org/packages/leto_links
-[package:leto_links:version]: https://img.shields.io/pub/v/leto_links.svg
