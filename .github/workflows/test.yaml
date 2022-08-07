@@ -29,7 +29,7 @@ jobs:
       - name: Analyze code
         run: melos run analyze
         if: always() && steps.install.outcome == 'success'
-      - run: dart run collect_examples.dart --check
+      - run: dart run scripts/collect_examples.dart --check
         if: always() && steps.install.outcome == 'success'
       - id: coverage
         name: Collect and report coverage
@@ -89,7 +89,7 @@ jobs:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: docusaurus/package-lock.json
-      - run: dart run collect_examples.dart
+      - run: dart run scripts/collect_examples.dart
       - run: dart run scripts/generate_docusaurus.dart
       - name: Install dependencies
         run: cd docusaurus && npm ci

@@ -43,7 +43,7 @@ Future<void> main(List<String> args) async {
       }
     } else if (entity is File && entity.path.endsWith('.dart')) {
       List<String> lines = await entity.readAsLines();
-      final lineRanges = await findLineRanges(
+      final lineRanges = findLineRanges(
         lines,
         startRegExp,
         endRegExp,
@@ -122,11 +122,12 @@ Future<void> main(List<String> args) async {
     final readmeLines = await readme.readAsLines();
     final startRegExp = RegExp(r'^<!--\s*include{([^}]+)}\s*-->');
     final endRegExp = RegExp(r'^<!--\s*include-end{([^}]+)}\s*-->');
-    final includeRanges = await findLineRanges(
+    final includeRanges = findLineRanges(
       readmeLines,
       startRegExp,
       endRegExp,
       endOptional: true,
+      omitSectionDelimiter: RegExp('^(```|~~~)'),
     );
 
     final List<String> warnings = [];
@@ -299,24 +300,33 @@ class LineRange {
   LineRange(this.startLine, this.endLine);
 }
 
-Future<List<LineRange>> findLineRanges(
+List<LineRange> findLineRanges(
   List<String> lines,
   RegExp startRegExp,
   RegExp endRegExp, {
   bool endOptional = false,
-}) async {
+  RegExp? omitSectionDelimiter,
+}) {
   final List<LineRange> examples = [];
   int? index = 0;
   while (index != null) {
     int? _startIndex;
     int? _endIndex;
+    bool isOmitting = false;
     for (int i = index; i < lines.length; i++) {
-      final _matchesStart = startRegExp.hasMatch(lines[i]);
+      final line = lines[i];
+      isOmitting = omitSectionDelimiter != null &&
+          (isOmitting && !omitSectionDelimiter.hasMatch(line) ||
+              !isOmitting && omitSectionDelimiter.hasMatch(line));
+      if (isOmitting) {
+        continue;
+      }
+      final _matchesStart = startRegExp.hasMatch(line);
       if (_startIndex == null && _matchesStart) {
         _startIndex = i;
       } else if (endOptional && _matchesStart) {
         break;
-      } else if (_startIndex != null && endRegExp.hasMatch(lines[i])) {
+      } else if (_startIndex != null && endRegExp.hasMatch(line)) {
         _endIndex = i;
         break;
       }

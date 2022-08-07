@@ -66,7 +66,7 @@ void main() async {
       previousSectionTitle = i;
     }
 
-    bool inCodeSection = false;
+    String? inCodeSection;
     final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
     final githubRepoLingRegExp = RegExp(r'\[(.*)\]\(\./([^\)]+)\)');
     while (i < lines.length) {
@@ -81,13 +81,15 @@ void main() async {
       }
 
       if ((line.startsWith('# ') || isGlobal && line.startsWith('## ')) &&
-          !inCodeSection) {
+          inCodeSection == null) {
         _addSection();
-      } else if (line.startsWith('```')) {
-        inCodeSection = !inCodeSection;
+      } else if (inCodeSection == null &&
+              (line.startsWith('```') || line.startsWith('~~~')) ||
+          inCodeSection != null && line.startsWith(inCodeSection)) {
+        inCodeSection = inCodeSection == null ? line.substring(0, 3) : null;
       }
 
-      if (line.startsWith('#') && !inCodeSection) {
+      if (line.startsWith('#') && inCodeSection == null) {
         final title =
             cleanTitle(line).replaceAll(_uriChars, '').replaceAll(r'\_', '_');
         int num = 1;

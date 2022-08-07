@@ -458,7 +458,7 @@ class InputMN {
 ```
 <!-- include-end{generator-input-object} -->
 
-Generic input types are supported. However the api may change in the future. Your `fromJson` method should have generic argument factories as parameters, functions that return the generic instance from a serialized value. You can use the `@JsonSerializable(genericArgumentFactories: true)` if using `json_serializable` as shown in the example.
+Generic input types are supported. However the API may change in the future. Your `fromJson` method should have generic argument factories as parameters, functions that return the generic instance from a serialized value. You can use the `@JsonSerializable(genericArgumentFactories: true)` if using `json_serializable` as shown in the example.
 
 <!-- include{generator-input-object-generic} -->
 ```dart

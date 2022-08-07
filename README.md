@@ -152,6 +152,9 @@ If your prefer to read the documentation in a web page, you can [try the documen
     - [`mergeSchemas`](#mergeschemas)
     - [`schemaFromJson`](#schemafromjson)
 - [Contributing](#contributing)
+  - [Scripts](#scripts)
+    - [`collect_examples.dart`](#collect_examplesdart)
+    - [`generate_docusaurus.dart`](#generate_docusaurusdart)
 
 # Quickstart <!-- docusaurus{"tags":["tutorial"]} -->
 
@@ -631,13 +634,13 @@ You can view the code in the [Github repo](https://github.com/juancastillo0/cida
 
 This repository is a monorepo with the following packages
 
-| Pub                                                                                                    | Source                                       | Description                                                                                |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [![version](https://img.shields.io/pub/v/leto.svg)](https://pub.dev/packages/leto)                     | [`package:leto`](./leto)                     | GraphQL server (executor) implementation, GraphQL extensions and DataLoader                |
-| [![version](https://img.shields.io/pub/v/leto_schema.svg)](https://pub.dev/packages/leto_schema)       | [`package:leto_schema`](./leto_schema)       | Define GraphQL executable schemas, validate GraphQL documents and multiple utilities       |
-| [![version](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dev/packages/leto_generator) | [`package:leto_generator`](./leto_generator) | Generate GraphQL schemas, types and fields from Dart code annotations                      |
-| [![version](https://img.shields.io/pub/v/leto_shelf.svg)](https://pub.dev/packages/leto_shelf)         | [`package:leto_shelf`](./leto_shelf)         | GraphQL web server bindings and utilities for  [shelf](https://github.com/dart-lang/shelf) |
-| [![version](https://img.shields.io/pub/v/leto_links.svg)](https://pub.dev/packages/leto_links)         | [`package:leto_links`](./leto_links)         | Client gql links, support for GraphQL extensions defined in package:leto                   |
+| Pub                                                                                                    | Source                             | Description                                                                                |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------- | ------------------------------------------------------------------------------------------ |
+| [![version](https://img.shields.io/pub/v/leto.svg)](https://pub.dev/packages/leto)                     | [leto](./leto)                     | GraphQL server (executor) implementation, GraphQL extensions and DataLoader                |
+| [![version](https://img.shields.io/pub/v/leto_schema.svg)](https://pub.dev/packages/leto_schema)       | [leto_schema](./leto_schema)       | Define GraphQL executable schemas, validate GraphQL documents and multiple utilities       |
+| [![version](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dev/packages/leto_generator) | [leto_generator](./leto_generator) | Generate GraphQL schemas, types and fields from Dart code annotations                      |
+| [![version](https://img.shields.io/pub/v/leto_shelf.svg)](https://pub.dev/packages/leto_shelf)         | [leto_shelf](./leto_shelf)         | GraphQL web server bindings and utilities for  [shelf](https://github.com/dart-lang/shelf) |
+| [![version](https://img.shields.io/pub/v/leto_links.svg)](https://pub.dev/packages/leto_links)         | [leto_links](./leto_links)         | Client gql links, support for GraphQL extensions defined in package:leto                   |
 
 # Web integrations
 
@@ -2197,18 +2200,73 @@ Thanks for considering making a contribution! Every issue or question helps!
 
 This package uses [melos](https://github.com/invertase/melos) to manage dependencies. To install it run:
 
-```
+```bash
 pub global activate melos
 ```
 
 Then, to link the local packages run:
 
-```
+```bash
 melos bootstrap
 ```
 
 If using fvm, you may need to run:
 
-```
+```bash
 fvm flutter pub global run melos bootstrap
 ```
+
+You can view most of the commands that you will need in the [`melos.yaml` file](./melos.yaml). However, melos can be used to do other stuff like executing any command you want using `melos exec`, for more information please view the [melos Github repo](https://github.com/invertase/melos).
+
+## Scripts
+
+The following scripts are used in CI and can be used thought development. At the moment, both of them are related to generating documentation.
+### [`collect_examples.dart`](./scripts/collect_examples.dart)
+
+This script allows you to include documentation in the README files (or any Markdown file) from comments in Dart code. In the future, we will probably support sharing documentation between Dart files.
+
+For example, by placing this comment annotations in a section of a Dart file:
+
+```dart
+// @example-start{name-of-example,extension:graphql,start:1,end:-2}
+const graphQLTypeSection = '''
+type ObjectName {
+  objectField: String
+}
+''';
+// @example-end{name-of-example}
+```
+
+And adding this comment in the Markdown (`.md`) file:
+
+```markdown
+<!-- include{name-of-example} -->
+```
+
+You can copy the same Dart snippet by executing `dart run script/collect_examples.dart`. The Markdown file will be updated to:
+
+~~~markdown
+<!-- include{name-of-example} -->
+```graphql
+type ObjectName {
+  objectField: String
+}
+```
+<!-- include-end{name-of-example} -->
+~~~
+
+You can find many examples in the [source code of this README](https://raw.githubusercontent.com/juancastillo0/leto/main/README.md) with Dart examples annotated through out the repository's Dart files.
+
+The scripts has a couple of arguments, in particular `--check` is used in CI to verify the the code snippets are synchronized between the Dart files and Markdown files. `--generate-dart-file` will generate Dart code with the snippet Strings and `--generate-md-dir` will generate one `.md` file for each example within the directory passed as argument.
+
+### [`generate_docusaurus.dart`](./scripts/generate_docusaurus.dart)
+
+Generates the Docusaurus documentation page. Basically, it copies the README file sections into the [`/docusaurus/docs/`](./docusaurus/docs/) directory in a format that Docusaurus understands. This is used in CI to build the [documentation page](https://juancastillo0.github.io/leto).
+
+Small pieces of configuration can be included within the README files. For example, to assign tags to a section (which will be converted to a page, perhaps `/docs/leto_shelf/section-title` if it is in `leto_shelf`'s README) you can use.
+
+```markdown
+# Section Title <!-- docusaurus{"tags":["tagName1","tagName2"]} -->
+```
+
+The content with the brackets should be a JSON string.
