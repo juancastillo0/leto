@@ -67,7 +67,6 @@ void main() {
       }
     });
 
-    // TODO: 1A return the previous value or dont allow overrides
     refResolver6.get(exec.baseGlobalVariables).value =
         Future.value(Resolver6());
 

@@ -72,7 +72,6 @@ GraphQLObject? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
 }
 
 bool isInterface(ClassElement clazz) {
-  // TODO: 1G && !serializableTypeChecker.hasAnnotationOf(clazz);
   return clazz.isAbstract;
 }
 
