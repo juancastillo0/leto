@@ -30,7 +30,12 @@ class Model {
 }
 
 /// Set up your state.
-/// This could be anything such as a database connection
+/// This could be anything such as a database connection.
+/// 
+/// Global means that there will only be one instance of [ModelController]
+/// for this reference. As opposed to [ScopedRef.local] where there will be
+/// one [ModelController] for each request (for saving user information
+/// or a [DataLoader], for example).
 final stateRef = ScopedRef<ModelController>.global(
   (scope) => ModelController(
     Model('InitialState', DateTime.now()),
@@ -90,11 +95,14 @@ type Subscription {
 // @example-end{quickstart-schema-string}
 
 // @example-start{quickstart-make-schema}
-/// Create a [GraphQLSchema]
+/// Create a [GraphQLSchema].
+/// All of this can be generated automatically using `package:leto_generator`
 GraphQLSchema makeGraphQLSchema() {
+  // The [Model] GraphQL Object type. It will be used in the schema
   final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
     'Model',
     fields: [
+      // All the fields that you what to expose
       graphQLString.nonNull().field(
             'state',
             resolve: (Model model, Ctx ctx) => model.state,
@@ -105,8 +113,12 @@ GraphQLSchema makeGraphQLSchema() {
           ),
     ],
   );
+  // The executable schema. The `queryType`, `mutationType`
+  // and `subscriptionType` are should be GraphQL Object types
   final schema = GraphQLSchema(
     queryType: objectType('Query', fields: [
+      // Use the created [modelGraphQLType] as the return type for the
+      // "getState" root Query field
       modelGraphQLType.field(
         'getState',
         description: 'Get the current state',
@@ -116,6 +128,8 @@ GraphQLSchema makeGraphQLSchema() {
     mutationType: objectType('Mutation', fields: [
       graphQLBoolean.nonNull().field(
         'setState',
+        // set up the input field. could also be done with
+        // `graphQLString.nonNull().inputField('newState')`
         inputs: [
           GraphQLFieldInput(
             'newState',
@@ -123,6 +137,7 @@ GraphQLSchema makeGraphQLSchema() {
             description: "The new state, can't be 'WrongState'!.",
           ),
         ],
+        // execute the mutation
         resolve: (Object? rootValue, Ctx ctx) {
           final newState = ctx.args['newState']! as String;
           if (newState == 'WrongState') {
@@ -134,6 +149,8 @@ GraphQLSchema makeGraphQLSchema() {
       ),
     ]),
     subscriptionType: objectType('Subscription', fields: [
+      // The Subscriptions are the same as Queries and Mutations as above,
+      // but should use `subscribe` instead of `resolve` and return a `Steam`
       modelGraphQLType.nonNull().field(
             'onStateChange',
             subscribe: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).stream,

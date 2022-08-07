@@ -188,7 +188,7 @@ dev_dependencies:
 ## Create a `GraphQLSchema`
 
 
-Specify the logic for your server, this could be anything such as accessing a database, reading a file or sending and http request. We will use a controller class with a stream that emits events on mutation to support subscriptions.
+Specify the logic for your server, this could be anything such as accessing a database, reading a file or sending an http request. We will use a controller class with a stream that emits events on mutation to support subscriptions.
 
 <!-- include{quickstart-controller-state-definition} -->
 ```dart
@@ -202,7 +202,12 @@ class Model {
 }
 
 /// Set up your state.
-/// This could be anything such as a database connection
+/// This could be anything such as a database connection.
+/// 
+/// Global means that there will only be one instance of [ModelController]
+/// for this reference. As opposed to [ScopedRef.local] where there will be
+/// one [ModelController] for each request (for saving user information
+/// or a [DataLoader], for example).
 final stateRef = ScopedRef<ModelController>.global(
   (scope) => ModelController(
     Model('InitialState', DateTime.now()),
@@ -234,68 +239,9 @@ class ModelController {
 ```
 <!-- include-end{quickstart-controller-state-definition} -->
 
-With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `ScopedRef.get` method. This is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package. // TODO: 1A more docs in the code
+With the logic that you want to expose, you can create the GraphQLSchema instance and access the controller state using the `Ctx` for each resolver and the `ScopedRef.get` method. The following is a schema with Query, Mutation and Subscription with a simple model. However, GraphQL is a very expressive language with [Unions](#unions), [Enums](#enums), [complex Input Objects](#inputs-and-input-objects), [collections](#wrapping-types) and more. For more documentation on writing GraphQL Schemas with Leto you can read the following sections, tests and examples for each package.
 
-<!-- include{quickstart-make-schema} -->
-```dart
-/// Create a [GraphQLSchema]
-GraphQLSchema makeGraphQLSchema() {
-  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
-    'Model',
-    fields: [
-      graphQLString.nonNull().field(
-            'state',
-            resolve: (Model model, Ctx ctx) => model.state,
-          ),
-      graphQLDate.nonNull().field(
-            'createdAt',
-            resolve: (Model model, Ctx ctx) => model.createdAt,
-          ),
-    ],
-  );
-  final schema = GraphQLSchema(
-    queryType: objectType('Query', fields: [
-      modelGraphQLType.field(
-        'getState',
-        description: 'Get the current state',
-        resolve: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).value,
-      ),
-    ]),
-    mutationType: objectType('Mutation', fields: [
-      graphQLBoolean.nonNull().field(
-        'setState',
-        inputs: [
-          GraphQLFieldInput(
-            'newState',
-            graphQLString.nonNull(),
-            description: "The new state, can't be 'WrongState'!.",
-          ),
-        ],
-        resolve: (Object? rootValue, Ctx ctx) {
-          final newState = ctx.args['newState']! as String;
-          if (newState == 'WrongState') {
-            return false;
-          }
-          stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
-          return true;
-        },
-      ),
-    ]),
-    subscriptionType: objectType('Subscription', fields: [
-      modelGraphQLType.nonNull().field(
-            'onStateChange',
-            subscribe: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).stream,
-          )
-    ]),
-  );
-  assert(schema.schemaStr == schemaString.trim());
-  return schema;
-}
-
-```
-<!-- include-end{quickstart-make-schema} -->
-
-This will represent the following GraphQL Schema definition:
+To expose this logic, we could implement the following GraphQL API:
 
 <!-- include{quickstart-schema-string} -->
 ```graphql
@@ -324,6 +270,79 @@ type Subscription {
 }
 ```
 <!-- include-end{quickstart-schema-string} -->
+
+This could be exposed by using `package:leto_schema` API as shown in the following code sample or more simply by [using code generation](#using-code-generation).
+
+<!-- include{quickstart-make-schema} -->
+```dart
+/// Create a [GraphQLSchema].
+/// All of this can be generated automatically using `package:leto_generator`
+GraphQLSchema makeGraphQLSchema() {
+  // The [Model] GraphQL Object type. It will be used in the schema
+  final GraphQLObjectType<Model> modelGraphQLType = objectType<Model>(
+    'Model',
+    fields: [
+      // All the fields that you what to expose
+      graphQLString.nonNull().field(
+            'state',
+            resolve: (Model model, Ctx ctx) => model.state,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (Model model, Ctx ctx) => model.createdAt,
+          ),
+    ],
+  );
+  // The executable schema. The `queryType`, `mutationType`
+  // and `subscriptionType` are should be GraphQL Object types
+  final schema = GraphQLSchema(
+    queryType: objectType('Query', fields: [
+      // Use the created [modelGraphQLType] as the return type for the
+      // "getState" root Query field
+      modelGraphQLType.field(
+        'getState',
+        description: 'Get the current state',
+        resolve: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).value,
+      ),
+    ]),
+    mutationType: objectType('Mutation', fields: [
+      graphQLBoolean.nonNull().field(
+        'setState',
+        // set up the input field. could also be done with
+        // `graphQLString.nonNull().inputField('newState')`
+        inputs: [
+          GraphQLFieldInput(
+            'newState',
+            graphQLString.nonNull(),
+            description: "The new state, can't be 'WrongState'!.",
+          ),
+        ],
+        // execute the mutation
+        resolve: (Object? rootValue, Ctx ctx) {
+          final newState = ctx.args['newState']! as String;
+          if (newState == 'WrongState') {
+            return false;
+          }
+          stateRef.get(ctx).setValue(Model(newState, DateTime.now()));
+          return true;
+        },
+      ),
+    ]),
+    subscriptionType: objectType('Subscription', fields: [
+      // The Subscriptions are the same as Queries and Mutations as above,
+      // but should use `subscribe` instead of `resolve` and return a `Steam`
+      modelGraphQLType.nonNull().field(
+            'onStateChange',
+            subscribe: (Object? rootValue, Ctx ctx) => stateRef.get(ctx).stream,
+          )
+    ]),
+  );
+  assert(schema.schemaStr == schemaString.trim());
+  return schema;
+}
+
+```
+<!-- include-end{quickstart-make-schema} -->
 
 // TODO: 1T
 type CompilerLog {
@@ -373,7 +392,7 @@ Stream<Model> onStateChange(Ctx ctx) {
 ```
 <!-- include-end{quickstart-make-schema-code-gen} -->
 
-This generates the same `modelGraphQLType` in `<file>.g.dart` and `graphqlApiSchema` in 'lib/graphql_api.schema.dart' (TODO: configurable). The documentation comments will be used as description in the generated schema. More information on code generation can be found in the following sections, in the `package:leto_generator`'s [README](https://github.com/juancastillo0/leto/tree/main/leto_generator) or in the code generation [example](https://github.com/juancastillo0/leto/tree/main/leto_generator/example).
+This generates the same `modelGraphQLType` in `<file>.g.dart` and `graphqlApiSchema` in 'lib/graphql_api.schema.dart' (TODO: 1G configurable). The documentation comments will be used as description in the generated schema. More information on code generation can be found in the following sections, in the `package:leto_generator`'s [README](https://github.com/juancastillo0/leto/tree/main/leto_generator) or in the code generation [example](https://github.com/juancastillo0/leto/tree/main/leto_generator/example).
 
 ## Start the server
 
