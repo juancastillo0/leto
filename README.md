@@ -1627,6 +1627,8 @@ will be the provided `listComplexityMultiplier`, otherwise 1.
 
 ## Skip validation with Persisted Queries
 
+TODO: 1A
+
 Using the `PersistedQueriesExtensions` you can set the `skipValidation` parameter so that the validation is skipped for already cached (and validated) documents.
 
 ## Input Validation
@@ -2001,7 +2003,7 @@ You can use both, LookAhead and DataLoader at the same time. The keys provided t
 
 # Extensions
 
-Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response-cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`.
+Extensions implement additional functionalities to the server's parsing, validation and execution. For example, extensions for tracing ([GraphQLTracingExtension](#apollo-tracing)), logging ([GraphQLLoggingExtension](#logging-extension)), error handling or caching ([GraphQLPersistedQueries](#persisted_queries) and [GraphQLCacheExtension](#response-cache)). All extension implementations can be found in the [extensions](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions) folder in `package:leto`. The main API with all the methods that can be overridden is found in [this file](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/extension.dart).
 
 ## Persisted Queries
 

@@ -82,6 +82,7 @@ class GraphQLConfig {
 /// Parses, validates and executes GraphQL requests using the
 /// provided [GraphQLSchema].
 class GraphQL {
+// @example-start{graphql-executor-properties}
   /// Extensions implement additional functionalities to the
   /// server's parsing, validation and execution.
   /// For example, extensions for tracing [GraphQLTracingExtension],
@@ -112,6 +113,8 @@ class GraphQL {
   /// Custom validation rules performed to a request's document
   /// before the execution phase
   final List<ValidationRule> customValidationRules;
+
+// @example-end{graphql-executor-properties}
 
   late final List<ValidationRule> _allValidationRules =
       customValidationRules.isEmpty

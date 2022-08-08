@@ -42,6 +42,7 @@ dart pub run build_runner watch --delete-conflicting-outputs
   - [Other](#other)
     - [GraphQLDocumentation](#graphqldocumentation)
     - [GraphQLEnum](#graphqlenum)
+    - [AttachFn](#attachfn)
     - [Generics](#generics)
 - [Dart Type to GraphQLType coercion](#dart-type-to-graphqltype-coercion)
   - [Default type mappings](#default-type-mappings)
@@ -667,6 +668,10 @@ class ClassEnum {
 ```
 <!-- include-end{generator-class-enum-example} -->
 
+### AttachFn
+
+[Attachments](../README.md#attachments) in particular the [usage for code generation](../README.md#attachfn-for-code-generation).
+
 ### Generics
 
 // TODO: 1G Generics docs
@@ -776,6 +781,8 @@ Nested objects in resolvers.
 
 
 # Global Configuration (build.yaml)
+
+You can make global configuration for the code generation with the `build.yaml` file at the root of your project (next to your `pubspec.yaml`). The following configurations can be specified:
 
 
 | Config            | Description                                                                                        | Type               | Default                                      |
