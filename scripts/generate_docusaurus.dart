@@ -68,7 +68,8 @@ void main() async {
 
     String? inCodeSection;
     final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
-    final githubRepoLingRegExp = RegExp(r'\[([^\]]*)\]\(\.(/|\./README\.md)([^\)]+)\)');
+    final githubRepoLingRegExp =
+        RegExp(r'\[([^\]]*)\]\(\.(\.?/|\./README\.md)([^\)]+)\)');
     while (i < lines.length) {
       final line = lines[i];
 
@@ -76,7 +77,7 @@ void main() async {
         allInnerLinks.add(i);
       } else if (githubRepoLingRegExp.hasMatch(line)) {
         lines[i] = line.replaceAllMapped(githubRepoLingRegExp, (match) {
-          return '[${match.group(1)}](https://github.com/juancastillo0/leto/tree/main/${match.group(2)})';
+          return '[${match.group(1)}](https://github.com/juancastillo0/leto/tree/main/${match.group(3)})';
         });
       }
 

@@ -2356,7 +2356,7 @@ The scripts has a couple of arguments, in particular `--check` is used in CI to 
 
 ### [`generate_docusaurus.dart`](./scripts/generate_docusaurus.dart)
 
-Generates the Docusaurus documentation page. Basically, it copies the README file sections into the [`/docusaurus/docs/`](./docusaurus/docs/) directory in a format that Docusaurus understands. This is used in CI to build the [documentation page](https://juancastillo0.github.io/leto).
+Generates the Docusaurus documentation page. Basically, it copies the README file sections into the `/docusaurus/docs/` directory in a format that Docusaurus understands. This is used in CI to build the [documentation page](https://juancastillo0.github.io/leto).
 
 Small pieces of configuration can be included within the README files. For example, to assign tags to a section (which will be converted to a page, perhaps `/docs/leto_shelf/section-title` if it is in `leto_shelf`'s README) you can use.
 

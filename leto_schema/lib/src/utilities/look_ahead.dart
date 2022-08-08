@@ -146,7 +146,10 @@ PossibleSelections? Function() possibleSelectionsCallback(
               return entries.map(
                 (e) {
                   final fieldName = e.value.first.name.value;
-                  final field = obj.fieldByName(fieldName)!;
+                  final field = obj.fieldByName(fieldName);
+                  if (field == null) {
+                    return null;
+                  }
                   return MapEntry(
                     e.key,
                     PossibleSelectionsField(
