@@ -1,6 +1,6 @@
-# leto_schema
 [![Pub](https://img.shields.io/pub/v/leto_schema.svg)](https://pub.dartlang.org/packages/leto_schema)
-[![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
+
+# leto_schema
 
 An implementation of GraphQL's type system in Dart. Supports any platform where Dart runs.
 The decisions made in the design of this library were done to make the experience
@@ -25,52 +25,25 @@ http://spec.graphql.org/draft/#sec-Type-System
 Mostly analogous to `graphql-js`; many names are verbatim:
 https://graphql.org/graphql-js/type/
 
-# Usage
-It's easy to define a schema with the
-[helper functions](#helpers):
+## Usage
+It's easy to define a schema with the [helper functions](#helpers-and-extensions):
 
 ```dart
-final GraphQLSchema todoSchema = new GraphQLSchema(
-    query: objectType('Todo', [
-  field('text', graphQLString.nonNullable()),
-  field('created_at', graphQLDate)
-]));
+final todoSchema = GraphQLSchema(
+  query: objectType(
+    'Todo',
+    fields: [
+      field('text', graphQLString.nonNullable()),
+      field('created_at', graphQLDate),
+    ],
+  ),
+);
 ```
 
 All GraphQL types are generic, in order to leverage Dart's strong typing support.
 
-# Serialization
-GraphQL types can `serialize` and `deserialize` input data.
-The exact implementation of this depends on the type.
+# GraphQL Types
 
-```dart
-var iso8601String = graphQLDate.serialize(new DateTime.now());
-var date = graphQLDate.deserialize(iso8601String);
-print(date.millisecondsSinceEpoch);
-```
-
-# Validation
-GraphQL types can `validate` input data.
-
-```dart
-var validation = myType.validate('@root', {...});
-
-if (validation.successful) {
-  doSomething(validation.value);
-} else {
-  print(validation.errors);
-}
-```
-
-# Helpers
-* `graphQLSchema` - Create a `GraphQLSchema`
-* `objectType` - Create a `GraphQLObjectType` with fields
-* `field` - Create a `GraphQLField` with a type/argument/resolver
-* `listOf` - Create a `GraphQLListType` with the provided `innerType`
-* `inputObjectType` - Creates a `GraphQLInputObjectType`
-* `inputField` - Creates a field for a `GraphQLInputObjectType`
-
-# Types
 All of the GraphQL scalar types are built in, as well as a `Date` type:
 * `graphQLString`
 * `graphQLId`
@@ -78,6 +51,42 @@ All of the GraphQL scalar types are built in, as well as a `Date` type:
 * `graphQLInt`
 * `graphQLFloat`
 * `graphQLDate`
+
+
+## Helpers and Extensions
+
+Most of them can be found in 
+
+* `objectType` - Create a `GraphQLObjectType` with fields
+* `field` - Create a `GraphQLField` with a type/argument/resolver
+* `listOf` - Create a `GraphQLListType` with the provided `innerType`
+* `inputObjectType` - Creates a `GraphQLInputObjectType`
+* `inputField` - Creates a field for a `GraphQLInputObjectType`
+
+## Serialization and `SerdeCtx`
+
+GraphQL types can `serialize` and `deserialize` input data.
+The exact implementation of this depends on the type.
+
+```dart
+final iso8601String = graphQLDate.serialize(new DateTime.now());
+final date = graphQLDate.deserialize(iso8601String);
+print(date.millisecondsSinceEpoch);
+```
+
+## Validation
+
+GraphQL types can `validate` input data.
+
+```dart
+final validation = myType.validate('@root', {...});
+
+if (validation.successful) {
+  doSomething(validation.value);
+} else {
+  print(validation.errors);
+}
+```
 
 ## Non-Nullable Types
 You can easily make a type non-nullable by calling its `nonNullable` method.
@@ -141,12 +150,12 @@ actual fetching of data to a database object, or some asynchronous resolver
 function.
 
 `package:leto_schema` includes this functionality in the `resolve` property,
-which is passed a context object and a `Map<String, dynamic>` of arguments.
+which is passed the parent object and a `ReqCtx` with a `Map<String, dynamic>` of input arguments.
 
 A hypothetical example of the above might be:
 
 ```dart
-var field = field(
+final field = field(
   'characters',
   graphQLString,
   resolve: (_, args) async {
@@ -154,3 +163,13 @@ var field = field(
   },
 );
 ```
+
+# Schema and Document Validation Rules
+
+
+# Utilities
+
+## look_ahead
+
+## req_ctx
+

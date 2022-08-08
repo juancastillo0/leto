@@ -68,7 +68,7 @@ void main() async {
 
     String? inCodeSection;
     final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
-    final githubRepoLingRegExp = RegExp(r'\[(.*)\]\(\./([^\)]+)\)');
+    final githubRepoLingRegExp = RegExp(r'\[([^\]]*)\]\(\.(/|\./README\.md)([^\)]+)\)');
     while (i < lines.length) {
       final line = lines[i];
 

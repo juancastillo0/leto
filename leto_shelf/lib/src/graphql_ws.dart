@@ -6,10 +6,10 @@ import 'package:leto_shelf/leto_shelf.dart';
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-/// A [RequestHandler] that serves a spec-compliant
-/// GraphQL backend, over WebSockets.
+/// A shelf [Handler] that serves a spec-compliant
+/// GraphQL backend over WebSockets.
 /// This endpoint only supports WebSockets, and can be used
-/// to deliver subscription events.
+/// to deliver subscription events as well as queries and mutations.
 ///
 /// [graphQLWebSocket] supports the 'graphql-transport-ws' and
 /// 'graphql-ws' (apollo subscriptions-transport-ws) subprotocols,
