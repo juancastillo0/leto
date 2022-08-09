@@ -1,8 +1,8 @@
 [![Pub](https://img.shields.io/pub/v/leto.svg)](https://pub.dartlang.org/packages/leto)
 
-# leto
+# Leto
 
-Base package for implementing GraphQL servers executors. The main entrypoint is the `GraphQL.parseAndExecute` method which parses a GraphQL document and executes it with the configured `GraphQLSchema` from `package:leto_schema` .
+Base package for implementing GraphQL servers executors. The main entrypoint is the `GraphQL.parseAndExecute` method which parses a GraphQL document and executes it with the configured `GraphQLSchema` from `package:leto_schema`.
 
 `package:leto` does not require any specific framework, and thus can be used in any Dart project.
 
@@ -79,30 +79,38 @@ The executor can be configured with the following parameters:
 ```
 <!-- include-end{graphql-executor-properties} -->
 
-
 ### `GraphQLConfig`
 
 You can also use the `GraphQLConfig` class and the `GraphQL.fromConfig` constructor for creating an executor from a configuration class.
 
 ## `GraphQL.parseAndExecute`
 
-The main entry point. Exceptions may be thrown by extensions
+The main entry point. The implementation follows closely the [execution section in the specification](https://spec.graphql.org/draft/#sec-Execution),
+most of the method and variable names are taken from there.
+
+
+
+Exceptions may be thrown by extensions
 
 ### GraphQL Request Arguments
 
-String query
-String? operationName
-Map<String, Object?>? variableValues
-Map<String, Object?>? extensions
-Object? rootValue
+The main GraphQL request arguments are the following:
+
+| Name           | Type                  | Description                                                                                  | Example                                                                               |
+| -------------- | --------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| query          | String                | The GraphQL query                                                                            | "mutation createUser ($name: String!) { createUser(name: $name) { name createdAt } }" |
+| operationName  | String?               | The operation to execute within the query                                                    | "createUser"                                                                          |
+| variableValues | Map<String, Object?>? | The variables specified in the query that should be used as parameter                        | {"name": "Example Name"}                                                              |
+| extensions     | Map<String, Object?>? | The extensions passed in the GraphQL request                                                 | {"persistedQuery": {"version": 1, "sha256Hash": "dpiw2ndabo389hd9bs"}}                |
+| rootValue      | Object?               | A value passed as parent to the root resolvers. If null, the global `ScopedMap` will be used | {"arg1":"value"}                                                                      |
 
 ### `ScopedOverride` List
 
-List<ScopedOverride\>? scopeOverrides
+You can provide `ScopedOverride`s which will only apply to this request. It it is a Subscription, then the overrides will apply to all events in the subscription. If you want to override a `ScopedRef` for all requests in a executor you can pass a `ScopedMap` to the argument `GraphQL.globalVariables` in the executor's constructor.
 
 ### `InvalidOperationType`
 
-The execution may throw an `InvalidOperationType` if the validOperationTypes argument is passed and the operation in the document is not one of the valid operations. Useful for HTTP safe methods (like GET) used for mutations (this is already handled in `package:leto_shelf`).
+The execution may throw an `InvalidOperationType` if the `validOperationTypes` argument is passed and the operation in the document is not one of the valid operations. Useful to prevent HTTP safe methods (like GET) from being used for mutations (this is already handled in `package:leto_shelf`).
 
 ## Introspection
 
@@ -116,7 +124,90 @@ https://pub.dartlang.org/documentation/leto/latest/introspection/reflectSchema.h
 
 ## Extensions
 
-You can read more about extensions in the [main README](../README.md#extensions). The main API with all the methods that can be overridden is found in [this file](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/extension.dart).
+You can read more about extensions in the [main README](../README.md#extensions). The main API with all the methods that
+can be overridden is found in [this file](https://github.com/juancastillo0/leto/blob/main/leto/lib/src/extensions/extension.dart).
+
+<!-- include{extension-api} -->
+```dart
+  /// The key identifying this extension, used as the key for
+  /// the extensions map in GraphQLError or GraphQLResult.
+  /// Should be unique.
+  String get mapKey;
+
+  /// The entry point for each request, this is the first method
+  /// executed in a [GraphQLExtension] for each request
+  ///
+  /// Subscriptions execute this once and then execute
+  /// [executeSubscriptionEvent] for every
+  /// [GraphQLResult.subscriptionStream] event
+  FutureOr<GraphQLResult> executeRequest(
+    FutureOr<GraphQLResult> Function() next,
+    RequestCtx ctx,
+  ) =>
+      next();
+
+  /// Parser or retrieves the GraphQL [DocumentNode]
+  /// from [query] or [extensions]
+  DocumentNode getDocumentNode(
+    DocumentNode Function() next,
+    RequestCtx ctx,
+  ) =>
+      next();
+
+  /// Executes validations given a schema,
+  /// and the operation to perform
+  GraphQLException? validate(
+    GraphQLException? Function() next,
+    RequestCtx ctx,
+    DocumentNode document,
+  ) =>
+      next();
+
+  /// Parses argument values and a executes a [field] in [ctx]
+  FutureOr<Object?> executeField(
+    FutureOr<Object?> Function() next,
+    ObjectExecutionCtx ctx,
+    GraphQLObjectField field,
+    String fieldAlias,
+  ) =>
+      next();
+
+  /// Resolves a field with [ctx]
+  FutureOr<T> resolveField<T>(
+    FutureOr<T> Function() next,
+    Ctx ctx,
+  ) =>
+      next();
+
+  /// Called for every [GraphQLResult.subscriptionStream] event
+  FutureOr<GraphQLResult> executeSubscriptionEvent(
+    FutureOr<GraphQLResult> Function() next,
+    ExecutionCtx ctx,
+    ScopedMap parentGlobals,
+  ) =>
+      next();
+
+  /// Maps a resolved value into a serialized value
+  FutureOr<Object?> completeValue(
+    FutureOr<Object?> Function() next,
+    ObjectExecutionCtx ctx,
+    String fieldName,
+    GraphQLType fieldType,
+    Object? result,
+  ) =>
+      next();
+
+  /// Executes a callback for a [ThrownError] during execution
+  ///
+  /// Can be used for logging or mapping a resolver exception
+  /// into a user friendly error.
+  GraphQLException mapException(
+    GraphQLException Function() next,
+    ThrownError error,
+  ) =>
+      next();
+```
+<!-- include-end{extension-api} -->
 
 # DataLoader
 
@@ -128,7 +219,7 @@ The DataLoader implementation is based on [graphql/dataloader](https://github.co
 GraphQL queries involving `subscription` operations can return
 a `Stream`. Ultimately, the transport for relaying subscription
 events to clients is not specified in the GraphQL spec, so it's
-up to you.
+up to you. We provide a [Web Socket Server implementation](#web-socket-implementation).
 
 Note that in a schema like this:
 
@@ -144,16 +235,14 @@ type TodoAdded {
 }
 ```
 
-Your Dart schema's resolver for `onTodo` should be
-a `Map` *containing an `onTodo` key*:
+Your Dart schema's field `subscribe` for `onTodo` should return a `Stream`:
 
 ```dart
 field(
   'onTodo',
   todoAddedType,
-  resolve: (_, __) {
-    return someStreamOfTodos()
-            .map((todo) => {'onTodo': todo});
+  subscribe: (_, RecCtx ctx) {
+    return someStreamOfTodos();
   },
 );
 ```

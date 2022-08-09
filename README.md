@@ -203,7 +203,7 @@ class Model {
 
 /// Set up your state.
 /// This could be anything such as a database connection.
-/// 
+///
 /// Global means that there will only be one instance of [ModelController]
 /// for this reference. As opposed to [ScopedRef.local] where there will be
 /// one [ModelController] for each request (for saving user information

@@ -21,6 +21,7 @@ export 'tracing.dart';
 /// If an extension is for logging or tracing (do not affect the execution
 /// behavior), it should be the first in the [GraphQL.extensions] list.
 abstract class GraphQLExtension {
+// @example-start{extension-api}
   /// The key identifying this extension, used as the key for
   /// the extensions map in GraphQLError or GraphQLResult.
   /// Should be unique.
@@ -98,4 +99,5 @@ abstract class GraphQLExtension {
     ThrownError error,
   ) =>
       next();
+// @example-end{extension-api}
 }
