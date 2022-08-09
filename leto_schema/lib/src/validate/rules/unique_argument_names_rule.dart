@@ -1,5 +1,6 @@
 import '../rules_prelude.dart';
 
+// @example-start{validation-rule-unique-arg-names}
 const _uniqueArgumentNamesSpec = ErrorSpec(
   spec: 'https://spec.graphql.org/draft/#sec-Argument-Names',
   code: 'uniqueArgumentNames',
@@ -17,9 +18,6 @@ Visitor uniqueArgumentNamesRule(
   final visitor = TypedVisitor();
 
   VisitBehavior? checkArgUniqueness(List<ArgumentNode> argumentNodes) {
-    // istanbul ignore next (See: 'https://github.com/graphql/graphql-js/issues/2203')
-    // final argumentNodes = arguments ?? [];
-
     final seenArgs = argumentNodes.groupListsBy((arg) => arg.name.value);
 
     for (final entry in seenArgs.entries) {
@@ -41,3 +39,4 @@ Visitor uniqueArgumentNamesRule(
   visitor.add<DirectiveNode>((node) => checkArgUniqueness(node.arguments));
   return visitor;
 }
+// @example-end{validation-rule-unique-arg-names}

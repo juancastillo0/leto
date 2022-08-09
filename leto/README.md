@@ -39,6 +39,22 @@ https://pub.dev/documentation/leto/latest/leto/GraphQL/parseAndExecute.html
 If you're looking for functionality like `graphQLHttp` in `graphql-js`, that is not included in this package, because
 it is typically specific to the framework/platform you are using. The `graphQLHttp` implementation in [`package:leto_shelf`](../leto_shelf) is a good example.
 
+## Table of Contents
+- [Leto](#leto)
+  - [Ad-hoc Usage](#ad-hoc-usage)
+  - [Table of Contents](#table-of-contents)
+- [GraphQL Executor](#graphql-executor)
+    - [`GraphQLConfig`](#graphqlconfig)
+  - [`GraphQL.parseAndExecute`](#graphqlparseandexecute)
+    - [GraphQL Request Arguments](#graphql-request-arguments)
+    - [`ScopedOverride` List](#scopedoverride-list)
+    - [`InvalidOperationType`](#invalidoperationtype)
+  - [Introspection](#introspection)
+  - [Extensions](#extensions)
+- [DataLoader](#dataloader)
+- [Subscriptions and WebSockets](#subscriptions-and-websockets)
+  - [WebSocket implementation](#websocket-implementation)
+
 # GraphQL Executor
 
 The executor can be configured with the following parameters:
@@ -214,12 +230,12 @@ can be overridden is found in [this file](https://github.com/juancastillo0/leto/
 The DataLoader implementation is based on [graphql/dataloader](https://github.com/graphql/dataloader), the API and methods are basically the same. For usage examples please review the [main README](../README.md#dataloader-batching).
 
 
-# Subscriptions and Web Socket
+# Subscriptions and WebSockets
 
 GraphQL queries involving `subscription` operations can return
 a `Stream`. Ultimately, the transport for relaying subscription
 events to clients is not specified in the GraphQL spec, so it's
-up to you. We provide a [Web Socket Server implementation](#web-socket-implementation).
+up to you. We provide a [WebSocket Server implementation](#websocket-implementation).
 
 Note that in a schema like this:
 
@@ -247,7 +263,7 @@ field(
 );
 ```
 
-## Web Socket implementation
+## WebSocket implementation
 
 For the purposes of reusing existing tooling (i.e. JS clients, etc.),
 `package:leto` rolls with an implementation of Apollo's `graphql-ws` spec.
