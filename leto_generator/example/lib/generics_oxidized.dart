@@ -218,20 +218,18 @@ class ErrU<T extends Object, E extends Object> extends Err<T, E>
 
 final _resultUGraphQLTypes = <String, GraphQLType>{};
 
+// TODO: 1A move this to experimental
+
 GraphQLUnionType<ResultU<T, T2>>
     resultUGraphQLType<T extends Object, T2 extends Object>(
   GraphQLType<T, Object> _t1,
   GraphQLType<T2, Object> _t2, {
   String? name,
 }) {
-  final t1 = (_t1 is GraphQLNonNullType
-      ? (_t1 as GraphQLNonNullType).ofType
-      : _t1) as GraphQLObjectType;
-  final t2 = (_t2 is GraphQLNonNullType
-      ? (_t2 as GraphQLNonNullType).ofType
-      : _t2) as GraphQLObjectType;
+  final t1 = _t1.nullable() as GraphQLObjectType;
+  final t2 = _t2.nullable() as GraphQLObjectType;
 
-  final _name = name ?? 'ResultU${t1.name}${t2.name}';
+  final _name = name ?? 'ResultU${t1.printableName}${t2.printableName}';
   if (_resultUGraphQLTypes.containsKey(_name)) {
     return _resultUGraphQLTypes[_name]! as GraphQLUnionType<ResultU<T, T2>>;
   }

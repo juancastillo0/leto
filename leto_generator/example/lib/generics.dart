@@ -13,10 +13,8 @@ GraphQLObjectType<ResultV<T, T2>> resultVGraphQLType<T, T2>(
   if (_resultVGraphQLTypes.containsKey(_name))
     return _resultVGraphQLTypes[_name]! as GraphQLObjectType<ResultV<T, T2>>;
 
-  final innerT1 =
-      t1 is GraphQLNonNullType ? (t1 as GraphQLNonNullType).ofType : t1;
-  final innerT2 =
-      t2 is GraphQLNonNullType ? (t2 as GraphQLNonNullType).ofType : t2;
+  final innerT1 = t1.nullable();
+  final innerT2 = t2.nullable();
   final type = objectType<ResultV<T, T2>>(
     _name,
     description: '$t1 when the operation was successful or'
@@ -27,11 +25,13 @@ GraphQLObjectType<ResultV<T, T2>> resultVGraphQLType<T, T2>(
   type.fields.addAll([
     innerT1.field(
       'ok',
-      resolve: (result, ctx) => result.isOk ? (result as OkV).value : null,
+      resolve: (result, ctx) =>
+          result.isOk ? (result as OkV<T, T2>).value : null,
     ),
     innerT2.field(
       'err',
-      resolve: (result, ctx) => result.isOk ? null : (result as ErrV).value,
+      resolve: (result, ctx) =>
+          result.isOk ? null : (result as ErrV<T, T2>).value,
     ),
     graphQLBoolean.nonNull().field(
           'isOk',
@@ -72,6 +72,7 @@ enum ErrCodeType {
   code2,
 }
 
+// @example-start{generic-generator}
 @GraphQLObject()
 class ErrCodeInterface<T extends Object> {
   final String? message;
@@ -79,6 +80,7 @@ class ErrCodeInterface<T extends Object> {
 
   const ErrCodeInterface(this.code, [this.message]);
 }
+// @example-end{generic-generator}
 
 @GraphQLObject()
 class ErrCodeInterfaceN<T extends Object?> {
@@ -103,6 +105,7 @@ class ErrCodeInterfaceNE<T> {
   const ErrCodeInterfaceNE(this.code, [this.message]);
 }
 
+// TODO: 1T test this
 const strErrCode = '''
 interface ErrCode {
   value: String!
