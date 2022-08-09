@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+const globalDir = ''; // 'global/';
+final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
+final githubRepoLingRegExp =
+    RegExp(r'\[([^\]]+)\]\(\.(\./README\.md|\.?/)([^\)]+)\)');
+
 void main() async {
   final directories = [
     'main',
@@ -9,19 +14,28 @@ void main() async {
     'leto_generator',
     'leto_shelf',
   ];
-  const globalDir = ''; // 'global/';
   final List<Category> categories = [];
 
   await Directory('./docusaurus/docs').create();
 
+  final Map<String, DirInfo> dirInfos = {};
+
   for (final dirname in directories) {
     final rootReadme = File('${dirname == 'main' ? '.' : dirname}/README.md');
     final outDirectory = Directory('./docusaurus/docs/$dirname');
+
     final lines = await rootReadme.readAsLines();
-    final sections = <Section>[];
-    final headers = <String, MapEntry<int?, int>>{};
-    final allInnerLinks = <int>[];
-    final _uriChars = RegExp('[${uriChars.join()}]');
+    final info = DirInfo(
+      rootReadme: rootReadme,
+      outDirectory: outDirectory,
+      lines: lines,
+    );
+    dirInfos[dirname] = info;
+    final sections = info.sections;
+    final headers = info.headers;
+    final allInnerLinks = info.allInnerLinks;
+    final allGithubRepoLinks = info.allGithubRepoLinks;
+
     int? previousSectionTitle;
     int i = 0;
     bool isGlobal = false;
@@ -67,18 +81,14 @@ void main() async {
     }
 
     String? inCodeSection;
-    final innerLinkRegExp = RegExp(r'\[(.*)\]\(#([^\)]+)\)');
-    final githubRepoLingRegExp =
-        RegExp(r'\[([^\]]*)\]\(\.(\.?/|\./README\.md)([^\)]+)\)');
     while (i < lines.length) {
       final line = lines[i];
 
       if (innerLinkRegExp.hasMatch(line)) {
         allInnerLinks.add(i);
-      } else if (githubRepoLingRegExp.hasMatch(line)) {
-        lines[i] = line.replaceAllMapped(githubRepoLingRegExp, (match) {
-          return '[${match.group(1)}](https://github.com/juancastillo0/leto/tree/main/${match.group(3)})';
-        });
+      }
+      if (githubRepoLingRegExp.hasMatch(line)) {
+        allGithubRepoLinks.add(i);
       }
 
       if ((line.startsWith('# ') || isGlobal && line.startsWith('## ')) &&
@@ -91,8 +101,9 @@ void main() async {
       }
 
       if (line.startsWith('#') && inCodeSection == null) {
-        final title =
-            cleanTitle(line).replaceAll(_uriChars, '').replaceAll(r'\_', '_');
+        final title = cleanTitle(line)
+            .replaceAll(uriCharsRegExp, '')
+            .replaceAll(r'\_', '_');
         int num = 1;
         String titleMapped = title;
         while (headers.containsKey(titleMapped)) {
@@ -115,28 +126,7 @@ void main() async {
         if (!headers.containsKey(ref)) {
           throw Exception('ref $ref $headers line ${lines[linkLine]}');
         }
-        final pos = headers[ref]!;
-        final sIndex = pos.value;
-
-        final String path;
-        if (pos.key == null) {
-          final sectionPath =
-              sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
-          path = '$sectionPath.md${ref != sectionPath ? '#$ref' : ''}';
-        } else {
-          final category = categories[pos.key!];
-          final sections = category.sections;
-          final sTitle =
-              sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
-          if (sTitle == category.directoryName) {
-            // It's a global category
-            path = '../category/$globalDir${category.directoryName}';
-          } else {
-            // Relative path to the md file (https://docusaurus.io/docs/markdown-features/links)
-            path = '../$globalDir${category.directoryName}/${sTitle}.md'
-                '${ref != sTitle ? '#$ref' : ''}';
-          }
-        }
+        final path = pathFromRef(ref, categories, info);
         return '[${match.group(1)}]($path)';
       });
       lines[linkLine] = newLine;
@@ -159,7 +149,87 @@ void main() async {
     ));
   }
 
+  for (final info in dirInfos.values) {
+    final lines = info.lines;
+    for (final linkLine in info.allGithubRepoLinks) {
+      lines[linkLine] =
+          lines[linkLine].replaceAllMapped(githubRepoLingRegExp, (match) {
+        if (match.group(2)!.endsWith('README.md')) {
+          // is docs ref
+          final prev = match
+              .group(2)!
+              .substring(0, match.group(2)!.length - 'README.md'.length);
+          final String path;
+          if (match.group(3)!.startsWith('#')) {
+            // readme ref
+            // TODO: other dirs
+            final p = pathFromRef(
+              match.group(3)!.substring(1),
+              categories,
+              dirInfos['main']!,
+            );
+            path = '../main/$p';
+          } else {
+            // readme root
+            path = '../category/$globalDir${prev}';
+          }
+          return '[${match.group(1)}]($path)';
+        } else {
+          // is code ref
+          return '[${match.group(1)}](https://github.com/juancastillo0/leto/tree/main/${match.group(3)})';
+        }
+      });
+    }
+  }
+
+  // Write all category directories
   await Future.wait(categories.map(writeCategory));
+}
+
+class DirInfo {
+  final File rootReadme;
+  final Directory outDirectory;
+  final List<String> lines;
+  final List<Section> sections = [];
+  final Map<String, MapEntry<int?, int>> headers = {};
+  final List<int> allInnerLinks = [];
+  final List<int> allGithubRepoLinks = [];
+
+  DirInfo({
+    required this.rootReadme,
+    required this.outDirectory,
+    required this.lines,
+  });
+}
+
+String pathFromRef(String ref, List<Category> categories, DirInfo info) {
+  if (!info.headers.containsKey(ref)) {
+    throw 'Could not find ref ${ref} in headers(${info.headers})';
+  }
+  final pos = info.headers[ref]!;
+  final sIndex = pos.value;
+  final sections = info.sections;
+
+  final String path;
+  if (pos.key == null) {
+    final sectionPath =
+        sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
+    path = '$sectionPath.md${ref != sectionPath ? '#$ref' : ''}';
+  } else {
+    final category = categories[pos.key!];
+    final sections = category.sections;
+    final sTitle =
+        sections[sIndex < sections.length ? sIndex : sIndex - 1].title;
+    if (sTitle == category.directoryName) {
+      // It's a global category
+      path = '../category/$globalDir${category.directoryName}';
+    } else {
+      // Relative path to the md file (https://docusaurus.io/docs/markdown-features/links)
+      path = '../$globalDir${category.directoryName}/${sTitle}.md'
+          '${ref != sTitle ? '#$ref' : ''}';
+    }
+  }
+  return path;
 }
 
 class Category {
@@ -191,7 +261,7 @@ class Category {
 Future<void> writeCategory(Category category) async {
   print(
     'writeCategory directoryPath: "${category.directoryPath}", position: ${category.position}'
-    ', sections: "${category.sections.map((e) => e.title).join('", "')}"',
+    ', sections: "${category.sections.map((e) => '"${e.title}" (${e.end - e.start})').join(', ')}',
   );
   final outDirectory = Directory(category.directoryPath);
   if (await outDirectory.exists()) {
@@ -319,6 +389,7 @@ class Section {
 //   return false;
 // }).cast<File>().toList();
 
+final uriCharsRegExp = RegExp('[${uriChars.join()}]');
 const uriChars = [
   ':',
   '/',
