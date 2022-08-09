@@ -1,16 +1,21 @@
-# leto_generator <!-- omit in toc -->
 [![Pub](https://img.shields.io/pub/v/leto_generator.svg)](https://pub.dartlang.org/packages/leto_generator)
-[![build status](https://travis-ci.org/angel-dart/graphql.svg)](https://travis-ci.org/angel-dart/graphql)
+
+# Leto Generator <!-- omit in toc -->
 
 Generates `package:leto_schema`'s `GraphQLSchema`s from annotated Dart classes and functions. This is a code-first generator which will generate different GraphQL elements based on annotations in Dart code.
 
 ## Usage
 
 Usage is very simple. You just need `@GraphQLObject()` annotation
-on any class you want to generate an object type for.
+on any class you want to generate an object type for. And the `@Query()`, `@Mutation()` or `Subscription()`
+annotations for resolver functions.
 
-Individual fields can have a `@GraphQLDocumentation()` annotation, to provide information
+Individual fields can have a `@GraphQLDocumentation()` or `@GraphQLField()` annotation, to provide information
 like descriptions, deprecation reasons, etc.
+
+There are many more annotations that you can explore in the [annotations section](#annotations-decorators).
+
+Add the following dependencies to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
@@ -20,11 +25,35 @@ dependencies:
   build_runner:
 ```
 
+Annotate your classes, fields and functions:
+
+```dart
+import 'package:leto_schema/leto_schema.dart';
+
+part 'file_name.g.dart';
+
+@GraphQLObject()
+class ObjectName {
+  final String fieldName;
+
+  const ObjectName({required this.fieldName});
+}
+
+@Query()
+ObjectName getObject(ReqCtx ctx, String name) {
+  return ObjectName(fieldName: name);
+}
+```
+
 Run the code generator:
 
+```bash
+dart run build_runner watch --delete-conflicting-outputs
 ```
-dart pub run build_runner watch --delete-conflicting-outputs
-```
+
+A `file_name.g.dart` should be generated with the `ObjectName`'s `GraphQLObjectType` and a field for
+the `getObject` query along with a `lib/graphql_api.schema.dart` file with the `GraphQLSchema` for your project.
+This schema will have the `getObject` resolver in the root `Query` type.
 
 # Table of contents <!-- omit in toc -->
 
@@ -44,6 +73,7 @@ dart pub run build_runner watch --delete-conflicting-outputs
     - [GraphQLEnum](#graphqlenum)
     - [AttachFn](#attachfn)
     - [Generics](#generics)
+      - [Generics Input](#generics-input)
 - [Dart Type to GraphQLType coercion](#dart-type-to-graphqltype-coercion)
   - [Default type mappings](#default-type-mappings)
   - [Provided type annotations](#provided-type-annotations)
@@ -54,6 +84,8 @@ dart pub run build_runner watch --delete-conflicting-outputs
   - [TODO: 2G BeforeResolver](#todo-2g-beforeresolver)
   - [Function Resolvers](#function-resolvers)
   - [Class Resolvers](#class-resolvers)
+    - [Resolver.ref](#resolverref)
+    - [instantiateCode](#instantiatecode)
 - [Global Configuration (build.yaml)](#global-configuration-buildyaml)
   - [Fields](#fields)
     - [TODO: 1G Name for ID GraphQLType (default: "id")](#todo-1g-name-for-id-graphqltype-default-id)
@@ -62,13 +94,14 @@ dart pub run build_runner watch --delete-conflicting-outputs
     - [omitPrivateFields (default: true)](#omitprivatefields-default-true)
   - [Resolvers](#resolvers-1)
     - [instantiateCode (default: null)](#instantiatecode-default-null)
-    - [customTypes](#customtypes)
+  - [customTypes](#customtypes)
       - [Example](#example)
-    - [graphQLApiSchemaFile](#graphqlapischemafile)
 
 # Examples
 
 Multiple examples with tests can be found in the [examples](https://github.com/juancastillo0/leto/tree/main/leto_generator/example) folder.
+
+Most of the examples showcased in the [main documentation](../README.md#examples) also use code generation.
 
 # Annotations (Decorators)
 
@@ -76,7 +109,7 @@ All annotations with documentation and the supported configuration parameters ca
 
 ## Outputs
 
-Annotations for GraphQL Output Types
+Annotations for GraphQL Output Types.
 
 ### GraphQLObject
 
@@ -377,7 +410,7 @@ type UnionNoFreezedB {
 
 ## Inputs
 
-Annotations for GraphQL Input Types
+Annotations for GraphQL Input Types.
 
 ### GraphQLInput
 
@@ -558,6 +591,9 @@ String testManyDefaults({
 <!-- include-end{code-generation-arguments} -->
 
 ## Other
+
+Other miscellaneous decorators include the general [`GraphQLDocumentation`](#graphqldocumentation), [`GraphQLEnum`](#graphqlenum) to generate a `GraphQLEnumType` and [`AttachFn`](#attachfn) to specify attachments.
+
 ### GraphQLDocumentation
 
 Dart comments for all elements will be taken as the description in the generated GraphQLType or Field. Also, Dart's `@Deprecated()` annotation can be used for setting the `deprecationReason` for fields, input fields, arguments and enum values. Another way, which will override the previous two, is by using the `@GraphQLDocumentation()` with the `description` and `deprecationReason` params.
@@ -670,11 +706,91 @@ class ClassEnum {
 
 ### AttachFn
 
-[Attachments](../README.md#attachments) in particular the [usage for code generation](../README.md#attachfn-for-code-generation).
+You can use the `AttachFn` decorator over a class, field or function or argument to specify [Attachments](../README.md#attachments) for a GraphQLElement. You pass a function that returns a list of attachments. More documentation on the usage can be found in [usage for code generation](../README.md#attachfn-for-code-generation).
 
 ### Generics
 
-// TODO: 1G Generics docs
+You can use generics with code generation. For example a simple wrapper around an error like this:
+
+<!-- include{generic-generator} -->
+```dart
+@GraphQLObject()
+class ErrCodeInterface<T extends Object> {
+  final String? message;
+  final T code;
+
+  const ErrCodeInterface(this.code, [this.message]);
+}
+```
+<!-- include-end{generic-generator} -->
+
+Will generate something a function that returns a `GraphQLType` with the generic as a `GraphQLType` passed as argument:
+
+```dart
+final _types =
+    HotReloadableDefinition<Map<String, GraphQLObjectType<ErrCodeInterface>>>(
+        (_) => {});
+
+/// Auto-generated from [ErrCodeInterface].
+GraphQLObjectType<ErrCodeInterface<T>>
+    errCodeInterfaceGraphQLType<T extends Object>(
+  GraphQLType<T, Object> tGraphQLType, {
+  String? name,
+}) {
+  final __name = name ?? 'ErrCodeInterface${tGraphQLType.printableName}';
+  if (_types.value[__name] != null) {
+    return _types.value[__name]! as GraphQLObjectType<ErrCodeInterface<T>>;
+  }
+  final __types = objectType<ErrCodeInterface<T>>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
+
+  _types.value[__name] = __types;
+  __types.fields.addAll(
+    [
+      graphQLString.field('message', resolve: (obj, ctx) => obj.message),
+      tGraphQLType.nonNull().field('code', resolve: (obj, ctx) => obj.code),
+    ],
+  );
+
+  return __types;
+}
+```
+
+It also has an optional name property to override the default generic name that is constructed
+from the base name and the generic `GraphQLType`s. This name can be used with the `genericTypeName`.
+//TODO: 2G genericTypeName should be usable in other situations. Maybe fields or in `GraphQLDocumentation` for all
+
+#### Generics Input
+
+You can also use generics for inputs like the following example. In this case, the `fromJson` factory should receive a
+function that parses the generic values (as many function as there are generic type parameters).
+
+<!-- include{generator-input-object-generic} -->
+```dart
+@GraphQLInput()
+@JsonSerializable(genericArgumentFactories: true)
+class InputGen<T> {
+  final String name;
+  final T generic;
+
+  const InputGen({
+    required this.name,
+    required this.generic,
+  });
+
+  factory InputGen.fromJson(
+    Map<String, Object?> json,
+    T Function(Object?) fromJsonT,
+  ) =>
+      _$InputGenFromJson(json, fromJsonT);
+
+  Map<String, Object?> toJson() => {'name': name, 'generic': generic};
+}
+```
+<!-- include-end{generator-input-object-generic} -->
 
 # Dart Type to GraphQLType coercion
 
@@ -720,7 +836,9 @@ If you want to customize a single field or argument with a GraphQLType different
 
 # Resolvers
 
-A Class annotated with `@GraphQLObject()` will generate fields for all its methods. Resolver inputs were discussed in the [inputs section](#resolver-inputs).
+Resolvers execute the main logic in an executable `GraphQLSchema`. These are functions that represent  queries, mutations or subscriptions.
+
+A Class annotated with `@GraphQLObject()` will generate resolver fields for all its methods and properties. Resolver input parameters were discussed in the [inputs section](#resolver-inputs).
 
 ## TODO: 2G BeforeResolver
 
@@ -747,11 +865,11 @@ With `@ClassResolver()` you can specify that a set of fields will be resolved by
 
 In order for Leto to have an instance of the resolver you need to provide a way of creating or getting the class resolver before executing any of the methods. We provide two main tool for that:
 
-- Resolver.ref
+### Resolver.ref
 
 A static variable that implements `BaseRef<FutureOr<Resolver?>>`. For example, a  `ScopedRef`. This will use the `Ctx` of the field's resolver to access an instance of the class resolver with `final FutureOr<Resolver> instance = Resolver.ref.get(ctx)!;` and then call the method `instance.fieldName(...arguments)` where `fieldName` is the name of the method.
 
-- instantiateCode
+### instantiateCode
 
 Available in: `build.yaml`, `ClassResolver`.
 
@@ -798,6 +916,8 @@ You can make global configuration for the code generation with the `build.yaml` 
 
 ## Fields
 
+Global configurations for fields
+
 ### TODO: 1G Name for ID GraphQLType (default: "id")
 
 
@@ -812,6 +932,7 @@ When `true`, this will make all fields nullable by default. If you want to make 
 Available in: `build.yaml`, `GraphQLObject`, `GraphQLField`.
 
 When `true`, this will omit all fields from being generated by default. If you want to generate a specific field, you will need to configure it in the class' `GraphQLObject` annotation, which applies to all the class' fields, or in the field's `GraphQLField` annotation.
+
 ### omitPrivateFields (default: true)
 
 Available in: `build.yaml`, `GraphQLObject`.
@@ -822,12 +943,16 @@ Following the GraphQL spec, fields that start with double underscore "__" are no
 
 ## Resolvers
 
+Global configurations for resolvers
 
 ### instantiateCode (default: null)
 
 Available in: `build.yaml`, `ClassResolver`.
 
-### customTypes
+You can globally configure the [`instantiateCode`](#instantiatecode) argument for ClassResolvers.
+
+
+## customTypes
 
 This will allow you to specify a custom mapping from given Dart type to a `GraphQLType`. The mapping is done with Dart type `name` provided as a field in the `build.yaml` configuration. This will override all other mapping discussed in [coercing types section](#dart-type-to-graphqltype-coercion). It is a list of objects with the following properties: 
 
@@ -888,5 +1013,3 @@ target:
             import: "package:<your_package_name>/<path_to_implementation>.dart"
             getter: "decimalGraphQLType"
 ```
-
-### graphQLApiSchemaFile
