@@ -45,7 +45,7 @@ All GraphQL types are generic, in order to leverage Dart's strong typing support
 # GraphQL Schema
 
 To validate the schema definition following [the specification](https://spec.graphql.org/draft/#sec-Type-System)
-you can use `validateSchema(GraphQLSchema)` which return the List<GraphQLError>` found during validation.
+you can use `validateSchema(GraphQLSchema)` which return the `List<GraphQLError>` found during validation.
 
 # GraphQL Types
 
