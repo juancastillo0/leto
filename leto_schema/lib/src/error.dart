@@ -96,6 +96,7 @@ class GraphQLException implements Exception {
   }
 }
 
+// @example-start{graphql-error-definition}
 /// An error that may occur during the execution of a GraphQL query.
 ///
 /// This will almost always be passed to a [GraphQLException].
@@ -139,6 +140,7 @@ class GraphQLError implements Exception, GraphQLException {
     StackTrace? stackTrace,
     this.sourceError,
   }) : stackTrace = stackTrace ?? StackTrace.current;
+// @example-end{graphql-error-definition}
 
   @override
   Map<String, Object?> toJson() {

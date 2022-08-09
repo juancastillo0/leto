@@ -42,14 +42,69 @@ final todoSchema = GraphQLSchema(
 
 All GraphQL types are generic, in order to leverage Dart's strong typing support.
 
+## Table of Contents
+- [Leto Schema](#leto-schema)
+  - [Usage](#usage)
+  - [Table of Contents](#table-of-contents)
+- [GraphQL Schema](#graphql-schema)
+  - [Resolvers](#resolvers)
+- [GraphQL Types](#graphql-types)
+  - [Scalar types](#scalar-types)
+    - [Additional scalar types](#additional-scalar-types)
+  - [Composed Types](#composed-types)
+  - [Helpers and Extensions](#helpers-and-extensions)
+    - [Methods on `GraphQLType`](#methods-on-graphqltype)
+  - [Serialization and `SerdeCtx`](#serialization-and-serdectx)
+    - [`SerdeCtx`](#serdectx)
+  - [Validation](#validation)
+  - [Non-Nullable Types](#non-nullable-types)
+  - [List Types](#list-types)
+    - [Input values and parameters](#input-values-and-parameters)
+- [Schema and Document Validation Rules](#schema-and-document-validation-rules)
+  - [`validateDocument(GraphQLSchema, gql.DocumentNode)`](#validatedocumentgraphqlschema-gqldocumentnode)
+  - [`validateSDL(gql.DocumentNode, GraphQLSchema?)`](#validatesdlgqldocumentnode-graphqlschema)
+  - [Custom Validations](#custom-validations)
+- [GraphQLException and GraphQLError](#graphqlexception-and-graphqlerror)
+- [Ctx and ScopedMap](#ctx-and-scopedmap)
+- [LookAhead](#lookahead)
+- [Utilities](#utilities)
+    - [`buildSchema`](#buildschema)
+    - [`printSchema`](#printschema)
+    - [`extendSchema`](#extendschema)
+    - [`introspectionQuery`](#introspectionquery)
+    - [`mergeSchemas`](#mergeschemas)
+    - [`schemaFromJson`](#schemafromjson)
+
 # GraphQL Schema
 
-To validate the schema definition following [the specification](https://spec.graphql.org/draft/#sec-Type-System)
-you can use `validateSchema(GraphQLSchema)` which return the `List<GraphQLError>` found during validation.
+Each `GraphQLSchema` has a required `GraphQLObjectType` as the root query type as well as optional `GraphQLObjectType`s for the mutation and subscription roots. You can provide a list of directive (`GraphQLDirectives`) definitions that can be used within the schema or by documents and . The directives will be extended if any of the types or fields have a [`ToDirectiveValue`](../README.md#todirectivevalue) attachment. You can provide an optional `description` `String` as documentation and a [`SerdeCtx`](#serialization-and-serdectx) used for deserialization of input types. The `astNode` (`SchemaDefinitionNode`) will be set when the schema is built using [`buildSchema`](#buildschema).
+
+To validate the schema definition, following [the specification](https://spec.graphql.org/draft/#sec-Type-System),
+you can use the `validateSchema(GraphQLSchema)` function which returns the `List<GraphQLError>` found during validation.
+
+## Resolvers
+
+Each field in an object type can provide a `resolve` callback to return the value when a GraphQL operation is executed over the schema.
+
+```dart
+final nameField = field(
+  'name',
+  graphQLString,
+  resolve: (Object parentObject, Ctx ctx) => 'Example Name',
+  // or pass the subscribe parameter if it is a subscription.
+  // The return type should be a Stream
+)
+```
+
+For a more thorough discussion about resolvers please see the resolvers section in the [main Documentation](../README.md#resolvers).
 
 # GraphQL Types
 
-All of the GraphQL scalar types are built in, as well other additional types:
+For a more thorough discussion about all the GraphQL types and their usage with Leto, please see the [GraphQL Schema Types Documentation](../README.md#graphql-schema-types).
+
+## Scalar types
+
+All of the GraphQL scalar types (`GraphQLScalarType`) are built in:
 
 * `graphQLString`
 * `graphQLId`
@@ -57,12 +112,23 @@ All of the GraphQL scalar types are built in, as well other additional types:
 * `graphQLInt`
 * `graphQLFloat`
 
-## Additional types
+As well other additional types, provided for types in Dart's standard library:
+
+### Additional scalar types
 
 * `graphQLDate`
 * `graphQLBigInt`
 * `graphQLTimestamp`
 * `graphQLUri`
+
+## Composed Types
+
+* `GraphQLObjectType`
+* `GraphQLUnionType`
+* `GraphQLEnumType`
+* `GraphQLInputObjectType`
+* `GraphQLListType`
+* `GraphQLNonNullType`
 
 ## Helpers and Extensions
 
@@ -97,15 +163,18 @@ final DateTime date = graphQLDate.deserialize(serdeCtx, iso8601String);
 print(date.millisecondsSinceEpoch);
 ```
 
+Values passed through `deserialize` and `serialize` should round-trip.
+
 ### `SerdeCtx`
 
 A Serialization and Deserialization Context (SerdeCtx) allows you to create types from serialized values.
-It registers `Serializers` for any type and can be used with generics.
+It registers `Serializers` for any type that can be used with generics.
 
 
 ## Validation
 
-GraphQL types can `validate` input data.
+GraphQL types can `validate` input data. If the validation is successful, the
+`GraphQLType.deserialize` method should return an instance of the Dart type.
 
 ```dart
 final validation = myType.validate('key', {...});
@@ -208,35 +277,123 @@ GraphQL schemas and documents can be validated for potential errors, misconfigur
 restrictions, such as restricting the complexity (how nested and how many fields) of a query.
 We perform all the document and schema validations in the [specification](https://spec.graphql.org/draft/#sec-Validation). Most of the code was ported from [graphql-js](https://github.com/graphql/graphql-js).
 
-You can find the implementation for all the rules in the `lib/src/validate/rules` directory.
+You can find the implementation for all the rules in the [`lib/src/validate/rules`](../leto_schema/lib/src/validate/rules/) directory.
 
 We also provide a [QueryComplexity](../README.md#query-complexity) validation rule.
 
-`List<GraphQLError> validateDocument()`
-`List<GraphQLError> validateSDL()`
+You can use two functions to validate GraphQL documents, both return a `List<GraphQLError>`:
+
+## `validateDocument(GraphQLSchema, gql.DocumentNode)`
+
+You can specify multiple validation rules. The default is [`specifiedRules`](../leto_schema/lib/src/validate/validate.dart).
+
+## `validateSDL(gql.DocumentNode, GraphQLSchema?)`
+
+If a `GraphQLSchema` is passed, it is assumed that the document SDL is an extension over the given schema.
+
+You can specify multiple validation rules. The default is `specifiedSDLRules`(../leto_schema/lib/src/validate/validate.dart).
 
 ## Custom Validations
 
 You can provide custom validations, they are a function that receives a `ValidationCtx` and returns a visitor that reports errors thought the context.
 
+For example, the following validation rule checks that argument names are unique:
+
+<!-- include{validation-rule-unique-arg-names} -->
 ```dart
-import 'package:gql/language.dart' as gql; 
+const _uniqueArgumentNamesSpec = ErrorSpec(
+  spec: 'https://spec.graphql.org/draft/#sec-Argument-Names',
+  code: 'uniqueArgumentNames',
+);
 
-// or `SDLValidationCtx context` for documents
-gql.Visitor validation(ValidationCtx context) {
-  // report errors
-  context.reportError(
-    GraphQLError(
-      'Error message',
+/// Unique argument names
+///
+/// A GraphQL field or directive is only valid if all supplied arguments are
+/// uniquely named.
+///
+/// See https://spec.graphql.org/draft/#sec-Argument-Names
+Visitor uniqueArgumentNamesRule(
+  SDLValidationCtx context, // ASTValidationContext,
+) {
+  final visitor = TypedVisitor();
 
-    )
-  );
+  VisitBehavior? checkArgUniqueness(List<ArgumentNode> argumentNodes) {
+    final seenArgs = argumentNodes.groupListsBy((arg) => arg.name.value);
+
+    for (final entry in seenArgs.entries) {
+      if (entry.value.length > 1) {
+        context.reportError(
+          GraphQLError(
+            'There can be only one argument named "${entry.key}".',
+            locations: List.of(entry.value
+                .map((node) => node.name.span!.start)
+                .map((e) => GraphQLErrorLocation.fromSourceLocation(e))),
+            extensions: _uniqueArgumentNamesSpec.extensions(),
+          ),
+        );
+      }
+    }
+  }
+
+  visitor.add<FieldNode>((node) => checkArgUniqueness(node.arguments));
+  visitor.add<DirectiveNode>((node) => checkArgUniqueness(node.arguments));
+  return visitor;
 }
 ```
+<!-- include-end{validation-rule-unique-arg-names} -->
 
 # GraphQLException and GraphQLError
 
+A `GraphQLException` is a list of `GraphQLError`s.
+You can view the `GraphQLError` definition in the following code section:
 
+<!-- include{graphql-error-definition} -->
+```dart
+/// An error that may occur during the execution of a GraphQL query.
+///
+/// This will almost always be passed to a [GraphQLException].
+class GraphQLError implements Exception, GraphQLException {
+  /// The reason execution was halted, whether it is a syntax error,
+  /// or a runtime error, or some other exception.
+  final String message;
+
+  /// An optional list of locations within the source text where
+  /// this error occurred.
+  ///
+  /// Smart tools can use this information to show end users exactly
+  /// which part of the errant query
+  /// triggered an error.
+  final List<GraphQLErrorLocation> locations;
+
+  /// List of field names with aliased names or 0‐indexed integers for list
+  final List<Object>? path;
+
+  /// The stack trace of the [sourceError]
+  final StackTrace? stackTrace;
+
+  /// An optional error Object to pass more information of the
+  /// source of the problem for logging or other purposes
+  final Object? sourceError;
+
+  /// Extensions return to the client
+  ///
+  /// This could be used to send more
+  /// information about the error, such as a specific error code.
+  final Map<String, Object?>? extensions;
+
+  /// An error that may occur during the execution of a GraphQL query.
+  ///
+  /// This will almost always be passed to a [GraphQLException].
+  GraphQLError(
+    this.message, {
+    this.locations = const [],
+    this.path,
+    this.extensions,
+    StackTrace? stackTrace,
+    this.sourceError,
+  }) : stackTrace = stackTrace ?? StackTrace.current;
+```
+<!-- include-end{graphql-error-definition} -->
 
 # Ctx and ScopedMap
 
@@ -247,7 +404,6 @@ You can view a more thorough explanation in the [main README](../README.md#reque
 You can view an usage example in the [main README](../README.md#lookahead-eager-loading).
 
 # Utilities
-
 
 Most GraphQL utilities can be found in the [`utilities`](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/utilities) folder in package:leto_schema.
 
@@ -276,7 +432,4 @@ Experimental. Merge multiple `GraphQLSchema`. The output `GraphQLSchema` contain
 ### [`schemaFromJson`](https://github.com/juancastillo0/leto/blob/main/leto_shelf/example/lib/schema/schema_from_json.dart)
 
 Experimental. Build a GraphQLSchema from a JSON value, will add query, mutation, subscription and custom events on top of the provided JSON value. Will try to infer the types from the JSON structure.
-
-
-
 
