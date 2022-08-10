@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/undraw_chilling_re_4iq9.svg').default,
     description: (
       <>
         Documentation, code generation, the Dart language, multiple utilities implemented 
@@ -21,7 +21,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    Svg: require('@site/static/img/undraw_dev_focus_re_6iwt_pink.svg').default,
     description: (
       <>
         Leto lets you focus on your server logic. Annotate your Dart code and
@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Powered by Dart',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    Svg: require('@site/static/img/logo_dart_192px.svg').default,
     description: (
       <>
         Develop and release to production using the awesome Dart language.
@@ -43,7 +43,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Build Reliable Servers',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/undraw_engineering_team_a7n2.svg').default,
     description: (
       <>
         Great test coverage, and error handling, strong static analysis coupled
@@ -53,7 +53,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Extensible',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/undraw_control_panel_re_y3ar.svg').default,
     description: (
       <>
         Multiple modules for execution (leto), schema creation (leto_schema) and code generation (leto_generator).
@@ -63,7 +63,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Community-Based',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/undraw_team_collaboration_re_ow29_pink.svg').default,
     description: (
       <>
         Fully open source integrated with json_serializable, freezed, gql, valida,
@@ -80,7 +80,7 @@ function Feature({title, Svg, description}: FeatureItem) {
       <div className="text--center">
         <Svg className={styles.featureSvg} role="img" />
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className="text--center padding-horiz--md" style={{"maxWidth": "470px", "margin": "auto"}}>
         <h3>{title}</h3>
         <p>{description}</p>
       </div>

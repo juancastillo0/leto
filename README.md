@@ -34,7 +34,7 @@
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome" />
 </a>
 
-<a href="https://juancastillo0.github.io/leto/">
+<a href="https://juancastillo0.github.io/leto/" target="_blank">
   <img src="https://img.shields.io/badge/docs-docusaurus-blue" alt="Docusaurus Documentation" />
 </a>
 
@@ -343,16 +343,6 @@ GraphQLSchema makeGraphQLSchema() {
 
 ```
 <!-- include-end{quickstart-make-schema} -->
-
-// TODO: 1T
-type CompilerLog {
-  toString: String!
-
-TODO: 1T class ProcessExecResult implements ProcessResult {
-[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
-Cannot infer the GraphQLType for field ProcessResult.stdout (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
-[WARNING] leto_generator:graphql_types on lib/src/compiler_models.dart:
-Cannot infer the GraphQLType for field ProcessResult.stderr (type=dynamic). Please annotate the Dart type, provide a dynamic.graphQLType static getter or add the type to `build.yaml` "customTypes" property.
 
 ### Using Code Generation
 

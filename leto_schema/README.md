@@ -77,7 +77,11 @@ All GraphQL types are generic, in order to leverage Dart's strong typing support
 
 # GraphQL Schema
 
-Each `GraphQLSchema` has a required `GraphQLObjectType` as the root query type as well as optional `GraphQLObjectType`s for the mutation and subscription roots. You can provide a list of directive (`GraphQLDirectives`) definitions that can be used within the schema or by documents and . The directives will be extended if any of the types or fields have a [`ToDirectiveValue`](../README.md#todirectivevalue) attachment. You can provide an optional `description` `String` as documentation and a [`SerdeCtx`](#serialization-and-serdectx) used for deserialization of input types. The `astNode` (`SchemaDefinitionNode`) will be set when the schema is built using [`buildSchema`](#buildschema).
+Each `GraphQLSchema` requires a `GraphQLObjectType` as the root query type and optional `GraphQLObjectType`s for the mutation and subscription roots.
+
+You can provide a list of directive definitions (`GraphQLDirectives`) that can be used within the schema or by documents executed by the schema. The directives will be extended if any of the types or fields have a [`ToDirectiveValue`](../README.md#todirectivevalue) attachment.
+
+A `GraphQLSchema` has an optional `description` `String` that can be used as documentation and a [`SerdeCtx`](#serialization-and-serdectx) for deserialization of input types. The `astNode` (`SchemaDefinitionNode`) will be set when the schema is created with [`buildSchema`](#buildschema).
 
 To validate the schema definition, following [the specification](https://spec.graphql.org/draft/#sec-Type-System),
 you can use the `validateSchema(GraphQLSchema)` function which returns the `List<GraphQLError>` found during validation.
