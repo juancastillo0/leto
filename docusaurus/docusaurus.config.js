@@ -27,6 +27,7 @@ const config = {
     defaultLocale: "en",
     locales: ["en"],
   },
+  clientModules: [require.resolve("./src/search-ctrl-k.js")],
 
   presets: [
     [
@@ -53,7 +54,7 @@ const config = {
         },
         gtag: {
           trackingID: "G-6D49T4ZF7V",
-        }
+        },
       }),
     ],
   ],
@@ -61,7 +62,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/leto-logo-white.png',
+      image: "img/leto-logo-white.png",
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 3,
