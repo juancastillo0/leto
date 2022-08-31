@@ -1,0 +1,85 @@
+{
+  "short_name": "Leto Docs",
+  "name": "Leto GraphQL Server Libraries",
+  "description": "Leto GraphQL Dart server libraries documentation",
+  "display": "standalone",
+  "start_url": "/docs/category/main?source=pwa",
+  "scope": "./",
+  "background_color": "#3367D6",
+  "theme_color": "#3367D6",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://juancastillo0.github.io/leto/manifest.json"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Examples Showcase",
+      "short_name": "Examples",
+      "description": "View weather information for today",
+      "url": "/docs/main/examples?source=pwa",
+      "icons": [{ "src": "/images/today.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Quickstart Tutorial",
+      "short_name": "Quickstart",
+      "description": "View weather information for tomorrow",
+      "url": "/docs/main/quickstart?source=pwa",
+      "icons": [{ "src": "/images/tomorrow.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Code Generation",
+      "short_name": "Code Generation",
+      "description": "View weather information for tomorrow",
+      "url": "/docs/category/leto_generator?source=pwa",
+      "icons": [{ "src": "/images/tomorrow.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Leto Shelf Web Server",
+      "short_name": "Leto Shelf",
+      "description": "View weather information for tomorrow",
+      "url": "/docs/category/leto_shelf?source=pwa",
+      "icons": [{ "src": "/images/tomorrow.png", "sizes": "192x192" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/images/icons-vector.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    },
+    {
+      "src": "img/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icons/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot1.png",
+      "type": "image/png",
+      "sizes": "540x720"
+    },
+    {
+      "src": "/images/screenshot2.jpg",
+      "type": "image/jpg",
+      "sizes": "540x720"
+    }
+  ]
+}

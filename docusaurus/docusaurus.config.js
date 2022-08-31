@@ -196,6 +196,64 @@ const config = {
           // Options here
         },
       ],
+      [
+        "@docusaurus/plugin-pwa",
+        {
+          offlineModeActivationStrategies: [
+            "appInstalled",
+            "standalone",
+            "queryString",
+          ],
+          pwaHead: [
+            {
+              tagName: "link",
+              rel: "manifest",
+              href: "/manifest.json",
+            },
+            {
+              tagName: "link",
+              rel: "icon",
+              href: "img/leto-icon-transparent.png",
+            },
+            {
+              tagName: "link",
+              rel: "apple-touch-icon",
+              href: "img/leto-icon-transparent.png",
+            },
+            {
+              tagName: "meta",
+              name: "msapplication-TileImage",
+              content: "img/leto-icon-transparent.png",
+            },
+            // {
+            //   tagName: "link",
+            //   rel: "mask-icon",
+            //   href: "/img/docusaurus.svg",
+            //   color: "rgb(37, 194, 160)",
+            // },
+            {
+              tagName: "meta",
+              name: "theme-color",
+              content: "rgb(37, 194, 160)",
+            },
+            {
+              tagName: "meta",
+              name: "msapplication-TileColor",
+              content: "#000",
+            },
+            {
+              tagName: "meta",
+              name: "apple-mobile-web-app-status-bar-style",
+              content: "#000",
+            },
+            {
+              tagName: "meta",
+              name: "apple-mobile-web-app-capable",
+              content: "yes",
+            },
+          ],
+        },
+      ],
     ],
 };
 
