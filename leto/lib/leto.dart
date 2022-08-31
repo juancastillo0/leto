@@ -213,51 +213,55 @@ class GraphQL {
       schema: schema,
     );
 
-    return withExtensions(
-      (next, p1) => p1.executeRequest(
-        next,
-        preExecuteCtx,
-      ),
-      () async {
-        try {
-          final document = getDocumentNode(
-            query,
-            sourceUrl: sourceUrl,
-            extensions: extensions,
-            globals: _globalVariables,
-            ctx: preExecuteCtx,
-          );
+    try {
+      return withExtensions(
+        (next, p1) => p1.executeRequest(
+          next,
+          preExecuteCtx,
+        ),
+        () async {
+          try {
+            final document = getDocumentNode(
+              query,
+              sourceUrl: sourceUrl,
+              extensions: extensions,
+              globals: _globalVariables,
+              ctx: preExecuteCtx,
+            );
 
-          final operation = getOperation(document, operationName);
-          if (!validOperationTypes.contains(operation.type)) {
-            throw InvalidOperationType(
-              preExecuteCtx,
+            final operation = getOperation(document, operationName);
+            if (!validOperationTypes.contains(operation.type)) {
+              throw InvalidOperationType(
+                preExecuteCtx,
+                document,
+                operation,
+                validOperationTypes,
+              );
+            }
+            final result = await executeRequest(
+              schema,
               document,
-              operation,
-              validOperationTypes,
+              rootValue: rootValue ?? _globalVariables,
+              variableValues: variableValues,
+              globalVariables: _globalVariables,
+              extensions: extensions,
+              baseCtx: preExecuteCtx,
+              operation: operation,
+            );
+
+            return result;
+          } on GraphQLException catch (e) {
+            return GraphQLResult(
+              null,
+              errors: e.errors,
+              didExecute: false,
             );
           }
-          final result = await executeRequest(
-            schema,
-            document,
-            rootValue: rootValue ?? _globalVariables,
-            variableValues: variableValues,
-            globalVariables: _globalVariables,
-            extensions: extensions,
-            baseCtx: preExecuteCtx,
-            operation: operation,
-          );
-
-          return result;
-        } on GraphQLException catch (e) {
-          return GraphQLResult(
-            null,
-            errors: e.errors,
-            didExecute: false,
-          );
-        }
-      },
-    );
+        },
+      );
+    } finally {
+      await _globalVariables.dispose();
+    }
   }
 
   T withExtensions<T>(
@@ -590,47 +594,51 @@ class GraphQL {
 
     return sourceStream.value.asyncMap(
       (event) async {
+        final scope = streamCtx.scope.child();
         final ctx = ExecutionCtx(
           requestCtx: streamCtx.requestCtx,
           document: streamCtx.document,
           operation: streamCtx.operation,
-          scope: streamCtx.scope.child(),
+          scope: scope,
           variableValues: streamCtx.variableValues,
         );
         _resolveCtxRef.get(ctx.scope).value = ctx;
+        try {
+          // final _prev = prev;
+          return withExtensions<Future<GraphQLResult>>(
+            (next, p1) async => p1.executeSubscriptionEvent(
+              next,
+              ctx,
+              streamCtx.scope,
+            ),
+            () async {
+              /// ExecuteSubscriptionEvent
+              try {
+                final selectionSet = subscription.selectionSet;
+                final subscriptionType = schema.subscriptionType;
 
-        // final _prev = prev;
-        return withExtensions<Future<GraphQLResult>>(
-          (next, p1) async => p1.executeSubscriptionEvent(
-            next,
-            ctx,
-            streamCtx.scope,
-          ),
-          () async {
-            /// ExecuteSubscriptionEvent
-            try {
-              final selectionSet = subscription.selectionSet;
-              final subscriptionType = schema.subscriptionType;
-
-              final data = await executeSelectionSet(
-                ctx,
-                selectionSet,
-                subscriptionType!,
-                SubscriptionEvent._(event),
-                serial: false,
-              );
-              return GraphQLResult(
-                data,
-                errors: ctx.errors,
-              );
-            } on GraphQLException catch (e) {
-              return GraphQLResult(
-                null,
-                errors: ctx.errors.followedBy(e.errors).toList(),
-              );
-            }
-          },
-        );
+                final data = await executeSelectionSet(
+                  ctx,
+                  selectionSet,
+                  subscriptionType!,
+                  SubscriptionEvent._(event),
+                  serial: false,
+                );
+                return GraphQLResult(
+                  data,
+                  errors: ctx.errors,
+                );
+              } on GraphQLException catch (e) {
+                return GraphQLResult(
+                  null,
+                  errors: ctx.errors.followedBy(e.errors).toList(),
+                );
+              }
+            },
+          );
+        } finally {
+          await scope.dispose();
+        }
         // prev = curr.then<GraphQLResult>((event) async {
         //   await _prev;
         //   sink.add(event);
