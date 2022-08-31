@@ -260,7 +260,8 @@ class GraphQL {
         },
       );
     } finally {
-      await _globalVariables.dispose();
+      // ignore: unawaited_futures
+      _globalVariables.dispose();
     }
   }
 
@@ -637,7 +638,8 @@ class GraphQL {
             },
           );
         } finally {
-          await scope.dispose();
+          // ignore: unawaited_futures
+          scope.dispose();
         }
         // prev = curr.then<GraphQLResult>((event) async {
         //   await _prev;
