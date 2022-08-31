@@ -167,13 +167,11 @@ The source code for this quickstart can be found in https://github.com/juancasti
 
 Add dependencies to your pubspec.yaml
 
-All packages haven't been published at the moment. You can use them directly from git as explained in this [issue](https://github.com/juancastillo0/leto/issues/3) or you could also clone the repository locally and use relative dependencies like this [example](https://github.com/juancastillo0/leto/blob/df12485d0edc4e2d1016a581113c3411922137c5/chat_example/server/pubspec.yaml).
-
 ```yaml
 dependencies:
-  leto_schema: ^0.0.1
-  leto: ^0.0.1
-  leto_shelf: ^0.0.1
+  leto_schema: ^0.0.1-dev.1
+  leto: ^0.0.1-dev.1
+  leto_shelf: ^0.0.1-dev.1
   shelf: ^1.0.0
   shelf_router: ^1.0.0
   # Not nessary for the server, just for testing it
@@ -181,7 +179,7 @@ dependencies:
 
 dev_dependencies:
   # Only if you use code generation
-  leto_generator: ^0.0.1
+  leto_generator: ^0.0.1-dev.1
   build_runner: ^2.0.0
 ```
 

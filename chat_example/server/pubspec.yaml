@@ -61,7 +61,7 @@ dev_dependencies:
   #   url: https://github.com/juancastillo0/gql
   #   path: links/gql_websocket_link
   #   ref: 813d52423ed1bff6db17e9c1dbe47cf489f06266
-  gql: ^0.13.1
+  gql: ^0.14.0
 
   leto_generator:
   valida_generator:

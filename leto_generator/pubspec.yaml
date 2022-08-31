@@ -1,8 +1,7 @@
 name: leto_generator
-version: 0.0.1
+version: 0.0.1-dev.1
 description: Generates GraphQL schemas from Dart classes, for use with package:leto_schema.
-homepage: https://github.com/juancastillo0/leto
-publish_to: none
+repository: https://github.com/juancastillo0/leto
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -23,19 +22,8 @@ dependencies:
   glob: ^2.1.0
   path: ^1.8.2
 
-  valida:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida
-  leto_schema:
+  valida: ^0.1.0-dev.1
+  leto_schema: ^0.0.1-dev.1
 
 dev_dependencies:
   lint: ^1.0.0
-
-dependency_overrides:
-  leto_schema:
-    path: ../leto_schema
-  valida:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida

@@ -1,12 +1,3 @@
-# 1.0.4
-* Add `convert` method to types, to avoid some annoying generics bugs.
+## [0.0.1-dev.1] - 2022-08-30.
 
-# 1.0.3
-* `enumTypeFromStrings` now returns `GraphQLEnumType<String>`.
-
-# 1.0.2
-* Added `GraphQLClass()`.
-* Added `typeName`.
-
-# 1.0.1
-* Dart 2 updates.
+Initial prerelease version

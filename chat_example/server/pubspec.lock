@@ -266,28 +266,28 @@ packages:
       name: gql
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.1"
+    version: "0.14.1-alpha+1661890990239"
   gql_exec:
     dependency: "direct dev"
     description:
       name: gql_exec
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0"
+    version: "0.4.1"
   gql_link:
     dependency: "direct dev"
     description:
       name: gql_link
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.2"
+    version: "0.4.3-alpha+1659910170117"
   gql_websocket_link:
     dependency: "direct dev"
     description:
       name: gql_websocket_link
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.3"
+    version: "0.3.4-alpha+1659910170125"
   graphs:
     dependency: transitive
     description:

@@ -217,28 +217,28 @@ packages:
       name: gql
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.1"
+    version: "0.14.1-alpha+1661890990239"
   gql_exec:
     dependency: "direct dev"
     description:
       name: gql_exec
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0"
+    version: "0.4.1"
   gql_link:
     dependency: "direct dev"
     description:
       name: gql_link
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.2"
+    version: "0.5.1-alpha+1660256327632"
   gql_websocket_link:
     dependency: "direct dev"
     description:
       name: gql_websocket_link
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.3"
+    version: "0.3.4-alpha+1660256327643"
   graphs:
     dependency: transitive
     description:
@@ -326,17 +326,17 @@ packages:
   leto:
     dependency: "direct main"
     description:
-      path: "../leto"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: leto
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   leto_schema:
     dependency: "direct main"
     description:
-      path: "../leto_schema"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: leto_schema
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.1"
   leto_shelf_example:
     dependency: "direct dev"
     description:
@@ -373,7 +373,7 @@ packages:
     source: hosted
     version: "1.8.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       url: "https://pub.dartlang.org"
