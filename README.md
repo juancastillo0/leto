@@ -1350,7 +1350,7 @@ GraphQLObjectType<ErrC<T?>> errCGraphQlType<T extends Object>(
 
 ```
 
-- With code generation (derialization with Generic Input types is not yet supported ISSUE // TODO: 1A)
+- With code generation
 
 ```dart
 import 'package:leto/leto.dart';
@@ -1363,7 +1363,6 @@ class ErrC<T> {
 
   const ErrC(this.value, [this.message]);
 }
-
 ```
 
 Which generates in 'errc.g.dart':
