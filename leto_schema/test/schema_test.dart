@@ -320,6 +320,47 @@ type Subscription {
   // });
 
   group('Validity', () {
+    group('reserved type names regex ', () {
+      /// https://spec.graphql.org/draft/#sec-Names.Reserved-Names
+      test('not allowed', () {
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('__NotAllowedName'),
+          isTrue,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('__Foo'),
+          isTrue,
+        );
+      });
+
+      test('allowed', () {
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('5Test'),
+          isFalse,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('AllowedName'),
+          isFalse,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('allowedName'),
+          isFalse,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('_ApolloFederation'),
+          isFalse,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('_Any'),
+          isFalse,
+        );
+        expect(
+          GraphQLSchema.reservedTypeNamePrefix.hasMatch('_any'),
+          isFalse,
+        );
+      });
+    });
+
     group('when not assumed valid', () {
       // TODO: 2A test('configures the schema to still needing validation', ()  {
       //   expect(
@@ -413,6 +454,27 @@ type Subscription {
                 e.type2 == QueryType.fields[0].type)),
           );
         });
+
+        test(
+            'rejects a Schema which defines non-introspect '
+            'types prefixed with double underscore', () {
+          final fields = <GraphQLObjectField>[];
+          final QueryType = GraphQLObjectType<Object>(
+            'Query',
+            fields: [
+              field('foo', GraphQLObjectType('__Foo', fields: fields)),
+            ],
+          );
+
+          expect(
+            () => GraphQLSchema(queryType: QueryType),
+            throwsA(
+              predicate(
+                (e) => e is InvalidTypeNameException,
+              ),
+            ),
+          );
+        });
       });
 
       group('when assumed valid', () {
@@ -423,6 +485,20 @@ type Subscription {
         //     ).__validationErrors,
         //   ).to.deep.equal([]);
         // });
+
+        test('Schema allows Types prefixed with a single _ underscore', () {
+          final fields = <GraphQLObjectField>[];
+          final QueryType = GraphQLObjectType<Object>(
+            'Query',
+            fields: [
+              field('sdl', GraphQLObjectType('_Service', fields: fields)),
+            ],
+          );
+
+          final schema = GraphQLSchema(queryType: QueryType).schemaStr;
+
+          expect(schema.contains('_Service'), isTrue);
+        });
       });
     });
   });

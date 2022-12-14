@@ -17,24 +17,38 @@ import 'package:source_span/source_span.dart' show FileSpan, SourceLocation;
 
 export 'package:gql/ast.dart'
     show DocumentNode, FieldNode, OperationDefinitionNode, OperationType;
+
 // TODO: 2A find a better way, maybe another leto_valida package?
 export 'package:leto_schema/src/validate/valida_input_attachment.dart';
 export 'package:leto_schema/utilities.dart'
     show PossibleSelections, PossibleSelectionsObject;
 
 part 'argument.dart';
+
 part 'decorators.dart';
+
 part 'directive.dart';
+
 part 'enum.dart';
+
 part 'error.dart';
+
 part 'field.dart';
+
 part 'gen.dart';
+
 part 'object_type.dart';
+
 part 'req_ctx.dart';
+
 part 'scalar.dart';
+
 part 'serde_ctx.dart';
+
 part 'type.dart';
+
 part 'union.dart';
+
 part 'validation_result.dart';
 
 /// The schema against which queries, mutations and subscriptions are executed.
@@ -157,7 +171,8 @@ class GraphQLSchema {
   /// throws [UnnamedTypeException] if there are different types
   /// with the same name.
   /// throws [InvalidTypeNameException] if there is a type
-  /// with an invalid name. All type names should match [typeNameRegExp].
+  /// with an invalid name. Names may not be prefixed with
+  /// [reservedTypeNamePrefix].
   GraphQLSchema({
     this.queryType,
     this.mutationType,
@@ -175,7 +190,8 @@ class GraphQLSchema {
   }
 
   /// All [GraphQLType] names should match this regular expression
-  static final typeNameRegExp = RegExp(r'^[a-zA-Z][_a-zA-Z0-9]*$');
+  /// https://spec.graphql.org/draft/#sec-Names.Reserved-Names
+  static final reservedTypeNamePrefix = RegExp('^__');
 
   void _collectTypes() {
     final allNamedTypes = fetchAllNamedTypes(this);
@@ -183,7 +199,8 @@ class GraphQLSchema {
       final name = type.name;
       if (name.isEmpty) {
         throw UnnamedTypeException(this, type);
-      } else if (!typeNameRegExp.hasMatch(name) && !isIntrospectionType(type)) {
+      } else if (reservedTypeNamePrefix.hasMatch(name) &&
+          !isIntrospectionType(type)) {
         throw InvalidTypeNameException(this, type);
       }
       final prev = typeMap[name];
@@ -301,7 +318,7 @@ class InvalidTypeNameException implements SchemaValidationException {
   String toString() {
     return 'One of the provided types for building the'
         ' Schema has an invalid name = $type.'
-        ' All names should match: ${GraphQLSchema.typeNameRegExp.pattern}'
+        ' Type names may not match: ${GraphQLSchema.reservedTypeNamePrefix.pattern}'
         '. GraphQLType(runtimeType: ${type.runtimeType},'
         ' description: ${type.description}.)';
   }
