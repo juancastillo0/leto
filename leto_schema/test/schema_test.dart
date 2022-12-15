@@ -413,6 +413,36 @@ type Subscription {
                 e.type2 == QueryType.fields[0].type)),
           );
         });
+
+        test('rejects a Schema with a type whose name starts with "__"', () {
+          final fields = <GraphQLObjectField>[];
+          final QueryType = GraphQLObjectType<Object>(
+            'Query',
+            fields: [
+              field('b', GraphQLObjectType('_ValidName', fields: fields)),
+              field('a', GraphQLObjectType('__InvalidName', fields: fields)),
+            ],
+          );
+
+          expect(
+            () => GraphQLSchema(queryType: QueryType),
+            throwsA(
+              predicate((e) =>
+                  e is InvalidTypeNameException &&
+                  e.type == QueryType.fields[1].type),
+            ),
+          );
+        });
+
+        test('accepts a Schema with a type whose name starts with "_"', () {
+          final QueryType = GraphQLObjectType<Object>(
+            'Query',
+            fields: [
+              field('b', GraphQLObjectType('_ValidName', fields: [])),
+            ],
+          );
+          GraphQLSchema(queryType: QueryType);
+        });
       });
 
       group('when assumed valid', () {

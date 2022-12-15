@@ -175,7 +175,7 @@ class GraphQLSchema {
   }
 
   /// All [GraphQLType] names should match this regular expression
-  static final typeNameRegExp = RegExp(r'^[a-zA-Z][_a-zA-Z0-9]*$');
+  static final typeNameRegExp = RegExp(r'^[_a-zA-Z][_a-zA-Z0-9]*$');
 
   void _collectTypes() {
     final allNamedTypes = fetchAllNamedTypes(this);
@@ -183,7 +183,8 @@ class GraphQLSchema {
       final name = type.name;
       if (name.isEmpty) {
         throw UnnamedTypeException(this, type);
-      } else if (!typeNameRegExp.hasMatch(name) && !isIntrospectionType(type)) {
+      } else if ((!typeNameRegExp.hasMatch(name) || name.startsWith('__')) &&
+          !isIntrospectionType(type)) {
         throw InvalidTypeNameException(this, type);
       }
       final prev = typeMap[name];
@@ -302,7 +303,8 @@ class InvalidTypeNameException implements SchemaValidationException {
     return 'One of the provided types for building the'
         ' Schema has an invalid name = $type.'
         ' All names should match: ${GraphQLSchema.typeNameRegExp.pattern}'
-        '. GraphQLType(runtimeType: ${type.runtimeType},'
+        ' and cannot start with "__".'
+        ' GraphQLType(runtimeType: ${type.runtimeType},'
         ' description: ${type.description}.)';
   }
 }
