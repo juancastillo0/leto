@@ -27,7 +27,8 @@ void main() {
     _compareEq(t1, t4);
     _compareEq(t1, t5);
     expect('T13:47:30.000', t5.toString());
-  });
+  }, skip: 'TODO: Time type');
+
   test('time from datetime', () {
     final t1 = Time.parse('T1200');
     final t2 = Time.fromDateTime(DateTime(100, 2, 3, 12, 0));
@@ -35,7 +36,7 @@ void main() {
     _compareEq(t1, t2);
     _compareEq(t1, t3);
     expect('T12:00:00.000', t1.toString());
-  });
+  }, skip: 'TODO: Time type');
 
   test('time and durations', () {
     final t1 = Time.parse('T1200');
@@ -54,7 +55,7 @@ void main() {
   test('time toString', () {
     final t1 = Time.parse('T1200');
     expect(t1.toString(), 'T12:00:00.000');
-  });
+  }, skip: 'TODO: Time type');
 
   test('parse times', () {
     final values = <List<Object>>[
