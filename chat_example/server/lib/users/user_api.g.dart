@@ -566,7 +566,7 @@ Map<String, dynamic> _$$UserSignedOutEventToJson(
 // **************************************************************************
 
 /// The arguments for [signUp].
-class SignUpArgs with ToJson {
+class SignUpArgs with ValidaToJson {
   final Ctx<dynamic> ctx;
   final String name;
   final String password;
@@ -637,8 +637,9 @@ class SignUpArgsValidationFields {
 }
 
 class SignUpArgsValidation extends Validation<SignUpArgs, SignUpArgsField> {
-  SignUpArgsValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  SignUpArgsValidation(this.errorsMap, this.value)
+      : fields = SignUpArgsValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<SignUpArgsField, List<ValidaError>> errorsMap;
   @override
@@ -647,28 +648,17 @@ class SignUpArgsValidation extends Validation<SignUpArgs, SignUpArgsField> {
   final SignUpArgsValidationFields fields;
 
   /// Validates [value] and returns a [SignUpArgsValidation] with the errors found as a result
-  static SignUpArgsValidation fromValue(SignUpArgs value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <SignUpArgsField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return SignUpArgsValidation(
-        errors, value, SignUpArgsValidationFields(errors));
-  }
+  factory SignUpArgsValidation.fromValue(SignUpArgs value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: SignUpArgsValidation.new,
+    getField: _getField,
     fieldsMap: {
       SignUpArgsField.name: ValidaString(minLength: 2),
       SignUpArgsField.password: ValidaString(minLength: 6),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(SignUpArgs value) => [];

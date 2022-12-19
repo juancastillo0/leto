@@ -11,10 +11,7 @@ dependencies:
   freezed_annotation: ^2.0.0
   oxidized: ^5.1.0
   test: ^1.0.0
-  valida:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida
+  valida: ^0.1.0-dev.1
 
   leto:
   leto_schema:
@@ -25,10 +22,7 @@ dev_dependencies:
   freezed: 2.0.3
   json_serializable: ^6.2.0
 
-  valida_generator:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida_generator
+  valida_generator: ^0.1.0-dev.1
   leto_generator:
 
 dependency_overrides:
@@ -38,11 +32,3 @@ dependency_overrides:
     path: ../../leto
   leto_schema:
     path: ../../leto_schema
-  valida:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida
-  valida_generator:
-    git:
-      url: https://github.com/juancastillo0/valida
-      path: valida_generator

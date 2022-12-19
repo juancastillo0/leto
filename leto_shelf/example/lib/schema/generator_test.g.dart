@@ -383,8 +383,9 @@ class TestModelValidationFields {
 }
 
 class TestModelValidation extends Validation<TestModel, TestModelField> {
-  TestModelValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  TestModelValidation(this.errorsMap, this.value)
+      : fields = TestModelValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<TestModelField, List<ValidaError>> errorsMap;
   @override
@@ -393,27 +394,16 @@ class TestModelValidation extends Validation<TestModel, TestModelField> {
   final TestModelValidationFields fields;
 
   /// Validates [value] and returns a [TestModelValidation] with the errors found as a result
-  static TestModelValidation fromValue(TestModel value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <TestModelField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return TestModelValidation(
-        errors, value, TestModelValidationFields(errors));
-  }
+  factory TestModelValidation.fromValue(TestModel value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: TestModelValidation.new,
+    getField: _getField,
     fieldsMap: {
       TestModelField.name: ValidaString(minLength: 1, maxLength: 64),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(TestModel value) => [];

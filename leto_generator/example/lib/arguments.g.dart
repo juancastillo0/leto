@@ -288,7 +288,7 @@ class ValidaArgModelValidation
 }
 
 /// The arguments for [testValidaInArgs].
-class TestValidaInArgsArgs with ToJson {
+class TestValidaInArgsArgs with ValidaToJson {
   final String strSOrA;
   final int? otherInt;
   final int greaterThan3AndOtherInt;
