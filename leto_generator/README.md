@@ -1006,10 +1006,17 @@ And specify the following config in the [build.yaml](https://github.com/dart-lan
 target:
   default:
     builders:
-      leto_generator:
+      leto_generator:graphql_types:
         options:
           customTypes:
             - name: "Decimal"
-            import: "package:<your_package_name>/<path_to_implementation>.dart"
-            getter: "decimalGraphQLType"
+              import: "package:<your_package_name>/<path_to_implementation>.dart"
+              getter: "decimalGraphQLType"
+      leto_generator:graphql_resolvers:
+        options:
+          customTypes:
+            - name: "Decimal"
+              import: "package:<your_package_name>/<path_to_implementation>.dart"
+              getter: "decimalGraphQLType"
+              
 ```
