@@ -58,12 +58,12 @@ class Config {
       final index = EnumNameCase.values.indexWhere(
         (v) => v.toString().split('.').last == enumValuesCaseStr,
       );
-      final errorMessage = 'enumValuesCase should be one of'
-          ' ${EnumNameCase.values.map((e) => '"${e.toString().split('.').last}"').join(', ')}.'
-          ' Got $enumValuesCaseStr.';
       if (index != -1) {
         enumValuesCase = EnumNameCase.values[index];
       } else {
+        final errorMessage = 'enumValuesCase should be one of'
+            ' ${EnumNameCase.values.map((e) => '"${e.toString().split('.').last}"').join(', ')}.'
+            ' Got $enumValuesCaseStr.';
         throw FormatException(errorMessage, enumValuesCase);
       }
     }

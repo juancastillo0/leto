@@ -26,3 +26,15 @@ targets:
             - name: Decimal
               import: "package:leto_generator_example/decimal.dart"
               getter: "decimalGraphQLType"
+      leto_generator|graphql_resolvers:
+        options:
+          serializerSuffix: Serializer
+          graphqlTypeSuffix: GraphQLType
+          unionKeySuffix: Discriminant
+          graphQLFieldSuffix: GraphQLField
+          nullableFields: false
+          omitFields: false
+          customTypes:
+            - name: Decimal
+              import: "package:leto_generator_example/decimal.dart"
+              getter: "decimalGraphQLType"

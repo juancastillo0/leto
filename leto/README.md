@@ -257,7 +257,7 @@ Your Dart schema's field `subscribe` for `onTodo` should return a `Stream`:
 field(
   'onTodo',
   todoAddedType,
-  subscribe: (_, RecCtx ctx) {
+  subscribe: (_, Ctx ctx) {
     return someStreamOfTodos();
   },
 );

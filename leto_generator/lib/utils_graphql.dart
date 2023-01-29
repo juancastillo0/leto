@@ -129,15 +129,10 @@ Expression inferType(
 }) {
   final docs = getDocumentation(typeElement);
   if (docs?.typeName != null) {
-    return refer(docs!.typeName!.toString());
+    return refer(docs!.typeName!);
   }
-  // Next, check if this is the "id" field of a `Model`.
-  // TODO: 1G make the id configurable, maybe with @key(fields: "") directive
-  // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
-  //     name == 'id') {
-  //   return refer('graphQLId');
-  // }
 
+  // If its a Future<T>, Stream<T> or FutureOr<T>, unpack T and infer it
   final genericWhenAsync = genericTypeWhenFutureOrStream(type);
   if (genericWhenAsync != null) {
     return inferType(
@@ -153,16 +148,7 @@ Expression inferType(
   Expression _wrapNullability(Expression exp) =>
       nonNullable && nullable != true ? exp.property('nonNull').call([]) : exp;
 
-  const primitive = {
-    String: 'graphQLString',
-    int: 'graphQLInt',
-    double: 'graphQLFloat',
-    bool: 'graphQLBoolean',
-    DateTime: 'graphQLDate',
-    Uri: 'graphQLUri',
-    BigInt: 'graphQLBigInt',
-  };
-
+  // Check customTypes from generator config
   final typeName =
       type.getDisplayString(withNullability: false).split('<').first;
   final customType = customTypes.firstWhereOrNull((t) => t.name == typeName);
@@ -196,6 +182,7 @@ Expression inferType(
     return _wrapNullability(exp);
   }
 
+  // `DartType.graphQLType` static getter or method
   final element = type.element;
   if (element is ClassElement) {
     final ExecutableElement? e =
@@ -210,13 +197,6 @@ Expression inferType(
       return _wrapExpression(prop);
     }
   }
-
-  final _inputSuffix = isInput &&
-          type.element != null &&
-          const TypeChecker.fromRuntime(GraphQLInput)
-              .hasAnnotationOf(type.element!)
-      ? 'Input'
-      : '';
 
   // Next, check to see if it's a List.
   if (type is InterfaceType &&
@@ -234,10 +214,26 @@ Expression inferType(
     return _wrapNullability(inner.property('list').call([]));
   }
 
+  const primitive = {
+    String: 'graphQLString',
+    int: 'graphQLInt',
+    double: 'graphQLFloat',
+    bool: 'graphQLBoolean',
+    DateTime: 'graphQLDate',
+    Uri: 'graphQLUri',
+    BigInt: 'graphQLBigInt',
+  };
+
   // Check to see if it's a primitive type.
   for (final entry in primitive.entries) {
     if (type.element != null &&
         TypeChecker.fromRuntime(entry.key).isAssignableFrom(type.element!)) {
+      // Next, check if this is the "id" field of a `Model`.
+      // TODO: 1G make the id configurable, maybe with @key(fields: "") directive
+      // if (const TypeChecker.fromRuntime(Model).isAssignableFromType(type) &&
+      //     name == 'id') {
+      //   return refer('graphQLId');
+      // }
       if (entry.key == String && name == 'id') {
         return _wrapNullability(refer('graphQLId'));
       }
@@ -252,6 +248,7 @@ Expression inferType(
   if (type is! InterfaceType ||
       !const TypeChecker.fromRuntime(BaseGraphQLTypeDecorator)
           .hasAnnotationOf(type.element)) {
+    // If it is not an annotated type, then check if it is a generic
     if (type is TypeParameterType && generics != null) {
       final generic = generics[typeName];
       if (generic != null) {
@@ -278,6 +275,12 @@ Expression inferType(
     );
   }
 
+  final _inputSuffix = isInput &&
+          type.element != null &&
+          const TypeChecker.fromRuntime(GraphQLInput)
+              .hasAnnotationOf(type.element!)
+      ? 'Input'
+      : '';
   return _wrapExpression(
     refer('${ReCase(externalName).camelCase}$graphqlTypeSuffix$_inputSuffix'),
   );
