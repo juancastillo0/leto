@@ -211,7 +211,7 @@ class SearchUser extends HookConsumerWidget {
     final roomStore = ref.read(roomStoreProvider);
     final controller = useTextEditingController();
     final focusNode = useFocusNode();
-    final isLoading = ref.watch(roomStore.loadingSearch).state;
+    final isLoading = ref.watch(roomStore.loadingSearch);
 
     useEffect(() {
       focusNode.requestFocus();
@@ -247,7 +247,7 @@ class SearchUser extends HookConsumerWidget {
         Expanded(
           child: Center(
             child: HookConsumer(builder: (context, ref, _) {
-              final usersEntry = ref.watch(roomStore.searchedUsers).state;
+              final usersEntry = ref.watch(roomStore.searchedUsers);
               final users = usersEntry?.value;
 
               if (users == null) {

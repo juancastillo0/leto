@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
 
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
@@ -801,6 +802,6 @@ final SerializersBuilder _serializersBuilder = _$serializers.toBuilder()
   GsignUpData_signUp__asTokenWithUser_user,
   GsignUpData_signUp__base,
   GsignUpReq,
-  GsignUpVars
+  GsignUpVars,
 ])
 final Serializers serializers = _serializersBuilder.build();

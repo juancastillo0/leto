@@ -161,7 +161,7 @@ void _updateRoomUsers(
 final roomStoreProvider = Provider((ref) => RoomStore(ref.read));
 
 class RoomStore {
-  final T Function<T>(ProviderBase<T> provider) _read;
+  final T Function<T>(ProviderListenable<T> provider) _read;
 
   RoomStore(this._read);
 
@@ -181,7 +181,7 @@ class RoomStore {
   }
 
   void onRoomDeleted(int id) {
-    final _selected = _read(selectedChatId);
+    final _selected = _read(selectedChatId.notifier);
     if (_selected.state == id) {
       _selected.state = null;
     }
@@ -197,7 +197,7 @@ class RoomStore {
     if (name.isEmpty) {
       return;
     }
-    _read(loadingSearch).state = true;
+    _read(loadingSearch.notifier).state = true;
     lastSearchName = name;
     searchTimer ??= Timer(const Duration(seconds: 2), () async {
       final _searchName = lastSearchName;
@@ -208,7 +208,7 @@ class RoomStore {
         if (element.hasErrors) {
         } else if (element.data != null) {
           final users = element.data!.searchUser;
-          _read(searchedUsers).state = MapEntry(_searchName, users.toList());
+          _read(searchedUsers.notifier).state = MapEntry(_searchName, users.toList());
         }
         return element.dataSource == DataSource.Link;
       });
@@ -218,7 +218,7 @@ class RoomStore {
       if (_searchName != lastSearchName) {
         searchUser(lastSearchName);
       } else {
-        _read(loadingSearch).state = false;
+        _read(loadingSearch.notifier).state = false;
       }
     });
   }

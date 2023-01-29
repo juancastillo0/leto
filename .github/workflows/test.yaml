@@ -17,14 +17,14 @@ jobs:
         with:
           channel: "stable"
       - name: Set up melos
-        run: flutter pub global activate melos ^1.0.0-dev
+        run: flutter pub global activate melos
       - id: install
         name: Install dependencies
         run: melos bootstrap
       - name: build_runner code generation
         run: melos build_runner
       - name: Check formatting
-        run: flutter format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
         if: always() && steps.install.outcome == 'success'
       - name: Analyze code
         run: melos run analyze

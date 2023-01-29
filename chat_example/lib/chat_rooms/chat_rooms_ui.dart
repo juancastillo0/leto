@@ -157,7 +157,7 @@ class ChatItemsList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _chatId = ref.watch(selectedChatId);
+    final _chatId = ref.watch(selectedChatId.notifier);
 
     return ListView.builder(
       itemCount: value.length,

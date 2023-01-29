@@ -15,7 +15,7 @@ final apiEventStoreProvider = Provider((ref) {
 });
 
 class ApiEventStore {
-  final T Function<T>(ProviderBase<T>) _read;
+  final T Function<T>(ProviderListenable<T>) _read;
   final Function(Function()) onDispose;
 
   ApiEventStore(this._read, this.onDispose) {
@@ -41,7 +41,7 @@ class ApiEventStore {
   String? cursor;
 
   void getApiEvents() {
-    final _isLoading = _read(this.isLoading);
+    final _isLoading = _read(this.isLoading.notifier);
     if (_isLoading.state || !canFetchMore) {
       return;
     }
@@ -70,8 +70,8 @@ class ApiEventStore {
   void _updateList(
     void Function(ListBuilder<GgetEventsData_getEvents_values>) update,
   ) {
-    _read(this.events).state =
-        (_read(this.events).state ?? BuiltList()).rebuild((u) {
+    _read(this.events.notifier).state =
+        (_read(this.events.notifier).state ?? BuiltList()).rebuild((u) {
       update(u);
       final ids = <int>{};
       u.removeWhere((p0) {

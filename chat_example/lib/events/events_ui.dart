@@ -9,7 +9,7 @@ class UserEventList extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final apiEventStore = ref.watch(apiEventStoreProvider);
-    final events = ref.watch(apiEventStore.events).state;
+    final events = ref.watch(apiEventStore.events);
     final scrollController = useScrollController();
 
     useEffect(() {
@@ -24,7 +24,7 @@ class UserEventList extends HookConsumerWidget {
           return scrollController.removeListener(_c);
         }
         if (scrollController.hasClients &&
-            !ref.read(apiEventStore.isLoading).state) {
+            !ref.read(apiEventStore.isLoading)) {
           final position = scrollController.position;
           final pixels = position.pixels;
           if (pixels > position.maxScrollExtent * 0.9) {
@@ -56,7 +56,7 @@ class UserEventList extends HookConsumerWidget {
           ),
         ),
         Consumer(builder: (context, ref, _) {
-          final isLoading = ref.watch(apiEventStore.isLoading).state;
+          final isLoading = ref.watch(apiEventStore.isLoading);
           return isLoading
               ? const LinearProgressIndicator(minHeight: 3)
               : const SizedBox(height: 3);

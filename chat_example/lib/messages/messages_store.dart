@@ -26,7 +26,7 @@ final selectedChatId = StateProvider<int?>((ref) => null);
 
 final selectedChat = StreamProvider<GFullChatRoomData?>(
   (ref) {
-    final chatId = ref.watch(selectedChatId).state;
+    final chatId = ref.watch(selectedChatId);
     if (chatId == null) {
       return const Stream.empty();
     }
@@ -117,7 +117,7 @@ class MessagesStore {
 
   Client get client => _read(clientProvider);
   final ProviderRef _ref;
-  T Function<T>(ProviderBase<T> provider) get _read => _ref.read;
+  T Function<T>(ProviderListenable<T> provider) get _read => _ref.read;
 
   void sendMessage(
     String message,
@@ -212,7 +212,7 @@ class MessagesStore {
         if (element.hasErrors) {
         } else if (element.data != null) {
           final metadata = element.data!.getMessageLinksMetadata;
-          _read(messageLinks).state = MapEntry(_searchMessage, metadata);
+          _read(messageLinks.notifier).state = MapEntry(_searchMessage, metadata);
         }
         return element.dataSource == DataSource.Link;
       });

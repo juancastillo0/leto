@@ -12,7 +12,7 @@ final sessionStoreProvider = Provider((ref) {
 });
 
 class SessionStore {
-  final T Function<T>(ProviderBase<T>) _read;
+  final T Function<T>(ProviderListenable<T>) _read;
 
   SessionStore(this._read);
 
@@ -20,7 +20,7 @@ class SessionStore {
   final isLoading = StateProvider<bool>((ref) => false);
 
   void getSessions() {
-    final _isLoading = _read(this.isLoading);
+    final _isLoading = _read(this.isLoading.notifier);
     if (_isLoading.state) {
       return;
     }
@@ -34,7 +34,7 @@ class SessionStore {
         if (user == null) {
           return;
         }
-        _read(this.user).state = user;
+        _read(this.user.notifier).state = user;
       }
     });
     _isLoading.state = true;

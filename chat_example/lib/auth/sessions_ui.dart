@@ -9,7 +9,7 @@ class UserProfile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionStore = ref.watch(sessionStoreProvider);
-    final user = ref.watch(sessionStore.user).state;
+    final user = ref.watch(sessionStore.user);
 
     useEffect(() {
       Future.delayed(Duration.zero, () {
@@ -32,7 +32,7 @@ class UserProfile extends HookConsumerWidget {
           ),
         ),
         Consumer(builder: (context, ref, _) {
-          final isLoading = ref.watch(sessionStore.isLoading).state;
+          final isLoading = ref.watch(sessionStore.isLoading);
           return isLoading
               ? const LinearProgressIndicator(minHeight: 3)
               : const SizedBox(height: 3);
