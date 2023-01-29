@@ -21,6 +21,8 @@ jobs:
       - id: install
         name: Install dependencies
         run: melos bootstrap
+      - name: Pub get dependencies
+        run: melos pub_get:all
       - name: build_runner code generation
         run: melos build_runner
       - name: Check formatting
