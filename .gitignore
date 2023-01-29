@@ -61,6 +61,8 @@ fabric.properties
 chat_example/server/chat_room.sqlite
 coverage/
 
+**/pubspec_overrides.yaml
+
 docusaurus/docs/main/
 docusaurus/docs/leto/
 docusaurus/docs/leto_schema/

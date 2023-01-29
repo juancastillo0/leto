@@ -12,10 +12,14 @@ packages:
     "chat_example/server/*",
   ]
 
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
 scripts:
   pub_get:all:
     run: melos exec -c 5 -- \
-        dart pub get
+      dart pub get
 
   lint:all:
     run: melos run analyze && melos run format

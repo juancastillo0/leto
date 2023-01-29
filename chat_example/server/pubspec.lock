@@ -459,17 +459,17 @@ packages:
   leto_generator:
     dependency: "direct dev"
     description:
-      path: "/Users/juanmanuelcastillo/Desktop/flutter/leto/chat_example/server/../../leto_generator"
-      relative: false
+      path: "../../leto_generator"
+      relative: true
     source: path
-    version: "0.0.1-dev.1"
+    version: "0.0.1-dev.3"
   leto_schema:
     dependency: "direct main"
     description:
-      path: "/Users/juanmanuelcastillo/Desktop/flutter/leto/chat_example/server/../../leto_schema"
-      relative: false
+      path: "../../leto_schema"
+      relative: true
     source: path
-    version: "0.0.1-dev.2"
+    version: "0.0.1-dev.3"
   leto_shelf:
     dependency: "direct main"
     description:
