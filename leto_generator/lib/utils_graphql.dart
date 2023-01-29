@@ -163,17 +163,6 @@ Expression inferType(
     BigInt: 'graphQLBigInt',
   };
 
-  // Check to see if it's a primitive type.
-  for (final entry in primitive.entries) {
-    if (type.element != null &&
-        TypeChecker.fromRuntime(entry.key).isAssignableFrom(type.element!)) {
-      if (entry.key == String && name == 'id') {
-        return _wrapNullability(refer('graphQLId'));
-      }
-      return _wrapNullability(refer(entry.value));
-    }
-  }
-
   final typeName =
       type.getDisplayString(withNullability: false).split('<').first;
   final customType = customTypes.firstWhereOrNull((t) => t.name == typeName);
@@ -243,6 +232,17 @@ Expression inferType(
       isInput: isInput,
     );
     return _wrapNullability(inner.property('list').call([]));
+  }
+
+  // Check to see if it's a primitive type.
+  for (final entry in primitive.entries) {
+    if (type.element != null &&
+        TypeChecker.fromRuntime(entry.key).isAssignableFrom(type.element!)) {
+      if (entry.key == String && name == 'id') {
+        return _wrapNullability(refer('graphQLId'));
+      }
+      return _wrapNullability(refer(entry.value));
+    }
   }
 
   final externalName =

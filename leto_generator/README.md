@@ -824,6 +824,33 @@ Typically used for scalar types that you control (not from another package) or f
 
 Some examples of this are the `Json`, `PageInfo` and `Result<T, E>` provided types.
 
+It is important when using a static `graphQLType` getter that it returns the same GraphQLType instance each time it is called.  This prevents Leto from the same seeing a different GraphQLType each time the type is used and creating a cyclical dependency.  An example:
+
+```dart
+final fooGraphQLType = GraphQLScalarTypeValue<Foo, String>(
+  name: 'Foo',
+  deserialize: (_, serialized) => fooFromJson(serialized)!,
+  serialize: (value) => fooToJson(value)!,
+  validate: (key, input) => (input is String)
+      ? ValidationResult.ok(input)
+      : ValidationResult.failure(
+          ['Expected $key to be a String.'],
+        ),
+  description: 'A Foo.',
+  specifiedByURL: null,
+);
+
+Foo? fooFromJson(Object? value) => value == null ? null : Foo(value.toString());
+
+String? fooToJson(Foo? value) => value?.bar;
+
+class Foo {
+  String bar;
+  Foo(this.bar);
+  static GraphQLScalarTypeValue<Foo, String> get graphQLType => fooGraphQLType;
+}
+```
+
 ## customTypes in build.yaml
 
 Another way of mapping a Dart type to a `GraphQLType` instance is by using the "customTypes" `build.yaml` global config option explained in the [customTypes](#customtypes) section. This will override (take precedence over) all other type mappings.
@@ -1006,10 +1033,17 @@ And specify the following config in the [build.yaml](https://github.com/dart-lan
 target:
   default:
     builders:
-      leto_generator:
+      leto_generator:graphql_types:
         options:
           customTypes:
             - name: "Decimal"
-            import: "package:<your_package_name>/<path_to_implementation>.dart"
-            getter: "decimalGraphQLType"
+              import: "package:<your_package_name>/<path_to_implementation>.dart"
+              getter: "decimalGraphQLType"
+      leto_generator:graphql_resolvers:
+        options:
+          customTypes:
+            - name: "Decimal"
+              import: "package:<your_package_name>/<path_to_implementation>.dart"
+              getter: "decimalGraphQLType"
+              
 ```
