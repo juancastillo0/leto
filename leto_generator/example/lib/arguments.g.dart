@@ -8,133 +8,173 @@ part of 'arguments.dart';
 
 GraphQLObjectField<String, Object?, Object?> get testManyDefaultsGraphQLField =>
     _testManyDefaultsGraphQLField.value;
-final _testManyDefaultsGraphQLField = HotReloadableDefinition<
-        GraphQLObjectField<String, Object?, Object?>>(
-    (setValue) => setValue(graphQLString.nonNull().field<Object?>(
-          'testManyDefaults',
-          resolve: (obj, ctx) {
-            final args = ctx.args;
+final _testManyDefaultsGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
+        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+              'testManyDefaults',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
 
-            return testManyDefaults(
-                str: (args["str"] as String),
-                intInput: (args["intInput"] as int),
-                doubleInput: (args["doubleInput"] as double),
-                doubleInputNull: (args["doubleInputNull"] as double?),
-                boolean: (args["boolean"] as bool),
-                listStr: (args["listStr"] as List<String>),
-                listDecimalNull: (args["listDecimalNull"] as List<Decimal?>?),
-                listUri: (args["listUri"] as List<Uri>),
-                date: (args["date"] as DateTime),
-                gen: (args["gen"] as InputGen<int>?),
-                enumValue: (args["enumValue"] as EnumValue),
-                enumCustom: (args["enumCustom"] as int),
-                enumCustomList: (args["enumCustomList"] as List<int>),
-                timestamps: (args["timestamps"] as List<DateTime?>),
-                json: (args["json"] as Json));
-          },
-        ))
-          ..inputs.addAll([
-            graphQLString.nonNull().inputField('str', defaultValue: 'def'),
-            graphQLInt.nonNull().inputField('intInput', defaultValue: 2),
-            graphQLFloat.nonNull().inputField('doubleInput', defaultValue: 3),
-            graphQLFloat.inputField('doubleInputNull', defaultValue: 4.2),
-            graphQLBoolean.nonNull().inputField('boolean', defaultValue: true),
-            graphQLString
-                .nonNull()
-                .list()
-                .nonNull()
-                .inputField('listStr', defaultValue: const ['dw', 'dd2']),
-            decimalGraphQLType.list().inputField('listDecimalNull',
-                defaultValue: _defaultListDecimalNull()),
-            graphQLUri.nonNull().list().nonNull().inputField('listUri',
-                defaultValue: [Uri.parse('http://localhost:8060/')]),
-            graphQLDate
-                .nonNull()
-                .inputField('date', defaultValue: DateTime.parse("2021-03-24")),
-            inputGenGraphQLTypeInput<int>(graphQLInt.nonNull()).inputField(
-                'gen',
-                defaultValue: InputGen(name: 'gen', generic: 2)),
-            enumValueGraphQLType
-                .nonNull()
-                .inputField('enumValue', defaultValue: EnumValue.v1),
-            enumCustomGraphQLType.inputField('enumCustom', defaultValue: 3),
-            enumCustomGraphQLType
-                .nonNull()
-                .list()
-                .nonNull()
-                .inputField('enumCustomList', defaultValue: const [2]),
-            _timestampsType().inputField('timestamps',
-                defaultValue: [DateTime.parse("2021-01-24"), null]),
-            Json.graphQLType.nonNull().inputField('json',
-                defaultValue: const Json.map({
-                  'd': Json.list([Json.number(2)])
-                }))
-          ]));
+                return testManyDefaults(
+                    str: (args["str"] as String),
+                    intInput: (args["intInput"] as int),
+                    doubleInput: (args["doubleInput"] as double),
+                    doubleInputNull: (args["doubleInputNull"] as double?),
+                    boolean: (args["boolean"] as bool),
+                    listStr: (args["listStr"] as List<String>),
+                    listDecimalNull:
+                        (args["listDecimalNull"] as List<Decimal?>?),
+                    listUri: (args["listUri"] as List<Uri>),
+                    date: (args["date"] as DateTime),
+                    gen: (args["gen"] as InputGen<int>?),
+                    enumValue: (args["enumValue"] as EnumValue),
+                    enumCustom: (args["enumCustom"] as int),
+                    enumCustomList: (args["enumCustomList"] as List<int>),
+                    timestamps: (args["timestamps"] as List<DateTime?>),
+                    json: (args["json"] as Json));
+              },
+            ))
+              ..inputs.addAll([
+                graphQLString.nonNull().inputField(
+                      'str',
+                      defaultValue: 'def',
+                    ),
+                graphQLInt.nonNull().inputField(
+                      'intInput',
+                      defaultValue: 2,
+                    ),
+                graphQLFloat.nonNull().inputField(
+                      'doubleInput',
+                      defaultValue: 3,
+                    ),
+                graphQLFloat.inputField(
+                  'doubleInputNull',
+                  defaultValue: 4.2,
+                ),
+                graphQLBoolean.nonNull().inputField(
+                      'boolean',
+                      defaultValue: true,
+                    ),
+                graphQLString.nonNull().list().nonNull().inputField(
+                  'listStr',
+                  defaultValue: const ['dw', 'dd2'],
+                ),
+                decimalGraphQLType.list().inputField(
+                      'listDecimalNull',
+                      defaultValue: _defaultListDecimalNull(),
+                    ),
+                graphQLUri.nonNull().list().nonNull().inputField(
+                  'listUri',
+                  defaultValue: [Uri.parse('http://localhost:8060/')],
+                ),
+                graphQLDate.nonNull().inputField(
+                      'date',
+                      defaultValue: DateTime.parse("2021-03-24"),
+                    ),
+                inputGenGraphQLTypeInput<int>(graphQLInt.nonNull()).inputField(
+                  'gen',
+                  defaultValue: InputGen(name: 'gen', generic: 2),
+                ),
+                enumValueGraphQLType.nonNull().inputField(
+                      'enumValue',
+                      defaultValue: EnumValue.v1,
+                    ),
+                enumCustomGraphQLType.inputField(
+                  'enumCustom',
+                  defaultValue: 3,
+                ),
+                enumCustomGraphQLType.nonNull().list().nonNull().inputField(
+                  'enumCustomList',
+                  defaultValue: const [2],
+                ),
+                _timestampsType().inputField(
+                  'timestamps',
+                  defaultValue: [DateTime.parse("2021-01-24"), null],
+                ),
+                Json.graphQLType.nonNull().inputField(
+                      'json',
+                      defaultValue: const Json.map({
+                        'd': Json.list([Json.number(2)])
+                      }),
+                    )
+              ]));
 
 GraphQLObjectField<String, Object?, Object?> get testValidaInArgsGraphQLField =>
     _testValidaInArgsGraphQLField.value;
-final _testValidaInArgsGraphQLField = HotReloadableDefinition<
-    GraphQLObjectField<String, Object?,
-        Object?>>((setValue) => setValue(graphQLString.nonNull().field<Object?>(
-      'testValidaInArgs',
-      resolve: (obj, ctx) {
-        final args = ctx.args;
-        final validationErrorMap = <String, List<ValidaError>>{};
+final _testValidaInArgsGraphQLField =
+    HotReloadableDefinition<GraphQLObjectField<String, Object?, Object?>>(
+        (setValue) => setValue(graphQLString.nonNull().field<Object?>(
+              'testValidaInArgs',
+              resolve: (obj, ctx) {
+                final args = ctx.args;
+                final validationErrorMap = <String, List<ValidaError>>{};
 
-        final _validation = TestValidaInArgsArgs(
-                strSOrA: (args["strSOrA"] as String),
-                otherInt: (args["otherInt"] as int?),
-                greaterThan3AndOtherInt:
-                    (args["greaterThan3AndOtherInt"] as int),
-                after2020: (args["after2020"] as DateTime?),
-                nonEmptyList: (args["nonEmptyList"] as List<String>?),
-                model: (args["model"] as ValidaArgModel?))
-            .validate();
-        validationErrorMap.addAll(_validation.errorsMap
-            .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
-          ..removeWhere((k, v) => v.isEmpty));
-        if (validationErrorMap.isNotEmpty) {
-          throw GraphQLError(
-            'Input validation error',
-            extensions: {
-              'validaErrors': validationErrorMap,
-            },
-            sourceError: validationErrorMap,
-          );
-        }
+                final _validation = TestValidaInArgsArgs(
+                        strSOrA: (args["strSOrA"] as String),
+                        otherInt: (args["otherInt"] as int?),
+                        greaterThan3AndOtherInt:
+                            (args["greaterThan3AndOtherInt"] as int),
+                        after2020: (args["after2020"] as DateTime?),
+                        nonEmptyList: (args["nonEmptyList"] as List<String>?),
+                        model: (args["model"] as ValidaArgModel?))
+                    .validate();
+                validationErrorMap.addAll(_validation.errorsMap.map(
+                    (k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+                  ..removeWhere((k, v) => v.isEmpty));
+                if (validationErrorMap.isNotEmpty) {
+                  throw GraphQLError(
+                    'Input validation error',
+                    extensions: {
+                      'validaErrors': validationErrorMap,
+                    },
+                    sourceError: validationErrorMap,
+                  );
+                }
 
-        return testValidaInArgs(
-            strSOrA: (args["strSOrA"] as String),
-            otherInt: (args["otherInt"] as int?),
-            greaterThan3AndOtherInt: (args["greaterThan3AndOtherInt"] as int),
-            after2020: (args["after2020"] as DateTime?),
-            nonEmptyList: (args["nonEmptyList"] as List<String>?),
-            model: (args["model"] as ValidaArgModel?));
-      },
-    ))
-      ..inputs.addAll([
-        graphQLString.nonNull().inputField('strSOrA', attachments: [
-          ValidaAttachment(ValidaString(isIn: ['S', 'A'])),
-        ]),
-        graphQLInt.inputField('otherInt'),
-        graphQLInt.nonNull().inputField('greaterThan3AndOtherInt',
-            defaultValue: 4,
-            attachments: [
-              ValidaAttachment(ValidaNum(
-                  comp: ValidaComparison(
-                      more: CompVal.list([
-                CompVal(3),
-                CompVal.ref('otherInt', isRequired: false)
-              ])))),
-            ]),
-        graphQLDate.inputField('after2020', attachments: [
-          ValidaAttachment(ValidaDate(min: '2021-01-01')),
-        ]),
-        graphQLString.nonNull().list().inputField('nonEmptyList', attachments: [
-          ValidaAttachment(ValidaList(minLength: 1)),
-        ]),
-        validaArgModelGraphQLTypeInput.inputField('model')
-      ]));
+                return testValidaInArgs(
+                    strSOrA: (args["strSOrA"] as String),
+                    otherInt: (args["otherInt"] as int?),
+                    greaterThan3AndOtherInt:
+                        (args["greaterThan3AndOtherInt"] as int),
+                    after2020: (args["after2020"] as DateTime?),
+                    nonEmptyList: (args["nonEmptyList"] as List<String>?),
+                    model: (args["model"] as ValidaArgModel?));
+              },
+            ))
+              ..inputs.addAll([
+                graphQLString.nonNull().inputField(
+                  'strSOrA',
+                  attachments: [
+                    ValidaAttachment(ValidaString(isIn: ['S', 'A'])),
+                  ],
+                ),
+                graphQLInt.inputField('otherInt'),
+                graphQLInt.nonNull().inputField(
+                  'greaterThan3AndOtherInt',
+                  defaultValue: 4,
+                  attachments: [
+                    ValidaAttachment(ValidaNum(
+                        comp: ValidaComparison(
+                            more: CompVal.list([
+                      CompVal(3),
+                      CompVal.ref('otherInt', isRequired: false)
+                    ])))),
+                  ],
+                ),
+                graphQLDate.inputField(
+                  'after2020',
+                  attachments: [
+                    ValidaAttachment(ValidaDate(min: '2021-01-01')),
+                  ],
+                ),
+                graphQLString.nonNull().list().inputField(
+                  'nonEmptyList',
+                  attachments: [
+                    ValidaAttachment(ValidaList(minLength: 1)),
+                  ],
+                ),
+                validaArgModelGraphQLTypeInput.inputField('model')
+              ]));
 
 GraphQLObjectField<String, Object?, Object?>
     get testValidaInArgsSingleModelGraphQLField =>
@@ -194,10 +234,13 @@ final _validaArgModelGraphQLTypeInput =
   setValue(__validaArgModelGraphQLTypeInput);
   __validaArgModelGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().list().nonNull().inputField('strs', attachments: [
-        ValidaAttachment(ValidaList(each: ValidaString(minLength: 1))),
-      ]),
-      validaArgModelGraphQLTypeInput.inputField('inner')
+      graphQLString.nonNull().list().nonNull().inputField(
+        'strs',
+        attachments: [
+          ValidaAttachment(ValidaList(each: ValidaString(minLength: 1))),
+        ],
+      ),
+      validaArgModelGraphQLTypeInput.inputField('inner'),
     ],
   );
 
@@ -209,12 +252,23 @@ GraphQLInputObjectType<ValidaArgModel> get validaArgModelGraphQLTypeInput =>
     _validaArgModelGraphQLTypeInput.value;
 
 /// Auto-generated from [EnumValue].
-final GraphQLEnumType<EnumValue> enumValueGraphQLType =
-    GraphQLEnumType('EnumValue', [
-  GraphQLEnumValue('v1', EnumValue.v1),
-  GraphQLEnumValue('v2', EnumValue.v2),
-  GraphQLEnumValue('v3', EnumValue.v3)
-]);
+final GraphQLEnumType<EnumValue> enumValueGraphQLType = GraphQLEnumType(
+  'EnumValue',
+  [
+    GraphQLEnumValue(
+      'v1',
+      EnumValue.v1,
+    ),
+    GraphQLEnumValue(
+      'v2',
+      EnumValue.v2,
+    ),
+    GraphQLEnumValue(
+      'v3',
+      EnumValue.v3,
+    ),
+  ],
+);
 
 // **************************************************************************
 // ValidatorGenerator

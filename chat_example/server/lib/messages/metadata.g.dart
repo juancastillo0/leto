@@ -16,19 +16,39 @@ final _messageMetadataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<MessageMetadata>>((setValue) {
   final __name = 'MessageMetadata';
 
-  final __messageMetadataGraphQLType =
-      objectType<MessageMetadata>(__name, isInterface: false, interfaces: []);
+  final __messageMetadataGraphQLType = objectType<MessageMetadata>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__messageMetadataGraphQLType);
   __messageMetadataGraphQLType.fields.addAll(
     [
-      fileMetadataGraphQLType.field('fileMetadata',
-          resolve: (obj, ctx) => obj.fileMetadata),
-      linksMetadataGraphQLType.field('linksMetadata',
-          resolve: (obj, ctx) => obj.linksMetadata),
-      graphQLDate
-          .nonNull()
-          .field('computedAt', resolve: (obj, ctx) => obj.computedAt)
+      fileMetadataGraphQLType.field(
+        'fileMetadata',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.fileMetadata,
+      ),
+      linksMetadataGraphQLType.field(
+        'linksMetadata',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.linksMetadata,
+      ),
+      graphQLDate.nonNull().field(
+            'computedAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.computedAt,
+          ),
     ],
   );
 
@@ -49,28 +69,48 @@ final _linksMetadataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<LinksMetadata>>((setValue) {
   final __name = 'LinksMetadata';
 
-  final __linksMetadataGraphQLType =
-      objectType<LinksMetadata>(__name, isInterface: false, interfaces: []);
+  final __linksMetadataGraphQLType = objectType<LinksMetadata>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__linksMetadataGraphQLType);
   __linksMetadataGraphQLType.fields.addAll(
     [
-      linkMetadataGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('links', resolve: (obj, ctx) => obj.links),
-      graphQLString
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('emails', resolve: (obj, ctx) => obj.emails),
-      graphQLString.nonNull().list().nonNull().field('userTags',
-          resolve: (obj, ctx) => obj.userTags,
-          description: 'TODO: bring user ids?'),
-      graphQLBoolean
-          .nonNull()
-          .field('hasLinks', resolve: (obj, ctx) => obj.hasLinks)
+      linkMetadataGraphQLType.nonNull().list().nonNull().field(
+            'links',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.links,
+          ),
+      graphQLString.nonNull().list().nonNull().field(
+            'emails',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.emails,
+          ),
+      graphQLString.nonNull().list().nonNull().field(
+            'userTags',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.userTags,
+            description: 'TODO: bring user ids?',
+          ),
+      graphQLBoolean.nonNull().field(
+            'hasLinks',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.hasLinks,
+          ),
     ],
   );
 
@@ -91,17 +131,47 @@ final _linkMetadataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<LinkMetadata>>((setValue) {
   final __name = 'LinkMetadata';
 
-  final __linkMetadataGraphQLType =
-      objectType<LinkMetadata>(__name, isInterface: false, interfaces: []);
+  final __linkMetadataGraphQLType = objectType<LinkMetadata>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__linkMetadataGraphQLType);
   __linkMetadataGraphQLType.fields.addAll(
     [
-      graphQLString.field('title', resolve: (obj, ctx) => obj.title),
-      graphQLString.field('description',
-          resolve: (obj, ctx) => obj.description),
-      graphQLString.field('image', resolve: (obj, ctx) => obj.image),
-      graphQLString.field('url', resolve: (obj, ctx) => obj.url)
+      graphQLString.field(
+        'title',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.title,
+      ),
+      graphQLString.field(
+        'description',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.description,
+      ),
+      graphQLString.field(
+        'image',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.image,
+      ),
+      graphQLString.field(
+        'url',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.url,
+      ),
     ],
   );
 
@@ -122,26 +192,55 @@ final _fileMetadataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<FileMetadata>>((setValue) {
   final __name = 'FileMetadata';
 
-  final __fileMetadataGraphQLType =
-      objectType<FileMetadata>(__name, isInterface: false, interfaces: []);
+  final __fileMetadataGraphQLType = objectType<FileMetadata>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__fileMetadataGraphQLType);
   __fileMetadataGraphQLType.fields.addAll(
     [
-      graphQLInt
-          .nonNull()
-          .field('sizeInBytes', resolve: (obj, ctx) => obj.sizeInBytes),
-      graphQLString
-          .nonNull()
-          .field('mimeType', resolve: (obj, ctx) => obj.mimeType),
-      graphQLString
-          .nonNull()
-          .field('fileName', resolve: (obj, ctx) => obj.fileName),
-      graphQLString
-          .nonNull()
-          .field('sha1Hash', resolve: (obj, ctx) => obj.sha1Hash),
-      graphQLString.field('fileHashBlur',
-          resolve: (obj, ctx) => obj.fileHashBlur)
+      graphQLInt.nonNull().field(
+            'sizeInBytes',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.sizeInBytes,
+          ),
+      graphQLString.nonNull().field(
+            'mimeType',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.mimeType,
+          ),
+      graphQLString.nonNull().field(
+            'fileName',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.fileName,
+          ),
+      graphQLString.nonNull().field(
+            'sha1Hash',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.sha1Hash,
+          ),
+      graphQLString.field(
+        'fileHashBlur',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.fileHashBlur,
+      ),
     ],
   );
 

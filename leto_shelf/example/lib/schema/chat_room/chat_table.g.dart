@@ -113,20 +113,47 @@ final _dBEventGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<DBEvent>>((setValue) {
   final __name = 'DBEvent';
 
-  final __dBEventGraphQLType =
-      objectType<DBEvent>(__name, isInterface: false, interfaces: []);
+  final __dBEventGraphQLType = objectType<DBEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__dBEventGraphQLType);
   __dBEventGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      eventTypeGraphQLType
-          .nonNull()
-          .field('type', resolve: (obj, ctx) => obj.type),
-      graphQLString.nonNull().field('data', resolve: (obj, ctx) => obj.data),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      eventTypeGraphQLType.nonNull().field(
+            'type',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.type,
+          ),
+      graphQLString.nonNull().field(
+            'data',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.data,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
     ],
   );
 
@@ -145,23 +172,50 @@ final _chatRoomGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatRoom>>((setValue) {
   final __name = 'ChatRoom';
 
-  final __chatRoomGraphQLType =
-      objectType<ChatRoom>(__name, isInterface: false, interfaces: []);
+  final __chatRoomGraphQLType = objectType<ChatRoom>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatRoomGraphQLType);
   __chatRoomGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt),
-      chatMessageGraphQLType.nonNull().list().nonNull().field('messages',
-          resolve: (obj, ctx) {
-        final args = ctx.args;
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
+      chatMessageGraphQLType.nonNull().list().nonNull().field(
+        'messages',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.messages(ctx);
-      })
+          return obj.messages(ctx);
+        },
+      ),
     ],
   );
 
@@ -182,27 +236,66 @@ final _chatMessageGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatMessage>>((setValue) {
   final __name = 'ChatMessage';
 
-  final __chatMessageGraphQLType =
-      objectType<ChatMessage>(__name, isInterface: false, interfaces: []);
+  final __chatMessageGraphQLType = objectType<ChatMessage>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageGraphQLType);
   __chatMessageGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
-      graphQLString
-          .nonNull()
-          .field('message', resolve: (obj, ctx) => obj.message),
-      graphQLInt.field('referencedMessageId',
-          resolve: (obj, ctx) => obj.referencedMessageId),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt),
-      chatMessageGraphQLType.field('referencedMessage', resolve: (obj, ctx) {
-        final args = ctx.args;
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
+      graphQLString.nonNull().field(
+            'message',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.message,
+          ),
+      graphQLInt.field(
+        'referencedMessageId',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.referencedMessageId,
+      ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
+      chatMessageGraphQLType.field(
+        'referencedMessage',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.referencedMessage(ctx);
-      })
+          return obj.referencedMessage(ctx);
+        },
+      ),
     ],
   );
 
@@ -215,7 +308,14 @@ GraphQLObjectType<ChatMessage> get chatMessageGraphQLType =>
 
 /// Auto-generated from [EventType].
 final GraphQLEnumType<EventType> eventTypeGraphQLType = GraphQLEnumType(
-    'EventType', [GraphQLEnumValue('messageSent', EventType.messageSent)]);
+  'EventType',
+  [
+    GraphQLEnumValue(
+      'messageSent',
+      EventType.messageSent,
+    )
+  ],
+);
 
 // **************************************************************************
 // JsonSerializableGenerator

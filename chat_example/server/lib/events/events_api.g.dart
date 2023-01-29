@@ -67,15 +67,23 @@ final _chatDBEventDataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatDBEventData>>((setValue) {
   final __name = 'ChatDBEventData';
 
-  final __chatDBEventDataGraphQLType =
-      objectType<ChatDBEventData>(__name, isInterface: false, interfaces: []);
+  final __chatDBEventDataGraphQLType = objectType<ChatDBEventData>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatDBEventDataGraphQLType);
   __chatDBEventDataGraphQLType.fields.addAll(
     [
-      chatEventGraphQLType
-          .nonNull()
-          .field('value', resolve: (obj, ctx) => obj.value)
+      chatEventGraphQLType.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
     ],
   );
 
@@ -97,16 +105,22 @@ final _userChatDBEventDataGraphQLType =
   final __name = 'UserChatDBEventData';
 
   final __userChatDBEventDataGraphQLType = objectType<UserChatDBEventData>(
-      __name,
-      isInterface: false,
-      interfaces: []);
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__userChatDBEventDataGraphQLType);
   __userChatDBEventDataGraphQLType.fields.addAll(
     [
-      userChatEventGraphQLType
-          .nonNull()
-          .field('value', resolve: (obj, ctx) => obj.value)
+      userChatEventGraphQLType.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
     ],
   );
 
@@ -127,15 +141,23 @@ final _userDBEventDataGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<UserDBEventData>>((setValue) {
   final __name = 'UserDBEventData';
 
-  final __userDBEventDataGraphQLType =
-      objectType<UserDBEventData>(__name, isInterface: false, interfaces: []);
+  final __userDBEventDataGraphQLType = objectType<UserDBEventData>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__userDBEventDataGraphQLType);
   __userDBEventDataGraphQLType.fields.addAll(
     [
-      userEventGraphQLType
-          .nonNull()
-          .field('value', resolve: (obj, ctx) => obj.value)
+      userEventGraphQLType.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
     ],
   );
 
@@ -159,15 +181,23 @@ final _chatMessageDBEventDataGraphQLType =
   final __name = 'ChatMessageDBEventData';
 
   final __chatMessageDBEventDataGraphQLType =
-      objectType<ChatMessageDBEventData>(__name,
-          isInterface: false, interfaces: []);
+      objectType<ChatMessageDBEventData>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageDBEventDataGraphQLType);
   __chatMessageDBEventDataGraphQLType.fields.addAll(
     [
-      chatMessageEventGraphQLType
-          .nonNull()
-          .field('value', resolve: (obj, ctx) => obj.value)
+      chatMessageEventGraphQLType.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
     ],
   );
 
@@ -214,26 +244,63 @@ final _dBEventGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<DBEvent>>((setValue) {
   final __name = 'DBEvent';
 
-  final __dBEventGraphQLType =
-      objectType<DBEvent>(__name, isInterface: false, interfaces: []);
+  final __dBEventGraphQLType = objectType<DBEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__dBEventGraphQLType);
   __dBEventGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
-      graphQLString
-          .nonNull()
-          .field('sessionId', resolve: (obj, ctx) => obj.sessionId),
-      eventTypeGraphQLType
-          .nonNull()
-          .field('type', resolve: (obj, ctx) => obj.type),
-      dBEventDataGraphQLType
-          .nonNull()
-          .field('data', resolve: (obj, ctx) => obj.data),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLInt.nonNull().field(
+            'userId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.userId,
+          ),
+      graphQLString.nonNull().field(
+            'sessionId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.sessionId,
+          ),
+      eventTypeGraphQLType.nonNull().field(
+            'type',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.type,
+          ),
+      dBEventDataGraphQLType.nonNull().field(
+            'data',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.data,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
     ],
   );
 
@@ -256,19 +323,31 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
   if (_paginatedGraphQLType.value[__name] != null)
     return _paginatedGraphQLType.value[__name]!
         as GraphQLObjectType<Paginated<T>>;
-  final __paginatedGraphQLType =
-      objectType<Paginated<T>>(__name, isInterface: false, interfaces: []);
+  final __paginatedGraphQLType = objectType<Paginated<T>>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   _paginatedGraphQLType.value[__name] = __paginatedGraphQLType;
   __paginatedGraphQLType.fields.addAll(
     [
-      tGraphQLType
-          .list()
-          .nonNull()
-          .field('values', resolve: (obj, ctx) => obj.values),
-      PageInfo.graphQLType
-          .nonNull()
-          .field('pageInfo', resolve: (obj, ctx) => obj.pageInfo)
+      tGraphQLType.list().nonNull().field(
+            'values',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.values,
+          ),
+      PageInfo.graphQLType.nonNull().field(
+            'pageInfo',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.pageInfo,
+          ),
     ],
   );
 
@@ -276,20 +355,55 @@ GraphQLObjectType<Paginated<T>> paginatedGraphQLType<T>(
 }
 
 /// Auto-generated from [EventType].
-final GraphQLEnumType<EventType> eventTypeGraphQLType =
-    GraphQLEnumType('EventType', [
-  GraphQLEnumValue('chatCreated', EventType.chatCreated),
-  GraphQLEnumValue('chatDeleted', EventType.chatDeleted),
-  GraphQLEnumValue('userChatRemoved', EventType.userChatRemoved),
-  GraphQLEnumValue('userChatAdded', EventType.userChatAdded),
-  GraphQLEnumValue('userCreated', EventType.userCreated),
-  GraphQLEnumValue('userSessionSignedUp', EventType.userSessionSignedUp),
-  GraphQLEnumValue('userSessionSignedIn', EventType.userSessionSignedIn),
-  GraphQLEnumValue('userSessionSignedOut', EventType.userSessionSignedOut),
-  GraphQLEnumValue('messageSent', EventType.messageSent),
-  GraphQLEnumValue('messageDeleted', EventType.messageDeleted),
-  GraphQLEnumValue('messageUpdated', EventType.messageUpdated)
-]);
+final GraphQLEnumType<EventType> eventTypeGraphQLType = GraphQLEnumType(
+  'EventType',
+  [
+    GraphQLEnumValue(
+      'chatCreated',
+      EventType.chatCreated,
+    ),
+    GraphQLEnumValue(
+      'chatDeleted',
+      EventType.chatDeleted,
+    ),
+    GraphQLEnumValue(
+      'userChatRemoved',
+      EventType.userChatRemoved,
+    ),
+    GraphQLEnumValue(
+      'userChatAdded',
+      EventType.userChatAdded,
+    ),
+    GraphQLEnumValue(
+      'userCreated',
+      EventType.userCreated,
+    ),
+    GraphQLEnumValue(
+      'userSessionSignedUp',
+      EventType.userSessionSignedUp,
+    ),
+    GraphQLEnumValue(
+      'userSessionSignedIn',
+      EventType.userSessionSignedIn,
+    ),
+    GraphQLEnumValue(
+      'userSessionSignedOut',
+      EventType.userSessionSignedOut,
+    ),
+    GraphQLEnumValue(
+      'messageSent',
+      EventType.messageSent,
+    ),
+    GraphQLEnumValue(
+      'messageDeleted',
+      EventType.messageDeleted,
+    ),
+    GraphQLEnumValue(
+      'messageUpdated',
+      EventType.messageUpdated,
+    ),
+  ],
+);
 
 // **************************************************************************
 // JsonSerializableGenerator

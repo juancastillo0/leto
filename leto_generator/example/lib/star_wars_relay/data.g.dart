@@ -10,15 +10,26 @@ final _nodeGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Node>>((setValue) {
   final __name = 'Node';
 
-  final __nodeGraphQLType = objectType<Node>(__name,
-      isInterface: true,
-      interfaces: [],
-      description:
-          'This defines a basic set of data for our Star Wars Schema.\n///\nThis data is hard coded for the sake of the demo, but you could imagine\nfetching this data from a backend service rather than from hardcoded\nJSON objects in a more complex demo.\nAn object with an ID');
+  final __nodeGraphQLType = objectType<Node>(
+    __name,
+    isInterface: true,
+    interfaces: [],
+    description:
+        'This defines a basic set of data for our Star Wars Schema.\n///\nThis data is hard coded for the sake of the demo, but you could imagine\nfetching this data from a backend service rather than from hardcoded\nJSON objects in a more complex demo.\nAn object with an ID',
+  );
 
   setValue(__nodeGraphQLType);
   __nodeGraphQLType.fields.addAll(
-    [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
+    [
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          )
+    ],
   );
 
   return __nodeGraphQLType;
@@ -36,18 +47,33 @@ final _shipGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Ship>>((setValue) {
   final __name = 'Ship';
 
-  final __shipGraphQLType = objectType<Ship>(__name,
-      isInterface: false,
-      interfaces: [nodeGraphQLType],
-      description: 'A ship in the Star Wars saga');
+  final __shipGraphQLType = objectType<Ship>(
+    __name,
+    isInterface: false,
+    interfaces: [nodeGraphQLType],
+    description: 'A ship in the Star Wars saga',
+  );
 
   setValue(__shipGraphQLType);
   __shipGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name',
-          resolve: (obj, ctx) => obj.name,
-          description: 'The name of the ship.'),
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.idResolve)
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+            description: 'The name of the ship.',
+          ),
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.idResolve,
+          ),
     ],
   );
 
@@ -66,50 +92,70 @@ final _factionGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Faction>>((setValue) {
   final __name = 'Faction';
 
-  final __factionGraphQLType = objectType<Faction>(__name,
-      isInterface: false,
-      interfaces: [nodeGraphQLType],
-      description: 'A faction in the Star Wars saga');
+  final __factionGraphQLType = objectType<Faction>(
+    __name,
+    isInterface: false,
+    interfaces: [nodeGraphQLType],
+    description: 'A faction in the Star Wars saga',
+  );
 
   setValue(__factionGraphQLType);
   __factionGraphQLType.fields.addAll(
     [
-      connectionGraphQLType<Ship>(shipGraphQLType.nonNull())
-          .nonNull()
-          .field('ships', resolve: (obj, ctx) {
-        final args = ctx.args;
-        final validationErrorMap = <String, List<ValidaError>>{};
+      connectionGraphQLType<Ship>(shipGraphQLType.nonNull()).nonNull().field(
+        'ships',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
+          final validationErrorMap = <String, List<ValidaError>>{};
 
-        final argsArg = connectionArgumentsSerializer.fromJson(
-            ctx.executionCtx.schema.serdeCtx, args);
-        if (argsArg != null) {
-          final argsValidationResult = ConnectionArgumentsValidation.fromValue(
-              argsArg as ConnectionArguments);
-          if (argsValidationResult.hasErrors) {
-            validationErrorMap.addAll(argsValidationResult.errorsMap
-                .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
-              ..removeWhere((k, v) => v.isEmpty));
+          final argsArg = connectionArgumentsSerializer.fromJson(
+              ctx.executionCtx.schema.serdeCtx, args);
+          if (argsArg != null) {
+            final argsValidationResult =
+                ConnectionArgumentsValidation.fromValue(
+                    argsArg as ConnectionArguments);
+            if (argsValidationResult.hasErrors) {
+              validationErrorMap.addAll(argsValidationResult.errorsMap
+                  .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+                ..removeWhere((k, v) => v.isEmpty));
+            }
           }
-        }
 
-        if (validationErrorMap.isNotEmpty) {
-          throw GraphQLError(
-            'Input validation error',
-            extensions: {
-              'validaErrors': validationErrorMap,
-            },
-            sourceError: validationErrorMap,
-          );
-        }
+          if (validationErrorMap.isNotEmpty) {
+            throw GraphQLError(
+              'Input validation error',
+              extensions: {
+                'validaErrors': validationErrorMap,
+              },
+              sourceError: validationErrorMap,
+            );
+          }
 
-        return obj.shipConnection(ctx, argsArg);
-      },
-              inputs: [...connectionArgumentsGraphQLTypeInput.fields],
-              description: 'The ships used by the faction.'),
-      graphQLString.nonNull().field('name',
-          resolve: (obj, ctx) => obj.name,
-          description: 'The name of the faction.'),
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.idResolve)
+          return obj.shipConnection(ctx, argsArg);
+        },
+        inputs: [...connectionArgumentsGraphQLTypeInput.fields],
+        description: 'The ships used by the faction.',
+      ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+            description: 'The name of the faction.',
+          ),
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.idResolve,
+          ),
     ],
   );
 
@@ -135,22 +181,30 @@ final _connectionArgumentsGraphQLTypeInput =
   setValue(__connectionArgumentsGraphQLTypeInput);
   __connectionArgumentsGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.inputField('before',
-          description:
-              'Returns the items in the list that come before the specified cursor.'),
-      graphQLString.inputField('after',
-          description:
-              'Returns the items in the list that come after the specified cursor.'),
-      graphQLInt.inputField('first',
-          description: 'Returns the first n items from the list.',
-          attachments: [
-            ValidaAttachment(ValidaNum(min: 1)),
-          ]),
-      graphQLInt.inputField('last',
-          description: 'Returns the last n items from the list.',
-          attachments: [
-            ValidaAttachment(ValidaNum(min: 1)),
-          ])
+      graphQLString.inputField(
+        'before',
+        description:
+            'Returns the items in the list that come before the specified cursor.',
+      ),
+      graphQLString.inputField(
+        'after',
+        description:
+            'Returns the items in the list that come after the specified cursor.',
+      ),
+      graphQLInt.inputField(
+        'first',
+        description: 'Returns the first n items from the list.',
+        attachments: [
+          ValidaAttachment(ValidaNum(min: 1)),
+        ],
+      ),
+      graphQLInt.inputField(
+        'last',
+        description: 'Returns the last n items from the list.',
+        attachments: [
+          ValidaAttachment(ValidaNum(min: 1)),
+        ],
+      ),
     ],
   );
 

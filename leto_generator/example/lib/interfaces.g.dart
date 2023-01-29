@@ -73,12 +73,24 @@ final _nestedInterfaceGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<NestedInterface>>((setValue) {
   final __name = 'NestedInterface';
 
-  final __nestedInterfaceGraphQLType =
-      objectType<NestedInterface>(__name, isInterface: true, interfaces: []);
+  final __nestedInterfaceGraphQLType = objectType<NestedInterface>(
+    __name,
+    isInterface: true,
+    interfaces: [],
+  );
 
   setValue(__nestedInterfaceGraphQLType);
   __nestedInterfaceGraphQLType.fields.addAll(
-    [decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec)],
+    [
+      decimalGraphQLType.nonNull().field(
+            'dec',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dec,
+          )
+    ],
   );
 
   return __nestedInterfaceGraphQLType;
@@ -92,12 +104,24 @@ final _namedInterfaceGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<NamedInterface>>((setValue) {
   final __name = 'NamedInterface';
 
-  final __namedInterfaceGraphQLType =
-      objectType<NamedInterface>(__name, isInterface: true, interfaces: []);
+  final __namedInterfaceGraphQLType = objectType<NamedInterface>(
+    __name,
+    isInterface: true,
+    interfaces: [],
+  );
 
   setValue(__namedInterfaceGraphQLType);
   __namedInterfaceGraphQLType.fields.addAll(
-    [graphQLString.field('name', resolve: (obj, ctx) => obj.name)],
+    [
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      )
+    ],
   );
 
   return __namedInterfaceGraphQLType;
@@ -112,15 +136,30 @@ final _nestedInterfaceImplGraphQLType =
   final __name = 'NestedInterfaceImpl';
 
   final __nestedInterfaceImplGraphQLType = objectType<NestedInterfaceImpl>(
-      __name,
-      isInterface: false,
-      interfaces: [nestedInterfaceGraphQLType]);
+    __name,
+    isInterface: false,
+    interfaces: [nestedInterfaceGraphQLType],
+  );
 
   setValue(__nestedInterfaceImplGraphQLType);
   __nestedInterfaceImplGraphQLType.fields.addAll(
     [
-      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
-      graphQLString.field('name', resolve: (obj, ctx) => obj.name)
+      decimalGraphQLType.nonNull().field(
+            'dec',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dec,
+          ),
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      ),
     ],
   );
 
@@ -137,16 +176,38 @@ final _nestedInterfaceImpl2GraphQLType =
   final __name = 'NestedInterfaceImpl2';
 
   final __nestedInterfaceImpl2GraphQLType = objectType<NestedInterfaceImpl2>(
-      __name,
-      isInterface: false,
-      interfaces: [nestedInterfaceImplGraphQLType]);
+    __name,
+    isInterface: false,
+    interfaces: [nestedInterfaceImplGraphQLType],
+  );
 
   setValue(__nestedInterfaceImpl2GraphQLType);
   __nestedInterfaceImpl2GraphQLType.fields.addAll(
     [
-      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
-      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
-      graphQLString.nonNull().field('name2', resolve: (obj, ctx) => obj.name2)
+      decimalGraphQLType.nonNull().field(
+            'dec',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dec,
+          ),
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      ),
+      graphQLString.nonNull().field(
+            'name2',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name2,
+          ),
     ],
   );
 
@@ -163,16 +224,41 @@ final _nestedInterfaceImpl3GraphQLType =
   final __name = 'NestedInterfaceImpl3';
 
   final __nestedInterfaceImpl3GraphQLType = objectType<NestedInterfaceImpl3>(
-      __name,
-      isInterface: false,
-      interfaces: [namedInterfaceGraphQLType, nestedInterfaceImplGraphQLType]);
+    __name,
+    isInterface: false,
+    interfaces: [
+      namedInterfaceGraphQLType,
+      nestedInterfaceImplGraphQLType,
+    ],
+  );
 
   setValue(__nestedInterfaceImpl3GraphQLType);
   __nestedInterfaceImpl3GraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name3', resolve: (obj, ctx) => obj.name3),
-      decimalGraphQLType.nonNull().field('dec', resolve: (obj, ctx) => obj.dec),
-      graphQLString.field('name', resolve: (obj, ctx) => obj.name)
+      graphQLString.nonNull().field(
+            'name3',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name3,
+          ),
+      decimalGraphQLType.nonNull().field(
+            'dec',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dec,
+          ),
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      ),
     ],
   );
 
@@ -192,17 +278,39 @@ final _dateKeyGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<DateKey>>((setValue) {
   final __name = 'DateKey';
 
-  final __dateKeyGraphQLType =
-      objectType<DateKey>(__name, isInterface: false, interfaces: []);
+  final __dateKeyGraphQLType = objectType<DateKey>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__dateKeyGraphQLType);
   __dateKeyGraphQLType.fields.addAll(
     [
-      graphQLDate.nonNull().field('date', resolve: (obj, ctx) => obj.date),
-      graphQLBigInt.nonNull().field('key', resolve: (obj, ctx) => obj.key),
-      graphQLString
-          .nonNull()
-          .field('stringKey', resolve: (obj, ctx) => obj.stringKey)
+      graphQLDate.nonNull().field(
+            'date',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.date,
+          ),
+      graphQLBigInt.nonNull().field(
+            'key',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.key,
+          ),
+      graphQLString.nonNull().field(
+            'stringKey',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.stringKey,
+          ),
     ],
   );
 
@@ -221,7 +329,7 @@ final _dateKeyGraphQLTypeInput =
   __dateKeyGraphQLTypeInput.fields.addAll(
     [
       graphQLDate.nonNull().inputField('date'),
-      graphQLBigInt.nonNull().inputField('key')
+      graphQLBigInt.nonNull().inputField('key'),
     ],
   );
 

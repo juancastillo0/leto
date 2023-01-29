@@ -23,10 +23,14 @@ final _enumsTestQueryGraphQLField =
               },
             ))
               ..inputs.addAll([
-                classEnumGraphQLType.nonNull().inputField('classEnum',
-                    defaultValue: ClassEnum.variantOne),
-                snakeCaseEnumGraphQLType.nonNull().inputField('snake',
-                    defaultValue: SnakeCaseEnum.variantTwo),
+                classEnumGraphQLType.nonNull().inputField(
+                      'classEnum',
+                      defaultValue: ClassEnum.variantOne,
+                    ),
+                snakeCaseEnumGraphQLType.nonNull().inputField(
+                      'snake',
+                      defaultValue: SnakeCaseEnum.variantTwo,
+                    ),
                 simpleEnumGraphQLType.inputField('simple')
               ]));
 
@@ -36,38 +40,63 @@ final _enumsTestQueryGraphQLField =
 
 /// Auto-generated from [ClassEnum].
 final GraphQLEnumType<ClassEnum> classEnumGraphQLType = GraphQLEnumType(
-    'ClassEnum',
-    [
-      GraphQLEnumValue('VARIANT_ONE', ClassEnum.variantOne),
-      GraphQLEnumValue('VARIANT_TWO', ClassEnum.variantTwo,
-          description: 'The second variant docs'),
-      GraphQLEnumValue('errorRenamed', ClassEnum.variantErrorThree,
-          attachments: [
-            ...ClassEnum.variantErrorAttachments(),
-          ])
-    ],
-    extra: GraphQLTypeDefinitionExtra.attach([
-      ...classEnumAttachments(),
-    ]));
+  'ClassEnum',
+  [
+    GraphQLEnumValue(
+      'VARIANT_ONE',
+      ClassEnum.variantOne,
+    ),
+    GraphQLEnumValue(
+      'VARIANT_TWO',
+      ClassEnum.variantTwo,
+      description: 'The second variant docs',
+    ),
+    GraphQLEnumValue(
+      'errorRenamed',
+      ClassEnum.variantErrorThree,
+      attachments: [
+        ...ClassEnum.variantErrorAttachments(),
+      ],
+    ),
+  ],
+  extra: GraphQLTypeDefinitionExtra.attach([
+    ...classEnumAttachments(),
+  ]),
+);
 
 /// Auto-generated from [SimpleEnum].
 final GraphQLEnumType<SimpleEnum> simpleEnumGraphQLType = GraphQLEnumType(
-    'SimpleEnumRenamed',
-    [
-      GraphQLEnumValue('simpleVariantOne', SimpleEnum.simpleVariantOne,
-          attachments: [
-            ...simpleVariantAttachments(),
-          ]),
-      GraphQLEnumValue('SIMPLE_VARIANT_TWO', SimpleEnum.SIMPLE_VARIANT_TWO)
-    ],
-    description: 'comments for docs');
+  'SimpleEnumRenamed',
+  [
+    GraphQLEnumValue(
+      'simpleVariantOne',
+      SimpleEnum.simpleVariantOne,
+      attachments: [
+        ...simpleVariantAttachments(),
+      ],
+    ),
+    GraphQLEnumValue(
+      'SIMPLE_VARIANT_TWO',
+      SimpleEnum.SIMPLE_VARIANT_TWO,
+    ),
+  ],
+  description: 'comments for docs',
+);
 
 /// Auto-generated from [SnakeCaseEnum].
-final GraphQLEnumType<SnakeCaseEnum> snakeCaseEnumGraphQLType =
-    GraphQLEnumType('SnakeCaseEnum', [
-  GraphQLEnumValue('variant_one', SnakeCaseEnum.variantOne,
+final GraphQLEnumType<SnakeCaseEnum> snakeCaseEnumGraphQLType = GraphQLEnumType(
+  'SnakeCaseEnum',
+  [
+    GraphQLEnumValue(
+      'variant_one',
+      SnakeCaseEnum.variantOne,
       description: 'description from annotation',
-      deprecationReason: 'custom deprecated'),
-  GraphQLEnumValue('variant_two', SnakeCaseEnum.variantTwo,
-      description: 'Documentation for variant two')
-]);
+      deprecationReason: 'custom deprecated',
+    ),
+    GraphQLEnumValue(
+      'variant_two',
+      SnakeCaseEnum.variantTwo,
+      description: 'Documentation for variant two',
+    ),
+  ],
+);

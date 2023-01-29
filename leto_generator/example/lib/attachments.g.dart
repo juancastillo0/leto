@@ -27,26 +27,53 @@ final _keyedAttachmentGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<KeyedAttachment>>((setValue) {
   final __name = 'KeyedAttachment';
 
-  final __keyedAttachmentGraphQLType = objectType<KeyedAttachment>(__name,
-      isInterface: false,
-      interfaces: [],
-      extra: GraphQLTypeDefinitionExtra.attach([
-        ...KeyedAttachment.attachments(),
-      ]));
+  final __keyedAttachmentGraphQLType = objectType<KeyedAttachment>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+    extra: GraphQLTypeDefinitionExtra.attach([
+      ...KeyedAttachment.attachments(),
+    ]),
+  );
 
   setValue(__keyedAttachmentGraphQLType);
   __keyedAttachmentGraphQLType.fields.addAll(
     [
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLDate.nonNull().field('createdAt',
-          resolve: (obj, ctx) => obj.createdAt,
-          attachments: [
-            ValidaAttachment(ValidaDate(max: 'now')),
-          ]),
-      nestedAttachmentGraphQLType
-          .nonNull()
-          .field('nested', resolve: (obj, ctx) => obj.nested)
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLDate.nonNull().field(
+        'createdAt',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.createdAt,
+        attachments: [
+          ValidaAttachment(ValidaDate(max: 'now')),
+        ],
+      ),
+      nestedAttachmentGraphQLType.nonNull().field(
+            'nested',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.nested,
+          ),
     ],
   );
 
@@ -61,16 +88,27 @@ final _nestedAttachmentGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<NestedAttachment>>((setValue) {
   final __name = 'NestedAttachment';
 
-  final __nestedAttachmentGraphQLType = objectType<NestedAttachment>(__name,
-      isInterface: false,
-      interfaces: [],
-      extra: GraphQLTypeDefinitionExtra.attach([
-        ...NestedAttachment.attachments(),
-      ]));
+  final __nestedAttachmentGraphQLType = objectType<NestedAttachment>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+    extra: GraphQLTypeDefinitionExtra.attach([
+      ...NestedAttachment.attachments(),
+    ]),
+  );
 
   setValue(__nestedAttachmentGraphQLType);
   __nestedAttachmentGraphQLType.fields.addAll(
-    [graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
+    [
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          )
+    ],
   );
 
   return __nestedAttachmentGraphQLType;

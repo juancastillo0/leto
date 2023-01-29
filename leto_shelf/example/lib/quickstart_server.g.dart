@@ -34,8 +34,10 @@ final _setStateGraphQLField =
               },
             ))
               ..inputs.addAll([
-                graphQLString.nonNull().inputField('newState',
-                    description: 'The new state, can\'t be \'WrongState\'!.')
+                graphQLString.nonNull().inputField(
+                      'newState',
+                      description: 'The new state, can\'t be \'WrongState\'!.',
+                    )
               ]));
 
 GraphQLObjectField<Model, Object?, Object?> get onStateChangeGraphQLField =>
@@ -59,16 +61,31 @@ final _modelGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Model>>((setValue) {
   final __name = 'Model';
 
-  final __modelGraphQLType =
-      objectType<Model>(__name, isInterface: false, interfaces: []);
+  final __modelGraphQLType = objectType<Model>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__modelGraphQLType);
   __modelGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('state', resolve: (obj, ctx) => obj.state),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt)
+      graphQLString.nonNull().field(
+            'state',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.state,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
     ],
   );
 

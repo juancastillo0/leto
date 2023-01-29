@@ -74,9 +74,11 @@ final _freezedSingleInputGraphQLTypeInput =
   __freezedSingleInputGraphQLTypeInput.fields.addAll(
     [
       graphQLString.inputField('positional'),
-      graphQLInt
-          .nonNull()
-          .inputField('five', defaultValue: 5, description: 'five with default')
+      graphQLInt.nonNull().inputField(
+            'five',
+            defaultValue: 5,
+            description: 'five with default',
+          ),
     ],
   );
 
@@ -97,14 +99,24 @@ final _unionA1GraphQLType =
     HotReloadableDefinition<GraphQLObjectType<_UnionA1>>((setValue) {
   final __name = 'UnionA1';
 
-  final __unionA1GraphQLType =
-      objectType<_UnionA1>(__name, isInterface: false, interfaces: []);
+  final __unionA1GraphQLType = objectType<_UnionA1>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionA1GraphQLType);
   __unionA1GraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('one',
-          resolve: (obj, ctx) => obj.one, description: 'five with default')
+      graphQLInt.nonNull().field(
+            'one',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.one,
+            description: 'five with default',
+          )
     ],
   );
 
@@ -123,15 +135,24 @@ final _unionA2GraphQLType =
     HotReloadableDefinition<GraphQLObjectType<_UnionA2>>((setValue) {
   final __name = 'UnionA2';
 
-  final __unionA2GraphQLType =
-      objectType<_UnionA2>(__name, isInterface: false, interfaces: []);
+  final __unionA2GraphQLType = objectType<_UnionA2>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionA2GraphQLType);
   __unionA2GraphQLType.fields.addAll(
     [
-      decimalGraphQLType.field('dec',
-          resolve: (obj, ctx) => obj.dec,
-          deprecationReason: 'custom deprecated msg')
+      decimalGraphQLType.field(
+        'dec',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.dec,
+        deprecationReason: 'custom deprecated msg',
+      )
     ],
   );
 
@@ -150,14 +171,24 @@ final _unionA3GraphQLType =
     HotReloadableDefinition<GraphQLObjectType<UnionA3>>((setValue) {
   final __name = 'UnionA3';
 
-  final __unionA3GraphQLType =
-      objectType<UnionA3>(__name, isInterface: false, interfaces: []);
+  final __unionA3GraphQLType = objectType<UnionA3>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionA3GraphQLType);
   __unionA3GraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().list().field('one',
-          resolve: (obj, ctx) => obj.one, description: 'description for one')
+      graphQLInt.nonNull().list().field(
+            'one',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.one,
+            description: 'description for one',
+          )
     ],
   );
 
@@ -176,17 +207,23 @@ final _unionA4GraphQLType =
     HotReloadableDefinition<GraphQLObjectType<_UnionA4>>((setValue) {
   final __name = 'UnionA4';
 
-  final __unionA4GraphQLType =
-      objectType<_UnionA4>(__name, isInterface: false, interfaces: []);
+  final __unionA4GraphQLType = objectType<_UnionA4>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionA4GraphQLType);
   __unionA4GraphQLType.fields.addAll(
     [
-      graphQLInt
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('oneRenamed', resolve: (obj, ctx) => obj.one)
+      graphQLInt.nonNull().list().nonNull().field(
+            'oneRenamed',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.one,
+          )
     ],
   );
 
@@ -248,12 +285,24 @@ final _unionNoFreezedAGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<UnionNoFreezedA>>((setValue) {
   final __name = 'UnionNoFreezedA';
 
-  final __unionNoFreezedAGraphQLType =
-      objectType<UnionNoFreezedA>(__name, isInterface: false, interfaces: []);
+  final __unionNoFreezedAGraphQLType = objectType<UnionNoFreezedA>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionNoFreezedAGraphQLType);
   __unionNoFreezedAGraphQLType.fields.addAll(
-    [graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)],
+    [
+      graphQLString.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
+    ],
   );
 
   return __unionNoFreezedAGraphQLType;
@@ -267,12 +316,24 @@ final _unionNoFreezedBGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<UnionNoFreezedB>>((setValue) {
   final __name = 'UnionNoFreezedB';
 
-  final __unionNoFreezedBGraphQLType =
-      objectType<UnionNoFreezedB>(__name, isInterface: false, interfaces: []);
+  final __unionNoFreezedBGraphQLType = objectType<UnionNoFreezedB>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__unionNoFreezedBGraphQLType);
   __unionNoFreezedBGraphQLType.fields.addAll(
-    [graphQLInt.nonNull().field('value', resolve: (obj, ctx) => obj.value)],
+    [
+      graphQLInt.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          )
+    ],
   );
 
   return __unionNoFreezedBGraphQLType;

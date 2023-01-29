@@ -47,7 +47,10 @@ final _sendFileMessageGraphQLField =
                 graphQLInt.nonNull().inputField('chatId'),
                 Upload.graphQLType.nonNull().inputField('file'),
                 graphQLInt.inputField('referencedMessageId'),
-                graphQLString.nonNull().inputField('message', defaultValue: '')
+                graphQLString.nonNull().inputField(
+                      'message',
+                      defaultValue: '',
+                    )
               ]));
 
 GraphQLObjectField<List<ChatMessage>, Object?, Object?>
@@ -109,37 +112,101 @@ final _chatMessageGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatMessage>>((setValue) {
   final __name = 'ChatMessage';
 
-  final __chatMessageGraphQLType =
-      objectType<ChatMessage>(__name, isInterface: false, interfaces: []);
+  final __chatMessageGraphQLType = objectType<ChatMessage>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageGraphQLType);
   __chatMessageGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
-      graphQLInt.nonNull().field('userId', resolve: (obj, ctx) => obj.userId),
-      graphQLString
-          .nonNull()
-          .field('message', resolve: (obj, ctx) => obj.message),
-      messageTypeGraphQLType
-          .nonNull()
-          .field('type', resolve: (obj, ctx) => obj.type),
-      graphQLString.field('fileUrl', resolve: (obj, ctx) => obj.fileUrl),
-      graphQLInt.field('referencedMessageId',
-          resolve: (obj, ctx) => obj.referencedMessageId),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt),
-      chatMessageGraphQLType.field('referencedMessage', resolve: (obj, ctx) {
-        final args = ctx.args;
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
+      graphQLInt.nonNull().field(
+            'userId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.userId,
+          ),
+      graphQLString.nonNull().field(
+            'message',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.message,
+          ),
+      messageTypeGraphQLType.nonNull().field(
+            'type',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.type,
+          ),
+      graphQLString.field(
+        'fileUrl',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.fileUrl,
+      ),
+      graphQLInt.field(
+        'referencedMessageId',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.referencedMessageId,
+      ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
+      chatMessageGraphQLType.field(
+        'referencedMessage',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.referencedMessage(ctx);
-      }),
-      messageMetadataGraphQLType.field('metadata', resolve: (obj, ctx) {
-        final args = ctx.args;
+          return obj.referencedMessage(ctx);
+        },
+      ),
+      messageMetadataGraphQLType.field(
+        'metadata',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.metadata();
-      })
+          return obj.metadata();
+        },
+      ),
     ],
   );
 
@@ -162,17 +229,30 @@ final _chatMessageSentEventGraphQLType =
   final __name = 'ChatMessageSentEvent';
 
   final __chatMessageSentEventGraphQLType = objectType<ChatMessageSentEvent>(
-      __name,
-      isInterface: false,
-      interfaces: []);
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageSentEventGraphQLType);
   __chatMessageSentEventGraphQLType.fields.addAll(
     [
-      chatMessageGraphQLType
-          .nonNull()
-          .field('message', resolve: (obj, ctx) => obj.message),
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId)
+      chatMessageGraphQLType.nonNull().field(
+            'message',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.message,
+          ),
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
     ],
   );
 
@@ -196,16 +276,31 @@ final _chatMessageDeletedEventGraphQLType =
   final __name = 'ChatMessageDeletedEvent';
 
   final __chatMessageDeletedEventGraphQLType =
-      objectType<ChatMessageDeletedEvent>(__name,
-          isInterface: false, interfaces: []);
+      objectType<ChatMessageDeletedEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageDeletedEventGraphQLType);
   __chatMessageDeletedEventGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId),
-      graphQLInt
-          .nonNull()
-          .field('messageId', resolve: (obj, ctx) => obj.messageId)
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
+      graphQLInt.nonNull().field(
+            'messageId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.messageId,
+          ),
     ],
   );
 
@@ -230,16 +325,31 @@ final _chatMessageUpdatedEventGraphQLType =
   final __name = 'ChatMessageUpdatedEvent';
 
   final __chatMessageUpdatedEventGraphQLType =
-      objectType<ChatMessageUpdatedEvent>(__name,
-          isInterface: false, interfaces: []);
+      objectType<ChatMessageUpdatedEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatMessageUpdatedEventGraphQLType);
   __chatMessageUpdatedEventGraphQLType.fields.addAll(
     [
-      chatMessageGraphQLType
-          .nonNull()
-          .field('message', resolve: (obj, ctx) => obj.message),
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId)
+      chatMessageGraphQLType.nonNull().field(
+            'message',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.message,
+          ),
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
     ],
   );
 
@@ -278,11 +388,19 @@ final _chatMessageEventGraphQLType =
 });
 
 /// Auto-generated from [MessageType].
-final GraphQLEnumType<MessageType> messageTypeGraphQLType =
-    GraphQLEnumType('MessageType', [
-  GraphQLEnumValue('FILE', MessageType.FILE),
-  GraphQLEnumValue('TEXT', MessageType.TEXT)
-]);
+final GraphQLEnumType<MessageType> messageTypeGraphQLType = GraphQLEnumType(
+  'MessageType',
+  [
+    GraphQLEnumValue(
+      'FILE',
+      MessageType.FILE,
+    ),
+    GraphQLEnumValue(
+      'TEXT',
+      MessageType.TEXT,
+    ),
+  ],
+);
 
 // **************************************************************************
 // JsonSerializableGenerator

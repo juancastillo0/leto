@@ -62,17 +62,39 @@ final _chatCreatedEventGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatCreatedEvent>>((setValue) {
   final __name = 'ChatCreatedEvent';
 
-  final __chatCreatedEventGraphQLType =
-      objectType<ChatCreatedEvent>(__name, isInterface: false, interfaces: []);
+  final __chatCreatedEventGraphQLType = objectType<ChatCreatedEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatCreatedEventGraphQLType);
   __chatCreatedEventGraphQLType.fields.addAll(
     [
-      chatRoomGraphQLType
-          .nonNull()
-          .field('chat', resolve: (obj, ctx) => obj.chat),
-      graphQLInt.nonNull().field('ownerId', resolve: (obj, ctx) => obj.ownerId),
-      graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId)
+      chatRoomGraphQLType.nonNull().field(
+            'chat',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chat,
+          ),
+      graphQLInt.nonNull().field(
+            'ownerId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.ownerId,
+          ),
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          ),
     ],
   );
 
@@ -93,12 +115,24 @@ final _chatDeletedEventGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatDeletedEvent>>((setValue) {
   final __name = 'ChatDeletedEvent';
 
-  final __chatDeletedEventGraphQLType =
-      objectType<ChatDeletedEvent>(__name, isInterface: false, interfaces: []);
+  final __chatDeletedEventGraphQLType = objectType<ChatDeletedEvent>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatDeletedEventGraphQLType);
   __chatDeletedEventGraphQLType.fields.addAll(
-    [graphQLInt.nonNull().field('chatId', resolve: (obj, ctx) => obj.chatId)],
+    [
+      graphQLInt.nonNull().field(
+            'chatId',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.chatId,
+          )
+    ],
   );
 
   return __chatDeletedEventGraphQLType;
@@ -141,29 +175,61 @@ final _chatRoomGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ChatRoom>>((setValue) {
   final __name = 'ChatRoom';
 
-  final __chatRoomGraphQLType =
-      objectType<ChatRoom>(__name, isInterface: false, interfaces: []);
+  final __chatRoomGraphQLType = objectType<ChatRoom>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__chatRoomGraphQLType);
   __chatRoomGraphQLType.fields.addAll(
     [
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLDate
-          .nonNull()
-          .field('createdAt', resolve: (obj, ctx) => obj.createdAt),
-      chatMessageGraphQLType.nonNull().list().nonNull().field('messages',
-          resolve: (obj, ctx) {
-        final args = ctx.args;
+      graphQLInt.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+          ),
+      chatMessageGraphQLType.nonNull().list().nonNull().field(
+        'messages',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.messages(ctx);
-      }),
-      chatRoomUserGraphQLType.nonNull().list().nonNull().field('users',
-          resolve: (obj, ctx) {
-        final args = ctx.args;
+          return obj.messages(ctx);
+        },
+      ),
+      chatRoomUserGraphQLType.nonNull().list().nonNull().field(
+        'users',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.users(ctx);
-      })
+          return obj.users(ctx);
+        },
+      ),
     ],
   );
 

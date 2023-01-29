@@ -19,9 +19,10 @@ final _droidGraphQLField =
               },
             ))
               ..inputs.addAll([
-                graphQLId
-                    .nonNull()
-                    .inputField('id', description: 'id of the droid')
+                graphQLId.nonNull().inputField(
+                      'id',
+                      description: 'id of the droid',
+                    )
               ]));
 
 // **************************************************************************
@@ -37,27 +38,67 @@ final _humanGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Human>>((setValue) {
   final __name = 'Human';
 
-  final __humanGraphQLType = objectType<Human>(__name,
-      isInterface: false, interfaces: [characterInterface()]);
+  final __humanGraphQLType = objectType<Human>(
+    __name,
+    isInterface: false,
+    interfaces: [characterInterface()],
+  );
 
   setValue(__humanGraphQLType);
   __humanGraphQLType.fields.addAll(
     [
-      graphQLId.nonNull().field('id',
-          resolve: (obj, ctx) => obj.id, description: 'The id of the human.'),
-      graphQLString.field('name',
-          resolve: (obj, ctx) => obj.name,
-          description: 'The name of the human.'),
-      listOf(episodeEnum).field('appearsIn',
-          resolve: (obj, ctx) => obj.appearsIn,
-          description: 'Which movies they appear in.'),
-      graphQLString.field('homePlanet',
-          resolve: (obj, ctx) => obj.homePlanet,
-          description: 'The home planet of the human, or null if unknown.'),
-      listOf(characterInterface())
-          .field('friends', resolve: (obj, ctx) => obj.fetchFriends),
-      graphQLString.field('secretBackstory',
-          resolve: (obj, ctx) => obj.secretBackstory)
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+            description: 'The id of the human.',
+          ),
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+        description: 'The name of the human.',
+      ),
+      listOf(episodeEnum).field(
+        'appearsIn',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.appearsIn,
+        description: 'Which movies they appear in.',
+      ),
+      graphQLString.field(
+        'homePlanet',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.homePlanet,
+        description: 'The home planet of the human, or null if unknown.',
+      ),
+      listOf(characterInterface()).field(
+        'friends',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.fetchFriends,
+      ),
+      graphQLString.field(
+        'secretBackstory',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.secretBackstory,
+      ),
     ],
   );
 
@@ -71,27 +112,67 @@ final _droidGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Droid>>((setValue) {
   final __name = 'Droid';
 
-  final __droidGraphQLType = objectType<Droid>(__name,
-      isInterface: false,
-      interfaces: [characterInterface()],
-      description: 'A mechanical creature in the Star Wars universe.');
+  final __droidGraphQLType = objectType<Droid>(
+    __name,
+    isInterface: false,
+    interfaces: [characterInterface()],
+    description: 'A mechanical creature in the Star Wars universe.',
+  );
 
   setValue(__droidGraphQLType);
   __droidGraphQLType.fields.addAll(
     [
-      graphQLId.nonNull().field('id',
-          resolve: (obj, ctx) => obj.id, description: 'The id of the droid.'),
-      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
-      listOf(episodeEnum).field('appearsIn',
-          resolve: (obj, ctx) => obj.appearsIn,
-          description: 'Which movies they appear in.'),
-      graphQLString.field('primaryFunction',
-          resolve: (obj, ctx) => obj.primaryFunction,
-          description: 'The primary function of the droid.'),
-      listOf(characterInterface())
-          .field('friends', resolve: (obj, ctx) => obj.fetchFriends),
-      graphQLString.field('secretBackstory',
-          resolve: (obj, ctx) => obj.secretBackstory)
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+            description: 'The id of the droid.',
+          ),
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      ),
+      listOf(episodeEnum).field(
+        'appearsIn',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.appearsIn,
+        description: 'Which movies they appear in.',
+      ),
+      graphQLString.field(
+        'primaryFunction',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.primaryFunction,
+        description: 'The primary function of the droid.',
+      ),
+      listOf(characterInterface()).field(
+        'friends',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.fetchFriends,
+      ),
+      graphQLString.field(
+        'secretBackstory',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.secretBackstory,
+      ),
     ],
   );
 

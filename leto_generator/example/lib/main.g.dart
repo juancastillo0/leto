@@ -39,7 +39,7 @@ final _todoItemInputGraphQLTypeInput =
   __todoItemInputGraphQLTypeInput.fields.addAll(
     [
       graphQLString.nonNull().inputField('text'),
-      todoItemInputNestedGraphQLTypeInput.inputField('nested')
+      todoItemInputNestedGraphQLTypeInput.inputField('nested'),
     ],
   );
 
@@ -80,22 +80,50 @@ final _todoItemGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<TodoItem>>((setValue) {
   final __name = 'TodoItem';
 
-  final __todoItemGraphQLType =
-      objectType<TodoItem>(__name, isInterface: false, interfaces: []);
+  final __todoItemGraphQLType = objectType<TodoItem>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__todoItemGraphQLType);
   __todoItemGraphQLType.fields.addAll(
     [
-      graphQLString.field('text',
-          resolve: (obj, ctx) => obj.text,
-          description: 'A description of the todo item'),
-      graphQLBoolean.field('isComplete',
-          resolve: (obj, ctx) => obj.isComplete,
-          description: 'Whether this item is complete.'),
-      graphQLDate.nonNull().field('createdAt',
-          resolve: (obj, ctx) => obj.createdAt,
-          deprecationReason: 'Don\'t use this'),
-      decimalGraphQLType.field('cost', resolve: (obj, ctx) => obj.cost)
+      graphQLString.field(
+        'text',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.text,
+        description: 'A description of the todo item',
+      ),
+      graphQLBoolean.field(
+        'isComplete',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.isComplete,
+        description: 'Whether this item is complete.',
+      ),
+      graphQLDate.nonNull().field(
+            'createdAt',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdAt,
+            deprecationReason: 'Don\'t use this',
+          ),
+      decimalGraphQLType.field(
+        'cost',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.cost,
+      ),
     ],
   );
 

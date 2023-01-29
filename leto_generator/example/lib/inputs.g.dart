@@ -65,7 +65,10 @@ final _queryMultipleParamsGraphQLField =
               ..inputs.addAll([
                 inputJsonSerdeGraphQLTypeInput.inputField('serde'),
                 inputJsonSerdeGraphQLTypeInput.nonNull().inputField('serdeReq'),
-                graphQLInt.nonNull().inputField('defTwo', defaultValue: 2),
+                graphQLInt.nonNull().inputField(
+                      'defTwo',
+                      defaultValue: 2,
+                    ),
                 inputMGraphQLTypeInput.inputField('mInput'),
                 inputGenGraphQLTypeInput<InputJsonSerde?>(
                         inputJsonSerdeGraphQLTypeInput)
@@ -92,14 +95,17 @@ final _mutationMultipleParamsOptionalPosGraphQLField =
             ))
               ..inputs.addAll([
                 inputJsonSerdeGraphQLTypeInput.inputField('serde'),
-                graphQLInt.nonNull().inputField('defTwo', defaultValue: 2),
+                graphQLInt.nonNull().inputField(
+                      'defTwo',
+                      defaultValue: 2,
+                    ),
                 inputGenGraphQLTypeInput<List<InputJsonSerde>?>(
                         inputJsonSerdeGraphQLTypeInput.nonNull().list())
                     .inputField('gen'),
                 inputGen2GraphQLTypeInput<String, List<List<int>?>>(
-                        graphQLString.nonNull(),
-                        graphQLInt.nonNull().list().list().nonNull())
-                    .inputField('gen2')
+                  graphQLString.nonNull(),
+                  graphQLInt.nonNull().list().list().nonNull(),
+                ).inputField('gen2')
               ]));
 
 GraphQLObjectField<CombinedObject, Object?, Object?>
@@ -151,30 +157,34 @@ final _inputMGraphQLTypeInput =
   setValue(__inputMGraphQLTypeInput);
   __inputMGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().inputField('name', attachments: [
-        ValidaAttachment(ValidaString(minLength: 1, isAlpha: true)),
-      ]),
-      graphQLDate.inputField('date', attachments: [
-        ValidaAttachment(ValidaDate(min: 'now', max: '2023-01-01')),
-      ]),
+      graphQLString.nonNull().inputField(
+        'name',
+        attachments: [
+          ValidaAttachment(ValidaString(minLength: 1, isAlpha: true)),
+        ],
+      ),
+      graphQLDate.inputField(
+        'date',
+        attachments: [
+          ValidaAttachment(ValidaDate(min: 'now', max: '2023-01-01')),
+        ],
+      ),
       graphQLInt.nonNull().list().nonNull().inputField('ints'),
-      graphQLFloat
-          .nonNull()
-          .list()
-          .nonNull()
-          .inputField('doubles', attachments: [
-        ValidaAttachment(ValidaList(each: ValidaNum(min: -2))),
-      ]),
-      inputMNGraphQLTypeInput
-          .nonNull()
-          .list()
-          .nonNull()
-          .inputField('nested', attachments: [
-        ValidaAttachment(ValidaList(maxLength: 2)),
-      ]),
+      graphQLFloat.nonNull().list().nonNull().inputField(
+        'doubles',
+        attachments: [
+          ValidaAttachment(ValidaList(each: ValidaNum(min: -2))),
+        ],
+      ),
+      inputMNGraphQLTypeInput.nonNull().list().nonNull().inputField(
+        'nested',
+        attachments: [
+          ValidaAttachment(ValidaList(maxLength: 2)),
+        ],
+      ),
       inputMNGraphQLTypeInput.list().nonNull().inputField('nestedNullItem'),
       inputMNGraphQLTypeInput.list().inputField('nestedNullItemNull'),
-      inputMNGraphQLTypeInput.nonNull().list().inputField('nestedNull')
+      inputMNGraphQLTypeInput.nonNull().list().inputField('nestedNull'),
     ],
   );
 
@@ -201,16 +211,18 @@ final _inputMNGraphQLTypeInput =
     [
       graphQLString.nonNull().inputField('name'),
       inputMGraphQLTypeInput.inputField('parent'),
-      Json.graphQLType
-          .nonNull()
-          .inputField('json', defaultValue: const JsonList([JsonNumber(1)])),
-      Json.graphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .inputField('jsonListArgDef', defaultValue: const [JsonMap({})]),
-      inputMGraphQLTypeInput.nonNull().list().list().inputField('parentNullDef',
-          defaultValue: InputMN.parentNullDefDefault())
+      Json.graphQLType.nonNull().inputField(
+            'json',
+            defaultValue: const JsonList([JsonNumber(1)]),
+          ),
+      Json.graphQLType.nonNull().list().nonNull().inputField(
+        'jsonListArgDef',
+        defaultValue: const [JsonMap({})],
+      ),
+      inputMGraphQLTypeInput.nonNull().list().list().inputField(
+            'parentNullDef',
+            defaultValue: InputMN.parentNullDefDefault(),
+          ),
     ],
   );
 
@@ -241,7 +253,7 @@ final _inputJsonSerdeGraphQLTypeInput =
       inputGenGraphQLTypeInput<InputM>(inputMGraphQLTypeInput.nonNull())
           .inputField('inputGenM'),
       inputGenGraphQLTypeInput<InputM?>(inputMGraphQLTypeInput)
-          .inputField('inputGenMNull')
+          .inputField('inputGenMNull'),
     ],
   );
 
@@ -276,7 +288,7 @@ GraphQLInputObjectType<InputGen<T>> inputGenGraphQLTypeInput<T>(
   __inputGenGraphQLTypeInput.fields.addAll(
     [
       graphQLString.nonNull().inputField('name'),
-      tGraphQLType.inputField('generic')
+      tGraphQLType.inputField('generic'),
     ],
   );
 
@@ -315,7 +327,7 @@ GraphQLInputObjectType<InputGen2<T, O>>
       oGraphQLType.nullable().inputField('valueNull'),
       oGraphQLType.nonNull().inputField('value'),
       oGraphQLType.nonNull().list().nonNull().inputField('listValue'),
-      oGraphQLType.nullable().list().nonNull().inputField('listValueNull')
+      oGraphQLType.nullable().list().nonNull().inputField('listValueNull'),
     ],
   );
 
@@ -332,22 +344,50 @@ final _combinedObjectGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<CombinedObject>>((setValue) {
   final __name = 'CombinedObject';
 
-  final __combinedObjectGraphQLType =
-      objectType<CombinedObject>(__name, isInterface: false, interfaces: []);
+  final __combinedObjectGraphQLType = objectType<CombinedObject>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__combinedObjectGraphQLType);
   __combinedObjectGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('onlyInOutputMethod', resolve: (obj, ctx) {
-        final args = ctx.args;
+      graphQLString.nonNull().field(
+        'onlyInOutputMethod',
+        resolve: (
+          obj,
+          ctx,
+        ) {
+          final args = ctx.args;
 
-        return obj.onlyInOutputMethod();
-      }),
-      graphQLInt
-          .nonNull()
-          .field('otherVal', resolve: (obj, ctx) => obj.otherVal),
-      graphQLString.nonNull().field('val', resolve: (obj, ctx) => obj.val),
-      graphQLInt.field('onlyInOutput', resolve: (obj, ctx) => obj.onlyInOutput)
+          return obj.onlyInOutputMethod();
+        },
+      ),
+      graphQLInt.nonNull().field(
+            'otherVal',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.otherVal,
+          ),
+      graphQLString.nonNull().field(
+            'val',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.val,
+          ),
+      graphQLInt.field(
+        'onlyInOutput',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.onlyInOutput,
+      ),
     ],
   );
 
@@ -385,15 +425,17 @@ final _oneOfInputGraphQLTypeInput =
     HotReloadableDefinition<GraphQLInputObjectType<OneOfInput>>((setValue) {
   final __name = 'OneOfInput';
 
-  final __oneOfInputGraphQLTypeInput =
-      inputObjectType<OneOfInput>(__name, isOneOf: true);
+  final __oneOfInputGraphQLTypeInput = inputObjectType<OneOfInput>(
+    __name,
+    isOneOf: true,
+  );
 
   setValue(__oneOfInputGraphQLTypeInput);
   __oneOfInputGraphQLTypeInput.fields.addAll(
     [
       combinedObjectGraphQLTypeInput.inputField('combined'),
       oneOfFreezedInputGraphQLTypeInput.inputField('oneOfFreezed'),
-      graphQLString.inputField('str')
+      graphQLString.inputField('str'),
     ],
   );
 

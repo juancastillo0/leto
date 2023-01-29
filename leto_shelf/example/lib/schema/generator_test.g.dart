@@ -47,8 +47,10 @@ final _addTestModelGraphQLField =
               ..inputs.addAll([
                 graphQLString.nonNull().inputField('realName'),
                 testModelGraphQLTypeInput.inputField('previous'),
-                graphQLString.inputField('name',
-                    deprecationReason: 'use realName'),
+                graphQLString.inputField(
+                  'name',
+                  deprecationReason: 'use realName',
+                ),
                 graphQLInt.nonNull().list().nonNull().inputField('value')
               ]));
 
@@ -69,11 +71,15 @@ final _testModelsGraphQLField = HotReloadableDefinition<
               'Automatic documentation generated\n[position] is the pad',
         ))
           ..inputs.addAll([
-            graphQLDate
-                .nonNull()
-                .inputField('lessThan', description: 'pagination less than'),
-            graphQLInt.nonNull().inputField('position',
-                defaultValue: 0, description: 'pagination')
+            graphQLDate.nonNull().inputField(
+                  'lessThan',
+                  description: 'pagination less than',
+                ),
+            graphQLInt.nonNull().inputField(
+                  'position',
+                  defaultValue: 0,
+                  description: 'pagination',
+                )
           ]));
 
 GraphQLObjectField<List<EventUnion?>, Object?, Object?>
@@ -93,8 +99,11 @@ final _testUnionModelsGraphQLField = HotReloadableDefinition<
               'testUnionModels documentation generated\n[position] is the pad',
         ))
           ..inputs.addAll([
-            graphQLInt.list().nonNull().inputField('positions',
-                defaultValue: const [], description: 'pagination')
+            graphQLInt.list().nonNull().inputField(
+                  'positions',
+                  defaultValue: const [],
+                  description: 'pagination',
+                )
           ]));
 
 // **************************************************************************
@@ -110,26 +119,52 @@ final _testModelGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<TestModel>>((setValue) {
   final __name = 'TestModel';
 
-  final __testModelGraphQLType = objectType<TestModel>(__name,
-      isInterface: false, interfaces: [], description: 'Custom doc');
+  final __testModelGraphQLType = objectType<TestModel>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+    description: 'Custom doc',
+  );
 
   setValue(__testModelGraphQLType);
   __testModelGraphQLType.fields.addAll(
     [
-      graphQLString
-          .nonNull()
-          .field('name', resolve: (obj, ctx) => obj.name, attachments: [
-        ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
-      ]),
-      graphQLString.field('description',
-          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      graphQLDate
-          .nonNull()
-          .list()
-          .field('dates', resolve: (obj, ctx) => obj.dates),
-      graphQLBoolean
-          .nonNull()
-          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
+      graphQLString.nonNull().field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+        attachments: [
+          ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
+        ],
+      ),
+      graphQLString.field(
+        'description',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.description,
+        description: 'Custom doc d',
+      ),
+      graphQLDate.nonNull().list().field(
+            'dates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dates,
+          ),
+      graphQLBoolean.nonNull().field(
+            'hasDates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.hasDates,
+          ),
     ],
   );
 
@@ -148,11 +183,17 @@ final _testModelGraphQLTypeInput =
   setValue(__testModelGraphQLTypeInput);
   __testModelGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().inputField('name', attachments: [
-        ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
-      ]),
-      graphQLString.inputField('description', description: 'Custom doc d'),
-      graphQLDate.nonNull().list().inputField('dates')
+      graphQLString.nonNull().inputField(
+        'name',
+        attachments: [
+          ValidaAttachment(ValidaString(minLength: 1, maxLength: 64)),
+        ],
+      ),
+      graphQLString.inputField(
+        'description',
+        description: 'Custom doc d',
+      ),
+      graphQLDate.nonNull().list().inputField('dates'),
     ],
   );
 
@@ -167,22 +208,48 @@ final _testModelFreezedGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<TestModelFreezed>>((setValue) {
   final __name = 'TestModelFreezed';
 
-  final __testModelFreezedGraphQLType =
-      objectType<TestModelFreezed>(__name, isInterface: false, interfaces: []);
+  final __testModelFreezedGraphQLType = objectType<TestModelFreezed>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__testModelFreezedGraphQLType);
   __testModelFreezedGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLString.field('description',
-          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      graphQLDate
-          .nonNull()
-          .list()
-          .field('dates', resolve: (obj, ctx) => obj.dates),
-      graphQLBoolean
-          .nonNull()
-          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLString.field(
+        'description',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.description,
+        description: 'Custom doc d',
+      ),
+      graphQLDate.nonNull().list().field(
+            'dates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dates,
+          ),
+      graphQLBoolean.nonNull().field(
+            'hasDates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.hasDates,
+          ),
     ],
   );
 
@@ -203,26 +270,56 @@ final _eventUnionAddGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<_EventUnionAdd>>((setValue) {
   final __name = 'EventUnionAdd';
 
-  final __eventUnionAddGraphQLType =
-      objectType<_EventUnionAdd>(__name, isInterface: false, interfaces: []);
+  final __eventUnionAddGraphQLType = objectType<_EventUnionAdd>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__eventUnionAddGraphQLType);
   __eventUnionAddGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLString.field('description',
-          resolve: (obj, ctx) => obj.description, description: 'Custom doc d'),
-      graphQLDate
-          .nonNull()
-          .list()
-          .field('dates', resolve: (obj, ctx) => obj.dates),
-      testModelGraphQLType
-          .list()
-          .nonNull()
-          .field('models', resolve: (obj, ctx) => obj.models),
-      graphQLBoolean
-          .nonNull()
-          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLString.field(
+        'description',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.description,
+        description: 'Custom doc d',
+      ),
+      graphQLDate.nonNull().list().field(
+            'dates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dates,
+          ),
+      testModelGraphQLType.list().nonNull().field(
+            'models',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.models,
+          ),
+      graphQLBoolean.nonNull().field(
+            'hasDates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.hasDates,
+          ),
     ],
   );
 
@@ -243,21 +340,47 @@ final _eventUnionDeleteGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<EventUnionDelete>>((setValue) {
   final __name = 'EventUnionDelete';
 
-  final __eventUnionDeleteGraphQLType =
-      objectType<EventUnionDelete>(__name, isInterface: false, interfaces: []);
+  final __eventUnionDeleteGraphQLType = objectType<EventUnionDelete>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__eventUnionDeleteGraphQLType);
   __eventUnionDeleteGraphQLType.fields.addAll(
     [
-      graphQLString.field('name', resolve: (obj, ctx) => obj.name),
-      graphQLInt.nonNull().field('cost', resolve: (obj, ctx) => obj.cost),
-      graphQLDate
-          .nonNull()
-          .list()
-          .field('dates', resolve: (obj, ctx) => obj.dates),
-      graphQLBoolean
-          .nonNull()
-          .field('hasDates', resolve: (obj, ctx) => obj.hasDates)
+      graphQLString.field(
+        'name',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.name,
+      ),
+      graphQLInt.nonNull().field(
+            'cost',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.cost,
+          ),
+      graphQLDate.nonNull().list().field(
+            'dates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.dates,
+          ),
+      graphQLBoolean.nonNull().field(
+            'hasDates',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.hasDates,
+          ),
     ],
   );
 

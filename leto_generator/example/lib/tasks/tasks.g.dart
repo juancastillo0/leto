@@ -55,12 +55,24 @@ final _withIdGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<WithId>>((setValue) {
   final __name = 'WithId';
 
-  final __withIdGraphQLType =
-      objectType<WithId>(__name, isInterface: true, interfaces: []);
+  final __withIdGraphQLType = objectType<WithId>(
+    __name,
+    isInterface: true,
+    interfaces: [],
+  );
 
   setValue(__withIdGraphQLType);
   __withIdGraphQLType.fields.addAll(
-    [graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)],
+    [
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          )
+    ],
   );
 
   return __withIdGraphQLType;
@@ -73,14 +85,31 @@ final _namedGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Named>>((setValue) {
   final __name = 'Named';
 
-  final __namedGraphQLType = objectType<Named>(__name,
-      isInterface: true, interfaces: [withIdGraphQLType]);
+  final __namedGraphQLType = objectType<Named>(
+    __name,
+    isInterface: true,
+    interfaces: [withIdGraphQLType],
+  );
 
   setValue(__namedGraphQLType);
   __namedGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id)
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
     ],
   );
 
@@ -94,14 +123,23 @@ final _withCreatedGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<WithCreated>>((setValue) {
   final __name = 'WithCreated';
 
-  final __withCreatedGraphQLType =
-      objectType<WithCreated>(__name, isInterface: true, interfaces: []);
+  final __withCreatedGraphQLType = objectType<WithCreated>(
+    __name,
+    isInterface: true,
+    interfaces: [],
+  );
 
   setValue(__withCreatedGraphQLType);
   __withCreatedGraphQLType.fields.addAll(
     [
-      graphQLTimestamp.nonNull().field('createdTimestamp',
-          resolve: (obj, ctx) => obj.createdTimestamp)
+      graphQLTimestamp.nonNull().field(
+            'createdTimestamp',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdTimestamp,
+          )
     ],
   );
 
@@ -121,27 +159,82 @@ final _taskGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<Task>>((setValue) {
   final __name = 'Task';
 
-  final __taskGraphQLType = objectType<Task>(__name,
-      isInterface: false,
-      interfaces: [namedGraphQLType, withCreatedGraphQLType]);
+  final __taskGraphQLType = objectType<Task>(
+    __name,
+    isInterface: false,
+    interfaces: [
+      namedGraphQLType,
+      withCreatedGraphQLType,
+    ],
+  );
 
   setValue(__taskGraphQLType);
   __taskGraphQLType.fields.addAll(
     [
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
-      graphQLString.field('description',
-          resolve: (obj, ctx) => obj.description),
-      graphQLUri.nonNull().field('image', resolve: (obj, ctx) => obj.image),
-      graphQLInt.nonNull().field('weight', resolve: (obj, ctx) => obj.weight),
-      Json.graphQLType.field('extra', resolve: (obj, ctx) => obj.extra),
-      graphQLTimestamp.nonNull().field('createdTimestamp',
-          resolve: (obj, ctx) => obj.createdTimestamp),
-      userGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('assignedTo', resolve: (obj, ctx) => obj.assignedTo)
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
+      graphQLString.field(
+        'description',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.description,
+      ),
+      graphQLUri.nonNull().field(
+            'image',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.image,
+          ),
+      graphQLInt.nonNull().field(
+            'weight',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.weight,
+          ),
+      Json.graphQLType.field(
+        'extra',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.extra,
+      ),
+      graphQLTimestamp.nonNull().field(
+            'createdTimestamp',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.createdTimestamp,
+          ),
+      userGraphQLType.nonNull().list().nonNull().field(
+            'assignedTo',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.assignedTo,
+          ),
     ],
   );
 
@@ -166,7 +259,7 @@ final _taskGraphQLTypeInput =
       graphQLInt.nonNull().inputField('weight'),
       Json.graphQLType.inputField('extra'),
       graphQLDate.nonNull().inputField('createdTimestamp'),
-      userGraphQLTypeInput.nonNull().list().nonNull().inputField('assignedTo')
+      userGraphQLTypeInput.nonNull().list().nonNull().inputField('assignedTo'),
     ],
   );
 
@@ -186,14 +279,31 @@ final _userGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<User>>((setValue) {
   final __name = 'User';
 
-  final __userGraphQLType = objectType<User>(__name,
-      isInterface: false, interfaces: [namedGraphQLType]);
+  final __userGraphQLType = objectType<User>(
+    __name,
+    isInterface: false,
+    interfaces: [namedGraphQLType],
+  );
 
   setValue(__userGraphQLType);
   __userGraphQLType.fields.addAll(
     [
-      graphQLId.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name)
+      graphQLId.nonNull().field(
+            'id',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.id,
+          ),
+      graphQLString.nonNull().field(
+            'name',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.name,
+          ),
     ],
   );
 
@@ -212,7 +322,7 @@ final _userGraphQLTypeInput =
   __userGraphQLTypeInput.fields.addAll(
     [
       graphQLId.nonNull().inputField('id'),
-      graphQLString.nonNull().inputField('name')
+      graphQLString.nonNull().inputField('name'),
     ],
   );
 

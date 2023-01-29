@@ -40,19 +40,48 @@ final _classConfigGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ClassConfig>>((setValue) {
   final __name = 'RenamedClassConfig';
 
-  final __classConfigGraphQLType =
-      objectType<ClassConfig>(__name, isInterface: false, interfaces: []);
+  final __classConfigGraphQLType = objectType<ClassConfig>(
+    __name,
+    isInterface: false,
+    interfaces: [],
+  );
 
   setValue(__classConfigGraphQLType);
   __classConfigGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('value',
-          resolve: (obj, ctx) => obj.value,
-          deprecationReason: 'value deprecated'),
-      graphQLString.field('valueOverridden',
-          resolve: (obj, ctx) => obj.valueOverridden),
-      graphQLString.field('valueNull', resolve: (obj, ctx) => obj.valueNull),
-      graphQLString.field('value2', resolve: (obj, ctx) => obj.value2)
+      graphQLString.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+            deprecationReason: 'value deprecated',
+          ),
+      graphQLString.field(
+        'valueOverridden',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.valueOverridden,
+      ),
+      graphQLString.field(
+        'valueNull',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.valueNull,
+      ),
+      graphQLString.field(
+        'value2',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.value2,
+      ),
     ],
   );
 
@@ -67,18 +96,39 @@ final _classConfig2GraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ClassConfig2>>((setValue) {
   final __name = 'ClassConfig2';
 
-  final __classConfig2GraphQLType = objectType<ClassConfig2>(__name,
-      isInterface: false, interfaces: [customInterface]);
+  final __classConfig2GraphQLType = objectType<ClassConfig2>(
+    __name,
+    isInterface: false,
+    interfaces: [customInterface],
+  );
 
   setValue(__classConfig2GraphQLType);
   __classConfig2GraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value),
-      graphQLString.field('valueOverridden',
-          resolve: (obj, ctx) => obj.valueOverridden),
-      graphQLString
-          .nonNull()
-          .field('renamedValue2', resolve: (obj, ctx) => obj.value2)
+      graphQLString.nonNull().field(
+            'value',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value,
+          ),
+      graphQLString.field(
+        'valueOverridden',
+        resolve: (
+          obj,
+          ctx,
+        ) =>
+            obj.valueOverridden,
+      ),
+      graphQLString.nonNull().field(
+            'renamedValue2',
+            resolve: (
+              obj,
+              ctx,
+            ) =>
+                obj.value2,
+          ),
     ],
   );
 
