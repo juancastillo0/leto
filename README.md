@@ -63,7 +63,7 @@ If your prefer to read the documentation in a web page, you can [try the documen
     - [Chat functionalities](#chat-functionalities)
   - [Server example](#server-example)
   - [Room Signals](#room-signals)
-  - [CI & CD Dart Server](#ci--cd-dart-server)
+  - [CI \& CD Dart Server](#ci--cd-dart-server)
 - [Packages](#packages)
 - [Web integrations](#web-integrations)
   - [Server integrations](#server-integrations)
@@ -157,7 +157,7 @@ If your prefer to read the documentation in a web page, you can [try the documen
     - [`collect_examples.dart`](#collect_examplesdart)
     - [`generate_docusaurus.dart`](#generate_docusaurusdart)
 
-# Quickstart <!-- docusaurus{"tags":["tutorial"]} -->
+# Quickstart<!-- docusaurus{"tags":["tutorial"]} -->
 
 This provides a simple introduction to Leto, you can explore more in the following sections of this README or by looking at the tests, documentation and examples for each package. A fullstack Dart example with Flutter client and Leto/Shelf server can be found in https://github.com/juancastillo0/leto/tree/main/chat_example
 
@@ -169,7 +169,7 @@ Add dependencies to your pubspec.yaml
 
 ```yaml
 dependencies:
-  leto_schema: ^0.0.1-dev.1
+  leto_schema: ^0.0.1-dev.3
   leto: ^0.0.1-dev.1
   leto_shelf: ^0.0.1-dev.1
   shelf: ^1.0.0
@@ -179,7 +179,7 @@ dependencies:
 
 dev_dependencies:
   # Only if you use code generation
-  leto_generator: ^0.0.1-dev.1
+  leto_generator: ^0.0.1-dev.3
   build_runner: ^2.0.0
 ```
 
@@ -703,7 +703,7 @@ The following sections introduce most of the concepts and small examples of buil
 
 If your prefer to read the documentation in a web page, you can [try the documentation page](https://juancastillo0.github.io/leto/) built with Docusaurus.
 
-# GraphQL Schema Types <!-- docusaurus{"global":true} -->
+# GraphQL Schema Types<!-- docusaurus{"global":true} -->
 
 The GraphQL language provides multiple types for representing your exposed API and the required data structures for the input values. In the following sections we explain their usage within Leto and, in general, for GraphQL. Each section contains a link to the official GraphQL specification for more information.
 
@@ -1305,12 +1305,18 @@ For code generation you need to provide `customTypes` in the [build.yaml](https:
 target:
   default:
     builders:
-      leto_generator:
+      leto_generator:graphql_types:
         options:
           customTypes:
             - name: "Decimal"
             import: "package:<your_package_name>/<path_to_implementation>.dart"
             getter: "decimalGraphQLType"
+      leto_generator:graphql_resolvers:
+        options:
+          customTypes:
+            - name: "Decimal"
+              import: "package:<your_package_name>/<path_to_implementation>.dart"
+              getter: "decimalGraphQLType"
 ```
 
 ### Generic Types

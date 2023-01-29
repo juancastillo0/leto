@@ -36,9 +36,9 @@ Add dependencies to your pubspec.yaml
 
 ```yaml
 dependencies:
-  leto_schema: ^0.0.1
-  leto: ^0.0.1
-  leto_shelf: ^0.0.1
+  leto_schema: ^0.0.1-dev.3
+  leto: ^0.0.1-dev.1
+  leto_shelf: ^0.0.1-dev.1
 
   shelf: ^1.0.0
   shelf_router: ^1.0.0
@@ -47,7 +47,7 @@ dependencies:
 
 dev_dependencies:
   # Only if you use code generation
-  leto_generator: ^0.0.1
+  leto_generator: ^0.0.1-dev.3
 ```
 
 
