@@ -23,8 +23,7 @@ class UserEventList extends HookConsumerWidget {
         if (!apiEventStore.canFetchMore) {
           return scrollController.removeListener(_c);
         }
-        if (scrollController.hasClients &&
-            !ref.read(apiEventStore.isLoading)) {
+        if (scrollController.hasClients && !ref.read(apiEventStore.isLoading)) {
           final position = scrollController.position;
           final pixels = position.pixels;
           if (pixels > position.maxScrollExtent * 0.9) {

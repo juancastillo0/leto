@@ -212,7 +212,8 @@ class MessagesStore {
         if (element.hasErrors) {
         } else if (element.data != null) {
           final metadata = element.data!.getMessageLinksMetadata;
-          _read(messageLinks.notifier).state = MapEntry(_searchMessage, metadata);
+          _read(messageLinks.notifier).state =
+              MapEntry(_searchMessage, metadata);
         }
         return element.dataSource == DataSource.Link;
       });

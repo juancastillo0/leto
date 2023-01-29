@@ -208,7 +208,8 @@ class RoomStore {
         if (element.hasErrors) {
         } else if (element.data != null) {
           final users = element.data!.searchUser;
-          _read(searchedUsers.notifier).state = MapEntry(_searchName, users.toList());
+          _read(searchedUsers.notifier).state =
+              MapEntry(_searchName, users.toList());
         }
         return element.dataSource == DataSource.Link;
       });
