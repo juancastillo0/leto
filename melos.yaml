@@ -2,6 +2,7 @@ name: leto
 repository: https://github.com/juancastillo0/leto
 packages:
   [
+    "*",
     "leto/*",
     "leto_schema/*",
     "leto_generator/*",
