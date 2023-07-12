@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -79,7 +81,7 @@ class UnionA with _$UnionA {
   const factory UnionA.a2({
     @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
     @Deprecated('custom deprecated msg')
-        Decimal? dec,
+    Decimal? dec,
   }) = _UnionA2;
 
   const factory UnionA.a3({

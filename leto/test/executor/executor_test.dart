@@ -1174,13 +1174,13 @@ void main() {
       );
 
       // TODO:
-      final fooObject = objectType<Object>(
-        'FooObject',
-        interfaces: [fooInterface],
-        fields: fieldsFromMap({
-          'bar': graphQLString,
-        }),
-      );
+      // final fooObject = objectType<Object>(
+      //   'FooObject',
+      //   interfaces: [fooInterface],
+      //   fields: fieldsFromMap({
+      //     'bar': graphQLString,
+      //   }),
+      // );
 
       final schema = GraphQLSchema(
         queryType: objectType(

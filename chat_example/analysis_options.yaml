@@ -20,14 +20,17 @@ linter:
     unnecessary_this: false
 
 analyzer:
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
+  language:
+    strict-casts: true
+    strict-inference: true
+    # strict-raw-types: true
   exclude:
     - /**.g.dart
+    - /**.gql.dart
     - /**.freezed.dart
     - /generated/**/*
   errors:
+    body_might_complete_normally_nullable: ignore
     missing_return: error
     unrelated_type_equality_checks: error
     null_check_on_nullable_type_parameter: warning

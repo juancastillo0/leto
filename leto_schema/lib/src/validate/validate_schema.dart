@@ -312,6 +312,7 @@ void validateInterfaces(
 ) {
   final ifaceTypeNames = <String>{};
   for (final iface in type.interfaces) {
+    // ignore: unnecessary_type_check
     if (iface is! GraphQLObjectType || !iface.isInterface) {
       context.reportError(
         'Type ${inspect(type)} must only implement Interface types, '
@@ -349,8 +350,6 @@ void validateTypeImplementsInterface(
   GraphQLObjectType type, // | GraphQLInterfaceType
   GraphQLObjectType iface, // GraphQLInterfaceType
 ) {
-  final typeFieldMap = type.fields;
-
   // Assert each interface field is implemented.
   for (final ifaceField in iface.fields) {
     final fieldName = ifaceField.name;

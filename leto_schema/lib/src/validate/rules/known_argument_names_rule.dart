@@ -29,7 +29,7 @@ Visitor knownArgumentNamesRule(ValidationCtx context) {
 
     if (argDef == null && fieldDef != null && parentType != null) {
       final argName = argNode.name.value;
-      final knownArgsNames = fieldDef.inputs.map((arg) => arg.name);
+      // TODO: final knownArgsNames = fieldDef.inputs.map((arg) => arg.name);
       // final suggestions = suggestionList(argName, knownArgsNames);
       context.reportError(
         GraphQLError(

@@ -89,6 +89,8 @@ Future<List<UnionVarianInfo>> freezedVariants(
 
 GraphQLField getFieldAnnot(GraphQLObject? clazz, Element e) {
   const graphQLFieldTypeChecker = TypeChecker.fromRuntime(GraphQLField);
+  // TODO: remove this
+  // ignore: unused_local_variable
   DartObject? _annot;
   if (!graphQLFieldTypeChecker.hasAnnotationOf(e, throwOnUnresolved: false)) {
     if (e is FieldElement && e.getter != null) {

@@ -67,27 +67,6 @@ String getName() {
 }
 
 Future<void> main() async {
-  const schemaSrt = '''
-type Query {
-  getName: String!
-}
-
-"""An ISO-8601 Date."""
-type Date
-
-"""A number that allows computation without losing precision."""
-type Decimal
-
-type TodoItem {
-  """A description of the todo item"""
-  text: String
-  """Whether this item is complete."""
-  isComplete: Boolean
-  @deprecated(reason: "Don't use this")
-  createdAt: Date!
-  cost: Decimal
-}''';
-
   print(graphqlApiSchema.schemaStr);
 
   InputGen<int> d = graphqlApiSchema.serdeCtx.fromJson({

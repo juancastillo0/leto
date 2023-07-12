@@ -466,8 +466,8 @@ void main() {
         );
 
     test('throws an error if some of required arguments are missing', () async {
-      const document = 'subscription { foo }';
-      final schema = makeSchema(() => null);
+      // TODO: const document = 'subscription { foo }';
+      // final schema = makeSchema(() => null);
 
       /// The dart type signature does not allow these errors
 
