@@ -10,7 +10,7 @@ packages:
     source: hosted
     version: "61.0.0"
   analyzer:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: analyzer
       sha256: ea3d8652bda62982addfd92fdc2d0214e5f82e43325104990d4f4c4a2a313562
@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: blurhash_dart
-      sha256: d18fa567dce8bc897d31e14e084d2b1a4306e6bfde30a0e72ebf5f5ff549ced9
+      sha256: "43955b6c2e30a7d440028d1af0fa185852f3534b795cc6eb81fbf397b464409f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -269,10 +269,10 @@ packages:
     dependency: "direct dev"
     description:
       name: freezed
-      sha256: a9520490532087cf38bf3f7de478ab6ebeb5f68bb1eb2641546d92719b224445
+      sha256: "1abef0aa34d4e5b97c9b34f75f980091d718224496a854419710c1b5454021cc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.5"
+    version: "2.4.0"
   freezed_annotation:
     dependency: "direct main"
     description:
@@ -405,10 +405,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "02bafd3b4f399bfeb10034deba9753d93b55ce41cd0c4d3d8b355626f80e5b32"
+      sha256: a72242c9a0ffb65d03de1b7113bc4e189686fc07c7147b8b41811d0dd0e0d9bf
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.3"
+    version: "4.0.17"
   io:
     dependency: transitive
     description:
@@ -417,6 +417,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  iregexp:
+    dependency: transitive
+    description:
+      name: iregexp
+      sha256: "0bab197b31adad22c32eef580cda11338dad24ee0e46187d994baef9acee7564"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   jose:
     dependency: "direct main"
     description:
@@ -445,10 +453,10 @@ packages:
     dependency: "direct main"
     description:
       name: json_path
-      sha256: "490e65ffe2e62cd506b13865398cef09741252bec3652c995f9d58b4057c5940"
+      sha256: "28e1e2e7204c0645d73285a1b1765273e3fc5826122a47b0fd61221ceb385e02"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.6.0"
   json_serializable:
     dependency: "direct dev"
     description:
@@ -524,6 +532,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.12.16"
+  maybe_just_nothing:
+    dependency: transitive
+    description:
+      name: maybe_just_nothing
+      sha256: "0c06326e26d08f6ed43247404376366dc4d756cef23a4f1db765f546224c35e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3"
   meta:
     dependency: transitive
     description:
@@ -608,10 +624,10 @@ packages:
     dependency: transitive
     description:
       name: petitparser
-      sha256: "1a914995d4ef10c94ff183528c120d35ed43b5eaa8713fc6766a9be4570782e2"
+      sha256: cb3798bef7fc021ac45b308f4b51208a152792445cce0448c9a4ba5879dd8750
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.0"
+    version: "5.4.0"
   pointycastle:
     dependency: transitive
     description:
@@ -657,7 +673,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "4de86295309993ae1f13a57ff3da6b8d6950dfad"
+      resolved-ref: "9172e7cf4dcd800f999277c4b138cb04b9574f11"
       url: "https://github.com/juancastillo0/query_builder"
     source: git
     version: "1.0.0"
@@ -666,7 +682,7 @@ packages:
     description:
       path: query_builder_generator
       ref: HEAD
-      resolved-ref: "4de86295309993ae1f13a57ff3da6b8d6950dfad"
+      resolved-ref: "9172e7cf4dcd800f999277c4b138cb04b9574f11"
       url: "https://github.com/juancastillo0/query_builder"
     source: git
     version: "1.0.0"
@@ -1010,10 +1026,10 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: baa23bcba1ba4ce4b22c0c7a1d9c861e7015cb5169512676da0b85138e72840c
+      sha256: "5bc72e1e45e941d825fd7468b9b4cc3b9327942649aeb6fc5cdbf135f0a86e84"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.1"
+    version: "6.3.0"
   yaml:
     dependency: transitive
     description:
