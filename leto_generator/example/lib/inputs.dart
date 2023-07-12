@@ -135,7 +135,7 @@ class InputMN {
     this.parent,
     this.json = const JsonList([JsonNumber(1)]),
     @GraphQLArg(defaultCode: 'const [JsonMap({})]')
-        required this.jsonListArgDef,
+    required this.jsonListArgDef,
     @GraphQLArg(defaultFunc: parentNullDefDefault) this.parentNullDef,
   });
 
