@@ -1,5 +1,5 @@
 name: leto_schema
-version: 0.0.1-dev.3
+version: 0.0.1-dev.4
 description: An implementation of GraphQL's type system in Dart. Basis of leto.
 repository: https://github.com/juancastillo0/leto
 
