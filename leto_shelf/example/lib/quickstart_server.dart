@@ -1,3 +1,5 @@
+// ignore_for_file: dead_code
+
 import 'dart:async';
 import 'dart:convert' show jsonEncode, jsonDecode;
 import 'dart:io' show HttpServer;

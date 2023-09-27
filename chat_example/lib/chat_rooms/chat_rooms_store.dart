@@ -111,28 +111,28 @@ final deleteChatRoomUserHandler =
       return;
     }
     final vars = response.operationRequest.vars;
-    if (false) {
-      // TODO: leave group
-      final rooms = proxy.readQuery(GgetRoomsReq()) ?? GgetRoomsData();
+    // if (false) {
+    //   // TODO: leave group
+    //   final rooms = proxy.readQuery(GgetRoomsReq()) ?? GgetRoomsData();
 
-      proxy.writeQuery(
-        GgetRoomsReq(),
-        rooms.rebuild(
-          (b) => b
-            ..getChatRooms.removeWhere(
-              (r) => r.id == vars.chatId,
-            ),
-        ),
-      );
-    } else {
-      _updateRoomUsers(
-        proxy,
-        vars.chatId,
-        (p0) => p0.removeWhere(
-          (u) => u.userId == vars.userId,
-        ),
-      );
-    }
+    //   proxy.writeQuery(
+    //     GgetRoomsReq(),
+    //     rooms.rebuild(
+    //       (b) => b
+    //         ..getChatRooms.removeWhere(
+    //           (r) => r.id == vars.chatId,
+    //         ),
+    //     ),
+    //   );
+    // } else {
+    _updateRoomUsers(
+      proxy,
+      vars.chatId,
+      (p0) => p0.removeWhere(
+        (u) => u.userId == vars.userId,
+      ),
+    );
+    // }
   },
 );
 

@@ -29,6 +29,7 @@ analyzer:
     - /**.gql.dart
     - /**.freezed.dart
     - /generated/**/*
+    - "server/lib/all_tables.sql.dart"
   errors:
     body_might_complete_normally_nullable: ignore
     missing_return: error
