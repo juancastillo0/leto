@@ -1173,14 +1173,13 @@ void main() {
         isInterface: true,
       );
 
-      // TODO:
-      // final fooObject = objectType<Object>(
-      //   'FooObject',
-      //   interfaces: [fooInterface],
-      //   fields: fieldsFromMap({
-      //     'bar': graphQLString,
-      //   }),
-      // );
+      objectType<Object>(
+        'FooObject',
+        interfaces: [fooInterface],
+        fields: fieldsFromMap({
+          'bar': graphQLString,
+        }),
+      );
 
       final schema = GraphQLSchema(
         queryType: objectType(
@@ -1189,7 +1188,6 @@ void main() {
             'foo': fooInterface,
           }),
         ),
-        // types: [fooObject],
       );
 
       const rootValue = {
