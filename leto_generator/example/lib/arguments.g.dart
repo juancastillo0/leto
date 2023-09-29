@@ -89,7 +89,10 @@ final _testManyDefaultsGraphQLField =
                 ),
                 _timestampsType().inputField(
                   'timestamps',
-                  defaultValue: [DateTime.parse("2021-01-24"), null],
+                  defaultValue: [
+                    DateTime.fromMillisecondsSinceEpoch(1611446400000),
+                    null
+                  ],
                 ),
                 Json.graphQLType.nonNull().inputField(
                       'json',

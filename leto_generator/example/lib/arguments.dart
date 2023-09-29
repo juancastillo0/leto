@@ -60,7 +60,9 @@ String testManyDefaults({
     typeName: 'enumCustomGraphQLType.nonNull().list().nonNull()',
   )
   List<int> enumCustomList = const [2],
-  @GraphQLArg(defaultCode: '[DateTime.parse("2021-01-24"), null]')
+  @GraphQLArg(
+    defaultCode: '[DateTime.fromMillisecondsSinceEpoch(1611446400000), null]',
+  )
   @GraphQLDocumentation(type: _timestampsType)
   required List<DateTime?> timestamps,
   Json json = const Json.map({
