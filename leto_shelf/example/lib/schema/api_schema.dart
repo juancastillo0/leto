@@ -22,6 +22,10 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
       graphQLString.nonNull().field('message'),
     ],
   );
+  final addFileResult = GraphQLUnionType(
+    'AddFileResult',
+    [fileUploadType(), simpleError],
+  );
 
   String? _schemaString;
 
@@ -70,10 +74,7 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
       fields: [
         field(
           'addFile',
-          GraphQLUnionType(
-            'AddFileResult',
-            [fileUploadType(), simpleError],
-          ),
+          addFileResult,
           resolve: (obj, ctx) async {
             final isTesting = ctx.request.headers['shelf-test'] == 'true';
             final upload = ctx.args['file'] as Upload;
@@ -114,6 +115,59 @@ GraphQLSchema makeApiSchema(FilesController filesController) {
               'file',
               uploadGraphQLType.nonNull(),
             ),
+            GraphQLFieldInput(
+              'replace',
+              graphQLBoolean,
+              defaultValue: true,
+            ),
+            GraphQLFieldInput(
+              'extra',
+              jsonGraphQLType,
+            ),
+          ],
+        ),
+        field(
+          'addFiles',
+          addFileResult.nonNull().list().nonNull(),
+          resolve: (obj, ctx) async {
+            final isTesting = ctx.request.headers['shelf-test'] == 'true';
+            final uploads = ctx.args['files'] as List<Upload>;
+            final replace = ctx.args['replace'] as bool;
+            final extra = ctx.args['extra'] as Json?;
+
+            final metas = await Future.wait(
+              uploads.map(
+                (upload) => UploadedFileMeta.fromUpload(
+                  upload,
+                  extra: extra?.toJson(),
+                ),
+              ),
+            );
+
+            final result = filesController.consume(
+              FileEvent.many(
+                metas
+                    .map((meta) => FileEvent.added(meta, replace: replace))
+                    .toList(),
+              ),
+            );
+            if (result.isErr()) {
+              return [
+                {
+                  'code': 'CANT_REPLACE',
+                  'message': result.unwrapErr(),
+                }
+              ];
+            }
+
+            if (!isTesting) {
+              // TODO:
+              throw UnimplementedError();
+            }
+            return metas;
+          },
+          inputs: [
+            uploadGraphQLType.nonNull().list().nonNull().inputField('files'),
             GraphQLFieldInput(
               'replace',
               graphQLBoolean,

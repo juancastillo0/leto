@@ -31,7 +31,7 @@ class _GraphQLGenerator
     ConstantReader annotation,
     BuildStep buildStep,
   ) async {
-    if (element is ClassElement) {
+    if (element is InterfaceElement) {
       try {
         final ctx = GeneratorCtx(buildStep: buildStep, config: config);
         final lib = await buildSchemaLibrary(element, ctx, annotation);
@@ -41,19 +41,19 @@ class _GraphQLGenerator
         return '/*$e $s*/';
       }
     } else {
-      throw UnsupportedError('@GraphQLObject() is only supported on classes.');
+      throw UnsupportedError(
+        '@GraphQLObject() is only supported on classes. Found: $element.',
+      );
     }
   }
 
   Future<Library> buildSchemaLibrary(
-    ClassElement clazz,
+    InterfaceElement clazz,
     GeneratorCtx ctx,
     ConstantReader ann,
   ) async {
     final hasFrezzed = freezedTypeChecker.hasAnnotationOfExact(clazz);
     final inputConfig = inputTypeAnnotation(clazz);
-    final hasJsonAnnotation =
-        jsonSerializableTypeChecker.hasAnnotationOf(clazz);
     final enumAnnotation = const TypeChecker.fromRuntime(GraphQLEnum)
         .firstAnnotationOfExact(clazz);
     final unionAnnotation = const TypeChecker.fromRuntime(GraphQLUnion)
@@ -77,7 +77,7 @@ class _GraphQLGenerator
 
 Future<Library> generateObjectFromFields(
   GeneratorCtx ctx,
-  ClassElement clazz,
+  InterfaceElement clazz,
 ) async {
   final className = clazz.name;
   final redirectedName =
@@ -110,7 +110,7 @@ Future<Library> generateObjectFromFields(
 }
 
 Future<Library> generateFromConstructors(
-  ClassElement clazz,
+  InterfaceElement clazz,
   GeneratorCtx ctx,
 ) async {
   final inputConfig = inputTypeAnnotation(clazz);
@@ -217,7 +217,7 @@ final _$fieldName = HotReloadableDefinition<GraphQLUnionType<$className>>((setVa
 }
 
 Library generateEnum(
-  ClassElement clazz,
+  InterfaceElement clazz,
   GeneratorCtx ctx,
   DartObject enumAnnotation,
 ) {

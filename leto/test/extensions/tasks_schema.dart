@@ -1,6 +1,6 @@
-import 'dart:convert' show json, utf8;
+import 'dart:convert' show utf8;
 
-import 'package:crypto/crypto.dart' show sha1, sha256;
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:leto_generator_example/tasks/tasks.dart';
 import 'package:leto_schema/leto_schema.dart';
 

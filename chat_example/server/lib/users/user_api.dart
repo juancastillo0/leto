@@ -211,7 +211,7 @@ enum SignUpError {
   unknown,
 }
 
-@Valida()
+@Valida<SignUpArgs>()
 @Mutation()
 Future<Result<TokenWithUser, ErrC<SignUpError>>> signUp(
   Ctx ctx,

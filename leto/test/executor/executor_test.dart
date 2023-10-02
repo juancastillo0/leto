@@ -1173,8 +1173,7 @@ void main() {
         isInterface: true,
       );
 
-      // TODO:
-      final fooObject = objectType<Object>(
+      objectType<Object>(
         'FooObject',
         interfaces: [fooInterface],
         fields: fieldsFromMap({
@@ -1189,7 +1188,6 @@ void main() {
             'foo': fooInterface,
           }),
         ),
-        // types: [fooObject],
       );
 
       const rootValue = {

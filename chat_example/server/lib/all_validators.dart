@@ -5,7 +5,7 @@ import 'package:server/users/user_api.dart';
 /// found in code generation.
 class Validators with GenericValidator {
   Validators._() {
-    for (final v in <Validator>[
+    for (final v in <Validator<dynamic, dynamic>>[
       validatorSignUpArgs,
     ]) {
       typeMap[v.modelType] = v;
@@ -20,7 +20,7 @@ class Validators with GenericValidator {
 
   /// A map with all registered validators by
   /// the type of the model to validate
-  final typeMap = <Type, Validator>{};
+  final typeMap = <Type, Validator<dynamic, dynamic>>{};
 
   @override
   Validator<T, Validation<T, Object>>? validator<T>() {
@@ -35,5 +35,6 @@ class Validators with GenericValidator {
     return validator?.validate(value) as Validation<T, Object>?;
   }
 
-  static const validatorSignUpArgs = Validator(SignUpArgsValidation.fromValue);
+  static const validatorSignUpArgs =
+      Validator.fromFunction(SignUpArgsValidation.fromValue);
 }

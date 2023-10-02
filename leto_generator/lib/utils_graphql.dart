@@ -28,14 +28,17 @@ bool isGraphQLObject(InterfaceType clazz) {
   return false;
 }
 
-List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
+List<Expression> getGraphQLInterfaces(
+  GeneratorCtx ctx,
+  InterfaceElement clazz,
+) {
   // if (isInputType(clazz)) {
   //   return [];
   // }
   final List<String> interfaces = getClassConfig(ctx, clazz)?.interfaces ?? [];
   final superType = clazz.supertype;
 
-  String getInterfaceName(ClassElement element) {
+  String getInterfaceName(InterfaceElement element) {
     String name = element.name;
     name = name.startsWith('_') ? name.substring(1) : name;
     final rc = ReCase(name);
@@ -53,7 +56,7 @@ List<Expression> getGraphQLInterfaces(GeneratorCtx ctx, ClassElement clazz) {
       .toList();
 }
 
-GraphQLObject? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
+GraphQLObject? getClassConfig(GeneratorCtx ctx, InterfaceElement clazz) {
   final annot = graphQLObjectTypeChecker.firstAnnotationOfExact(clazz);
   if (annot != null) {
     return GraphQLObject(
@@ -69,10 +72,11 @@ GraphQLObject? getClassConfig(GeneratorCtx ctx, ClassElement clazz) {
           annot.getField('omitFields')?.toBoolValue() ?? ctx.config.omitFields,
     );
   }
+  return null;
 }
 
-bool isInterface(ClassElement clazz) {
-  return clazz.isAbstract;
+bool isInterface(InterfaceElement clazz) {
+  return clazz is ClassElement && clazz.isAbstract;
 }
 
 bool isStreamOrAsyncStream(DartType type) {

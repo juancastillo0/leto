@@ -1,4 +1,6 @@
 // https://github.com/graphql/graphql-js/blob/564757fb62bfd4e2472e6e7465971baad2371805/src/execution/__tests__/abstract-test.ts
+// ignore_for_file: non_constant_identifier_names, unused_local_variable
+
 import 'package:leto/leto.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_schema/utilities.dart' show buildSchema;

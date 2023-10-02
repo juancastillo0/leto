@@ -105,7 +105,7 @@ class FilesController {
 
   Result<VoidCallback, String> _onFileDeleted(FileEventDeleted event) {
     final contains = _allFiles.containsKey(event.filename);
-    if (contains) {
+    if (!contains) {
       return Err('Not found ${event.filename}');
     }
     return Ok(() => _allFiles.remove(event.filename));

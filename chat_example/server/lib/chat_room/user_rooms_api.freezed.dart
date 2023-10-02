@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user_rooms_api.dart';
 
@@ -37,8 +37,8 @@ mixin _$UserChatEvent {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatRoomUser chatUser)? added,
-    TResult Function(int chatId, int userId)? removed,
+    TResult? Function(ChatRoomUser chatUser)? added,
+    TResult? Function(int chatId, int userId)? removed,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -56,8 +56,8 @@ mixin _$UserChatEvent {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(UserChatAddedEvent value)? added,
-    TResult Function(UserChatRemovedEvent value)? removed,
+    TResult? Function(UserChatAddedEvent value)? added,
+    TResult? Function(UserChatRemovedEvent value)? removed,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -74,17 +74,18 @@ mixin _$UserChatEvent {
 abstract class $UserChatEventCopyWith<$Res> {
   factory $UserChatEventCopyWith(
           UserChatEvent value, $Res Function(UserChatEvent) then) =
-      _$UserChatEventCopyWithImpl<$Res>;
+      _$UserChatEventCopyWithImpl<$Res, UserChatEvent>;
 }
 
 /// @nodoc
-class _$UserChatEventCopyWithImpl<$Res>
+class _$UserChatEventCopyWithImpl<$Res, $Val extends UserChatEvent>
     implements $UserChatEventCopyWith<$Res> {
   _$UserChatEventCopyWithImpl(this._value, this._then);
 
-  final UserChatEvent _value;
   // ignore: unused_field
-  final $Res Function(UserChatEvent) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 }
 
 /// @nodoc
@@ -92,26 +93,25 @@ abstract class _$$UserChatAddedEventCopyWith<$Res> {
   factory _$$UserChatAddedEventCopyWith(_$UserChatAddedEvent value,
           $Res Function(_$UserChatAddedEvent) then) =
       __$$UserChatAddedEventCopyWithImpl<$Res>;
+  @useResult
   $Res call({ChatRoomUser chatUser});
 }
 
 /// @nodoc
 class __$$UserChatAddedEventCopyWithImpl<$Res>
-    extends _$UserChatEventCopyWithImpl<$Res>
+    extends _$UserChatEventCopyWithImpl<$Res, _$UserChatAddedEvent>
     implements _$$UserChatAddedEventCopyWith<$Res> {
   __$$UserChatAddedEventCopyWithImpl(
       _$UserChatAddedEvent _value, $Res Function(_$UserChatAddedEvent) _then)
-      : super(_value, (v) => _then(v as _$UserChatAddedEvent));
+      : super(_value, _then);
 
-  @override
-  _$UserChatAddedEvent get _value => super._value as _$UserChatAddedEvent;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? chatUser = freezed,
+    Object? chatUser = null,
   }) {
     return _then(_$UserChatAddedEvent(
-      chatUser: chatUser == freezed
+      chatUser: null == chatUser
           ? _value.chatUser
           : chatUser // ignore: cast_nullable_to_non_nullable
               as ChatRoomUser,
@@ -145,16 +145,17 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserChatAddedEvent &&
-            const DeepCollectionEquality().equals(other.chatUser, chatUser));
+            (identical(other.chatUser, chatUser) ||
+                other.chatUser == chatUser));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(chatUser));
+  int get hashCode => Object.hash(runtimeType, chatUser);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$UserChatAddedEventCopyWith<_$UserChatAddedEvent> get copyWith =>
       __$$UserChatAddedEventCopyWithImpl<_$UserChatAddedEvent>(
           this, _$identity);
@@ -171,8 +172,8 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatRoomUser chatUser)? added,
-    TResult Function(int chatId, int userId)? removed,
+    TResult? Function(ChatRoomUser chatUser)? added,
+    TResult? Function(int chatId, int userId)? removed,
   }) {
     return added?.call(chatUser);
   }
@@ -202,8 +203,8 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(UserChatAddedEvent value)? added,
-    TResult Function(UserChatRemovedEvent value)? removed,
+    TResult? Function(UserChatAddedEvent value)? added,
+    TResult? Function(UserChatRemovedEvent value)? removed,
   }) {
     return added?.call(this);
   }
@@ -223,7 +224,9 @@ class _$UserChatAddedEvent extends UserChatAddedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatAddedEventToJson(this);
+    return _$$UserChatAddedEventToJson(
+      this,
+    );
   }
 }
 
@@ -235,7 +238,7 @@ abstract class UserChatAddedEvent extends UserChatEvent {
   factory UserChatAddedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatAddedEvent.fromJson;
 
-  ChatRoomUser get chatUser => throw _privateConstructorUsedError;
+  ChatRoomUser get chatUser;
   @JsonKey(ignore: true)
   _$$UserChatAddedEventCopyWith<_$UserChatAddedEvent> get copyWith =>
       throw _privateConstructorUsedError;
@@ -246,31 +249,30 @@ abstract class _$$UserChatRemovedEventCopyWith<$Res> {
   factory _$$UserChatRemovedEventCopyWith(_$UserChatRemovedEvent value,
           $Res Function(_$UserChatRemovedEvent) then) =
       __$$UserChatRemovedEventCopyWithImpl<$Res>;
+  @useResult
   $Res call({int chatId, int userId});
 }
 
 /// @nodoc
 class __$$UserChatRemovedEventCopyWithImpl<$Res>
-    extends _$UserChatEventCopyWithImpl<$Res>
+    extends _$UserChatEventCopyWithImpl<$Res, _$UserChatRemovedEvent>
     implements _$$UserChatRemovedEventCopyWith<$Res> {
   __$$UserChatRemovedEventCopyWithImpl(_$UserChatRemovedEvent _value,
       $Res Function(_$UserChatRemovedEvent) _then)
-      : super(_value, (v) => _then(v as _$UserChatRemovedEvent));
+      : super(_value, _then);
 
-  @override
-  _$UserChatRemovedEvent get _value => super._value as _$UserChatRemovedEvent;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? chatId = freezed,
-    Object? userId = freezed,
+    Object? chatId = null,
+    Object? userId = null,
   }) {
     return _then(_$UserChatRemovedEvent(
-      chatId: chatId == freezed
+      chatId: null == chatId
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
               as int,
-      userId: userId == freezed
+      userId: null == userId
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as int,
@@ -307,19 +309,17 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserChatRemovedEvent &&
-            const DeepCollectionEquality().equals(other.chatId, chatId) &&
-            const DeepCollectionEquality().equals(other.userId, userId));
+            (identical(other.chatId, chatId) || other.chatId == chatId) &&
+            (identical(other.userId, userId) || other.userId == userId));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(chatId),
-      const DeepCollectionEquality().hash(userId));
+  int get hashCode => Object.hash(runtimeType, chatId, userId);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$UserChatRemovedEventCopyWith<_$UserChatRemovedEvent> get copyWith =>
       __$$UserChatRemovedEventCopyWithImpl<_$UserChatRemovedEvent>(
           this, _$identity);
@@ -336,8 +336,8 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatRoomUser chatUser)? added,
-    TResult Function(int chatId, int userId)? removed,
+    TResult? Function(ChatRoomUser chatUser)? added,
+    TResult? Function(int chatId, int userId)? removed,
   }) {
     return removed?.call(chatId, userId);
   }
@@ -367,8 +367,8 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(UserChatAddedEvent value)? added,
-    TResult Function(UserChatRemovedEvent value)? removed,
+    TResult? Function(UserChatAddedEvent value)? added,
+    TResult? Function(UserChatRemovedEvent value)? removed,
   }) {
     return removed?.call(this);
   }
@@ -388,7 +388,9 @@ class _$UserChatRemovedEvent extends UserChatRemovedEvent {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatRemovedEventToJson(this);
+    return _$$UserChatRemovedEventToJson(
+      this,
+    );
   }
 }
 
@@ -401,8 +403,8 @@ abstract class UserChatRemovedEvent extends UserChatEvent {
   factory UserChatRemovedEvent.fromJson(Map<String, dynamic> json) =
       _$UserChatRemovedEvent.fromJson;
 
-  int get chatId => throw _privateConstructorUsedError;
-  int get userId => throw _privateConstructorUsedError;
+  int get chatId;
+  int get userId;
   @JsonKey(ignore: true)
   _$$UserChatRemovedEventCopyWith<_$UserChatRemovedEvent> get copyWith =>
       throw _privateConstructorUsedError;

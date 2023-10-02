@@ -225,6 +225,7 @@ void main() {
           // extensions: addRoomUserRequest.extensions,
         )
         .first;
+    expect(responseAddUser.errors ?? [], isEmpty);
 
     final fileToUpload = http.MultipartFile.fromBytes(
       'filename1Field',
@@ -238,6 +239,7 @@ void main() {
       accessToken: userB.accessToken,
       message: messagesToSend[3],
     );
+    expect(fileResponse.statusCode, 200);
 
     await ts.singOut(userB.accessToken, userB.userId);
   });

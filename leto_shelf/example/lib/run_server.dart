@@ -191,7 +191,7 @@ Handler staticFilesWithController(FilesController filesController) {
   return (request) {
     final etag = request.headers[HttpHeaders.ifNoneMatchHeader];
     final filepath = request.routeParameter('filepath');
-    if (etag != null && filepath is String) {
+    if (etag != null && filepath.isNotEmpty) {
       final decodedFilePath = Uri.decodeComponent(filepath);
       final file = filesController.allFiles[decodedFilePath];
       if (file != null && etag == '"${file.sha1Hash}"') {

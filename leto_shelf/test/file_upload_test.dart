@@ -63,6 +63,62 @@ Future<void> main() async {
     });
   });
 
+  test('file upload list', () async {
+    final operations = const GraphQLRequest(
+      query: 'mutation addFiles(\$fileVar: [Upload!]!, \$replace: Boolean!) { '
+          ' addFiles (files: \$fileVar, replace: \$replace){'
+          ' ... on FileUpload{filename mimeType sizeInBytes }'
+          ' ... on SimpleError{code message }'
+          ' } } ',
+      variables: {
+        'fileVar': [null, null],
+        'replace': true,
+      },
+    ).toJson();
+
+    final fileToUpload = http.MultipartFile.fromBytes(
+      'filename1Field',
+      utf8.encode('testString in file'),
+      filename: 'filename1.txt',
+    );
+    final fileToUpload2 = http.MultipartFile.fromBytes(
+      'filename2Field',
+      utf8.encode('testString in file2'),
+      filename: 'filename2.txt',
+    );
+
+    final request = http.MultipartRequest('POST', url)
+      ..fields['operations'] = jsonEncode(operations)
+      ..fields['map'] = jsonEncode(<String, Object?>{
+        'filename1Field': ['variables.fileVar.0'],
+        'filename2Field': ['variables.fileVar.1'],
+      })
+      ..files.add(fileToUpload)
+      ..files.add(fileToUpload2)
+      ..headers['shelf-test'] = 'true';
+
+    final response = await request.send();
+    final bodyStr = await response.stream.bytesToString();
+    expect(response.statusCode, 200);
+    final body = jsonDecode(bodyStr) as Map<String, Object?>;
+    expect(body, {
+      'data': {
+        'addFiles': [
+          {
+            'filename': fileToUpload.filename,
+            'sizeInBytes': fileToUpload.length,
+            'mimeType': fileToUpload.contentType.mimeType,
+          },
+          {
+            'filename': fileToUpload2.filename,
+            'sizeInBytes': fileToUpload2.length,
+            'mimeType': fileToUpload2.contentType.mimeType,
+          },
+        ]
+      }
+    });
+  });
+
   test('file upload bad requests', () async {
     final values = <String, Map<String, Object>>{
       'Missing "operations" field.': {},

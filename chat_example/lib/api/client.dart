@@ -97,7 +97,7 @@ Future<RootStore> initClient(PersistenceStore persistence) async {
     serializer: const CacheRequestSerializer(),
     initialPayload: <String, Object?>{
       ..._defaultHeaders(persistence.authStorage.getDeviceId()),
-      'refreshToken': authStore.state!.refreshToken,
+      'refreshToken': authStore.refreshToken,
     },
   );
   ref.dispose();

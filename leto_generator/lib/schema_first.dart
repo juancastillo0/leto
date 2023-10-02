@@ -17,7 +17,7 @@ const primitiveGraphQLToDart = {
 };
 
 String graphQLToDartType(
-  GraphQLType type, {
+  GraphQLType<Object?, Object?> type, {
   bool nullable = true,
 }) {
   final n = nullable && type is! GraphQLNonNullType ? '?' : '';
@@ -32,7 +32,7 @@ String graphQLToDartType(
   }
 }
 
-String _inputs(List<GraphQLFieldInput> inputs) {
+String _inputs(List<GraphQLFieldInput<Object?, Object?>> inputs) {
   if (inputs.isEmpty) return '';
   return '{${inputs.map((e) => '${e.type.isNonNullable ? 'required ' : ''} ${graphQLToDartType(e.type)} ${e.name}').join(',')},}';
 }

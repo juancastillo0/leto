@@ -16,7 +16,7 @@ final apiEventStoreProvider = Provider((ref) {
 
 class ApiEventStore {
   final T Function<T>(ProviderListenable<T>) _read;
-  final Function(Function()) onDispose;
+  final void Function(void Function()) onDispose;
 
   ApiEventStore(this._read, this.onDispose) {
     final sub = _read(userEvents.stream).listen((resp) {

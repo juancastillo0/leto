@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'chat_table.dart';
 
@@ -33,38 +33,42 @@ mixin _$ChatRoom {
 /// @nodoc
 abstract class $ChatRoomCopyWith<$Res> {
   factory $ChatRoomCopyWith(ChatRoom value, $Res Function(ChatRoom) then) =
-      _$ChatRoomCopyWithImpl<$Res>;
+      _$ChatRoomCopyWithImpl<$Res, ChatRoom>;
+  @useResult
   $Res call({int id, String name, DateTime createdAt});
 }
 
 /// @nodoc
-class _$ChatRoomCopyWithImpl<$Res> implements $ChatRoomCopyWith<$Res> {
+class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
+    implements $ChatRoomCopyWith<$Res> {
   _$ChatRoomCopyWithImpl(this._value, this._then);
 
-  final ChatRoom _value;
   // ignore: unused_field
-  final $Res Function(ChatRoom) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? name = freezed,
-    Object? createdAt = freezed,
+    Object? id = null,
+    Object? name = null,
+    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
-      id: id == freezed
+      id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name: name == freezed
+      name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: createdAt == freezed
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-    ));
+    ) as $Val);
   }
 }
 
@@ -74,35 +78,35 @@ abstract class _$$_ChatRoomCopyWith<$Res> implements $ChatRoomCopyWith<$Res> {
           _$_ChatRoom value, $Res Function(_$_ChatRoom) then) =
       __$$_ChatRoomCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({int id, String name, DateTime createdAt});
 }
 
 /// @nodoc
-class __$$_ChatRoomCopyWithImpl<$Res> extends _$ChatRoomCopyWithImpl<$Res>
+class __$$_ChatRoomCopyWithImpl<$Res>
+    extends _$ChatRoomCopyWithImpl<$Res, _$_ChatRoom>
     implements _$$_ChatRoomCopyWith<$Res> {
   __$$_ChatRoomCopyWithImpl(
       _$_ChatRoom _value, $Res Function(_$_ChatRoom) _then)
-      : super(_value, (v) => _then(v as _$_ChatRoom));
+      : super(_value, _then);
 
-  @override
-  _$_ChatRoom get _value => super._value as _$_ChatRoom;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? name = freezed,
-    Object? createdAt = freezed,
+    Object? id = null,
+    Object? name = null,
+    Object? createdAt = null,
   }) {
     return _then(_$_ChatRoom(
-      id: id == freezed
+      id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name: name == freezed
+      name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: createdAt == freezed
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
@@ -137,27 +141,27 @@ class _$_ChatRoom extends _ChatRoom {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_ChatRoom &&
-            const DeepCollectionEquality().equals(other.id, id) &&
-            const DeepCollectionEquality().equals(other.name, name) &&
-            const DeepCollectionEquality().equals(other.createdAt, createdAt));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(id),
-      const DeepCollectionEquality().hash(name),
-      const DeepCollectionEquality().hash(createdAt));
+  int get hashCode => Object.hash(runtimeType, id, name, createdAt);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
       __$$_ChatRoomCopyWithImpl<_$_ChatRoom>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_ChatRoomToJson(this);
+    return _$$_ChatRoomToJson(
+      this,
+    );
   }
 }
 
@@ -171,11 +175,11 @@ abstract class _ChatRoom extends ChatRoom {
   factory _ChatRoom.fromJson(Map<String, dynamic> json) = _$_ChatRoom.fromJson;
 
   @override
-  int get id => throw _privateConstructorUsedError;
+  int get id;
   @override
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt;
   @override
   @JsonKey(ignore: true)
   _$$_ChatRoomCopyWith<_$_ChatRoom> get copyWith =>
@@ -204,7 +208,8 @@ mixin _$ChatMessage {
 abstract class $ChatMessageCopyWith<$Res> {
   factory $ChatMessageCopyWith(
           ChatMessage value, $Res Function(ChatMessage) then) =
-      _$ChatMessageCopyWithImpl<$Res>;
+      _$ChatMessageCopyWithImpl<$Res, ChatMessage>;
+  @useResult
   $Res call(
       {int id,
       int chatId,
@@ -214,43 +219,46 @@ abstract class $ChatMessageCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ChatMessageCopyWithImpl<$Res> implements $ChatMessageCopyWith<$Res> {
+class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
+    implements $ChatMessageCopyWith<$Res> {
   _$ChatMessageCopyWithImpl(this._value, this._then);
 
-  final ChatMessage _value;
   // ignore: unused_field
-  final $Res Function(ChatMessage) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? chatId = freezed,
-    Object? message = freezed,
+    Object? id = null,
+    Object? chatId = null,
+    Object? message = null,
     Object? referencedMessageId = freezed,
-    Object? createdAt = freezed,
+    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
-      id: id == freezed
+      id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      chatId: chatId == freezed
+      chatId: null == chatId
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
               as int,
-      message: message == freezed
+      message: null == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      referencedMessageId: referencedMessageId == freezed
+      referencedMessageId: freezed == referencedMessageId
           ? _value.referencedMessageId
           : referencedMessageId // ignore: cast_nullable_to_non_nullable
               as int?,
-      createdAt: createdAt == freezed
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-    ));
+    ) as $Val);
   }
 }
 
@@ -261,6 +269,7 @@ abstract class _$$_ChatMessageCopyWith<$Res>
           _$_ChatMessage value, $Res Function(_$_ChatMessage) then) =
       __$$_ChatMessageCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {int id,
       int chatId,
@@ -270,41 +279,40 @@ abstract class _$$_ChatMessageCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_ChatMessageCopyWithImpl<$Res> extends _$ChatMessageCopyWithImpl<$Res>
+class __$$_ChatMessageCopyWithImpl<$Res>
+    extends _$ChatMessageCopyWithImpl<$Res, _$_ChatMessage>
     implements _$$_ChatMessageCopyWith<$Res> {
   __$$_ChatMessageCopyWithImpl(
       _$_ChatMessage _value, $Res Function(_$_ChatMessage) _then)
-      : super(_value, (v) => _then(v as _$_ChatMessage));
+      : super(_value, _then);
 
-  @override
-  _$_ChatMessage get _value => super._value as _$_ChatMessage;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? chatId = freezed,
-    Object? message = freezed,
+    Object? id = null,
+    Object? chatId = null,
+    Object? message = null,
     Object? referencedMessageId = freezed,
-    Object? createdAt = freezed,
+    Object? createdAt = null,
   }) {
     return _then(_$_ChatMessage(
-      id: id == freezed
+      id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      chatId: chatId == freezed
+      chatId: null == chatId
           ? _value.chatId
           : chatId // ignore: cast_nullable_to_non_nullable
               as int,
-      message: message == freezed
+      message: null == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      referencedMessageId: referencedMessageId == freezed
+      referencedMessageId: freezed == referencedMessageId
           ? _value.referencedMessageId
           : referencedMessageId // ignore: cast_nullable_to_non_nullable
               as int?,
-      createdAt: createdAt == freezed
+      createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
@@ -347,32 +355,31 @@ class _$_ChatMessage extends _ChatMessage {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_ChatMessage &&
-            const DeepCollectionEquality().equals(other.id, id) &&
-            const DeepCollectionEquality().equals(other.chatId, chatId) &&
-            const DeepCollectionEquality().equals(other.message, message) &&
-            const DeepCollectionEquality()
-                .equals(other.referencedMessageId, referencedMessageId) &&
-            const DeepCollectionEquality().equals(other.createdAt, createdAt));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.chatId, chatId) || other.chatId == chatId) &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.referencedMessageId, referencedMessageId) ||
+                other.referencedMessageId == referencedMessageId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(id),
-      const DeepCollectionEquality().hash(chatId),
-      const DeepCollectionEquality().hash(message),
-      const DeepCollectionEquality().hash(referencedMessageId),
-      const DeepCollectionEquality().hash(createdAt));
+      runtimeType, id, chatId, message, referencedMessageId, createdAt);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>
       __$$_ChatMessageCopyWithImpl<_$_ChatMessage>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_ChatMessageToJson(this);
+    return _$$_ChatMessageToJson(
+      this,
+    );
   }
 }
 
@@ -389,15 +396,15 @@ abstract class _ChatMessage extends ChatMessage {
       _$_ChatMessage.fromJson;
 
   @override
-  int get id => throw _privateConstructorUsedError;
+  int get id;
   @override
-  int get chatId => throw _privateConstructorUsedError;
+  int get chatId;
   @override
-  String get message => throw _privateConstructorUsedError;
+  String get message;
   @override
-  int? get referencedMessageId => throw _privateConstructorUsedError;
+  int? get referencedMessageId;
   @override
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get createdAt;
   @override
   @JsonKey(ignore: true)
   _$$_ChatMessageCopyWith<_$_ChatMessage> get copyWith =>

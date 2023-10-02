@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'events_api.dart';
 
@@ -33,6 +33,7 @@ DBEventData _$DBEventDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DBEventData {
+  DBEventDataKeyed get value => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(ChatEvent value) chat,
@@ -43,10 +44,10 @@ mixin _$DBEventData {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatEvent value)? chat,
-    TResult Function(UserChatEvent value)? userChat,
-    TResult Function(UserEvent value)? user,
-    TResult Function(ChatMessageEvent value)? message,
+    TResult? Function(ChatEvent value)? chat,
+    TResult? Function(UserChatEvent value)? userChat,
+    TResult? Function(UserEvent value)? user,
+    TResult? Function(ChatMessageEvent value)? message,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -68,10 +69,10 @@ mixin _$DBEventData {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(ChatDBEventData value)? chat,
-    TResult Function(UserChatDBEventData value)? userChat,
-    TResult Function(UserDBEventData value)? user,
-    TResult Function(ChatMessageDBEventData value)? message,
+    TResult? Function(ChatDBEventData value)? chat,
+    TResult? Function(UserChatDBEventData value)? userChat,
+    TResult? Function(UserDBEventData value)? user,
+    TResult? Function(ChatMessageDBEventData value)? message,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -90,16 +91,18 @@ mixin _$DBEventData {
 abstract class $DBEventDataCopyWith<$Res> {
   factory $DBEventDataCopyWith(
           DBEventData value, $Res Function(DBEventData) then) =
-      _$DBEventDataCopyWithImpl<$Res>;
+      _$DBEventDataCopyWithImpl<$Res, DBEventData>;
 }
 
 /// @nodoc
-class _$DBEventDataCopyWithImpl<$Res> implements $DBEventDataCopyWith<$Res> {
+class _$DBEventDataCopyWithImpl<$Res, $Val extends DBEventData>
+    implements $DBEventDataCopyWith<$Res> {
   _$DBEventDataCopyWithImpl(this._value, this._then);
 
-  final DBEventData _value;
   // ignore: unused_field
-  final $Res Function(DBEventData) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 }
 
 /// @nodoc
@@ -107,6 +110,7 @@ abstract class _$$ChatDBEventDataCopyWith<$Res> {
   factory _$$ChatDBEventDataCopyWith(
           _$ChatDBEventData value, $Res Function(_$ChatDBEventData) then) =
       __$$ChatDBEventDataCopyWithImpl<$Res>;
+  @useResult
   $Res call({ChatEvent value});
 
   $ChatEventCopyWith<$Res> get value;
@@ -114,21 +118,19 @@ abstract class _$$ChatDBEventDataCopyWith<$Res> {
 
 /// @nodoc
 class __$$ChatDBEventDataCopyWithImpl<$Res>
-    extends _$DBEventDataCopyWithImpl<$Res>
+    extends _$DBEventDataCopyWithImpl<$Res, _$ChatDBEventData>
     implements _$$ChatDBEventDataCopyWith<$Res> {
   __$$ChatDBEventDataCopyWithImpl(
       _$ChatDBEventData _value, $Res Function(_$ChatDBEventData) _then)
-      : super(_value, (v) => _then(v as _$ChatDBEventData));
+      : super(_value, _then);
 
-  @override
-  _$ChatDBEventData get _value => super._value as _$ChatDBEventData;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? value = freezed,
+    Object? value = null,
   }) {
     return _then(_$ChatDBEventData(
-      value == freezed
+      null == value
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
               as ChatEvent,
@@ -136,6 +138,7 @@ class __$$ChatDBEventDataCopyWithImpl<$Res>
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $ChatEventCopyWith<$Res> get value {
     return $ChatEventCopyWith<$Res>(_value.value, (value) {
       return _then(_value.copyWith(value: value));
@@ -169,16 +172,16 @@ class _$ChatDBEventData extends ChatDBEventData {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ChatDBEventData &&
-            const DeepCollectionEquality().equals(other.value, value));
+            (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
+  int get hashCode => Object.hash(runtimeType, value);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$ChatDBEventDataCopyWith<_$ChatDBEventData> get copyWith =>
       __$$ChatDBEventDataCopyWithImpl<_$ChatDBEventData>(this, _$identity);
 
@@ -196,10 +199,10 @@ class _$ChatDBEventData extends ChatDBEventData {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatEvent value)? chat,
-    TResult Function(UserChatEvent value)? userChat,
-    TResult Function(UserEvent value)? user,
-    TResult Function(ChatMessageEvent value)? message,
+    TResult? Function(ChatEvent value)? chat,
+    TResult? Function(UserChatEvent value)? userChat,
+    TResult? Function(UserEvent value)? user,
+    TResult? Function(ChatMessageEvent value)? message,
   }) {
     return chat?.call(value);
   }
@@ -233,10 +236,10 @@ class _$ChatDBEventData extends ChatDBEventData {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(ChatDBEventData value)? chat,
-    TResult Function(UserChatDBEventData value)? userChat,
-    TResult Function(UserDBEventData value)? user,
-    TResult Function(ChatMessageDBEventData value)? message,
+    TResult? Function(ChatDBEventData value)? chat,
+    TResult? Function(UserChatDBEventData value)? userChat,
+    TResult? Function(UserDBEventData value)? user,
+    TResult? Function(ChatMessageDBEventData value)? message,
   }) {
     return chat?.call(this);
   }
@@ -258,7 +261,9 @@ class _$ChatDBEventData extends ChatDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatDBEventDataToJson(this);
+    return _$$ChatDBEventDataToJson(
+      this,
+    );
   }
 }
 
@@ -269,7 +274,8 @@ abstract class ChatDBEventData extends DBEventData {
   factory ChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatDBEventData.fromJson;
 
-  ChatEvent get value => throw _privateConstructorUsedError;
+  @override
+  ChatEvent get value;
   @JsonKey(ignore: true)
   _$$ChatDBEventDataCopyWith<_$ChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -280,6 +286,7 @@ abstract class _$$UserChatDBEventDataCopyWith<$Res> {
   factory _$$UserChatDBEventDataCopyWith(_$UserChatDBEventData value,
           $Res Function(_$UserChatDBEventData) then) =
       __$$UserChatDBEventDataCopyWithImpl<$Res>;
+  @useResult
   $Res call({UserChatEvent value});
 
   $UserChatEventCopyWith<$Res> get value;
@@ -287,21 +294,19 @@ abstract class _$$UserChatDBEventDataCopyWith<$Res> {
 
 /// @nodoc
 class __$$UserChatDBEventDataCopyWithImpl<$Res>
-    extends _$DBEventDataCopyWithImpl<$Res>
+    extends _$DBEventDataCopyWithImpl<$Res, _$UserChatDBEventData>
     implements _$$UserChatDBEventDataCopyWith<$Res> {
   __$$UserChatDBEventDataCopyWithImpl(
       _$UserChatDBEventData _value, $Res Function(_$UserChatDBEventData) _then)
-      : super(_value, (v) => _then(v as _$UserChatDBEventData));
+      : super(_value, _then);
 
-  @override
-  _$UserChatDBEventData get _value => super._value as _$UserChatDBEventData;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? value = freezed,
+    Object? value = null,
   }) {
     return _then(_$UserChatDBEventData(
-      value == freezed
+      null == value
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
               as UserChatEvent,
@@ -309,6 +314,7 @@ class __$$UserChatDBEventDataCopyWithImpl<$Res>
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $UserChatEventCopyWith<$Res> get value {
     return $UserChatEventCopyWith<$Res>(_value.value, (value) {
       return _then(_value.copyWith(value: value));
@@ -342,16 +348,16 @@ class _$UserChatDBEventData extends UserChatDBEventData {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserChatDBEventData &&
-            const DeepCollectionEquality().equals(other.value, value));
+            (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
+  int get hashCode => Object.hash(runtimeType, value);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$UserChatDBEventDataCopyWith<_$UserChatDBEventData> get copyWith =>
       __$$UserChatDBEventDataCopyWithImpl<_$UserChatDBEventData>(
           this, _$identity);
@@ -370,10 +376,10 @@ class _$UserChatDBEventData extends UserChatDBEventData {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatEvent value)? chat,
-    TResult Function(UserChatEvent value)? userChat,
-    TResult Function(UserEvent value)? user,
-    TResult Function(ChatMessageEvent value)? message,
+    TResult? Function(ChatEvent value)? chat,
+    TResult? Function(UserChatEvent value)? userChat,
+    TResult? Function(UserEvent value)? user,
+    TResult? Function(ChatMessageEvent value)? message,
   }) {
     return userChat?.call(value);
   }
@@ -407,10 +413,10 @@ class _$UserChatDBEventData extends UserChatDBEventData {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(ChatDBEventData value)? chat,
-    TResult Function(UserChatDBEventData value)? userChat,
-    TResult Function(UserDBEventData value)? user,
-    TResult Function(ChatMessageDBEventData value)? message,
+    TResult? Function(ChatDBEventData value)? chat,
+    TResult? Function(UserChatDBEventData value)? userChat,
+    TResult? Function(UserDBEventData value)? user,
+    TResult? Function(ChatMessageDBEventData value)? message,
   }) {
     return userChat?.call(this);
   }
@@ -432,7 +438,9 @@ class _$UserChatDBEventData extends UserChatDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserChatDBEventDataToJson(this);
+    return _$$UserChatDBEventDataToJson(
+      this,
+    );
   }
 }
 
@@ -444,7 +452,8 @@ abstract class UserChatDBEventData extends DBEventData {
   factory UserChatDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserChatDBEventData.fromJson;
 
-  UserChatEvent get value => throw _privateConstructorUsedError;
+  @override
+  UserChatEvent get value;
   @JsonKey(ignore: true)
   _$$UserChatDBEventDataCopyWith<_$UserChatDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -455,6 +464,7 @@ abstract class _$$UserDBEventDataCopyWith<$Res> {
   factory _$$UserDBEventDataCopyWith(
           _$UserDBEventData value, $Res Function(_$UserDBEventData) then) =
       __$$UserDBEventDataCopyWithImpl<$Res>;
+  @useResult
   $Res call({UserEvent value});
 
   $UserEventCopyWith<$Res> get value;
@@ -462,21 +472,19 @@ abstract class _$$UserDBEventDataCopyWith<$Res> {
 
 /// @nodoc
 class __$$UserDBEventDataCopyWithImpl<$Res>
-    extends _$DBEventDataCopyWithImpl<$Res>
+    extends _$DBEventDataCopyWithImpl<$Res, _$UserDBEventData>
     implements _$$UserDBEventDataCopyWith<$Res> {
   __$$UserDBEventDataCopyWithImpl(
       _$UserDBEventData _value, $Res Function(_$UserDBEventData) _then)
-      : super(_value, (v) => _then(v as _$UserDBEventData));
+      : super(_value, _then);
 
-  @override
-  _$UserDBEventData get _value => super._value as _$UserDBEventData;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? value = freezed,
+    Object? value = null,
   }) {
     return _then(_$UserDBEventData(
-      value == freezed
+      null == value
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
               as UserEvent,
@@ -484,6 +492,7 @@ class __$$UserDBEventDataCopyWithImpl<$Res>
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $UserEventCopyWith<$Res> get value {
     return $UserEventCopyWith<$Res>(_value.value, (value) {
       return _then(_value.copyWith(value: value));
@@ -517,16 +526,16 @@ class _$UserDBEventData extends UserDBEventData {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$UserDBEventData &&
-            const DeepCollectionEquality().equals(other.value, value));
+            (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
+  int get hashCode => Object.hash(runtimeType, value);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$UserDBEventDataCopyWith<_$UserDBEventData> get copyWith =>
       __$$UserDBEventDataCopyWithImpl<_$UserDBEventData>(this, _$identity);
 
@@ -544,10 +553,10 @@ class _$UserDBEventData extends UserDBEventData {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatEvent value)? chat,
-    TResult Function(UserChatEvent value)? userChat,
-    TResult Function(UserEvent value)? user,
-    TResult Function(ChatMessageEvent value)? message,
+    TResult? Function(ChatEvent value)? chat,
+    TResult? Function(UserChatEvent value)? userChat,
+    TResult? Function(UserEvent value)? user,
+    TResult? Function(ChatMessageEvent value)? message,
   }) {
     return user?.call(value);
   }
@@ -581,10 +590,10 @@ class _$UserDBEventData extends UserDBEventData {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(ChatDBEventData value)? chat,
-    TResult Function(UserChatDBEventData value)? userChat,
-    TResult Function(UserDBEventData value)? user,
-    TResult Function(ChatMessageDBEventData value)? message,
+    TResult? Function(ChatDBEventData value)? chat,
+    TResult? Function(UserChatDBEventData value)? userChat,
+    TResult? Function(UserDBEventData value)? user,
+    TResult? Function(ChatMessageDBEventData value)? message,
   }) {
     return user?.call(this);
   }
@@ -606,7 +615,9 @@ class _$UserDBEventData extends UserDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserDBEventDataToJson(this);
+    return _$$UserDBEventDataToJson(
+      this,
+    );
   }
 }
 
@@ -617,7 +628,8 @@ abstract class UserDBEventData extends DBEventData {
   factory UserDBEventData.fromJson(Map<String, dynamic> json) =
       _$UserDBEventData.fromJson;
 
-  UserEvent get value => throw _privateConstructorUsedError;
+  @override
+  UserEvent get value;
   @JsonKey(ignore: true)
   _$$UserDBEventDataCopyWith<_$UserDBEventData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -628,6 +640,7 @@ abstract class _$$ChatMessageDBEventDataCopyWith<$Res> {
   factory _$$ChatMessageDBEventDataCopyWith(_$ChatMessageDBEventData value,
           $Res Function(_$ChatMessageDBEventData) then) =
       __$$ChatMessageDBEventDataCopyWithImpl<$Res>;
+  @useResult
   $Res call({ChatMessageEvent value});
 
   $ChatMessageEventCopyWith<$Res> get value;
@@ -635,22 +648,19 @@ abstract class _$$ChatMessageDBEventDataCopyWith<$Res> {
 
 /// @nodoc
 class __$$ChatMessageDBEventDataCopyWithImpl<$Res>
-    extends _$DBEventDataCopyWithImpl<$Res>
+    extends _$DBEventDataCopyWithImpl<$Res, _$ChatMessageDBEventData>
     implements _$$ChatMessageDBEventDataCopyWith<$Res> {
   __$$ChatMessageDBEventDataCopyWithImpl(_$ChatMessageDBEventData _value,
       $Res Function(_$ChatMessageDBEventData) _then)
-      : super(_value, (v) => _then(v as _$ChatMessageDBEventData));
+      : super(_value, _then);
 
-  @override
-  _$ChatMessageDBEventData get _value =>
-      super._value as _$ChatMessageDBEventData;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? value = freezed,
+    Object? value = null,
   }) {
     return _then(_$ChatMessageDBEventData(
-      value == freezed
+      null == value
           ? _value.value
           : value // ignore: cast_nullable_to_non_nullable
               as ChatMessageEvent,
@@ -658,6 +668,7 @@ class __$$ChatMessageDBEventDataCopyWithImpl<$Res>
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $ChatMessageEventCopyWith<$Res> get value {
     return $ChatMessageEventCopyWith<$Res>(_value.value, (value) {
       return _then(_value.copyWith(value: value));
@@ -691,16 +702,16 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ChatMessageDBEventData &&
-            const DeepCollectionEquality().equals(other.value, value));
+            (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
+  int get hashCode => Object.hash(runtimeType, value);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$ChatMessageDBEventDataCopyWith<_$ChatMessageDBEventData> get copyWith =>
       __$$ChatMessageDBEventDataCopyWithImpl<_$ChatMessageDBEventData>(
           this, _$identity);
@@ -719,10 +730,10 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(ChatEvent value)? chat,
-    TResult Function(UserChatEvent value)? userChat,
-    TResult Function(UserEvent value)? user,
-    TResult Function(ChatMessageEvent value)? message,
+    TResult? Function(ChatEvent value)? chat,
+    TResult? Function(UserChatEvent value)? userChat,
+    TResult? Function(UserEvent value)? user,
+    TResult? Function(ChatMessageEvent value)? message,
   }) {
     return message?.call(value);
   }
@@ -756,10 +767,10 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(ChatDBEventData value)? chat,
-    TResult Function(UserChatDBEventData value)? userChat,
-    TResult Function(UserDBEventData value)? user,
-    TResult Function(ChatMessageDBEventData value)? message,
+    TResult? Function(ChatDBEventData value)? chat,
+    TResult? Function(UserChatDBEventData value)? userChat,
+    TResult? Function(UserDBEventData value)? user,
+    TResult? Function(ChatMessageDBEventData value)? message,
   }) {
     return message?.call(this);
   }
@@ -781,7 +792,9 @@ class _$ChatMessageDBEventData extends ChatMessageDBEventData {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$ChatMessageDBEventDataToJson(this);
+    return _$$ChatMessageDBEventDataToJson(
+      this,
+    );
   }
 }
 
@@ -793,7 +806,8 @@ abstract class ChatMessageDBEventData extends DBEventData {
   factory ChatMessageDBEventData.fromJson(Map<String, dynamic> json) =
       _$ChatMessageDBEventData.fromJson;
 
-  ChatMessageEvent get value => throw _privateConstructorUsedError;
+  @override
+  ChatMessageEvent get value;
   @JsonKey(ignore: true)
   _$$ChatMessageDBEventDataCopyWith<_$ChatMessageDBEventData> get copyWith =>
       throw _privateConstructorUsedError;

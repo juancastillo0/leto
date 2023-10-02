@@ -18,33 +18,33 @@ Result<GraphQLRequest, String> graphQLRequestFromMultiPartFormData(
 ) {
   final operationsStr = data.body['operations'];
   if (operationsStr == null) {
-    return Err('Missing "operations" field.');
+    return const Err('Missing "operations" field.');
   }
   final Object? _operations = json.decode(operationsStr);
   final List<Object?> operationsList =
       _operations is List ? _operations : [_operations];
   if (operationsList.isEmpty) {
-    return Err('"operations" field should have at least one operation.');
+    return const Err('"operations" field should have at least one operation.');
   }
 
   final Object? map =
       data.body.containsKey('map') ? json.decode(data.body['map']!) : null;
   if (map is! Map<String, Object?>) {
-    return Err('"map" field must decode to a JSON object.');
+    return const Err('"map" field must decode to a JSON object.');
   }
 
   GraphQLRequest? current;
   for (final operation in operationsList.reversed) {
     if (operation is! Map<String, Object?>) {
-      return Err('"operations" field must decode to a JSON object.');
+      return const Err('"operations" field must decode to a JSON object.');
     } else if (operation['query'] is! String) {
-      return Err('"operations.query" field must be a String.');
+      return const Err('"operations.query" field must be a String.');
     } else if (operation['operationName'] is! String?) {
-      return Err('"operations.operationName" field must be a String?.');
+      return const Err('"operations.operationName" field must be a String?.');
     } else if (operation['variables'] is! Map<String, Object?>) {
-      return Err('"operations.variables" field must be a Map.');
+      return const Err('"operations.variables" field must be a Map.');
     } else if (operation['extensions'] is! Map<String, Object?>?) {
-      return Err('"operations.extensions" field must be a Map.');
+      return const Err('"operations.extensions" field must be a Map.');
     }
 
     final variablesResult = _assignFilesToVariables(
