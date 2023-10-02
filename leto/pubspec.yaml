@@ -1,5 +1,5 @@
 name: leto
-version: 0.0.1-dev.1
+version: 0.0.1-dev.2
 description: |
   Base package for implementing GraphQL servers. You might prefer `package:leto_shelf`
   for building GraphQL web server with leto and shelf.
