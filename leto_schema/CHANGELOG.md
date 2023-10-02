@@ -1,3 +1,7 @@
+## [0.0.1-dev.5] - 2023-10-01.
+
+- Fix https://github.com/juancastillo0/leto/issues/15
+
 ## [0.0.1-dev.4] - 2023-07-16.
 
 - [PR#14](https://github.com/juancastillo0/leto/pull/14) Update dependencies primarily for code generator and small linting fixes. Support analyzer 6.0
