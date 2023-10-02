@@ -1,6 +1,6 @@
 name: leto_shelf
-description: Build GraphQL web servers with leto and shelf.
-version: 0.0.1-dev.1
+description: Build GraphQL web servers with leto and shelf. HTTP, WebSocket, File Uploads, HTML explorers and other utilities.
+version: 0.0.1-dev.2
 homepage: https://github.com/juancastillo0/leto
 
 environment:
