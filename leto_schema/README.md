@@ -20,7 +20,7 @@ Contains functionality to build *all* GraphQL types:
 * `GraphQLNonNullType`
 
 Of course, for a full description of GraphQL's type system, see the official specification:
-http://spec.graphql.org/draft/#sec-Type-System
+https://spec.graphql.org/draft/#sec-Type-System
 
 Mostly analogous to `graphql-js`; many names are verbatim:
 https://graphql.org/graphql-js/type/
