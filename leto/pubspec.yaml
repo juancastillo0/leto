@@ -15,7 +15,7 @@ dependencies:
   meta: ^1.0.0
   source_span: ^1.0.0
   stream_channel: ^2.0.0
-  oxidized: ^5.0.1
+  oxidized: ^6.0.0
   clock: ^1.1.0
 
   leto_schema: ^0.0.1-dev.3

@@ -478,14 +478,14 @@ packages:
       path: "../../leto_generator"
       relative: true
     source: path
-    version: "0.0.1-dev.3"
+    version: "0.0.1-dev.4"
   leto_schema:
     dependency: "direct main"
     description:
       path: "../../leto_schema"
       relative: true
     source: path
-    version: "0.0.1-dev.3"
+    version: "0.0.1-dev.4"
   leto_shelf:
     dependency: "direct main"
     description:
@@ -592,10 +592,10 @@ packages:
     dependency: "direct main"
     description:
       name: oxidized
-      sha256: "2058b9818815546124f6d0fee813483b571ca133b4db6f63c9628897f191e6b5"
+      sha256: cb3347f9c5928f7b3335991caf355b793a558df66299e8533cab3d4c8e3e197f
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.0"
+    version: "6.1.0"
   package_config:
     dependency: transitive
     description:

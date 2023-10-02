@@ -10,7 +10,7 @@ dependencies:
   freezed_annotation: ^2.0.0
   json_annotation: ^4.7.0
   json_path: ^0.6.0
-  oxidized: ^5.0.1
+  oxidized: ^6.0.0
   blurhash_dart: ^1.0.2
   metadata_fetch: ^0.4.1
   linkify: ^4.1.0

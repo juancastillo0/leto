@@ -180,10 +180,7 @@ Result<ResultU<SuccessGet, UnionErrCode>, ErrCode> resultUnionInSuccess() {
 
 typedef ResultC<T extends Object, E extends Object> = Result<T, E>;
 
-abstract class ResultU<T extends Object, E extends Object>
-    implements
-        // ignore: avoid_implementing_value_types
-        Result<T, E> {
+abstract class ResultU<T extends Object, E extends Object> {
   /// Create an `Ok` result with the given value.
   factory ResultU.ok(T s) = OkU;
 
@@ -238,7 +235,8 @@ GraphQLUnionType<ResultU<T, T2>>
     [],
     description: '${t1.name} when the operation was successful or'
         ' ${t2.name} when an error was encountered.',
-    extractInner: (result) => result.when(ok: (ok) => ok, err: (err) => err),
+    extractInner: (result) =>
+        result is OkU ? (result as OkU).value : (result as ErrU).error,
     resolveType: (result, union, ctx) => result is Err ? t2.name : t1.name,
   );
   _resultUGraphQLTypes[type.name] = type;
