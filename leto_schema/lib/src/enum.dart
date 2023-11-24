@@ -117,6 +117,7 @@ class GraphQLEnumType<Value> extends GraphQLNamedType<Value, String>
 
 /// Enum value parsed from the ast.
 /// Useful for distinguishing between enum and string values.
+@immutable
 class EnumValue {
   /// The name of the enum variant
   final String value;

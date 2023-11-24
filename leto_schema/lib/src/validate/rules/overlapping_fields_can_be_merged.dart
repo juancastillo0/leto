@@ -51,7 +51,8 @@ Visitor overlappingFieldsCanBeMergedRule(
           locations: List.of(
             c.fields1.followedBy(c.fields2).map(
                   (e) => GraphQLErrorLocation.fromSourceLocation(
-                      (e.span ?? e.name.span)!.start),
+                    (e.span ?? e.name.span)!.start,
+                  ),
                 ),
           ),
           extensions: _overlappingFieldsCanBeMergedSpec.extensions(),
@@ -214,7 +215,7 @@ List<Conflict> findConflictsWithinSelectionSet(
     fieldMap,
   );
 
-  if (fragmentNames.length != 0) {
+  if (fragmentNames.isNotEmpty) {
     // (B) Then collect conflicts between these fields and those represented by
     // each spread fragment name found.
     for (int i = 0; i < fragmentNames.length; i++) {
@@ -600,7 +601,10 @@ Conflict? findConflict(
     if (name1 != name2) {
       return Conflict(
         ConflictReason(
-            responseName, [], '"${name1}" and "${name2}" are different fields'),
+          responseName,
+          [],
+          '"${name1}" and "${name2}" are different fields',
+        ),
         [field1.node],
         [field2.node],
       );
@@ -688,17 +692,15 @@ bool doTypesConflict(
   GraphQLType type2,
 ) {
   if (type1 is GraphQLListType) {
-    return type2 is GraphQLListType
-        ? doTypesConflict(type1.ofType, type2.ofType)
-        : true;
+    return type2 is! GraphQLListType ||
+        doTypesConflict(type1.ofType, type2.ofType);
   }
   if (type2 is GraphQLListType) {
     return true;
   }
   if (type1 is GraphQLNonNullType) {
-    return type2 is GraphQLNonNullType
-        ? doTypesConflict(type1.ofType, type2.ofType)
-        : true;
+    return type2 is! GraphQLNonNullType ||
+        doTypesConflict(type1.ofType, type2.ofType);
   }
   if (type2 is GraphQLNonNullType) {
     return true;
@@ -814,7 +816,7 @@ Conflict? subfieldConflicts(
   FieldNode node1,
   FieldNode node2,
 ) {
-  if (conflicts.length > 0) {
+  if (conflicts.isNotEmpty) {
     return Conflict(
       ConflictReason(
         responseName,
@@ -843,7 +845,7 @@ class PairSet {
     // areMutuallyExclusive being false is a superset of being true, hence if
     // we want to know if this PairSet "has" these two with no exclusivity,
     // we have to ensure it was added as such.
-    return areMutuallyExclusive ? true : areMutuallyExclusive == result;
+    return areMutuallyExclusive || areMutuallyExclusive == result;
   }
 
   void add(String a, String b, bool areMutuallyExclusive) {

@@ -348,8 +348,8 @@ packages:
   leto:
     dependency: "direct main"
     description:
-      path: "/Users/juanmanuelcastillo/Desktop/flutter/leto/leto_shelf/example/../../leto"
-      relative: false
+      path: "../../leto"
+      relative: true
     source: path
     version: "0.0.1-dev.1"
   leto_generator:
@@ -369,8 +369,8 @@ packages:
   leto_shelf:
     dependency: "direct main"
     description:
-      path: "/Users/juanmanuelcastillo/Desktop/flutter/leto/leto_shelf/example/.."
-      relative: false
+      path: ".."
+      relative: true
     source: path
     version: "0.0.1-dev.1"
   lint:

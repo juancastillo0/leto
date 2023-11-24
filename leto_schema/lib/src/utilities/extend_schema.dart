@@ -1,5 +1,5 @@
 import 'package:gql/language.dart' show printNode;
-import 'package:leto_schema/leto_schema.dart' show GraphQLSchema, DocumentNode;
+import 'package:leto_schema/leto_schema.dart' show DocumentNode, GraphQLSchema;
 import 'package:leto_schema/utilities.dart' show buildSchema, printSchema;
 import 'package:meta/meta.dart';
 

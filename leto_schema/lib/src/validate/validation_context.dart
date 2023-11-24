@@ -38,7 +38,7 @@ class SDLValidationCtx {
       fragments = [];
       final collectedNames = <String, bool>{};
       final nodesToVisit = <SelectionSetNode>[operation.selectionSet];
-      while (nodesToVisit.length != 0) {
+      while (nodesToVisit.isNotEmpty) {
         final node = nodesToVisit.removeLast();
         for (final spread in this.getFragmentSpreads(node)) {
           final fragName = spread.name.value;
@@ -65,7 +65,7 @@ class SDLValidationCtx {
     if (spreads == null) {
       spreads = [];
       final setsToVisit = <SelectionSetNode>[node];
-      while (setsToVisit.length != 0) {
+      while (setsToVisit.isNotEmpty) {
         final set = setsToVisit.removeLast();
         for (final selection in set.selections) {
           if (selection is FragmentSpreadNode) {
@@ -83,6 +83,7 @@ class SDLValidationCtx {
 }
 
 class ValidationCtx extends SDLValidationCtx {
+  @override
   GraphQLSchema get schema => super.schema!;
   final TypeInfo typeInfo;
 
@@ -97,11 +98,10 @@ class ValidationCtx extends SDLValidationCtx {
     GraphQLSchema schema,
     DocumentNode document,
     this.typeInfo, {
-    required void Function(GraphQLError) onError,
+    required super.onError,
   }) : super(
           schema: schema,
           document: document,
-          onError: onError,
         );
 
   List<VariableUsage> getVariableUsages(ExecutableDefinitionNode node) {

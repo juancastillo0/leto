@@ -91,9 +91,9 @@ abstract class GraphQLType<Value, Serialized> {
     } else if (value is! Value) {
       throw GraphQLException([
         GraphQLError(
-          'Cannot convert value $value of $Value to type $Serialized.'
-          ' In $name ($runtimeType)',
-        )
+          'Cannot convert value $value (${value.runtimeType}) of $Value'
+          ' to type $Serialized. In $name ($runtimeType)',
+        ),
       ]);
     } else {
       return serialize(value);
@@ -248,7 +248,8 @@ class _GraphQLNonNullListType<Value, Serialized>
     final input = _input != null && _input is! List ? [_input] : _input;
     if (input is! List) {
       return ValidationResult.failure(
-          ['Expected "$key" to be a list. Got invalid value $_input.']);
+        ['Expected "$key" to be a list. Got invalid value $_input.'],
+      );
     }
     final out = <Serialized?>[];
     final List<String> errors = [];
@@ -271,9 +272,12 @@ class _GraphQLNonNullListType<Value, Serialized>
   @override
   List<Value> deserialize(SerdeCtx serdeCtx, List<Serialized?> serialized) {
     return serialized
-        .map<Value>((v) => v is Value
-            ? v as Value
-            : ofType.deserialize(serdeCtx, v as Serialized))
+        .map<Value>(
+          (v) => v is Value
+              // ignore: unnecessary_cast
+              ? v as Value
+              : ofType.deserialize(serdeCtx, v as Serialized),
+        )
         .toList();
   }
 
@@ -344,6 +348,7 @@ class _GraphQLNullableListType<Value, Serialized>
       return serialized
           .map<Value>(
             (v) => v is Value
+                // ignore: unnecessary_cast
                 ? v as Value
                 : ofType.deserialize(serdeCtx, v as Serialized),
           )
@@ -351,7 +356,8 @@ class _GraphQLNullableListType<Value, Serialized>
     }
     return serialized
         .map<Value?>(
-          (v) => v is Value? ? v : ofType.deserialize(serdeCtx, v),
+          // ignore: unnecessary_cast
+          (v) => v is Value? ? v as Value? : ofType.deserialize(serdeCtx, v),
         )
         .toList();
   }
@@ -361,6 +367,14 @@ class _GraphQLNullableListType<Value, Serialized>
     return value
         .map((d) => d == null ? null : ofType.serializeSafe(d))
         .toList();
+  }
+
+  @override
+  List<Serialized?> serializeSafe(Object? value, {bool nested = true}) {
+    return serialize(
+      // ignore: unnecessary_cast
+      value is List<Value?> ? value as List<Value?> : (value! as List).cast(),
+    );
   }
 
   @override

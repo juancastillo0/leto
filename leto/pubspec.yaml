@@ -4,6 +4,13 @@ description: |
   Base package for implementing GraphQL servers. You might prefer `package:leto_shelf`
   for building GraphQL web server with leto and shelf.
 repository: https://github.com/juancastillo0/leto
+
+topics:
+  - graphql
+  - server
+  - protocol
+  - specification
+
 environment:
   sdk: ">=2.17.0 <3.0.0"
 

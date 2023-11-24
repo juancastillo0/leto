@@ -3,7 +3,6 @@ import 'package:gql/ast.dart' as ast;
 import 'package:gql/ast.dart' hide DirectiveLocation;
 import 'package:gql/language.dart' as gql;
 import 'package:leto_schema/leto_schema.dart';
-import 'package:leto_schema/src/utilities/ast_from_value.dart';
 import 'package:leto_schema/utilities.dart';
 import 'package:leto_schema/validate.dart';
 

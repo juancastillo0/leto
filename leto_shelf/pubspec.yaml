@@ -3,6 +3,12 @@ description: Build GraphQL web servers with leto and shelf.
 version: 0.0.1-dev.1
 homepage: https://github.com/juancastillo0/leto
 
+topics:
+  - graphql
+  - server
+  - protocol
+  - shelf
+
 environment:
   sdk: ">=2.17.0 <3.0.0"
 

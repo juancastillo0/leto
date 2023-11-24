@@ -3,6 +3,12 @@ version: 0.0.1-dev.3
 description: Generates GraphQL schemas from Dart classes, for use with package:leto_schema.
 repository: https://github.com/juancastillo0/leto
 
+topics:
+  - graphql
+  - server
+  - protocol
+  - codegen
+
 environment:
   sdk: ">=2.17.0 <3.0.0"
 

@@ -27,7 +27,7 @@ Visitor valuesOfCorrectTypeRule(
     // parent input type to check if it is a list.
     final type = context.typeInfo.getParentInputType()?.nullable();
     if (type is! GraphQLListType) {
-      isValidValueNode(localCtx, node);
+      _isValidValueNode(localCtx, node);
       return VisitBehavior.skipTree;
     }
   });
@@ -35,7 +35,7 @@ Visitor valuesOfCorrectTypeRule(
     final _type = context.typeInfo.getInputType();
     final type = _type == null ? null : getNamedType(_type);
     if (type is! GraphQLInputObjectType) {
-      isValidValueNode(localCtx, node);
+      _isValidValueNode(localCtx, node);
       return VisitBehavior.skipTree;
     }
     // Ensure every required field exists.
@@ -87,11 +87,11 @@ Visitor valuesOfCorrectTypeRule(
       );
     }
   });
-  visitor.add<EnumValueNode>((node) => isValidValueNode(localCtx, node));
-  visitor.add<IntValueNode>((node) => isValidValueNode(localCtx, node));
-  visitor.add<FloatValueNode>((node) => isValidValueNode(localCtx, node));
-  visitor.add<StringValueNode>((node) => isValidValueNode(localCtx, node));
-  visitor.add<BooleanValueNode>((node) => isValidValueNode(localCtx, node));
+  visitor.add<EnumValueNode>((node) => _isValidValueNode(localCtx, node));
+  visitor.add<IntValueNode>((node) => _isValidValueNode(localCtx, node));
+  visitor.add<FloatValueNode>((node) => _isValidValueNode(localCtx, node));
+  visitor.add<StringValueNode>((node) => _isValidValueNode(localCtx, node));
+  visitor.add<BooleanValueNode>((node) => _isValidValueNode(localCtx, node));
   return visitor;
 }
 
@@ -104,7 +104,7 @@ class _ValidationCtxWithAncestors {
 
 /// Any value literal may be a valid representation of a Scalar, depending on
 /// that scalar type.
-VisitBehavior? isValidValueNode(
+VisitBehavior? _isValidValueNode(
   _ValidationCtxWithAncestors localCtx,
   ValueNode node,
 ) {

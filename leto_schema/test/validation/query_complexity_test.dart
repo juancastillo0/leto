@@ -26,7 +26,7 @@ void main() {
           graphQLString.field(
             'fieldName1',
             attachments: [
-              ElementComplexity(6),
+              const ElementComplexity(6),
             ],
           ),
           graphQLString.field(
@@ -60,13 +60,13 @@ void main() {
       obj.list().field(
         'nestedObj',
         attachments: [
-          ElementComplexity(6),
+          const ElementComplexity(6),
         ],
       ),
       graphQLString.field(
         'name',
         attachments: [
-          ElementComplexity(1),
+          const ElementComplexity(1),
         ],
       ),
     ]);
@@ -77,7 +77,7 @@ void main() {
           obj.field(
             'obj',
             attachments: [
-              ElementComplexity(3),
+              const ElementComplexity(3),
             ],
           ),
         ],
@@ -132,13 +132,13 @@ void main() {
       obj.list().field(
         'nestedObj',
         attachments: [
-          ElementComplexity(6),
+          const ElementComplexity(6),
         ],
       ),
       graphQLString.nonNull().field(
         'name',
         attachments: [
-          ElementComplexity(1),
+          const ElementComplexity(1),
         ],
       ),
     ]);
@@ -152,12 +152,12 @@ void main() {
           fields: [
             listOf(graphQLInt.nonNull()).field('intList'),
           ],
-          extra: GraphQLTypeDefinitionExtra.attach([
+          extra: const GraphQLTypeDefinitionExtra.attach([
             ElementComplexity(2),
           ]),
         )
       ],
-      extra: GraphQLTypeDefinitionExtra.attach([
+      extra: const GraphQLTypeDefinitionExtra.attach([
         ElementComplexity(3),
       ]),
     );
@@ -168,7 +168,7 @@ void main() {
           obj.field(
             'obj',
             attachments: [
-              ElementComplexity(3),
+              const ElementComplexity(3),
             ],
           ),
           unionT.field('unionT'),

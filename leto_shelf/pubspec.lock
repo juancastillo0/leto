@@ -382,7 +382,7 @@ packages:
       path: "../leto_schema"
       relative: true
     source: path
-    version: "0.0.1-dev.3"
+    version: "0.0.1-dev.5"
   leto_shelf_example:
     dependency: "direct dev"
     description:

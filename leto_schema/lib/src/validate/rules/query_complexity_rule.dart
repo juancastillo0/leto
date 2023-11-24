@@ -65,7 +65,11 @@ ElementComplexity? _getTypeComplexity(GraphQLType type) {
 
 ElementComplexity? _getElementComplexity(GraphQLElement element) {
   final complexity = getDirectiveValue(
-      'cost', 'complexity', getDirectivesFromElement(element).toList(), {});
+    'cost',
+    'complexity',
+    getDirectivesFromElement(element).toList(),
+    {},
+  );
   return element.attachments.whereType<ElementComplexity>().firstOrNull ??
       (complexity is int ? ElementComplexity(complexity) : null);
 }
@@ -149,8 +153,7 @@ ValidationRule queryComplexityRuleBuilder({
               _getTypeComplexity(forObject.objectType)?.complexity ?? 0;
           final fieldsComplexity = forObject.mapAliased.values
               .map((value) => _comp(value.field, value.lookAhead()))
-              .sum
-              .toInt();
+              .sum;
           return objTypeComplexity + fieldsComplexity;
         };
 

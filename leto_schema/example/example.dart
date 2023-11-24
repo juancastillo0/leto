@@ -1,6 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:leto_schema/leto_schema.dart';
 
-final GraphQLSchema todoSchema = new GraphQLSchema(
+final GraphQLSchema todoSchema = GraphQLSchema(
   queryType: objectType('Todo', fields: [
     field(
       'text',
@@ -20,7 +22,7 @@ Object? resolveToNull(Object? _, Object? __) => null;
 
 void main() {
   // Validation
-  var validation = todoSchema.queryType!.validate(
+  final validation = todoSchema.queryType!.validate(
     '@root',
     {
       'foo': 'bar',
@@ -33,12 +35,14 @@ void main() {
     print('This is valid data!!!');
   } else {
     print('Invalid data.');
-    validation.errors.forEach((s) => print('  * $s'));
+    for (final s in validation.errors) {
+      print('  * $s');
+    }
   }
 
   // Serialization
   print(todoSchema.queryType!.serialize({
     'text': 'Clean your room!',
-    'created_at': new DateTime.now().subtract(new Duration(days: 10))
+    'created_at': DateTime.now().subtract(const Duration(days: 10))
   }));
 }
