@@ -347,58 +347,63 @@ GraphQLObjectType<UnionNoFreezedB> get unionNoFreezedBGraphQLType =>
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_FreezedSingleInput _$$_FreezedSingleInputFromJson(
+_$FreezedSingleInputImpl _$$FreezedSingleInputImplFromJson(
         Map<String, dynamic> json) =>
-    _$_FreezedSingleInput(
+    _$FreezedSingleInputImpl(
       json['positional'] as String?,
       five: json['five'] as int? ?? 5,
     );
 
-Map<String, dynamic> _$$_FreezedSingleInputToJson(
-        _$_FreezedSingleInput instance) =>
+Map<String, dynamic> _$$FreezedSingleInputImplToJson(
+        _$FreezedSingleInputImpl instance) =>
     <String, dynamic>{
       'positional': instance.positional,
       'five': instance.five,
     };
 
-_$_UnionA1 _$$_UnionA1FromJson(Map<String, dynamic> json) => _$_UnionA1(
+_$UnionA1Impl _$$UnionA1ImplFromJson(Map<String, dynamic> json) =>
+    _$UnionA1Impl(
       one: json['one'] as int? ?? 5,
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$$_UnionA1ToJson(_$_UnionA1 instance) =>
+Map<String, dynamic> _$$UnionA1ImplToJson(_$UnionA1Impl instance) =>
     <String, dynamic>{
       'one': instance.one,
       'runtimeType': instance.$type,
     };
 
-_$_UnionA2 _$$_UnionA2FromJson(Map<String, dynamic> json) => _$_UnionA2(
+_$UnionA2Impl _$$UnionA2ImplFromJson(Map<String, dynamic> json) =>
+    _$UnionA2Impl(
       dec: decimalFromJson(json['dec']),
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$$_UnionA2ToJson(_$_UnionA2 instance) =>
+Map<String, dynamic> _$$UnionA2ImplToJson(_$UnionA2Impl instance) =>
     <String, dynamic>{
       'dec': decimalToJson(instance.dec),
       'runtimeType': instance.$type,
     };
 
-_$UnionA3 _$$UnionA3FromJson(Map<String, dynamic> json) => _$UnionA3(
+_$UnionA3Impl _$$UnionA3ImplFromJson(Map<String, dynamic> json) =>
+    _$UnionA3Impl(
       one: (json['one'] as List<dynamic>?)?.map((e) => e as int).toList(),
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$$UnionA3ToJson(_$UnionA3 instance) => <String, dynamic>{
+Map<String, dynamic> _$$UnionA3ImplToJson(_$UnionA3Impl instance) =>
+    <String, dynamic>{
       'one': instance.one,
       'runtimeType': instance.$type,
     };
 
-_$_UnionA4 _$$_UnionA4FromJson(Map<String, dynamic> json) => _$_UnionA4(
+_$UnionA4Impl _$$UnionA4ImplFromJson(Map<String, dynamic> json) =>
+    _$UnionA4Impl(
       one: (json['one'] as List<dynamic>).map((e) => e as int).toList(),
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$$_UnionA4ToJson(_$_UnionA4 instance) =>
+Map<String, dynamic> _$$UnionA4ImplToJson(_$UnionA4Impl instance) =>
     <String, dynamic>{
       'one': instance.one,
       'runtimeType': instance.$type,

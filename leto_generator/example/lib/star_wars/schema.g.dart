@@ -186,7 +186,7 @@ GraphQLObjectType<Droid> get droidGraphQLType => _droidGraphQLType.value;
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_Human _$$_HumanFromJson(Map<String, dynamic> json) => _$_Human(
+_$HumanImpl _$$HumanImplFromJson(Map<String, dynamic> json) => _$HumanImpl(
       id: json['id'] as String,
       name: json['name'] as String,
       appearsIn:
@@ -196,7 +196,8 @@ _$_Human _$$_HumanFromJson(Map<String, dynamic> json) => _$_Human(
       homePlanet: json['homePlanet'] as String?,
     );
 
-Map<String, dynamic> _$$_HumanToJson(_$_Human instance) => <String, dynamic>{
+Map<String, dynamic> _$$HumanImplToJson(_$HumanImpl instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'appearsIn': instance.appearsIn,
@@ -204,7 +205,7 @@ Map<String, dynamic> _$$_HumanToJson(_$_Human instance) => <String, dynamic>{
       'homePlanet': instance.homePlanet,
     };
 
-_$_Droid _$$_DroidFromJson(Map<String, dynamic> json) => _$_Droid(
+_$DroidImpl _$$DroidImplFromJson(Map<String, dynamic> json) => _$DroidImpl(
       id: json['id'] as String,
       name: json['name'] as String,
       friends:
@@ -214,7 +215,8 @@ _$_Droid _$$_DroidFromJson(Map<String, dynamic> json) => _$_Droid(
       primaryFunction: json['primaryFunction'] as String,
     );
 
-Map<String, dynamic> _$$_DroidToJson(_$_Droid instance) => <String, dynamic>{
+Map<String, dynamic> _$$DroidImplToJson(_$DroidImpl instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'friends': instance.friends,

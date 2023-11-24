@@ -96,9 +96,10 @@ class _$HumanCopyWithImpl<$Res, $Val extends Human>
 }
 
 /// @nodoc
-abstract class _$$_HumanCopyWith<$Res> implements $HumanCopyWith<$Res> {
-  factory _$$_HumanCopyWith(_$_Human value, $Res Function(_$_Human) then) =
-      __$$_HumanCopyWithImpl<$Res>;
+abstract class _$$HumanImplCopyWith<$Res> implements $HumanCopyWith<$Res> {
+  factory _$$HumanImplCopyWith(
+          _$HumanImpl value, $Res Function(_$HumanImpl) then) =
+      __$$HumanImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -110,9 +111,11 @@ abstract class _$$_HumanCopyWith<$Res> implements $HumanCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_HumanCopyWithImpl<$Res> extends _$HumanCopyWithImpl<$Res, _$_Human>
-    implements _$$_HumanCopyWith<$Res> {
-  __$$_HumanCopyWithImpl(_$_Human _value, $Res Function(_$_Human) _then)
+class __$$HumanImplCopyWithImpl<$Res>
+    extends _$HumanCopyWithImpl<$Res, _$HumanImpl>
+    implements _$$HumanImplCopyWith<$Res> {
+  __$$HumanImplCopyWithImpl(
+      _$HumanImpl _value, $Res Function(_$HumanImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -124,7 +127,7 @@ class __$$_HumanCopyWithImpl<$Res> extends _$HumanCopyWithImpl<$Res, _$_Human>
     Object? friends = null,
     Object? homePlanet = freezed,
   }) {
-    return _then(_$_Human(
+    return _then(_$HumanImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -151,8 +154,8 @@ class __$$_HumanCopyWithImpl<$Res> extends _$HumanCopyWithImpl<$Res, _$_Human>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Human extends _Human {
-  const _$_Human(
+class _$HumanImpl extends _Human {
+  const _$HumanImpl(
       {required this.id,
       @GraphQLField(nullable: true) required this.name,
       @GraphQLField(type: 'listOf(episodeEnum)')
@@ -163,8 +166,8 @@ class _$_Human extends _Human {
         _friends = friends,
         super._();
 
-  factory _$_Human.fromJson(Map<String, dynamic> json) =>
-      _$$_HumanFromJson(json);
+  factory _$HumanImpl.fromJson(Map<String, dynamic> json) =>
+      _$$HumanImplFromJson(json);
 
 // The id of the human.
   @override
@@ -208,7 +211,7 @@ class _$_Human extends _Human {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Human &&
+            other is _$HumanImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
@@ -231,12 +234,12 @@ class _$_Human extends _Human {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_HumanCopyWith<_$_Human> get copyWith =>
-      __$$_HumanCopyWithImpl<_$_Human>(this, _$identity);
+  _$$HumanImplCopyWith<_$HumanImpl> get copyWith =>
+      __$$HumanImplCopyWithImpl<_$HumanImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_HumanToJson(
+    return _$$HumanImplToJson(
       this,
     );
   }
@@ -249,10 +252,10 @@ abstract class _Human extends Human {
       @GraphQLField(type: 'listOf(episodeEnum)')
       required final List<int> appearsIn,
       @GraphQLField(omit: true) required final List<String> friends,
-      final String? homePlanet}) = _$_Human;
+      final String? homePlanet}) = _$HumanImpl;
   const _Human._() : super._();
 
-  factory _Human.fromJson(Map<String, dynamic> json) = _$_Human.fromJson;
+  factory _Human.fromJson(Map<String, dynamic> json) = _$HumanImpl.fromJson;
 
   @override // The id of the human.
   String get id;
@@ -269,7 +272,7 @@ abstract class _Human extends Human {
   String? get homePlanet;
   @override
   @JsonKey(ignore: true)
-  _$$_HumanCopyWith<_$_Human> get copyWith =>
+  _$$HumanImplCopyWith<_$HumanImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -350,9 +353,10 @@ class _$DroidCopyWithImpl<$Res, $Val extends Droid>
 }
 
 /// @nodoc
-abstract class _$$_DroidCopyWith<$Res> implements $DroidCopyWith<$Res> {
-  factory _$$_DroidCopyWith(_$_Droid value, $Res Function(_$_Droid) then) =
-      __$$_DroidCopyWithImpl<$Res>;
+abstract class _$$DroidImplCopyWith<$Res> implements $DroidCopyWith<$Res> {
+  factory _$$DroidImplCopyWith(
+          _$DroidImpl value, $Res Function(_$DroidImpl) then) =
+      __$$DroidImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -364,9 +368,11 @@ abstract class _$$_DroidCopyWith<$Res> implements $DroidCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$$_DroidCopyWithImpl<$Res> extends _$DroidCopyWithImpl<$Res, _$_Droid>
-    implements _$$_DroidCopyWith<$Res> {
-  __$$_DroidCopyWithImpl(_$_Droid _value, $Res Function(_$_Droid) _then)
+class __$$DroidImplCopyWithImpl<$Res>
+    extends _$DroidCopyWithImpl<$Res, _$DroidImpl>
+    implements _$$DroidImplCopyWith<$Res> {
+  __$$DroidImplCopyWithImpl(
+      _$DroidImpl _value, $Res Function(_$DroidImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -378,7 +384,7 @@ class __$$_DroidCopyWithImpl<$Res> extends _$DroidCopyWithImpl<$Res, _$_Droid>
     Object? appearsIn = null,
     Object? primaryFunction = null,
   }) {
-    return _then(_$_Droid(
+    return _then(_$DroidImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -406,8 +412,8 @@ class __$$_DroidCopyWithImpl<$Res> extends _$DroidCopyWithImpl<$Res, _$_Droid>
 /// @nodoc
 
 @JsonSerializable()
-class _$_Droid extends _Droid {
-  const _$_Droid(
+class _$DroidImpl extends _Droid {
+  const _$DroidImpl(
       {required this.id,
       @GraphQLField(nullable: true) required this.name,
       @GraphQLField(omit: true) required final List<String> friends,
@@ -458,7 +464,7 @@ class _$_Droid extends _Droid {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_Droid &&
+            other is _$DroidImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality().equals(other._friends, _friends) &&
@@ -480,8 +486,8 @@ class _$_Droid extends _Droid {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_DroidCopyWith<_$_Droid> get copyWith =>
-      __$$_DroidCopyWithImpl<_$_Droid>(this, _$identity);
+  _$$DroidImplCopyWith<_$DroidImpl> get copyWith =>
+      __$$DroidImplCopyWithImpl<_$DroidImpl>(this, _$identity);
 }
 
 abstract class _Droid extends Droid {
@@ -492,7 +498,7 @@ abstract class _Droid extends Droid {
       @GraphQLField(type: 'listOf(episodeEnum)')
       required final List<int> appearsIn,
       @GraphQLField(nullable: true)
-      required final String primaryFunction}) = _$_Droid;
+      required final String primaryFunction}) = _$DroidImpl;
   const _Droid._() : super._();
 
   @override
@@ -513,6 +519,6 @@ abstract class _Droid extends Droid {
   String get primaryFunction;
   @override
   @JsonKey(ignore: true)
-  _$$_DroidCopyWith<_$_Droid> get copyWith =>
+  _$$DroidImplCopyWith<_$DroidImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

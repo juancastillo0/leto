@@ -62,22 +62,22 @@ class _$OneOfFreezedInputCopyWithImpl<$Res, $Val extends OneOfFreezedInput>
 }
 
 /// @nodoc
-abstract class _$$_OneOfFreezedInputCopyWith<$Res>
+abstract class _$$OneOfFreezedInputImplCopyWith<$Res>
     implements $OneOfFreezedInputCopyWith<$Res> {
-  factory _$$_OneOfFreezedInputCopyWith(_$_OneOfFreezedInput value,
-          $Res Function(_$_OneOfFreezedInput) then) =
-      __$$_OneOfFreezedInputCopyWithImpl<$Res>;
+  factory _$$OneOfFreezedInputImplCopyWith(_$OneOfFreezedInputImpl value,
+          $Res Function(_$OneOfFreezedInputImpl) then) =
+      __$$OneOfFreezedInputImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String str});
 }
 
 /// @nodoc
-class __$$_OneOfFreezedInputCopyWithImpl<$Res>
-    extends _$OneOfFreezedInputCopyWithImpl<$Res, _$_OneOfFreezedInput>
-    implements _$$_OneOfFreezedInputCopyWith<$Res> {
-  __$$_OneOfFreezedInputCopyWithImpl(
-      _$_OneOfFreezedInput _value, $Res Function(_$_OneOfFreezedInput) _then)
+class __$$OneOfFreezedInputImplCopyWithImpl<$Res>
+    extends _$OneOfFreezedInputCopyWithImpl<$Res, _$OneOfFreezedInputImpl>
+    implements _$$OneOfFreezedInputImplCopyWith<$Res> {
+  __$$OneOfFreezedInputImplCopyWithImpl(_$OneOfFreezedInputImpl _value,
+      $Res Function(_$OneOfFreezedInputImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -85,7 +85,7 @@ class __$$_OneOfFreezedInputCopyWithImpl<$Res>
   $Res call({
     Object? str = null,
   }) {
-    return _then(_$_OneOfFreezedInput(
+    return _then(_$OneOfFreezedInputImpl(
       null == str
           ? _value.str
           : str // ignore: cast_nullable_to_non_nullable
@@ -96,11 +96,11 @@ class __$$_OneOfFreezedInputCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_OneOfFreezedInput implements _OneOfFreezedInput {
-  const _$_OneOfFreezedInput(this.str);
+class _$OneOfFreezedInputImpl implements _OneOfFreezedInput {
+  const _$OneOfFreezedInputImpl(this.str);
 
-  factory _$_OneOfFreezedInput.fromJson(Map<String, dynamic> json) =>
-      _$$_OneOfFreezedInputFromJson(json);
+  factory _$OneOfFreezedInputImpl.fromJson(Map<String, dynamic> json) =>
+      _$$OneOfFreezedInputImplFromJson(json);
 
   @override
   final String str;
@@ -114,7 +114,7 @@ class _$_OneOfFreezedInput implements _OneOfFreezedInput {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_OneOfFreezedInput &&
+            other is _$OneOfFreezedInputImpl &&
             (identical(other.str, str) || other.str == str));
   }
 
@@ -125,28 +125,28 @@ class _$_OneOfFreezedInput implements _OneOfFreezedInput {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_OneOfFreezedInputCopyWith<_$_OneOfFreezedInput> get copyWith =>
-      __$$_OneOfFreezedInputCopyWithImpl<_$_OneOfFreezedInput>(
+  _$$OneOfFreezedInputImplCopyWith<_$OneOfFreezedInputImpl> get copyWith =>
+      __$$OneOfFreezedInputImplCopyWithImpl<_$OneOfFreezedInputImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_OneOfFreezedInputToJson(
+    return _$$OneOfFreezedInputImplToJson(
       this,
     );
   }
 }
 
 abstract class _OneOfFreezedInput implements OneOfFreezedInput {
-  const factory _OneOfFreezedInput(final String str) = _$_OneOfFreezedInput;
+  const factory _OneOfFreezedInput(final String str) = _$OneOfFreezedInputImpl;
 
   factory _OneOfFreezedInput.fromJson(Map<String, dynamic> json) =
-      _$_OneOfFreezedInput.fromJson;
+      _$OneOfFreezedInputImpl.fromJson;
 
   @override
   String get str;
   @override
   @JsonKey(ignore: true)
-  _$$_OneOfFreezedInputCopyWith<_$_OneOfFreezedInput> get copyWith =>
+  _$$OneOfFreezedInputImplCopyWith<_$OneOfFreezedInputImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

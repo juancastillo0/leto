@@ -611,13 +611,14 @@ Map<String, dynamic> _$CombinedObjectToJson(CombinedObject instance) =>
       'val': instance.val,
     };
 
-_$_OneOfFreezedInput _$$_OneOfFreezedInputFromJson(Map<String, dynamic> json) =>
-    _$_OneOfFreezedInput(
+_$OneOfFreezedInputImpl _$$OneOfFreezedInputImplFromJson(
+        Map<String, dynamic> json) =>
+    _$OneOfFreezedInputImpl(
       json['str'] as String,
     );
 
-Map<String, dynamic> _$$_OneOfFreezedInputToJson(
-        _$_OneOfFreezedInput instance) =>
+Map<String, dynamic> _$$OneOfFreezedInputImplToJson(
+        _$OneOfFreezedInputImpl instance) =>
     <String, dynamic>{
       'str': instance.str,
     };
