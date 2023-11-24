@@ -12,9 +12,8 @@ GraphQLRequest _$GraphQLRequestFromJson(Map<String, dynamic> json) =>
       operationName: json['operationName'] as String?,
       variables: json['variables'] as Map<String, dynamic>?,
       extensions: json['extensions'] as Map<String, dynamic>?,
-      child: json['child'] == null
-          ? null
-          : GraphQLRequest.fromJson(json['child'] as Object),
+      child:
+          json['child'] == null ? null : GraphQLRequest.fromJson(json['child']),
       isBatched: json['isBatched'] as bool? ?? false,
     );
 

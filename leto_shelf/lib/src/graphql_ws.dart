@@ -29,8 +29,7 @@ Handler graphQLWebSocket(
   FutureOr<bool> Function(
     Map<String, Object?>? payload,
     GraphQLWebSocketShelfServer server,
-  )?
-      validateIncomingConnection,
+  )? validateIncomingConnection,
 }) {
   return (request) {
     final handler = webSocketHandler(

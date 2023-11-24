@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'unions.dart';
 
@@ -30,7 +30,7 @@ mixin _$FreezedSingleInput {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? positional, int five)? cc,
+    TResult? Function(String? positional, int five)? cc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -46,7 +46,7 @@ mixin _$FreezedSingleInput {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_FreezedSingleInput value)? cc,
+    TResult? Function(_FreezedSingleInput value)? cc,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -65,34 +65,37 @@ mixin _$FreezedSingleInput {
 abstract class $FreezedSingleInputCopyWith<$Res> {
   factory $FreezedSingleInputCopyWith(
           FreezedSingleInput value, $Res Function(FreezedSingleInput) then) =
-      _$FreezedSingleInputCopyWithImpl<$Res>;
+      _$FreezedSingleInputCopyWithImpl<$Res, FreezedSingleInput>;
+  @useResult
   $Res call({String? positional, int five});
 }
 
 /// @nodoc
-class _$FreezedSingleInputCopyWithImpl<$Res>
+class _$FreezedSingleInputCopyWithImpl<$Res, $Val extends FreezedSingleInput>
     implements $FreezedSingleInputCopyWith<$Res> {
   _$FreezedSingleInputCopyWithImpl(this._value, this._then);
 
-  final FreezedSingleInput _value;
   // ignore: unused_field
-  final $Res Function(FreezedSingleInput) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? positional = freezed,
-    Object? five = freezed,
+    Object? five = null,
   }) {
     return _then(_value.copyWith(
-      positional: positional == freezed
+      positional: freezed == positional
           ? _value.positional
           : positional // ignore: cast_nullable_to_non_nullable
               as String?,
-      five: five == freezed
+      five: null == five
           ? _value.five
           : five // ignore: cast_nullable_to_non_nullable
               as int,
-    ));
+    ) as $Val);
   }
 }
 
@@ -103,31 +106,30 @@ abstract class _$$_FreezedSingleInputCopyWith<$Res>
           $Res Function(_$_FreezedSingleInput) then) =
       __$$_FreezedSingleInputCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String? positional, int five});
 }
 
 /// @nodoc
 class __$$_FreezedSingleInputCopyWithImpl<$Res>
-    extends _$FreezedSingleInputCopyWithImpl<$Res>
+    extends _$FreezedSingleInputCopyWithImpl<$Res, _$_FreezedSingleInput>
     implements _$$_FreezedSingleInputCopyWith<$Res> {
   __$$_FreezedSingleInputCopyWithImpl(
       _$_FreezedSingleInput _value, $Res Function(_$_FreezedSingleInput) _then)
-      : super(_value, (v) => _then(v as _$_FreezedSingleInput));
+      : super(_value, _then);
 
-  @override
-  _$_FreezedSingleInput get _value => super._value as _$_FreezedSingleInput;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? positional = freezed,
-    Object? five = freezed,
+    Object? five = null,
   }) {
     return _then(_$_FreezedSingleInput(
-      positional == freezed
+      freezed == positional
           ? _value.positional
           : positional // ignore: cast_nullable_to_non_nullable
               as String?,
-      five: five == freezed
+      five: null == five
           ? _value.five
           : five // ignore: cast_nullable_to_non_nullable
               as int,
@@ -160,20 +162,18 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_FreezedSingleInput &&
-            const DeepCollectionEquality()
-                .equals(other.positional, positional) &&
-            const DeepCollectionEquality().equals(other.five, five));
+            (identical(other.positional, positional) ||
+                other.positional == positional) &&
+            (identical(other.five, five) || other.five == five));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(positional),
-      const DeepCollectionEquality().hash(five));
+  int get hashCode => Object.hash(runtimeType, positional, five);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_FreezedSingleInputCopyWith<_$_FreezedSingleInput> get copyWith =>
       __$$_FreezedSingleInputCopyWithImpl<_$_FreezedSingleInput>(
           this, _$identity);
@@ -189,7 +189,7 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(String? positional, int five)? cc,
+    TResult? Function(String? positional, int five)? cc,
   }) {
     return cc?.call(positional, five);
   }
@@ -217,7 +217,7 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_FreezedSingleInput value)? cc,
+    TResult? Function(_FreezedSingleInput value)? cc,
   }) {
     return cc?.call(this);
   }
@@ -236,7 +236,9 @@ class _$_FreezedSingleInput implements _FreezedSingleInput {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_FreezedSingleInputToJson(this);
+    return _$$_FreezedSingleInputToJson(
+      this,
+    );
   }
 }
 
@@ -248,9 +250,9 @@ abstract class _FreezedSingleInput implements FreezedSingleInput {
       _$_FreezedSingleInput.fromJson;
 
   @override
-  String? get positional => throw _privateConstructorUsedError;
+  String? get positional;
   @override // five with default
-  int get five => throw _privateConstructorUsedError;
+  int get five;
   @override
   @JsonKey(ignore: true)
   _$$_FreezedSingleInputCopyWith<_$_FreezedSingleInput> get copyWith =>
@@ -282,11 +284,11 @@ mixin _$UnionA {
     required TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)
+            Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)
+            List<int>? one)
         a3,
     required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
         a4,
@@ -294,17 +296,17 @@ mixin _$UnionA {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int one)? a1,
-    TResult Function(
+    TResult? Function(int one)? a1,
+    TResult? Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
-    TResult Function(
+    TResult? Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
-    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
+    TResult? Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -313,11 +315,11 @@ mixin _$UnionA {
     TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
     TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
@@ -333,10 +335,10 @@ mixin _$UnionA {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionA1 value)? a1,
-    TResult Function(_UnionA2 value)? a2,
-    TResult Function(UnionA3 value)? a3,
-    TResult Function(_UnionA4 value)? a4,
+    TResult? Function(_UnionA1 value)? a1,
+    TResult? Function(_UnionA2 value)? a2,
+    TResult? Function(UnionA3 value)? a3,
+    TResult? Function(_UnionA4 value)? a4,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -354,16 +356,18 @@ mixin _$UnionA {
 /// @nodoc
 abstract class $UnionACopyWith<$Res> {
   factory $UnionACopyWith(UnionA value, $Res Function(UnionA) then) =
-      _$UnionACopyWithImpl<$Res>;
+      _$UnionACopyWithImpl<$Res, UnionA>;
 }
 
 /// @nodoc
-class _$UnionACopyWithImpl<$Res> implements $UnionACopyWith<$Res> {
+class _$UnionACopyWithImpl<$Res, $Val extends UnionA>
+    implements $UnionACopyWith<$Res> {
   _$UnionACopyWithImpl(this._value, this._then);
 
-  final UnionA _value;
   // ignore: unused_field
-  final $Res Function(UnionA) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 }
 
 /// @nodoc
@@ -371,24 +375,24 @@ abstract class _$$_UnionA1CopyWith<$Res> {
   factory _$$_UnionA1CopyWith(
           _$_UnionA1 value, $Res Function(_$_UnionA1) then) =
       __$$_UnionA1CopyWithImpl<$Res>;
+  @useResult
   $Res call({int one});
 }
 
 /// @nodoc
-class __$$_UnionA1CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+class __$$_UnionA1CopyWithImpl<$Res>
+    extends _$UnionACopyWithImpl<$Res, _$_UnionA1>
     implements _$$_UnionA1CopyWith<$Res> {
   __$$_UnionA1CopyWithImpl(_$_UnionA1 _value, $Res Function(_$_UnionA1) _then)
-      : super(_value, (v) => _then(v as _$_UnionA1));
+      : super(_value, _then);
 
-  @override
-  _$_UnionA1 get _value => super._value as _$_UnionA1;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? one = freezed,
+    Object? one = null,
   }) {
     return _then(_$_UnionA1(
-      one: one == freezed
+      one: null == one
           ? _value.one
           : one // ignore: cast_nullable_to_non_nullable
               as int,
@@ -422,16 +426,16 @@ class _$_UnionA1 implements _UnionA1 {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_UnionA1 &&
-            const DeepCollectionEquality().equals(other.one, one));
+            (identical(other.one, one) || other.one == one));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(one));
+  int get hashCode => Object.hash(runtimeType, one);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_UnionA1CopyWith<_$_UnionA1> get copyWith =>
       __$$_UnionA1CopyWithImpl<_$_UnionA1>(this, _$identity);
 
@@ -442,11 +446,11 @@ class _$_UnionA1 implements _UnionA1 {
     required TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)
+            Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)
+            List<int>? one)
         a3,
     required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
         a4,
@@ -457,17 +461,17 @@ class _$_UnionA1 implements _UnionA1 {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int one)? a1,
-    TResult Function(
+    TResult? Function(int one)? a1,
+    TResult? Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
-    TResult Function(
+    TResult? Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
-    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
+    TResult? Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a1?.call(one);
   }
@@ -479,11 +483,11 @@ class _$_UnionA1 implements _UnionA1 {
     TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
     TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
@@ -508,10 +512,10 @@ class _$_UnionA1 implements _UnionA1 {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionA1 value)? a1,
-    TResult Function(_UnionA2 value)? a2,
-    TResult Function(UnionA3 value)? a3,
-    TResult Function(_UnionA4 value)? a4,
+    TResult? Function(_UnionA1 value)? a1,
+    TResult? Function(_UnionA2 value)? a2,
+    TResult? Function(UnionA3 value)? a3,
+    TResult? Function(_UnionA4 value)? a4,
   }) {
     return a1?.call(this);
   }
@@ -533,7 +537,9 @@ class _$_UnionA1 implements _UnionA1 {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_UnionA1ToJson(this);
+    return _$$_UnionA1ToJson(
+      this,
+    );
   }
 }
 
@@ -543,7 +549,7 @@ abstract class _UnionA1 implements UnionA {
   factory _UnionA1.fromJson(Map<String, dynamic> json) = _$_UnionA1.fromJson;
 
 // five with default
-  int get one => throw _privateConstructorUsedError;
+  int get one;
   @JsonKey(ignore: true)
   _$$_UnionA1CopyWith<_$_UnionA1> get copyWith =>
       throw _privateConstructorUsedError;
@@ -554,27 +560,27 @@ abstract class _$$_UnionA2CopyWith<$Res> {
   factory _$$_UnionA2CopyWith(
           _$_UnionA2 value, $Res Function(_$_UnionA2) then) =
       __$$_UnionA2CopyWithImpl<$Res>;
+  @useResult
   $Res call(
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
-          Decimal? dec});
+      Decimal? dec});
 }
 
 /// @nodoc
-class __$$_UnionA2CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+class __$$_UnionA2CopyWithImpl<$Res>
+    extends _$UnionACopyWithImpl<$Res, _$_UnionA2>
     implements _$$_UnionA2CopyWith<$Res> {
   __$$_UnionA2CopyWithImpl(_$_UnionA2 _value, $Res Function(_$_UnionA2) _then)
-      : super(_value, (v) => _then(v as _$_UnionA2));
+      : super(_value, _then);
 
-  @override
-  _$_UnionA2 get _value => super._value as _$_UnionA2;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? dec = freezed,
   }) {
     return _then(_$_UnionA2(
-      dec: dec == freezed
+      dec: freezed == dec
           ? _value.dec
           : dec // ignore: cast_nullable_to_non_nullable
               as Decimal?,
@@ -588,7 +594,7 @@ class _$_UnionA2 implements _UnionA2 {
   const _$_UnionA2(
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
-          this.dec,
+      this.dec,
       final String? $type})
       : $type = $type ?? 'a2';
 
@@ -613,16 +619,16 @@ class _$_UnionA2 implements _UnionA2 {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_UnionA2 &&
-            const DeepCollectionEquality().equals(other.dec, dec));
+            (identical(other.dec, dec) || other.dec == dec));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(dec));
+  int get hashCode => Object.hash(runtimeType, dec);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_UnionA2CopyWith<_$_UnionA2> get copyWith =>
       __$$_UnionA2CopyWithImpl<_$_UnionA2>(this, _$identity);
 
@@ -633,11 +639,11 @@ class _$_UnionA2 implements _UnionA2 {
     required TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)
+            Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)
+            List<int>? one)
         a3,
     required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
         a4,
@@ -648,17 +654,17 @@ class _$_UnionA2 implements _UnionA2 {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int one)? a1,
-    TResult Function(
+    TResult? Function(int one)? a1,
+    TResult? Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
-    TResult Function(
+    TResult? Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
-    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
+    TResult? Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a2?.call(dec);
   }
@@ -670,11 +676,11 @@ class _$_UnionA2 implements _UnionA2 {
     TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
     TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
@@ -699,10 +705,10 @@ class _$_UnionA2 implements _UnionA2 {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionA1 value)? a1,
-    TResult Function(_UnionA2 value)? a2,
-    TResult Function(UnionA3 value)? a3,
-    TResult Function(_UnionA4 value)? a4,
+    TResult? Function(_UnionA1 value)? a1,
+    TResult? Function(_UnionA2 value)? a2,
+    TResult? Function(UnionA3 value)? a3,
+    TResult? Function(_UnionA4 value)? a4,
   }) {
     return a2?.call(this);
   }
@@ -724,7 +730,9 @@ class _$_UnionA2 implements _UnionA2 {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_UnionA2ToJson(this);
+    return _$$_UnionA2ToJson(
+      this,
+    );
   }
 }
 
@@ -732,13 +740,13 @@ abstract class _UnionA2 implements UnionA {
   const factory _UnionA2(
       {@JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
       @Deprecated('custom deprecated msg')
-          final Decimal? dec}) = _$_UnionA2;
+      final Decimal? dec}) = _$_UnionA2;
 
   factory _UnionA2.fromJson(Map<String, dynamic> json) = _$_UnionA2.fromJson;
 
   @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
   @Deprecated('custom deprecated msg')
-  Decimal? get dec => throw _privateConstructorUsedError;
+  Decimal? get dec;
   @JsonKey(ignore: true)
   _$$_UnionA2CopyWith<_$_UnionA2> get copyWith =>
       throw _privateConstructorUsedError;
@@ -748,26 +756,26 @@ abstract class _UnionA2 implements UnionA {
 abstract class _$$UnionA3CopyWith<$Res> {
   factory _$$UnionA3CopyWith(_$UnionA3 value, $Res Function(_$UnionA3) then) =
       __$$UnionA3CopyWithImpl<$Res>;
+  @useResult
   $Res call(
       {@GraphQLDocumentation(description: 'description for one')
-          List<int>? one});
+      List<int>? one});
 }
 
 /// @nodoc
-class __$$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+class __$$UnionA3CopyWithImpl<$Res>
+    extends _$UnionACopyWithImpl<$Res, _$UnionA3>
     implements _$$UnionA3CopyWith<$Res> {
   __$$UnionA3CopyWithImpl(_$UnionA3 _value, $Res Function(_$UnionA3) _then)
-      : super(_value, (v) => _then(v as _$UnionA3));
+      : super(_value, _then);
 
-  @override
-  _$UnionA3 get _value => super._value as _$UnionA3;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? one = freezed,
   }) {
     return _then(_$UnionA3(
-      one: one == freezed
+      one: freezed == one
           ? _value._one
           : one // ignore: cast_nullable_to_non_nullable
               as List<int>?,
@@ -780,7 +788,7 @@ class __$$UnionA3CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
 class _$UnionA3 implements UnionA3 {
   const _$UnionA3(
       {@GraphQLDocumentation(description: 'description for one')
-          final List<int>? one,
+      final List<int>? one,
       final String? $type})
       : _one = one,
         $type = $type ?? 'a3';
@@ -794,6 +802,7 @@ class _$UnionA3 implements UnionA3 {
   List<int>? get one {
     final value = _one;
     if (value == null) return null;
+    if (_one is EqualUnmodifiableListView) return _one;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
@@ -821,6 +830,7 @@ class _$UnionA3 implements UnionA3 {
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$UnionA3CopyWith<_$UnionA3> get copyWith =>
       __$$UnionA3CopyWithImpl<_$UnionA3>(this, _$identity);
 
@@ -831,11 +841,11 @@ class _$UnionA3 implements UnionA3 {
     required TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)
+            Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)
+            List<int>? one)
         a3,
     required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
         a4,
@@ -846,17 +856,17 @@ class _$UnionA3 implements UnionA3 {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int one)? a1,
-    TResult Function(
+    TResult? Function(int one)? a1,
+    TResult? Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
-    TResult Function(
+    TResult? Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
-    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
+    TResult? Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a3?.call(one);
   }
@@ -868,11 +878,11 @@ class _$UnionA3 implements UnionA3 {
     TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
     TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
@@ -897,10 +907,10 @@ class _$UnionA3 implements UnionA3 {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionA1 value)? a1,
-    TResult Function(_UnionA2 value)? a2,
-    TResult Function(UnionA3 value)? a3,
-    TResult Function(_UnionA4 value)? a4,
+    TResult? Function(_UnionA1 value)? a1,
+    TResult? Function(_UnionA2 value)? a2,
+    TResult? Function(UnionA3 value)? a3,
+    TResult? Function(_UnionA4 value)? a4,
   }) {
     return a3?.call(this);
   }
@@ -922,19 +932,21 @@ class _$UnionA3 implements UnionA3 {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UnionA3ToJson(this);
+    return _$$UnionA3ToJson(
+      this,
+    );
   }
 }
 
 abstract class UnionA3 implements UnionA {
   const factory UnionA3(
       {@GraphQLDocumentation(description: 'description for one')
-          final List<int>? one}) = _$UnionA3;
+      final List<int>? one}) = _$UnionA3;
 
   factory UnionA3.fromJson(Map<String, dynamic> json) = _$UnionA3.fromJson;
 
   @GraphQLDocumentation(description: 'description for one')
-  List<int>? get one => throw _privateConstructorUsedError;
+  List<int>? get one;
   @JsonKey(ignore: true)
   _$$UnionA3CopyWith<_$UnionA3> get copyWith =>
       throw _privateConstructorUsedError;
@@ -945,24 +957,24 @@ abstract class _$$_UnionA4CopyWith<$Res> {
   factory _$$_UnionA4CopyWith(
           _$_UnionA4 value, $Res Function(_$_UnionA4) then) =
       __$$_UnionA4CopyWithImpl<$Res>;
+  @useResult
   $Res call({@GraphQLField(name: 'oneRenamed') List<int> one});
 }
 
 /// @nodoc
-class __$$_UnionA4CopyWithImpl<$Res> extends _$UnionACopyWithImpl<$Res>
+class __$$_UnionA4CopyWithImpl<$Res>
+    extends _$UnionACopyWithImpl<$Res, _$_UnionA4>
     implements _$$_UnionA4CopyWith<$Res> {
   __$$_UnionA4CopyWithImpl(_$_UnionA4 _value, $Res Function(_$_UnionA4) _then)
-      : super(_value, (v) => _then(v as _$_UnionA4));
+      : super(_value, _then);
 
-  @override
-  _$_UnionA4 get _value => super._value as _$_UnionA4;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? one = freezed,
+    Object? one = null,
   }) {
     return _then(_$_UnionA4(
-      one: one == freezed
+      one: null == one
           ? _value._one
           : one // ignore: cast_nullable_to_non_nullable
               as List<int>,
@@ -986,6 +998,7 @@ class _$_UnionA4 implements _UnionA4 {
   @override
   @GraphQLField(name: 'oneRenamed')
   List<int> get one {
+    if (_one is EqualUnmodifiableListView) return _one;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_one);
   }
@@ -1013,6 +1026,7 @@ class _$_UnionA4 implements _UnionA4 {
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_UnionA4CopyWith<_$_UnionA4> get copyWith =>
       __$$_UnionA4CopyWithImpl<_$_UnionA4>(this, _$identity);
 
@@ -1023,11 +1037,11 @@ class _$_UnionA4 implements _UnionA4 {
     required TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)
+            Decimal? dec)
         a2,
     required TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)
+            List<int>? one)
         a3,
     required TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)
         a4,
@@ -1038,17 +1052,17 @@ class _$_UnionA4 implements _UnionA4 {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(int one)? a1,
-    TResult Function(
+    TResult? Function(int one)? a1,
+    TResult? Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
-    TResult Function(
+    TResult? Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
-    TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
+    TResult? Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
   }) {
     return a4?.call(one);
   }
@@ -1060,11 +1074,11 @@ class _$_UnionA4 implements _UnionA4 {
     TResult Function(
             @JsonKey(fromJson: decimalFromJson, toJson: decimalToJson)
             @Deprecated('custom deprecated msg')
-                Decimal? dec)?
+            Decimal? dec)?
         a2,
     TResult Function(
             @GraphQLDocumentation(description: 'description for one')
-                List<int>? one)?
+            List<int>? one)?
         a3,
     TResult Function(@GraphQLField(name: 'oneRenamed') List<int> one)? a4,
     required TResult orElse(),
@@ -1089,10 +1103,10 @@ class _$_UnionA4 implements _UnionA4 {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(_UnionA1 value)? a1,
-    TResult Function(_UnionA2 value)? a2,
-    TResult Function(UnionA3 value)? a3,
-    TResult Function(_UnionA4 value)? a4,
+    TResult? Function(_UnionA1 value)? a1,
+    TResult? Function(_UnionA2 value)? a2,
+    TResult? Function(UnionA3 value)? a3,
+    TResult? Function(_UnionA4 value)? a4,
   }) {
     return a4?.call(this);
   }
@@ -1114,7 +1128,9 @@ class _$_UnionA4 implements _UnionA4 {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_UnionA4ToJson(this);
+    return _$$_UnionA4ToJson(
+      this,
+    );
   }
 }
 
@@ -1126,7 +1142,7 @@ abstract class _UnionA4 implements UnionA {
   factory _UnionA4.fromJson(Map<String, dynamic> json) = _$_UnionA4.fromJson;
 
   @GraphQLField(name: 'oneRenamed')
-  List<int> get one => throw _privateConstructorUsedError;
+  List<int> get one;
   @JsonKey(ignore: true)
   _$$_UnionA4CopyWith<_$_UnionA4> get copyWith =>
       throw _privateConstructorUsedError;

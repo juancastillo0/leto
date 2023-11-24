@@ -60,6 +60,7 @@ class AuthStore extends StateNotifier<GSTokenWithUserData?> {
   bool get isAnonymous => state?.user.name == null;
   GSTokenWithUser_user? get user => state?.user;
   String? get authToken => state?.accessToken;
+  String? get refreshToken => state?.refreshToken;
 
   Client get _client => _read(clientProvider);
 

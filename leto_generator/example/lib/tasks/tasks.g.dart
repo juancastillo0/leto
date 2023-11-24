@@ -343,8 +343,7 @@ Task _$TaskFromJson(Map<String, dynamic> json) => Task(
       image: Uri.parse(json['image'] as String),
       description: json['description'] as String?,
       weight: json['weight'] as int,
-      extra:
-          json['extra'] == null ? null : Json.fromJson(json['extra'] as Object),
+      extra: json['extra'] == null ? null : Json.fromJson(json['extra']),
       createdTimestamp: DateTime.parse(json['createdTimestamp'] as String),
       assignedTo: (json['assignedTo'] as List<dynamic>)
           .map((e) => User.fromJson(e as Map<String, dynamic>))

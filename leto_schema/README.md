@@ -20,7 +20,7 @@ Contains functionality to build *all* GraphQL types:
 * `GraphQLNonNullType`
 
 Of course, for a full description of GraphQL's type system, see the official specification:
-http://spec.graphql.org/draft/#sec-Type-System
+https://spec.graphql.org/draft/#sec-Type-System
 
 Mostly analogous to `graphql-js`; many names are verbatim:
 https://graphql.org/graphql-js/type/
@@ -194,7 +194,7 @@ if (validation.successful) {
 You can easily make a type non-nullable by calling its `nonNull` method.
 
 ## List Types
-Support for list types is also included. Use the `listOf` helper for convenience.
+Support for list types is also included. Use the `list` method from `GraphQLType` or the `listOf` helper function for convenience.
 
 ```dart
 /// A non-nullable list of non-nullable integers

@@ -34,7 +34,7 @@ class GeneratorCtx {
   });
 }
 
-bool hasFromJson(ClassElement clazz) {
+bool hasFromJson(InterfaceElement clazz) {
   return clazz.constructors.any((f) => f.name == 'fromJson') ||
       clazz.methods.any((m) => m.isStatic && m.name == 'fromJson');
 }
@@ -88,6 +88,7 @@ GraphQLDocumentation? getDocumentation(Element element) {
       typeName: _typeName ?? _typeFunc,
     );
   }
+  return null;
 }
 
 String? getDeprecationReason(Element element) {
@@ -103,6 +104,7 @@ String? getDeprecationReason(Element element) {
         dep.peek('message')?.stringValue ?? 'Expires: ${deprecated.message}.';
     return reason;
   }
+  return null;
 }
 
 String? getDefaultValue(Element elem) {
@@ -125,6 +127,7 @@ String? getDefaultValue(Element elem) {
   if (annot != null) {
     return dartObjectToString(annot);
   }
+  return null;
 }
 
 String? getAttachments(Element element) {
@@ -266,4 +269,8 @@ String dartObjectToString(DartObject v) {
   }
 
   throw ArgumentError(v.toString());
+}
+
+extension InterfaceElementIsEnum on InterfaceElement {
+  bool get isEnum => allSupertypes.any((e) => e.isDartCoreEnum);
 }

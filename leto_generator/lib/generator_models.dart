@@ -13,7 +13,7 @@ import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 
 Iterable<Future<FieldInfo>> fieldsFromClass(
-  ClassElement clazz,
+  InterfaceElement clazz,
   GeneratorCtx ctx, {
   bool isInput = false,
 }) {
@@ -55,7 +55,7 @@ Iterable<Future<FieldInfo>> fieldsFromClass(
 }
 
 Future<List<UnionVarianInfo>> freezedVariants(
-  ClassElement clazz,
+  InterfaceElement clazz,
   GeneratorCtx ctx, {
   required bool isInput,
 }) async {
@@ -89,6 +89,8 @@ Future<List<UnionVarianInfo>> freezedVariants(
 
 GraphQLField getFieldAnnot(GraphQLObject? clazz, Element e) {
   const graphQLFieldTypeChecker = TypeChecker.fromRuntime(GraphQLField);
+  // TODO: remove this
+  // ignore: unused_local_variable
   DartObject? _annot;
   if (!graphQLFieldTypeChecker.hasAnnotationOf(e, throwOnUnresolved: false)) {
     if (e is FieldElement && e.getter != null) {
@@ -141,7 +143,7 @@ bool isFreezedVariantConstructor(ConstructorElement con) =>
 
 Future<UnionVarianInfo> classInfoFromConstructor(
   GeneratorCtx ctx,
-  ClassElement clazz,
+  InterfaceElement clazz,
   ConstructorElement con, {
   required bool isUnion,
   required Iterable<Future<FieldInfo>> unionClassFields,
@@ -249,7 +251,7 @@ Future<FieldInfo> fieldFromParam(
     getter: param.name,
     isMethod: false,
     inputs: [],
-    nonNullable: annot.nullable != true && param.isNotOptional,
+    nonNullable: annot.nullable != true && !param.isOptional,
     fieldAnnot: annot,
     description: await documentationOfParameter(param, ctx.buildStep),
     deprecationReason: getDeprecationReason(param),

@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'inputs.dart';
 
@@ -32,29 +32,32 @@ mixin _$OneOfFreezedInput {
 abstract class $OneOfFreezedInputCopyWith<$Res> {
   factory $OneOfFreezedInputCopyWith(
           OneOfFreezedInput value, $Res Function(OneOfFreezedInput) then) =
-      _$OneOfFreezedInputCopyWithImpl<$Res>;
+      _$OneOfFreezedInputCopyWithImpl<$Res, OneOfFreezedInput>;
+  @useResult
   $Res call({String str});
 }
 
 /// @nodoc
-class _$OneOfFreezedInputCopyWithImpl<$Res>
+class _$OneOfFreezedInputCopyWithImpl<$Res, $Val extends OneOfFreezedInput>
     implements $OneOfFreezedInputCopyWith<$Res> {
   _$OneOfFreezedInputCopyWithImpl(this._value, this._then);
 
-  final OneOfFreezedInput _value;
   // ignore: unused_field
-  final $Res Function(OneOfFreezedInput) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? str = freezed,
+    Object? str = null,
   }) {
     return _then(_value.copyWith(
-      str: str == freezed
+      str: null == str
           ? _value.str
           : str // ignore: cast_nullable_to_non_nullable
               as String,
-    ));
+    ) as $Val);
   }
 }
 
@@ -65,26 +68,25 @@ abstract class _$$_OneOfFreezedInputCopyWith<$Res>
           $Res Function(_$_OneOfFreezedInput) then) =
       __$$_OneOfFreezedInputCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String str});
 }
 
 /// @nodoc
 class __$$_OneOfFreezedInputCopyWithImpl<$Res>
-    extends _$OneOfFreezedInputCopyWithImpl<$Res>
+    extends _$OneOfFreezedInputCopyWithImpl<$Res, _$_OneOfFreezedInput>
     implements _$$_OneOfFreezedInputCopyWith<$Res> {
   __$$_OneOfFreezedInputCopyWithImpl(
       _$_OneOfFreezedInput _value, $Res Function(_$_OneOfFreezedInput) _then)
-      : super(_value, (v) => _then(v as _$_OneOfFreezedInput));
+      : super(_value, _then);
 
-  @override
-  _$_OneOfFreezedInput get _value => super._value as _$_OneOfFreezedInput;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? str = freezed,
+    Object? str = null,
   }) {
     return _then(_$_OneOfFreezedInput(
-      str == freezed
+      null == str
           ? _value.str
           : str // ignore: cast_nullable_to_non_nullable
               as String,
@@ -113,23 +115,25 @@ class _$_OneOfFreezedInput implements _OneOfFreezedInput {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_OneOfFreezedInput &&
-            const DeepCollectionEquality().equals(other.str, str));
+            (identical(other.str, str) || other.str == str));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(str));
+  int get hashCode => Object.hash(runtimeType, str);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_OneOfFreezedInputCopyWith<_$_OneOfFreezedInput> get copyWith =>
       __$$_OneOfFreezedInputCopyWithImpl<_$_OneOfFreezedInput>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_OneOfFreezedInputToJson(this);
+    return _$$_OneOfFreezedInputToJson(
+      this,
+    );
   }
 }
 
@@ -140,7 +144,7 @@ abstract class _OneOfFreezedInput implements OneOfFreezedInput {
       _$_OneOfFreezedInput.fromJson;
 
   @override
-  String get str => throw _privateConstructorUsedError;
+  String get str;
   @override
   @JsonKey(ignore: true)
   _$$_OneOfFreezedInputCopyWith<_$_OneOfFreezedInput> get copyWith =>

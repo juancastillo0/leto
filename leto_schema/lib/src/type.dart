@@ -251,7 +251,7 @@ class _GraphQLNonNullListType<Value, Serialized>
         ['Expected "$key" to be a list. Got invalid value $_input.'],
       );
     }
-    final out = <Serialized?>[];
+    final out = <Serialized>[];
     final List<String> errors = [];
 
     for (int i = 0; i < input.length; i++) {
@@ -261,7 +261,7 @@ class _GraphQLNonNullListType<Value, Serialized>
       if (!result.successful) {
         errors.addAll(result.errors);
       } else {
-        out.add(result.value);
+        out.add(result.value as Serialized);
       }
     }
 
@@ -284,6 +284,11 @@ class _GraphQLNonNullListType<Value, Serialized>
   @override
   List<Serialized?> serialize(List<Value> value) {
     return value.map(ofType.serializeSafe).toList();
+  }
+
+  @override
+  List<Serialized?> serializeSafe(Object? value, {bool nested = true}) {
+    return serialize(value is List<Value> ? value : (value! as List).cast());
   }
 
   @override

@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'altair_config.dart';
 
@@ -112,7 +112,8 @@ mixin _$AltairConfig {
 abstract class $AltairConfigCopyWith<$Res> {
   factory $AltairConfigCopyWith(
           AltairConfig value, $Res Function(AltairConfig) then) =
-      _$AltairConfigCopyWithImpl<$Res>;
+      _$AltairConfigCopyWithImpl<$Res, AltairConfig>;
+  @useResult
   $Res call(
       {String? endpointURL,
       String? subscriptionsEndpoint,
@@ -136,13 +137,16 @@ abstract class $AltairConfigCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$AltairConfigCopyWithImpl<$Res> implements $AltairConfigCopyWith<$Res> {
+class _$AltairConfigCopyWithImpl<$Res, $Val extends AltairConfig>
+    implements $AltairConfigCopyWith<$Res> {
   _$AltairConfigCopyWithImpl(this._value, this._then);
 
-  final AltairConfig _value;
   // ignore: unused_field
-  final $Res Function(AltairConfig) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? endpointURL = freezed,
@@ -163,75 +167,76 @@ class _$AltairConfigCopyWithImpl<$Res> implements $AltairConfigCopyWith<$Res> {
     Object? serveInitialOptionsInSeperateRequest = freezed,
   }) {
     return _then(_value.copyWith(
-      endpointURL: endpointURL == freezed
+      endpointURL: freezed == endpointURL
           ? _value.endpointURL
           : endpointURL // ignore: cast_nullable_to_non_nullable
               as String?,
-      subscriptionsEndpoint: subscriptionsEndpoint == freezed
+      subscriptionsEndpoint: freezed == subscriptionsEndpoint
           ? _value.subscriptionsEndpoint
           : subscriptionsEndpoint // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialQuery: initialQuery == freezed
+      initialQuery: freezed == initialQuery
           ? _value.initialQuery
           : initialQuery // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialVariables: initialVariables == freezed
+      initialVariables: freezed == initialVariables
           ? _value.initialVariables
           : initialVariables // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialPreRequestScript: initialPreRequestScript == freezed
+      initialPreRequestScript: freezed == initialPreRequestScript
           ? _value.initialPreRequestScript
           : initialPreRequestScript // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialPostRequestScript: initialPostRequestScript == freezed
+      initialPostRequestScript: freezed == initialPostRequestScript
           ? _value.initialPostRequestScript
           : initialPostRequestScript // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialHeaders: initialHeaders == freezed
+      initialHeaders: freezed == initialHeaders
           ? _value.initialHeaders
           : initialHeaders // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
-      initialEnvironments: initialEnvironments == freezed
+      initialEnvironments: freezed == initialEnvironments
           ? _value.initialEnvironments
           : initialEnvironments // ignore: cast_nullable_to_non_nullable
               as IInitialEnvironments?,
-      instanceStorageNamespace: instanceStorageNamespace == freezed
+      instanceStorageNamespace: freezed == instanceStorageNamespace
           ? _value.instanceStorageNamespace
           : instanceStorageNamespace // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialSettings: initialSettings == freezed
+      initialSettings: freezed == initialSettings
           ? _value.initialSettings
           : initialSettings // ignore: cast_nullable_to_non_nullable
               as SettingsState?,
-      initialSubscriptionsProvider: initialSubscriptionsProvider == freezed
+      initialSubscriptionsProvider: freezed == initialSubscriptionsProvider
           ? _value.initialSubscriptionsProvider
           : initialSubscriptionsProvider // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialSubscriptionsPayload: initialSubscriptionsPayload == freezed
+      initialSubscriptionsPayload: freezed == initialSubscriptionsPayload
           ? _value.initialSubscriptionsPayload
           : initialSubscriptionsPayload // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
-      preserveState: preserveState == freezed
+      preserveState: freezed == preserveState
           ? _value.preserveState
           : preserveState // ignore: cast_nullable_to_non_nullable
               as bool?,
-      initialHttpMethod: initialHttpMethod == freezed
+      initialHttpMethod: freezed == initialHttpMethod
           ? _value.initialHttpMethod
           : initialHttpMethod // ignore: cast_nullable_to_non_nullable
               as String?,
-      baseURL: baseURL == freezed
+      baseURL: freezed == baseURL
           ? _value.baseURL
           : baseURL // ignore: cast_nullable_to_non_nullable
               as String?,
-      serveInitialOptionsInSeperateRequest: serveInitialOptionsInSeperateRequest ==
-              freezed
+      serveInitialOptionsInSeperateRequest: freezed ==
+              serveInitialOptionsInSeperateRequest
           ? _value.serveInitialOptionsInSeperateRequest
           : serveInitialOptionsInSeperateRequest // ignore: cast_nullable_to_non_nullable
               as bool?,
-    ));
+    ) as $Val);
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $IInitialEnvironmentsCopyWith<$Res>? get initialEnvironments {
     if (_value.initialEnvironments == null) {
       return null;
@@ -239,18 +244,19 @@ class _$AltairConfigCopyWithImpl<$Res> implements $AltairConfigCopyWith<$Res> {
 
     return $IInitialEnvironmentsCopyWith<$Res>(_value.initialEnvironments!,
         (value) {
-      return _then(_value.copyWith(initialEnvironments: value));
+      return _then(_value.copyWith(initialEnvironments: value) as $Val);
     });
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $SettingsStateCopyWith<$Res>? get initialSettings {
     if (_value.initialSettings == null) {
       return null;
     }
 
     return $SettingsStateCopyWith<$Res>(_value.initialSettings!, (value) {
-      return _then(_value.copyWith(initialSettings: value));
+      return _then(_value.copyWith(initialSettings: value) as $Val);
     });
   }
 }
@@ -262,6 +268,7 @@ abstract class _$$_AltairConfigCopyWith<$Res>
           _$_AltairConfig value, $Res Function(_$_AltairConfig) then) =
       __$$_AltairConfigCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {String? endpointURL,
       String? subscriptionsEndpoint,
@@ -288,15 +295,13 @@ abstract class _$$_AltairConfigCopyWith<$Res>
 
 /// @nodoc
 class __$$_AltairConfigCopyWithImpl<$Res>
-    extends _$AltairConfigCopyWithImpl<$Res>
+    extends _$AltairConfigCopyWithImpl<$Res, _$_AltairConfig>
     implements _$$_AltairConfigCopyWith<$Res> {
   __$$_AltairConfigCopyWithImpl(
       _$_AltairConfig _value, $Res Function(_$_AltairConfig) _then)
-      : super(_value, (v) => _then(v as _$_AltairConfig));
+      : super(_value, _then);
 
-  @override
-  _$_AltairConfig get _value => super._value as _$_AltairConfig;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? endpointURL = freezed,
@@ -317,68 +322,68 @@ class __$$_AltairConfigCopyWithImpl<$Res>
     Object? serveInitialOptionsInSeperateRequest = freezed,
   }) {
     return _then(_$_AltairConfig(
-      endpointURL: endpointURL == freezed
+      endpointURL: freezed == endpointURL
           ? _value.endpointURL
           : endpointURL // ignore: cast_nullable_to_non_nullable
               as String?,
-      subscriptionsEndpoint: subscriptionsEndpoint == freezed
+      subscriptionsEndpoint: freezed == subscriptionsEndpoint
           ? _value.subscriptionsEndpoint
           : subscriptionsEndpoint // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialQuery: initialQuery == freezed
+      initialQuery: freezed == initialQuery
           ? _value.initialQuery
           : initialQuery // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialVariables: initialVariables == freezed
+      initialVariables: freezed == initialVariables
           ? _value.initialVariables
           : initialVariables // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialPreRequestScript: initialPreRequestScript == freezed
+      initialPreRequestScript: freezed == initialPreRequestScript
           ? _value.initialPreRequestScript
           : initialPreRequestScript // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialPostRequestScript: initialPostRequestScript == freezed
+      initialPostRequestScript: freezed == initialPostRequestScript
           ? _value.initialPostRequestScript
           : initialPostRequestScript // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialHeaders: initialHeaders == freezed
+      initialHeaders: freezed == initialHeaders
           ? _value._initialHeaders
           : initialHeaders // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
-      initialEnvironments: initialEnvironments == freezed
+      initialEnvironments: freezed == initialEnvironments
           ? _value.initialEnvironments
           : initialEnvironments // ignore: cast_nullable_to_non_nullable
               as IInitialEnvironments?,
-      instanceStorageNamespace: instanceStorageNamespace == freezed
+      instanceStorageNamespace: freezed == instanceStorageNamespace
           ? _value.instanceStorageNamespace
           : instanceStorageNamespace // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialSettings: initialSettings == freezed
+      initialSettings: freezed == initialSettings
           ? _value.initialSettings
           : initialSettings // ignore: cast_nullable_to_non_nullable
               as SettingsState?,
-      initialSubscriptionsProvider: initialSubscriptionsProvider == freezed
+      initialSubscriptionsProvider: freezed == initialSubscriptionsProvider
           ? _value.initialSubscriptionsProvider
           : initialSubscriptionsProvider // ignore: cast_nullable_to_non_nullable
               as String?,
-      initialSubscriptionsPayload: initialSubscriptionsPayload == freezed
+      initialSubscriptionsPayload: freezed == initialSubscriptionsPayload
           ? _value._initialSubscriptionsPayload
           : initialSubscriptionsPayload // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
-      preserveState: preserveState == freezed
+      preserveState: freezed == preserveState
           ? _value.preserveState
           : preserveState // ignore: cast_nullable_to_non_nullable
               as bool?,
-      initialHttpMethod: initialHttpMethod == freezed
+      initialHttpMethod: freezed == initialHttpMethod
           ? _value.initialHttpMethod
           : initialHttpMethod // ignore: cast_nullable_to_non_nullable
               as String?,
-      baseURL: baseURL == freezed
+      baseURL: freezed == baseURL
           ? _value.baseURL
           : baseURL // ignore: cast_nullable_to_non_nullable
               as String?,
-      serveInitialOptionsInSeperateRequest: serveInitialOptionsInSeperateRequest ==
-              freezed
+      serveInitialOptionsInSeperateRequest: freezed ==
+              serveInitialOptionsInSeperateRequest
           ? _value.serveInitialOptionsInSeperateRequest
           : serveInitialOptionsInSeperateRequest // ignore: cast_nullable_to_non_nullable
               as bool?,
@@ -453,6 +458,7 @@ class _$_AltairConfig implements _AltairConfig {
   Map<String, Object?>? get initialHeaders {
     final value = _initialHeaders;
     if (value == null) return null;
+    if (_initialHeaders is EqualUnmodifiableMapView) return _initialHeaders;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
@@ -500,6 +506,8 @@ class _$_AltairConfig implements _AltairConfig {
   Map<String, Object?>? get initialSubscriptionsPayload {
     final value = _initialSubscriptionsPayload;
     if (value == null) return null;
+    if (_initialSubscriptionsPayload is EqualUnmodifiableMapView)
+      return _initialSubscriptionsPayload;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
@@ -536,72 +544,76 @@ class _$_AltairConfig implements _AltairConfig {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_AltairConfig &&
-            const DeepCollectionEquality()
-                .equals(other.endpointURL, endpointURL) &&
-            const DeepCollectionEquality()
-                .equals(other.subscriptionsEndpoint, subscriptionsEndpoint) &&
-            const DeepCollectionEquality()
-                .equals(other.initialQuery, initialQuery) &&
-            const DeepCollectionEquality()
-                .equals(other.initialVariables, initialVariables) &&
-            const DeepCollectionEquality().equals(
-                other.initialPreRequestScript, initialPreRequestScript) &&
-            const DeepCollectionEquality().equals(
-                other.initialPostRequestScript, initialPostRequestScript) &&
+            (identical(other.endpointURL, endpointURL) ||
+                other.endpointURL == endpointURL) &&
+            (identical(other.subscriptionsEndpoint, subscriptionsEndpoint) ||
+                other.subscriptionsEndpoint == subscriptionsEndpoint) &&
+            (identical(other.initialQuery, initialQuery) ||
+                other.initialQuery == initialQuery) &&
+            (identical(other.initialVariables, initialVariables) ||
+                other.initialVariables == initialVariables) &&
+            (identical(other.initialPreRequestScript, initialPreRequestScript) ||
+                other.initialPreRequestScript == initialPreRequestScript) &&
+            (identical(other.initialPostRequestScript, initialPostRequestScript) ||
+                other.initialPostRequestScript == initialPostRequestScript) &&
             const DeepCollectionEquality()
                 .equals(other._initialHeaders, _initialHeaders) &&
-            const DeepCollectionEquality()
-                .equals(other.initialEnvironments, initialEnvironments) &&
-            const DeepCollectionEquality().equals(
-                other.instanceStorageNamespace, instanceStorageNamespace) &&
-            const DeepCollectionEquality()
-                .equals(other.initialSettings, initialSettings) &&
-            const DeepCollectionEquality().equals(
-                other.initialSubscriptionsProvider,
-                initialSubscriptionsProvider) &&
+            (identical(other.initialEnvironments, initialEnvironments) ||
+                other.initialEnvironments == initialEnvironments) &&
+            (identical(other.instanceStorageNamespace, instanceStorageNamespace) ||
+                other.instanceStorageNamespace == instanceStorageNamespace) &&
+            (identical(other.initialSettings, initialSettings) ||
+                other.initialSettings == initialSettings) &&
+            (identical(other.initialSubscriptionsProvider,
+                    initialSubscriptionsProvider) ||
+                other.initialSubscriptionsProvider ==
+                    initialSubscriptionsProvider) &&
             const DeepCollectionEquality().equals(
                 other._initialSubscriptionsPayload,
                 _initialSubscriptionsPayload) &&
-            const DeepCollectionEquality()
-                .equals(other.preserveState, preserveState) &&
-            const DeepCollectionEquality()
-                .equals(other.initialHttpMethod, initialHttpMethod) &&
-            const DeepCollectionEquality().equals(other.baseURL, baseURL) &&
-            const DeepCollectionEquality().equals(
-                other.serveInitialOptionsInSeperateRequest,
-                serveInitialOptionsInSeperateRequest));
+            (identical(other.preserveState, preserveState) ||
+                other.preserveState == preserveState) &&
+            (identical(other.initialHttpMethod, initialHttpMethod) ||
+                other.initialHttpMethod == initialHttpMethod) &&
+            (identical(other.baseURL, baseURL) || other.baseURL == baseURL) &&
+            (identical(other.serveInitialOptionsInSeperateRequest,
+                    serveInitialOptionsInSeperateRequest) ||
+                other.serveInitialOptionsInSeperateRequest ==
+                    serveInitialOptionsInSeperateRequest));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(endpointURL),
-      const DeepCollectionEquality().hash(subscriptionsEndpoint),
-      const DeepCollectionEquality().hash(initialQuery),
-      const DeepCollectionEquality().hash(initialVariables),
-      const DeepCollectionEquality().hash(initialPreRequestScript),
-      const DeepCollectionEquality().hash(initialPostRequestScript),
+      endpointURL,
+      subscriptionsEndpoint,
+      initialQuery,
+      initialVariables,
+      initialPreRequestScript,
+      initialPostRequestScript,
       const DeepCollectionEquality().hash(_initialHeaders),
-      const DeepCollectionEquality().hash(initialEnvironments),
-      const DeepCollectionEquality().hash(instanceStorageNamespace),
-      const DeepCollectionEquality().hash(initialSettings),
-      const DeepCollectionEquality().hash(initialSubscriptionsProvider),
+      initialEnvironments,
+      instanceStorageNamespace,
+      initialSettings,
+      initialSubscriptionsProvider,
       const DeepCollectionEquality().hash(_initialSubscriptionsPayload),
-      const DeepCollectionEquality().hash(preserveState),
-      const DeepCollectionEquality().hash(initialHttpMethod),
-      const DeepCollectionEquality().hash(baseURL),
-      const DeepCollectionEquality()
-          .hash(serveInitialOptionsInSeperateRequest));
+      preserveState,
+      initialHttpMethod,
+      baseURL,
+      serveInitialOptionsInSeperateRequest);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_AltairConfigCopyWith<_$_AltairConfig> get copyWith =>
       __$$_AltairConfigCopyWithImpl<_$_AltairConfig>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_AltairConfigToJson(this);
+    return _$$_AltairConfigToJson(
+      this,
+    );
   }
 }
 
@@ -630,27 +642,27 @@ abstract class _AltairConfig implements AltairConfig {
   @override
 
   /// URL to set as the server endpoint
-  String? get endpointURL => throw _privateConstructorUsedError;
+  String? get endpointURL;
   @override
 
   /// URL to set as the subscription endpoint
-  String? get subscriptionsEndpoint => throw _privateConstructorUsedError;
+  String? get subscriptionsEndpoint;
   @override
 
   /// Initial query to be added
-  String? get initialQuery => throw _privateConstructorUsedError;
+  String? get initialQuery;
   @override
 
   /// Initial variables to be added
-  String? get initialVariables => throw _privateConstructorUsedError;
+  String? get initialVariables;
   @override
 
   /// Initial pre-request script to be added
-  String? get initialPreRequestScript => throw _privateConstructorUsedError;
+  String? get initialPreRequestScript;
   @override
 
   /// Initial post-request script to be added
-  String? get initialPostRequestScript => throw _privateConstructorUsedError;
+  String? get initialPostRequestScript;
   @override
 
   /// Initial headers object to be added
@@ -658,8 +670,7 @@ abstract class _AltairConfig implements AltairConfig {
   /// {
   ///  'X-GraphQL-Token': 'asd7-237s-2bdk-nsdk4'
   /// }
-  Map<String, Object?>? get initialHeaders =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?>? get initialHeaders;
   @override
 
   /// Initial Environments to be added
@@ -676,8 +687,7 @@ abstract class _AltairConfig implements AltairConfig {
   ///     }
   ///   ]
   /// }
-  IInitialEnvironments? get initialEnvironments =>
-      throw _privateConstructorUsedError;
+  IInitialEnvironments? get initialEnvironments;
   @override
 
   /// Namespace for storing the data for the altair instance.
@@ -685,37 +695,35 @@ abstract class _AltairConfig implements AltairConfig {
   /// running on the same domain.
   /// @example
   /// instanceStorageNamespace: 'altair_dev_'
-  String? get instanceStorageNamespace => throw _privateConstructorUsedError;
+  String? get instanceStorageNamespace;
   @override
 
   /// Initial app settings to use
-  SettingsState? get initialSettings => throw _privateConstructorUsedError;
+  SettingsState? get initialSettings;
   @override
 
   /// Initial subscriptions provider
   /// One of: 'websocket' | 'graphql-ws' | 'app-sync' | 'action-cable'
   /// @default "websocket"
-  String? get initialSubscriptionsProvider =>
-      throw _privateConstructorUsedError;
+  String? get initialSubscriptionsProvider;
   @override
 
   /// Initial subscriptions connection params
-  Map<String, Object?>? get initialSubscriptionsPayload =>
-      throw _privateConstructorUsedError;
+  Map<String, Object?>? get initialSubscriptionsPayload;
   @override
 
   /// Indicates if the state should be preserved for subsequent app loads
   ///
   /// @default true
-  bool? get preserveState => throw _privateConstructorUsedError;
+  bool? get preserveState;
   @override
 
   /// HTTP method to use for making requests 'POST', 'GET', 'PUT', 'DELETE'
-  String? get initialHttpMethod => throw _privateConstructorUsedError;
+  String? get initialHttpMethod;
   @override
 
   /// URL to be used as a base for relative URLs
-  String? get baseURL => throw _privateConstructorUsedError;
+  String? get baseURL;
   @override
 
   /// Whether to render the initial options in a seperate javascript
@@ -723,8 +731,7 @@ abstract class _AltairConfig implements AltairConfig {
   /// Use this to be able to enforce strict CSP rules.
   ///
   /// @default false
-  bool? get serveInitialOptionsInSeperateRequest =>
-      throw _privateConstructorUsedError;
+  bool? get serveInitialOptionsInSeperateRequest;
   @override
   @JsonKey(ignore: true)
   _$$_AltairConfigCopyWith<_$_AltairConfig> get copyWith =>
@@ -751,7 +758,8 @@ mixin _$IInitialEnvironments {
 abstract class $IInitialEnvironmentsCopyWith<$Res> {
   factory $IInitialEnvironmentsCopyWith(IInitialEnvironments value,
           $Res Function(IInitialEnvironments) then) =
-      _$IInitialEnvironmentsCopyWithImpl<$Res>;
+      _$IInitialEnvironmentsCopyWithImpl<$Res, IInitialEnvironments>;
+  @useResult
   $Res call(
       {InitialEnvironmentState? base,
       List<InitialEnvironmentState>? subEnvironments});
@@ -760,39 +768,43 @@ abstract class $IInitialEnvironmentsCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$IInitialEnvironmentsCopyWithImpl<$Res>
+class _$IInitialEnvironmentsCopyWithImpl<$Res,
+        $Val extends IInitialEnvironments>
     implements $IInitialEnvironmentsCopyWith<$Res> {
   _$IInitialEnvironmentsCopyWithImpl(this._value, this._then);
 
-  final IInitialEnvironments _value;
   // ignore: unused_field
-  final $Res Function(IInitialEnvironments) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? base = freezed,
     Object? subEnvironments = freezed,
   }) {
     return _then(_value.copyWith(
-      base: base == freezed
+      base: freezed == base
           ? _value.base
           : base // ignore: cast_nullable_to_non_nullable
               as InitialEnvironmentState?,
-      subEnvironments: subEnvironments == freezed
+      subEnvironments: freezed == subEnvironments
           ? _value.subEnvironments
           : subEnvironments // ignore: cast_nullable_to_non_nullable
               as List<InitialEnvironmentState>?,
-    ));
+    ) as $Val);
   }
 
   @override
+  @pragma('vm:prefer-inline')
   $InitialEnvironmentStateCopyWith<$Res>? get base {
     if (_value.base == null) {
       return null;
     }
 
     return $InitialEnvironmentStateCopyWith<$Res>(_value.base!, (value) {
-      return _then(_value.copyWith(base: value));
+      return _then(_value.copyWith(base: value) as $Val);
     });
   }
 }
@@ -804,6 +816,7 @@ abstract class _$$_IInitialEnvironmentsCopyWith<$Res>
           $Res Function(_$_IInitialEnvironments) then) =
       __$$_IInitialEnvironmentsCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {InitialEnvironmentState? base,
       List<InitialEnvironmentState>? subEnvironments});
@@ -814,26 +827,24 @@ abstract class _$$_IInitialEnvironmentsCopyWith<$Res>
 
 /// @nodoc
 class __$$_IInitialEnvironmentsCopyWithImpl<$Res>
-    extends _$IInitialEnvironmentsCopyWithImpl<$Res>
+    extends _$IInitialEnvironmentsCopyWithImpl<$Res, _$_IInitialEnvironments>
     implements _$$_IInitialEnvironmentsCopyWith<$Res> {
   __$$_IInitialEnvironmentsCopyWithImpl(_$_IInitialEnvironments _value,
       $Res Function(_$_IInitialEnvironments) _then)
-      : super(_value, (v) => _then(v as _$_IInitialEnvironments));
+      : super(_value, _then);
 
-  @override
-  _$_IInitialEnvironments get _value => super._value as _$_IInitialEnvironments;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? base = freezed,
     Object? subEnvironments = freezed,
   }) {
     return _then(_$_IInitialEnvironments(
-      base: base == freezed
+      base: freezed == base
           ? _value.base
           : base // ignore: cast_nullable_to_non_nullable
               as InitialEnvironmentState?,
-      subEnvironments: subEnvironments == freezed
+      subEnvironments: freezed == subEnvironments
           ? _value._subEnvironments
           : subEnvironments // ignore: cast_nullable_to_non_nullable
               as List<InitialEnvironmentState>?,
@@ -858,6 +869,7 @@ class _$_IInitialEnvironments implements _IInitialEnvironments {
   List<InitialEnvironmentState>? get subEnvironments {
     final value = _subEnvironments;
     if (value == null) return null;
+    if (_subEnvironments is EqualUnmodifiableListView) return _subEnvironments;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
@@ -872,7 +884,7 @@ class _$_IInitialEnvironments implements _IInitialEnvironments {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_IInitialEnvironments &&
-            const DeepCollectionEquality().equals(other.base, base) &&
+            (identical(other.base, base) || other.base == base) &&
             const DeepCollectionEquality()
                 .equals(other._subEnvironments, _subEnvironments));
   }
@@ -880,19 +892,20 @@ class _$_IInitialEnvironments implements _IInitialEnvironments {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(base),
-      const DeepCollectionEquality().hash(_subEnvironments));
+      runtimeType, base, const DeepCollectionEquality().hash(_subEnvironments));
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_IInitialEnvironmentsCopyWith<_$_IInitialEnvironments> get copyWith =>
       __$$_IInitialEnvironmentsCopyWithImpl<_$_IInitialEnvironments>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_IInitialEnvironmentsToJson(this);
+    return _$$_IInitialEnvironmentsToJson(
+      this,
+    );
   }
 }
 
@@ -906,10 +919,9 @@ abstract class _IInitialEnvironments implements IInitialEnvironments {
       _$_IInitialEnvironments.fromJson;
 
   @override
-  InitialEnvironmentState? get base => throw _privateConstructorUsedError;
+  InitialEnvironmentState? get base;
   @override
-  List<InitialEnvironmentState>? get subEnvironments =>
-      throw _privateConstructorUsedError;
+  List<InitialEnvironmentState>? get subEnvironments;
   @override
   @JsonKey(ignore: true)
   _$$_IInitialEnvironmentsCopyWith<_$_IInitialEnvironments> get copyWith =>
@@ -937,19 +949,23 @@ mixin _$InitialEnvironmentState {
 abstract class $InitialEnvironmentStateCopyWith<$Res> {
   factory $InitialEnvironmentStateCopyWith(InitialEnvironmentState value,
           $Res Function(InitialEnvironmentState) then) =
-      _$InitialEnvironmentStateCopyWithImpl<$Res>;
+      _$InitialEnvironmentStateCopyWithImpl<$Res, InitialEnvironmentState>;
+  @useResult
   $Res call({String? id, String? title, Map<String, Object?>? variables});
 }
 
 /// @nodoc
-class _$InitialEnvironmentStateCopyWithImpl<$Res>
+class _$InitialEnvironmentStateCopyWithImpl<$Res,
+        $Val extends InitialEnvironmentState>
     implements $InitialEnvironmentStateCopyWith<$Res> {
   _$InitialEnvironmentStateCopyWithImpl(this._value, this._then);
 
-  final InitialEnvironmentState _value;
   // ignore: unused_field
-  final $Res Function(InitialEnvironmentState) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = freezed,
@@ -957,19 +973,19 @@ class _$InitialEnvironmentStateCopyWithImpl<$Res>
     Object? variables = freezed,
   }) {
     return _then(_value.copyWith(
-      id: id == freezed
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      title: title == freezed
+      title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String?,
-      variables: variables == freezed
+      variables: freezed == variables
           ? _value.variables
           : variables // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
-    ));
+    ) as $Val);
   }
 }
 
@@ -980,21 +996,20 @@ abstract class _$$_InitialEnvironmentStateCopyWith<$Res>
           $Res Function(_$_InitialEnvironmentState) then) =
       __$$_InitialEnvironmentStateCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String? id, String? title, Map<String, Object?>? variables});
 }
 
 /// @nodoc
 class __$$_InitialEnvironmentStateCopyWithImpl<$Res>
-    extends _$InitialEnvironmentStateCopyWithImpl<$Res>
+    extends _$InitialEnvironmentStateCopyWithImpl<$Res,
+        _$_InitialEnvironmentState>
     implements _$$_InitialEnvironmentStateCopyWith<$Res> {
   __$$_InitialEnvironmentStateCopyWithImpl(_$_InitialEnvironmentState _value,
       $Res Function(_$_InitialEnvironmentState) _then)
-      : super(_value, (v) => _then(v as _$_InitialEnvironmentState));
+      : super(_value, _then);
 
-  @override
-  _$_InitialEnvironmentState get _value =>
-      super._value as _$_InitialEnvironmentState;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = freezed,
@@ -1002,15 +1017,15 @@ class __$$_InitialEnvironmentStateCopyWithImpl<$Res>
     Object? variables = freezed,
   }) {
     return _then(_$_InitialEnvironmentState(
-      id: id == freezed
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      title: title == freezed
+      title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String?,
-      variables: variables == freezed
+      variables: freezed == variables
           ? _value._variables
           : variables // ignore: cast_nullable_to_non_nullable
               as Map<String, Object?>?,
@@ -1037,6 +1052,7 @@ class _$_InitialEnvironmentState implements _InitialEnvironmentState {
   Map<String, Object?>? get variables {
     final value = _variables;
     if (value == null) return null;
+    if (_variables is EqualUnmodifiableMapView) return _variables;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
@@ -1051,8 +1067,8 @@ class _$_InitialEnvironmentState implements _InitialEnvironmentState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_InitialEnvironmentState &&
-            const DeepCollectionEquality().equals(other.id, id) &&
-            const DeepCollectionEquality().equals(other.title, title) &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.title, title) || other.title == title) &&
             const DeepCollectionEquality()
                 .equals(other._variables, _variables));
   }
@@ -1060,13 +1076,11 @@ class _$_InitialEnvironmentState implements _InitialEnvironmentState {
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(id),
-      const DeepCollectionEquality().hash(title),
-      const DeepCollectionEquality().hash(_variables));
+      runtimeType, id, title, const DeepCollectionEquality().hash(_variables));
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_InitialEnvironmentStateCopyWith<_$_InitialEnvironmentState>
       get copyWith =>
           __$$_InitialEnvironmentStateCopyWithImpl<_$_InitialEnvironmentState>(
@@ -1074,7 +1088,9 @@ class _$_InitialEnvironmentState implements _InitialEnvironmentState {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_InitialEnvironmentStateToJson(this);
+    return _$$_InitialEnvironmentStateToJson(
+      this,
+    );
   }
 }
 
@@ -1088,11 +1104,11 @@ abstract class _InitialEnvironmentState implements InitialEnvironmentState {
       _$_InitialEnvironmentState.fromJson;
 
   @override
-  String? get id => throw _privateConstructorUsedError;
+  String? get id;
   @override
-  String? get title => throw _privateConstructorUsedError;
+  String? get title;
   @override
-  Map<String, Object?>? get variables => throw _privateConstructorUsedError;
+  Map<String, Object?>? get variables;
   @override
   @JsonKey(ignore: true)
   _$$_InitialEnvironmentStateCopyWith<_$_InitialEnvironmentState>

@@ -8,7 +8,7 @@ import 'package:leto_generator_example/attachments.dart';
 /// found in code generation.
 class Validators with GenericValidator {
   Validators._() {
-    for (final v in <Validator>[
+    for (final v in <Validator<dynamic, dynamic>>[
       validatorInputM,
       validatorConnectionArguments,
       validatorValidaArgModel,
@@ -27,7 +27,7 @@ class Validators with GenericValidator {
 
   /// A map with all registered validators by
   /// the type of the model to validate
-  final typeMap = <Type, Validator>{};
+  final typeMap = <Type, Validator<dynamic, dynamic>>{};
 
   @override
   Validator<T, Validation<T, Object>>? validator<T>() {
@@ -42,13 +42,14 @@ class Validators with GenericValidator {
     return validator?.validate(value) as Validation<T, Object>?;
   }
 
-  static const validatorInputM = Validator(InputMValidation.fromValue);
+  static const validatorInputM =
+      Validator.fromFunction(InputMValidation.fromValue);
   static const validatorConnectionArguments =
-      Validator(ConnectionArgumentsValidation.fromValue);
+      Validator.fromFunction(ConnectionArgumentsValidation.fromValue);
   static const validatorValidaArgModel =
-      Validator(ValidaArgModelValidation.fromValue);
+      Validator.fromFunction(ValidaArgModelValidation.fromValue);
   static const validatorTestValidaInArgsArgs =
-      Validator(TestValidaInArgsArgsValidation.fromValue);
+      Validator.fromFunction(TestValidaInArgsArgsValidation.fromValue);
   static const validatorKeyedAttachment =
-      Validator(KeyedAttachmentValidation.fromValue);
+      Validator.fromFunction(KeyedAttachmentValidation.fromValue);
 }

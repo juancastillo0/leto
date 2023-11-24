@@ -58,7 +58,6 @@ class Todo {
     this.inner,
   });
 
-  @override
   Map<String, Object?> toJson() {
     return {
       'text': text,

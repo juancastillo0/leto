@@ -71,12 +71,19 @@ class GraphQLFieldInput<Value, Serialized> implements ObjectField {
     SerdeCtx serdeCtx,
     GraphQLFieldInput field,
   ) {
-    Object? serialized = field.defaultValue;
-    if (serialized != null) {
+    if (field.defaultValue != null) {
       try {
-        serialized = field.type.serialize(serialized);
-      } catch (_) {}
-      field.type.deserialize(serdeCtx, serialized);
+        field.type.deserialize(serdeCtx, field.defaultValue);
+      } catch (_) {
+        try {
+          final serialized = field.type.serialize(field.defaultValue);
+          field.type.deserialize(serdeCtx, serialized);
+        } catch (_) {
+          final v = field.type.validate('defaultValue', field.defaultValue);
+          final serialized = field.type.serialize(v.value);
+          field.type.deserialize(serdeCtx, serialized);
+        }
+      }
     }
   }
 }

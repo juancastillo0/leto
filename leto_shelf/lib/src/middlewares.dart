@@ -16,6 +16,7 @@ FutureOr<Object?> extractJson(Request request) {
           request.mimeType == 'application/graphql+json')) {
     return request.readAsString().then(jsonDecode);
   }
+  return null;
 }
 
 Object? extractJsonFromContext(Map<String, Object?> context) {

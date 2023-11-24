@@ -1,7 +1,7 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'file_event.dart';
 
@@ -44,11 +44,11 @@ mixin _$FileEvent {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(UploadedFileMeta fileUpload, bool replace)? added,
-    TResult Function(String filename, String newFilename, bool replace)?
+    TResult? Function(UploadedFileMeta fileUpload, bool replace)? added,
+    TResult? Function(String filename, String newFilename, bool replace)?
         renamed,
-    TResult Function(String filename)? deleted,
-    TResult Function(List<FileEvent> events)? many,
+    TResult? Function(String filename)? deleted,
+    TResult? Function(List<FileEvent> events)? many,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -71,10 +71,10 @@ mixin _$FileEvent {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(FileEventAdded value)? added,
-    TResult Function(FileEventRenamed value)? renamed,
-    TResult Function(FileEventDeleted value)? deleted,
-    TResult Function(FileEventMany value)? many,
+    TResult? Function(FileEventAdded value)? added,
+    TResult? Function(FileEventRenamed value)? renamed,
+    TResult? Function(FileEventDeleted value)? deleted,
+    TResult? Function(FileEventMany value)? many,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -92,16 +92,18 @@ mixin _$FileEvent {
 /// @nodoc
 abstract class $FileEventCopyWith<$Res> {
   factory $FileEventCopyWith(FileEvent value, $Res Function(FileEvent) then) =
-      _$FileEventCopyWithImpl<$Res>;
+      _$FileEventCopyWithImpl<$Res, FileEvent>;
 }
 
 /// @nodoc
-class _$FileEventCopyWithImpl<$Res> implements $FileEventCopyWith<$Res> {
+class _$FileEventCopyWithImpl<$Res, $Val extends FileEvent>
+    implements $FileEventCopyWith<$Res> {
   _$FileEventCopyWithImpl(this._value, this._then);
 
-  final FileEvent _value;
   // ignore: unused_field
-  final $Res Function(FileEvent) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 }
 
 /// @nodoc
@@ -109,30 +111,30 @@ abstract class _$$FileEventAddedCopyWith<$Res> {
   factory _$$FileEventAddedCopyWith(
           _$FileEventAdded value, $Res Function(_$FileEventAdded) then) =
       __$$FileEventAddedCopyWithImpl<$Res>;
+  @useResult
   $Res call({UploadedFileMeta fileUpload, bool replace});
 }
 
 /// @nodoc
-class __$$FileEventAddedCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
+class __$$FileEventAddedCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res, _$FileEventAdded>
     implements _$$FileEventAddedCopyWith<$Res> {
   __$$FileEventAddedCopyWithImpl(
       _$FileEventAdded _value, $Res Function(_$FileEventAdded) _then)
-      : super(_value, (v) => _then(v as _$FileEventAdded));
+      : super(_value, _then);
 
-  @override
-  _$FileEventAdded get _value => super._value as _$FileEventAdded;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? fileUpload = freezed,
-    Object? replace = freezed,
+    Object? fileUpload = null,
+    Object? replace = null,
   }) {
     return _then(_$FileEventAdded(
-      fileUpload == freezed
+      null == fileUpload
           ? _value.fileUpload
           : fileUpload // ignore: cast_nullable_to_non_nullable
               as UploadedFileMeta,
-      replace: replace == freezed
+      replace: null == replace
           ? _value.replace
           : replace // ignore: cast_nullable_to_non_nullable
               as bool,
@@ -170,20 +172,18 @@ class _$FileEventAdded extends FileEventAdded {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$FileEventAdded &&
-            const DeepCollectionEquality()
-                .equals(other.fileUpload, fileUpload) &&
-            const DeepCollectionEquality().equals(other.replace, replace));
+            (identical(other.fileUpload, fileUpload) ||
+                other.fileUpload == fileUpload) &&
+            (identical(other.replace, replace) || other.replace == replace));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(fileUpload),
-      const DeepCollectionEquality().hash(replace));
+  int get hashCode => Object.hash(runtimeType, fileUpload, replace);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$FileEventAddedCopyWith<_$FileEventAdded> get copyWith =>
       __$$FileEventAddedCopyWithImpl<_$FileEventAdded>(this, _$identity);
 
@@ -202,11 +202,11 @@ class _$FileEventAdded extends FileEventAdded {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(UploadedFileMeta fileUpload, bool replace)? added,
-    TResult Function(String filename, String newFilename, bool replace)?
+    TResult? Function(UploadedFileMeta fileUpload, bool replace)? added,
+    TResult? Function(String filename, String newFilename, bool replace)?
         renamed,
-    TResult Function(String filename)? deleted,
-    TResult Function(List<FileEvent> events)? many,
+    TResult? Function(String filename)? deleted,
+    TResult? Function(List<FileEvent> events)? many,
   }) {
     return added?.call(fileUpload, replace);
   }
@@ -241,10 +241,10 @@ class _$FileEventAdded extends FileEventAdded {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(FileEventAdded value)? added,
-    TResult Function(FileEventRenamed value)? renamed,
-    TResult Function(FileEventDeleted value)? deleted,
-    TResult Function(FileEventMany value)? many,
+    TResult? Function(FileEventAdded value)? added,
+    TResult? Function(FileEventRenamed value)? renamed,
+    TResult? Function(FileEventDeleted value)? deleted,
+    TResult? Function(FileEventMany value)? many,
   }) {
     return added?.call(this);
   }
@@ -266,7 +266,9 @@ class _$FileEventAdded extends FileEventAdded {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventAddedToJson(this);
+    return _$$FileEventAddedToJson(
+      this,
+    );
   }
 }
 
@@ -278,8 +280,8 @@ abstract class FileEventAdded extends FileEvent {
   factory FileEventAdded.fromJson(Map<String, dynamic> json) =
       _$FileEventAdded.fromJson;
 
-  UploadedFileMeta get fileUpload => throw _privateConstructorUsedError;
-  bool get replace => throw _privateConstructorUsedError;
+  UploadedFileMeta get fileUpload;
+  bool get replace;
   @JsonKey(ignore: true)
   _$$FileEventAddedCopyWith<_$FileEventAdded> get copyWith =>
       throw _privateConstructorUsedError;
@@ -290,36 +292,35 @@ abstract class _$$FileEventRenamedCopyWith<$Res> {
   factory _$$FileEventRenamedCopyWith(
           _$FileEventRenamed value, $Res Function(_$FileEventRenamed) then) =
       __$$FileEventRenamedCopyWithImpl<$Res>;
+  @useResult
   $Res call({String filename, String newFilename, bool replace});
 }
 
 /// @nodoc
 class __$$FileEventRenamedCopyWithImpl<$Res>
-    extends _$FileEventCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res, _$FileEventRenamed>
     implements _$$FileEventRenamedCopyWith<$Res> {
   __$$FileEventRenamedCopyWithImpl(
       _$FileEventRenamed _value, $Res Function(_$FileEventRenamed) _then)
-      : super(_value, (v) => _then(v as _$FileEventRenamed));
+      : super(_value, _then);
 
-  @override
-  _$FileEventRenamed get _value => super._value as _$FileEventRenamed;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? filename = freezed,
-    Object? newFilename = freezed,
-    Object? replace = freezed,
+    Object? filename = null,
+    Object? newFilename = null,
+    Object? replace = null,
   }) {
     return _then(_$FileEventRenamed(
-      filename: filename == freezed
+      filename: null == filename
           ? _value.filename
           : filename // ignore: cast_nullable_to_non_nullable
               as String,
-      newFilename: newFilename == freezed
+      newFilename: null == newFilename
           ? _value.newFilename
           : newFilename // ignore: cast_nullable_to_non_nullable
               as String,
-      replace: replace == freezed
+      replace: null == replace
           ? _value.replace
           : replace // ignore: cast_nullable_to_non_nullable
               as bool,
@@ -362,22 +363,20 @@ class _$FileEventRenamed extends FileEventRenamed {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$FileEventRenamed &&
-            const DeepCollectionEquality().equals(other.filename, filename) &&
-            const DeepCollectionEquality()
-                .equals(other.newFilename, newFilename) &&
-            const DeepCollectionEquality().equals(other.replace, replace));
+            (identical(other.filename, filename) ||
+                other.filename == filename) &&
+            (identical(other.newFilename, newFilename) ||
+                other.newFilename == newFilename) &&
+            (identical(other.replace, replace) || other.replace == replace));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(filename),
-      const DeepCollectionEquality().hash(newFilename),
-      const DeepCollectionEquality().hash(replace));
+  int get hashCode => Object.hash(runtimeType, filename, newFilename, replace);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$FileEventRenamedCopyWith<_$FileEventRenamed> get copyWith =>
       __$$FileEventRenamedCopyWithImpl<_$FileEventRenamed>(this, _$identity);
 
@@ -396,11 +395,11 @@ class _$FileEventRenamed extends FileEventRenamed {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(UploadedFileMeta fileUpload, bool replace)? added,
-    TResult Function(String filename, String newFilename, bool replace)?
+    TResult? Function(UploadedFileMeta fileUpload, bool replace)? added,
+    TResult? Function(String filename, String newFilename, bool replace)?
         renamed,
-    TResult Function(String filename)? deleted,
-    TResult Function(List<FileEvent> events)? many,
+    TResult? Function(String filename)? deleted,
+    TResult? Function(List<FileEvent> events)? many,
   }) {
     return renamed?.call(filename, newFilename, replace);
   }
@@ -435,10 +434,10 @@ class _$FileEventRenamed extends FileEventRenamed {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(FileEventAdded value)? added,
-    TResult Function(FileEventRenamed value)? renamed,
-    TResult Function(FileEventDeleted value)? deleted,
-    TResult Function(FileEventMany value)? many,
+    TResult? Function(FileEventAdded value)? added,
+    TResult? Function(FileEventRenamed value)? renamed,
+    TResult? Function(FileEventDeleted value)? deleted,
+    TResult? Function(FileEventMany value)? many,
   }) {
     return renamed?.call(this);
   }
@@ -460,7 +459,9 @@ class _$FileEventRenamed extends FileEventRenamed {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventRenamedToJson(this);
+    return _$$FileEventRenamedToJson(
+      this,
+    );
   }
 }
 
@@ -474,9 +475,9 @@ abstract class FileEventRenamed extends FileEvent {
   factory FileEventRenamed.fromJson(Map<String, dynamic> json) =
       _$FileEventRenamed.fromJson;
 
-  String get filename => throw _privateConstructorUsedError;
-  String get newFilename => throw _privateConstructorUsedError;
-  bool get replace => throw _privateConstructorUsedError;
+  String get filename;
+  String get newFilename;
+  bool get replace;
   @JsonKey(ignore: true)
   _$$FileEventRenamedCopyWith<_$FileEventRenamed> get copyWith =>
       throw _privateConstructorUsedError;
@@ -487,26 +488,25 @@ abstract class _$$FileEventDeletedCopyWith<$Res> {
   factory _$$FileEventDeletedCopyWith(
           _$FileEventDeleted value, $Res Function(_$FileEventDeleted) then) =
       __$$FileEventDeletedCopyWithImpl<$Res>;
+  @useResult
   $Res call({String filename});
 }
 
 /// @nodoc
 class __$$FileEventDeletedCopyWithImpl<$Res>
-    extends _$FileEventCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res, _$FileEventDeleted>
     implements _$$FileEventDeletedCopyWith<$Res> {
   __$$FileEventDeletedCopyWithImpl(
       _$FileEventDeleted _value, $Res Function(_$FileEventDeleted) _then)
-      : super(_value, (v) => _then(v as _$FileEventDeleted));
+      : super(_value, _then);
 
-  @override
-  _$FileEventDeleted get _value => super._value as _$FileEventDeleted;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? filename = freezed,
+    Object? filename = null,
   }) {
     return _then(_$FileEventDeleted(
-      filename == freezed
+      null == filename
           ? _value.filename
           : filename // ignore: cast_nullable_to_non_nullable
               as String,
@@ -540,16 +540,17 @@ class _$FileEventDeleted extends FileEventDeleted {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$FileEventDeleted &&
-            const DeepCollectionEquality().equals(other.filename, filename));
+            (identical(other.filename, filename) ||
+                other.filename == filename));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(filename));
+  int get hashCode => Object.hash(runtimeType, filename);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$FileEventDeletedCopyWith<_$FileEventDeleted> get copyWith =>
       __$$FileEventDeletedCopyWithImpl<_$FileEventDeleted>(this, _$identity);
 
@@ -568,11 +569,11 @@ class _$FileEventDeleted extends FileEventDeleted {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(UploadedFileMeta fileUpload, bool replace)? added,
-    TResult Function(String filename, String newFilename, bool replace)?
+    TResult? Function(UploadedFileMeta fileUpload, bool replace)? added,
+    TResult? Function(String filename, String newFilename, bool replace)?
         renamed,
-    TResult Function(String filename)? deleted,
-    TResult Function(List<FileEvent> events)? many,
+    TResult? Function(String filename)? deleted,
+    TResult? Function(List<FileEvent> events)? many,
   }) {
     return deleted?.call(filename);
   }
@@ -607,10 +608,10 @@ class _$FileEventDeleted extends FileEventDeleted {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(FileEventAdded value)? added,
-    TResult Function(FileEventRenamed value)? renamed,
-    TResult Function(FileEventDeleted value)? deleted,
-    TResult Function(FileEventMany value)? many,
+    TResult? Function(FileEventAdded value)? added,
+    TResult? Function(FileEventRenamed value)? renamed,
+    TResult? Function(FileEventDeleted value)? deleted,
+    TResult? Function(FileEventMany value)? many,
   }) {
     return deleted?.call(this);
   }
@@ -632,7 +633,9 @@ class _$FileEventDeleted extends FileEventDeleted {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventDeletedToJson(this);
+    return _$$FileEventDeletedToJson(
+      this,
+    );
   }
 }
 
@@ -643,7 +646,7 @@ abstract class FileEventDeleted extends FileEvent {
   factory FileEventDeleted.fromJson(Map<String, dynamic> json) =
       _$FileEventDeleted.fromJson;
 
-  String get filename => throw _privateConstructorUsedError;
+  String get filename;
   @JsonKey(ignore: true)
   _$$FileEventDeletedCopyWith<_$FileEventDeleted> get copyWith =>
       throw _privateConstructorUsedError;
@@ -654,25 +657,25 @@ abstract class _$$FileEventManyCopyWith<$Res> {
   factory _$$FileEventManyCopyWith(
           _$FileEventMany value, $Res Function(_$FileEventMany) then) =
       __$$FileEventManyCopyWithImpl<$Res>;
+  @useResult
   $Res call({List<FileEvent> events});
 }
 
 /// @nodoc
-class __$$FileEventManyCopyWithImpl<$Res> extends _$FileEventCopyWithImpl<$Res>
+class __$$FileEventManyCopyWithImpl<$Res>
+    extends _$FileEventCopyWithImpl<$Res, _$FileEventMany>
     implements _$$FileEventManyCopyWith<$Res> {
   __$$FileEventManyCopyWithImpl(
       _$FileEventMany _value, $Res Function(_$FileEventMany) _then)
-      : super(_value, (v) => _then(v as _$FileEventMany));
+      : super(_value, _then);
 
-  @override
-  _$FileEventMany get _value => super._value as _$FileEventMany;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? events = freezed,
+    Object? events = null,
   }) {
     return _then(_$FileEventMany(
-      events == freezed
+      null == events
           ? _value._events
           : events // ignore: cast_nullable_to_non_nullable
               as List<FileEvent>,
@@ -694,6 +697,7 @@ class _$FileEventMany extends FileEventMany {
   final List<FileEvent> _events;
   @override
   List<FileEvent> get events {
+    if (_events is EqualUnmodifiableListView) return _events;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_events);
   }
@@ -721,6 +725,7 @@ class _$FileEventMany extends FileEventMany {
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$FileEventManyCopyWith<_$FileEventMany> get copyWith =>
       __$$FileEventManyCopyWithImpl<_$FileEventMany>(this, _$identity);
 
@@ -739,11 +744,11 @@ class _$FileEventMany extends FileEventMany {
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
-    TResult Function(UploadedFileMeta fileUpload, bool replace)? added,
-    TResult Function(String filename, String newFilename, bool replace)?
+    TResult? Function(UploadedFileMeta fileUpload, bool replace)? added,
+    TResult? Function(String filename, String newFilename, bool replace)?
         renamed,
-    TResult Function(String filename)? deleted,
-    TResult Function(List<FileEvent> events)? many,
+    TResult? Function(String filename)? deleted,
+    TResult? Function(List<FileEvent> events)? many,
   }) {
     return many?.call(events);
   }
@@ -778,10 +783,10 @@ class _$FileEventMany extends FileEventMany {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult Function(FileEventAdded value)? added,
-    TResult Function(FileEventRenamed value)? renamed,
-    TResult Function(FileEventDeleted value)? deleted,
-    TResult Function(FileEventMany value)? many,
+    TResult? Function(FileEventAdded value)? added,
+    TResult? Function(FileEventRenamed value)? renamed,
+    TResult? Function(FileEventDeleted value)? deleted,
+    TResult? Function(FileEventMany value)? many,
   }) {
     return many?.call(this);
   }
@@ -803,7 +808,9 @@ class _$FileEventMany extends FileEventMany {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FileEventManyToJson(this);
+    return _$$FileEventManyToJson(
+      this,
+    );
   }
 }
 
@@ -814,7 +821,7 @@ abstract class FileEventMany extends FileEvent {
   factory FileEventMany.fromJson(Map<String, dynamic> json) =
       _$FileEventMany.fromJson;
 
-  List<FileEvent> get events => throw _privateConstructorUsedError;
+  List<FileEvent> get events;
   @JsonKey(ignore: true)
   _$$FileEventManyCopyWith<_$FileEventMany> get copyWith =>
       throw _privateConstructorUsedError;

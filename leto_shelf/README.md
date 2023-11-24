@@ -69,7 +69,7 @@ Handles POST and GET requests for "application/graphql", "application/json", "ap
 - We restrict GET requests to allow only GraphQL Query operations
 - Support for file Upload with "multipart/form-data" bodies
 
-A 200 status code with a JSON body will be sent by default, with a structure following the [spec](http://spec.graphql.org/draft/#sec-Response).
+A 200 status code with a JSON body will be sent by default, with a structure following the [spec](https://spec.graphql.org/draft/#sec-Response).
 
 A 400 status code will be sent for requests that do not follow the specifications.
 

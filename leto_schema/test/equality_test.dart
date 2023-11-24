@@ -1,4 +1,3 @@
-import 'package:leto_schema/leto_schema.dart';
 import 'package:test/test.dart';
 
 /// Note: this doesn't test for scalar types, which are final,

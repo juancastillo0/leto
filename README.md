@@ -707,13 +707,13 @@ If your prefer to read the documentation in a web page, you can [try the documen
 
 The GraphQL language provides multiple types for representing your exposed API and the required data structures for the input values. In the following sections we explain their usage within Leto and, in general, for GraphQL. Each section contains a link to the official GraphQL specification for more information.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Schema)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Schema)
 
 ## Scalars
 
 The fundamental building-block in the type system. Standard `GraphQLScalarType`s: String, Int, Float, Boolean and ID types are already implemented and provided by Leto.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Scalars)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Scalars)
 
 Other scalar types are also provided:
 
@@ -732,7 +732,7 @@ To provide your own or support types from other packages you can use [Custom Sca
 
 Enums are text values which are restricted to a set of predefined variants. Their behavior is similar to scalars and they don't have a nested fields.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Enums)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Enums)
 
 They require a unique name and a set of entries mapping their string representation to the Dart value obtained after parsing.
 
@@ -777,7 +777,7 @@ enum SignUpError {
 
 GraphQL objects allow you to specify a type with a set of fields or properties. Objects can only be outputs in a resolver. Each field can be of any output type.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Objects)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Objects)
 
 The Query, Mutation and Subscription types in the schema are specified using GraphQL objects.
 
@@ -820,7 +820,7 @@ This would generate graphql_api.schema.dart
 
 ### Interfaces
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Interfaces)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Interfaces)
 
 - inheritFrom
 
@@ -831,7 +831,7 @@ a super type, now the Object will implement the Interface passed as parameter.
 
 Input types specify the structure of the values that inputs to resolvers should have. Scalars and Enums can be passed as input to resolvers. Wrapper types such as List and NonNull types of Scalars and Enums, also can be passed, however for more complex Objects with nested fields you will need to use `GraphQLInputObjectType`. Similar `GraphQLObjectType`, a `GraphQLInputObjectType` can have fields.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Input-Objects)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Input-Objects)
 
 // TODO: 1A customDeserialize with SerdeCtx deserializers
 
@@ -989,7 +989,7 @@ Similar to enums, Unions are restricted to a set of predefined variants, however
 
 Per the GraphQL spec, Unions can't be (or be part of) Input types and their possible types is a non empty collection of unique `GraphQLObjectType`.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Unions)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Unions)
 
 To have the following GraphQL type definitions:
 
@@ -1118,7 +1118,7 @@ Wrapping types allow to modify the behavior of the inner (wrapped) type. The inn
 
 `GraphQLNonNullType` allows you to represent a non-nullable or required value. By default, all GraphQL Types are nullable or optional, if you want to represent a required input or specify that a given output is always present (non-null), you want to use the `GraphQLNonNullType` wrapping type.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Non-Null)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Non-Null)
 
 
 In GraphQL this is represented using the `!` exclamation mark after a given type expression. In Dart you can use the `nonNull()` method present in each `GraphQLType`, which will return a non-nullable `GraphQLNonNullType` with it's inner type, the type from which `nonNull` was called. For example, `graphQLString.nonNull()` will be a `String!` in GraphQL.
@@ -1127,7 +1127,7 @@ In GraphQL this is represented using the `!` exclamation mark after a given type
 
 `GraphQLListType` allows you to represent a collection of values.
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-List)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-List)
 
 This values can be of any `GraphQLType` and List types can be Output or Input Types if the Wrapped type is an Output or Input type. For example, a List of Union types is an Output type while a List of Strings (scalar types) can be an Output or Input type. You can use the `<type>.list()` method present in each `GraphQLType` or the `listOf(<type>)` global utility function to create a `GraphQLListType`. For example, `graphQLString.list()` will be a `[String]` in GraphQL.
 
@@ -1564,7 +1564,7 @@ This is the base context associated with the request, contains the raw informati
 
 ## Schema Validation
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Type-System)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Type-System)
 
 Implements the "Type Validation" sub-sections of the specification's "Type System" section.
 
@@ -1574,7 +1574,7 @@ This will be executed before stating a GraphQL server. Leto implements all of th
 
 ## Document Validation
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Validation)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Validation)
 
 This will be executed before executing any request. Leto implements all of the Specification's document validation. The code for all rules can be found in the [validate](https://github.com/juancastillo0/leto/tree/main/leto_schema/lib/src/validate) folder in `package:leto_schema`.
 
@@ -1669,11 +1669,11 @@ class ConnectionArguments {
 
 ## `GraphQLResult`
 
-[GraphQL Specification](http://spec.graphql.org/draft/#sec-Response)
+[GraphQL Specification](https://spec.graphql.org/draft/#sec-Response)
 
 The returned `GraphQLResult` is the output of the execution of a GraphQL request it contains the encountered `GraphQLError`s, the output `extensions` and the `data` payload. The `GraphQLResult.toJson` Map is used by `package:leto_shelf` when constructing an HTTP response's body.
 
-- The `data` is a `Map<String, Object?>?` for Queries and Mutations or a `Stream<GraphQLResult>` for subscriptions. It has the payload returned by the resolvers during execution. Will be null if there was an error in validation or in the execution of a non-nullable root field. If there was an error in validation, the `data` property will not be set in the `GraphQLResult.toJson` Map following the [spec](http://spec.graphql.org/draft/#sec-Response).
+- The `data` is a `Map<String, Object?>?` for Queries and Mutations or a `Stream<GraphQLResult>` for subscriptions. It has the payload returned by the resolvers during execution. Will be null if there was an error in validation or in the execution of a non-nullable root field. If there was an error in validation, the `data` property will not be set in the `GraphQLResult.toJson` Map following the [spec](https://spec.graphql.org/draft/#sec-Response).
   
 - The `errors` contain the `GraphQLError`s encountered during validation or execution. If a resolver throws an error, it will appear in this error list. If the field's return type is nullable, a null value will be set as the output for that field. If the type is non-nullable the resolver will continue to throw an exception until a nullable field is reached or the root resolver is reached (in this case the `GraphQLResult.data` property will be null).
 
@@ -2058,7 +2058,7 @@ All extensions are implemented in this way, so you can look at the source code f
 
 # Directives
 
-For more information: [GraphQL specification](http://spec.graphql.org/draft/#sec-Type-System.Directives)
+For more information: [GraphQL specification](https://spec.graphql.org/draft/#sec-Type-System.Directives)
 
 
 [`GraphQLDirective`](https://github.com/juancastillo0/leto/blob/main/leto_schema/lib/src/directive.dart) allows you to provide more information about different elements of your schema and queries.

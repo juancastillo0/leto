@@ -466,7 +466,7 @@ GraphQLType<Object?, Object?> convertType(
 ) {
   GraphQLType _type() {
     if (node is ListTypeNode) {
-      return listOf(convertType(node.type, customTypes));
+      return convertType(node.type, customTypes).list();
     } else if (node is NamedTypeNode) {
       switch (node.name.value) {
         case 'Int':

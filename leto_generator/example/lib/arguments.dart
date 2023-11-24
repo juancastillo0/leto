@@ -47,23 +47,24 @@ String testManyDefaults({
   bool boolean = true,
   List<String> listStr = const ['dw', 'dd2'],
   @GraphQLArg(defaultFunc: _defaultListDecimalNull)
-      List<Decimal?>? listDecimalNull,
+  List<Decimal?>? listDecimalNull,
   @GraphQLArg(defaultCode: "[Uri.parse('http://localhost:8060/')]")
-      required List<Uri> listUri,
+  required List<Uri> listUri,
   @GraphQLArg(defaultCode: 'DateTime.parse("2021-03-24")')
-      required DateTime date,
+  required DateTime date,
   @GraphQLArg(defaultCode: "InputGen(name: 'gen', generic: 2)")
-      InputGen<int>? gen,
+  InputGen<int>? gen,
   EnumValue enumValue = EnumValue.v1,
-  @GraphQLDocumentation(typeName: 'enumCustomGraphQLType')
-      int enumCustom = 3,
+  @GraphQLDocumentation(typeName: 'enumCustomGraphQLType') int enumCustom = 3,
   @GraphQLDocumentation(
     typeName: 'enumCustomGraphQLType.nonNull().list().nonNull()',
   )
-      List<int> enumCustomList = const [2],
-  @GraphQLArg(defaultCode: '[DateTime.parse("2021-01-24"), null]')
+  List<int> enumCustomList = const [2],
+  @GraphQLArg(
+    defaultCode: '[DateTime.fromMillisecondsSinceEpoch(1611446400000), null]',
+  )
   @GraphQLDocumentation(type: _timestampsType)
-      required List<DateTime?> timestamps,
+  required List<DateTime?> timestamps,
   Json json = const Json.map({
     'd': Json.list([Json.number(2)])
   }),
@@ -102,8 +103,7 @@ const testValidaInArgsGraphQLStr =
 @Query()
 @Valida()
 String testValidaInArgs({
-  @ValidaString(isIn: ['S', 'A'])
-      required String strSOrA,
+  @ValidaString(isIn: ['S', 'A']) required String strSOrA,
   int? otherInt,
   @ValidaNum(
     comp: ValidaComparison(
@@ -113,11 +113,9 @@ String testValidaInArgs({
       ]),
     ),
   )
-      int greaterThan3AndOtherInt = 4,
-  @ValidaDate(min: '2021-01-01')
-      DateTime? after2020,
-  @ValidaList(minLength: 1)
-      List<String>? nonEmptyList,
+  int greaterThan3AndOtherInt = 4,
+  @ValidaDate(min: '2021-01-01') DateTime? after2020,
+  @ValidaList(minLength: 1) List<String>? nonEmptyList,
   ValidaArgModel? model,
 }) {
   return '';

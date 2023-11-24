@@ -313,5 +313,6 @@ class CacheExtension extends GraphQLExtension {
         // }
       }
     }
+    return null;
   }
 }

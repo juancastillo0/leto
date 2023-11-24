@@ -90,21 +90,21 @@ class ISettings with _$ISettings {
     @JsonKey(name: 'editor.theme') required String editortheme,
     @JsonKey(name: 'editor.reuseHeaders') required bool editorreuseHeaders,
     @JsonKey(name: 'tracing.hideTracingResponse')
-        required bool tracinghideTracingResponse,
+    required bool tracinghideTracingResponse,
     @JsonKey(name: 'tracing.tracingSupported')
-        required bool tracingtracingSupported,
+    required bool tracingtracingSupported,
     @JsonKey(name: 'editor.fontSize') required int editorfontSize,
     @JsonKey(name: 'editor.fontFamily') required String editorfontFamily,
 
     /// 'omit' | 'include' | 'same-origin'
     @JsonKey(name: 'request.credentials') required String requestcredentials,
     @JsonKey(name: 'request.globalHeaders')
-        required Map<String, Object?> requestglobalHeaders,
+    required Map<String, Object?> requestglobalHeaders,
     @JsonKey(name: 'schema.polling.enable') required bool schemapollingenable,
     @JsonKey(name: 'schema.polling.endpointFilter')
-        required String schemapollingendpointFilter,
+    required String schemapollingendpointFilter,
     @JsonKey(name: 'schema.polling.interval')
-        required int schemapollinginterval,
+    required int schemapollinginterval,
   }) = _ISettings;
 
   factory ISettings.fromJson(Map<String, Object?> json) =>

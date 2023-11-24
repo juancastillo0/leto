@@ -23,7 +23,6 @@ class Todo {
     this.users,
   });
 
-  @override
   Map<String, Object?> toJson({bool nested = false}) {
     return {
       if (text != null) 'text': text,
@@ -107,7 +106,6 @@ class User {
     );
   }
 
-  @override
   Map<String, Object?> toJson() {
     return {
       'name': name,
