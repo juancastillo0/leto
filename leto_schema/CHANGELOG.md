@@ -1,3 +1,8 @@
+## [0.0.1-dev.6] - 2023-11-23.
+
+- Fix https://github.com/juancastillo0/leto/issues/16
+- Fix some lints 
+
 ## [0.0.1-dev.5] - 2023-10-01.
 
 - Fix https://github.com/juancastillo0/leto/issues/15
