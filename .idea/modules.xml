@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/chat_example/melos_chat_example.iml" filepath="$PROJECT_DIR$/chat_example/melos_chat_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/leto/melos_leto.iml" filepath="$PROJECT_DIR$/leto/melos_leto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/leto_generator/melos_leto_generator.iml" filepath="$PROJECT_DIR$/leto_generator/melos_leto_generator.iml" />
       <module fileurl="file://$PROJECT_DIR$/leto_generator/example/melos_leto_generator_example.iml" filepath="$PROJECT_DIR$/leto_generator/example/melos_leto_generator_example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/leto_schema/melos_leto_schema.iml" filepath="$PROJECT_DIR$/leto_schema/melos_leto_schema.iml" />
+      <module fileurl="file://$PROJECT_DIR$/leto_shelf/melos_leto_shelf.iml" filepath="$PROJECT_DIR$/leto_shelf/melos_leto_shelf.iml" />
       <module fileurl="file://$PROJECT_DIR$/leto_shelf/example/melos_leto_shelf_example.iml" filepath="$PROJECT_DIR$/leto_shelf/example/melos_leto_shelf_example.iml" />
       <module fileurl="file://$PROJECT_DIR$/chat_example/server/melos_server.iml" filepath="$PROJECT_DIR$/chat_example/server/melos_server.iml" />
       <module fileurl="file://$PROJECT_DIR$/melos_leto.iml" filepath="$PROJECT_DIR$/melos_leto.iml" />
